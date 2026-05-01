@@ -1,0 +1,65 @@
+{
+  "id": "ACP-MS6",
+  "version": "1.0.0",
+  "title": "ERP/Quote Autopilot + Telemetry",
+  "brief": "Quote generation chain: cost estimation, markup calculation, competitive analysis. Telemetry for all chains: fire rates, token costs, downgrade frequency, user override rates. Unified telemetry dashboard data for automation health monitoring.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ERP/Quote Autopilot",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Implement quote generation chain: part analysis, operation costing, material cost lookup, time estimation",
+          "effort": 85,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement markup and competitive analysis chain: margin calculation, market rate comparison, confidence bands",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Cross-Chain Telemetry",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Implement telemetry collection for all automation chains: fire rates, token costs per chain, latency percentiles",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P1-U02",
+          "title": "Implement downgrade and override tracking: downgrade frequency per chain, user override rates, fail-closed triggers",
+          "effort": 70,
+          "dependencies": ["P1-U01"]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Produce telemetry summary output: per-session automation health report, chain performance rankings, budget utilization",
+          "effort": 60,
+          "dependencies": ["P1-U01", "P1-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["ACP-MS5"],
+  "exit_conditions": [
+    "Quote generation chain produces costed quotes with markup and competitive context",
+    "Telemetry captures fire rates, token costs, and latency for all automation chains",
+    "Downgrade frequency and user override rates tracked per chain",
+    "Automation health summary available per session"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

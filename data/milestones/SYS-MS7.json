@@ -1,0 +1,57 @@
+{
+  "id": "SYS-MS7",
+  "title": "Dispatcher Stub & Fallback Remediation",
+  "track": "SYS",
+  "priority": "P1",
+  "status": "complete",
+  "completed_at": "2026-03-01T02:10:00Z",
+  "description": "Fix broken fallback chains, dead compute() calls, and stub actions across dispatchers. exportDispatcher has broken engine.generate() fallback, automationDispatcher has 5 dead .compute() fallback branches, batch_export returns 'queued' without processing, knowledgeDispatcher 'relations' returns 'not yet implemented'.",
+  "source": "GAP-ANALYSIS-2026-02-28",
+  "findings": [
+    "exportDispatcher render_setup_sheet fallback calls engine.generate() which doesn't exist on ReportEngine",
+    "automationDispatcher has 5 actions with dead .compute() catch branches",
+    "batch_export returns { status: 'queued' } but never processes items",
+    "knowledgeDispatcher 'relations' action returns 'not yet implemented'"
+  ],
+  "units": [
+    {
+      "id": "SYS-MS7-U00",
+      "title": "Fix exportDispatcher Fallback Chain",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Read exportDispatcher.ts and identify all fallback branches calling engine.generate()"},
+        {"number": 2, "instruction": "Replace broken generate() calls with correct ReportEngine method (renderPdf, renderHtml, etc.)"},
+        {"number": 3, "instruction": "Implement real batch_export processing: iterate items, call render_* for each, collect results"},
+        {"number": 4, "instruction": "Add progress tracking metadata to batch response"},
+        {"number": 5, "instruction": "Add smoke tests for render and batch_export actions"}
+      ],
+      "exit_conditions": ["No engine.generate() calls remain", "batch_export processes all items", "Smoke tests pass"]
+    },
+    {
+      "id": "SYS-MS7-U01",
+      "title": "Fix automationDispatcher Dead Branches",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Read automationDispatcher.ts and identify all .compute() fallback branches"},
+        {"number": 2, "instruction": "For each: determine correct engine method from primary handler above the catch"},
+        {"number": 3, "instruction": "Replace dead .compute() with correct engine method call, or remove the fallback if primary is reliable"},
+        {"number": 4, "instruction": "Add tests for the 5 affected actions"}
+      ],
+      "exit_conditions": ["No dead .compute() references remain", "All 5 actions return real results", "Tests pass"]
+    },
+    {
+      "id": "SYS-MS7-U02",
+      "title": "Implement or Remove Stub Actions",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Implement knowledgeDispatcher 'relations' action using KnowledgeGraphEngine.getRelations() or graph traversal"},
+        {"number": 2, "instruction": "Grep for any remaining 'not yet implemented' strings across all dispatchers"},
+        {"number": 3, "instruction": "For each stub found: implement using existing engine capabilities or remove from action enum"},
+        {"number": 4, "instruction": "Run full test suite to verify no regressions"}
+      ],
+      "exit_conditions": ["Zero 'not yet implemented' strings in dispatcher code", "TSC clean", "All tests pass"]
+    }
+  ],
+  "dependencies": [],
+  "deliverables": ["Working export fallback chain", "Working automation compute paths", "All stub actions implemented or removed"]
+}

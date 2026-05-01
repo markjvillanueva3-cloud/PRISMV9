@@ -1,0 +1,160 @@
+{
+  "items": [
+    {
+      "id": "cam-params-001",
+      "category": "parameter_table",
+      "domain": "cam",
+      "title": "Mastercam 2024 cutting parameters for CNC milling",
+      "body": "Speeds: ['3000', '40', '60', '8000'], Feeds: ['40', '60', '0.0025'], Depths: ['0.040', '25', '5']",
+      "confidence": 0.8,
+      "tags": [
+        "cutting-parameters",
+        "mastercam",
+        "milling"
+      ],
+      "parameters": {
+        "speeds": [
+          "3000",
+          "40",
+          "60",
+          "8000"
+        ],
+        "feeds": [
+          "40",
+          "60",
+          "0.0025"
+        ],
+        "depths": [
+          "0.040",
+          "25",
+          "5"
+        ]
+      }
+    },
+    {
+      "id": "cam-tools-001",
+      "category": "tribal_tip",
+      "domain": "cam",
+      "title": "Tool selections for Mastercam 2024 milling",
+      "body": "Tools used: quarter inch drill\n3 inch face mill\nhalf inch 3 flute end mill",
+      "confidence": 0.7,
+      "tags": [
+        "tooling",
+        "tool-selection",
+        "mastercam"
+      ]
+    },
+    {
+      "id": "cam-strat-003",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Mastercam strategy: dynamic mill",
+      "body": "Use dynamic mill \u2014 trochoidal milling for efficient material removal",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "dynamic-mill"
+      ]
+    },
+    {
+      "id": "cam-strat-004",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Mastercam strategy: trochoidal",
+      "body": "Use trochoidal \u2014 circular toolpath for high-efficiency roughing",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "trochoidal"
+      ]
+    },
+    {
+      "id": "cam-strat-005",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Mastercam strategy: contour",
+      "body": "Use contour \u2014 profile finishing along part walls",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "contour"
+      ]
+    },
+    {
+      "id": "cam-strat-006",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Mastercam strategy: facing",
+      "body": "Use facing \u2014 surface flattening with face mill",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "facing"
+      ]
+    },
+    {
+      "id": "cam-strat-007",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Mastercam strategy: peck",
+      "body": "Use peck \u2014 peck drilling cycle for chip evacuation",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "peck"
+      ]
+    },
+    {
+      "id": "cam-strat-008",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Mastercam strategy: roughing",
+      "body": "Use roughing \u2014 initial material removal pass",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "roughing"
+      ]
+    },
+    {
+      "id": "cam-proc-001",
+      "category": "procedure",
+      "domain": "cam",
+      "title": "Mastercam 2024 toolpath programming workflow",
+      "body": "1. import your cad model into mastercam\n2. we'll create a roughing toolpath\n3. create a finishing contour\n4. add drilling operations for the bolt holes",
+      "confidence": 0.7,
+      "tags": [
+        "procedure",
+        "workflow",
+        "mastercam"
+      ],
+      "steps": [
+        "import your cad model into mastercam",
+        "we'll create a roughing toolpath",
+        "create a finishing contour",
+        "add drilling operations for the bolt holes"
+      ],
+      "step_count": 4
+    },
+    {
+      "id": "cam-post-001",
+      "category": "tribal_tip",
+      "domain": "cam",
+      "title": "Post-processor generates machine-specific G-code",
+      "body": "The post processor generates g-code for specific machines. Video uses Haas VF-2 with Fanuc compatible control.",
+      "confidence": 0.7,
+      "tags": [
+        "post-processor",
+        "gcode",
+        "haas",
+        "fanuc"
+      ]
+    }
+  ]
+}

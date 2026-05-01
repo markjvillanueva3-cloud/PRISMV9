@@ -1,0 +1,27 @@
+```python
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class CuttingTool:
+    """Represents a cutting tool with its specifications and operating parameters."""
+    
+    id: str
+    name: str
+    diameter_mm: float
+    flute_count: int
+    material: str
+    max_rpm: int
+    recommended_sfm: float
+    
+    def __post_init__(self) -> None:
+        """Validate field values after initialization."""
+        if self.diameter_mm <= 0:
+            raise ValueError("diameter_mm must be positive")
+        if self.flute_count < 1:
+            raise ValueError("flute_count must be at least 1")
+        if self.max_rpm <= 0:
+            raise ValueError("max_rpm must be positive")
+        if self.recommended_sfm <= 0:
+            raise ValueError("recommended_sfm must be positive")
+```

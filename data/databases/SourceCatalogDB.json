@@ -1,0 +1,105 @@
+{
+  "_meta": {
+    "database": "SourceCatalogDB",
+    "version": "1.0.0",
+    "description": "Unified source file catalog — consolidated index of all extracted JS source files across all PRISM engines",
+    "source_engines": "12+ engines with SOURCE_FILE_CATALOG constants",
+    "extracted": "2026-02-26",
+    "milestone": "L0-P0-MS2"
+  },
+  "catalogs": {
+    "SPINDLE_SOURCE_FILE_CATALOG": {
+      "engine": "SpindleProtectionEngine.ts",
+      "safety_class": "CRITICAL",
+      "entry_count": 5,
+      "total_lines": 1412,
+      "domain": "vibration/chatter safety",
+      "entries": ["PRISM_CHATTER_PREDICTION_ENGINE", "PRISM_PHASE3_ADVANCED_SIGNAL", "PRISM_VIBRATION_ANALYSIS_ENGINE", "PRISM_CALCULATOR_CHATTER_ENGINE", "PRISM_PHASE1_CHATTER_SYSTEM"]
+    },
+    "SIMULATION_SOURCE_FILE_CATALOG": {
+      "engine": "CollisionEngine.ts",
+      "safety_class": "CRITICAL",
+      "entry_count": 7,
+      "total_lines": 2675,
+      "domain": "collision detection/simulation",
+      "entries": ["PRISM_3D_TOOLPATH_STRATEGY_ENGINE", "PRISM_3D_VISUALIZATION_ENGINE", "PRISM_COLLISION_ALGORITHMS", "PRISM_COLLISION_DETECTION_V2", "PRISM_COLLISION_ENGINE", "PRISM_COLLISION_MOTION", "PRISM_STOCK_POSITIONS_DATABASE"]
+    },
+    "POST_PROCESSOR_SOURCE_FILE_CATALOG": {
+      "engine": "GCodeTemplateEngine.ts",
+      "safety_class": "CRITICAL",
+      "entry_count": 12,
+      "total_lines": 7885,
+      "domain": "G-code generation/post-processing",
+      "entries": ["POST_PROCESSOR_100_PERCENT", "POST_PROCESSOR_ENGINE_V2", "PRISM_GCODE_BACKPLOT_ENGINE", "PRISM_GCODE_PROGRAMMING_ENGINE", "PRISM_GUARANTEED_POST_PROCESSOR", "PRISM_INTERNAL_POST_ENGINE", "PRISM_POST_INTEGRATION_MODULE", "PRISM_POST_OPTIMIZER", "PRISM_POST_PROCESSOR_DATABASE_V2", "PRISM_POST_PROCESSOR_ENGINE", "PRISM_POST_PROCESSOR_GENERATOR", "PRISM_RL_POST_PROCESSOR"]
+    },
+    "CAM_SOURCE_FILE_CATALOG": {
+      "engine": "CAMIntegrationEngine.ts",
+      "safety_class": "MEDIUM",
+      "entry_count": 61,
+      "total_lines": 40827,
+      "domain": "CAD/CAM integration",
+      "entries_note": "61 entries across 19 CAM domains — full catalog in CAMSystemDB.json"
+    },
+    "ALGORITHM_SOURCE_FILE_CATALOG": {
+      "engine": "AlgorithmGatewayEngine.ts",
+      "safety_class": "varies (CRITICAL/HIGH/MEDIUM)",
+      "domain": "scientific algorithms (Taylor, Kienzle, FEM, optimization)",
+      "entries_note": "Large catalog — includes PRISM_TAYLOR_ADVANCED, PRISM_TAYLOR_LOOKUP, PRISM_TAYLOR_TOOL_LIFE and many others"
+    },
+    "INTELLIGENCE_SOURCE_FILE_CATALOG": {
+      "engine": "IntelligenceEngine.ts",
+      "safety_class": "varies",
+      "domain": "compound intelligence actions",
+      "entries_note": "Intelligence engine source files for job planning, setup sheets, process costing"
+    },
+    "CORE_SOURCE_FILE_CATALOG": {
+      "engine": "index.ts (main)",
+      "safety_class": "varies",
+      "domain": "core server infrastructure",
+      "entries_note": "Core MCP server source files"
+    },
+    "QUALITY_SOURCE_FILE_CATALOG": {
+      "engine": "ComplianceEngine.ts",
+      "safety_class": "varies",
+      "domain": "quality/compliance",
+      "entries_note": "Quality assurance and compliance source files"
+    },
+    "CAMPAIGN_SOURCE_FILE_CATALOG": {
+      "engine": "CampaignEngine.ts",
+      "safety_class": "varies",
+      "domain": "batch machining campaigns",
+      "entries_note": "Campaign orchestration source files"
+    },
+    "FEDERATED_SOURCE_FILE_CATALOG": {
+      "engine": "FederatedLearningEngine.ts",
+      "safety_class": "varies",
+      "domain": "federated learning/cross-shop knowledge",
+      "entries_note": "Federated learning source files for cross-shop pattern sharing"
+    },
+    "DNC_SOURCE_FILE_CATALOG": {
+      "engine": "DNCTransferEngine.ts",
+      "safety_class": "CRITICAL",
+      "domain": "DNC program transfer",
+      "entries_note": "DNC transfer and program management source files"
+    },
+    "APPRENTICE_SOURCE_FILE_CATALOG": {
+      "engine": "ApprenticeEngine.ts",
+      "safety_class": "varies",
+      "domain": "apprentice training/education",
+      "entries_note": "Apprentice learning and knowledge transfer source files"
+    },
+    "WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG": {
+      "engine": "WorkholdingIntelligenceEngine.ts",
+      "safety_class": "varies",
+      "domain": "workholding analysis",
+      "entries_note": "Workholding intelligence and fixture analysis source files"
+    }
+  },
+  "summary": {
+    "total_catalogs": 13,
+    "fully_extracted_catalogs": ["SPINDLE_SOURCE_FILE_CATALOG", "SIMULATION_SOURCE_FILE_CATALOG", "POST_PROCESSOR_SOURCE_FILE_CATALOG", "CAM_SOURCE_FILE_CATALOG"],
+    "total_extracted_entries": 85,
+    "total_extracted_lines": 52799,
+    "safety_critical_catalogs": ["SPINDLE_SOURCE_FILE_CATALOG", "SIMULATION_SOURCE_FILE_CATALOG", "POST_PROCESSOR_SOURCE_FILE_CATALOG", "DNC_SOURCE_FILE_CATALOG"]
+  }
+}

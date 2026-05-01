@@ -9,7 +9,7 @@ import urllib.error
 from typing import Any, Dict, List, Optional
 
 
-PRISM_BASE_URL = "http://localhost:18361"
+PRISM_BASE_URL = "http://localhost:3100"
 
 
 class PRISMClient:
@@ -228,7 +228,7 @@ class PRISMClient:
             params["tool_type"] = tool_type
         if manufacturer:
             params["manufacturer"] = manufacturer
-        return self.call_action("fusion_tool_export", params)
+        return self.call_action("cam_fusion_tool_export", params)
 
     def dfm_check(
         self,
@@ -357,7 +357,7 @@ class PRISMClient:
         Hover tooltip: 'PRISM profiles 910 CNC machines from 48 manufacturers
         with spindle power curves, axis travel, rapid rates, and controller type.'
         """
-        return self.call_action("machine_lookup", {"name": machine_name})
+        return self.call_action("machine_search", {"query": machine_name})
 
     def get_material_properties(self, material: str) -> Dict[str, Any]:
         """Get material physics: kc1.1, mc, thermal conductivity, constitutive model.
@@ -365,7 +365,7 @@ class PRISMClient:
         Johnson-Cook constitutive parameters, and thermal properties.
         Better material data = more accurate speeds and feeds.'
         """
-        return self.call_action("material_lookup", {"query": material})
+        return self.call_action("material_search", {"query": material})
 
     def compare_programs(
         self, gcode_a: str, gcode_b: str,
@@ -408,7 +408,7 @@ class PRISMClient:
         tool change time using nearest-neighbor adjacency optimization.
         Saves 5-15% cycle time on multi-tool programs.'
         """
-        return self.call_action("magazine_optimize", {
+        return self.call_action("prism_machine_setup:tool_magazine_optimize", {
             "tools": tool_sequence,
             "magazine_type": magazine_type,
             "magazine_slots": magazine_slots,
@@ -426,7 +426,7 @@ class PRISMClient:
         dead-end detection, and setup transition feasibility.
         Returns FEASIBLE / MARGINAL / INFEASIBLE with specific issues.'
         """
-        return self.call_action("feasibility_check", {
+        return self.call_action("cam_feasibility_check", {
             "stock": stock,
             "operations": operations,
             "material": material,

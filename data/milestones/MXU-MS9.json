@@ -1,0 +1,60 @@
+{
+  "id": "MXU-MS9",
+  "version": "1.0.0",
+  "title": "End-to-End Validation & Benchmarks",
+  "brief": "Validate all activation claims end-to-end. Benchmark token reduction (target <=30% vs baseline). Benchmark cold-start recovery (target <=3 exchanges to productive state). Produce quantitative evidence for all MXU targets.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Activation Validation",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Validate activation claims: run each bundle, verify all declared capabilities are callable",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Benchmark token reduction: compare baseline vs optimized workflows, verify <=30% reduction",
+          "effort": 80,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Recovery & Regression Benchmarks",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Benchmark cold-start recovery: measure exchanges to productive state, verify <=3 target",
+          "effort": 70,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Regression test suite: ensure no capability lost during MXU optimization",
+          "effort": 60,
+          "dependencies": ["P0-U02", "P1-U01"]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Produce validation report with quantitative evidence for all MXU targets",
+          "effort": 40,
+          "dependencies": ["P1-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS8"],
+  "exit_conditions": ["All activation claims validated end-to-end", "Token reduction <=30% confirmed with data", "Cold-start recovery <=3 exchanges confirmed", "Validation report published"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

@@ -1,0 +1,89 @@
+{
+  "document_id": "okuma-osp-p200l-manual",
+  "title": "Okuma OSP-P200L/P20L Programming Reference",
+  "source": "PDF-LEARN from Okuma Programming Manual",
+  "domain": "controller",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "CRITICAL: Okuma G71/G72 are THREADING cycles, not roughing",
+      "body": "On Okuma OSP, G71 is THREADING COMPOUND CYCLE (longitudinal) and G72 is THREADING COMPOUND CYCLE (transverse). This is the OPPOSITE of Fanuc where G71/G72 are stock removal roughing. Direct post-processor conflict — verify controller before outputting G71/G72.",
+      "category": "programming",
+      "tags": ["okuma", "g71", "g72", "threading", "fanuc-conflict", "critical"],
+      "operation_types": ["threading"],
+      "confidence": 95
+    },
+    {
+      "title": "Okuma G31/G32/G33 are single-pass thread cutting cycles",
+      "body": "G31=longitudinal threading, G32=end face threading, G33=general threading. These are FIXED cycles for single-pass thread cutting. Use G71/G72 for multi-pass compound threading with automatic depth control.",
+      "category": "programming",
+      "tags": ["okuma", "g31", "g32", "g33", "threading", "single-pass"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "Okuma threading M-codes: M22/M23 chamfer, M26/M27 lead direction",
+      "body": "M22=chamfering OFF, M23=chamfering ON. M26=thread lead along Z-axis, M27=thread lead along X-axis. Infeed patterns: M32 (straight), M33 (zigzag), M34 (straight reversed). Thread cutting patterns: M73/M74/M75.",
+      "category": "programming",
+      "tags": ["okuma", "threading", "m-code", "chamfer", "infeed"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "Okuma G73/G74 are GROOVING cycles, not pattern repeat/peck drill",
+      "body": "G73=Longitudinal Grooving Compound Fixed Cycle, G74=Transverse Grooving Compound Fixed Cycle. On Fanuc, G73=pattern repeat and G74=peck drilling. Another critical G-code conflict requiring post-processor attention.",
+      "category": "programming",
+      "tags": ["okuma", "g73", "g74", "grooving", "fanuc-conflict"],
+      "operation_types": ["grooving"],
+      "confidence": 90
+    },
+    {
+      "title": "Okuma G75/G76 are chamfering/rounding, not grooving/threading",
+      "body": "G75=Automatic Chamfering, G76=Automatic Rounding. On Fanuc, G75=grooving and G76=threading. CRITICAL conflict — never output Fanuc G76 threading to Okuma controller.",
+      "category": "programming",
+      "tags": ["okuma", "g75", "g76", "chamfer", "fanuc-conflict", "critical"],
+      "operation_types": ["chamfering"],
+      "confidence": 95
+    },
+    {
+      "title": "Okuma thread cutting cannot execute in G96 CSS mode",
+      "body": "Threading operations require G97 constant RPM mode. G96 (constant surface speed) is not valid during thread cutting. Feedrate override is also inoperative during thread cutting — program must run at 100%.",
+      "category": "programming",
+      "tags": ["okuma", "threading", "g96", "g97", "css", "rpm"],
+      "operation_types": ["threading"],
+      "confidence": 95
+    },
+    {
+      "title": "Okuma G71 threading format with full parameters",
+      "body": "G71 X__ Z__ {I__ | A__} B__ D__ U__ H__ L__ E__ F__ J__ M__ Q__. X=final diameter, Z=end point, I=taper radius OR A=taper angle, B=infeed angle, D=first cut depth, U=finish allowance, H=thread height, L=chamfer distance, F=lead, J=threads per lead, Q=number of passes.",
+      "category": "programming",
+      "tags": ["okuma", "g71", "threading", "syntax", "parameters"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "Okuma M138/M139 SSV for chatter suppression",
+      "body": "M694=Spindle Speed Variation OFF, M695=Spindle Speed Variation ON. SSV continuously varies spindle RPM within a range to break up chatter harmonics. Use on long cuts or when chatter develops.",
+      "category": "troubleshooting",
+      "tags": ["okuma", "ssv", "chatter", "m694", "m695", "vibration"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Okuma G199/G198 spindle synchronization for dual-spindle",
+      "body": "G199=Synchronize spindles (both at same RPM), G198=Release sync. G96 CSS is blocked during sync mode — use stepped G97 RPM commands instead. Critical for dual-spindle cutoff operations.",
+      "category": "programming",
+      "tags": ["okuma", "g199", "g198", "dual-spindle", "sync", "css"],
+      "operation_types": ["turning", "cutoff"],
+      "confidence": 90
+    },
+    {
+      "title": "Okuma incomplete thread length calculation",
+      "body": "Delta > K × N × P where N=spindle RPM, P=thread lead (mm), K=machine constant (0.48-2.56 × 10^-3). Account for this when programming thread runout zones to prevent collisions.",
+      "category": "physics",
+      "tags": ["okuma", "threading", "runout", "calculation"],
+      "operation_types": ["threading"],
+      "confidence": 85
+    }
+  ]
+}

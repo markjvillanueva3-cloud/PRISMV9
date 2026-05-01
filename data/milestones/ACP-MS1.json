@@ -1,0 +1,58 @@
+{
+  "id": "ACP-MS1",
+  "version": "1.0.0",
+  "title": "Entry Router: Prompt, Session & Command Activation",
+  "brief": "Task classifier for 9 classes (backend/web/CAD-Python/roadmap/audit/speed-feed/post/print-to-program/ERP-quote). Bundle resolution for context loading. Chain attachment to route classified tasks into the correct automation chain.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Task Classification & Chain Attachment",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build 9-class task classifier (backend/web/CAD-Python/roadmap/audit/speed-feed/post/print-to-program/ERP-quote) with confidence scoring",
+          "effort": 90,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement bundle resolution: load context bundles (files, instructions, schemas) per task class",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Implement chain attachment: route classified tasks to correct automation chain from ACP-MS0A schema",
+          "effort": 75,
+          "dependencies": ["P0-U01", "P0-U02"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Wire entry router into UserPromptSubmit hook for automatic activation on every prompt",
+          "effort": 60,
+          "dependencies": ["P0-U03"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Test classifier accuracy across 50+ sample prompts, verify <500 token budget for router",
+          "effort": 60,
+          "dependencies": ["P0-U04"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["ACP-MS0", "CCM-MS0"],
+  "exit_conditions": [
+    "9-class task classifier operational with >90% accuracy on test set",
+    "Bundle resolution loads correct context per task class",
+    "Chain attachment routes to correct automation chain",
+    "Entry router stays within <500 token budget"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

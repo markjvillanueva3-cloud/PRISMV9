@@ -1,0 +1,396 @@
+{
+  "agent_id": "AGT-SONNET-004",
+  "name": "machine_validator",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Machine Validator - Validates CNC Machine Specifications for 43+ Manufacturers",
+  
+  "domain_expertise": [
+    "CNC machine specifications",
+    "Spindle specifications",
+    "Axis travel validation",
+    "Feed rate validation",
+    "Rapid traverse validation",
+    "Tool changer validation",
+    "Controller compatibility",
+    "Power requirements",
+    "Accuracy specifications",
+    "Manufacturer standards"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-MCH-001",
+      "name": "Machine Schema Validation",
+      "description": "Validates machine data against 85-parameter machine schema",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_data"],
+        "optional": ["validation_level"]
+      },
+      "outputs": {
+        "primary": "schema_result",
+        "secondary": ["missing_fields", "invalid_fields", "level_assessment"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MACHINE-SCHEMA-VALIDATE"],
+      "synergizes_with": ["validator", "data_quality_enforcer"],
+      "parameter_groups": {
+        "identification": 10,
+        "envelope_travel": 15,
+        "spindle": 20,
+        "axis_dynamics": 25,
+        "controller_options": 15
+      },
+      "success_criteria": "Schema compliance verified"
+    },
+    {
+      "id": "CAP-MCH-002",
+      "name": "Spindle Specification Validation",
+      "description": "Validates spindle specs (RPM, power, torque curves, bearings)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["spindle_data"],
+        "optional": ["machine_type"]
+      },
+      "outputs": {
+        "primary": "spindle_valid",
+        "secondary": ["spindle_issues", "torque_curve_valid", "power_curve_valid"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["SPINDLE-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": {
+        "max_rpm": "100-100000 depending on type",
+        "rated_power": "0.5-150 kW",
+        "max_torque": "1-5000 Nm",
+        "bearing_type": "Must be specified",
+        "taper": "BT30/40/50, HSK-A/E/F, CAT40/50"
+      },
+      "success_criteria": "Spindle specs physically valid"
+    },
+    {
+      "id": "CAP-MCH-003",
+      "name": "Axis Travel Validation",
+      "description": "Validates axis travel ranges and relationships",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["axis_data"],
+        "optional": ["machine_type"]
+      },
+      "outputs": {
+        "primary": "travel_valid",
+        "secondary": ["travel_issues", "axis_relationships"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["TRAVEL-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": {
+        "X_travel": "50-30000 mm",
+        "Y_travel": "50-10000 mm",
+        "Z_travel": "50-5000 mm",
+        "A_travel": "-120 to +120 deg or continuous",
+        "B_travel": "-120 to +120 deg or continuous",
+        "C_travel": "continuous 360 or limited"
+      },
+      "success_criteria": "Travel ranges valid"
+    },
+    {
+      "id": "CAP-MCH-004",
+      "name": "Feed Rate Validation",
+      "description": "Validates cutting and rapid feed rates",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["feed_data"],
+        "optional": ["machine_type"]
+      },
+      "outputs": {
+        "primary": "feed_valid",
+        "secondary": ["feed_issues", "rate_relationships"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["FEED-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": {
+        "cutting_feed_min": "1-100 mm/min",
+        "cutting_feed_max": "1000-60000 mm/min",
+        "rapid_X": "5000-100000 mm/min",
+        "rapid_Y": "5000-100000 mm/min",
+        "rapid_Z": "5000-60000 mm/min",
+        "rapid_must_exceed_cutting": true
+      },
+      "success_criteria": "Feed rates valid and consistent"
+    },
+    {
+      "id": "CAP-MCH-005",
+      "name": "Accuracy Specification Validation",
+      "description": "Validates positioning and repeatability accuracy specs",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["accuracy_data"],
+        "optional": ["machine_class"]
+      },
+      "outputs": {
+        "primary": "accuracy_valid",
+        "secondary": ["accuracy_issues", "class_consistency"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["ACCURACY-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": {
+        "positioning_accuracy": "0.001-0.050 mm",
+        "repeatability": "0.0005-0.020 mm",
+        "repeatability_less_than_accuracy": true,
+        "per_axis_consistency": "Similar values per axis"
+      },
+      "success_criteria": "Accuracy specs physically valid"
+    },
+    {
+      "id": "CAP-MCH-006",
+      "name": "Tool Changer Validation",
+      "description": "Validates ATC specifications (capacity, change time, tool size)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["atc_data"],
+        "optional": ["machine_type"]
+      },
+      "outputs": {
+        "primary": "atc_valid",
+        "secondary": ["atc_issues", "capacity_appropriate"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["ATC-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "validation_rules": {
+        "tool_capacity": "6-400 tools",
+        "change_time": "0.5-15 seconds",
+        "max_tool_diameter": "50-300 mm",
+        "max_tool_length": "150-800 mm",
+        "max_tool_weight": "2-50 kg"
+      },
+      "success_criteria": "ATC specs valid"
+    },
+    {
+      "id": "CAP-MCH-007",
+      "name": "Controller Compatibility Validation",
+      "description": "Validates controller assignment is appropriate for machine",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_data", "controller_assignment"],
+        "optional": ["controller_database"]
+      },
+      "outputs": {
+        "primary": "controller_valid",
+        "secondary": ["compatibility_issues", "feature_support"]
+      },
+      "skills_used": ["prism-validator", "prism-fanuc-programming", "prism-siemens-programming"],
+      "hooks_triggered": ["CONTROLLER-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "manufacturer_controllers": {
+        "DMG_MORI": ["FANUC", "SIEMENS", "HEIDENHAIN", "CELOS"],
+        "MAZAK": ["MAZATROL", "FANUC"],
+        "HAAS": ["HAAS"],
+        "OKUMA": ["OSP"],
+        "MAKINO": ["FANUC", "MAKINO Pro"],
+        "FANUC_ROBODRILL": ["FANUC"],
+        "HERMLE": ["HEIDENHAIN", "SIEMENS"]
+      },
+      "success_criteria": "Controller compatible with manufacturer"
+    },
+    {
+      "id": "CAP-MCH-008",
+      "name": "Power Requirements Validation",
+      "description": "Validates electrical and power specifications",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["power_data"],
+        "optional": ["region"]
+      },
+      "outputs": {
+        "primary": "power_valid",
+        "secondary": ["power_issues", "regional_compatibility"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["POWER-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": {
+        "voltage": "200-480V",
+        "phases": "3",
+        "frequency": "50 or 60 Hz",
+        "connected_load": "5-500 kVA",
+        "spindle_power_reasonable": "Must match machine size"
+      },
+      "success_criteria": "Power specs valid"
+    },
+    {
+      "id": "CAP-MCH-009",
+      "name": "Physical Dimensions Validation",
+      "description": "Validates machine footprint and weight specifications",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["dimension_data"],
+        "optional": ["machine_type"]
+      },
+      "outputs": {
+        "primary": "dimensions_valid",
+        "secondary": ["dimension_issues", "footprint_reasonable"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["DIMENSION-VALIDATE"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": {
+        "length": "500-20000 mm",
+        "width": "500-10000 mm",
+        "height": "1000-8000 mm",
+        "weight": "500-500000 kg",
+        "floor_load": "Must support weight"
+      },
+      "success_criteria": "Dimensions physically reasonable"
+    },
+    {
+      "id": "CAP-MCH-010",
+      "name": "Machine Type Consistency Validation",
+      "description": "Validates specs are consistent with declared machine type",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_data"],
+        "optional": ["type_expectations"]
+      },
+      "outputs": {
+        "primary": "type_consistent",
+        "secondary": ["inconsistencies", "type_suggestions"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["TYPE-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "type_expectations": {
+        "VMC": "3-5 axis, vertical spindle, ATC",
+        "HMC": "4-5 axis, horizontal spindle, pallet",
+        "LATHE": "2-axis minimum, chuck/collet, turret",
+        "TURN_MILL": "C/Y axis, live tooling",
+        "5_AXIS": "A/B or B/C rotary, high rapid",
+        "SWISS": "Sliding headstock, guide bushing"
+      },
+      "success_criteria": "Specs match machine type"
+    },
+    {
+      "id": "CAP-MCH-011",
+      "name": "Manufacturer Data Validation",
+      "description": "Validates manufacturer-specific data patterns",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_data", "manufacturer"],
+        "optional": ["manufacturer_rules"]
+      },
+      "outputs": {
+        "primary": "manufacturer_valid",
+        "secondary": ["manufacturer_issues", "naming_valid"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MANUFACTURER-VALIDATE"],
+      "synergizes_with": ["validator"],
+      "success_criteria": "Manufacturer data consistent"
+    },
+    {
+      "id": "CAP-MCH-012",
+      "name": "Database Level Assessment",
+      "description": "Assesses machine data completeness level (BASIC/CORE/ENHANCED/LEVEL5)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["machine_data"],
+        "optional": ["level_criteria"]
+      },
+      "outputs": {
+        "primary": "assessed_level",
+        "secondary": ["level_gaps", "upgrade_requirements"]
+      },
+      "skills_used": ["prism-validator", "prism-sp-verification"],
+      "hooks_triggered": ["LEVEL-ASSESS"],
+      "synergizes_with": ["completeness_auditor"],
+      "level_criteria": {
+        "BASIC": "ID, type, manufacturer, basic specs",
+        "CORE": "Full kinematics, spindle data",
+        "ENHANCED": "Manufacturer catalog data",
+        "LEVEL5": "CAD-mapped high-fidelity data"
+      },
+      "success_criteria": "Level accurately assessed"
+    },
+    {
+      "id": "CAP-MCH-013",
+      "name": "Batch Machine Validation",
+      "description": "Validates batch of machines with aggregated statistics",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_batch"],
+        "optional": ["validation_level", "stop_on_error"]
+      },
+      "outputs": {
+        "primary": "batch_result",
+        "secondary": ["per_machine_results", "statistics", "common_issues"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["BATCH-MACHINE-VALIDATE"],
+      "synergizes_with": ["validator", "data_quality_enforcer"],
+      "success_criteria": "Batch validation complete"
+    },
+    {
+      "id": "CAP-MCH-014",
+      "name": "Machine Quality Scoring",
+      "description": "Scores machine data quality on A-F scale",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["machine_data"],
+        "optional": ["scoring_weights"]
+      },
+      "outputs": {
+        "primary": "quality_grade",
+        "secondary": ["score_breakdown", "improvement_priorities"]
+      },
+      "skills_used": ["prism-validator", "prism-quality-master"],
+      "hooks_triggered": ["QUALITY-SCORE"],
+      "synergizes_with": ["data_quality_enforcer"],
+      "success_criteria": "Quality grade assigned"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-validator",
+    "prism-manufacturing-tables",
+    "prism-quality-master",
+    "prism-sp-verification",
+    "prism-fanuc-programming",
+    "prism-siemens-programming",
+    "prism-heidenhain-programming",
+    "prism-gcode-reference"
+  ],
+
+  "hooks_subscribed": [
+    "db:preValidate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "field_validator"
+  ],
+
+  "receives_from": [
+    "validator",
+    "data_quality_enforcer",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "Schema compliant",
+    "Physics valid",
+    "Type consistent",
+    "No placeholders"
+  ],
+
+  "performance_metrics": {
+    "validation_accuracy": 0.98,
+    "false_positive_rate": 0.02,
+    "latency_target_ms": 300,
+    "batch_throughput": 200
+  }
+}

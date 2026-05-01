@@ -1,0 +1,316 @@
+FUSION 360 INTELLIGENCE PANEL — UX REVIEW FINDINGS
+File: H:/prism/mcp-server/scripts/fusion360-addin/FusionFeedsCalculator.py (698 lines)
+Review Date: 2026-03-31
+
+================================================================================
+CHECKLIST RESULTS (12 Checkpoints)
+================================================================================
+
+1. Tool library auto-population?        PARTIAL ✗
+   - Populates: diameter, flutes, flute length, stickout
+   - Missing: coating, corner radius, material
+   - No user feedback if no tools found
+   - Line 444-464
+
+2. Machine RPM/power auto-populate?     WORKS ✓
+   - Correctly reads max_rpm and spindle_power_kw
+   - Conversion kW→HP correct (×1.341)
+   - Line 466-478
+
+3. Material dropdown alphabetically?    NO ✗
+   - PRISM results: unsorted (API order)
+   - Fallback results: sorted ✓
+   - Inconsistent UX: offline sorted, online unsorted
+   - Line 296-306
+
+4. WOC% updates on diameter/WOC change? WORKS ✓
+   - Formula correct: (woc/diameter)*100
+   - Updates immediately
+   - Line 423-428
+
+5. Results in metric AND imperial?      PARTIAL ✗
+   - RPM: metric only (correct)
+   - Feed: mm/min only (MISSING: IPM)
+   - Vc: m/min + SFM ✓
+   - Fz: mm + IPT ✓
+   - Force: N only (SI standard OK)
+   - Power: kW + HP ✓
+   - Deflection: µm + in ✓
+   - MRR: cm³/min + in³/min ✓
+   - Line 546-562
+
+6. Confidence color-coded?              WORKS ✓
+   - Green: ≥90%
+   - Yellow: 70-89%
+   - Red: <70%
+   - Line 543-544
+
+7. Warnings color-coded?                PARTIAL ✗
+   - Warnings: yellow only (no severity distinction)
+   - No CRITICAL red color
+   - Truncated to 80 chars (may lose critical info)
+   - Line 588-593
+
+8. "Apply to CAM Operation" works?      WORKS ✓
+   - Writes to: tool_spindleSpeed, tool_feedCutting, tool_feedPlunge, tool_feedRamp
+   - Shows user what was applied
+   - Confidence displayed
+   - Line 599-659
+
+9. Safety gate before applying?         PARTIAL ✗
+   - validate_safety() called ✓
+   - BUT: defaults to OK if API fails
+   - Fallback safety check missing
+   - Line 628-634, 140-153
+
+10. Offline mode — UI still works?      WORKS ✓
+    - Fallback Kienzle calculation (lines 191-247)
+    - Confidence marked as lower (0.70 vs 0.85+)
+    - Tool search disabled silently (no feedback)
+    - No reconnection detection
+
+11. _cache used effectively?            NO ✗
+    - Only materials cached (line 47-58)
+    - Tools: NOT cached (API call every diameter change)
+    - Machines: NOT cached (API call every selection)
+    - Result: 200ms latency on each tool search
+    - Line 61-80
+
+12. Tool search result limits?          ADEQUATE ✓
+    - Max 20 tools per diameter search (reasonable)
+    - Labels truncated to 60 chars
+    - No secondary sort (by flute count, coating, price)
+    - Line 433-442
+
+================================================================================
+CRITICAL ISSUES (Block current use)
+================================================================================
+
+ISSUE #1: Material dropdown unsorted online
+  Location: Line 296-306
+  Severity: MEDIUM (visibility, usability)
+  Impact: User can't find materials quickly when PRISM is online
+  Fix: Sort materials by name before adding to dropdown
+  Effort: 5 min
+
+ISSUE #2: Tool selection doesn't trigger calculation
+  Location: Line 445-464
+  Severity: MEDIUM (user confusion)
+  Impact: User populates tool fields but sees old calculation results
+  Fix: Call run_calculation(inputs) after tool population
+  Effort: 2 min
+
+ISSUE #3: Unit conversion not labeled
+  Location: Line 345-348 (diameter, flute length, stickout inputs)
+  Severity: HIGH (user error)
+  Impact: User enters "12" thinking it's mm, but it's 12 cm = 120 mm
+  Fix: Change labels to include units: "Diameter (cm)" not "Diameter"
+  Effort: 10 min
+
+ISSUE #4: Safety gate defaults to OK when offline
+  Location: Line 140-153
+  Severity: CRITICAL (safety)
+  Impact: If validate_safety API fails, all parameters applied without checks
+  Fix: Add local safety checks as fallback
+  Effort: 30 min
+
+ISSUE #5: Tool library missing fields
+  Location: Line 445-464
+  Severity: MEDIUM (incomplete data)
+  Impact: Coating and corner radius not auto-populated from PRISM tool library
+  Fix: Extract additional fields from tool object, populate UI fields
+  Effort: 20 min
+
+ISSUE #6: Feed rate missing IPM
+  Location: Line 547
+  Severity: MEDIUM (US shops expect IPM)
+  Impact: Users can't read feed rate in their native units
+  Fix: Add: feed_ipm = feed / 25.4; display both mm/min and IPM
+  Effort: 5 min
+
+================================================================================
+HIGH-PRIORITY ISSUES (Next sprint)
+================================================================================
+
+ISSUE #7: Tool search not cached
+  Location: Line 61-72 (load_tools function)
+  Severity: MEDIUM (latency, UX)
+  Impact: Each diameter change triggers API call (200ms latency)
+  Fix: Cache tool results by (query, tool_type, diameter_mm, max_results)
+  Effort: 15 min
+
+ISSUE #8: Machine loading not cached
+  Location: Line 74-80 (load_machines function)
+  Severity: MEDIUM (latency, UX)
+  Impact: Each machine selection triggers API call
+  Fix: Cache machine results by (query, max_results)
+  Effort: 10 min
+
+ISSUE #9: Offline status vague
+  Location: Line 288
+  Severity: LOW (debugging)
+  Impact: User sees "PRISM OFFLINE" but doesn't know if server is down or network is down
+  Fix: Distinguish between "PRISM server unreachable" and "Network offline"
+  Effort: 10 min
+
+ISSUE #10: Tool/machine API fails silently
+  Location: Line 431-442, 467-478
+  Severity: MEDIUM (user confusion)
+  Impact: When API fails, tool dropdown is empty with no error message
+  Fix: Show error badge: "Load failed (check PRISM connection)"
+  Effort: 15 min
+
+ISSUE #11: Partial application not reported
+  Location: Line 636-650
+  Severity: MEDIUM (user awareness)
+  Impact: If tool_feedPlunge doesn't exist on operation, user doesn't know it wasn't applied
+  Fix: Track applied vs. not applied, show both in message
+  Effort: 10 min
+
+ISSUE #12: Warnings truncated at 80 chars
+  Location: Line 591
+  Severity: MEDIUM (safety)
+  Impact: Critical warnings may be cut off mid-sentence
+  Fix: Add expand button or tooltip for full warning text
+  Effort: 20 min
+
+================================================================================
+MEDIUM ISSUES (Nice to have)
+================================================================================
+
+ISSUE #13: No input validation
+  Location: gather_params (line 510-526)
+  Impact: Negative diameter, zero flutes accepted without error
+  Fix: Validate params before calculation
+  Effort: 15 min
+
+ISSUE #14: Stale results on error
+  Location: run_calculation (line 529-596)
+  Impact: If calculation fails, old results remain visible
+  Fix: Clear all result fields on error
+  Effort: 5 min
+
+ISSUE #15: Warnings not severity-stratified
+  Location: Line 591
+  Impact: CRITICAL violations shown same yellow as info warnings
+  Fix: Red (#ff4444) for CRITICAL, yellow (#ffaa00) for WARNING
+  Effort: 10 min
+
+ISSUE #16: Tool search label collisions
+  Location: Line 438-442
+  Impact: If two tools have same truncated label, dropdown unhelpful
+  Fix: Add tool ID/SKU to label if manufacturer missing
+  Effort: 10 min
+
+ISSUE #17: No reconnection detection
+  Location: Overall offline handling
+  Impact: Tribal tips show "Connect PRISM..." but message never updates if user connects later
+  Fix: Add periodic connectivity check or manual "Refresh" button
+  Effort: 20 min
+
+================================================================================
+SUMMARY OF FIXES BY TIME INVESTMENT
+================================================================================
+
+CRITICAL PATH (8 hours):
+  □ Material sort (5 min)
+  □ Tool calc trigger (2 min)
+  □ Unit labels (10 min)
+  □ Safety fallback (30 min)
+  □ Tool library fields (20 min)
+  □ Feed IPM (5 min)
+  □ Tool cache (15 min)
+  □ Machine cache (10 min)
+  □ Offline status (10 min)
+  □ Tool/machine error reporting (15 min)
+  □ Partial application reporting (10 min)
+  Total: ~2 hours (Quick Wins)
+
+NICE-TO-HAVE (5 hours):
+  □ Input validation (15 min)
+  □ Stale results clearing (5 min)
+  □ Warning severity colors (10 min)
+  □ Tool label collisions (10 min)
+  □ Reconnection detection (20 min)
+  □ Expand warnings (20 min)
+  Total: ~1.5 hours
+
+TOTAL TIME TO FIX ALL: 8-10 hours
+
+================================================================================
+DATA FLOW DIAGRAM
+================================================================================
+
+User Opens Panel
+  ↓
+PanelCommandCreatedHandler.notify()
+  ├─ Load materials (cached if PRISM live)
+  ├─ Load machines (NOT cached)
+  ├─ Load tools (NOT cached, triggering on diameter change)
+  └─ Check PRISM connectivity (prism_live())
+       ├─ If live: expand "Select from PRISM Library" group
+       └─ If offline: show fallback materials + local Kienzle
+
+User Changes Fields
+  ↓
+PanelInputChangedHandler.notify()
+  ├─ If woc/diameter change: update WOC%
+  ├─ If tool diameter change: search tools (API call, 200ms latency)
+  │   └─ Populate tool dropdown with 20 results
+  ├─ If tool selected: load full tool object
+  │   └─ Populate: diameter, flutes, flute length, stickout (missing: coating, radius)
+  ├─ If machine selected: load full machine object
+  │   └─ Populate: max_rpm, max_power_hp
+  └─ Call run_calculation()
+       ├─ gather_params() → extract all UI values
+       ├─ calculate() → try PRISM, fallback to Kienzle
+       ├─ Format results with color coding
+       └─ Update all result fields
+
+User Clicks "Apply to CAM Operation"
+  ↓
+PanelExecuteHandler.notify()
+  ├─ apply_to_operation()
+  │   ├─ gather_params()
+  │   ├─ calculate()
+  │   ├─ validate_safety() ← May fail if offline/no API
+  │   │   └─ If fail: show violations, DO NOT apply
+  │   └─ Write to Fusion operation parameters
+  │       ├─ tool_spindleSpeed
+  │       ├─ tool_feedCutting
+  │       ├─ tool_feedPlunge
+  │       └─ tool_feedRamp
+  └─ Show confirmation message
+
+================================================================================
+POSITIVE FINDINGS
+================================================================================
+
+✓ Graceful offline fallback — Kienzle calculation works when PRISM is down
+✓ Safety validation gates parameters before applying to Fusion
+✓ Confidence color coding is clear and effective
+✓ Dual-unit display for most critical parameters
+✓ Auto-population of tool/machine fields is functional (if partial)
+✓ WOC% automatically recalculates
+✓ Plunge/ramp feed defaults (50% of main feed) are sensible
+✓ Material fallback database (18 common materials) covers most use cases
+✓ Post-processor variable S/F is mentioned to user (good context)
+✓ No hardcoded physics constants (uses API or fallback formulas)
+
+================================================================================
+IMMEDIATE ACTION ITEMS
+================================================================================
+
+Before releasing to users, fix these 3:
+  1. Material sort (Line 296) — 5 min
+  2. Tool calc trigger (Line 464) — 2 min
+  3. Unit labels (Lines 345-348) — 10 min
+
+This removes the biggest UX friction points. Next sprint:
+  4. Safety fallback (Line 140) — 30 min
+  5. Caching (Lines 61, 74) — 25 min
+  6. Error reporting (Lines 431, 467, 636) — 40 min
+
+================================================================================
+END OF FINDINGS
+================================================================================

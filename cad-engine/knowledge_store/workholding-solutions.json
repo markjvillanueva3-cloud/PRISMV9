@@ -1,0 +1,57 @@
+{
+  "document_id": "cnc-workholding-guide",
+  "title": "CNC Jigs, Fixtures, and Workholding Solutions",
+  "source": "CNCCookbook Workholding Guide",
+  "domain": "fixturing",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "Fixture sub-plate repeatability: 0.0005\"",
+      "body": "Modular fixture sub-plates (tooling plates) with precision hole grids provide ~0.0005\" (0.013mm) repeatability. Alternating dowel pin holes and threaded mounting holes enable drop-in positioning that eliminates tramming. Setup time: 1-2 minutes with air ratchet. Entire machine reconfigured in 5-10 minutes.",
+      "category": "setup",
+      "tags": ["tooling-plate", "fixture", "repeatability", "modular", "setup-time"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "Ball lock quick-change: 30-second fixture swap",
+      "body": "Jergens-style ball lock systems allow complete fixture plate changes in ~30 seconds. Four ball lock shanks align and lock plate to sub-plate instantly: drop shanks into receiver bushings, twist bolt to lock. Significant ROI for repeat jobs where same fixture is used regularly.",
+      "category": "setup",
+      "tags": ["ball-lock", "jergens", "quick-change", "fixture", "setup-reduction"],
+      "operation_types": ["milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Step clamp positioning: bolt close to workpiece",
+      "body": "When using step clamps, position the mounting bolt CLOSE to the workpiece, NOT close to the step block. This maximizes clamping force on the part. Angle the clamp downward toward the work by raising the step block 1-2 steps higher than workpiece. Use soft shim (soda can aluminum) to prevent marring finished surfaces.",
+      "category": "setup",
+      "tags": ["step-clamp", "clamping", "technique", "fixture"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "Vacuum fixture force calculation",
+      "body": "Vacuum fixtures provide 14.7 lbs/sq inch (atmospheric pressure). For small parts with insufficient surface area, vacuum may be inadequate. Use G-Wizard Calculator or similar to limit cutting forces to match vacuum hold-down capacity. Best for large surface area, thin/flexible parts requiring uniform pressure.",
+      "category": "fixturing",
+      "tags": ["vacuum-fixture", "clamping-force", "thin-parts", "calculation"],
+      "operation_types": ["milling"],
+      "confidence": 85
+    },
+    {
+      "title": "5-axis workholding requires low-profile design",
+      "body": "5-axis machining requires workholding that doesn't obstruct tool approach from virtually any direction. Conventional step clamps and tall vise jaws often interfere with tool paths. Purpose-built low-profile dovetail fixtures, expanding mandrels, or specialized 5-axis vises are required. Plan workholding during CAM programming, not after.",
+      "category": "fixturing",
+      "tags": ["5-axis", "workholding", "dovetail", "low-profile", "interference"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "T-slot key installation saves tramming time",
+      "body": "Install alignment keys in T-slots or on vise bottoms to save tramming time. Once keys are set parallel to axis motion (verify with DTI), fixtures drop in aligned every time. Can mill T-slots true if needed. One-time setup investment pays off over hundreds of setups.",
+      "category": "setup",
+      "tags": ["t-slot", "tramming", "alignment", "key", "setup-reduction"],
+      "operation_types": ["milling"],
+      "confidence": 85
+    }
+  ]
+}

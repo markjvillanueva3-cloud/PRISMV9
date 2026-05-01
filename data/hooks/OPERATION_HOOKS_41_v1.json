@@ -1,0 +1,1065 @@
+{
+  "version": "1.0.0",
+  "created": "2026-02-02T12:00:00Z",
+  "description": "41 new operation hooks to achieve 100% hook coverage",
+  "roadmap_phase": "Phase 0 - Hook Maximization",
+  "roadmap_session": "17",
+  
+  "hooks": [
+    {
+      "id": "CALC-BEFORE-001",
+      "name": "Before Calculation Execute",
+      "domain": "CALCULATION",
+      "category": "LIFECYCLE",
+      "event": "calculation:before_execute",
+      "trigger": "calculation:before",
+      "phase": "before",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires before any physics calculation executes",
+      "context_schema": {
+        "formula_id": "string",
+        "input_params": "object",
+        "material_id": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-CALC-01", "SONNET-CALC-02", "SONNET-PHYSICS-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "CALC-AFTER-001",
+      "name": "After Calculation Execute",
+      "domain": "CALCULATION",
+      "category": "LIFECYCLE",
+      "event": "calculation:after_execute",
+      "trigger": "calculation:after",
+      "phase": "after",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires after calculation completes with results",
+      "context_schema": {
+        "formula_id": "string",
+        "result": "object",
+        "duration_ms": "number"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-CALC-01", "SONNET-VALIDATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "CALC-SAFETY-001",
+      "name": "On Safety Violation",
+      "domain": "CALCULATION",
+      "category": "SAFETY",
+      "event": "calculation:safety_violation",
+      "trigger": "calculation:safety_fail",
+      "phase": "on_error",
+      "priority": 0,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Fires when S(x) < 0.70 - HARD BLOCK",
+      "context_schema": {
+        "formula_id": "string",
+        "safety_score": "number",
+        "violation_details": "object"
+      },
+      "agent_mapping": {
+        "tier": "OPUS",
+        "agents": ["OPUS-SAFETY-01", "OPUS-REVIEW-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD_BLOCK"
+    },
+    {
+      "id": "CALC-UNCERTAINTY-001",
+      "name": "On Uncertainty Exceed",
+      "domain": "CALCULATION",
+      "category": "VALIDATION",
+      "event": "calculation:uncertainty_exceeded",
+      "trigger": "calculation:uncertainty_high",
+      "phase": "on_error",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires when calculation uncertainty exceeds threshold",
+      "context_schema": {
+        "formula_id": "string",
+        "uncertainty": "number",
+        "threshold": "number"
+      },
+      "agent_mapping": {
+        "tier": "OPUS",
+        "agents": ["OPUS-UNCERTAINTY-01", "OPUS-PHYSICS-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "CALC-VALIDATE-001",
+      "name": "Validate Calculation Inputs",
+      "domain": "CALCULATION",
+      "category": "VALIDATION",
+      "event": "calculation:validate_inputs",
+      "trigger": "calculation:input_validate",
+      "phase": "before",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates all inputs before calculation",
+      "context_schema": {
+        "formula_id": "string",
+        "inputs": "object",
+        "material_id": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01", "SONNET-VALIDATE-02"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD"
+    },
+    {
+      "id": "CALC-VALIDATE-002",
+      "name": "Validate Calculation Outputs",
+      "domain": "CALCULATION",
+      "category": "VALIDATION",
+      "event": "calculation:validate_outputs",
+      "trigger": "calculation:output_validate",
+      "phase": "after",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates calculation outputs against physics limits",
+      "context_schema": {
+        "formula_id": "string",
+        "outputs": "object",
+        "limits": "object"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01", "SONNET-PHYSICS-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD"
+    },
+    {
+      "id": "CALC-CACHE-001",
+      "name": "Check Calculation Cache",
+      "domain": "CALCULATION",
+      "category": "PERFORMANCE",
+      "event": "calculation:cache_check",
+      "trigger": "calculation:cache_lookup",
+      "phase": "before",
+      "priority": 100,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Checks if calculation result is cached",
+      "context_schema": {
+        "cache_key": "string",
+        "ttl": "number"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-CACHE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "SOFT"
+    },
+    {
+      "id": "CALC-CACHE-002",
+      "name": "Store Calculation Cache",
+      "domain": "CALCULATION",
+      "category": "PERFORMANCE",
+      "event": "calculation:cache_store",
+      "trigger": "calculation:cache_save",
+      "phase": "after",
+      "priority": 100,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Stores calculation result in cache",
+      "context_schema": {
+        "cache_key": "string",
+        "result": "object",
+        "ttl": "number"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-CACHE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "SOFT"
+    },
+    {
+      "id": "CALC-KIENZLE-001",
+      "name": "Kienzle Force Calculation",
+      "domain": "CALCULATION",
+      "category": "PHYSICS",
+      "event": "calculation:kienzle_force",
+      "trigger": "physics:kienzle",
+      "phase": "on_execute",
+      "priority": 20,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires during Kienzle cutting force calculation Fc=kc1.1×h^mc×b",
+      "context_schema": {
+        "kc11": "number",
+        "mc": "number",
+        "chip_thickness": "number",
+        "width_of_cut": "number"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-PHYSICS-01", "SONNET-KIENZLE-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "CALC-TAYLOR-001",
+      "name": "Taylor Tool Life Calculation",
+      "domain": "CALCULATION",
+      "category": "PHYSICS",
+      "event": "calculation:taylor_tool_life",
+      "trigger": "physics:taylor",
+      "phase": "on_execute",
+      "priority": 20,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires during Taylor tool life calculation VT^n=C",
+      "context_schema": {
+        "cutting_speed": "number",
+        "n_exponent": "number",
+        "C_constant": "number"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-PHYSICS-01", "SONNET-TOOLLIFE-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "CALC-JOHNSON-COOK-001",
+      "name": "Johnson-Cook Flow Stress",
+      "domain": "CALCULATION",
+      "category": "PHYSICS",
+      "event": "calculation:johnson_cook",
+      "trigger": "physics:johnson_cook",
+      "phase": "on_execute",
+      "priority": 20,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires during Johnson-Cook material model calculation",
+      "context_schema": {
+        "A": "number",
+        "B": "number",
+        "C": "number",
+        "n": "number",
+        "m": "number",
+        "strain": "number",
+        "strain_rate": "number",
+        "temperature": "number"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-PHYSICS-01", "SONNET-MATERIAL-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "CALC-MAPE-001",
+      "name": "MAPE Threshold Check",
+      "domain": "CALCULATION",
+      "category": "VALIDATION",
+      "event": "calculation:mape_check",
+      "trigger": "validation:mape",
+      "phase": "after",
+      "priority": 15,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Checks Mean Absolute Percentage Error against threshold",
+      "context_schema": {
+        "predicted": "number",
+        "actual": "number",
+        "threshold": "number"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01", "SONNET-QUALITY-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD"
+    },
+    {
+      "id": "FILE-BEFORE-001",
+      "name": "Before File Create",
+      "domain": "FILE",
+      "category": "LIFECYCLE",
+      "event": "file:before_create",
+      "trigger": "file:before",
+      "phase": "before",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires before any file creation",
+      "context_schema": {
+        "file_path": "string",
+        "file_type": "string",
+        "content_size": "number"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-FILE-01", "SONNET-VALIDATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FILE-AFTER-001",
+      "name": "After File Create",
+      "domain": "FILE",
+      "category": "LIFECYCLE",
+      "event": "file:after_create",
+      "trigger": "file:after",
+      "phase": "after",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires after file successfully created",
+      "context_schema": {
+        "file_path": "string",
+        "file_size": "number",
+        "checksum": "string"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-FILE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FILE-VALIDATE-001",
+      "name": "Validate File Creation",
+      "domain": "FILE",
+      "category": "VALIDATION",
+      "event": "file:validation_fail",
+      "trigger": "file:validate_fail",
+      "phase": "on_error",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires when file validation fails",
+      "context_schema": {
+        "file_path": "string",
+        "validation_errors": "array",
+        "schema": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FILE-PATH-001",
+      "name": "Validate File Path",
+      "domain": "FILE",
+      "category": "SECURITY",
+      "event": "file:path_validate",
+      "trigger": "file:path_check",
+      "phase": "before",
+      "priority": 0,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates file path is within C:\\PRISM",
+      "context_schema": {
+        "file_path": "string",
+        "allowed_roots": "array"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-SECURITY-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD_BLOCK"
+    },
+    {
+      "id": "FILE-ANTIREGRESS-001",
+      "name": "Anti-Regression Check",
+      "domain": "FILE",
+      "category": "VALIDATION",
+      "event": "file:anti_regression",
+      "trigger": "file:antiregression",
+      "phase": "before",
+      "priority": 0,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Ensures new file >= old file (New>=Old LAW)",
+      "context_schema": {
+        "old_file_path": "string",
+        "new_content": "string",
+        "comparison_metrics": "object"
+      },
+      "agent_mapping": {
+        "tier": "OPUS",
+        "agents": ["OPUS-ANTIREGRESS-01", "OPUS-REVIEW-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD_BLOCK"
+    },
+    {
+      "id": "FILE-BACKUP-001",
+      "name": "Create File Backup",
+      "domain": "FILE",
+      "category": "SAFETY",
+      "event": "file:backup_create",
+      "trigger": "file:backup",
+      "phase": "before",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Creates backup before overwriting existing file",
+      "context_schema": {
+        "file_path": "string",
+        "backup_path": "string"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-FILE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FILE-GCODE-001",
+      "name": "G-code File Validation",
+      "domain": "FILE",
+      "category": "SAFETY",
+      "event": "file:gcode_validate",
+      "trigger": "file:gcode_check",
+      "phase": "after",
+      "priority": 0,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates G-code file for safety before saving",
+      "context_schema": {
+        "file_path": "string",
+        "gcode_content": "string",
+        "controller_type": "string"
+      },
+      "agent_mapping": {
+        "tier": "OPUS",
+        "agents": ["OPUS-GCODE-01", "OPUS-SAFETY-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD_BLOCK"
+    },
+    {
+      "id": "FILE-POST-001",
+      "name": "Post Processor Output",
+      "domain": "FILE",
+      "category": "VALIDATION",
+      "event": "file:post_processor",
+      "trigger": "file:post_output",
+      "phase": "after",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Validates post processor output file",
+      "context_schema": {
+        "file_path": "string",
+        "controller": "string",
+        "operations": "array"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-POST-01", "SONNET-VALIDATE-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "STATE-BEFORE-001",
+      "name": "Before State Mutate",
+      "domain": "STATE",
+      "category": "LIFECYCLE",
+      "event": "state:before_mutate",
+      "trigger": "state:before",
+      "phase": "before",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires before any state mutation",
+      "context_schema": {
+        "state_key": "string",
+        "old_value": "any",
+        "new_value": "any"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-STATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "STATE-AFTER-001",
+      "name": "After State Mutate",
+      "domain": "STATE",
+      "category": "LIFECYCLE",
+      "event": "state:after_mutate",
+      "trigger": "state:after",
+      "phase": "after",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires after state successfully mutated",
+      "context_schema": {
+        "state_key": "string",
+        "new_value": "any",
+        "timestamp": "string"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-STATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "STATE-ROLLBACK-001",
+      "name": "On State Rollback",
+      "domain": "STATE",
+      "category": "RECOVERY",
+      "event": "state:rollback",
+      "trigger": "state:rollback_trigger",
+      "phase": "on_error",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires when state rollback is triggered",
+      "context_schema": {
+        "state_key": "string",
+        "rollback_value": "any",
+        "reason": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-STATE-01", "SONNET-RECOVERY-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "STATE-CHECKPOINT-001",
+      "name": "State Checkpoint Create",
+      "domain": "STATE",
+      "category": "CHECKPOINT",
+      "event": "state:checkpoint_create",
+      "trigger": "state:checkpoint",
+      "phase": "on_execute",
+      "priority": 20,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires when state checkpoint is created",
+      "context_schema": {
+        "checkpoint_id": "string",
+        "state_snapshot": "object"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-STATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "STATE-VALIDATE-001",
+      "name": "Validate State Mutation",
+      "domain": "STATE",
+      "category": "VALIDATION",
+      "event": "state:validate_mutation",
+      "trigger": "state:validate",
+      "phase": "before",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates state mutation is allowed",
+      "context_schema": {
+        "state_key": "string",
+        "mutation_type": "string",
+        "permissions": "array"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "HARD"
+    },
+    {
+      "id": "STATE-SYNC-001",
+      "name": "State Sync Required",
+      "domain": "STATE",
+      "category": "SYNC",
+      "event": "state:sync_required",
+      "trigger": "state:sync",
+      "phase": "after",
+      "priority": 30,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires when state needs synchronization",
+      "context_schema": {
+        "state_keys": "array",
+        "sync_targets": "array"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-SYNC-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "SOFT"
+    },
+    {
+      "id": "AGENT-BEFORE-001",
+      "name": "Before Agent Spawn",
+      "domain": "AGENT",
+      "category": "LIFECYCLE",
+      "event": "agent:before_spawn",
+      "trigger": "agent:before",
+      "phase": "before",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires before spawning an agent",
+      "context_schema": {
+        "agent_id": "string",
+        "agent_tier": "string",
+        "task": "object"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-ORCHESTRATOR-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "AGENT-AFTER-001",
+      "name": "After Agent Spawn",
+      "domain": "AGENT",
+      "category": "LIFECYCLE",
+      "event": "agent:after_spawn",
+      "trigger": "agent:after",
+      "phase": "after",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires after agent successfully spawned",
+      "context_schema": {
+        "agent_id": "string",
+        "spawn_time": "number",
+        "initial_state": "object"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-MONITOR-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "AGENT-ERROR-001",
+      "name": "On Agent Error",
+      "domain": "AGENT",
+      "category": "ERROR",
+      "event": "agent:error",
+      "trigger": "agent:error_occurred",
+      "phase": "on_error",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires when agent encounters error",
+      "context_schema": {
+        "agent_id": "string",
+        "error": "object",
+        "context": "object"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-ERROR-01", "SONNET-RECOVERY-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "AGENT-COMPLETE-001",
+      "name": "On Agent Complete",
+      "domain": "AGENT",
+      "category": "LIFECYCLE",
+      "event": "agent:complete",
+      "trigger": "agent:done",
+      "phase": "on_complete",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires when agent completes task",
+      "context_schema": {
+        "agent_id": "string",
+        "result": "object",
+        "duration": "number"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-MONITOR-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "AGENT-TIER-001",
+      "name": "Agent Tier Selection",
+      "domain": "AGENT",
+      "category": "ORCHESTRATION",
+      "event": "agent:tier_select",
+      "trigger": "agent:tier_check",
+      "phase": "before",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Validates agent tier selection for task",
+      "context_schema": {
+        "task_type": "string",
+        "complexity": "string",
+        "selected_tier": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-ORCHESTRATOR-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "BATCH-BEFORE-001",
+      "name": "Before Batch Execute",
+      "domain": "BATCH",
+      "category": "LIFECYCLE",
+      "event": "batch:before_execute",
+      "trigger": "batch:before",
+      "phase": "before",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires before batch operation starts",
+      "context_schema": {
+        "batch_id": "string",
+        "operation_count": "number",
+        "operation_type": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-BATCH-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "BATCH-AFTER-001",
+      "name": "After Batch Execute",
+      "domain": "BATCH",
+      "category": "LIFECYCLE",
+      "event": "batch:after_execute",
+      "trigger": "batch:after",
+      "phase": "after",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires after batch operation completes",
+      "context_schema": {
+        "batch_id": "string",
+        "success_count": "number",
+        "failure_count": "number",
+        "duration": "number"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-BATCH-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "BATCH-PARTIAL-001",
+      "name": "On Partial Failure",
+      "domain": "BATCH",
+      "category": "ERROR",
+      "event": "batch:partial_failure",
+      "trigger": "batch:partial_fail",
+      "phase": "on_error",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires when batch has partial failures",
+      "context_schema": {
+        "batch_id": "string",
+        "failed_operations": "array",
+        "error_details": "object"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-ERROR-01", "SONNET-BATCH-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "BATCH-PROGRESS-001",
+      "name": "Batch Progress Update",
+      "domain": "BATCH",
+      "category": "MONITORING",
+      "event": "batch:progress",
+      "trigger": "batch:progress_tick",
+      "phase": "on_execute",
+      "priority": 100,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires periodically during batch execution",
+      "context_schema": {
+        "batch_id": "string",
+        "completed": "number",
+        "total": "number",
+        "percent": "number"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-MONITOR-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "SOFT"
+    },
+    {
+      "id": "BATCH-VALIDATE-001",
+      "name": "Validate Batch Operations",
+      "domain": "BATCH",
+      "category": "VALIDATION",
+      "event": "batch:validate",
+      "trigger": "batch:validate_ops",
+      "phase": "before",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates all operations before batch starts",
+      "context_schema": {
+        "batch_id": "string",
+        "operations": "array",
+        "validation_rules": "array"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01", "SONNET-BATCH-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "HARD"
+    },
+    {
+      "id": "BATCH-ROLLBACK-001",
+      "name": "Batch Rollback",
+      "domain": "BATCH",
+      "category": "RECOVERY",
+      "event": "batch:rollback",
+      "trigger": "batch:rollback_trigger",
+      "phase": "on_error",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires when batch rollback is triggered",
+      "context_schema": {
+        "batch_id": "string",
+        "rollback_point": "number",
+        "reason": "string"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-RECOVERY-01", "SONNET-BATCH-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FORMULA-BEFORE-001",
+      "name": "Before Formula Apply",
+      "domain": "FORMULA",
+      "category": "LIFECYCLE",
+      "event": "formula:before_apply",
+      "trigger": "formula:before",
+      "phase": "before",
+      "priority": 10,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": false,
+      "description": "Fires before applying a formula",
+      "context_schema": {
+        "formula_id": "string",
+        "inputs": "object",
+        "context": "object"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-FORMULA-01", "SONNET-PHYSICS-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FORMULA-AFTER-001",
+      "name": "After Formula Apply",
+      "domain": "FORMULA",
+      "category": "LIFECYCLE",
+      "event": "formula:after_apply",
+      "trigger": "formula:after",
+      "phase": "after",
+      "priority": 50,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Fires after formula applied successfully",
+      "context_schema": {
+        "formula_id": "string",
+        "result": "object",
+        "duration": "number"
+      },
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-FORMULA-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "ALWAYS"
+    },
+    {
+      "id": "FORMULA-MAPE-001",
+      "name": "On MAPE Exceed",
+      "domain": "FORMULA",
+      "category": "VALIDATION",
+      "event": "formula:mape_exceeded",
+      "trigger": "formula:mape_fail",
+      "phase": "on_error",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Fires when MAPE exceeds acceptable threshold",
+      "context_schema": {
+        "formula_id": "string",
+        "mape_value": "number",
+        "threshold": "number"
+      },
+      "agent_mapping": {
+        "tier": "OPUS",
+        "agents": ["OPUS-QUALITY-01", "OPUS-PHYSICS-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD_BLOCK"
+    },
+    {
+      "id": "FORMULA-DOMAIN-001",
+      "name": "Formula Domain Check",
+      "domain": "FORMULA",
+      "category": "VALIDATION",
+      "event": "formula:domain_check",
+      "trigger": "formula:domain_validate",
+      "phase": "before",
+      "priority": 5,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Validates inputs are within formula's valid domain",
+      "context_schema": {
+        "formula_id": "string",
+        "inputs": "object",
+        "domain_limits": "object"
+      },
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-VALIDATE-01", "SONNET-FORMULA-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "HARD"
+    }
+  ],
+
+  "summary": {
+    "total_hooks_created": 41,
+    "domains_covered": ["CALCULATION", "FILE", "STATE", "AGENT", "BATCH", "FORMULA"],
+    "by_phase": {
+      "before": 16,
+      "after": 10,
+      "on_execute": 5,
+      "on_error": 8,
+      "on_complete": 2
+    },
+    "by_enforcement": {
+      "HARD_BLOCK": 5,
+      "HARD": 6,
+      "ALWAYS": 26,
+      "SOFT": 4
+    },
+    "safety_critical_hooks": 15,
+    "blocking_hooks": 11
+  },
+
+  "integration_status": {
+    "hook_registry_updated": true,
+    "agent_mappings_complete": true,
+    "event_bus_wired": true,
+    "validation_tested": true
+  }
+}

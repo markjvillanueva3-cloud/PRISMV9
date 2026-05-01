@@ -1,0 +1,66 @@
+{
+  "id": "MXU-MS1",
+  "version": "1.0.0",
+  "title": "Coding & Build Copilot Plane",
+  "brief": "Create activation bundles for 6 coding work classes. Implement auto-routing for build/test/review workflows. Add test-impact analysis to focus test runs on changed code paths.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Work Class Bundles",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define 6 coding work classes and their capability requirements",
+          "effort": 50,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build activation bundles per work class with tool/skill/hook sets",
+          "effort": 70,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Implement auto-routing: detect work class from prompt and activate bundle",
+          "effort": 80,
+          "dependencies": ["P0-U02"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Build/Test/Review Routing",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Auto-routing for build workflows: detect build context, activate relevant engines",
+          "effort": 60,
+          "dependencies": ["P0-U03"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Auto-routing for test workflows: detect test targets, scope test runs",
+          "effort": 60,
+          "dependencies": ["P0-U03"]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Test-impact analysis: map changed files to affected tests, focus test runs",
+          "effort": 70,
+          "dependencies": ["P1-U01", "P1-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS0"],
+  "exit_conditions": ["6 coding work classes defined with activation bundles", "Auto-routing activates correct bundle for build/test/review", "Test-impact analysis reduces test scope for targeted changes"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

@@ -1,0 +1,13 @@
+L4: * 4-Layer Hierarchy: LEARNED → USER → ENHANCED → CORE
+L8: import * as path from "path";
+L10: import { PATHS, DATA_LAYERS, ISO_GROUPS, MATERIAL_CATEGORIES } from "../constants.js";
+L25: constructor() {
+L28: path.join(PATHS.STATE_DIR, "material-registry.json"),
+L33: for (const layer of Object.values(DATA_LAYERS)) {
+L45: log.info(`  MATERIALS_DB path: ${PATHS.MATERIALS_DB}`);
+L47: // Load from ISO group directories (P_STEELS, M_STAINLESS, etc.)
+L51: const groupPath = path.join(PATHS.MATERIALS_DB, group);
+L59: log.info(`  ${group}: directory not found at ${groupPath}`);
+L75: const groupPath = path.join(PATHS.MATERIALS_DB, group);
+L95: * Load materials from an ISO group directory
+L99: log.info(`  [loadISOGroup] ${group}: reading directory ${groupPath}`);

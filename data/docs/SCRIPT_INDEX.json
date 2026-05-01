@@ -1,0 +1,153 @@
+{
+  "metadata": {
+    "total_scripts": 13,
+    "version": "1.0.0",
+    "last_updated": "2026-02-18",
+    "categories": ["roadmap", "skills", "build", "recovery"]
+  },
+  "scripts": [
+    {
+      "id": "position-validator",
+      "purpose": "Cross-validates CURRENT_POSITION.md against ROADMAP_TRACKER.md. Reports PASS or MISMATCH.",
+      "trigger": "Every session start, every compaction recovery, before phase gates",
+      "parameters": "none",
+      "output": "PASS/MISMATCH with details",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\position-validator.js",
+      "runtime": "node",
+      "phase_relevance": ["ALL"],
+      "frequency": "every-session"
+    },
+    {
+      "id": "rebuild-section-index",
+      "purpose": "Scans all phase files for ANCHOR tags, rebuilds ROADMAP_SECTION_INDEX.md with correct line numbers.",
+      "trigger": "After any phase doc edit that adds/removes/moves anchors",
+      "parameters": "none",
+      "output": "Writes ROADMAP_SECTION_INDEX.md (496+ anchors)",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\rebuild-section-index.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA", "R1"],
+      "frequency": "after-edit"
+    },
+    {
+      "id": "place-anchors",
+      "purpose": "Places <!-- ANCHOR: --> comments in phase doc headers for section-level loading.",
+      "trigger": "When creating new phase docs or adding new milestones",
+      "parameters": "phase doc path",
+      "output": "Modified phase doc with anchors",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\place-anchors.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA"],
+      "frequency": "per-phase-doc"
+    },
+    {
+      "id": "roadmap-lint",
+      "purpose": "Checks roadmap docs for consistency: missing anchors, broken references, stale line counts.",
+      "trigger": "Before phase gates, after bulk edits",
+      "parameters": "none",
+      "output": "List of warnings/errors",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\roadmap-lint.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["ALL"],
+      "frequency": "pre-gate"
+    },
+    {
+      "id": "roadmap-regression-test",
+      "purpose": "Verifies roadmap docs haven't lost content: anchor counts, line counts, key sections present.",
+      "trigger": "After roadmap tracker updates, before releases",
+      "parameters": "none",
+      "output": "PASS/FAIL with regression details",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\roadmap-regression-test.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["ALL"],
+      "frequency": "pre-gate"
+    },
+    {
+      "id": "update-token-estimates",
+      "purpose": "Recalculates token estimates for all phase docs based on current line counts.",
+      "trigger": "After bulk phase doc edits that significantly change file sizes",
+      "parameters": "none",
+      "output": "Updated token estimates in recovery card",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\update-token-estimates.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA"],
+      "frequency": "occasionally"
+    },
+    {
+      "id": "split-skill",
+      "purpose": "Analyzes a monolith skill (>10KB), proposes atomic splits by parsing ## headers.",
+      "trigger": "DA-MS10: For each of the 49 oversized skills",
+      "parameters": "path to monolith skill",
+      "output": "List of proposed atomic skills with names, descriptions, estimated sizes. Does NOT auto-create.",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\split-skill.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA"],
+      "frequency": "per-skill"
+    },
+    {
+      "id": "extract-course-skills",
+      "purpose": "Extracts skill proposals from MIT OCW course directories by parsing syllabus and content maps.",
+      "trigger": "DA-MS10+: For each of the 206 MIT courses",
+      "parameters": "path to course directory or zip",
+      "output": "List of proposed skills from course content",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\extract-course-skills.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA"],
+      "frequency": "per-course"
+    },
+    {
+      "id": "update-skill-index",
+      "purpose": "Reads a skill's SKILL.md, extracts metadata, adds to SKILL_INDEX.json. Warns on trigger overlap.",
+      "trigger": "After any skill creation or modification",
+      "parameters": "path to skill directory (or batch of directories)",
+      "output": "Updated SKILL_INDEX.json with new entries",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\update-skill-index.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA", "R1", "R2", "R3"],
+      "frequency": "per-skill-change"
+    },
+    {
+      "id": "build-section-index",
+      "purpose": "Builds anchor-based section index from phase files (PowerShell version).",
+      "trigger": "After anchor placement",
+      "parameters": "none",
+      "output": "ROADMAP_SECTION_INDEX.md",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\build-section-index.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA"],
+      "frequency": "after-anchor-placement"
+    },
+    {
+      "id": "recover-autohookwrapper",
+      "purpose": "Recovers autoHookWrapper.ts from backup if corrupted during build.",
+      "trigger": "When autoHookWrapper.ts fails to compile or is corrupted",
+      "parameters": "none",
+      "output": "Restored autoHookWrapper.ts",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\recover_autoHookWrapper.js",
+      "runtime": "node",
+      "phase_relevance": ["ALL"],
+      "frequency": "on-error"
+    },
+    {
+      "id": "add-atcs-renames",
+      "purpose": "Registers ATCS dispatcher rename mappings in the guard system.",
+      "trigger": "After ATCS dispatcher modifications",
+      "parameters": "none",
+      "output": "Updated rename mappings",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\add_atcs_renames.js",
+      "runtime": "node",
+      "phase_relevance": ["DA"],
+      "frequency": "after-atcs-change"
+    },
+    {
+      "id": "scan-skill-sizes",
+      "purpose": "Scans all skills and reports sizes, identifying candidates for splitting.",
+      "trigger": "Skill audit, pre-DA-MS9 planning",
+      "parameters": "none",
+      "output": "Size report for all skills",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\__scan_sizes.ps1",
+      "runtime": "powershell",
+      "phase_relevance": ["DA"],
+      "frequency": "audit"
+    }
+  ]
+}

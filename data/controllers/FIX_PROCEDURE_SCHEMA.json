@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRISM Fix Procedure Schema v1.0",
+  "description": "12-parameter fix procedure specification",
+  "type": "object",
+  "required": ["fix_id", "title", "alarm_ids", "difficulty", "steps"],
+  "properties": {
+    "fix_id": {
+      "type": "string",
+      "pattern": "^FIX-[A-Z]{2,4}-[0-9]{4,6}$"
+    },
+    "alarm_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Alarms this procedure addresses"
+    },
+    "title": {
+      "type": "string",
+      "description": "Procedure title"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief description of what this fix does"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["OPERATOR", "MAINTENANCE", "SERVICE", "FACTORY"],
+      "description": "Skill level required"
+    },
+    "estimated_time_min": {
+      "type": "integer",
+      "description": "Estimated time in minutes"
+    },
+    "tools_required": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "parts_required": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "part_number": {"type": "string"},
+          "quantity": {"type": "integer"},
+          "optional": {"type": "boolean"}
+        }
+      }
+    },
+    "safety_warnings": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Conditions that must be met before starting"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step_number", "instruction"],
+        "properties": {
+          "step_number": {"type": "integer"},
+          "instruction": {"type": "string"},
+          "detail": {"type": "string"},
+          "image_ref": {"type": "string"},
+          "expected_result": {"type": "string"},
+          "if_fails": {"type": "string"},
+          "caution": {"type": "string"},
+          "time_estimate_sec": {"type": "integer"}
+        }
+      }
+    },
+    "verification_steps": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "How to verify the fix worked"
+    },
+    "prevention_tips": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "How to prevent this issue in future"
+    },
+    "related_fixes": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "troubleshooting_tree": {
+      "type": "object",
+      "description": "Decision tree for complex diagnostics"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": {"type": "array", "items": {"type": "string"}},
+        "author": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "verified": {"type": "boolean"},
+        "last_updated": {"type": "string", "format": "date-time"},
+        "success_rate": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    }
+  }
+}

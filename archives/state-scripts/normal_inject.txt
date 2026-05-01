@@ -1,0 +1,91 @@
+L715:     let result;
+L716:     let error = null;
+L717:     if (inputBlocked) {
+L718:       const valData = cadence.input_validation;
+L719:       result = {
+L720:         content: [{
+L721:           type: "text",
+L722:           text: JSON.stringify({
+L723:             error: `\u{1F6D1} SAFETY BLOCK: ${valData?.block_reason || "Input validation failed"}`,
+L724:             warnings: valData?.warnings || [],
+L725:             guidance: "Fix the flagged parameters and retry.",
+L726:             _cadence: cadence
+L727:           })
+L728:         }]
+L729:       };
+L730:     } else {
+L731:       const cacheKey = `${toolName}:${action2}`;
+L732:       const cacheResult = computationCache.get(cacheKey, args[0]?.params || args[0] || {});
+L733:       if (cacheResult.hit) {
+L734:         result = cacheResult.value;
+L735:         cadence.actions.push(`\u26A1 CACHE_HIT: ${cacheKey} (${cacheResult.tier} tier)`);
+L736:       } else {
+L737:         try {
+L738:           result = await handler.apply(this, args);
+L739:           if (!error) {
+L740:             try {
+
+--- slimCadence function ---
+
+--- _context builder (line 1590+) ---
+L1590:         for (const [k, v] of Object.entries(cadence)) {
+L1591:           if (k === "call_number" || k === "actions") continue;
+L1592:           if (v != null && v !== "" && !(Array.isArray(v) && v.length === 0)) fullCadence[k] = v;
+L1593:         }
+L1594:         const pressurePct = cadence.pressure?.pressure_pct ?? 0;
+L1595:         parsed._cadence = slimCadence(fullCadence, pressurePct);
+L1596:         try {
+L1597:           const cadenceFiresPath = path.join("C:\\PRISM\\state", "CADENCE_FIRES.json");
+L1598:           let fires = {};
+L1599:           if (fs.existsSync(cadenceFiresPath)) {
+L1600:             try {
+L1601:               fires = JSON.parse(fs.readFileSync(cadenceFiresPath, "utf-8"));
+L1602:             } catch {
+L1603:               fires = {};
+L1604:             }
+L1605:           }
+L1606:           for (const action3 of cadence.actions) {
+L1607:             if (typeof action3 !== "string") continue;
+L1608:             if (action3.includes("TODO_AUTO_REFRESHED")) fires["autoTodoRefresh"] = (fires["autoTodoRefresh"] || 0) + 1;
+L1609:             else if (action3.includes("CHECKPOINT_AUTO_SAVED")) fires["autoCheckpoint"] = (fires["autoCheckpoint"] || 0) + 1;
+L1610:             else if (action3.includes("PRESSURE_CHECK")) fires["autoContextPressure"] = (fires["autoContextPressure"] || 0) + 1;
+L1611:             else if (action3.includes("COMPACTION_DETECT")) fires["autoCompactionDetect"] = (fires["autoCompactionDetect"] || 0) + 1;
+L1612:             else if (action3.includes("ATTENTION_SCORED")) fires["autoAttentionScore"] = (fires["autoAttentionScore"] || 0) + 1;
+L1613:             else if (action3.includes("SKILL_HINT")) fires["autoSkillHint"] = (fires["autoSkillHint"] || 0) + 1;
+L1614:             else if (action3.includes("KNOWLEDGE_CROSS")) fires["autoKnowledgeCrossQuery"] = (fires["autoKnowledgeCrossQuery"] || 0) + 1;
+L1615:             else if (action3.includes("DOC_ANTI_REGRESSION")) fires["autoDocAntiRegression"] = (fires["autoDocAntiRegression"] || 0) + 1;
+L1616:             else if (action3.includes("PHASE_SKILLS")) fires["autoPhaseSkillLoader"] = (fires["autoPhaseSkillLoader"] || 0) + 1;
+L1617:             else if (action3.includes("SKILL_MATCH")) fires["autoSkillContextMatch"] = (fires["autoSkillContextMatch"] || 0) + 1;
+L1618:             else if (action3.includes("NL_HOOK")) fires["autoNLHookEvaluator"] = (fires["autoNLHookEvaluator"] || 0) + 1;
+L1619:             else if (action3.includes("HOOK_PHASE")) fires["autoHookActivationPhaseCheck"] = (fires["autoHookActivationPhaseCheck"] || 0) + 1;
+L1620:             else if (action3.includes("D4_PERF")) fires["autoD4PerfSummary"] = (fires["autoD4PerfSummary"] || 0) + 1;
+L1621:             else if (action3.includes("SCRIPT_REC")) fires["autoScriptRecommend"] = (fires["autoScriptRecommend"] || 0) + 1;
+L1622:             else if (action3.includes("RECOVERY_MANIFEST")) fires["autoRecoveryManifest"] = (fires["autoRecoveryManifest"] || 0) + 1;
+L1623:             else if (action3.includes("SURVIVAL_SAVED")) fires["autoSurvivalSave"] = (fires["autoSurvivalSave"] || 0) + 1;
+L1624:             else if (action3.includes("COMPACTION_PREDICT")) fires["autoCompactionPredict"] = (fires["autoCompactionPredict"] || 0) + 1;
+L1625:             else if (action3.includes("TELEMETRY_SNAP")) fires["autoTelemetrySnapshot"] = (fires["autoTelemetrySnapshot"] || 0) + 1;
+L1626:             else if (action3.includes("COMPLIANCE_AUDIT")) fires["autoComplianceAudit"] = (fires["autoComplianceAudit"] || 0) + 1;
+L1627:           }
+L1628:           fires._last_call = callNum;
+L1629:           fires._updated = (/* @__PURE__ */ new Date()).toISOString();
+L1630:           fs.writeFileSync(cadenceFiresPath, JSON.stringify(fires, null, 2));
+L1631:         } catch {
+L1632:         }
+L1633:         try {
+L1634:           const survivalPath = path.join("C:\\PRISM\\state", "COMPACTION_SURVIVAL.json");
+L1635:           const actionsPath = path.join("C:\\PRISM\\state", "RECENT_ACTIONS.json");
+L1636:           const trackerPath = path.join("C:\\PRISM\\mcp-server\\data\\docs", "ACTION_TRACKER.md");
+L1637:           let ctx = { call: callNum };
+L1638:           if (fs.existsSync(survivalPath)) {
+L1639:             try {
+L1640:               const surv = JSON.parse(fs.readFileSync(survivalPath, "utf-8"));
+L1641:               const ageMin = Math.round((Date.now() - new Date(surv.captured_at).getTime()) / 6e4);
+L1642:               if (ageMin < 240) {
+L1643:                 ctx.task = surv.current_task !== "unknown" ? surv.current_task : undefined;
+L1644:                 ctx.resume = surv.quick_resume?.slice(0, 200);
+L1645:                 ctx.next = surv.next_action?.slice(0, 150);
+L1646:               }
+L1647:             } catch {
+L1648:             }
+L1649:           }
+L1650:           if (!ctx.task && fs.existsSync(trackerPath)) {

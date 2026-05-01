@@ -1,0 +1,46 @@
+{
+  "id": "HBK-MS5",
+  "version": "1.0.0",
+  "title": "Parts Book + Maintenance Intelligence",
+  "brief": "Build HandbookMaintenanceIntelligenceEngine that extracts PM intervals, lubrication schedules, consumable specifications, and parts BOM from handbook maintenance and parts sections. Provides maintenance cost modeling and interval tracking for business pipeline consumption.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:00:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Maintenance Intelligence",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Extract PM schedules from handbook maintenance sections: interval-based tasks (daily, weekly, monthly, annual), hour-based tasks (500h, 1000h, 5000h), and condition-based triggers",
+          "effort": 75,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Extract parts BOM from handbook parts sections: part numbers, descriptions, quantities, cross-references to aftermarket equivalents, and consumable categories (filters, belts, seals, lubricants)",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build HandbookMaintenanceIntelligenceEngine with maintenance cost model: estimate annual maintenance cost per machine from PM intervals, parts costs, and labor estimates",
+          "effort": 70,
+          "dependencies": ["P0-U01", "P0-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS1"],
+  "exit_conditions": [
+    "PM schedules extracted from sample handbooks include at least 15 distinct maintenance tasks with correct intervals",
+    "Parts BOM extraction captures part numbers and descriptions with >85% accuracy on test samples",
+    "Maintenance cost model produces annual cost estimate per machine with itemized breakdown"
+  ]
+}

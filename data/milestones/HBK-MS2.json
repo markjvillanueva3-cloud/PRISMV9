@@ -1,0 +1,46 @@
+{
+  "id": "HBK-MS2",
+  "version": "1.0.0",
+  "title": "Handbook Acquisition Pipeline",
+  "brief": "Build HandbookAcquisitionPipelineEngine for bulk handbook ingestion. Handles file upload, extraction orchestration, deduplication against existing registry entries, provenance tracking, and incremental update support for handbook revisions.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:00:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Acquisition Pipeline",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build acquisition pipeline orchestrator: file intake, extraction dispatch, registry commit workflow with rollback on validation failure",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement deduplication and merge logic: detect overlapping handbook entries for same machine, merge new sections without overwriting higher-confidence existing data",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Implement provenance tracker and revision support: record source document, extraction date, page ranges, firmware version, and support incremental updates when new handbook editions arrive",
+          "effort": 65,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS1"],
+  "exit_conditions": [
+    "Acquisition pipeline ingests a multi-section handbook PDF and commits all valid sections to registry",
+    "Deduplication correctly merges new sections without overwriting higher-confidence data",
+    "Provenance metadata recorded for every ingested section with source, date, and page reference"
+  ]
+}

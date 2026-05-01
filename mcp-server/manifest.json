@@ -1,0 +1,110 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/mcpb/manifest.json",
+  "name": "prism-manufacturing-intelligence",
+  "version": "9.0.0",
+  "description": "PRISM Manufacturing Intelligence — 68 dispatchers, 2650+ actions, 1078 engines, 95K+ tools",
+  "author": "PRISM Manufacturing Intelligence",
+  "license": "PROPRIETARY",
+  "homepage": "https://github.com/prism-manufacturing",
+  "icon": "icons/prism-icon.png",
+  "categories": [
+    "manufacturing",
+    "engineering",
+    "cnc",
+    "machining"
+  ],
+  "server": {
+    "command": "node",
+    "args": ["dist/index.js"],
+    "env": {
+      "TRANSPORT": "stdio",
+      "LOG_LEVEL": "info"
+    },
+    "runtime": {
+      "node": ">=18.0.0"
+    }
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true,
+    "completions": true,
+    "logging": true,
+    "progress": true
+  },
+  "tools": [
+    {
+      "name": "prism_calc",
+      "description": "Manufacturing calculator (1130+ physics actions)"
+    },
+    {
+      "name": "prism_data",
+      "description": "Material/machine/tool/alarm registry access"
+    },
+    {
+      "name": "prism_cam",
+      "description": "CAM toolpath strategy and cross-CAM analysis"
+    },
+    {
+      "name": "prism_safety",
+      "description": "Safety validation and compliance checks"
+    }
+  ],
+  "resources": [
+    {
+      "uri": "prism://system/overview",
+      "name": "System Overview",
+      "description": "Engine count, dispatcher count, capability summary"
+    },
+    {
+      "uriTemplate": "prism://machine/{machineId}",
+      "name": "Machine Profile",
+      "description": "910 machines with kinematics and controllers"
+    },
+    {
+      "uriTemplate": "prism://material/{materialId}",
+      "name": "Material Properties",
+      "description": "2957 materials with Kienzle/Taylor parameters"
+    },
+    {
+      "uriTemplate": "prism://tool/{toolId}",
+      "name": "Cutting Tool",
+      "description": "94K+ tools across 27 manufacturers"
+    },
+    {
+      "uriTemplate": "prism://alarm/{alarmCode}",
+      "name": "Alarm Decode",
+      "description": "10K+ alarms across 12 controller families"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "speed-feed",
+      "description": "67-point Kienzle/Taylor speed/feed analysis"
+    },
+    {
+      "name": "quote-job",
+      "description": "Physics-backed manufacturing quote"
+    },
+    {
+      "name": "cnc-simulate",
+      "description": "Vericut-class G-code simulation"
+    },
+    {
+      "name": "feasibility-check",
+      "description": "7-engine machining feasibility"
+    },
+    {
+      "name": "machining-playbook",
+      "description": "296-rule best practice advisor"
+    },
+    {
+      "name": "alarm-decode",
+      "description": "Controller alarm decode"
+    },
+    {
+      "name": "tool-select",
+      "description": "94K tool catalog with physics ranking"
+    }
+  ]
+}

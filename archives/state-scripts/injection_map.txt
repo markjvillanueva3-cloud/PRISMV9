@@ -1,0 +1,121 @@
+Found 24 relevant sections:
+
+--- L564 ---
+L563:             const survival = rehydrateResult.survival_data;
+L564:             cadence.actions.push(`\u26A0\uFE0F COMPACTION_DETECTED: ${Math.round(gapSeconds)}s gap between calls, rehydrating from survival data`);
+L565:             cadence.rehydrated = {
+
+--- L1713 ---
+L1712:           const nextAction = recoveryData.next_action || "Run prism_gsd\u2192quick_resume then prism_context\u2192todo_read";
+L1713:           parsed._COMPACTION_RECOVERY = {
+L1714:             alert: `\u26A0\uFE0F COMPACTION RECOVERY (${compactionRecoveryCallsRemaining} reminders left) \u2014 You lost context. Read files before responding.`,
+
+--- L1728 ---
+L1727:         if (compactionDetectedThisCall) {
+L1728:           let recoveryManifest = null;
+L1729:           try {
+
+--- L1732 ---
+L1731:             if (fs.existsSync(manifestPath)) {
+L1732:               recoveryManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+L1733:               const ageMs = Date.now() - new Date(recoveryManifest.captured_at).getTime();
+
+--- L1733 ---
+L1732:               recoveryManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+L1733:               const ageMs = Date.now() - new Date(recoveryManifest.captured_at).getTime();
+L1734:               if (ageMs > 4 * 60 * 60 * 1000) recoveryManifest = null;
+
+--- L1734 ---
+L1733:               const ageMs = Date.now() - new Date(recoveryManifest.captured_at).getTime();
+L1734:               if (ageMs > 4 * 60 * 60 * 1000) recoveryManifest = null;
+L1735:             }
+
+--- L1782 ---
+L1781:           const hijacked = {
+L1782:             _COMPACTION_DETECTED: true,
+L1783:             _MANDATORY_RECOVERY: {
+
+--- L1783 ---
+L1782:             _COMPACTION_DETECTED: true,
+L1783:             _MANDATORY_RECOVERY: {
+L1784:               step_1: "Read CURRENT_POSITION.md ? has phase, task, next steps.",
+
+--- L1788 ---
+L1787:             // F2.2: Single-file recovery — everything in one place
+L1788:             recovery_manifest: recoveryManifest ? {
+L1789:               _priority: "\u26A1 THIS IS YOUR PRIMARY RECOVERY SOURCE. Read this first, skip other sections if this is sufficient.",
+
+--- L1790 ---
+L1789:               _priority: "\u26A1 THIS IS YOUR PRIMARY RECOVERY SOURCE. Read this first, skip other sections if this is sufficient.",
+L1790:               next_action: recoveryManifest.next_action,
+L1791:               current_task: recoveryManifest.current_task,
+
+--- L1791 ---
+L1790:               next_action: recoveryManifest.next_action,
+L1791:               current_task: recoveryManifest.current_task,
+L1792:               phase: recoveryManifest.phase,
+
+--- L1792 ---
+L1791:               current_task: recoveryManifest.current_task,
+L1792:               phase: recoveryManifest.phase,
+L1793:               workflow_step: recoveryManifest.workflow_step,
+
+--- L1793 ---
+L1792:               phase: recoveryManifest.phase,
+L1793:               workflow_step: recoveryManifest.workflow_step,
+L1794:               active_files: recoveryManifest.active_files,
+
+--- L1794 ---
+L1793:               workflow_step: recoveryManifest.workflow_step,
+L1794:               active_files: recoveryManifest.active_files,
+L1795:               pending_todos: recoveryManifest.pending_todos,
+
+--- L1795 ---
+L1794:               active_files: recoveryManifest.active_files,
+L1795:               pending_todos: recoveryManifest.pending_todos,
+L1796:               reasoning_notes: recoveryManifest.reasoning_notes,
+
+--- L1796 ---
+L1795:               pending_todos: recoveryManifest.pending_todos,
+L1796:               reasoning_notes: recoveryManifest.reasoning_notes,
+L1797:               recent_calls: recoveryManifest.recent_calls,
+
+--- L1797 ---
+L1796:               reasoning_notes: recoveryManifest.reasoning_notes,
+L1797:               recent_calls: recoveryManifest.recent_calls,
+L1798:               recent_decisions: recoveryManifest.recent_decisions,
+
+--- L1798 ---
+L1797:               recent_calls: recoveryManifest.recent_calls,
+L1798:               recent_decisions: recoveryManifest.recent_decisions,
+L1799:               atcs: recoveryManifest.atcs_active ? { task_id: recoveryManifest.atcs_task_id, current_unit: recoveryManifest.atcs_current_unit } : null,
+
+--- L1799 ---
+L1798:               recent_decisions: recoveryManifest.recent_decisions,
+L1799:               atcs: recoveryManifest.atcs_active ? { task_id: recoveryManifest.atcs_task_id, current_unit: recoveryManifest.atcs_current_unit } : null,
+L1800:               age_seconds: Math.round((Date.now() - new Date(recoveryManifest.captured_at).getTime()) / 1000)
+
+--- L1800 ---
+L1799:               atcs: recoveryManifest.atcs_active ? { task_id: recoveryManifest.atcs_task_id, current_unit: recoveryManifest.atcs_current_unit } : null,
+L1800:               age_seconds: Math.round((Date.now() - new Date(recoveryManifest.captured_at).getTime()) / 1000)
+L1801:             } : null,
+
+--- L1802 ---
+L1801:             } : null,
+L1802:             reasoning_trail: notesEntries.length > 0 ? { notes: notesEntries.slice(-3).map((e) => "[" + e.call + "] " + e.notes) } : null,
+L1803:             workflow_recovery: (() => {
+
+--- L1826 ---
+L1825:               }
+L1826:               return { active: false, instruction: "No active workflow. Use recovery_context below." };
+L1827:             })(),
+
+--- L1828 ---
+L1827:             })(),
+L1828:             recovery_context: { _read: "CURRENT_POSITION.md in data/docs/roadmap/" },
+L1829:             action_tracker_next: trackerNext,
+
+--- L1829 ---
+L1828:             recovery_context: { _read: "CURRENT_POSITION.md in data/docs/roadmap/" },
+L1829:             action_tracker_next: trackerNext,
+L1830:             // recent_tool_calls REMOVED ? duplicates SESSION_JOURNAL 60)}`

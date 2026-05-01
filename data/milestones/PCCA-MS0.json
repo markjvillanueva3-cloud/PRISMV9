@@ -1,0 +1,59 @@
+{
+  "id": "PCCA-MS0",
+  "version": "1.0.0",
+  "title": "Unified Asset Census and Provenance Map",
+  "brief": "Create one authoritative ledger of candidate assets: source class, target pillar, target artifact type, and priority. Distinguish canonical runtime inputs from advisory/archive inputs.",
+  "created_at": "2026-03-30T18:00:00Z",
+  "created_by": "claude-haiku-4-5",
+  "track": "PCCA",
+  "track_name": "PRISM Capability Conversion and Activation",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Asset Inventory and Classification",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Census skills, scripts, hooks, course assets, extracted modules, and reference docs using mandatory lookup order",
+          "effort": 70,
+          "dependencies": [],
+          "exit_conditions": ["Complete inventory of all candidate assets", "Source paths and provenance mapped"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Separate active-runtime assets from transformed-reference assets and archival content",
+          "effort": 50,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": ["Asset classification complete", "Active vs. advisory vs. archive clearly distinguished"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Tag candidates by product pillar (speed/feed, post, print-to-program, ERP, build/context) and leverage potential",
+          "effort": 60,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": ["All candidates tagged by pillar and leverage", "Priority ranking established"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Identify duplicates, orphans, phantoms, and stale paths; recommend consolidation or retirement",
+          "effort": 50,
+          "dependencies": ["P0-U03"],
+          "exit_conditions": ["Duplication analysis complete", "Consolidation map generated"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Emit conversion ledger with exact source paths, proposed artifact types, and priority rationale",
+          "effort": 40,
+          "dependencies": ["P0-U04"],
+          "exit_conditions": ["Authoritative candidate ledger exists (JSON + CSV)", "Ready for prioritization in PCCA-MS1-MS8"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["PCCA-MS0A"],
+  "exit_conditions": ["One authoritative candidate ledger exists", "Ledger distinguishes canonical runtime inputs from advisory/archive inputs", "Top-priority conversion work ranked by leverage and dependency"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-prism-capability-conversion-roadmap-design.md",
+  "notes": "Depends on PCCA-MS0A (Capability Conversion Contract Freeze). Output is the master ledger that guides all downstream PCCA work."
+}

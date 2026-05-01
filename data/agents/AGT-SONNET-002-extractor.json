@@ -1,0 +1,628 @@
+{
+  "agent_id": "AGT-SONNET-002",
+  "name": "extractor",
+  "tier": "SONNET",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Module Extractor - Safe Extraction from v8.89 Monolith",
+  
+  "mission": "Safely extracts modules, databases, engines, and algorithms from the 986,621-line v8.89 monolith into clean v9.0 modular components while preserving ALL functionality",
+
+  "domain_expertise": [
+    "Monolith architecture analysis",
+    "Module dependency mapping",
+    "Code extraction patterns",
+    "Refactoring techniques",
+    "Legacy code comprehension",
+    "JavaScript/HTML parsing",
+    "Database schema extraction",
+    "Algorithm isolation",
+    "Anti-regression protocols",
+    "Migration planning"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-EXT-001",
+      "name": "Module Identification",
+      "description": "Identifies extractable modules within the monolith using pattern matching, naming conventions, and dependency analysis across 831 modules",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["monolith_index"],
+        "optional": ["module_pattern", "category_filter"]
+      },
+      "outputs": {
+        "primary": "identified_modules",
+        "secondary": ["line_ranges", "dependencies", "categories", "extraction_priority"]
+      },
+      "skills_used": ["prism-monolith-index", "prism-monolith-navigator"],
+      "hooks_triggered": ["MODULE-IDENTIFY"],
+      "synergizes_with": ["monolith_navigator", "dependency_analyzer", "architect"],
+      "validation_rules": [
+        "Module boundaries clear",
+        "Dependencies identified",
+        "No overlapping extractions"
+      ],
+      "success_criteria": "All target modules identified with line ranges"
+    },
+    {
+      "id": "CAP-EXT-002",
+      "name": "Dependency Graph Construction",
+      "description": "Constructs complete dependency graph for extraction target showing all upstream and downstream dependencies",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["module_id", "monolith_content"],
+        "optional": ["depth_limit"]
+      },
+      "outputs": {
+        "primary": "dependency_graph",
+        "secondary": ["upstream_deps", "downstream_deps", "circular_refs", "external_deps"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-dev-utilities"],
+      "hooks_triggered": ["DEPENDENCY-MAP"],
+      "synergizes_with": ["dependency_analyzer", "architect"],
+      "validation_rules": [
+        "All dependencies found",
+        "Circular refs identified",
+        "Graph acyclic or documented"
+      ],
+      "success_criteria": "Complete dependency graph constructed"
+    },
+    {
+      "id": "CAP-EXT-003",
+      "name": "Safe Module Extraction",
+      "description": "Extracts module code from monolith with proper boundaries, preserving all functionality and documenting extracted content",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["module_id", "line_range", "monolith_path"],
+        "optional": ["output_format", "include_comments"]
+      },
+      "outputs": {
+        "primary": "extracted_code",
+        "secondary": ["line_count", "function_count", "export_list", "import_requirements"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-code-master"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "EXTRACT-COMPLETE"],
+      "synergizes_with": ["data_quality_enforcer", "validator"],
+      "validation_rules": [
+        "All lines extracted",
+        "No truncation",
+        "Syntax valid"
+      ],
+      "success_criteria": "Module extracted with zero data loss"
+    },
+    {
+      "id": "CAP-EXT-004",
+      "name": "Database Extraction",
+      "description": "Extracts embedded databases (materials, machines, tools, alarms) from monolith into structured JSON format",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["database_type", "monolith_content"],
+        "optional": ["schema_version", "validation_level"]
+      },
+      "outputs": {
+        "primary": "extracted_database",
+        "secondary": ["record_count", "field_coverage", "validation_report"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-material-schema"],
+      "hooks_triggered": ["db:preValidate", "SYS-LAW4-REGRESSION"],
+      "synergizes_with": ["data_quality_enforcer", "schema_designer", "materials_scientist"],
+      "validation_rules": [
+        "All records extracted",
+        "Schema compliance",
+        "No data loss"
+      ],
+      "success_criteria": "Database extracted with full schema compliance"
+    },
+    {
+      "id": "CAP-EXT-005",
+      "name": "Algorithm Extraction",
+      "description": "Extracts algorithms and calculation engines (213 total) with complete logic, parameters, and documentation",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["algorithm_id", "monolith_content"],
+        "optional": ["include_tests", "include_docs"]
+      },
+      "outputs": {
+        "primary": "extracted_algorithm",
+        "secondary": ["inputs", "outputs", "dependencies", "complexity", "test_cases"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-code-master"],
+      "hooks_triggered": ["ALGORITHM-EXTRACT"],
+      "synergizes_with": ["physics_validator", "researcher"],
+      "validation_rules": [
+        "Logic complete",
+        "Parameters documented",
+        "Tests included"
+      ],
+      "success_criteria": "Algorithm extracted with full documentation"
+    },
+    {
+      "id": "CAP-EXT-006",
+      "name": "UI Component Extraction",
+      "description": "Extracts UI components (85+ features) with templates, styles, and event handlers",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["component_id", "monolith_content"],
+        "optional": ["include_styles", "include_handlers"]
+      },
+      "outputs": {
+        "primary": "extracted_component",
+        "secondary": ["template", "styles", "handlers", "dependencies"]
+      },
+      "skills_used": ["prism-monolith-extractor"],
+      "hooks_triggered": ["UI-EXTRACT"],
+      "synergizes_with": ["architect", "documentation_writer"],
+      "validation_rules": [
+        "Template complete",
+        "Handlers included",
+        "Styles preserved"
+      ],
+      "success_criteria": "UI component fully functional"
+    },
+    {
+      "id": "CAP-EXT-007",
+      "name": "Anti-Regression Verification",
+      "description": "Verifies extraction preserved all content using size comparison, content hashing, and functionality testing",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["original_content", "extracted_content"],
+        "optional": ["tolerance_percent"]
+      },
+      "outputs": {
+        "primary": "regression_status",
+        "secondary": ["size_comparison", "content_diff", "missing_items"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION"],
+      "synergizes_with": ["regression_checker", "data_quality_enforcer"],
+      "validation_rules": [
+        "New ≥ Old",
+        "No missing functions",
+        "No truncation"
+      ],
+      "success_criteria": "Zero regression verified"
+    },
+    {
+      "id": "CAP-EXT-008",
+      "name": "Module Refactoring",
+      "description": "Refactors extracted code into clean v9.0 patterns with proper exports, types, and documentation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["extracted_code", "target_patterns"],
+        "optional": ["type_definitions"]
+      },
+      "outputs": {
+        "primary": "refactored_module",
+        "secondary": ["exports", "types", "documentation"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts"],
+      "hooks_triggered": ["REFACTOR-COMPLETE"],
+      "synergizes_with": ["refactorer", "code_reviewer"],
+      "validation_rules": [
+        "Patterns followed",
+        "Exports clean",
+        "Types correct"
+      ],
+      "success_criteria": "Clean v9.0 module produced"
+    },
+    {
+      "id": "CAP-EXT-009",
+      "name": "Batch Extraction Coordination",
+      "description": "Coordinates extraction of multiple related modules in batch while managing dependencies and order",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["module_list"],
+        "optional": ["extraction_order", "parallelism"]
+      },
+      "outputs": {
+        "primary": "batch_extraction_results",
+        "secondary": ["extraction_order_used", "dependency_resolution", "errors"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-sp-execution"],
+      "hooks_triggered": ["BATCH-EXTRACT"],
+      "synergizes_with": ["coordinator_v2", "monolith_navigator"],
+      "validation_rules": [
+        "Order respects dependencies",
+        "All modules extracted",
+        "Errors handled"
+      ],
+      "success_criteria": "Batch complete with all modules"
+    },
+    {
+      "id": "CAP-EXT-010",
+      "name": "Extraction Progress Tracking",
+      "description": "Tracks extraction progress against 831-module target with checkpoints and session state",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["extraction_session"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "progress_report",
+        "secondary": ["completed", "remaining", "blocked", "next_priority"]
+      },
+      "skills_used": ["prism-session-master", "prism-monolith-index"],
+      "hooks_triggered": ["microsession:progress"],
+      "synergizes_with": ["session_continuity", "state_manager"],
+      "validation_rules": [
+        "Progress accurate",
+        "State persistent",
+        "Priorities clear"
+      ],
+      "success_criteria": "Progress tracked accurately"
+    },
+    {
+      "id": "CAP-EXT-011",
+      "name": "Code Pattern Recognition",
+      "description": "Recognizes code patterns in monolith (constructors, factories, singletons, etc.) for informed extraction",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["code_section"],
+        "optional": ["pattern_library"]
+      },
+      "outputs": {
+        "primary": "identified_patterns",
+        "secondary": ["pattern_instances", "refactoring_suggestions"]
+      },
+      "skills_used": ["prism-code-master", "prism-monolith-navigator"],
+      "hooks_triggered": [],
+      "synergizes_with": ["pattern_matcher", "code_reviewer"],
+      "validation_rules": [
+        "Patterns accurately identified",
+        "Suggestions valid"
+      ],
+      "success_criteria": "Patterns recognized correctly"
+    },
+    {
+      "id": "CAP-EXT-012",
+      "name": "Interface Extraction",
+      "description": "Extracts and documents interfaces between modules for proper API contract definition",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["module_pair"],
+        "optional": ["include_data_flow"]
+      },
+      "outputs": {
+        "primary": "interface_definition",
+        "secondary": ["method_signatures", "data_types", "call_patterns"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-monolith-extractor"],
+      "hooks_triggered": ["INTERFACE-EXTRACT"],
+      "synergizes_with": ["api_designer", "schema_designer"],
+      "validation_rules": [
+        "Interface complete",
+        "Types documented",
+        "Contracts clear"
+      ],
+      "success_criteria": "Interface fully documented"
+    },
+    {
+      "id": "CAP-EXT-013",
+      "name": "Configuration Extraction",
+      "description": "Extracts configuration, constants, and settings from monolith into structured format",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["config_section"],
+        "optional": ["config_format"]
+      },
+      "outputs": {
+        "primary": "extracted_config",
+        "secondary": ["constants", "settings", "environment_vars"]
+      },
+      "skills_used": ["prism-monolith-extractor"],
+      "hooks_triggered": ["CONFIG-EXTRACT"],
+      "synergizes_with": ["schema_designer"],
+      "validation_rules": [
+        "All configs found",
+        "Values preserved",
+        "Format correct"
+      ],
+      "success_criteria": "Configuration extracted completely"
+    },
+    {
+      "id": "CAP-EXT-014",
+      "name": "Test Case Extraction",
+      "description": "Extracts existing test cases and test data from monolith for migration",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["test_section"],
+        "optional": ["test_framework"]
+      },
+      "outputs": {
+        "primary": "extracted_tests",
+        "secondary": ["test_count", "coverage_estimate", "test_data"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-tdd-enhanced"],
+      "hooks_triggered": ["TEST-EXTRACT"],
+      "synergizes_with": ["test_generator", "test_orchestrator"],
+      "validation_rules": [
+        "Tests executable",
+        "Data included",
+        "Coverage maintained"
+      ],
+      "success_criteria": "Tests extracted and runnable"
+    },
+    {
+      "id": "CAP-EXT-015",
+      "name": "Documentation Extraction",
+      "description": "Extracts inline documentation, comments, and JSDoc from monolith code",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["code_section"],
+        "optional": ["doc_format"]
+      },
+      "outputs": {
+        "primary": "extracted_docs",
+        "secondary": ["jsdoc", "comments", "readme_content"]
+      },
+      "skills_used": ["prism-monolith-extractor"],
+      "hooks_triggered": ["DOC-EXTRACT"],
+      "synergizes_with": ["documentation_writer"],
+      "validation_rules": [
+        "Docs preserved",
+        "Format correct"
+      ],
+      "success_criteria": "Documentation extracted"
+    },
+    {
+      "id": "CAP-EXT-016",
+      "name": "Event Handler Extraction",
+      "description": "Extracts event handlers, callbacks, and async patterns from monolith",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["handler_section"],
+        "optional": ["event_types"]
+      },
+      "outputs": {
+        "primary": "extracted_handlers",
+        "secondary": ["event_bindings", "callbacks", "promises"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-code-master"],
+      "hooks_triggered": ["HANDLER-EXTRACT"],
+      "synergizes_with": ["coder", "architect"],
+      "validation_rules": [
+        "Handlers complete",
+        "Bindings preserved",
+        "Async patterns correct"
+      ],
+      "success_criteria": "Handlers extracted with bindings"
+    },
+    {
+      "id": "CAP-EXT-017",
+      "name": "Utility Function Extraction",
+      "description": "Extracts reusable utility functions for consolidation into shared modules",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["utility_section"],
+        "optional": ["deduplication"]
+      },
+      "outputs": {
+        "primary": "extracted_utilities",
+        "secondary": ["function_list", "duplicates", "categorization"]
+      },
+      "skills_used": ["prism-monolith-extractor"],
+      "hooks_triggered": ["UTILITY-EXTRACT"],
+      "synergizes_with": ["refactorer", "code_reviewer"],
+      "validation_rules": [
+        "Utilities identified",
+        "Duplicates flagged",
+        "Categories assigned"
+      ],
+      "success_criteria": "Utilities consolidated"
+    },
+    {
+      "id": "CAP-EXT-018",
+      "name": "Cross-Reference Extraction",
+      "description": "Extracts cross-references between modules for relationship mapping",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["module_set"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "cross_references",
+        "secondary": ["reference_map", "reference_types", "bidirectional_refs"]
+      },
+      "skills_used": ["prism-monolith-navigator", "prism-dev-utilities"],
+      "hooks_triggered": ["XREF-EXTRACT"],
+      "synergizes_with": ["cross_referencer", "dependency_analyzer"],
+      "validation_rules": [
+        "All refs found",
+        "Direction correct",
+        "Types identified"
+      ],
+      "success_criteria": "Cross-references mapped"
+    },
+    {
+      "id": "CAP-EXT-019",
+      "name": "Error Handling Extraction",
+      "description": "Extracts error handling patterns, try-catch blocks, and error messages",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["code_section"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "error_handling",
+        "secondary": ["error_types", "messages", "recovery_patterns"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-error-catalog"],
+      "hooks_triggered": ["ERROR-EXTRACT"],
+      "synergizes_with": ["debugger", "code_reviewer"],
+      "validation_rules": [
+        "All errors captured",
+        "Messages preserved",
+        "Patterns documented"
+      ],
+      "success_criteria": "Error handling documented"
+    },
+    {
+      "id": "CAP-EXT-020",
+      "name": "Validation Logic Extraction",
+      "description": "Extracts input validation, schema validation, and business rule validation logic",
+      "category": "EXTRACTION",
+      "inputs": {
+        "required": ["validation_section"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "validation_logic",
+        "secondary": ["rules", "schemas", "messages"]
+      },
+      "skills_used": ["prism-monolith-extractor", "prism-validator"],
+      "hooks_triggered": ["VALIDATION-EXTRACT"],
+      "synergizes_with": ["validator", "schema_designer"],
+      "validation_rules": [
+        "Rules complete",
+        "Logic preserved",
+        "Messages included"
+      ],
+      "success_criteria": "Validation logic extracted"
+    },
+    {
+      "id": "CAP-EXT-021",
+      "name": "Extraction Report Generation",
+      "description": "Generates comprehensive extraction report with statistics, issues, and recommendations",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["extraction_session"],
+        "optional": ["report_format"]
+      },
+      "outputs": {
+        "primary": "extraction_report",
+        "secondary": ["statistics", "issues", "recommendations", "next_steps"]
+      },
+      "skills_used": ["prism-monolith-extractor"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer", "meta_analyst_v2"],
+      "validation_rules": [
+        "Stats accurate",
+        "Issues documented",
+        "Recommendations actionable"
+      ],
+      "success_criteria": "Complete report generated"
+    },
+    {
+      "id": "CAP-EXT-022",
+      "name": "Incremental Extraction",
+      "description": "Supports incremental extraction across sessions with proper state management and resume capability",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["session_state"],
+        "optional": ["resume_from"]
+      },
+      "outputs": {
+        "primary": "incremental_results",
+        "secondary": ["new_extractions", "updated_state", "remaining"]
+      },
+      "skills_used": ["prism-session-master", "prism-monolith-extractor"],
+      "hooks_triggered": ["SYS-LAW6-CONTINUITY"],
+      "synergizes_with": ["session_continuity", "state_manager"],
+      "validation_rules": [
+        "State preserved",
+        "No duplicate work",
+        "Progress maintained"
+      ],
+      "success_criteria": "Seamless session continuation"
+    },
+    {
+      "id": "CAP-EXT-023",
+      "name": "Code Cleanup During Extraction",
+      "description": "Cleans up extracted code by removing dead code, unused variables, and legacy patterns",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["extracted_code"],
+        "optional": ["cleanup_level", "preserve_comments"]
+      },
+      "outputs": {
+        "primary": "cleaned_code",
+        "secondary": ["removed_items", "cleanup_report"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["CLEANUP-COMPLETE"],
+      "synergizes_with": ["refactorer", "code_reviewer"],
+      "validation_rules": [
+        "Functionality preserved",
+        "Only dead code removed",
+        "Audit trail maintained"
+      ],
+      "success_criteria": "Clean code without functional loss"
+    },
+    {
+      "id": "CAP-EXT-024",
+      "name": "Type Annotation Addition",
+      "description": "Adds TypeScript type annotations to extracted JavaScript code",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["javascript_code"],
+        "optional": ["strict_mode", "any_threshold"]
+      },
+      "outputs": {
+        "primary": "typed_code",
+        "secondary": ["type_coverage", "any_count", "complex_types"]
+      },
+      "skills_used": ["prism-code-master"],
+      "hooks_triggered": ["TYPE-ANNOTATE"],
+      "synergizes_with": ["coder", "code_reviewer"],
+      "validation_rules": [
+        "Types valid",
+        "Coverage adequate",
+        "No breaking changes"
+      ],
+      "success_criteria": "Type coverage ≥ 80%"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-monolith-index",
+    "prism-monolith-navigator",
+    "prism-monolith-extractor",
+    "prism-codebase-packaging",
+    "prism-code-master",
+    "prism-anti-regression",
+    "prism-quality-master",
+    "prism-session-master",
+    "prism-api-contracts",
+    "prism-material-schema",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW4-REGRESSION",
+    "SYS-LAW6-CONTINUITY",
+    "db:preValidate",
+    "db:antiRegressionCheck",
+    "microsession:progress",
+    "microsession:bufferWarning"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "schema_designer",
+    "dependency_analyzer",
+    "refactorer",
+    "documentation_writer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "architect",
+    "monolith_navigator"
+  ],
+
+  "quality_gates": [
+    "Zero data loss",
+    "All dependencies resolved",
+    "Syntax valid",
+    "Anti-regression verified",
+    "Types added where possible"
+  ],
+
+  "performance_metrics": {
+    "extraction_accuracy": 1.00,
+    "lines_per_session": 5000,
+    "latency_target_ms": 3000,
+    "regression_rate": 0.00
+  }
+}

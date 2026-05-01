@@ -1,0 +1,555 @@
+{
+  "source": "Gosiger/Okuma Training Videos — YouTube",
+  "extractedDate": "2026-03-27",
+  "totalDuration": "6:08:20",
+  "videos": [
+    {
+      "id": "a6HpUb9aIg0",
+      "title": "FULL 2 AXIS CLASS VIDEO",
+      "duration": "3:01:03",
+      "presenter": "Charlie — Gosiger Application Staff",
+      "machine": "Okuma LB-series lathe (2-axis CNC turning center)",
+      "control": "OSP-P300L (Windows-based)"
+    },
+    {
+      "id": "m_81i5303N8",
+      "title": "XZC class full — Mill-Turn C-Axis Programming",
+      "duration": "1:15:58",
+      "presenter": "Charlie — Gosiger Application Staff",
+      "machine": "Okuma LB-series lathe with C-axis milling capability",
+      "control": "OSP-P300L"
+    },
+    {
+      "id": "xLLh-hfe_R8",
+      "title": "AOT Advanced One Touch — Conversational Programming",
+      "duration": "50:11",
+      "presenter": "Charlie — Gosiger Application Staff",
+      "machine": "Okuma LB 3000 MY/W (Milling + Y-axis + Sub-spindle)",
+      "control": "OSP-P300L with AOT (Advanced One Touch / IGF)"
+    },
+    {
+      "id": "BSHxkpqjbxA",
+      "title": "Okuma Mill CAS — Collision Avoidance System",
+      "duration": "34:27",
+      "presenter": "Charlie — Gosiger Application Staff",
+      "machine": "Okuma MB-4000A (horizontal machining center)",
+      "control": "OSP-P300M with CAS option"
+    },
+    {
+      "id": "cIfaBuAXnIo",
+      "title": "Okuma OSP-P300L Control Overview",
+      "duration": "22:06",
+      "presenter": "Matt — Hartwig Applications Engineer",
+      "machine": "Okuma LB 3000 EX2 MY/W",
+      "control": "OSP-P300L/A"
+    },
+    {
+      "id": "fxINldXY8QQ",
+      "title": "Broaching on an Okuma Lathe",
+      "duration": "18:46",
+      "presenter": "Charlie — Gosiger Application Staff",
+      "machine": "Okuma LB-series turning center",
+      "control": "OSP-P300L"
+    },
+    {
+      "id": "lH0U1afCBp4",
+      "title": "AOT for Okuma Machining Center Demo",
+      "duration": "25:49",
+      "presenter": "Joe Million — Hartwig",
+      "machine": "Okuma Genos-series machining center",
+      "control": "OSP-P300M with AOT-Mill (IGF-Mill)"
+    }
+  ],
+
+  "machines": {
+    "okumaModels": [
+      {
+        "model": "LB 3000 EX2",
+        "type": "CNC Turning Center",
+        "variants": {
+          "M": "Milling (live tooling)",
+          "Y": "Y-axis on turret",
+          "W": "Sub-spindle (W-axis)"
+        },
+        "control": "OSP-P300L/A",
+        "spindleMaxRPM": 4500,
+        "turretStations": 12,
+        "capabilities": ["2-axis turning", "C-axis milling", "Y-axis milling", "sub-spindle operations", "live tooling", "bar feed"]
+      },
+      {
+        "model": "MB-4000A",
+        "type": "Horizontal Machining Center",
+        "control": "OSP-P300M",
+        "capabilities": ["3-axis milling", "4th axis (B-axis)", "pallet changer", "CAS collision avoidance"]
+      },
+      {
+        "model": "Genos series",
+        "type": "Vertical Machining Center",
+        "control": "OSP-P300M",
+        "capabilities": ["3-axis milling", "AOT-Mill conversational programming"]
+      },
+      {
+        "model": "Multus",
+        "type": "Multi-Tasking Machine",
+        "notes": "CAS included as standard"
+      },
+      {
+        "model": "LT series",
+        "type": "Twin-Spindle Turning Center",
+        "notes": "CAS included as standard"
+      }
+    ]
+  },
+
+  "ospControl": {
+    "model": "OSP-P300",
+    "variants": {
+      "P300L": "Lathe control",
+      "P300M": "Mill control",
+      "P300A": "Advanced variant"
+    },
+    "operatingSystem": "Windows-based",
+    "fileSystem": "Programs stored as .min files, referenced by filename not O-number",
+    "modeSelectionKeys": {
+      "auto": "Automated operation — run programs, watch loads, distance-to-go",
+      "mdi": "Manual Data Input — type G/M codes for specific operations",
+      "manual": "Manual mode — jog machine, perform manual operations",
+      "programOperations": "Program editing and management",
+      "offsetSetting": "Tool offset configuration"
+    },
+    "uniqueFeatures": {
+      "windowsBacked": "Programs identified by filename (.min), O-numbers optional",
+      "noEOBRequired": "No End-of-Block semicolon needed — INPUT key adds carriage return automatically",
+      "noPercentOrDollar": "RS-232 preamble characters (%, $) not needed with USB/Ethernet",
+      "alphanumericSequenceNames": "N-numbers can use letters: NTURN, NDRILL, NTAP (letters before numbers only, e.g. NTAP1 OK, N1TAP not OK)",
+      "sequenceNameLimit": "4 characters after N",
+      "clearAndDraw": "CLEAR erases trace lines, DRAW restores material to solid form in 3D graphics",
+      "midAutoManual": "Special button allows jogging while in MDI mode without losing offset — critical for tool touch-off",
+      "blankIDSetup": "Spindle 1 Setup tab — define OD, length, Z-zero for 3D material simulation"
+    },
+    "programStructure": {
+      "header": ["CLEAR", "DRAW", "G28 (home)", "SMAX (max spindle RPM for setup)"],
+      "toolCallFormat": "T0101 (tool 1, offset 1) — Okuma uses T + 2-digit station + 2-digit offset",
+      "endOfProgram": "M02 or M30",
+      "noONumberRequired": true,
+      "noPreambleRequired": true
+    }
+  },
+
+  "programmingKnowledge": {
+    "gCodes": {
+      "G00": {
+        "function": "Rapid positioning",
+        "notes": "Also cancels canned/drilling cycles. Use for positioning moves above material. CAS will block G0 moves near material."
+      },
+      "G01": {
+        "function": "Linear interpolation (feed mode)",
+        "notes": "Required before cutting moves. Must specify F (feedrate)."
+      },
+      "G28": {
+        "function": "Return to reference position (home)",
+        "notes": "U0 W0 sends turret home in X and Z without going through an intermediate point"
+      },
+      "G40": {
+        "function": "Cancel tool nose radius compensation",
+        "notes": "Must be on a G0 or G1 line"
+      },
+      "G41": {
+        "function": "Tool nose radius compensation LEFT",
+        "notes": "Tool is to the left of workpiece when looking in feed direction"
+      },
+      "G42": {
+        "function": "Tool nose radius compensation RIGHT",
+        "notes": "Tool is to the right of workpiece when looking in feed direction"
+      },
+      "G50": {
+        "function": "Set maximum spindle speed (SMAX)",
+        "notes": "CRITICAL safety code — limits RPM in G96 mode. Must be set based on setup not machine max. Example: 2000 RPM for 2.75in stock in 3-jaw chuck"
+      },
+      "G85": {
+        "function": "Roughing canned cycle (Okuma)",
+        "notes": "Multi-pass roughing cycle — specify start/end geometry, depth of cut, and the machine handles all passes. 'Canned cycle = ask the machine to do a complex process with just parameters'"
+      },
+      "G96": {
+        "function": "Constant Surface Speed (CSS)",
+        "notes": "Specifies surface feet per minute — machine auto-adjusts RPM based on tool position relative to centerline. ESSENTIAL for turning — maintains consistent cutting conditions as diameter changes"
+      },
+      "G97": {
+        "function": "Constant RPM mode",
+        "notes": "Fixed RPM regardless of diameter. Used for drilling, threading, cutoff. Not ideal for facing/turning where diameter changes"
+      }
+    },
+    "g96VsG97": {
+      "g96Usage": "Turning, facing, boring — any operation where tool moves across changing diameters",
+      "g97Usage": "Drilling (fixed diameter), threading (fixed pitch), tapping, cutoff",
+      "g96Benefit": "Machine calculates RPM = (SFM * 12) / (pi * diameter). As tool approaches center, RPM increases to maintain SFM. Prevents tool damage from slow SFM at small diameters.",
+      "smaxRequired": "G50 SMAX MUST be set before G96 — otherwise spindle can over-speed at small diameters",
+      "smaxGuideline": "Set based on SETUP maximum (workholding, balance), NOT machine maximum. 2000 RPM typical for 2.75in steel in 3-jaw chuck"
+    },
+    "mCodes": {
+      "M03": "Spindle ON clockwise",
+      "M04": "Spindle ON counterclockwise",
+      "M05": "Spindle stop",
+      "M02": "End of program",
+      "M30": "End of program and rewind"
+    }
+  },
+
+  "toolSetup": {
+    "turretLayout": {
+      "bestPractice": "Group OD (stick) tools together and ID (boring/drill) tools together, separated by empty stations",
+      "interferenceAvoidance": "Z-axis live tools next to X-axis stick tools can interfere — place shortest Z-axis tool next to stick tools",
+      "charlieTip": "Station 1 = roughing CNMG (almost never removed), Station 12 = cutoff blade (also rarely changed). This leaves stations 2-11 for job-specific tools.",
+      "grouping": "Stick tools on one side of turret, ID-working tools on opposite side, maximum separation"
+    },
+    "toolOffsets": {
+      "okumaFormat": "T + 2-digit station + 2-digit offset (e.g., T0101 = station 1, offset 1)",
+      "noseRadiusComp": {
+        "xColumn": "Nose radius value",
+        "zColumn": "Same nose radius value (Okuma has separate X and Z nose radius columns — put same value in both)",
+        "pValue": {
+          "3": "Turning tool (OD)",
+          "2": "Boring bar (ID)",
+          "0_or_9": "End mill (compensate from center tip)",
+          "description": "P-number tells machine how tool is oriented. Fanuc uses 'T' for same concept."
+        }
+      },
+      "whyUseNoseRadComp": "Allows changing insert size (e.g., 1/64 to 1/32 nose radius) without rewriting program. Machine compensates automatically."
+    },
+    "dualOffsetGrooveTrick": {
+      "description": "Use two different offsets for same groove tool — one for front edge, one for back edge",
+      "example": "Station 4, Offset 4 AND Offset 24",
+      "benefit": "Gives adjustment for diameter, location, AND groove width. Without this, groove width is fixed to insert width."
+    },
+    "toolTypes": {
+      "CNMG": {
+        "use": "Roughing OD turning",
+        "noseRadius": "1/64 (0.0156) typical for roughing",
+        "notes": "80-degree diamond insert, negative rake. Very versatile general-purpose turning insert."
+      },
+      "DNMG": {
+        "use": "Finishing OD turning + deburring",
+        "noseRadius": "1/64 (0.0156) for general finishing",
+        "angle": "55-degree diamond",
+        "notes": "Can reach 45-degree chamfers, fillets, and thread relief areas. Used for deburr pass after threading."
+      },
+      "threadingTool": {
+        "type": "60-degree single-point",
+        "variants": ["Full profile", "Semi profile", "Single point"],
+        "notes": "60-degree for standard threads, ACME threads use different angle"
+      },
+      "grooveTool": {
+        "example": "O93T5 (0.093 width T-insert with 0.005 radius)",
+        "notes": "Can step over for wider grooves using canned cycle. Use dual-offset trick for width control."
+      },
+      "insertDrill": {
+        "example": "0.745 flat-bottom insert drill for 0.750 bore",
+        "notes": "Drills slightly under target diameter to allow finish boring. Large drills create significant tool pressure — drill ID before finishing OD to avoid dimensional distortion."
+      },
+      "boringBar": {
+        "sizing": "Must be smaller than drilled hole diameter",
+        "example": "0.500 boring bar for 0.745 drilled hole",
+        "pValue": "P2 for nose radius compensation"
+      },
+      "endMill": {
+        "noseRadComp": "Put FULL RADIUS in nose comp column (e.g., 0.250 for 1/2in end mill in both X and Z)",
+        "pValue": "P0 or P9 (both mean compensate from center tip)",
+        "notes": "No CAM system compensation available when hand-programming at control"
+      },
+      "cutoffBlade": {
+        "placement": "Station 12 (Charlie ISM — rarely removed, always know where it is)"
+      }
+    }
+  },
+
+  "processPlanning": {
+    "operationSequence": {
+      "title": "Charlie's 2-Axis Lathe Process Plan (from the part in class)",
+      "steps": [
+        {"step": 1, "operation": "Face and Rough Turn OD", "tool": "CNMG (Station 1)", "reason": "Remove bulk material first"},
+        {"step": 2, "operation": "Drill ID (0.745 insert drill)", "tool": "Insert Drill (Station 7)", "reason": "Drill while maximum material supports part — before finishing OD. Large drill creates pressure that could distort finished features."},
+        {"step": 3, "operation": "OD Groove", "tool": "Groove Tool (Station 4)", "reason": "Cut grooves before finish turn"},
+        {"step": 4, "operation": "Finish Turn OD", "tool": "DNMG (Station 2)", "reason": "Bring all diameters to final size"},
+        {"step": 5, "operation": "Thread (2in-12 TPI)", "tool": "60-deg Threading Tool (Station 3)", "reason": "Thread after finish turn"},
+        {"step": 6, "operation": "Deburr Thread", "tool": "DNMG (Station 2)", "reason": "Run DNMG up face to remove threading burrs. Then redo back groove to clear burrs pushed backward."},
+        {"step": 7, "operation": "Re-thread (spring pass)", "tool": "Threading Tool (Station 3)", "reason": "Re-run thread tool to clean up lead after deburring"},
+        {"step": 8, "operation": "Bore ID (counterbore, chamfer, finish 0.750)", "tool": "Boring Bar (Station 8)", "reason": "Final ID work after all OD forces are done"},
+        {"step": 9, "operation": "Cutoff", "tool": "Cutoff Blade (Station 12)", "reason": "Part complete, separate from bar stock"}
+      ],
+      "keyPrinciple": "Do most aggressive operations first (roughing, drilling) while maximum material supports the part. Do finishing operations last. Thread, then deburr, then re-thread to ensure clean threads."
+    },
+    "materialConsiderations": {
+      "stockSelection": "For 2.5in final OD, use 2.75in stock — ensures concentricity and cleanup on all features",
+      "materialNotes": "1045 steel used in AOT demo, 4140 steel mentioned in 2-axis class"
+    }
+  },
+
+  "workZeroSetup": {
+    "methods": [
+      {
+        "method": "Face and Calibrate (most common for Okuma)",
+        "steps": [
+          "Load tool in MDI: T0101",
+          "Use Mid-Auto-Manual button to jog while in MDI (keeps offset active)",
+          "Make facing cut across material face",
+          "Go to Spindle 1 Setup > Calibrate Zero",
+          "Input 0 (face is Z-zero)",
+          "ALWAYS verify offset is still active before hitting Calibrate",
+          "Hit Reset to dump offset, move tool clear"
+        ],
+        "criticalWarning": "Switching from MDI to Manual mode DUMPS the offset. Use Mid-Auto-Manual button instead. Always check offset is active before calibrating."
+      },
+      {
+        "method": "Tool Setter (auto touch-off)",
+        "notes": "If tool setter calibrated with a tool whose Z offset is zero, use that tool to set work zero"
+      }
+    ],
+    "okumaDatumConvention": "Okuma uses the base of the part (right face/chuck face) as the Z-datum. Program zero is at the finished face of the part."
+  },
+
+  "aotConversationalProgramming": {
+    "fullName": "Advanced One Touch (AOT) / Integrated Graphics Function (IGF)",
+    "availability": {
+      "lathe": "AOT-Lathe — standard on many LB models",
+      "mill": "AOT-Mill / IGF-Mill — becoming standard on Genos line, available as add-on for existing machines"
+    },
+    "blankSetup": {
+      "materialDefinition": "Specify material type (e.g., 1045 steel)",
+      "stockDimensions": "OD, length",
+      "maxSpindleSpeed": "Set to SETUP maximum, not machine maximum",
+      "baseSurface": "Right end for main spindle work",
+      "dimensionZeroPosition": {
+        "spindle1": "Not critical for program output, but controls graphics simulation. Use negative value to show face material removal.",
+        "spindle2": "Set to part OAL — CRITICAL: if not populated, AOT will not offer sub-spindle operations. This is where it decides to generate a full 2-spindle program."
+      }
+    },
+    "processCreation": {
+      "workflow": "Touch blank row in process sheet > Process Edit > Select spindle (1 or 2) > Select operation type",
+      "processTypes": ["Face/Turn", "Drill", "Groove", "Thread", "Bore", "Cutoff", "Mill Face", "Mill Side", "Drill (live face)", "Tap (live face)"],
+      "operationPerSpindle": "Each new process asks which spindle — enabling automatic part transfer programming"
+    },
+    "idealFor": "Quick shop-floor programming, simple parts, vice jaw cutting, prototype work, shops without CAM system",
+    "notIdealFor": "Complex curves, surfaces, highly complex geometry — use CAM system instead",
+    "graphicsSimulation": "Built-in process simulation shows material removal in real-time 3D"
+  },
+
+  "casCollisionAvoidance": {
+    "fullName": "CAS — Collision Avoidance System",
+    "description": "Virtual 3D mockup of entire machine that runs one step ahead to prevent collisions in both manual and automatic modes",
+    "prevents": ["Broken tools", "Crashed machine", "Vice/fixture damage", "Part damage from programming errors"],
+    "standardOn": ["Multus", "LT (twin-spindle turning centers)"],
+    "optionalOn": ["MB-4000A (horizontal mill)", "LB series (lathes)", "Most Okuma machines"],
+    "setupForMill": {
+      "location": "Data Setting mode > CAS display",
+      "definition": "Build virtual mockup of machine, fixture, workpiece, and all tools",
+      "toolDefinition": "Define tool assembly dimensions for each station",
+      "workpieceDefinition": "Define workpiece volume (block or cylinder)",
+      "fixtureDefinition": "Define vise, fixture plates, clamps"
+    },
+    "operation": {
+      "display": "Upper-right corner of screen — touch to toggle CAS display",
+      "realTimeMonitoring": "Shows all machine components moving in 3D during operation",
+      "manualProtection": "Prevents collisions during manual jogging",
+      "autoProtection": "Halts program execution before collision occurs",
+      "coolantNote": "Especially useful when coolant obscures window — see virtual part on screen"
+    },
+    "casAndProgramming": {
+      "g0Restriction": "CAS does not allow G0 (rapid) moves when tool is touching/near material — use G1 feed moves to clear material before rapiding",
+      "workaround": "Feed away from material at high feedrate (e.g., F500), then switch to G0 once clear"
+    }
+  },
+
+  "broachingOnLathe": {
+    "overview": "Cutting keyways on the ID of parts using the lathe turret",
+    "methods": {
+      "rotaryBroach": {
+        "description": "Wobble broach tool for full ID profiles",
+        "technique": "Position, add slight taper at hole opening, aggressive feed rate (prevents double-clutch), let wobbling bearing do the cutting",
+        "notes": "Best method if you have one"
+      },
+      "staticBroach": {
+        "description": "Rectangular keyway stock sharpened into a broach, held in static boring bar holder",
+        "toolholding": "Use STATIC holder, NOT live tool holder",
+        "criticalWarning": "NEVER use live tool holder for static broaching — axial loads without rotation will pit the bearings/races",
+        "clamping": "Clamp very tight — significant Z+ pressure during cut",
+        "programming": {
+          "simple": "Call tool, M5 (spindle stop), position X to keyway depth, feed Z through part",
+          "withCAxisOrientation": "M19 C-axis orient to specific angle, then feed through",
+          "multipleKeyways": "Use C-axis indexing between keyway positions"
+        },
+        "parameters": {
+          "depthOfCut": "Single pass at final depth for most keyway sizes",
+          "feedRate": "Slow and steady — material-dependent",
+          "spindleMode": "M5 (stopped) — C-axis locks spindle in position"
+        }
+      }
+    }
+  },
+
+  "cAxisMillTurn": {
+    "overview": "Adding milling operations to a turned part using C-axis (spindle orientation + live tools)",
+    "partFeatures": [
+      "Quarter-inch by quarter-inch holes at quadrants on OD (radial drilling)",
+      "Four 6-32 tapped holes (half-inch deep) on face",
+      "Milled hex across front of part"
+    ],
+    "toolSetup": {
+      "liveEndMill": {
+        "station": 9,
+        "type": "Half-inch Z-axis end mill",
+        "noseComp": "Full radius (0.250) in both X and Z columns, P=0 or P=9"
+      },
+      "sideActionDrill": {
+        "type": "X-axis drill for radial holes on OD",
+        "noseComp": "None needed for drills"
+      },
+      "liveDrill": {
+        "type": "Z-axis drill for face holes",
+        "noseComp": "None needed"
+      },
+      "liveTap": {
+        "type": "Z-axis tap for face tapped holes",
+        "noseComp": "None needed"
+      }
+    },
+    "cannedCycles": {
+      "liveFaceMilling": "Milling cycle for face features (hex milling)",
+      "liveFaceDrilling": "Drilling canned cycle for face holes",
+      "liveFaceTapping": "Tapping cycle for face holes"
+    },
+    "cAxisVsYAxis": {
+      "cAxis": "Spindle rotational positioning — tool moves in X/Z while spindle rotates. Works for radial features, face drilling, hex milling.",
+      "yAxis": "Linear axis perpendicular to X/Z plane — enables true milling (off-center features, slots, flats). Required for eccentric features.",
+      "withoutYAxis": "C-axis only — good for centered face operations and radial operations at quadrant positions"
+    }
+  },
+
+  "machinistTipsAndTricks": [
+    {
+      "category": "Process Planning",
+      "tip": "Always study the part print completely before starting. Write down your process list on paper — even a scratch pad works.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Process Planning",
+      "tip": "Do the most aggressive operations first while maximum material supports the part. Large drills create significant pressure that can deform thin features.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Threading",
+      "tip": "After threading, the thread tool rolls burrs forward and backward. Run DNMG up the face to remove forward burrs, then re-groove to remove backward burrs, then re-thread (spring pass) to clean the lead.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Tool Setup",
+      "tip": "Keep roughing CNMG in Station 1 and cutoff in Station 12 — they almost never change between jobs. Fill job-specific tools in between.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Tool Setup",
+      "tip": "Separate stick tools from ID-working tools on the turret with empty stations to prevent interference. Place shortest Z-axis tool next to stick tools.",
+      "source": "Charlie — XZC Class"
+    },
+    {
+      "category": "Tool Offset",
+      "tip": "For groove tools, use dual offsets (e.g., offset 4 and offset 24) for front and back edges — gives you width adjustment in addition to position and depth.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Work Zero",
+      "tip": "CRITICAL: Switching from MDI to Manual mode dumps the tool offset. Use the Mid-Auto-Manual button to jog while keeping offset active. Always verify offset is active before calibrating zero.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Programming",
+      "tip": "On Okuma OSP-P300, you don't need O-numbers, percent signs, or EOB semicolons. Programs are identified by filename. The INPUT key auto-generates carriage return.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Programming",
+      "tip": "Use CLEAR and DRAW at the start of every program to reset 3D graphics simulation. Not required but essential for visual verification when programming at the control.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Programming",
+      "tip": "N-sequence names can use letters on Okuma (NTURN, NDRILL, NTAP) — up to 4 characters. Letters must come before numbers (NTAP1 OK, N1TAP will error).",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Speed Control",
+      "tip": "G96 (CSS) is essential for turning — machine auto-adjusts RPM as tool crosses diameters. Always set G50 SMAX first based on your setup (workholding, balance), not machine max.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Speed Control",
+      "tip": "Use G97 (constant RPM) for drilling, threading, tapping, cutoff — operations where diameter doesn't change during cut.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Nose Radius",
+      "tip": "Okuma has separate X and Z nose radius columns. Put the SAME value in both. The P-value tells the machine tool orientation: P3=turning tool, P2=boring bar, P0/P9=end mill (center comp).",
+      "source": "Charlie — 2-Axis & XZC Class"
+    },
+    {
+      "category": "Nose Radius",
+      "tip": "Put nose radius in the offset page rather than hardcoding compensation in the program. This way if you swap to a different nose radius insert later, just change the offset — no program edit needed.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Safety",
+      "tip": "On a roughing cut, position tool 50 thou above material diameter and run in single block first — if tool doesn't stop at that position, you know the offset is wrong BEFORE it contacts material.",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "CAS",
+      "tip": "CAS will not allow G0 rapid moves when tool is touching material. Feed away from material at high feedrate first, then switch to G0 once clear.",
+      "source": "Charlie — Mill CAS Video"
+    },
+    {
+      "category": "Broaching",
+      "tip": "NEVER use a live tool holder for static broaching — axial loads without rotation will pit the bearings. Use a solid/static boring bar holder and clamp very tight.",
+      "source": "Charlie — Broaching Video"
+    },
+    {
+      "category": "AOT/IGF",
+      "tip": "In blank setup for 2-spindle AOT work, you MUST populate the spindle 2 dimension zero position (set to part OAL). If blank, AOT won't know to generate sub-spindle code.",
+      "source": "Charlie — AOT Video"
+    },
+    {
+      "category": "AOT/IGF",
+      "tip": "AOT-Mill is great for quick shop-floor programming (vice jaws, prototypes, simple parts). NOT suitable for complex curves/surfaces — use CAM for those.",
+      "source": "Joe Million — AOT Mill Demo"
+    },
+    {
+      "category": "Material",
+      "tip": "For facing cuts, the feedrate perpendicular to the face (across the diameter) can be relatively aggressive since it's a light cut (6 thousandths/rev typical for roughing face on steel).",
+      "source": "Charlie — 2-Axis Class"
+    },
+    {
+      "category": "Process",
+      "tip": "If you get a good part at the end of the day, you did it right. There's always more than one correct way to process a part.",
+      "source": "Charlie — 2-Axis Class (repeated throughout)"
+    }
+  ],
+
+  "speedsAndFeeds": {
+    "disclaimer": "Specific S&F values from these training videos are illustrative, not production-optimized. Charlie explicitly notes 'don't hold Charlie's feet to the fire on speeds and feeds.'",
+    "generalGuidelines": {
+      "roughFacingFeedRate": "0.006 in/rev typical for roughing face on steel",
+      "roughTurningDepthOfCut": "Per insert manufacturer recommendations — typically 0.050-0.100 radial for CNMG in steel",
+      "smaxForSteel": "2000 RPM typical max for 2.75in steel stock in 3-jaw chuck",
+      "g96SFM": "Per tool manufacturer recommendation for material — use G96 S[SFM] with G50 SMAX"
+    }
+  },
+
+  "okumaSpecificGcodes": {
+    "CLEAR": "Erase trace lines and previous material rendering in 3D graphics",
+    "DRAW": "Restore material to original solid form in 3D graphics",
+    "SMAX": "Maximum spindle speed setting (equivalent to G50 S[rpm])",
+    "G28_U0_W0": "Home turret without intermediate positioning point",
+    "G85": "Roughing canned cycle (multi-pass turning)",
+    "G96": "Constant Surface Speed (CSS) — specify SFM, machine calculates RPM",
+    "G97": "Constant RPM mode — direct RPM specification",
+    "midAutoManual": "Physical button — allows jogging in MDI mode while keeping offsets active"
+  }
+}

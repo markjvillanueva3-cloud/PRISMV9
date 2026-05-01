@@ -1,0 +1,45 @@
+{
+  "skill_id": "prism-roadmap-generator",
+  "name": "Roadmap Generator",
+  "category": "workflow",
+  "description": "7-stage pipeline converting human briefs into fully-detailed RGS-format roadmaps with role/model assignment, tool mapping, scrutinization, and auto-indexing.",
+  "version": "1.0.0",
+  "priority": 10,
+  "triggers": [
+    "generate roadmap",
+    "create roadmap",
+    "build roadmap",
+    "plan roadmap",
+    "new roadmap from brief",
+    "roadmap generation"
+  ],
+  "use_cases": [
+    "Creating new project roadmaps from human briefs",
+    "Planning multi-phase implementation projects",
+    "Converting requirements into structured execution plans",
+    "Generating RGS-format roadmaps for PRISM development"
+  ],
+  "dependencies": [
+    "prism-roadmap-schema",
+    "prism-roadmap-scrutinizer"
+  ],
+  "related_skills": [
+    "prism-roadmap-schema",
+    "prism-roadmap-atomizer",
+    "prism-roadmap-scrutinizer"
+  ],
+  "tags": [
+    "roadmap",
+    "generation",
+    "workflow",
+    "meta",
+    "pipeline",
+    "rgs"
+  ],
+  "files": {
+    "skill": "skills-consolidated/prism-roadmap-generator/SKILL.md",
+    "pipeline_architecture": "mcp-server/data/docs/RGS_PIPELINE_ARCHITECTURE.md",
+    "prompt_templates": "mcp-server/data/templates/rgs-prompts/",
+    "schema": "mcp-server/src/schemas/roadmapSchema.ts"
+  }
+}

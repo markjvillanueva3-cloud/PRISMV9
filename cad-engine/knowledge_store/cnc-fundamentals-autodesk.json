@@ -1,0 +1,89 @@
+{
+  "document_id": "cnc-fundamentals-autodesk-2014",
+  "title": "Fundamentals of CNC Machining - A Practical Guide for Beginners",
+  "source": "Autodesk Inc. (2014) - 256 pages",
+  "domain": "multi",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "RPM formula with 3.82 constant derivation",
+      "body": "RPM = (SFM × 3.82) / Diameter(inches). The constant 3.82 = 12/π, converting surface feet per minute to revolutions. For metric: RPM = (SMM × 318.31) / Diameter(mm). This is the foundational speed calculation for all milling and drilling operations.",
+      "category": "speeds_feeds",
+      "tags": ["rpm", "sfm", "formula", "speed-calculation", "3.82-constant"],
+      "operation_types": ["milling", "drilling"],
+      "confidence": 95
+    },
+    {
+      "title": "Feed rate formula: IPM = RPM × IPR × Flutes",
+      "body": "Feed(IPM) = RPM × ChipLoad(IPR) × NumberOfFlutes. For tapping: Feed(IPM) = RPM / TPI. Always calculate feed AFTER determining RPM. If calculated RPM exceeds machine maximum, use max RPM in the feed calculation to maintain proper chip load.",
+      "category": "speeds_feeds",
+      "tags": ["feed-rate", "ipm", "chip-load", "formula"],
+      "operation_types": ["milling", "drilling", "tapping"],
+      "confidence": 95
+    },
+    {
+      "title": "Climb milling mandatory on CNC machines",
+      "body": "ALWAYS use climb milling on CNC machines. Tool engages at maximum chip thickness, decreasing to zero. Benefits: less cutting pressure, less heat, better surface finish, longer tool life. Conventional milling (zero to max thickness) causes work hardening and rakes chips across finished surface. Ball screws eliminate the backlash concern that required conventional milling on manual machines.",
+      "category": "toolpath",
+      "tags": ["climb-milling", "conventional", "chip-load", "surface-finish", "cnc"],
+      "operation_types": ["milling"],
+      "confidence": 95
+    },
+    {
+      "title": "Data starving causes machine bumping/shudder",
+      "body": "Data starving occurs when machine acceleration/deceleration between moves causes choppy motion ('bumping'). Solution: Use toolpath filtering which can reduce program size by 90% using arc fitting. Paths parallel to the active work plane (G17/G18/G19) filter better. Cut tolerance + filter tolerance are additive for total deviation.",
+      "category": "troubleshooting",
+      "tags": ["data-starving", "bumping", "filtering", "arc-fitting", "acceleration"],
+      "operation_types": ["milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Form taps vs cutting taps: no chips for soft materials",
+      "body": "Form taps (roll taps) displace material rather than cutting, producing NO chips. Ideal for aluminum, copper, brass, and plastics. Cutting taps shear material and create chips. For blind holes use bottoming taps; for through holes use spiral point taps (push chips ahead). For small taps (<#8), consider hand tapping to prevent breakage.",
+      "category": "tooling",
+      "tags": ["form-tap", "cutting-tap", "roll-tap", "threading", "soft-materials"],
+      "operation_types": ["tapping"],
+      "confidence": 90
+    },
+    {
+      "title": "REST milling: REmaining STock removal",
+      "body": "REST (REmaining STock) machining only removes material left by previous operations. Use a tool slightly smaller than the smallest feature for efficient REST milling. Automatically calculates leftover material from prior tool passes. Essential for efficient multi-tool 3D finishing strategies.",
+      "category": "toolpath",
+      "tags": ["rest-milling", "remaining-stock", "3d-machining", "multi-tool"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "Separate tool sets for plastic vs metal",
+      "body": "Never use tools that machined metal to cut plastic — the cutting edge is compromised. Keep two dedicated tool sets: one for plastics, one for metals. HSS cutters work best for plastics (sharper edge, less heat); carbide is better for aluminum and harder metals. Plastic cutting generates heat that can melt/deform the workpiece.",
+      "category": "tooling",
+      "tags": ["plastic", "metal", "tool-selection", "hss", "carbide", "contamination"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "Reamed holes accurate within ±0.0002\" diameter",
+      "body": "Reamers produce precision holes accurate within ±0.0002\" (0.005mm) diameter. Always drill undersized first (use tap drill chart for correct pilot size), then ream to final dimension. Reamers are not designed to remove significant material — pilot hole must be close to final size.",
+      "category": "quality",
+      "tags": ["reaming", "precision", "tolerance", "pilot-hole", "hole-finishing"],
+      "operation_types": ["drilling"],
+      "confidence": 90
+    },
+    {
+      "title": "Scallop vs parallel finish: topography affects quality",
+      "body": "Parallel finishing is quick to calculate but leaves scallops on steep walls. Scallop finishing maintains constant scallop height regardless of surface angle, producing superior finish but generating larger programs. Choose based on part geometry: parallel for gentle surfaces, scallop for complex 3D with steep walls.",
+      "category": "toolpath",
+      "tags": ["scallop", "parallel-finish", "3d-machining", "surface-finish", "stepover"],
+      "operation_types": ["milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Insert tolerance classes: M/G/E/K designations",
+      "body": "Turning insert tolerance designations (CNMG format): M class = ±0.002-0.005\" cornerpoint; G class = ±0.001\" (precision); E class = ±0.001\" all dimensions (high precision); K class = ±0.0005\" (ultra-precision). Higher precision inserts cost more but enable tighter part tolerances. Match insert class to required part tolerance.",
+      "category": "tooling",
+      "tags": ["insert", "tolerance", "cnmg", "turning", "precision-class"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    }
+  ]
+}

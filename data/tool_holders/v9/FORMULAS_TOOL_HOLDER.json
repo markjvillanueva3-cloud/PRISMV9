@@ -1,0 +1,105 @@
+{
+  "title": "PRISM Tool Holder Formulas Registry",
+  "version": "1.0.0",
+  "created": "2026-01-26T19:00:00Z",
+  "total_formulas": 12,
+  "formulas": [
+    {
+      "id": "F-TH-001",
+      "name": "Tool Holder Quality Index (THQI)",
+      "formula": "THQI = w1*R + w2*S + w3*D + w4*B + w5*C + w6*T",
+      "components": {
+        "R": "Runout Score [0-1]",
+        "S": "Stiffness Score [0-1]",
+        "D": "Damping Score [0-1]",
+        "B": "Balance Score [0-1]",
+        "C": "Clamping Score [0-1]",
+        "T": "Thermal Stability Score [0-1]"
+      },
+      "weights": {
+        "finishing": [0.35, 0.20, 0.20, 0.15, 0.05, 0.05],
+        "roughing": [0.10, 0.35, 0.20, 0.10, 0.20, 0.05],
+        "high_speed": [0.20, 0.15, 0.15, 0.35, 0.10, 0.05],
+        "drilling": [0.15, 0.25, 0.15, 0.15, 0.25, 0.05],
+        "precision": [0.40, 0.15, 0.10, 0.10, 0.05, 0.20]
+      },
+      "hook": "toolholder:select",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-TH-002",
+      "name": "Runout Score",
+      "formula": "R = 1 - (TIR_actual / TIR_max)",
+      "hook": "toolholder:calculate"
+    },
+    {
+      "id": "F-TH-003",
+      "name": "Stiffness Score",
+      "formula": "S = tanh(K_radial / K_reference)",
+      "hook": "toolholder:calculate"
+    },
+    {
+      "id": "F-TH-004",
+      "name": "Damping Score",
+      "formula": "D = min(1.0, zeta / zeta_optimal)",
+      "hook": "toolholder:calculate"
+    },
+    {
+      "id": "F-TH-005",
+      "name": "Balance Score",
+      "formula": "B = 1 - (G_actual / G_max)",
+      "hook": "toolholder:calculate"
+    },
+    {
+      "id": "F-TH-006",
+      "name": "Clamping Score",
+      "formula": "C = F_clamp / (SF * F_cutting_max)",
+      "hook": "toolholder:calculate"
+    },
+    {
+      "id": "F-TH-007",
+      "name": "Natural Frequency",
+      "formula": "fn = (lambda^2 / (2*pi*L^2)) * sqrt(E*I / (rho*A))",
+      "hook": "toolholder:dynamics"
+    },
+    {
+      "id": "F-TH-008",
+      "name": "Radial Stiffness",
+      "formula": "K = 3*E*I / L^3",
+      "hook": "toolholder:stiffness"
+    },
+    {
+      "id": "F-TH-009",
+      "name": "Chatter Stability Limit",
+      "formula": "a_lim_damped = a_lim_baseline * (1 + eta * zeta_holder)",
+      "hook": "toolholder:stability"
+    },
+    {
+      "id": "F-TH-010",
+      "name": "Surface Finish Modifier",
+      "formula": "Ra_actual = Ra_theoretical * K_runout * K_vibration * K_thermal",
+      "hook": "toolholder:finish"
+    },
+    {
+      "id": "F-TH-011",
+      "name": "Tool Life Modifier",
+      "formula": "K_holder = K_runout * K_damping * K_balance",
+      "hook": "toolholder:life"
+    },
+    {
+      "id": "F-TH-012",
+      "name": "TIR at Projection",
+      "formula": "TIR(L) = TIR_0 + (L/D) * growth_factor",
+      "hook": "toolholder:calculate"
+    }
+  ],
+  "constants": {
+    "steel_density_kg_m3": 7850,
+    "steel_E_GPa": 200,
+    "carbide_E_GPa": 550,
+    "steel_thermal_expansion_um_C": 11.7,
+    "optimal_damping_ratio": 0.10,
+    "reference_stiffness_N_um": 50,
+    "cantilever_lambda1": 1.875
+  }
+}

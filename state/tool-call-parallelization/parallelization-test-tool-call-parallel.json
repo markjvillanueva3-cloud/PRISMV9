@@ -1,0 +1,94 @@
+{
+  "sessionId": "test-tool-call-parallel",
+  "calls": [
+    {
+      "id": "tc_mojl4keu_7lnv",
+      "tool": "Read",
+      "timestamp": "2026-04-29T04:58:48.534Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mojl4kg3_9uc3",
+      "tool": "Read",
+      "timestamp": "2026-04-29T04:58:48.579Z",
+      "inputs": {
+        "file_path": "/a.ts"
+      },
+      "filesReferenced": [
+        "/a.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    },
+    {
+      "id": "tc_mojl4kgc_4qmd",
+      "tool": "Read",
+      "timestamp": "2026-04-29T04:58:48.588Z",
+      "inputs": {
+        "file_path": "/b.ts"
+      },
+      "filesReferenced": [
+        "/b.ts"
+      ],
+      "inParallelBatch": false,
+      "tokenCost": 30
+    }
+  ],
+  "reports": [
+    {
+      "totalCalls": 3,
+      "parallelCalls": 0,
+      "sequentialCalls": 3,
+      "parallelizationRate": 0,
+      "opportunities": [
+        {
+          "callIds": [
+            "tc_mojl4keu_7lnv",
+            "tc_mojl4kg3_9uc3",
+            "tc_mojl4kgc_4qmd"
+          ],
+          "tool": "Read",
+          "reason": "3 read-only Read calls with no shared dependencies",
+          "wastedRoundTrips": 2,
+          "estimatedTokenWaste": 60,
+          "estimatedTimeSavedMs": 1000
+        }
+      ],
+      "totalWastedRoundTrips": 2,
+      "totalEstimatedTokenWaste": 60,
+      "totalEstimatedTimeSavedMs": 1000,
+      "recommendations": []
+    },
+    {
+      "totalCalls": 3,
+      "parallelCalls": 0,
+      "sequentialCalls": 3,
+      "parallelizationRate": 0,
+      "opportunities": [
+        {
+          "callIds": [
+            "tc_mojl4keu_7lnv",
+            "tc_mojl4kg3_9uc3",
+            "tc_mojl4kgc_4qmd"
+          ],
+          "tool": "Read",
+          "reason": "3 read-only Read calls with no shared dependencies",
+          "wastedRoundTrips": 2,
+          "estimatedTokenWaste": 60,
+          "estimatedTimeSavedMs": 1000
+        }
+      ],
+      "totalWastedRoundTrips": 2,
+      "totalEstimatedTokenWaste": 60,
+      "totalEstimatedTimeSavedMs": 1000,
+      "recommendations": []
+    }
+  ]
+}

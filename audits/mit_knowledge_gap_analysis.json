@@ -1,0 +1,316 @@
+{
+  "timestamp": "2026-02-26",
+  "title": "MIT Course Knowledge -> PRISM Skills Gap Analysis",
+  "raw_assets": {
+    "mit_course_zips": 227,
+    "algorithms_in_registry": 285,
+    "extracted_js_modules": 830,
+    "algorithm_js_files": 52,
+    "formula_files": 12,
+    "knowledge_base_files": 10,
+    "mit_kernel_files": 5
+  },
+  "already_converted": {
+    "prism_skills": 230,
+    "engines_referenced": 128,
+    "engines_with_code": 37,
+    "algo_related_skills": 41,
+    "trigger_keywords": 1030
+  },
+  "gaps": {
+    "engines_without_code": 91,
+    "by_category": {
+      "machine_learning": 35,
+      "optimization": 22,
+      "manufacturing_physics": 16,
+      "signal_processing": 8,
+      "geometry_cad": 5,
+      "graph_algorithms": 3,
+      "scheduling": 1,
+      "numerical_methods": 1
+    }
+  },
+  "tier1_new_skills": [
+    {
+      "source": "PRISM_NUMERICAL_METHODS_MIT.js",
+      "skill": "prism-numerical-mit",
+      "functions": [
+        "newtonRaphson",
+        "secantMethod",
+        "bisection",
+        "fixedPoint",
+        "gaussElimination"
+      ]
+    },
+    {
+      "source": "PRISM_CONTROL_SYSTEMS_MIT.js",
+      "skill": "prism-control-mit",
+      "functions": [
+        "PID",
+        "rootLocus",
+        "bode",
+        "stability",
+        "stateSpace"
+      ]
+    },
+    {
+      "source": "PRISM_DFM_MIT.js",
+      "skill": "prism-dfm-mit",
+      "functions": [
+        "designForManufacturing",
+        "processSelection",
+        "costEstimation"
+      ]
+    },
+    {
+      "source": "PRISM_DIGITAL_CONTROL_MIT.js",
+      "skill": "prism-digital-ctrl",
+      "functions": [
+        "zTransform",
+        "discreteController",
+        "realTimeControl"
+      ]
+    },
+    {
+      "source": "PRISM_LINALG_MIT.js",
+      "skill": "prism-linalg-mit",
+      "functions": [
+        "matrixOps",
+        "eigenvalues",
+        "SVD",
+        "LU",
+        "QR"
+      ]
+    },
+    {
+      "source": "PRISM_ODE_SOLVERS_MIT.js",
+      "skill": "prism-ode-solvers",
+      "functions": [
+        "rungeKutta",
+        "euler",
+        "adaptiveStep",
+        "stiffSolvers"
+      ]
+    },
+    {
+      "source": "PRISM_BEZIER_MIT.js",
+      "skill": "prism-bezier-mit",
+      "functions": [
+        "bezierEval",
+        "deCasteljau",
+        "subdivision",
+        "intersection"
+      ]
+    },
+    {
+      "source": "PRISM_NURBS_MIT.js",
+      "skill": "prism-nurbs-mit",
+      "functions": [
+        "nurbsEval",
+        "knotInsertion",
+        "degreeElevation",
+        "surfaceFitting"
+      ]
+    },
+    {
+      "source": "PRISM_SURFACE_GEOMETRY_MIT.js",
+      "skill": "prism-surface-geo",
+      "functions": [
+        "curvature",
+        "normal",
+        "geodesic",
+        "parameterization"
+      ]
+    },
+    {
+      "source": "PRISM_GRAPHICS_MIT.js",
+      "skill": "prism-graphics-mit",
+      "functions": [
+        "rayTracing",
+        "rasterization",
+        "shading",
+        "texturing"
+      ]
+    },
+    {
+      "source": "PRISM_FFT_PREDICTIVE_CHATTER.js",
+      "skill": "prism-fft-chatter",
+      "functions": [
+        "fftAnalysis",
+        "chatterDetection",
+        "stabilityLobes"
+      ]
+    },
+    {
+      "source": "PRISM_SIGNAL_ALGORITHMS.js",
+      "skill": "prism-signal-algo",
+      "functions": [
+        "fft",
+        "ifft",
+        "psd",
+        "filtering",
+        "spectrogram",
+        "hilbert"
+      ]
+    },
+    {
+      "source": "PRISM_TAYLOR_TOOL_LIFE.js",
+      "skill": "prism-taylor-life",
+      "functions": [
+        "taylorEquation",
+        "extendedTaylor",
+        "toolLifePrediction"
+      ]
+    },
+    {
+      "source": "PRISM_MANUFACTURING_ALGORITHMS.js",
+      "skill": "prism-mfg-algorithms",
+      "functions": [
+        "merchantForce",
+        "mrr",
+        "specificEnergy",
+        "chipLoad"
+      ]
+    },
+    {
+      "source": "PRISM_RL_ALGORITHMS.js",
+      "skill": "prism-rl-algorithms",
+      "functions": [
+        "qLearning",
+        "policyGradient",
+        "actorCritic",
+        "dqn"
+      ]
+    },
+    {
+      "source": "PRISM_OPTIMIZATION_ALGORITHMS.js",
+      "skill": "prism-opt-algorithms",
+      "functions": [
+        "gradientDescent",
+        "newton",
+        "bfgs",
+        "interiorPoint",
+        "pso",
+        "genetic"
+      ]
+    },
+    {
+      "source": "PRISM_GRAPH_ALGORITHMS.js",
+      "skill": "prism-graph-algo",
+      "functions": [
+        "dijkstra",
+        "aStar",
+        "bellmanFord",
+        "mst",
+        "topSort"
+      ]
+    },
+    {
+      "source": "PRISM_LP_SOLVERS.js",
+      "skill": "prism-lp-solvers",
+      "functions": [
+        "simplex",
+        "dualSimplex",
+        "interiorPoint"
+      ]
+    }
+  ],
+  "tier2_auto_hooks": [
+    {
+      "trigger": "cutting force OR cutting power OR chip load",
+      "auto_load": "prism-mfg-algorithms + formula/PRISM_MFG_PHYSICS.js"
+    },
+    {
+      "trigger": "tool life OR tool wear OR flank wear",
+      "auto_load": "prism-taylor-life + formula/PRISM_TOOL_WEAR_MODELS.js"
+    },
+    {
+      "trigger": "chatter OR vibration OR stability lobe",
+      "auto_load": "prism-fft-chatter + PRISM_CONTROL_SYSTEMS_MIT"
+    },
+    {
+      "trigger": "surface roughness OR surface finish",
+      "auto_load": "formula/PRISM_STRESS.js surface section"
+    },
+    {
+      "trigger": "optimization OR minimize OR maximize",
+      "auto_load": "prism-algorithm-selector + prism-opt-algorithms"
+    },
+    {
+      "trigger": "regression OR prediction OR classify",
+      "auto_load": "prism-aiml-unified + prism-rl-algorithms"
+    },
+    {
+      "trigger": "signal OR frequency OR spectrum OR FFT",
+      "auto_load": "prism-signal-algo + prism-fft-chatter"
+    },
+    {
+      "trigger": "schedule OR sequence OR routing",
+      "auto_load": "prism-graph-algo + scheduling engines"
+    },
+    {
+      "trigger": "mesh OR geometry OR NURBS OR surface",
+      "auto_load": "prism-nurbs-mit + prism-surface-geo + prism-bezier-mit"
+    },
+    {
+      "trigger": "thermal OR heat transfer OR temperature",
+      "auto_load": "formula/PRISM_THERMAL_COMPENSATION.js"
+    }
+  ],
+  "tier3_formula_scripts": {
+    "count": 12,
+    "files": [
+      "PRISM_FORCE_LOOKUP.js",
+      "PRISM_MATERIAL_PHYSICS.js",
+      "PRISM_MFG_PHYSICS.js",
+      "PRISM_STANDALONE_CALCULATOR_API.js",
+      "PRISM_STRESS.js",
+      "PRISM_STRESS_ANALYSIS.js",
+      "PRISM_THERMAL_COMPENSATION.js",
+      "PRISM_THERMAL_LOOKUP.js",
+      "PRISM_THERMAL_PROPERTIES.js",
+      "PRISM_TOOL_LIFE_ESTIMATOR.js",
+      "PRISM_TOOL_WEAR_MODELS.js",
+      "PRISM_WEAR_LOOKUP.js"
+    ],
+    "action": "Convert to single-function calculator skills + hook into calc dispatcher"
+  },
+  "tier4_unextracted_priority": [
+    {
+      "course": "2.810",
+      "name": "Manufacturing Processes",
+      "engines_needed": 16,
+      "priority": "CRITICAL"
+    },
+    {
+      "course": "6.867",
+      "name": "Machine Learning",
+      "engines_needed": 35,
+      "priority": "CRITICAL"
+    },
+    {
+      "course": "6.231",
+      "name": "Dynamic Programming",
+      "engines_needed": 4,
+      "priority": "HIGH"
+    },
+    {
+      "course": "2.854",
+      "name": "Manufacturing Systems",
+      "engines_needed": 2,
+      "priority": "HIGH"
+    },
+    {
+      "course": "6.079",
+      "name": "Convex Optimization",
+      "engines_needed": 5,
+      "priority": "HIGH"
+    },
+    {
+      "course": "6.011",
+      "name": "Signals and Systems",
+      "engines_needed": 8,
+      "priority": "HIGH"
+    }
+  ]
+}

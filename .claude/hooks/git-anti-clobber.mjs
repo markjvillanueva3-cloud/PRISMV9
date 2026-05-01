@@ -24,13 +24,14 @@
  *   - TTL fallback (180s) prevents permanent deadlock if release is skipped.
  */
 
-import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { hostname } from "node:os";
 import { exit } from "node:process";
 import { createHash } from "node:crypto";
 
 const LOCK_DIR = "H:/prism/state/shared";
 const LOCK_TTL_SECONDS = 180; // 3 min — covers slow network pushes
+const ORPHAN_GC_SECONDS = 3 * LOCK_TTL_SECONDS; // 9 min — definitely dead
 
 // ── Read PreToolUse payload ───────────────────────────────────────────
 
@@ -166,20 +167,55 @@ const isRemoteOp = REMOTE_MUTATING.has(subcommand);
 const lockType = isRemoteOp ? "remote" : `worktree:${worktreePath.split("/").pop()}`;
 
 // ── Instance identity ─────────────────────────────────────────────────
+// Priority order:
+//   1. payload.session_id — Claude Code passes the SAME session_id to PreToolUse
+//      and PostToolUse of the same tool call, AND across all tool calls in the
+//      same session. Two concurrent Claude terminals get different session_ids.
+//      This is the correct identity primitive — use it when available.
+//   2. CLAUDE_SESSION_ID env (for legacy/test callers)
+//   3. session-<ppid>-<hostname> — UNSTABLE fallback (ppid changes per Bash
+//      invocation since Claude spawns a fresh shell). Only kicks in if neither
+//      payload nor env provide a session id, which shouldn't happen in production.
 
 function getInstanceId() {
+  const pid =
+    payload?.session_id ||
+    payload?.sessionId;
+  if (typeof pid === "string" && pid) return `claude-${pid}`;
+
   const sid =
     process.env.CLAUDE_SESSION_ID ||
     process.env.CLAUDE_CODE_SESSION_ID ||
     process.env.INSTANCE_ID ||
     process.env.CLAUDE_INSTANCE;
   if (sid) return `${sid}`;
+
   const ppid = process.env.CLAUDE_PPID || process.ppid || process.pid;
   return `session-${ppid}-${hostname()}`;
 }
 
 const me = getInstanceId();
 const now = Math.floor(Date.now() / 1000);
+
+// ── GC orphaned locks (fire-and-forget, per invocation) ──────────────
+// Any lock file older than ORPHAN_GC_SECONDS (9 min = 3× TTL) is definitively
+// dead — the holder's session is long gone and their PostToolUse release
+// either never fired or failed. Sweep them before checking our own lock so
+// we don't get stuck behind a zombie.
+try {
+  const entries = readdirSync(LOCK_DIR);
+  for (const name of entries) {
+    if (!name.startsWith("GIT_LOCK_") || !name.endsWith(".json")) continue;
+    const full = `${LOCK_DIR}/${name}`;
+    try {
+      const st = statSync(full);
+      const ageMs = Date.now() - st.mtimeMs;
+      if (ageMs > ORPHAN_GC_SECONDS * 1000) {
+        unlinkSync(full);
+      }
+    } catch { /* ignore */ }
+  }
+} catch { /* LOCK_DIR missing — no-op */ }
 
 // ── Read existing lock (defensive) ────────────────────────────────────
 

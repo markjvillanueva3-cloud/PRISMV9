@@ -1,0 +1,96 @@
+{
+  "agent_id": "AGT-HAIKU-005",
+  "name": "surface_calculator",
+  "tier": "HAIKU",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Surface Calculator - Fast Surface Finish Calculations",
+  
+  "domain_expertise": [
+    "Ra calculations",
+    "Surface finish prediction",
+    "Roughness conversions",
+    "Feed mark estimation",
+    "Finish requirements"
+  ],
+
+  "design_principle": "Fast basic calculations - delegate complex work to SONNET/OPUS",
+
+  "capabilities": [
+    {
+      "id": "CAP-SURF-001",
+      "name": "Theoretical Ra Calculation",
+      "description": "Calculates theoretical Ra from feed and nose radius",
+      "category": "CALCULATION",
+      "inputs": { "required": ["feed_per_rev", "nose_radius"] },
+      "outputs": { "primary": "ra_theoretical_um" },
+      "formula": "Ra ≈ f²/(32×r)",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-SURF-002",
+      "name": "Ra to Rz Conversion",
+      "description": "Converts Ra to Rz (approximate)",
+      "category": "CONVERSION",
+      "inputs": { "required": ["ra"] },
+      "outputs": { "primary": "rz" },
+      "formula": "Rz ≈ 4 × Ra",
+      "latency_target_ms": 5
+    },
+    {
+      "id": "CAP-SURF-003",
+      "name": "Surface Finish Class Lookup",
+      "description": "Determines finish class from Ra value",
+      "category": "LOOKUP",
+      "inputs": { "required": ["ra_um"] },
+      "outputs": { "primary": "finish_class", "secondary": ["N_grade", "description"] },
+      "skills_used": ["prism-manufacturing-tables"],
+      "latency_target_ms": 20
+    },
+    {
+      "id": "CAP-SURF-004",
+      "name": "Feed For Target Ra",
+      "description": "Calculates feed needed for target Ra",
+      "category": "CALCULATION",
+      "inputs": { "required": ["target_ra", "nose_radius"] },
+      "outputs": { "primary": "required_feed" },
+      "formula": "f = √(32 × r × Ra)",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-SURF-005",
+      "name": "Milling Cusp Height",
+      "description": "Calculates cusp height for ball endmill finishing",
+      "category": "CALCULATION",
+      "inputs": { "required": ["tool_radius", "stepover"] },
+      "outputs": { "primary": "cusp_height" },
+      "formula": "h = r - √(r² - (s/2)²)",
+      "latency_target_ms": 10
+    },
+    {
+      "id": "CAP-SURF-006",
+      "name": "Roughness Unit Conversion",
+      "description": "Converts between roughness units (μm, μin, N-grade)",
+      "category": "CONVERSION",
+      "inputs": { "required": ["value", "from_unit", "to_unit"] },
+      "outputs": { "primary": "converted_value" },
+      "latency_target_ms": 5
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-product-calculators",
+    "prism-manufacturing-tables"
+  ],
+
+  "hooks_subscribed": ["surface:preCalculate"],
+
+  "can_delegate_to": ["optimizer"],
+  "receives_from": ["machinist", "optimizer"],
+
+  "performance_metrics": {
+    "calculation_accuracy": 0.95,
+    "average_latency_ms": 10,
+    "calculations_per_second": 200
+  }
+}

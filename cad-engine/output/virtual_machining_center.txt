@@ -1,0 +1,459 @@
+hyperMILL VIRTUAL Machining
+Center
+Software documentation
+
+Copyright © 2022 OPEN MIND Technologies AG
+The content of this documentation and the associated software are the property of OPEN MIND Technologies AG. No reproduction of
+any kind is permitted without the prior consent of OPEN MIND Technologies AG.
+All rights reserved.
+As we constantly develop our products, we reserve the right to make changes without notice.
+This software documentation applies to hyperMILL VIRTUAL Machining Center.
+hyperCAD andhyperMILL are registered trademarks of OPEN MIND Technologies AG. Windows and Windows products are registered
+trademarks of Microsoft Corporation. Google Chrome is a Google Inc. product.
+All other brand and product names are registered trademarks of their respective owners.
+OPEN MIND Technologies AG
+Argelsrieder Feld 5
+82234 Wessling
+Germany
+Tel.: (+49-8153) 933-500
+Fax: (+49-8153) 933-501
+E-mail: <sales.europe@openmind-tech.com>
+Web: www.openmind-tech.com
+
+Table of Contents
+1. Introduction ..................................................................................................................................  4
+2. User interface ...............................................................................................................................  5
+hyperMILL VIRTUAL Machining dialogue ......................................................................................  5
+hyperMILL CONNECTED Machining dialogue ................................................................................  8
+3. Operating modes ..........................................................................................................................  9
+4. Project administration ..................................................................................................................  10
+Manage project ......................................................................................................................  11
+Move setup ...........................................................................................................................  13
+Best Fit - determine real part position .........................................................................................  14
+5. Program run (simulation) ..............................................................................................................  17
+Configuring the program run .....................................................................................................  18
+Controlling visibility in the graphics area ......................................................................................  20
+Simulating the VNC or NC program file .......................................................................................  21
+Collision check and material removal ..........................................................................................  23
+Approving the NC file ..............................................................................................................  29
+6. Machine configuration ..................................................................................................................  31
+Control visibility in the graphics area ...........................................................................................  31
+Positioning machine axes manually ............................................................................................  33
+Limits of the machine axes .......................................................................................................  35
+7. Configuration .............................................................................................................................  36
+Origin table ...........................................................................................................................  36
+Tool table .............................................................................................................................  37
+Extended settings ...................................................................................................................  38
+Material removal options ..........................................................................................................  40
+8. Analysis ....................................................................................................................................  41
+Analysing the movement path of the machine axes .......................................................................  42
+Setting up and configuring breakpoints .......................................................................................  45
+Variables ..............................................................................................................................  46
+9. hyperMILL CONNECTED Machining ...............................................................................................  47
+Connecting hyperMILL VIRTUAL Machining Center and the machine ................................................  47
+Transferring an NC program to the machine .................................................................................  49
+Synchronising data and performing consistency checks .................................................................  50
+Controlling the machine ...........................................................................................................  54
+hyperMILL VIRTUAL Machining Center
+3
+
+1. Introduction
+The hyperMILL VIRTUAL Machining simulation solution allows machining operations to be reliably evalu-
+ated, checked and optimised before the machine run thanks to a virtual mapping of the actual processes.
+The central component is the hyperMILL VIRTUAL Machining Center software with simulation and analysis
+options for the NC code following the postprocessor run. The Optimizer module automatically calculates
+the best solution for multi-axis machining from various possible tool inclinations. The CONNECTED Ma-
+chining module connects the CAM workstation and machine tool to allow a bidirectional exchange of
+information between the generation and execution of programs.
+hyperMILL VIRTUAL Machining Center
+hyperMILL VIRTUAL Machining Center delivers maximum processing safety. Actual machining operations,
+including linking movements, are mapped virtually and can be simulated after the postprocessor run
+completely on the basis of the NC code. The simulation on the virtual machine also takes into account the
+holder, fixtures and clamps in addition to workpiece and tool. Axes can be moved manually, axis limitations
+are indicated and limit switch traversals are detected automatically. Each machining operation is checked
+before any movement on the machine. Machining steps can be simulated individually. Collisions can be
+detected and therefore avoided.
+Numerous analysis functions allow machining situations to be thoroughly checked. The best-fit function
+automatically calculates the optimal placement of the part for the available workspace. This can prevent
+time-consuming adjustments of the machine setup. Axis diagrams show the traversing movements of the
+individual axes in detail. Unusual movements can be identified quickly and can be corrected before the
+program is transferred to the machine.
+ hyperMILL VIRTUAL Machining Optimizer
+The hyperMILL VIRTUAL Machining Optimizer module provides support for multi-axis machining. Optimi-
+sation algorithms calculate the technically best tool positions that allow efficient traverse movements
+during machining. All selected tool positions are checked for possible collisions, thus guaranteeing a safe
+machine run. Programming errors are avoided. This means there is no need to make subsequent changes
+to the machining programs on the machine.
+hyperMILL CONNECTED Machining
+The hyperMILL CONNECTED Machining module allows networking and synchronisation with the machine
+via a bidirectional data exchange with the controller. Data can be sent to the machine and executed there,
+and data can also be received from the machine. The actual machining is available in the simulation in
+‘real time’.
+Before the machine run, machining and machine configurations, such as zero-point definitions, tool data
+and machine configuration parameters, are read from the controller and checked against the program data
+in hyperMILL. The machine run will only start if the data matches and the collision check has been carried
+out successfully. The NC programs are loaded directly into the memory of the controller. This stops the
+programs from being mixed up and protects them against unauthorised access.
+This software documentation provides information on how to use the hyperMILL VIRTUAL Machining
+Center and hyperMILL CONNECTED Machining software.
+hyperMILL VIRTUAL Machining Center
+4
+
+2. User interface
+The application is adapted to the use of wide screen formats and for working with multiple screens. You
+can also place variable areas outside of the program window, that is, you can move them to another
+screen. When you exit a document the last window positions are saved.
+The user interface consists of the following elements:
+4
+6
+5
+1 2
+7
+3
+The title bar 1 provides information about the name of the currently opened document. The F11 key hides
+the title bar.
+Software functions can be accessed via the menu bar 2. It is static and cannot be changed.
+Brief information: Brief information on functions at positions where the mouse pointer lingers or on entries
+required within a function – on the right in the menu bar 3.
+The graphics area is used to display the machine, the part, the stock and other elements 4.
+VlRTUAL Machining Center dialogue : The dialogue used to operate the hyperMILL VIRTUAL Machining
+Center 5, see VIRTUAL Machining Center dialogue [5].
+CONNECTED Machining dialogue: The dialogue used to operate the hyperMILL CONNECTED Machining
+7, see CONNECTED Machining dialogue [8].
+Progress indicator: Displays the progress for computing-intensive processes, 6 and information is provi-
+ded on the current action within the process (if possible).
+hyperMILL VIRTUAL Machining dialogue
+Use the hyperMILL VIRTUAL Machining dialogue to simulate and approve NC code.
+hyperMILL VIRTUAL Machining Center
+5
+
+The dialogue consists of the following sections:
+hyperMILL VIRTUAL Machining
+2
+1
+4
+3
+x
+5
+3
+Use the toolbar 1 to select the operating modes
+of the VIRTUAL Machining Center.
+Use the secondary navigation toolbar 2 to con-
+trol the content of the display area 3 in the dif-
+ferent operating modes.
+The content of the display area 3 depends on
+the operating mode.
+• Program run (simulation)  operating mode:
+block display, display of VNC and NC program
+file and the coordinate values.
+• Project administration  operating mode: For
+displaying the main programs and subpro-
+grams.
+• Machine configuration  operating mode: Dis-
+plays the machine structure and toolbars for
+configuring the display in the graphics area.
+• VIRTUAL Machining Center configuration  op-
+erating mode: Displays the origin table and
+tool table.
+• Analysis operating mode: Graphic display of
+the movement paths of the machine axes and
+list of breakpoints.
+Use the program run control panel 4 to set the speed for rapids and feedrate, define the start and end
+points of the program run, specify positions and approach with the machine.
+5 Reduce the control element view and reset the original view.
+Reduce the control element view so that the graphics area takes up most of the screen.
+Only the most important control elements are available: start and stop the program run,
+manually move the machine one step forwards or backwards, start the collision check and
+simulate the removal of material.
+Reset the original view. The direction of the arrow depends on the position of the docked
+window (left/right side of the monitor).
+TWO-WINDOW MODE
+To ensure optimal use of the simulation and analysis functions of the hyperMILL VIR-
+TUAL Machining dialogue, the Program run (simulation)  operating mode can also be
+executed in a second window. At the same time, for example, the axis movements can
+be analysed in the first window in the Analysis operating mode. This configuration can
+also be run on two monitors. To activate the configuration, proceed as follows:
+• Right-click and activate the NC Simulation and NC Simulation 2 windows.
+The configuration is shown in figure B of the following overview.
+hyperMILL VIRTUAL Machining Center
+6
+
+Configuration of the NC simulation
+1
+A: All operating modes are available in the NC
+Simulation 1 window:
+Program run (simulation), Project administra-
+tion, Machine configuration, VIRTUAL Machining
+Center configuration and Analysis.
+The functions cannot be used simultaneously.
+12
+B: All functions of the Program run (simulation)
+operating mode are available in the NC Simula-
+tion 2 2 window.
+The functions of the Project administration, Ma-
+chine configuration, VIRTUAL Machining Center
+configuration and Analysis operating modes are
+available in the NC Simulation 1 window.
+The functions of NC Simulation 2 and NC Simu-
+lation can be used simultaneously .
+2
+C: Only the Program run (simulation) operating
+mode is available in the NC Simulation 2 2 win-
+dow.
+hyperMILL VIRTUAL Machining Center
+7
+
+hyperMILL CONNECTED Machining dialogue
+Use the hyperMILL CONNECTED Machining dialogue to connect to the machine, perform consistency
+checks and control the machine.
+The dialogue consists of the following sections:
+hyperMILL CONNECTED Machining
+1
+4 6
+7
+3
+2
+5
+1 Connect to the machine and configure. Check
+the status of the machine.
+2 Transfer data from the machine and update.
+3 Transfer data from the PC to the machine
+and control the machines. Switch between sin-
+gle step run mode and program run mode. Load
+the NC program on the machines. Only available
+if there is a connection to the machine. Click the
+button 1 to display.
+4 Display the machine data. The following are
+displayed: Origin table, tool table and axes con-
+figurations. To perform a consistency check,
+load the machine data by clicking the button 2.
+Possible errors become visible and can be cor-
+rected.
+Connect 5 hyperMILL CONNECTED Machining
+to the machine or disconnect.
+6 Transfer the current NC program position
+from the machine. Start or stop the program on
+the machine, control the feedrate and the rapid
+traverse speed, adjust the spindle speed. Only
+available only if hyperMILL VIRTUAL Machining
+Center and machine are connected. Click the
+button 1 to display.
+7 Reduce the control element view and reset
+the original view.
+Reduce the control element view so that the graphics area takes up most of the screen.
+Only the most important control elements are available: start and stop the program run,
+manually move the machine one step forwards or backwards, start the collision check and
+simulate the removal of material.
+Reset the original view. The direction of the arrow depends on the position of the docked
+window (left/right side of the monitor).
+hyperMILL VIRTUAL Machining Center
+8
+
+3. Operating modes
+Use the main navigation toolbar to switch between the various operating modes: Project administration,
+Program run (simulation), Machine configuration, VIRTUAL Machining Center configuration and Analysis.
+Project administration operating mode
+In large NC programs, load one of several available main programs. If the project only
+contains one main program, this main program is loaded automatically.
+Program run (simulation) operating mode
+Simulate the VNC program file or NC program file. Show the control elements for regulating
+the speed, the block display and the coordinate values. Control how the tool, part, stock
+and clamp are displayed.
+Machine configuration operating mode
+Control the display of the machine elements. Position the machine axes manually (manual
+control). View the axis limits of the machine.
+hyperMILL VIRTUAL Machining Center configuration operating mode
+Display changes to the NC file, set the minimum feedrate for the rapid, show the toolpaths
+for linking jobs, display the tool reference point and coordinate systems of the machine in
+use.
+Analysis operating mode
+Perform a graphical analysis of the movement paths of the machine axes, define break-
+points and conditions for breakpoints, display breakpoints as a list and display breakpoint
+coordinates.
+hyperMILL VIRTUAL Machining Center
+9
+
+4. Project administration
+In the Project administration operating mode, display the main programs (VNC files), manage stock, move
+the setup, optimally fit the part (‘best-fit’), define collision check options and perform a collision check.
+Manage project: List of all main programs, tool change jobs and operations.
+ The main program has not yet been checked for collisions. For approval purposes, a
+collision check must be carried out.
+Following a successful collision check, the main program is marked as follows:
+ Collisions occurred.
+!  Contacts occurred. Before the NC file is approved, the approval (of programs with
+contacts) must be allowed interactively.
+ Collisions did not occur. The file can be approved.
+ Collisions did not occur. The file has been approved and saved in the defined folder.
+Manage stock: The used stock, part and clamp are displayed in a list.
+Click the Add a stock button to select stock in *.hmc, *.omx, *.stl or *.vis format and
+load in the graphics area.
+Click the Delete entry button to delete the displayed stock. Material removal simulation is
+only available when stock is used for the simulation.
+Move setup: Move the setup (part, stock, clamp) in relation to a reference on the machine.
+Best Fit : Align the part optimally on the machine using the information from the OPEN
+MIND probing protocol.
+Collision Check : Start the collision check and analyse all programs (NC list) for possible
+collisions.
+Collision check options. Define the elements to be checked during the collision check.
+hyperMILL VIRTUAL Machining Center
+10
+
+Manage project
+Manage main programs, tool change jobs and operations in a project.
+Main programms
+T383 3D Profile Finishing_3
+T241 Contour Milling on 3D Model_4
+T241 Contour Milling on 3D Model_5
+T999 3D Rework Machining_6
+T999 5X Rework Machining_7
+Operation 1, 1: T241 Pocket Milling
+Tool 241, OM_MOLDCAV_16
+T241 Pocket milling_1
+Simulate complete NC list Stop at the end of a programm
+Load this programm
+2
+Operation 2, 2: T241 Pocket Milling
+Tool 241, OM_MOLDCAV_16
+T241 Pocket Milling_2
+This job only
+Run to start of job
+Show postprocessor log
+1 Main program: Program created by the postprocessor. In Single mode , based on an individual hy-
+perMILL job. When transferring a job list, compound or linking job with several jobs, a main program is
+created for each job in the job list (linking job/compound job). In Package mode, the complete job list
+(linking job/compound job) is converted to a main program.
+2 Tool change job: position for tool change. Part of each main program.
+4 To simulate a loaded, active main program. All other main programs are greyed out.
+5 Selected entry in the NC list.
+This job only: entry in the shortcut menu of main program, tool change job or operation. Limit the program
+run to the selected job and the display of the toolpath. All unselected jobs in the list are greyed out. The
+start and end points in the program run are adapted synchronously for the list display. If you move the start
+and end points manually, the respective jobs will also be displayed ‘normally’ in the project administration
+while all other jobs are greyed out.
+Run to start of job : entry in the shortcut menu of main program, tool change job or operation. Move the
+simulation to the beginning of the selected job.
+Load this program : entry in the shortcut menu of the main program. Load the main program for the
+program run. The main program is then active. Only one main program may be active at once.
+Show postprocessor log: entry in the shortcut menu of main program, tool change job or operation. Display
+the postprocessor messages for this job in a text editor. The information can be saved as a text file (.txt).
+hyperMILL VIRTUAL Machining Center
+11
+
+Simulate complete NC list : Starting with the main program selected in the list (active), all main programs
+are simulated in sequence.
+Stop at the end of a program: The simulation stops after every main program.
+hyperMILL VIRTUAL Machining Center
+12
+
+Move setup
+Move the setup (Part / Stock / Clamp) on the machine.
+10
+Move part
+Move stock
+Move fixture
+clamping position with respect to 
+Move Setup
+X
+Y
+Z
+Table reference
+-0.0075
+0.0098
+149.9491
+Origin table reference
+Table reference
+1000
+100
+1 Select the reference for moving the clamp. 2 Machine axis that is moved using the 4 buttons.
+Double-click a coordinate value to make it editable and adapt as required. Click OK to confirm. 3 Show
+the scale for setting the step size. Select the required option to set the coordinate values of the machine
+axes. 5 Restore the original setup position.
+Move part, Move stock, Move fixture: Select the elements to be moved.
+hyperMILL VIRTUAL Machining Center
+13
+
+Best Fit - determine real part position
+NOTICE
+More complex part shapes, alternative manufacturing processes (casting, 3D printing,
+forged stock) and smaller allowances make manually aligning the part very time-con-
+suming. The  hyperMILL Best Fit alignment eliminates the need for time-consuming
+manual alignment measures. Positioning is automatic and based on the internal origin
+shift captured using the  3D Point Probing  cycle. Probing takes place both in the CAM
+programming and on the machine, so that the position deviation between the virtual and
+the real situation can be determined and corrected. The Best Fit real part position is
+adjusted in the hyperMILL VIRTUAL Machining Center and is checked for collisions. An
+attempt is made to comply with all machine limits with the help of the NC optimiser.
+Positioning with Best Fit at a glance
+Transformation
+Aligning virtuality to reality
+CAM programming
+NC file Probing
+protocol
+Expected result
+Release of the NC files
+Optimal positioning of the part using Best Fit
+Collision check
+on unaligned part
+Optional optimization using NC Optimizer
+Verifying of 
+Collision check and generating of NC file
+3D Point Probing
+Reading in the probing protocol
+ProbingMachining
+Probing
+NC file
+Machining jobs
+NOTE
+1 With a Heidenhain machine and licence for the hyperMILL CONNECTED Machining,
+the probing protocol can be read in and read back conveniently via a file exchange
+dialogue.
+hyperMILL VIRTUAL Machining Center
+14
+
+LockAxis Delta
+File:
+Calculate
+Best fit 
+Select 3D Point Probing protocol file
+Minimize distance between points
+Fix axes
+Generate NC fileShow points
+Surfaces (Distance along normals) Points (3D distance)
+1 Select the probing protocol file that was generated by hyperMILL in *.ompr or *.txt format with the
+3D Point probing cycle.
+If the hyperMILL VIRTUAL Machining Center is connected to a Heidenhain controller, the protocol file can
+be transferred directly as follows:
+1. In the File exchange dialogue, click the Copy and Select file  button to copy the probing protocol file
+[probe.ompr] and select for the Best Fit function or
+2. click the Select file button to use a probing protocol file from the computer of the hyperMILL VIRTUAL
+Machining Center.
+For information on connecting hyperMILL VIRTUAL Machining Center and the machine, see section
+Connecting hyperMILL VIRTUAL Machining Center and the machine [47].
+Minimize distance between points
+To optimally align the part on the machine, minimise the distance between the model positions and the
+real positions on the machine. The distance can be minimised along the surface normals of the part using
+the Surfaces (distance along normals)  function. Alternatively, this can also be minimised between the
+measured values of the points using the Points (3D distance) function.
+hyperMILL VIRTUAL Machining Center
+15
+
+2 Axes of the origin table reference.
+3 Lock the axes that are not to be moved when calculating the optimal clamping position on the machine.
+To do this, click the field for the required axis under Lock.
+4 Delta: Shift values of the axes of the origin table reference.
+Show points / Remove points: Show or hide the probing points.
+Calculate: The best position of the part origin is calculated based on the information in the probing
+protocol.
+Generate NC file: Generate an NC file for all machining jobs based on the newly calculated Best Fit-coordi-
+nate system.
+NOTICE
+No changes may be made to the origin definition in the machine control while the Best
+Fit function is executed. The adjusted toolpaths are checked for collisions.
+hyperMILL VIRTUAL Machining Center
+16
+
+5. Program run (simulation)
+In the Program run (simulation) operating mode, simulate the VNC program file or NC program file. Display
+the control elements for regulating the speed and configuring the block display. Configure and switch on
+the collision check. Enable the material remova

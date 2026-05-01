@@ -1,0 +1,446 @@
+[
+  {
+    "page": 1,
+    "text": "4. Basics of CAM editing\nOverview: From the model to the NC program\nThe modular structure of hyperMILL creates a flexible workflow from the model to the NC program.\nImportant elements of this workflow include:\n1. C AM/CAD system\n2. S pecifying the basic settings\nDefine the measurement system and storage directories for hyperMILL data. Configure the dia-\nlogue control, configure the tool and macro database and define further basic settings.\n3. D efine workpiece origin and frame(s)\nWith the origin"
+  },
+  {
+    "page": 2,
+    "text": "Rotate the X axis clockwise by the defined angle (2).\nRotate the X axis anti-clockwise by the defined angle (3).\nUse one of the options provided for M illTurn: Workplane, Surface or Line.\nReverse the direction of the Z axis of the NCS (1) using Z direction \u2192R everse.\nSelect an element (line, edge of the model) under X direction \u2192S elect to define the direction of the X axis.\nAlternatively, use the 2 Points or Point option to align the X axis.\nRotate the X axis clockwise by the defined angle (2)."
+  },
+  {
+    "page": 3,
+    "text": "Under Userdefined, select the O rigin directly in the CAD system.\nMilling: NCS position relative to the model (1), NCS position relative to the stock (2).\n1 2\nMillTurn: NCS position relative to the model (1), NCS position relative to the stock (2).\nAvailable basic positions are located on the rotary axis (3), the centre of the turning surface. The rotary\naxis corresponds to the Z axis of the NCS.\n(A) NCS position = Z-, (B) NCS position = Z+.\nDefining the machining frames\nFrames: Define the machi"
+  },
+  {
+    "page": 4,
+    "text": "Specifying the basic settings\nIn the hyperMILL menu S etup \u2192S ettings.\nThe S etup hyperMILL dialogue is used to specify the basic settings that are valid for all subsequent\nactions and definitions in hyperMILL. The dialogue contains the following dialogue pages: D ocument,\nApplication, h yperCAD-S, D atabase, M aintenance and T ire (only available with respective product licence\nfor tire machining).\nDocument dialogue page\nUnits\nMetric/Inch: The selected system of units applies to all input and o"
+  },
+  {
+    "page": 5,
+    "text": "Locking\nUse the L ocking \u2192E nable option to disable elements so that they cannot be changed. The following may\nbe prevented:\n\u2022 D eletion\n\u2022 D eletion and geometry change\n\u2022 D eletion, geometry and attribute change\n: Click the icon to save all settings made on the D ocument dialogue page to a text file at:\nC:\\Users\\Public\\Documents\\OPEN MIND\\USERS.\nApplication dialogue page\nDialogues\nDefine the dialogue control mode (Modal/Modeless) as well as the dialogue tabs display mode (text/icons).\nShow toolt"
+  },
+  {
+    "page": 6,
+    "text": "hyperCAD-S Document dialogue page\n(Only for hyperMILL for hyperCAD-S)\nCutter path display\nTool axis size: Define the size of the tool axis.\nCollision point size: Define the size of the collision points.\nPoint size: Define the point size of the toolpath points.\nLine width: Specify the line width of the toolpaths.\nSTL file display\nUse the value for the M ax. STL file size to specify the maximum size (MB) of the stock file (*.STL/\n*.VIS)that can be displayed in the hyperMILL browser.\nSolidWorks Doc"
+  },
+  {
+    "page": 7,
+    "text": "NC system and frames\nWith the origin reference system (NC system), establish a connection to the machine coordinate system.\nUsing a frame, define the current machining side and machining direction.\nUse origins to control the NC output and apply origins when defining transformations.\nNC system\nThe NC system defines the position of the workpiece origin and the orientation of the machining axes\n(XYZ).\nThe workpiece origin must match the reference point of the workpiece on the machine.\nhyperMILL cal"
+  },
+  {
+    "page": 8,
+    "text": "Angle\nA, B, C: The resulting angle (Euler angle) is displayed and may be modified.\nZero point\nX, Y, Z: The resulting frame origin is displayed and may be modified.\nVectors\nX axis, Y axis, Z axis: Shows the vector components of the linear axes.\nSelect: Only available for hyperMILL for SolidWorks. Various elements can be used to define a frame.\nFace, Plane, Sketch, Coordinate system: Select the required element directly in the graphics window.\nView\nOnly available for hyperMILL for SOLIDWORKS.\nSet "
+  },
+  {
+    "page": 9,
+    "text": "Frame limit\nNone: The hole features may be in all directions.\nLimit 3D range: Specify the permissible maximum angle range of the A/B and C axes. Here, the A/B axes\ncorrespond to the X/Y direction and the C axis corresponds to the Z direction of the selected coordinate\nsystem.\nLimit by planes: Use the normals of the selected planes as limits. A graphical preview (1) shows the\ndefined frame limit. The following applies to the Limit 3D range option:\nYellow: All jobs with a hole feature direction wi"
+  },
+  {
+    "page": 10,
+    "text": "Associative Workplane\nAn associative workplane is linked in hyperCAD-S with the entities, selected for creation. Modifications\nto the entities are carried over to the linked workplane. To use an associative workplane in hyperMILL,\nproceed as follows:\n1. A ctivate Parametric Modelling in hyperCAD-S,\n2. select the desired F rame or Origin in hyperMILL,\n3. activate the A ssociative workplane function on the dialog page D efinition and select the desired\nworkplane.\nAn associative workplane is marked"
+  },
+  {
+    "page": 11,
+    "text": "Icons in the tool browser:\nHide tools (milling, drilling, turning tools) as a list in the browser.\nShow tools (milling, drilling, turning tools) as a list in the browser.\n(Local) document tool\nTool is linked to external database and updated.\nTool is linked to external database. Update needed.\nBroken link to external tool database.\nThis tool carries a warning.\nSelect NC tool from external tools database.\nAll tools are identified by a unique ID. Make sure that you assign a unique ID to each\nnew NC"
+  },
+  {
+    "page": 12,
+    "text": "Define turning tool\nTo define a turning tool:\n1. On the T ools tab, in the lower area ( T urning tools), click with the right mouse button.\n2. Choose N ew \u2192[ Tool type] from the shortcut menu.\n3. In the N ew turning tool dialogue:\nSelect an I nsert from the external tool database or define a new one.\nSelect a T ool holder from the external tool database or define a new one.\n4. Specify the tool parameters T ool angle, T ool reference and C utting edge position by selecting the\nparameter set.\n5. D"
+  },
+  {
+    "page": 13,
+    "text": "The following applies to tools in the 3 D Automatic Rest Machining cycle:\nReference\nThe reference tool is used for the calculation of the rest material areas.\nType: Type of reference tool may be different from type of machining tool. When the Rest material\nreference cycle option is enabled, the previously unmachined rest material area is selected as the area to\nbe machined.\nDiameter: A requirement is: Reference tool > machining tool.\nIf you select bullnose end mill as a reference tool type, mach"
+  },
+  {
+    "page": 14,
+    "text": "The U se free tip geometry for calculation function is currently available for the following\ncycles: 3D Profile Finishing, 3D Z Level Shape Finishing, 3D Optimised Roughing, 5X\nRework Machining, 5X Swarf Cutting one Curve, 5X Tangent Machining.\nThe U se free tip geometry for calculation option cannot be used in combination with the\nHigh precision surface mode function (Settings dialog page).\nIcons in the Tools dialogue\nSelect NC tool from external tools database.\nCreate a new document tool\nEdit "
+  },
+  {
+    "page": 15,
+    "text": "Update state / U pdate all states: Function on the shortcut menu that updates the status of the linked tool.\nThis process also checks whether the linked tool is still in the external database and if the tool definition is\nup to date. No changes are made to the tool definition.\nTool / U pdate all tools: Function on the shortcut menu that updates the linked tool with data from the\nexternal tool database. As part of this process, the data of the linked tool is changed if necessary to make\nit match "
+  },
+  {
+    "page": 16,
+    "text": "Prepare manufacturing geometry\nBoth 2D contours and CAD models can be used for 2D machining.\n3D, 5-axis and turning jobs are based on a CAD model.\nA stock model can be defined for various machining operations.\n2D machining\nYou can select the following contours:\n\u2022 Lines, circles, polylines, splines, graphics loaded in*.omxformat (Contour Milling, Pocket Milling\nand Helical Drilling).\n\u2022 Points (drill positions)\nGenerate contours from toolpaths: Curves extracted from previously calculated toolpaths"
+  },
+  {
+    "page": 17,
+    "text": "Profile: Select contour.\nOffset 1 / Offset 2: Specify the height of the stock model in the Z direction (+/-).\nMode\nRotation: Define a (closed) stock model based on an (open) contour between the start and end point by\nmeans of the rotation axis. It can be used for a stock model calculation and for a stock model update.\nRotation\nResolution: Max. permissible distance (1) between the faceted surface of the polyhedron model and the\nreal model surface.\n1\nProfile: Select an open contour.\nResolution: De"
+  },
+  {
+    "page": 18,
+    "text": "Bounding geometry\nProfile: The p rofile of the active CAD model will be used as the bounding geometry. In this case, existing\nsurfaces are rotated around the Z axis of the selected frame. You can define an o ffset (optional).\nBox/Cylinder: A box/cylinder that is based on the outer boundary of the loaded model is created. Double-\nclick the A llowance line to specify a freely definable offset.\nIn cubical stock models, the offset can be defined for the frame direction (+/-) X, Y and Z. In cylindric"
+  },
+  {
+    "page": 19,
+    "text": "Resulting model\nSelect the S TL (Stereo Lithography) or V IS (Visicut) option to specify the format of the resulting model\nand set the required resolution. Stock models in*.VISformat are recommended if you require greater\naccuracy.\nResolution: Max. permissible distance (1) between the faceted surface of the polyhedron model and the\nreal model surface.\n1\nHistory\nDisplay information on the creation mode and resolution of the generated stockmodel in the P arameters\nand Job chain areas.\nCalculate st"
+  },
+  {
+    "page": 20,
+    "text": "Edit stock\nThe Edit stock function can be used to further process stock resulting from the preceding stock calculation.\n1. Select the stock model that you want to process further and\n2. select the E dit stock function from the shortcut menu.\nTwo functions are available in the E dit stock dialogue.\nThe S plit stock function splits the selected stock model into independent areas arising as the result of a\npreceding machining job (see Calculate stock section). Each area is created as a new stock en"
+  },
+  {
+    "page": 21,
+    "text": "Structure CAM project\nStructure a CAM project in the hyperMILL browser.\nJob list\nUppermost administration level in the hyperMILL job browser. If projects have a simple structure, the job\nlist (work schedule) is usually sufficient for including all the jobs required to machine a workpiece in the\ncorrect sequence. Several job lists can be assigned to one CAD model. A job list can be transferred to\nother CAD models that have a similar machining sequence.\nCompound job\nOrganise your job lists with co"
+  },
+  {
+    "page": 22,
+    "text": "Comments\nGeneral information on a hyperMILL project that is transferred to the NC program as an NC comment. You\ncan also add further information on the CAD file or CNC machine to the NC file by defining a prologue in\nthe hyperVIEW Machine definition dialogue.\nPart data\nStock\nDefinition of a stock model that is available for multiple jobs in a job list.\nModel\nDefinition of a milling area that is available for multiple jobs in a job list. The definitions are applicable for\nvisualising the model da"
+  },
+  {
+    "page": 23,
+    "text": "Mirror\nDefine a m irror for all jobs/compound jobs in the job list. To do this, select the respective checkbox in the\nActive line and under S election choose the m irror you require.\nClick the icon to define a new mirror.\nJob list comments are transferred to a new, mirrored job list when a m irror is created.\nTurning\nTurning stock / Turning model\nDefine or select the T urning stock and T urning model. See the Stock model dialogue for further\ninformation on defining a turning stock/turning model."
+  },
+  {
+    "page": 24,
+    "text": "X\nY\n1\n2\n3 4\nA B\n2\nAxial security distance: Distance to be maintained between the tool and part in the axial direction. The\ndefined value is taken into account when the O ptimize clearance plane option is enabled.\nExample BC kinematics, (1) Height of the clearance plane.\nhyperMILL\n76\nB\nC\n1\nSecurity plane: The height of the security plane is calculated to the given clamping position. The value\nshould be selected so that all rotary axes of the machine can be moved without a collision.\nFor table-hea"
+  },
+  {
+    "page": 25,
+    "text": "Example BC kinematics, (1) Clearance plane not optimised, X axis limit exceeded, (2) Clear-\nance plane optimised, X axis limit maintained, (3) Linking movement.\nX\nB\nC\n1 1\n2\n3\n2\nSmooth linking: Optionally, the link rapids, including connections with alternating inclination, are made\nusing a natural movement that is adapted to the machine kinematics. The optimisation of the hyperMILL\njob clearance planes is automatically activated during smooth linking.\nNC safety - interactive\nUse manually generat"
+  },
+  {
+    "page": 26,
+    "text": "NC safety / Optimised table table logic\nThe O ptimized table table logic function is available for all machines with two rotary\naxes in the table.\nExample of use: Smooth linking and Optimize clearance plane are enabled.\nAxial security distance: Distance to be maintained for the tool in the axial direction\nIf the O ptimize clearance plane and S mooth linking functions are not activated, the defined axial security\ndistance is maintained to the highest point of the initial stock model of the job li"
+  },
+  {
+    "page": 27,
+    "text": "Smooth linking: Optionally, the link rapids, including connections with alternating inclination, are made\nusing a natural movement that is adapted to the machine kinematics. The optimisation of the hyperMILL\njob clearance planes is automatically activated during smooth linking.\nIf the S mooth linking function is activated, the axial security distance is maintained to the component and\nto the fixture for all linking movements between the jobs.\nFast travel movements from and to the hyperMILL job c"
+  },
+  {
+    "page": 28,
+    "text": "Use document settings: Enabled by default if NC directory is selected. The document settings apply to the\nNC directory for saving the generated NC programs (Setup hyperMILL, dialogue page Document, Global\nWorking Space).\nDisable the option to define the path for the NC directory by clicking the icon.\nNC file names: Enable and select the method for naming the NC files (Single mode/Package mode).\nSingle mode: Creates an NC file for each job in the job list. If this option is not selected, the sett"
+  },
+  {
+    "page": 29,
+    "text": "C\nB\nA\n3\n2\n1\n4\nZ\nX\n5\nClamping setup counter spindle\nStickin length: (1) Define the clamping depth of the component on the counter spindle. To do this, select\ntwo points.\nSelect jaw front (2) as the first point. Select a point on the surface of the front side of the part (3) as the\nsecond point (P ick parts front point).\nClamping position Z: (4) Define the clamping position of the part in the Z direction. To do this, select the\ncontact point, that is the point on the contact surface of the spindle"
+  },
+  {
+    "page": 30,
+    "text": "1\n2\nSpindle rotation: Programming can take place without spindle rotation (option: N one) or with spindle\nrotation (options: C lockwise (1) / C ounterclockwise (2).\n1 2\nSpindle speed: Set the spindle speed for the transfer with a rotating spindle.\nAngle offset: (1) To be used for shorter parts (A) or for parts where, due to their shape, the same angular\nposition of both clamping jaws is not possible during transfer. The angle offset rotates the clamping jaws\n(B) of the spindle that holds the par"
+  },
+  {
+    "page": 31,
+    "text": "Safety\nToolsafety position: (1) Define a safety position (= parking position) for the tool during the transfer of the\npart. The values displayed for Z and X define the distance to the origin of the local coordinate system\n(LCS) in the Z and X directions.\n1\nZ\nX\nOptional parameters\nChuck washing Activate to optionally clean the chuck.\nFixed stop: Do not activate (1) to move the machine to a fixed transfer position. Activate (2) to move to\ndefined contact pressure before closing the spindle for a g"
+  },
+  {
+    "page": 32,
+    "text": "1\n2\nDefine job\nA job (machining step) contains different dialogue pages, depending on the strategy in use. The following\ntable provides an overview of the dialogue pages.\nOverview (only associa-\ntive job copy)\nSummary of parameters where the parameters of the associative job\ncopy differ from those of the original job.\nTool Define a new tool for machining or select a tool from the tool database.\nContours Define the contours, top, bottom, start and end points for machining (2D\nMilling) and specify"
+  },
+  {
+    "page": 33,
+    "text": "ID: The identification number is set by the system and does not change even when the job sequence is\nchanged. Click S et job IDs on the joblist shortcut menu to set new job ID numbers.\nGenerate NC file: Enabled by default. An NC file is generated for the cycle if the G enerate NC file function\nis used on the shortcut menu of the job in hyperMILL or in hyperVIEW.\nUse for additive: Activate if the cycle is to be used for additive manufacturing. For further information, see\nthe Additive Manufacturi"
+  },
+  {
+    "page": 34,
+    "text": "For jobs with an activated T ransformation or activated 2 D multi index drilling option, no\npreferred direction (solution selection) can be generated and output with the hyperMILL\nSIMULATION Center. The following information is displayed:\n\u2022 M ulti index drilling - no solution selection possible or\n\u2022 J ob contains transformations - no solution selection possible\nIt is not possible to select the preferred direction. It is possible that a preferred direction\nis simulated in the hyperMILL SIMULATION"
+  },
+  {
+    "page": 35,
+    "text": "NC Optimizer\nWhen the U se NC Optimizer option is selected, the calculated NC program is divided between the axes\nthat exist in the machine. This way, collision situations and axis limitations are automatically taken into\naccount so that a checked toolpath is generated on the machine.\nThe N C Optimizer function is available with an appropriate licence for the hyperMILL\nVIRTUAL Machining Optimizer. Please contact your OPEN MIND partner.\nOPEN MIND strongly recommends that you use the N C Optimizer"
+  },
+  {
+    "page": 36,
+    "text": "C\nA\nAs the tool moves away from the component in a local rewind and then approaches the component again\nafter the rewind movement in order to continue the machining, this movement is implemented with an\noverlap.\nThe overlap can be controlled with the following parameters:\nBlending distance factor: Defines the value of the lateral pushing away from the component as a factor of\nthe machine tolerance.\nBlending length factor: Defines the blending length as a factor of the tool diameter.\nPole\nSolutio"
+  },
+  {
+    "page": 37,
+    "text": "To define a compound job:\n1. Use the N ew \u2192C ompound job function on the browser\u2019s shortcut menu or select the jobs to be\nincluded in a compound job and use the A dd to compound job function on the shortcut menu.\n2. Specify a n ame and comment for the compound job.\nYou can also hold down the S HIFT key to move jobs to a c ompound job.\nLinking job\nA linking job contains other jobs that can be linked with each other in such a way that approach and retract\nmovements for the entire machining sequenc"
+  },
+  {
+    "page": 38,
+    "text": "Y\nX\n2\n1\n2\n3\nWhen machining in 5 X mode, the linking movements are defined without abrupt changes of direction. The S mooth factor\naffects the shape of the smoothed movement as a ratio of the length of the connection line (2) to the required \"height\" of\nthe movement (3). If the selected smooth factor potentially leads to a collision, the movement is automatically rendered\ncollision free.\nThe C learance distance retract mode must be active. The L inking movement with the D istance angle limit ( S "
+  },
+  {
+    "page": 39,
+    "text": "X\nZ\n1 2\nRapid smoothing\nAvailable for the Clearance distance retract mode. Enable the H igh speed option to activate Rapid smooth-\ning (1).\nY\nX\n2\n1\n2\n3\nWhen machining in 5 X mode, the linking movements are defined without abrupt changes of direction. The S mooth factor\naffects the shape of the smoothed movement as a ratio of the length of the connection line (2) to the required \"height\" of\nthe movement (3). If the selected smooth factor potentially leads to a collision, the movement is automatic"
+  },
+  {
+    "page": 40,
+    "text": "Job Optimization\nOptimisation of manually created jobs as well as macro jobs with the aim of reducing\nthe number of tool changes and shortening machine running times.\nOptimisation of manually created jobs\nTo optimise manually created jobs, use theO ptimization (only compound jobs) function on the job list\u2019s\nshortcut menu.\nCompound jobs\nGroup manually created jobs of a job list into compound jobs.\nGrouping is also available for macro jobs.\nThe N o optimization option is enabled by default for man"
+  },
+  {
+    "page": 41,
+    "text": "X3\nX1\nZ1\nY1\nZ3\nY3\nZ2\nX2Y2\nF1\nF3\nF2\nMachine cycle definition\nThe job sequence is basically arbitrary. If a tool change optimisation is required, the definition should be\nmade one page at a time (shorter calculation time).\nTo do this, open the machining cycle, set the required frame in the S etup input dialogue and define the\njob's machining parameters.\nAt any given time, only the current frame is visible in the CAD drawing. Only those contours that lie on the\nframe's XY plane can be selected.\nX\nZ"
+  },
+  {
+    "page": 42,
+    "text": "Create a new entry (joblist, job, compound job, linking job, NC-event).\nElectrode milling: Open the Electrode milling dialogue to generate the data for NC programming (job list,\nmilling area, stock, clamp, NC system and electrode feature).\nJob list, Job...: Create a new element.\nVia the J ob... function, open the S elect new operation dialogue that also contains a brief\ndescription of the function and possible applications of the respective cycle in addition to\na graphical representation. Helpfu"
+  },
+  {
+    "page": 43,
+    "text": "NC simulation: Generate NC code for the machining and simulate the machining in the hyperMILL VIRTU-\nAL Machining Center.\nPostprocessor messages: Display the postprocessor messages in a text editor and save in a text format if\nrequired.\n_______________________________________________________________\nUse the C heck NC status function to check the current status of the NC file. The status is displayed as\nfollows:\nNC file does not exist.\nNC file exists and is up to date.\nNC file exists, is approved"
+  },
+  {
+    "page": 44,
+    "text": "Feedbacks / No feedbacks: Turn the feedback on/off (when the mouse pointer is in the browser window).\nhyperMILL\n116\nTransformations\nA transformation is a relative movement within a reference coordinate system. The starting point is a start\nreference (start coordinate system) and the end point is a target reference (target coordinate system). The\nmovement can comprise a linear and/or rotating movement.\nY\nY\nX\nZ\nY\nX\nZ\nZ\nX\nIn hyperMILL, transformation refers to the duplication and positioning of too"
+  },
+  {
+    "page": 45,
+    "text": "The postprocessor maps the frame system of all copies on the NCS and creates link rapids on the\nclearance plane of the jobs.\n2. Circular pattern in the plane with 5-axis postprocessor\nDepending on the settings, the postprocessor outputs a different table/head orientation for each\nposition, if required. Additional movements occur between all copies, which correspond to a safe\npositioning logic of the machine.\nLinking movements created by the postprocessor are not collision-checked\nagainst the 3D "
+  },
+  {
+    "page": 46,
+    "text": "Z\nY X\n50\n2D Pocket Milling, deviating (1) Start reference and (2) Target reference. Pattern: X direction, specifica-\ntions: Fixed distance, Number of elements: 3, Distance: 50.\nZ Y\nX\nZ Y\nX\n1\n2\nCircular pattern\nYou can use a circular pattern in a job, compound job or linking job.\nDefine\n1. Define the T ransformation name and a C omment in the T ransformations dialogue.\n2. Under P attern, define the A xis type. To do this, use the options P oints (Start point / E nd point),\nLine, Axis of cylinder "
+  },
+  {
+    "page": 47,
+    "text": "Apply it to a job\nHow to apply a general pattern to the job:\n1. Navigate to the T ransformation dialogue page, enable the A ctive checkbox and select the required\ncircular pattern under S election.\n2. Enable the K eep original job option to ensure that the toolpath on which the transformation is\nbased stays the same.\n3. Under S tart reference, specify the start coordinate system to be used as a basis for the relative\nmovement of the transformation. Utilise the U se job frame option to use the ac"
+  },
+  {
+    "page": 48,
+    "text": "Y X\nZ\nY X\nZ\n1 2\nDefine\n1. Navigate to the T ransformation dialogue, define a T ransformation name and enter a C omment, if\nrequired.\n2. When performing the m irror definition, use the L evel, T hree points or L ine and P oint options and\nselect the geometric elements. If required, reverse the surface normal.\nApply\nHow to apply a mirror:\n1. Enable the mirror in the job, compound job or job list (select the E nabled checkbox) and select the\nrequired mirror under S election.\n2. Enable the C opy opt"
+  },
+  {
+    "page": 49,
+    "text": "Resulting stock\nResulting stock is also mirrored during mirroring ( J ob list \u2192M irror) if the M anufacturing parameters \u2192\nCopy function is activated.\nMirror stock chain\nA stock chain is also mirrored during mirroring ( J ob list \u2192M irror) if the M anufacturing parameters \u2192C opy\nfunction is activated.\nFunctions on the shortcut menu: Transformations\nNew mirror: Define a new mirror.\nNew linear pattern, N ew circular pattern, N ew general pattern: Create a new linear, circular or general\npattern.\nE"
+  },
+  {
+    "page": 50,
+    "text": "Group name: Specify the Surface Group\u2019s name. A surface can only be allocated to one Surface Group.\nYou assign the groups in the job definition.\nSurfaces: Click one of the icons to select the surfaces to be converted.\nAllowance: Height of the allowance that will be used in the cycles with multiple allowances. The value is\nadded to the allowance that is defined within the cycle.\nDefine filter\nUse a filter to define geometric elements.\n1.\n Click the icon to open the F ilter definition dialogue, se"
+  },
+  {
+    "page": 51,
+    "text": "3.\n Click the icon to select the surfaces that are to be used as the basis for the filter definition or\n4.\n click the icon in the L ayer line to select a layer that will be used for the filter definition.\nEnable the U se wildcard (\\\\*) option to search for character strings that appear before or after the\nplaceholder in a layer name. Two placeholders can also be used to search for character strings in\nbetween.\n5.\n Click the icon to update the filter definition.\nTo delete a filter, click the Colo"
+  },
+  {
+    "page": 52,
+    "text": "Groups\nGroup definition: Select this option if you want to convert areas with different mathematical resolutions\nand/or different stock allowances, in order, for example, to define different collision and protected areas.\nA coarse resolution is sufficient for roughing areas. A finer resolution should be defined for different fine\nmachining processes.\nThe group definition is relevant for: Profile Finishing, Equidistant Finishing, Iso Machining, Free Path\nMilling.\nGroups dialogue page\nGroups\nA 3DF"
+  },
+  {
+    "page": 53,
+    "text": "Ignore all: Ignore all messages and calculate all jobs.\nCancel: Cancel the calculation.\nEdit: Open the dialogue (Job/Joblist) and edit the settings.\nDuring the calculation, the message window displays information on the status of the calculation. The\ncalculation can be controlled as follows:\nCancel the toolpath calculation.\nStop the toolpath calculation.\nContinue the toolpath calculation.\nFor some machining cycles, temporary toolpaths are displayed initially that correspond to the calculation\nse"
+  },
+  {
+    "page": 54,
+    "text": "Update calculated toolpaths\nChanges to the feedrate, spindle RPM or comment do not require a recalculation of the job for the\nfollowing cycles.\n- all 3D cycles except Form Pocket\n- all 5X cavity cycles except Z-level roughing and cutting edge\n- all 5X surface cycles\n- 5X Blade Top Milling\n- 5X MB Point Milling\nTo change the spindle RPM or feedrate of the tool, choose one of the following options:\n1. Change the value for this job only directly on the Tool tab of the job definition. To do so, sele"
+  },
+  {
+    "page": 55,
+    "text": "Split job\nTime: Enable this option to split the toolpath based on time. Define the T ool life (min).\nLength: Enable this option to split the toolpath based on length. Define the T ool life in millimetres (inch).\nExample: (1) Machining: 3D Profile Finishing cycle, X axis, Zigzag direct infeed strategy\n(2) Split job according to length, tool life = 51 mm, tolerance factor = 0.2\nResult: Ten toolpaths\n1\n23\n4\n56\n7891\n000000000000\n0\n001\n1\n23\n4\n56\n7891\n000000000000\n0\n001\nY\nZ X\nY\nZ X\n1 2\nChange toleranc"
+  },
+  {
+    "page": 56,
+    "text": "Icon Command Description\nSelect window S elect a toolpath section within a rectangular selection area.\nSelect lasso Select a toolpath section within an area specified by a polygonal\nchain.\nSelect circle Select a toolpath section within a circular selection area.\nModes\nC. + P.: Enter the middle point and point on the circumference of\nthe circular selection area.\nC. + R.: Enter middle point and radius.\nThe number of selected elements is displayed.\nSelect segment Select elements arranged in an arc."
+  },
+  {
+    "page": 57,
+    "text": "Internal simulation\nThe internal simulation is based on the calculated toolpaths. It is n ot an NC code-based\nsimulation.\nTo start the internal simulation, select the required job list or required job and select the I nternal simulation\noption from the shortcut menu.\nJob status: This indicates the job that is currently being simulated.\nFrame: Shows the frame of the simulated job.\nTool/Origin: Shows the tool and origin of the simulated job.\nSpeed: Set the simulation speed using 50 steps.\nTool: Co"
+  },
+  {
+    "page": 58,
+    "text": "Stop the simulation at the first collision found. If the S top at collision function is enabled\nand the c ollision check is switched on, the simulation will stop as soon as the first collision\nis detected. The tool and/or machine components that are in collision are displayed in red,\nas is the simulation control button.\nSimulation to end of last job. Click the button to display the R esults of collision check\ndialogue. The elements in collision and the position of a collision point are shown.\nUs"
+  },
+  {
+    "page": 59,
+    "text": "The Restmaterial display function can be used to display the remaining rest material after machining.\nSelect the required job from the job list and select U tilities \u2192R estmaterial display from the shortcut menu.\nThen, in the S tock calculation dialogue, define which stock model should be used for rest material display.\nThe resulting model will be displayed and the R est material display dialogue will appear after the calcula-\ntion has been carried out. Specify the parameters to display the rest"
+  },
+  {
+    "page": 60,
+    "text": "CZ\nY\nX\nIf you are using a machine with cone shape interpolation in the simulation, you can use the E nable\nmachine cone shape interpolation option to ensure that this type of interpolation is also used in the\nsimulation.\nThe tool will move between its start and end orientation along a cone shaped surface in the case of vector\njumps (pole pass). For machines with rotary table attachments, the tool position can also be reached by\nturning the attachment.\nYou can also use this dialogue to define whi"
+  },
+  {
+    "page": 61,
+    "text": "1\n2\nDuring simulation of a job without a machine model, the collision check is carried out for the tool holder\nonly. The tool shank and the spindle can only be checked for collisions during calculation of the toolpath\nfile (see Setup &gt; Check tool tab).\nOpen the S etup simulation dialogue.\nSetup\nSimulation tolerance: Precision of calculation of elements used in the simulation.\nTool mode: By default, the tool that was used to create the toolpath file (tool from toolpath file) is used for\nthe si"
+  },
+  {
+    "page": 62,
+    "text": "Simulation in hyperVIEW\nThe simulation in hyperVIEW is based on the calculated toolpaths. It is n ot an NC\ncode-based simulation. The S pindle and T able elements of the machine model can be\nincluded in the collision check.\nOpening the program from the browser\u2019s shortcut menu. The following data is used for simulation in\nhyperVIEW: milling area, stockmodel and toolpaths.\nYou can transfer individual jobs in a joblist or the complete joblist to hyperVIEW.\nIt is not possible to call hyperVIEW from "
+  },
+  {
+    "page": 63,
+    "text": "hyperMILL SIMULATION Center\n2\n1\n4\n3\nx\n5\n3\nThe1toolbar is used to select the operating\nmodes of the hyperMILL SIMULATION Center.\nThe secondary navigation toolbar2controls the\ncontent of the display area 3in the different\noperating modes.\nThe content of the display area 3depends on\nthe operating mode.\n\u2022 P rogram run (simulation) operating mode:\nBlock display, display of toolpath file and\ncoordinate values.\n\u2022 P roject administration operating mode:\nDisplay of main programs and subpro-\ngrams.\n\u2022 M ac"
+  },
+  {
+    "page": 64,
+    "text": "Project administration operating mode\nFor extensive programs, load one of several available main programs. If the project con-\ntains only one main program, this is loaded automatically.\nProgram run (Simulation) operating mode\nSimulate the toolpath file. Display the control elements for regulating the speed, the block\ndisplay and the coordinate values. Control the display of the tool, part, stock and fixture.\nMachine configuration operating mode\nControl the display of the machine elements. Positi"
+  },
+  {
+    "page": 65,
+    "text": "Load this program: entry in the shortcut menu of the main program. Load the main program for the\nprogram run. The main program is then active. Only one main program may be active at once.\nShow postprocessor log: entry in the shortcut menu of main program, tool change job or operation. Display\nthe postprocessor messages for this job in a text editor. The information can be saved as a text file (.txt).\nSimulate complete NC list: Starting with the main program selected in the list (active), all mai"
+  },
+  {
+    "page": 66,
+    "text": "2Duration of the simulation. Position the mouse pointer over the displayed time to display the values for\nG0, G1 and G2/G3 movements.\n3Current position of the machine (corresponds to the display in the coordinates overview).\n4Block to be executed next.\n5Breakpoint: Double-click the block display to set a breakpoint for the current position. Double-click once\nmore to delete the breakpoint.\n6Search position: Click the block display (right mouse button) and use the S earch shortcut menu to enter\na "
+  },
+  {
+    "page": 67,
+    "text": "Set the start1and end2of the program run by selecting the lower and upper limits. For this purpose,\npick the required start and end points for the program run on the toolpath. You can also define the start\nand end points directly using the two slide controls AandB.\n3Reset the limits for the program run.\n4Move the machine to the start of the simulation area.\n5Approach the current position again, see6.\n6Pick a new position by defining a toolpath point and move the machine to this point.\nStarting a"
+  },
+  {
+    "page": 68,
+    "text": "Check tool against model: Checks the tool against the model.\nCheck holder/shaft/core against model: Holder, shank and tool core are checked against the model.\nAlways check G0: The rapid traverse check is activated by default. If the C heck tool against model function\nis deactivated, the check for all fast travel movements can also be optionally switched off. This can make it\neasier to release an NC file in certain situations (for example, when machining non-modelled areas).\nCheck stock: Checks t"
+  },
+  {
+    "page": 69,
+    "text": "Lines 79-79: Collision between\nShaft, Tip, Part\n5X Swarf Cutting one Curve\nLines 54-54: Collision between\n0 Gouges Errors Warnings\nShaft, Part\nTip, Part\n0 Contacts\nSave\nShow details\nMove to this line\nLines 90-90: Collision between\nLines 42-44: Collision between\nLines 42-43: Collision between\nLines 44-44: Collision between\nTool holder, Stock\nShaft, Part\nTip, Part\nPart_complete.nc\n5X Swarf Cutting one Curve\nCollisions\nSearch\nRun to this position\nRun to line\nSet start of simulation\nThis job only\nRu"
+  },
+  {
+    "page": 70,
+    "text": "Machine configuration\nIn the Machine configuration operating mode, display the machine elements in the form of a structure tree\nand configure the display in the graphics area. Use the secondary navigation toolbar to switch between\nmachine configuration, manual control for manually positioning the machine axes and the display of the\nmachine axis limits (min./max.).\nControlling visibility in the graphics area: Control the display of the machine elements in the\ngraphics area, manually position the "
+  },
+  {
+    "page": 71,
+    "text": "Positioning machine axes manually\nManually position the linear and rotary axes of the machine (X, Y, Z, A, B, C) and test various machining\nsituations on the part under real conditions to determine the optimal tool length or unclamping of the tool,\nfor example.\nNC Machine\nSolutions\nRun to workplane\nSolution1 A0 B0 Solution 2 A180 B180\nAxis\nMove along tool axis\nUpdateCalculate solutions\nTrans/RTCP\n1Use the secondary navigation toolbar to switch between machine configuration A, manual controlB\nand"
+  },
+  {
+    "page": 72,
+    "text": "Limits of the machine axes\nDisplays the limits (Minimum/Maximum) of the linear and rotary axes of the machine and the movement of\nthe machine coordinate system. The values cannot be edited.\nAxis Min Max\nMachine coordinate system\n3\n2\nMachine limits\nX\nY\nZ\nA\nB\nX\nY\nZ\n-400.000\n-300.000\n85.000\n-180.000\n400.000\n650.000\n1105.000\n65.000\n360.0000.000\n1Use the secondary navigation toolbar to switch between machine configuration A, manual controlB\nand the display of the machine axis limitsC.\n2Limits of the "
+  },
+  {
+    "page": 73,
+    "text": "It is only possible to load tool files that are compatible with the neutral tool exchange\nformat of the tool database.\nExtended settings\nNC data\nShow line numbers for VNC data: Displays the line numbers in the VNC program file/NC file. Both\nnumbers correlate, however, they are not identical with the line numbers of the NC program that is output.\nSimulation\nMinimum feedrate for rapid movements: G1 movements with a higher feedrate (than the defined value)\nare handled as rapid tool movements. Here,"
+  },
+  {
+    "page": 74,
+    "text": "Graphical analysis: Perform a graphical analysis of the movement path of the machine\naxes and configure the display.\nX Y Z\nDisplay the movement path of the linear axes (X, Y, Z).\nA B\nDisplay the movement path of the rotary axes.\nF S\nDisplay the F eedrate and/or the S pindle speed.\nBreakpoints: Insert breakpoints, define conditions for breakpoints, display breakpoints as a\nlist.\nVariables: Use control-specific default settings and parameters.\nhyperMILL\n176\nAnalysing the movement path of the machi"
+  },
+  {
+    "page": 75,
+    "text": "1 0Coordinate grid.\nAbsolute Display the coordinate values as absolute values. D elta: Show the coordinate values as the\ndifference between two blocks.\nZoom: Zooming (enlarging or reducing) is performed both in the horizontal direction when displaying the\ncoordinate values and in the vertical direction when displaying the block display.\nZoom vertical: Zooming (enlarging or reducing) is only performed in the vertical direction when displaying\nthe coordinate values. The representation of the block"
+  },
+  {
+    "page": 76,
+    "text": "1 2\nInsert a new breakpoint. Use the S top [Number] Steps before the event option to stop\nthe program run the required number of steps before the defined breakpoint in order\nto reduce the speed if required.\n1Define a condition and a T itle for a breakpoint. Either specify S top at G0 or S top\nat tool change as the condition (the number of times the condition occurs in the active\nprogram is displayed).\n2Pick a breakpoint from the toolpath that is loaded.\nVariables\nThe V ariables dialogue displays"
+  },
+  {
+    "page": 77,
+    "text": "Start external simulation\nUse the U tilities function on the shortcut menu of the job list or job and select the required external\nsimulation.\nhyperMILL\n182\nhyperMILL additional functions\nPlease note that not all additional hyperMILL functions are available on all platforms. For further informa-\ntion, see the tables in section hyperMILL and CAD program (page 11) .\nAnalysis\nStart from the hyperMILL T ools \u2192A nalysis menu or the U tilities \u2192A nalysis shortcut menu of the job or\njob list. If you st"
+  },
+  {
+    "page": 78,
+    "text": "Write planes / radii on separate layers\nYou can use this function in the results list shortcut menu to save the radii / planes from the analysis on\nseparate layers. If you double-click an entry in the list display, the radii/surfaces combined and shown\nin this group are zoomed in (individually) in the graphics window and combined into a special list (Zoom\nelement).\nYou can select the elements in this list individually or you can use the arrow keys to navigate through the\nlist. You can change the"
+  },
+  {
+    "page": 79,
+    "text": "Start via the hyperMILL menu T ools.\nFile: Specify the source file.\nColour/Layer: Define colour and layer.\nExport OMX\nSave selected geometry data in a separate*.omxfile.\nStart via the hyperMILL menu T ools.\nIf you want to use this function to export a freely defined holder/spindle as a contour to the OPEN MIND\ntool database, enable the D ata to clipboard option. For further information on importing a freely defined\nholder or freely defined spindle, see section Create geometry with the geometry e"
+  },
+  {
+    "page": 80,
+    "text": "Project on workplane: Projects the contour generated with the C ontour offset function onto the current\nworkplane.\nApply: Creates a new contour with the data you previously entered.\nCancel: Exits the input dialogue box.\nContour autolink\nLink adjacent contours that do not meet exactly. The system trims minor overlaps and closes small gaps\nwithin the tolerance specified. The resulting contours can be used for machining.\nStart via the hyperMILL Tools menu.\nOption\nTolerance: Enter the required toler"
+  },
+  {
+    "page": 81,
+    "text": "Insert height \u2192A bsolute: Specify an absolute value for the insert height interactively in the CAD model. If\nthis value is zero, all the generated circles and arcs will reside on the XY plane of the selected coordinate\nsystem.\nTop of contour/Bottom of contour: References of the top of contour/bottom of contour. The circles and arcs\nare stored in planes parallel to the XY plane. The Z values of these planes are offset by the value entered\nfor the top or bottom of the original contours.\nColour/Lay"
+  },
+  {
+    "page": 82,
+    "text": "Thicken planes\nThis function allows you to increase the thickness of any planes in a CAD model. Under I nput, first\nselect the type of object selection. You can either thicken all planes of a certain c olour or l ayer or select\nthe planes manually (option: S elect). Afterwards, define the h eight and output l ayer of the plane to be\nchanged.\nExport parameter\nWith this function, you can change parametrised CAD models by exporting a parameter list. Choose a\npath and file name in order to save the "
+  },
+  {
+    "page": 83,
+    "text": "Produce electrodes\nhyperCAD-S hyperCAD-S Electrode offers functions for designing, managing, programming and docu-\nmenting complete tool electrodes with electrode holders and with product manufacturer information for\nthe die-sinking EDM with the spark erosion behaviour. Fully program electrodes for milling based on\nhyperMILL with the electrode feature and macro programming.\nPreparing milling NC programming\nVarious prepared tasks are to be performed. Prepare the electrode holder library. Determin"
+  },
+  {
+    "page": 84,
+    "text": "The Name of the joblist is copied from the electrode designation.\nGlobal clearance plane: set by default to 10000.\nModel\nMilling area and stock are created in the hyperMILL browser, if the M illing area and S tock functions are\nactivated. The geometric data is copied from the selected electrode.\nA clamp is created as an element in the hyperMILL browser if the C lamp function is activated. The\ngeometric data is copied from the holder of the selected electrode.\nActivate the M achine function and s"
+  },
+  {
+    "page": 85,
+    "text": "C angle (1): Rotation of stock around the C-axis for the best possible fit of the electrodes.\nMilling parameters\nAll milling parameters are based on the zero point (A) of the machining (here: top of electrode holder).\n(1) Top of machining area\n(2) Bottom of machining area\n(3) Top of erosion area\n(4) Bottom of erosion area\n(5) Bottom of measuring frame\n(6) Total machining height\n(7) Electrode height\n(8) Min. distance linear sweep (for several ribs)\n(9) Max. distance linear sweep (for several ribs"
+  },
+  {
+    "page": 86,
+    "text": "The machining sequence at a glance\nCreate and select electrodes for milling\nCreate joblist, Milling area, Stock, Define NCS\nCreate electrode feature\nElectrode feature\nFaces for erosion area, Linear extension, Tangent extension\nReduction, Block, Stock\nCreate Reference system\nELECTRODES\nCreate user defined\nPrint\nImport colours\nELECTRODES\nDerive and milling...\nMilling\nCreate\nELECTRODE MILLING\nGeneral: Milling area, Stock,\nDefine NCS\nELECTRODES USER VARIABLES\nCheck spark gaps\nShow CAD parameters\nSho"
+  },
+  {
+    "page": 87,
+    "text": "The display of features\nUse the following options to control the display of features:\n1. V- By showing or hiding the features of a feature list.\nActivate (show features) or deactivate (hide features) the\nfunction in the top area of the feature browser.\n2. By entering any numeric or alphanumeric characters into the filter\nEnter any digits or characters that are contained in the\nfeature name to control the display of comprehensive fea-\nture lists and thus improve the transparency of the feature\nbr"
+  },
+  {
+    "page": 88,
+    "text": "If a feature from this feature list is used for the job definition, the frame of the feature list is analysed.\nFrames associated with individual features are not analysed.\nEdit a frame with the E dit function in the shortcut menu.\nDelete a frame with the D elete function in the shortcut menu.\nSort features\nUse the drop-down list on the left of the toolbar to sort the features in the browser according to T ype,\nName or N umber. If you select the N one option, the features will be sorted according"
+  },
+  {
+    "page": 89,
+    "text": "ID 1: T100258 Simple drilling\n1\n3\n2\nConnected features\nFeatures linked to the job are listed in the Feature Job Connector. The number of features is displayed.\nClick on the icon to open the Select feature dialogue in order to link a feature with\nthe current job.\nFeatures which should be used in the jobs can be moved to the right window by\ndouble-clicking or clicking on the button (1).\nFeatures which should not be used in the jobs can be moved to the left window by\ndouble-clicking or clicking on "
+  },
+  {
+    "page": 90,
+    "text": "Feature catalogue\nThe hyperMILL feature catalogue includes the following features:\nContour\nThe Contour feature contains the following feature types: 2D Contour (1), 3D Contour (2), Slot Contour (3)\nand Point (4).\nGeometric information for the 2D Contour, 3D Contour, T-Slot and Point contour types can be used within\nthe scope of the job definition for 2D, 3D and 5X Machining as well as during Turning and Probing.\nParameters of the 2D Contour, 3D Contour, T-Slot and Point feature types:\nOrientatio"
+  },
+  {
+    "page": 91,
+    "text": "Top / B ottom: Enter values or derive from the CAD system. When the feature is used in the job definition,\ndetermine the vertical machining range.\nFrame associative: Allows you to move the model to a different position when using the feature in the job\ndefinition. The frame used in the job associated to the model is also moved if the Application - Model check\nfunction in the Job shortcut menu is used.\nFor information on selecting contours, see section Selecting elements in the CAD system (page 2"
+  },
+  {
+    "page": 92,
+    "text": "hyperMILL\n212\nGeneric Pocket\nGeneric Pockets can be used universally and are structured according to manufacturing elements and\nrelated properties.\nGeneric Pockets offer significant advantages when using macro machining. In particu-\nlar, when setting up a macro database with macro rules, OPEN MIND recommends\nexclusive use of generic holes.\nGeometric data can be used for 2D, 3D and 5X and drilling cycles in the job definition. Geometric\nparameters are automatically copied for use in the job defin"
+  },
+  {
+    "page": 93,
+    "text": "16 17\n18\n19\n20\n16\nBottom edge: sharp (21), Fillet (22), Chamfer (23), Fillet: corner radius (24), Chamfer: chamfer angle (25),\nChamfer length (26), Bottom type through: orientation (27), Contour (28), Bottom offset (29)\n2\n 232221\n 262524\n 2827 29\nSidewall \u2013 side tolerance: lower (30), upper (31), Sidewall: open edge (32), Sidewall: minimum radius (33)\nsmallest radius occurring on the pocket wall.\nFor the lateral tolerance, U pper allowance and L ower allowance are calculated inwards\non each pock"
+  },
+  {
+    "page": 94,
+    "text": "Feature parameters\n(5) Centre, (6) Diameter, (7) Inner diameter, (8) Depth, (9) Height inside, (10) Inclined angle outside, (11)\nInclined angle inside, (12) Hole position, (13) Hole diameter, (14) Hole height.\n1 3\n2\n4\n5\n6\n7\n10 11\n8 9\n12\n13\n14\nX\nZ\nX\nZ\nX\nZ Y\nhyperMILL\n216\nGeneric Hole\nGeneric holes are universally applicable, from Simple Holes through to complex stepped holes. Generic\nholes are structured according to manufacturing elements and related properties.\nGeneric Holes were developed to r"
+  },
+  {
+    "page": 95,
+    "text": "1\n2\n3\n4\n5\n1\n2\n3\nThe following edge type can be used for holes and as a transition between sinks or between holes and\nsinks: Fillet (1), Sharp (2), Chamfer (3). The holes and sinks can feature threads (4), ISO fits (5) or spots\n(6).\n1 2 3 4 5 6\nThe following parameters can be defined for threads:\nDesignation: Select the designation from the list. Assign a name under U ser-defined. This designation is applied to the\nfeature name:Feature name<thread designation>. D iameter (1), Length (2), Pitch (3"
+  },
+  {
+    "page": 96,
+    "text": "1\n2\n3\nA B C D E\n1\nGeneric turning feature / Turning groove\nGeneric features for turning operations can be used universally and are structured by means of manufac-\nturing elements and their properties.\nGeometric data of the G eneric turning feature can be used within the job definition for the R ough Turning,\nContour parallel Turning and Finish Turning cycles.\nGeometric data of the T urning groove feature can be used within the job definition for the G roove Plunging\nand Groove Finishing cycles.\n"
+  },
+  {
+    "page": 97,
+    "text": "OPEN MIND Feature\nSimple Hole\nGeometric data from the Simple Hole feature can be used for 2D, 3D and drilling cycles in the job\ndefinition.\nA distinction is made between the following three basic types (bottom type) of Simple Hole: Through (1),\nFlat (2) and Tip (3), as well as Through hidden (4).\n1 2 3 4\nDepending on the basic type you choose, you can define the following parameters for the Simple Hole:\nOrientation (1): Enter coordinate values or determine the orientation vector from the CAD sys"
+  },
+  {
+    "page": 98,
+    "text": "1 2 3\n4\n4 4\nDepending on the basic type you choose, you can define the following parameters for the Sink Hole.\nOrientation, Group and Position:\nChamfer: Select this option (if chamfer is required). D epth (1): Enter value or derive from the CAD system.\nCore hole diameter (2), Core hole depth (3): Enter the value or derive it from the CAD system.\nBottom type: Through, Flat, Tip (see figure: basic types of simple holes)\nOffset bottom: only bottom type through hole. Enter value or derive it from th"
+  },
+  {
+    "page": 99,
+    "text": "Attributes can be defined for the associative parameters of the Sink Hole feature.\nFree defined Hole\nGeometric data from the Free defined Hole feature can be used for 2D, 3D and drilling cycles in the job\ndefinition.\n1\n2\n3\n4\n5\n6\nA distinction is made between the basic types Through (1), Flat (2), Tip (3) and Through hidden (4).\n1 2 3 4\nDepending on the basic type of hole chosen, you can define the following parameters for the Free defined\nHole feature:\nComment: If necessary, enter a comment.\nOri"
+  },
+  {
+    "page": 100,
+    "text": "1\n2\n3\nThe following parameters can be defined:\nOrientation (1): Enter coordinate values or determine the orientation vector from the CAD system.\nContour (2): Specify contour in the CAD system.\nWall angle (3): Enter angle of pocket wall or derive it from the CAD system.\nThe pocket height is defined using the properties of the selected contours.\nFor individual contour areas, it is possible to define different Z values (Top / Depth).\nCompound Feature\nGeometric data from the Compound Feature can be "
+  },
+  {
+    "page": 101,
+    "text": "Multi-blade\nUnder General, specify the required N ame and, if necessary, the C lass of the feature.\nIn the F eature parameters area, select the geometric elements.\nFilter definition / Update filter: Automatic definition of geometric elements with the help of various filters.\nCustomised Process Feature (CPF)\nUse a customised process feature to perform recurring machining tasks largely automatically. Link relevant\ngeometric information with a machining mode and technology parameters and manually d"
+  },
+  {
+    "page": 102,
+    "text": "7. Select 2 for Surface group number, click the\n icon and use the predefined settings.\nRename parameters\nYou can rename the parameters (for example: O rientation 1 > Frame pocket). To do this, enter the name\nof your choice in the right-hand part of the line.\nIn addition, you can assign a graphic to each parameter that clearly shows which geometric elements\nmake up the parameter. This simplifies the manual selection of geometric elements in the CAD model.\nIcons in the C ustomised process feature "
+  },
+  {
+    "page": 103,
+    "text": "The data in the CPF has been correctly defined and can be calculated.\nCustomised Process Features (CPFs) created using newer versions of hyperMILL\n(2011 and higher) are saved as UTF-8 encoded files with the*.omcpfextension and\ncan no longer be used with older hyperMILL versions. Older CPF files (with the*.omt\nextension) will not be changed by hyperMILL.\n(1) Model for the assignment of elements in the CPF, (2) Model for the use of the CPF in the job definition.\n1 2\nhyperMILL\n234\nGenerate feature\n"
+  },
+  {
+    "page": 104,
+    "text": "1 2\n3\n.\nLimiting diameter: Enable this option when holes require diameter limiting.\nMax. diameter: Features are only created for holes with diameters that are equal to or smaller than the\nmaximum diameter.\nUse preferred machining direction: All holes that can be machined from the defined direction are combined\ninto a single feature list.\nOffset angle (degree): Angle range within which the preferred machining direction is checked. Default =\n0.5\u00b0.\nExample:\n(1) Preferred machining direction is not "
+  },
+  {
+    "page": 105,
+    "text": "5X: All recognised features are combined into one feature list, but a frame is not assigned to this list.\nMixed: If several holes have the same orientation, a feature list is created for this orientation and a frame is\nassigned to the feature list. All other holes are combined into one feature list, but a frame is not assigned\nto this list.\nSplit by diameter: In the case of multi-step holes, the diameter of the individual steps is taken into account\nwhen arranging the features in the feature lis"
+  },
+  {
+    "page": 106,
+    "text": " \n 2\n1\n6\n3 4\n57\n8\n9\n1\nX\nZY\nX\nZ\nY\n2\n1 2\nResult of Feature Mapping:\n1. All holes that comply with the mapping conditions defined and are drilled in the same direction are\ncompiled into a feature in the feature list.\n2. A new frame is created for a feature list if there are at least two holes with the same drilling\ndirection. All of the other features are combined in another feature list without a frame.\n3. A hyperMILL feature appears as a new entry in the feature list and can be used in the job\nde"
+  },
+  {
+    "page": 107,
+    "text": "(3) Number of directions\n(2) Number of holes in this direction\nRecognised holes are transferred to a feature list as a Generic Hole or Compound Feature.\nHoles with the same parameters (Direction, Depth) are combined into a feature. Please note that the\ndefined base hole is also always included as a component of a feature.\nFilter\nUse a filter to limit the hoes to be recognised.\nSame colour: Only holes of the same colour as the base hole are recognised.\nSame layer: Only holes on the same layer as "
+  },
+  {
+    "page": 108,
+    "text": "If you want pockets with bottoms to be recognised, you can use the following options to more accurately\nspecify the sample pockets:\nCombine pockets: Enable if individual pockets of a model are to be automatically combined into a more\ncomplex pocket.\nWhen used in a job, combined pockets are processed more efficiently than individual pockets\nIt is possible to combine the following: pockets with bottoms (1), through pockets (2) and open (2) and\nclosed (3) pockets. The pockets must have a common edg"
+  },
+  {
+    "page": 109,
+    "text": "Manually combine pockets\nGeneric Pockets can be manually combined either in the feature browser via the shortcut menu or using\nthe colour table. The pockets must have a common edge and the same frame in order to be manually\ncombined.\n1. Highlight the pockets to be combined in the feature browser and select the C ombine pockets\nfunction on the shortcut menu.\n2.\n Use the Setup hyperMILL (dialogue page D atabase) to open the C olour table dialogue.\nDefine the colours to be used for the combination "
+  },
+  {
+    "page": 110,
+    "text": "1 2 3\nExample 3: Generic Pocket<Closed R10 Slot>with Slot profile (1) and Slot width (2).\n1\n2\n1 2\nThe S lot, S lot profile and S lot width feature parameters are displayed in the feature editor. Proceed as\nfollows to machine the recognised slot:\n1. Create a new job (2D Contour Milling) using the corresponding Pocket feature.\n2. Define the tool diameter according to the slot width and specify the O n contour option as the t ool\nposition.\n3. Select the A ctive only option from the shortcut menu of"
+  },
+  {
+    "page": 111,
+    "text": "BA B\nResult\nThe number of recognised pockets is displayed. Recognised pockets are shown in a list display. In\naddition, the parameters Open/Closed, Height, Edge type (Chamfer/Fillet), Radius/Height, Chamfer angle\nof the respective pocket will be displayed.\nSearch dialogue page\nSearch for comparison pockets based on the defined sample pocket(s). Limit the search for comparison\npockets to a part of the model (option: U ser) or search the entire model (option: C omplete model).\nRecognised pockets a"
+  }
+]

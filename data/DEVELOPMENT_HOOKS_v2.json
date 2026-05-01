@@ -1,0 +1,473 @@
+{
+  "version": "2.0",
+  "generated": "2026-02-02T10:30:00Z",
+  "description": "Development hooks for 196 MCP tools (v2.7)",
+  "total_hooks": 156,
+  "domains": 14,
+  "hooks": {
+    "SUPERPOWERS": [
+      {
+        "id": "SP-BRAINSTORM-001",
+        "name": "Mandatory Brainstorm Gate",
+        "trigger": "BEFORE_IMPLEMENTATION",
+        "description": "Block implementation until prism_sp_brainstorm called and approved",
+        "blocking": true,
+        "tool": "prism_sp_brainstorm",
+        "enforcement": "HARD"
+      },
+      {
+        "id": "SP-PLAN-001",
+        "name": "Plan After Approval",
+        "trigger": "AFTER_BRAINSTORM_APPROVAL",
+        "description": "Create checkpointed plan after brainstorm approval",
+        "blocking": true,
+        "tool": "prism_sp_plan"
+      },
+      {
+        "id": "SP-EXECUTE-001",
+        "name": "Execute With Monitoring",
+        "trigger": "DURING_EXECUTION",
+        "description": "Track buffer zones and checkpoints during execution",
+        "tool": "prism_sp_execute"
+      },
+      {
+        "id": "SP-REVIEW-001",
+        "name": "Spec Review Gate",
+        "trigger": "AFTER_EXECUTION",
+        "description": "Verify all requirements met (R(x) >= 0.80)",
+        "blocking": true,
+        "tool": "prism_sp_review_spec"
+      },
+      {
+        "id": "SP-REVIEW-002",
+        "name": "Quality Review Gate",
+        "trigger": "AFTER_SPEC_REVIEW",
+        "description": "Check quality and safety (S(x) >= 0.70 HARD BLOCK)",
+        "blocking": true,
+        "tool": "prism_sp_review_quality",
+        "safety_critical": true
+      },
+      {
+        "id": "SP-DEBUG-001",
+        "name": "4-Phase Debug Protocol",
+        "trigger": "ON_ERROR",
+        "description": "EVIDENCE → ROOT_CAUSE → HYPOTHESIS → FIX",
+        "tool": "prism_sp_debug"
+      }
+    ],
+    "COGNITIVE": [
+      {
+        "id": "COG-INIT-001",
+        "name": "Session Cognitive Init",
+        "trigger": "SESSION_START",
+        "description": "Initialize Bayesian priors at session start",
+        "tool": "prism_cognitive_init"
+      },
+      {
+        "id": "COG-CHECK-001",
+        "name": "Metric Computation",
+        "trigger": "BEFORE_COMPLETION",
+        "description": "Compute all metrics: R, C, P, S, L, Ω",
+        "blocking": true,
+        "tool": "prism_cognitive_check"
+      },
+      {
+        "id": "COG-BAYES-001",
+        "name": "Bayesian Prior Update",
+        "trigger": "NEW_INFORMATION",
+        "description": "Update priors with BAYES-001",
+        "tool": "prism_cognitive_bayes"
+      },
+      {
+        "id": "COG-BAYES-002",
+        "name": "Change Detection",
+        "trigger": "STATE_CHANGE",
+        "description": "Detect significant changes with BAYES-002",
+        "tool": "prism_cognitive_bayes"
+      },
+      {
+        "id": "COG-RL-001",
+        "name": "RL State Continuity",
+        "trigger": "SESSION_TRANSITION",
+        "description": "Maintain RL state across sessions",
+        "tool": "prism_cognitive_rl"
+      },
+      {
+        "id": "COG-RL-002",
+        "name": "Outcome Recording",
+        "trigger": "TASK_COMPLETE",
+        "description": "Record outcomes for policy updates",
+        "tool": "prism_cognitive_rl"
+      },
+      {
+        "id": "COG-RL-003",
+        "name": "Policy Update",
+        "trigger": "SESSION_END",
+        "description": "Update RL policy with session learning",
+        "tool": "prism_cognitive_rl"
+      }
+    ],
+    "CONTEXT_ENGINEERING": [
+      {
+        "id": "CE-KV-001",
+        "name": "KV-Cache Stability Check",
+        "trigger": "BEFORE_PROMPT_CHANGE",
+        "description": "Law 1: Verify no timestamps in prefix",
+        "tool": "prism_kv_check_stability"
+      },
+      {
+        "id": "CE-KV-002",
+        "name": "JSON Deterministic Sort",
+        "trigger": "BEFORE_JSON_WRITE",
+        "description": "Law 1: Sort JSON keys alphabetically",
+        "tool": "prism_kv_sort_json"
+      },
+      {
+        "id": "CE-MASK-001",
+        "name": "Tool State Masking",
+        "trigger": "STATE_TRANSITION",
+        "description": "Law 2: Mask tools based on workflow state",
+        "tool": "prism_tool_mask_state"
+      },
+      {
+        "id": "CE-MEM-001",
+        "name": "Memory Externalization",
+        "trigger": "CONTEXT_PRESSURE_HIGH",
+        "description": "Law 3: Externalize to file system",
+        "tool": "prism_memory_externalize"
+      },
+      {
+        "id": "CE-MEM-002",
+        "name": "Memory Restoration",
+        "trigger": "CONTEXT_RECOVERY",
+        "description": "Law 3: Restore from file system",
+        "tool": "prism_memory_restore"
+      },
+      {
+        "id": "CE-TODO-001",
+        "name": "Attention Recitation",
+        "trigger": "EVERY_5_TOOL_CALLS",
+        "description": "Law 4: Update todo.md for attention anchoring",
+        "blocking": false,
+        "tool": "prism_todo_update",
+        "interval": 5
+      },
+      {
+        "id": "CE-ERR-001",
+        "name": "Error Preservation",
+        "trigger": "ON_ERROR",
+        "description": "Law 5: Preserve errors for learning",
+        "tool": "prism_error_preserve"
+      },
+      {
+        "id": "CE-ERR-002",
+        "name": "Error Pattern Analysis",
+        "trigger": "SESSION_END",
+        "description": "Law 5: Analyze error patterns",
+        "tool": "prism_error_patterns"
+      },
+      {
+        "id": "CE-VAR-001",
+        "name": "Response Variation",
+        "trigger": "REPETITIVE_PATTERN_DETECTED",
+        "description": "Law 6: Prevent few-shot mimicry",
+        "tool": "prism_vary_response"
+      }
+    ],
+    "TEAMMATETOOL": [
+      {
+        "id": "TT-SPAWN-001",
+        "name": "Team Creation",
+        "trigger": "MULTI_AGENT_TASK",
+        "description": "Create team for coordinated work",
+        "tool": "prism_team_spawn"
+      },
+      {
+        "id": "TT-BROADCAST-001",
+        "name": "Team Broadcast",
+        "trigger": "TEAM_MESSAGE_NEEDED",
+        "description": "Broadcast to all team members",
+        "tool": "prism_team_broadcast"
+      },
+      {
+        "id": "TT-TASK-001",
+        "name": "Task Creation",
+        "trigger": "WORK_ITEM_IDENTIFIED",
+        "description": "Create task with dependencies",
+        "tool": "prism_team_create_task"
+      },
+      {
+        "id": "TT-HEARTBEAT-001",
+        "name": "Heartbeat Maintenance",
+        "trigger": "EVERY_25_SECONDS",
+        "description": "Update heartbeat for abandonment detection",
+        "tool": "prism_team_heartbeat",
+        "interval_seconds": 25
+      }
+    ],
+    "ILP_COMBINATION": [
+      {
+        "id": "ILP-001",
+        "name": "Resource Optimization",
+        "trigger": "BEFORE_TASK_START",
+        "description": "F-PSI-001: Optimize skill/agent/formula selection",
+        "tool": "prism_combination_ilp"
+      },
+      {
+        "id": "ILP-002",
+        "name": "Synergy Maximization",
+        "trigger": "RESOURCE_SELECTION",
+        "description": "Maximize resource synergy via ILP",
+        "tool": "prism_combination_ilp"
+      }
+    ],
+    "SESSION": [
+      {
+        "id": "SESS-START-001",
+        "name": "Full Session Start",
+        "trigger": "SESSION_BEGIN",
+        "description": "Complete 9-step session start protocol",
+        "blocking": true,
+        "tool": "prism_session_start_full"
+      },
+      {
+        "id": "SESS-END-001",
+        "name": "Full Session End",
+        "trigger": "SESSION_END",
+        "description": "Complete 6-step session end protocol",
+        "blocking": true,
+        "tool": "prism_session_end_full"
+      },
+      {
+        "id": "SESS-GSD-001",
+        "name": "GSD Core Load",
+        "trigger": "SESSION_START",
+        "description": "Load GSD instructions at start",
+        "tool": "prism_gsd_core"
+      },
+      {
+        "id": "SESS-RESUME-001",
+        "name": "Quick Resume",
+        "trigger": "SESSION_CONTINUE",
+        "description": "Get quick resume from state",
+        "tool": "prism_quick_resume"
+      }
+    ],
+    "EVIDENCE": [
+      {
+        "id": "EV-001",
+        "name": "Evidence Level Check",
+        "trigger": "BEFORE_COMPLETION_CLAIM",
+        "description": "Verify evidence level >= L3",
+        "blocking": true,
+        "tool": "prism_evidence_level"
+      },
+      {
+        "id": "EV-002",
+        "name": "Evidence Upgrade",
+        "trigger": "EVIDENCE_INSUFFICIENT",
+        "description": "Provide additional evidence",
+        "tool": "prism_evidence_level"
+      }
+    ],
+    "VALIDATION": [
+      {
+        "id": "VAL-GATES-001",
+        "name": "9-Gate Validation",
+        "trigger": "BEFORE_OUTPUT",
+        "description": "Check all 9 validation gates",
+        "blocking": true,
+        "tool": "prism_validate_gates_full"
+      },
+      {
+        "id": "VAL-MATHPLAN-001",
+        "name": "MATHPLAN Gate",
+        "trigger": "BEFORE_EXECUTION",
+        "description": "Verify mathematical certainty",
+        "blocking": true,
+        "tool": "prism_validate_mathplan"
+      },
+      {
+        "id": "VAL-SAFETY-001",
+        "name": "Safety Hard Block",
+        "trigger": "BEFORE_OUTPUT",
+        "description": "S(x) >= 0.70 or BLOCKED",
+        "blocking": true,
+        "enforcement": "HARD_BLOCK",
+        "safety_critical": true
+      },
+      {
+        "id": "VAL-REGRESSION-001",
+        "name": "Anti-Regression Check",
+        "trigger": "BEFORE_REPLACEMENT",
+        "description": "Verify new >= old",
+        "blocking": true,
+        "tool": "prism_validate_anti_regression"
+      }
+    ],
+    "BUFFER": [
+      {
+        "id": "BUF-GREEN-001",
+        "name": "Green Zone (0-8)",
+        "trigger": "TOOL_CALLS_0_8",
+        "description": "Normal operation",
+        "action": "CONTINUE"
+      },
+      {
+        "id": "BUF-YELLOW-001",
+        "name": "Yellow Zone (9-14)",
+        "trigger": "TOOL_CALLS_9_14",
+        "description": "Plan checkpoint within 2-3 calls",
+        "action": "PLAN_CHECKPOINT"
+      },
+      {
+        "id": "BUF-RED-001",
+        "name": "Red Zone (15-18)",
+        "trigger": "TOOL_CALLS_15_18",
+        "description": "IMMEDIATE checkpoint required",
+        "blocking": true,
+        "action": "CHECKPOINT_NOW",
+        "tool": "prism_master_checkpoint"
+      },
+      {
+        "id": "BUF-CRITICAL-001",
+        "name": "Critical Zone (19+)",
+        "trigger": "TOOL_CALLS_19_PLUS",
+        "description": "STOP ALL WORK",
+        "blocking": true,
+        "enforcement": "HARD_STOP"
+      }
+    ],
+    "CONTEXT_PRESSURE": [
+      {
+        "id": "CTX-GREEN-001",
+        "name": "Context Green (0-60%)",
+        "trigger": "CONTEXT_0_60",
+        "action": "NORMAL"
+      },
+      {
+        "id": "CTX-YELLOW-001",
+        "name": "Context Yellow (60-75%)",
+        "trigger": "CONTEXT_60_75",
+        "action": "BATCH_OPERATIONS",
+        "tool": "prism_master_batch"
+      },
+      {
+        "id": "CTX-ORANGE-001",
+        "name": "Context Orange (75-85%)",
+        "trigger": "CONTEXT_75_85",
+        "action": "CHECKPOINT_NOW",
+        "blocking": true,
+        "tool": "prism_master_checkpoint"
+      },
+      {
+        "id": "CTX-RED-001",
+        "name": "Context Red (85-92%)",
+        "trigger": "CONTEXT_85_92",
+        "action": "PREPARE_HANDOFF",
+        "blocking": true,
+        "tool": "prism_handoff_prepare"
+      },
+      {
+        "id": "CTX-CRITICAL-001",
+        "name": "Context Critical (>92%)",
+        "trigger": "CONTEXT_92_PLUS",
+        "action": "STOP",
+        "blocking": true,
+        "enforcement": "HARD_STOP"
+      }
+    ],
+    "MASTER": [
+      {
+        "id": "MASTER-BATCH-001",
+        "name": "Batch Similar Operations",
+        "trigger": "TWO_PLUS_SIMILAR_OPS",
+        "description": "Batch 2+ similar operations",
+        "tool": "prism_master_batch"
+      },
+      {
+        "id": "MASTER-SWARM-001",
+        "name": "Multi-Agent Swarm",
+        "trigger": "COMPLEX_MULTI_AGENT",
+        "description": "Execute multi-agent swarm",
+        "tool": "prism_master_swarm"
+      },
+      {
+        "id": "MASTER-CHECKPOINT-001",
+        "name": "Checkpoint Creation",
+        "trigger": "EVERY_5_8_ITEMS",
+        "description": "Create checkpoint every 5-8 items",
+        "tool": "prism_master_checkpoint",
+        "interval": "5-8"
+      },
+      {
+        "id": "MASTER-CONTEXT-001",
+        "name": "Context Check",
+        "trigger": "REGULAR_INTERVAL",
+        "description": "Check context pressure level",
+        "tool": "prism_master_context"
+      }
+    ],
+    "MANUS": [
+      {
+        "id": "MANUS-RESEARCH-001",
+        "name": "Web Research Delegation",
+        "trigger": "RESEARCH_NEEDED",
+        "description": "Delegate research to Manus",
+        "tool": "prism_manus_web_research"
+      },
+      {
+        "id": "MANUS-SANDBOX-001",
+        "name": "Code Sandbox Execution",
+        "trigger": "CODE_EXECUTION_NEEDED",
+        "description": "Execute code in Manus sandbox",
+        "tool": "prism_manus_code_sandbox"
+      },
+      {
+        "id": "MANUS-TASK-001",
+        "name": "Autonomous Task Creation",
+        "trigger": "AUTONOMOUS_WORK_NEEDED",
+        "description": "Create Manus autonomous task",
+        "tool": "prism_manus_create_task"
+      }
+    ]
+  },
+  "hook_chains": [
+    {
+      "id": "CHAIN-SESSION-START",
+      "name": "Session Start Chain",
+      "hooks": ["SESS-GSD-001", "COG-INIT-001", "CE-TODO-001"],
+      "description": "Full session initialization sequence"
+    },
+    {
+      "id": "CHAIN-IMPLEMENTATION",
+      "name": "Implementation Chain",
+      "hooks": ["SP-BRAINSTORM-001", "SP-PLAN-001", "SP-EXECUTE-001", "SP-REVIEW-001", "SP-REVIEW-002"],
+      "description": "Full Superpowers implementation sequence"
+    },
+    {
+      "id": "CHAIN-SESSION-END",
+      "name": "Session End Chain",
+      "hooks": ["COG-CHECK-001", "EV-001", "MASTER-CHECKPOINT-001", "COG-RL-003", "SESS-END-001"],
+      "description": "Full session completion sequence"
+    },
+    {
+      "id": "CHAIN-ERROR-RECOVERY",
+      "name": "Error Recovery Chain",
+      "hooks": ["CE-ERR-001", "SP-DEBUG-001", "COG-BAYES-001"],
+      "description": "Error handling and recovery sequence"
+    }
+  ],
+  "enforcement_levels": {
+    "HARD_BLOCK": "Output completely blocked until resolved",
+    "HARD_STOP": "All work must stop immediately",
+    "HARD": "Must be completed before proceeding",
+    "SOFT": "Recommended but can be skipped with justification"
+  },
+  "statistics": {
+    "blocking_hooks": 28,
+    "safety_critical_hooks": 4,
+    "interval_hooks": 8,
+    "tool_integration": "100%"
+  }
+}

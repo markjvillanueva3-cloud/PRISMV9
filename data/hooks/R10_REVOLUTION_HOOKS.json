@@ -1,0 +1,115 @@
+{
+  "version": "1.0.0",
+  "created": "2026-02-21T12:00:00Z",
+  "description": "R10 Revolution companion hooks: privacy check, carbon budget, digital twin sync",
+  "roadmap_phase": "R10 - Manufacturing Revolution",
+  "hooks": [
+    {
+      "id": "R10-FED-PRIVACY-001",
+      "name": "Federated Privacy Check",
+      "domain": "FEDERATED_LEARNING",
+      "category": "SAFETY",
+      "event": "federated:before_share",
+      "trigger": "federated:pre_share",
+      "phase": "before",
+      "priority": 1,
+      "enabled": true,
+      "canDisable": false,
+      "isBlocking": true,
+      "description": "Blocking pre-share hook that verifies no proprietary data leaks before contributing to the Anonymous Learning Network. Checks anonymization completeness, redaction of shop names, customer info, part numbers, pricing, and serial numbers. Rejects contributions that fail privacy validation.",
+      "context_schema": {
+        "contribution_id": "string",
+        "shop_id": "string",
+        "anonymization_report": "object",
+        "fields_to_share": "string[]",
+        "redacted_fields": "string[]"
+      },
+      "validation_rules": [
+        "anonymization_report.safe_to_share === true",
+        "redacted_fields includes all of: shop_name, customer, part_number, price, batch_size, serial_number",
+        "no raw IP addresses or geolocation in contribution",
+        "material_class uses ISO classification only (P/M/K/N/S/H)",
+        "machine_class uses generic type only (VMC/HMC/lathe/5-axis/swiss)"
+      ],
+      "on_failure": "BLOCK — contribution rejected, transparency log entry created",
+      "agent_mapping": {
+        "tier": "OPUS",
+        "agents": ["OPUS-PRIVACY-01"]
+      },
+      "safety_critical": true,
+      "enforcement": "ALWAYS",
+      "revolution": "Rev 4 — Anonymous Learning Network"
+    },
+    {
+      "id": "R10-CARBON-BUDGET-001",
+      "name": "Carbon Budget Check",
+      "domain": "SUSTAINABILITY",
+      "category": "COMPLIANCE",
+      "event": "sustainability:after_plan",
+      "trigger": "sustainability:post_plan",
+      "phase": "after",
+      "priority": 20,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Warning-level post-plan hook that verifies carbon budget compliance after process planning. Calculates total carbon footprint from machining energy, material waste, coolant usage, and transport. Issues warnings when carbon budget exceeds configured thresholds.",
+      "context_schema": {
+        "plan_id": "string",
+        "operations": "object[]",
+        "carbon_budget_kg": "number",
+        "calculated_footprint": "object",
+        "material_waste_kg": "number",
+        "energy_kwh": "number"
+      },
+      "thresholds": {
+        "warning": "calculated_footprint.total > carbon_budget_kg * 0.80",
+        "alert": "calculated_footprint.total > carbon_budget_kg * 0.95",
+        "exceeded": "calculated_footprint.total > carbon_budget_kg"
+      },
+      "on_trigger": "WARNING — log carbon overage, suggest optimization alternatives",
+      "agent_mapping": {
+        "tier": "SONNET",
+        "agents": ["SONNET-SUSTAIN-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "WHEN_ENABLED",
+      "revolution": "Rev 8 — Sustainability Optimization"
+    },
+    {
+      "id": "R10-TWIN-SYNC-001",
+      "name": "Digital Twin Sync Check",
+      "domain": "ADAPTIVE_CONTROL",
+      "category": "MONITORING",
+      "event": "adaptive:periodic_sync",
+      "trigger": "adaptive:twin_check",
+      "phase": "around",
+      "priority": 15,
+      "enabled": true,
+      "canDisable": true,
+      "isBlocking": false,
+      "description": "Warning-level periodic hook that verifies the digital twin state matches the physical machine state. Compares twin predictions (wear, thermal drift, chip load) against actual sensor readings. Issues drift warnings when deviation exceeds configured tolerance.",
+      "context_schema": {
+        "session_id": "string",
+        "twin_state": "object",
+        "sensor_readings": "object",
+        "deviation_thresholds": "object",
+        "last_sync_timestamp": "string"
+      },
+      "deviation_checks": [
+        "abs(twin_state.wear_estimate - sensor_readings.actual_wear) < 0.15",
+        "abs(twin_state.thermal_drift_z - sensor_readings.actual_drift_z) < 0.005",
+        "abs(twin_state.feed_override - sensor_readings.actual_feed_pct) < 10",
+        "twin_state.spindle_load_estimate within 15% of sensor_readings.spindle_load"
+      ],
+      "sync_interval_seconds": 30,
+      "on_trigger": "WARNING — log drift magnitude, recommend re-calibration if persistent",
+      "agent_mapping": {
+        "tier": "HAIKU",
+        "agents": ["HAIKU-MONITOR-01"]
+      },
+      "safety_critical": false,
+      "enforcement": "WHEN_ENABLED",
+      "revolution": "Rev 9 — Real-Time Adaptive Machining"
+    }
+  ]
+}

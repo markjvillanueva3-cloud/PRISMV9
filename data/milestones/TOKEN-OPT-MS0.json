@@ -1,0 +1,200 @@
+{
+  "id": "TOKEN-OPT-MS0",
+  "title": "Drastic Automatic Token-Saving Infrastructure",
+  "track": "INFRA",
+  "version": "1.0.0",
+  "created_at": "2026-04-02T12:00:00.000Z",
+  "status": "complete",
+  "total_units": 7,
+  "completed_units": 7,
+  "description": "Implement 7 automatic token-saving measures targeting the biggest context waste in PRISM sessions. Current infrastructure (945 LOC across 9 hooks) is advisory-only — warns but doesn't truncate. This milestone adds active compression, caching, and output rewriting to achieve 40-70% session token reduction. All hooks must coexist with existing 52+ user hooks and 42+ project hooks. Latency budget: <500ms per hook.",
+  "knowledge_sources": {
+    "existing_hooks": [
+      "bash-intercept.sh (234 LOC) — caches build/test/tsc/git, blocks redundant runs",
+      "posttooluse-compressor.mjs (87 LOC) — warns on large outputs, no truncation",
+      "read-optimizer.mjs (112 LOC) — warns on large files, suggests offset/limit",
+      "search-optimizer.mjs (182 LOC) — injects digest paths before Glob/Grep",
+      "pretooluse-token-saver.sh (66 LOC) — warns on broad Glob/large Read",
+      "read-tracker.mjs (17 LOC) — tracks files read (PostToolUse, no blocking)",
+      "cache-writer.mjs (161 LOC) — writes cache entries after successful commands",
+      "loop-detector.mjs (47 LOC) — warns on 3+ identical consecutive tool calls",
+      "session-breadcrumb.mjs (39 LOC) — tracks session activity"
+    ],
+    "hook_infrastructure": [
+      "hook-cache.mjs — shared cache utilities (cachePath, readLines, writeLines, appendUniqueLine)",
+      "settings.json — PreToolUse/PostToolUse hook chains",
+      "settings.local.json — permission allowlist",
+      ".claude/cache/ — session-scoped cache directory"
+    ],
+    "external_tools": [
+      "RTK (Rust Token Killer) — https://github.com/rtk-ai/rtk — CLI proxy, 60-90% Bash output compression",
+      "RTK init creates PreToolUse hook + RTK.md instruction file",
+      "Windows pre-built binary available from GitHub releases"
+    ],
+    "reference": [
+      "Claude Code hook API: PreToolUse can return {continue:true}, {decision:'block',reason:''}, {additionalContext:''} — CANNOT modify tool inputs",
+      "PostToolUse hooks: can add additionalContext only — CANNOT modify tool output already in context",
+      "bash-intercept.sh pattern: block original (exit 2), run compressed version, return via stderr — effectively rewrites commands"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "token-budget-enforcer.mjs — blocks tool calls when estimated session token usage exceeds threshold, forces /compact",
+    "mcp_action": "prism_telemetry → getTokenSavingsReport — returns per-hook savings stats from session cache",
+    "skill": "/token-ledger enhancement — show per-hook savings breakdown, RTK gain integration"
+  },
+  "enforcement": {
+    "pre_level": [
+      "read-optimizer.mjs (verify file not re-read)",
+      "search-optimizer.mjs (verify digest checked)"
+    ],
+    "post_level": [
+      "posttooluse-compressor.mjs (verify output not bloating context)"
+    ],
+    "compact_level": [
+      "enforce-auto-compact.py (trigger on context pressure)"
+    ],
+    "post_compact": [
+      "compact-restore.mjs (auto-continuation)"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "SESSION-1",
+      "title": "RTK Installation + Bash Output Rewriting",
+      "units": [
+        "TOPT-U01",
+        "TOPT-U02",
+        "TOPT-U03"
+      ],
+      "knowledge": "RTK GitHub repo, bash-intercept.sh, cache-writer.mjs, settings.json hook chains",
+      "intent": "Every Bash command (tsc, git, npm, vitest) returns compressed output automatically. No more 200-line error dumps or full git diffs in context.",
+      "compact_after": true
+    },
+    {
+      "id": "SESSION-2",
+      "title": "Read Cache + Context Budget + Validation",
+      "units": [
+        "TOPT-U04",
+        "TOPT-U05",
+        "TOPT-U06",
+        "TOPT-U07"
+      ],
+      "knowledge": "read-tracker.mjs, hook-cache.mjs, posttooluse-compressor.mjs, enforce-auto-compact.py",
+      "intent": "Files are never re-read wastefully. Subagent results are compressed. Context budget is enforced automatically. Measurable token savings validated.",
+      "compact_after": true
+    }
+  ],
+  "units": [
+    {
+      "id": "TOPT-U01",
+      "title": "RTK Installation + Integration Verification",
+      "status": "complete",
+      "description": "Download RTK Windows binary from GitHub releases. Place in system PATH. Run `rtk init -g` to create the PreToolUse hook. Verify RTK hook coexists with existing PRISM hooks in settings.json — RTK's hook must not conflict with bash-intercept.sh. Test with: `git status`, `git log`, `npx tsc --noEmit`, `npm list`. Compare output size before/after. Verify RTK gain command shows stats. If RTK conflicts with bash-intercept.sh (both try to intercept same commands), configure RTK to handle output compression while bash-intercept.sh handles caching/blocking.",
+      "acceptance_criteria": [
+        "rtk --version returns valid version",
+        "rtk init -g completes without error",
+        "RTK PreToolUse hook present in settings.json alongside existing hooks",
+        "git status output compressed (measured: before vs after character count)",
+        "npx tsc --noEmit output compressed when errors exist",
+        "Existing bash-intercept.sh caching still works (tsc cache, build cache, git cache)",
+        "No hook timeout violations (all hooks <500ms)",
+        "rtk gain shows token savings stats"
+      ]
+    },
+    {
+      "id": "TOPT-U02",
+      "title": "Bash Output Truncation — tsc Error Deduplication",
+      "status": "complete",
+      "description": "Extend bash-intercept.sh (or create new tsc-error-dedup.mjs PostToolUse hook) to deduplicate TypeScript compiler errors. When `npx tsc --noEmit` fails with N errors, many are the same type repeated across files. The hook should: (1) Parse tsc output to extract unique error codes + messages, (2) Group by error code (TS2304, TS2345, etc.), (3) Return summary: 'N unique errors across M files. Top errors: TS2304 (Cannot find name X) — 47 files, TS2345 (Argument type mismatch) — 23 files. Fix TS2304 first — likely a missing import.' This is a PostToolUse hook on Bash that fires when the command contains 'tsc' and the output exceeds 2000 chars. It can't modify the output already in context, but the additionalContext guidance prevents Claude from reading all 200 errors and instead focuses on root causes.",
+      "acceptance_criteria": [
+        "PostToolUse hook fires on tsc commands with large output",
+        "Correctly parses tsc error output format (file:line:col - errorTS#### - message)",
+        "Groups errors by error code with file count",
+        "Identifies root cause errors (missing imports, type mismatches)",
+        "additionalContext message under 500 chars with actionable guidance",
+        "Does not fire on successful tsc (0 errors)",
+        "Hook completes in <200ms",
+        "Works on Windows (\\r\\n line endings)"
+      ]
+    },
+    {
+      "id": "TOPT-U03",
+      "title": "Bash Output Truncation — git/npm/vitest Rewriting",
+      "status": "complete",
+      "description": "Extend bash-intercept.sh to rewrite verbose commands BEFORE execution using the block-and-replace pattern (exit 2 with stderr output). New rewrite rules: (1) `git diff` without --stat → block, run `git diff --stat` instead, return via stderr with note 'Use git diff -- <file> for full diff of specific file'. (2) `git log` without --oneline → block, run `git log --oneline -15`, return via stderr. (3) `npm install` / `npm ci` → allow but pipe through `tail -3` to only show final summary. (4) `vitest run` without specific file → wrap to capture output, emit only summary line ('Tests: X passed, Y failed, Z total'). Preserve the existing cache-based blocking (don't re-run if cached). These rewrites layer ON TOP of caching — if cache is fresh, serve cache; if stale, run compressed version.",
+      "acceptance_criteria": [
+        "git diff without flags returns --stat summary + guidance",
+        "git log without --oneline returns compact format",
+        "npm install returns only final 3 lines",
+        "vitest run returns pass/fail summary only",
+        "Cache-based blocking still takes priority over rewriting",
+        "Specific variants preserved: git diff --cached, git diff <file>, vitest run <specific-file>",
+        "No regression in existing bash-intercept.sh functionality",
+        "All rewrites complete in <500ms overhead"
+      ]
+    },
+    {
+      "id": "TOPT-U04",
+      "title": "Read-Once Session Cache",
+      "status": "complete",
+      "description": "Extend read-tracker.mjs from a passive PostToolUse tracker to an active PreToolUse blocker. Current state: read-tracker.mjs appends file paths to .claude/cache/files-read (PostToolUse). New behavior: Add a PreToolUse hook on Read that checks .claude/cache/files-read. If the file was already read this session AND the file hasn't been modified since (compare mtime vs cached read-time), block the re-read with: 'FILE ALREADY READ: You read <path> earlier this session. It has not changed. Use your existing knowledge of this file.' Exceptions that should NOT be blocked: (1) File was modified since last read (check mtime), (2) Read has offset/limit params (targeted re-read of specific section), (3) File is in an exemption list (HANDOFF.md, CURRENT_POSITION.md, settings.json — files that change during session). Store read timestamps, not just paths, to support mtime comparison.",
+      "acceptance_criteria": [
+        "PreToolUse Read hook checks files-read cache with timestamps",
+        "Re-read of unchanged file blocked with descriptive message",
+        "Modified files allowed through (mtime comparison)",
+        "Offset/limit reads always allowed (targeted reads)",
+        "Exemption list for session-volatile files (HANDOFF.md, settings.json, CURRENT_POSITION.md, MEMORY.md)",
+        "Cache entries include read timestamp for mtime comparison",
+        "PostToolUse tracker updated to store {path, timestamp, mtime} instead of just path",
+        "Hook completes in <100ms (stat call only, no file read)"
+      ]
+    },
+    {
+      "id": "TOPT-U05",
+      "title": "Subagent + MCP Output Compression Guidance",
+      "status": "complete",
+      "description": "Add two PostToolUse hooks: (1) Agent tool hook: When an Agent result exceeds 3000 chars, inject additionalContext: 'AGENT RESULT COMPRESSION: This subagent returned N chars. Extract only the specific answer/finding you need. Do not echo the full result — summarize in 1-3 sentences.' This prevents the common pattern where Claude receives a 5000-char agent research result and then restates it verbatim. (2) MCP tool hook for prism_* tools: When any mcp__prism* tool returns >2000 chars, inject: 'MCP RESULT: Large response. Extract only the result values you need. Ignore metadata, timestamps, and debug fields.' Wire both as PostToolUse hooks with appropriate matchers.",
+      "acceptance_criteria": [
+        "PostToolUse hook on Agent tool fires when result >3000 chars",
+        "PostToolUse hook on mcp__prism* tools fires when result >2000 chars",
+        "Both inject concise additionalContext (<200 chars)",
+        "Neither fires on small results (avoids noise)",
+        "Correct matchers in settings.json (^Agent$ and ^mcp__prism)",
+        "Hooks coexist with existing PostToolUse chains",
+        "Each hook completes in <50ms (just length check)"
+      ]
+    },
+    {
+      "id": "TOPT-U06",
+      "title": "Context-Size Auto-Compact Trigger",
+      "status": "complete",
+      "description": "Enhance enforce-auto-compact.py to trigger based on estimated context byte size, not just edit count. Current behavior: triggers at 20/40/55 edit thresholds. New behavior: Track cumulative tool output bytes this session (sum of all Bash output, Read output, Agent results). When estimated context exceeds 60% of window (~600K chars for 1M context), inject urgent compact warning. When it exceeds 75%, BLOCK further tool calls with: 'CONTEXT CRITICAL: Estimated N chars in context (75% of window). Run /compact immediately to avoid context overflow and information loss.' Implementation: PostToolUse hook that accumulates byte counts in .claude/cache/context-bytes. Reset on SessionStart. The byte tracking is approximate (can't know exact context size) but provides early warning before the system auto-compresses and loses critical facts.",
+      "acceptance_criteria": [
+        "PostToolUse hook tracks cumulative output bytes per session",
+        "Byte counter stored in .claude/cache/context-bytes",
+        "Warning injected at 60% threshold (~600K chars)",
+        "Blocking injected at 75% threshold (~750K chars)",
+        "Counter resets on SessionStart",
+        "Counter excludes small results (<100 chars) to avoid noise",
+        "Counter includes all tool types (Bash, Read, Agent, MCP, Glob, Grep)",
+        "Latency <50ms (single file read + write)"
+      ]
+    },
+    {
+      "id": "TOPT-U07",
+      "title": "Validation Sweep + Token Savings Measurement",
+      "status": "complete",
+      "description": "Create a validation script (token-savings-report.mjs) that measures actual token savings from all TOKEN-OPT hooks. The script should: (1) Read RTK gain stats if RTK installed, (2) Count bash-intercept.sh cache hits from session (read .claude/cache/ entries), (3) Count read-once blocks from files-read cache, (4) Count loop-detector warnings, (5) Count context-bytes current level, (6) Generate a summary report. Wire this into the existing /token-ledger skill. Also run a manual validation: start a fresh session, perform typical PRISM work (read files, run tsc, run tests, search codebase), and measure context usage with and without TOKEN-OPT hooks active. Document results in a findings file.",
+      "acceptance_criteria": [
+        "token-savings-report.mjs reads all TOKEN-OPT cache files",
+        "Report includes: RTK savings, cache hits, re-read blocks, loop warnings, context pressure",
+        "Report generates in <1 second",
+        "/token-ledger skill enhanced to call this report",
+        "Manual A/B validation completed (with vs without hooks)",
+        "Results documented with actual character/token counts",
+        "All 6 previous units verified working in integrated test",
+        "No hook chain regressions (existing hooks still function)"
+      ]
+    }
+  ]
+}

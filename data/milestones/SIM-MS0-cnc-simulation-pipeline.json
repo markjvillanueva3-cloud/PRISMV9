@@ -1,0 +1,133 @@
+{
+  "id": "SIM-MS0",
+  "title": "CNC Simulation Pipeline — Vericut-Class Unified Simulation",
+  "track": "SIM",
+  "version": "1.0.0",
+  "status": "not_started",
+  "created": "2026-03-13",
+  "brief": "Wire 15 existing simulation engines into a unified pipeline matching Vericut/hyperMILL VIRTUAL Machining capabilities. G-code→kinematics→collision→stock removal→safety report.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Swept Volume + Tool Assembly Foundation",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "SweptVolumeEngine — continuous path collision interpolation",
+          "status": "not_started",
+          "description": "Interpolate tool path between G-code endpoints at configurable resolution (default 0.1mm). Compute swept volume as union of tool shape at each position. Use AABB tree for fast spatial queries. Support linear (G01), circular (G02/G03), and rapid (G00) moves. Output: swept volume bounding boxes for collision testing.",
+          "steps": [
+            "Create src/engines/SweptVolumeEngine.ts with interpolate(), sweepLinear(), sweepArc(), sweepRapid()",
+            "Implement AABB-based spatial subdivision for O(n log n) collision queries",
+            "Support configurable resolution: 0.1mm for finishing, 1mm for roughing, 5mm for rapids",
+            "Wire to calcDispatcher: swept_volume_compute, swept_volume_check",
+            "Write 12 tests: linear/arc/rapid interpolation, resolution scaling, edge cases"
+          ],
+          "exit_conditions": ["Engine exports calculate()", "12 tests pass", "Wired to dispatcher"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "ToolAssemblyModelEngine — compound tool+holder+spindle collision shape",
+          "status": "not_started",
+          "description": "Combine tool dimensions (from 46K catalog) + holder dimensions (from 1,164 holders) + spindle nose geometry into a single compound collision cylinder stack. Support: endmill, drill, boring bar, face mill, insert tool assemblies. Compute total assembly length, max diameter at each Z-height, gauge line offset.",
+          "steps": [
+            "Create src/engines/ToolAssemblyModelEngine.ts with buildAssembly(), getCollisionProfile()",
+            "Integrate with ToolCatalogRegistry for tool dimensions",
+            "Integrate with holder catalogs (Haimer 489 + BIG DAISHOWA 131 + Tungaloy 494 + Guhring 23)",
+            "Generate cylinder stack: cutting edge → shank → holder taper → holder body → spindle nose → spindle housing",
+            "Wire to calcDispatcher: tool_assembly_build, tool_assembly_collision_profile",
+            "Write 10 tests: endmill, drill, boring bar assemblies, gauge line, max diameter profile"
+          ],
+          "exit_conditions": ["Engine computes compound collision shape", "10 tests pass", "Integrates with ToolCatalog"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "CNC Simulation Pipeline — Unified Orchestrator",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "CNCSimulationPipelineEngine — the main pipeline",
+          "status": "not_started",
+          "description": "Unified simulation pipeline that takes G-code + machine model + tool assembly and runs full simulation. Chains: (1) G-code parse → block list, (2) Machine lookup → kinematic model from 910-machine database, (3) Tool assembly → compound collision shape, (4) Per-block simulation: kinematic position → swept volume → collision check → voxel stock update, (5) Report generation. Supports incremental simulation (pause/resume) and batch mode.",
+          "steps": [
+            "Create src/engines/CNCSimulationPipelineEngine.ts",
+            "Implement simulate(gcode: string, machineId: string, toolAssembly: ToolAssembly): SimulationResult",
+            "Wire GCodeSafetyAnalyzerEngine for pre-flight safety check",
+            "Wire MachineKinematicsEngine + machine-kinematics-enriched for kinematic model loading",
+            "Wire MultiAxisKinematicEngine for 5-axis position computation",
+            "Wire SweptVolumeEngine for continuous path collision",
+            "Wire CollisionDetectionEngine for tool-vs-machine collision",
+            "Wire VoxelStockEngine for material removal tracking",
+            "Wire WorkEnvelopeValidatorEngine for axis limit checking",
+            "Wire MachineGeometricAccuracyEngine for volumetric error compensation",
+            "Output SimulationResult: collisions[], stock_remaining, cycle_time, safety_score, axis_utilization",
+            "Wire to camDispatcher: cnc_simulate, cnc_simulate_batch",
+            "Write 15 tests: 3-axis VMC, 5-axis trunnion, lathe, mill-turn, collision detection, stock removal"
+          ],
+          "exit_conditions": ["Full pipeline chains 8+ engines", "15 tests pass", "Handles 3-axis/5-axis/lathe"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "SimulationReportEngine — Vericut-class output reports",
+          "status": "not_started",
+          "description": "Generate detailed simulation reports matching Vericut AUTO-DIFF style. Includes: collision summary (type, severity, block number, position), stock comparison (target vs actual with gouge/excess detection), axis utilization chart data, cycle time breakdown, safety scorecard, tool engagement history.",
+          "steps": [
+            "Create src/engines/SimulationReportEngine.ts",
+            "Implement generateReport(simResult: SimulationResult): SimulationReport",
+            "Collision report: block number, position XYZ, collision type (tool-machine/tool-fixture/rapid), severity (mm penetration)",
+            "Stock report: gouge detection (undercutting), excess material detection, surface deviation from target",
+            "Axis report: max velocity %, max accel %, time in rapid vs feed, utilization per axis",
+            "Safety scorecard: S(x) integration, risk areas, recommended fixes",
+            "Wire to camDispatcher: cnc_simulation_report",
+            "Write 8 tests: collision report, stock report, axis report, safety scorecard"
+          ],
+          "exit_conditions": ["Report covers collision/stock/axis/safety", "8 tests pass"]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Competitive Differentiators — Beyond Vericut",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "PhysicsAwareSimulationEngine — force/thermal during simulation",
+          "status": "not_started",
+          "description": "What Vericut doesn't do: compute cutting forces, temperatures, and tool deflection DURING simulation, not after. Integrate Kienzle force model + Loewen-Shaw thermal model + cantilever deflection with each simulated cut. Flag blocks where force exceeds tool capacity, temperature exceeds coating limit, or deflection exceeds tolerance.",
+          "steps": [
+            "Create src/engines/PhysicsAwareSimulationEngine.ts",
+            "For each cutting block: compute Fc (Kienzle), T (Loewen-Shaw), delta (FL^3/3EI)",
+            "Cross-reference with tool material limits from ToolCatalog",
+            "Flag: force overload, thermal damage risk, tolerance violation from deflection",
+            "Suggest: feed reduction, speed adjustment, shallower DOC — with exact values",
+            "Wire to camDispatcher: cnc_simulate_physics",
+            "Write 10 tests: force computation, thermal limits, deflection tolerance, auto-suggestions"
+          ],
+          "exit_conditions": ["Physics computed per G-code block", "10 tests pass", "Auto-suggests fixes"]
+        },
+        {
+          "id": "P2-U02",
+          "title": "PredictiveSimulationEngine — tool life + cost during simulation",
+          "status": "not_started",
+          "description": "Another differentiator: predict tool life consumption and cost per part DURING simulation. Use Taylor tool life model + extended parameters from 910-machine database. Track cumulative wear per tool, predict when tool change is needed, compute cost per part including tool cost amortization.",
+          "steps": [
+            "Create src/engines/PredictiveSimulationEngine.ts",
+            "Track cumulative cutting time, MRR, engagement per tool",
+            "Apply Taylor tool life: T = C / (V^n * f^m * d^p) with material-specific coefficients",
+            "Predict remaining tool life at each point in program",
+            "Compute: cost_per_part (tool + machine_time + energy), optimal tool change points",
+            "Wire to camDispatcher: cnc_simulate_predictive",
+            "Write 8 tests: tool wear tracking, life prediction, cost computation, change point optimization"
+          ],
+          "exit_conditions": ["Tool life predicted during sim", "8 tests pass", "Cost per part computed"]
+        }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "estimated_sessions": 3,
+  "dependencies": [],
+  "competitive_advantage": "No competitor combines real-time physics (force/thermal/deflection) + predictive tool life + cost-per-part INTO the simulation itself. Vericut does collision+stock. hyperMILL does collision+stock+axis. PRISM does collision+stock+axis+physics+economics — a 5-layer simulation stack."
+}

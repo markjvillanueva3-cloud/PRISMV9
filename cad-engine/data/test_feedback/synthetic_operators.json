@@ -1,0 +1,101 @@
+{
+  "operators": [
+    {
+      "operator_id": "OP-MASTER-01",
+      "name": "James Chen",
+      "experience_years": 22.0,
+      "experience_level": "master",
+      "specializations": ["milling", "aluminum", "titanium"],
+      "typical_feedback": {
+        "operation_type": "milling",
+        "material": "steel",
+        "tool": "10mm carbide endmill",
+        "tool_diameter_mm": 10.0,
+        "parameters_used": {"cutting_speed": 180.0, "feed_per_tooth": 0.12, "axial_depth": 3.0},
+        "outcome": "success"
+      }
+    },
+    {
+      "operator_id": "OP-EXP-02",
+      "name": "Maria Santos",
+      "experience_years": 12.0,
+      "experience_level": "experienced",
+      "specializations": ["milling", "steel", "stainless_steel"],
+      "typical_feedback": {
+        "operation_type": "milling",
+        "material": "steel",
+        "tool": "12mm carbide endmill",
+        "tool_diameter_mm": 12.0,
+        "parameters_used": {"cutting_speed": 160.0, "feed_per_tooth": 0.10, "axial_depth": 2.5},
+        "outcome": "success"
+      }
+    },
+    {
+      "operator_id": "OP-EXP-03",
+      "name": "Viktor Petrov",
+      "experience_years": 15.0,
+      "experience_level": "experienced",
+      "specializations": ["turning", "steel", "titanium"],
+      "typical_feedback": {
+        "operation_type": "milling",
+        "material": "steel",
+        "tool": "10mm carbide endmill",
+        "tool_diameter_mm": 10.0,
+        "parameters_used": {"cutting_speed": 170.0, "feed_per_tooth": 0.11, "axial_depth": 2.8},
+        "outcome": "success"
+      }
+    },
+    {
+      "operator_id": "OP-JOUR-04",
+      "name": "Alex Kim",
+      "experience_years": 4.0,
+      "experience_level": "journeyman",
+      "specializations": ["milling"],
+      "typical_feedback": {
+        "operation_type": "milling",
+        "material": "steel",
+        "tool": "10mm carbide endmill",
+        "tool_diameter_mm": 10.0,
+        "parameters_used": {"cutting_speed": 200.0, "feed_per_tooth": 0.15, "axial_depth": 3.5},
+        "outcome": "success"
+      }
+    },
+    {
+      "operator_id": "OP-APPR-05",
+      "name": "Liam Harper",
+      "experience_years": 1.0,
+      "experience_level": "apprentice",
+      "specializations": [],
+      "typical_feedback": {
+        "operation_type": "milling",
+        "material": "steel",
+        "tool": "10mm carbide endmill",
+        "tool_diameter_mm": 10.0,
+        "parameters_used": {"cutting_speed": 250.0, "feed_per_tooth": 0.20, "axial_depth": 5.0},
+        "outcome": "modified",
+        "modifications_made": {"cutting_speed": 200.0}
+      }
+    }
+  ],
+  "scenarios": {
+    "consensus_standard": {
+      "description": "5 operators submit feedback for milling 4140 steel — should reach consensus",
+      "expected_consensus_params": ["cutting_speed", "feed_per_tooth", "axial_depth"],
+      "expected_outlier": "OP-APPR-05"
+    },
+    "physics_conflict": {
+      "description": "Operator reports cutting speed far outside physics range for steel",
+      "operator": "OP-JOUR-04",
+      "conflict_param": "cutting_speed",
+      "conflict_value": 500.0,
+      "physics_range": [80.0, 250.0]
+    },
+    "knowledge_conflict": {
+      "description": "Expert operator contradicts KB value for feed rate",
+      "operator": "OP-MASTER-01",
+      "conflict_param": "feed_per_tooth",
+      "kb_value": 0.08,
+      "operator_value": 0.15
+    }
+  }
+}

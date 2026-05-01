@@ -1,0 +1,487 @@
+
+============================================================
+Task: extract-titanium-alloys
+Agent: extractor-extract-titanium-alloys (extractor)
+Status: success
+============================================================
+
+[
+  {
+    "id": "TI-6424",
+    "name": "Ti-6Al-4V",
+    "grade": "Grade 5",
+    "density_kg_m3": 4430,
+    "tensile_strength_mpa": 895,
+    "hardness_hrc": 36,
+    "machinability_rating": 65,
+    "max_service_temp_c": 400,
+    "typical_applications": ["Aerospace components", "Medical implants", "Marine hardware", "Automotive parts", "Sporting goods"]
+  },
+  {
+    "id": "TI-CP02",
+    "name": "CP Titanium",
+    "grade": "Grade 2",
+    "density_kg_m3": 4510,
+    "tensile_strength_mpa": 345,
+    "hardness_hrc": 20,
+    "machinability_rating": 85,
+    "max_service_temp_c": 300,
+    "typical_applications": ["Chemical processing equipment", "Heat exchangers", "Marine applications", "Architectural components", "Biomedical devices"]
+  },
+  {
+    "id": "TI-6423",
+    "name": "Ti-6Al-4V ELI",
+    "grade": "Grade 23",
+    "density_kg_m3": 4430,
+    "tensile_strength_mpa": 795,
+    "hardness_hrc": 32,
+    "machinability_rating": 70,
+    "max_service_temp_c": 400,
+    "typical_applications": ["Medical implants", "Surgical instruments", "Orthopedic devices", "Dental implants", "Prosthetics"]
+  },
+  {
+    "id": "TI-5225",
+    "name": "Ti-5Al-2.5Sn",
+    "grade": "Grade 6",
+    "density_kg_m3": 4480,
+    "tensile_strength_mpa": 795,
+    "hardness_hrc": 35,
+    "machinability_rating": 60,
+    "max_service_temp_c": 480,
+    "typical_applications": ["High temperature applications", "Jet engine components", "Gas turbine parts", "Fasteners", "Springs"]
+  },
+  {
+    "id": "TI-6242",
+    "name": "Ti-6Al-2Sn-4Zr-2Mo",
+    "grade": "Grade 6242",
+    "density_kg_m3": 4540,
+    "tensile_strength_mpa": 1000,
+    "hardness_hrc": 42,
+    "machinability_rating": 45,
+    "max_service_temp_c": 450,
+    "typical_applications": ["Jet engine components", "Gas turbine blades", "Compressor discs", "High-stress aerospace parts", "Military applications"]
+  }
+]
+
+
+============================================================
+Task: extract-tool-materials
+Agent: extractor-extract-tool-materials (extractor)
+Status: success
+============================================================
+
+[
+  {
+    "id": "hss",
+    "name": "High Speed Steel",
+    "composition": "Iron-based alloy with tungsten, molybdenum, chromium, vanadium",
+    "hardness_hv": 850,
+    "max_cutting_temp_c": 600,
+    "toughness_rating": 8,
+    "wear_resistance_rating": 4,
+    "cost_rating": 2,
+    "best_for_materials": ["mild steel", "stainless steel", "aluminum", "brass", "cast iron"],
+    "avoid_materials": ["hardened steel", "titanium", "inconel", "ceramics"]
+  },
+  {
+    "id": "carbide_uncoated",
+    "name": "Carbide (Uncoated)",
+    "composition": "Tungsten carbide with cobalt binder",
+    "hardness_hv": 1600,
+    "max_cutting_temp_c": 900,
+    "toughness_rating": 5,
+    "wear_resistance_rating": 7,
+    "cost_rating": 5,
+    "best_for_materials": ["steel", "cast iron", "aluminum", "copper", "plastics"],
+    "avoid_materials": ["titanium", "inconel", "hardened steels above 45 HRC"]
+  },
+  {
+    "id": "carbide_tialn",
+    "name": "Carbide (TiAlN Coated)",
+    "composition": "Tungsten carbide substrate with titanium aluminum nitride coating",
+    "hardness_hv": 3000,
+    "max_cutting_temp_c": 1000,
+    "toughness_rating": 5,
+    "wear_resistance_rating": 8,
+    "cost_rating": 6,
+    "best_for_materials": ["hardened steel", "stainless steel", "cast iron", "titanium", "high-temp alloys"],
+    "avoid_materials": ["aluminum", "copper", "soft materials"]
+  },
+  {
+    "id": "ceramic",
+    "name": "Ceramic",
+    "composition": "Aluminum oxide or silicon nitride based",
+    "hardness_hv": 2000,
+    "max_cutting_temp_c": 1200,
+    "toughness_rating": 3,
+    "wear_resistance_rating": 9,
+    "cost_rating": 7,
+    "best_for_materials": ["cast iron", "hardened steel", "superalloys", "high-temp materials"],
+    "avoid_materials": ["aluminum", "titanium", "interrupted cuts", "low-speed applications"]
+  },
+  {
+    "id": "cbn",
+    "name": "Cubic Boron Nitride",
+    "composition": "Polycrystalline cubic boron nitride with ceramic or metallic binder",
+    "hardness_hv": 4000,
+    "max_cutting_temp_c": 1400,
+    "toughness_rating": 4,
+    "wear_resistance_rating": 10,
+    "cost_rating": 9,
+    "best_for_materials": ["hardened steel", "cast iron", "superalloys", "powder metals"],
+    "avoid_materials": ["aluminum", "titanium", "low carbon steel", "non-ferrous metals"]
+  },
+  {
+    "id": "pcd",
+    "name": "Polycrystalline Diamond",
+    "composition": "Synthetic diamond particles sintered with cobalt binder",
+    "hardness_hv": 8000,
+    "max_cutting_temp_c": 700,
+    "toughness_rating": 2,
+    "wear_resistance_rating": 10,
+    "cost_rating": 10,
+    "best_for_materials": ["aluminum", "copper", "brass", "composites", "ceramics", "graphite"],
+    "avoid_materials": ["ferrous materials", "titanium", "steel", "cast iron"]
+  }
+]
+
+
+============================================================
+Task: extract-steel-alloys
+Agent: extractor-extract-steel-alloys (extractor)
+Status: success
+============================================================
+
+[
+  {
+    "id": "ST-1018",
+    "name": "Low Carbon Steel",
+    "aisi_number": "1018",
+    "density_kg_m3": 7870,
+    "tensile_strength_mpa": 440,
+    "hardness_hrc": 12,
+    "machinability_rating": 78,
+    "carbon_content_percent": 0.18,
+    "typical_applications": ["General machining", "Structural components", "Bolts and fasteners", "Shafts", "Gears"]
+  },
+  {
+    "id": "ST-1045",
+    "name": "Medium Carbon Steel",
+    "aisi_number": "1045",
+    "density_kg_m3": 7870,
+    "tensile_strength_mpa": 625,
+    "hardness_hrc": 19,
+    "machinability_rating": 72,
+    "carbon_content_percent": 0.45,
+    "typical_applications": ["Axles", "Crankshafts", "Connecting rods", "Machinery parts", "Heat treated components"]
+  },
+  {
+    "id": "ST-4140",
+    "name": "Chromium Molybdenum Alloy Steel",
+    "aisi_number": "4140",
+    "density_kg_m3": 7850,
+    "tensile_strength_mpa": 655,
+    "hardness_hrc": 28,
+    "machinability_rating": 66,
+    "carbon_content_percent": 0.40,
+    "typical_applications": ["Aircraft parts", "Automotive components", "Oil drilling equipment", "Tooling", "High strength bolts"]
+  },
+  {
+    "id": "ST-4340",
+    "name": "Nickel Chromium Molybdenum Steel",
+    "aisi_number": "4340",
+    "density_kg_m3": 7850,
+    "tensile_strength_mpa": 745,
+    "hardness_hrc": 32,
+    "machinability_rating": 60,
+    "carbon_content_percent": 0.40,
+    "typical_applications": ["Aircraft landing gear", "Drive shafts", "Differential gears", "High performance engine parts", "Military applications"]
+  },
+  {
+    "id": "ST-A002",
+    "name": "A2 Tool Steel",
+    "aisi_number": "A2",
+    "density_kg_m3": 7860,
+    "tensile_strength_mpa": 690,
+    "hardness_hrc": 62,
+    "machinability_rating": 45,
+    "carbon_content_percent": 1.00,
+    "typical_applications": ["Punches and dies", "Cutting tools", "Blanking dies", "Thread rolling dies", "Knives and blades"]
+  },
+  {
+    "id": "ST-D002",
+    "name": "D2 Tool Steel",
+    "aisi_number": "D2",
+    "density_kg_m3": 7700,
+    "tensile_strength_mpa": 620,
+    "hardness_hrc": 62,
+    "machinability_rating": 35,
+    "carbon_content_percent": 1.55,
+    "typical_applications": ["Cold work dies", "Stamping dies", "Forming rolls", "Wear plates", "Industrial knives"]
+  },
+  {
+    "id": "ST-O001",
+    "name": "O1 Tool Steel",
+    "aisi_number": "O1",
+    "density_kg_m3": 7850,
+    "tensile_strength_mpa": 520,
+    "hardness_hrc": 64,
+    "machinability_rating": 50,
+    "carbon_content_percent": 0.95,
+    "typical_applications": ["Hand tools", "Files", "Reamers", "Taps", "Small dies and punches"]
+  },
+  {
+    "id": "ST-316S",
+    "name": "316 Stainless Steel",
+    "aisi_number": "316",
+    "density_kg_m3": 8000,
+    "tensile_strength_mpa": 580,
+    "hardness_hrc": 17,
+    "machinability_rating": 45,
+    "carbon_content_percent": 0.08,
+    "typical_applications": ["Marine equipment", "Chemical processing", "Medical implants", "Food processing equipment", "Pharmaceutical equipment"]
+  },
+  {
+    "id": "ST-304S",
+    "name": "304 Stainless Steel",
+    "aisi_number": "304",
+    "density_kg_m3": 8000,
+    "tensile_strength_mpa": 515,
+    "hardness_hrc": 15,
+    "machinability_rating": 50,
+    "carbon_content_percent": 0.08,
+    "typical_applications": ["Kitchen equipment", "Architectural trim", "Chemical tanks", "Heat exchangers", "General fabrication"]
+  },
+  {
+    "id": "ST-174P",
+    "name": "17-4 PH Stainless Steel",
+    "aisi_number": "17-4 PH",
+    "density_kg_m3": 7800,
+    "tensile_strength_mpa": 1310,
+    "hardness_hrc": 44,
+    "machinability_rating": 55,
+    "carbon_content_percent": 0.07,
+    "typical_applications": ["Aerospace components", "Nuclear reactor parts", "High strength fasteners", "Valve components", "Pump shafts"]
+  }
+]
+
+
+============================================================
+Task: extract-aluminum-alloys
+Agent: extractor-extract-aluminum-alloys (extractor)
+Status: success
+============================================================
+
+[
+  {
+    "id": "AL-6061",
+    "name": "6061-T6",
+    "uns_number": "A96061",
+    "density_kg_m3": 2700,
+    "tensile_strength_mpa": 310,
+    "hardness_hb": 95,
+    "machinability_rating": 90,
+    "thermal_conductivity_w_mk": 167,
+    "typical_applications": ["Aircraft structures", "Automotive components", "Marine hardware", "Bicycle frames", "General machining"]
+  },
+  {
+    "id": "AL-7075",
+    "name": "7075-T6",
+    "uns_number": "A97075",
+    "density_kg_m3": 2810,
+    "tensile_strength_mpa": 572,
+    "hardness_hb": 150,
+    "machinability_rating": 70,
+    "thermal_conductivity_w_mk": 130,
+    "typical_applications": ["Aircraft structural parts", "High-stress components", "Military applications", "Aerospace fasteners", "Racing components"]
+  },
+  {
+    "id": "AL-2024",
+    "name": "2024-T3",
+    "uns_number": "A92024",
+    "density_kg_m3": 2780,
+    "tensile_strength_mpa": 483,
+    "hardness_hb": 120,
+    "machinability_rating": 75,
+    "thermal_conductivity_w_mk": 121,
+    "typical_applications": ["Aircraft fuselage", "Wings", "Rivets", "Screws", "Structural components"]
+  },
+  {
+    "id": "AL-5052",
+    "name": "5052-H32",
+    "uns_number": "A95052",
+    "density_kg_m3": 2680,
+    "tensile_strength_mpa": 228,
+    "hardness_hb": 60,
+    "machinability_rating": 85,
+    "thermal_conductivity_w_mk": 138,
+    "typical_applications": ["Sheet metal work", "Marine applications", "Fuel tanks", "Appliances", "Electronic enclosures"]
+  },
+  {
+    "id": "AL-6063",
+    "name": "6063-T5",
+    "uns_number": "A96063",
+    "density_kg_m3": 2700,
+    "tensile_strength_mpa": 214,
+    "hardness_hb": 73,
+    "machinability_rating": 95,
+    "thermal_conductivity_w_mk": 201,
+    "typical_applications": ["Architectural extrusions", "Window frames", "Decorative trim", "Heat sinks", "Furniture"]
+  },
+  {
+    "id": "AL-7050",
+    "name": "7050-T7451",
+    "uns_number": "A97050",
+    "density_kg_m3": 2830,
+    "tensile_strength_mpa": 524,
+    "hardness_hb": 135,
+    "machinability_rating": 65,
+    "thermal_conductivity_w_mk": 157,
+    "typical_applications": ["Aircraft structural forgings", "Thick plate applications", "High-strength components", "Aerospace bulkheads", "Landing gear"]
+  },
+  {
+    "id": "AL-2011",
+    "name": "2011-T3",
+    "uns_number": "A92011",
+    "density_kg_m3": 2820,
+    "tensile_strength_mpa": 379,
+    "hardness_hb": 95,
+    "machinability_rating": 100,
+    "thermal_conductivity_w_mk": 159,
+    "typical_applications": ["Screw machine products", "Shafts", "Pins", "Rods", "High-volume machined parts"]
+  },
+  {
+    "id": "AL-6082",
+    "name": "6082-T6",
+    "uns_number": "A96082",
+    "density_kg_m3": 2700,
+    "tensile_strength_mpa": 340,
+    "hardness_hb": 96,
+    "machinability_rating": 88,
+    "thermal_conductivity_w_mk": 180,
+    "typical_applications": ["Structural engineering", "Bridges", "Cranes", "Transport applications", "High-strength extrusions"]
+  },
+  {
+    "id": "AL-5083",
+    "name": "5083-H116",
+    "uns_number": "A95083",
+    "density_kg_m3": 2650,
+    "tensile_strength_mpa": 317,
+    "hardness_hb": 85,
+    "machinability_rating": 80,
+    "thermal_conductivity_w_mk": 117,
+    "typical_applications": ["Marine structures", "Pressure vessels", "Cryogenic tanks", "Ship hulls", "Offshore platforms"]
+  },
+  {
+    "id": "AL-7475",
+    "name": "7475-T7351",
+    "uns_number": "A97475",
+    "density_kg_m3": 2800,
+    "tensile_strength_mpa": 490,
+    "hardness_hb": 128,
+    "machinability_rating": 68,
+    "thermal_conductivity_w_mk": 134,
+    "typical_applications": ["Aircraft wing skins", "Upper wing surfaces", "Fuselage frames", "Aerospace plate", "High-strength applications"]
+  }
+]
+
+
+============================================================
+Task: extract-cutting-parameters
+Agent: extractor-extract-cutting-parameters (extractor)
+Status: success
+============================================================
+
+[
+  {
+    "material_category": "Aluminum Alloys",
+    "recommended_tool_material": "Carbide (uncoated or TiAlN coated)",
+    "cutting_speed_range_m_min": {
+      "min": 200,
+      "max": 800
+    },
+    "feed_per_tooth_range_mm": {
+      "min": 0.08,
+      "max": 0.25
+    },
+    "depth_of_cut_range_mm": {
+      "min": 0.5,
+      "max": 5.0
+    },
+    "coolant_recommendation": "Flood coolant or air blast",
+    "notes": "High speed machining possible, avoid built-up edge formation"
+  },
+  {
+    "material_category": "Carbon Steel",
+    "recommended_tool_material": "HSS or TiN coated carbide",
+    "cutting_speed_range_m_min": {
+      "min": 80,
+      "max": 250
+    },
+    "feed_per_tooth_range_mm": {
+      "min": 0.05,
+      "max": 0.20
+    },
+    "depth_of_cut_range_mm": {
+      "min": 0.3,
+      "max": 3.0
+    },
+    "coolant_recommendation": "Soluble oil or flood coolant",
+    "notes": "Adjust parameters based on carbon content and hardness"
+  },
+  {
+    "material_category": "Stainless Steel",
+    "recommended_tool_material": "TiAlN or TiCN coated carbide",
+    "cutting_speed_range_m_min": {
+      "min": 60,
+      "max": 180
+    },
+    "feed_per_tooth_range_mm": {
+      "min": 0.04,
+      "max": 0.15
+    },
+    "depth_of_cut_range_mm": {
+      "min": 0.2,
+      "max": 2.5
+    },
+    "coolant_recommendation": "High-pressure flood coolant",
+    "notes": "Work hardening material, maintain consistent feed to prevent hardening"
+  },
+  {
+    "material_category": "Titanium Alloys",
+    "recommended_tool_material": "Uncoated carbide or PCD",
+    "cutting_speed_range_m_min": {
+      "min": 30,
+      "max": 120
+    },
+    "feed_per_tooth_range_mm": {
+      "min": 0.02,
+      "max": 0.10
+    },
+    "depth_of_cut_range_mm": {
+      "min": 0.1,
+      "max": 1.5
+    },
+    "coolant_recommendation": "High-pressure flood coolant or MQL",
+    "notes": "Low thermal conductivity requires excellent cooling, sharp tools essential"
+  },
+  {
+    "material_category": "Tool Steel",
+    "recommended_tool_material": "CBN or ceramic for hardened, carbide for annealed",
+    "cutting_speed_range_m_min": {
+      "min": 40,
+      "max": 150
+    },
+    "feed_per_tooth_range_mm": {
+      "min": 0.03,
+      "max": 0.12
+    },
+    "depth_of_cut_range_mm": {
+      "min": 0.1,
+      "max": 2.0
+    },
+    "coolant_recommendation": "Flood coolant or dry machining for hardened grades",
+    "notes": "Parameters vary significantly with hardness level, use lower speeds for hardened grades"
+  }
+]
+

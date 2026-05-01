@@ -1,0 +1,55 @@
+{
+  "id": "MXU-MS10",
+  "version": "1.0.0",
+  "title": "Bundle Effectiveness & Continuous Improvement",
+  "brief": "Analyze telemetry to measure which bundles worked and which underperformed. Refine bundles based on real usage data. Establish feedback loop for continuous improvement. Quantitative target: >=90% product-critical engines active in normal workflows.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Telemetry Analysis & Refinement",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Analyze bundle telemetry: activation frequency, success rate, capability utilization per bundle",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Identify underperforming bundles: low activation, low success, unused capabilities",
+          "effort": 50,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Feedback Loop & Targets",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Refine bundles based on telemetry: add missing capabilities, remove unused, rebalance",
+          "effort": 60,
+          "dependencies": ["P0-U02"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Establish closed feedback loop: telemetry -> analysis -> refinement -> re-measurement cycle",
+          "effort": 50,
+          "dependencies": ["P1-U01"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS9"],
+  "exit_conditions": ["Bundle telemetry analyzed with quantitative findings", "Underperforming bundles refined", ">=90% product-critical engines active in normal workflows", "Closed feedback loop operational"],
+  "notes": "Gap fix — closed feedback loop added to ensure continuous improvement after initial deployment",
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

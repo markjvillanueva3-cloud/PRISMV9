@@ -1,0 +1,35 @@
+[
+  {
+    "id": "2026-02-17_w4-health-check-thresholds",
+    "type": "decision",
+    "phase": "DA",
+    "milestone": "MS1",
+    "summary": "health_check uses GREEN/YELLOW/RED thresholds tied to Recovery Card modes",
+    "detail": "GREEN: calls<20, tokens<50K, compactions=0. YELLOW: calls 20-35 OR tokens 50-80K OR compactions=1. RED: calls>35 OR tokens>80K OR compactions>=2. Each maps to NORMAL/REDUCED/MINIMAL boot mode.",
+    "tags": ["session_health", "compaction", "recovery", "DA-MS1"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  },
+  {
+    "id": "2026-02-17_pre-compaction-dump-pressure",
+    "type": "decision",
+    "phase": "DA",
+    "milestone": "MS1",
+    "summary": "autoPreCompactionDump fires at >=55% pressure, not waiting for 70%",
+    "detail": "Gap between 55-70% had no proactive state preservation. Now writes CURRENT_POSITION.md + COMPACTION_SNAPSHOT.md at 55%. Wired into autoHookWrapper.ts pressure block.",
+    "tags": ["compaction", "cadence", "state_preservation", "DA-MS1"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  },
+  {
+    "id": "2026-02-17_edit-block-encoding-issue",
+    "type": "error_fix",
+    "phase": "DA",
+    "milestone": "MS7",
+    "summary": "DC edit_block fails on files with UTF-8 multi-byte chars (arrows, dashes)",
+    "detail": "PRISM_RECOVERY_CARD.md has encoded arrows that cause 98% similarity match but not exact. Workaround: use PowerShell script with line-number replacement instead of edit_block for files with special chars.",
+    "tags": ["desktop_commander", "encoding", "workaround"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  }
+]

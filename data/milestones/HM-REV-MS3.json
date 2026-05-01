@@ -1,0 +1,309 @@
+{
+  "id": "HM-REV-MS3",
+  "version": "8.3.0",
+  "title": "Cycle + Controller + Thread + Skills Scaffold",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire HyperMillCycleCatalogEngine (120+ cycle types), HyperMillCycleDefaultsEngine (138 cycle defaults), HyperMillControllerCatalogEngine (16 CNC families, 60+ post variants), and HyperMillThreadStandardEngine (11 thread standards) into a unified cycle parameter pipeline. Build scaffold for 15 Phase 1 skills (critical path skills that unlock daily hyperMILL workflows). Addresses Agent 5 finding (skills scaffold starts here, not deferred to MS12) and Agent 19 defect #2.",
+  "dependencies": [
+    "HM-REV-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCycleCatalogEngine.ts (232 LOC — 120+ cycle types across 9 categories)",
+      "HyperMillCycleDefaultsEngine.ts (636 LOC — 138 cycle defaults from Metric.cfg)",
+      "HyperMillControllerCatalogEngine.ts (430 LOC — 16 CNC families, 60+ post variants)",
+      "HyperMillThreadStandardEngine.ts (295 LOC — 11 thread standards with tap drill sizes)"
+    ],
+    "registries": [
+      "FormulaRegistry (499 formulas — thread formulas needed)",
+      "ToolpathStrategyRegistry (762 strategies)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (thread engagement factors, tap drill safety margins)"
+    ],
+    "reference": [
+      "hypermill-post-configs.json (17 NcGenerator post configs)",
+      "hypermill-cam-tips-ext.ts (83 advanced tips)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-cycle-defaults-validation — DECLARED+BUILT here",
+    "action": "cam:hypermill_cycle_recommend — DECLARED+BUILT here",
+    "skill": "/hypermill-speeds-feeds + 14 more Phase 1 skills — DECLARED+BUILT here"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read all 4 engines + FormulaRegistry before coding)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS3-S1",
+      "title": "Cycle Catalog + Defaults + Controller Pipeline Wiring",
+      "smart_config": {
+        "role": "CNC Cycle Specialist + Controller Integration Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillCycleCatalogEngine.ts",
+        "HyperMillCycleDefaultsEngine.ts",
+        "HyperMillControllerCatalogEngine.ts",
+        "hypermill-post-configs.json"
+      ],
+      "intent": "Create unified cycle parameter pipeline: feature geometry → cycle type selection → factory defaults → controller-specific adjustments → validated parameters ready for toolpath generation. This pipeline answers 'what cycle should I use and what are its starting parameters?' for any hyperMILL operation.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR16",
+          "title": "Wire CycleCatalog → CycleDefaults → ControllerCatalog parameter chain",
+          "description": "Create HyperMillCycleParameterPipeline that chains: geometry feature → CycleCatalogEngine (select cycle type from 120+) → CycleDefaultsEngine (load 138 factory defaults for selected cycle) → ControllerCatalogEngine (adjust for controller capabilities: axis count, interpolation type, canned cycle support). Output: validated parameter set ready for hyperMILL job creation.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillCycleParameterPipeline chains all 3 engines correctly",
+            "120+ cycle types selectable by geometry feature",
+            "138 factory defaults load per cycle type",
+            "Controller-specific adjustments applied (16 CNC families)",
+            "4 unit tests: drilling, 3D roughing, 5-axis, turning cycle chains"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillCycleParameterPipeline.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillCycleParameterPipeline.ts"
+          }
+        },
+        {
+          "id": "U-HMR17",
+          "title": "Wire ThreadStandardEngine + build cycle-defaults-validation hook",
+          "description": "Wire HyperMillThreadStandardEngine's 11 thread standards (ISO, ANSI, BSP, UNC, UNF, BSPT, NPT, Whitworth, Metric Fine, Trapezoidal, ACME) into the cycle parameter pipeline for thread milling and tapping cycles. Build hypermill-cycle-defaults-validation hook that validates cycle parameters against factory defaults (warn if > 30% deviation, block if physically impossible).",
+          "depends_on": [
+            "U-HMR16"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "11 thread standards accessible through cycle pipeline",
+            "Tap drill size calculation uses FormulaRegistry (not hardcoded)",
+            "hypermill-cycle-defaults-validation hook registered and firing",
+            "Hook warns on > 30% deviation from factory defaults",
+            "Hook blocks physically impossible parameters (negative stepdown, zero feed)",
+            "3 unit tests: ISO thread + tap drill, ANSI thread, hook validation"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/HyperMillCycleParameterPipeline.ts",
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillCycleParameterPipeline.ts src/hooks/registry.ts"
+          }
+        },
+        {
+          "id": "U-HMR18",
+          "title": "Build unified cycle recommendation action with physics integration",
+          "description": "Create cam:hypermill_cycle_recommend action that takes part feature + material + machine and returns: recommended cycle type, factory defaults, controller adjustments, AND PRISM physics-optimized parameters (speeds/feeds from SpeedFeedOrchestrator, forces from KienzleForceModel). This merges hyperMILL catalog knowledge with PRISM physics for a complete parameter recommendation.",
+          "depends_on": [
+            "U-HMR16",
+            "U-HMR17"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "cam:hypermill_cycle_recommend action registered",
+            "Returns both factory defaults AND physics-optimized parameters",
+            "Physics values come from SpeedFeedOrchestrator + KienzleForceModel",
+            "Comparison table shows factory vs physics values with % difference",
+            "A machinist would accept the recommendation as a valid starting point",
+            "3 unit tests: 3D roughing in steel, drilling in aluminum, 5-axis in titanium"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillCycleRecommendSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermillCycleRecommendSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ Cycle parameter pipeline chains 3 engines | ✓ 11 thread standards wired | ✓ cycle-defaults-validation hook active | ✓ cam:hypermill_cycle_recommend merges factory + physics | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-cycle-defaults-validation"
+        ],
+        "new_actions": [
+          "cam:hypermill_cycle_recommend"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS4",
+          "HM-REV-MS7",
+          "HM-REV-MS12"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS3-S2",
+      "title": "Skills Phase 1 Scaffold — 15 Critical hyperMILL Skills",
+      "smart_config": {
+        "role": "Skills Architect + Manufacturing Domain Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Existing skills: /hypermill-3d-strategy-guide, /hypermill-project-setup",
+        "Agent 5 skills design (60 skills total, 15 Phase 1)"
+      ],
+      "intent": "Build 15 Phase 1 critical skills that unlock daily hyperMILL workflows. These skills are the most-used commands a machinist needs. Each skill wires to the engines and actions built in MS1-MS3. Skills are .md files with frontmatter referencing engine actions.",
+      "skills": [
+        "/forge-skills",
+        "/prism-review",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR19",
+          "title": "Build 8 core hyperMILL skills (material, speeds/feeds, drill, thread, 2D/3D strategy, rough, finish)",
+          "description": "Create 8 skills: /hypermill-material-lookup (wire to MaterialBridge), /hypermill-speeds-feeds (wire to SpeedFeedOrchestrator), /hypermill-drill (wire to CycleCatalog drilling), /hypermill-thread (wire to ThreadStandardEngine), /hypermill-2d-strategy (wire to StrategyEngine 2D), /hypermill-3d-strategy (enhance existing), /hypermill-rough (wire to CycleDefaults roughing), /hypermill-finish (wire to CycleDefaults finishing). Each skill has frontmatter with model/effort/context/allowed-tools.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "8 skill .md files created in skills directory",
+            "Each skill has proper frontmatter (model, effort, context, allowed-tools)",
+            "Each skill references specific engine actions by name",
+            "Skills contain hyperMILL-specific tribal knowledge from 200 tips",
+            "tsc passes (skills are .md, no compile errors from engine changes)"
+          ],
+          "rollback": {
+            "files_created": [
+              "8 skill files in .claude/skills/"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "skill references non-existent actions",
+              "frontmatter schema invalid"
+            ],
+            "rollback_procedure": "git checkout -- .claude/skills/hypermill-*.md"
+          }
+        },
+        {
+          "id": "U-HMR20",
+          "title": "Build 7 operational hyperMILL skills (controller, NC gen, safety, collision, tool export, AC script, full-job) + wire 2 BUILD artifacts",
+          "description": "Create 7 skills: /hypermill-controller-select (wire to ControllerCatalogEngine), /hypermill-nc-generate (wire to CodeGeneratorEngine), /hypermill-safety-audit (wire to SafetyHooks), /hypermill-collision-check (wire to CollisionPreventionEngine), /hypermill-tool-export (wire to ToolExportEngine), /hypermill-automation-script (wire to CodeGeneratorEngine AC scripts), /hypermill-full-job (orchestrate material → strategy → cycle → NC). Build HyperMillSkillRegistryMap linking all 15 Phase 1 skills to their engine dependencies.",
+          "depends_on": [
+            "U-HMR19"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "7 more skill .md files created (15 total Phase 1)",
+            "HyperMillSkillRegistryMap.ts maps all 15 skills to engine dependencies",
+            "/hypermill-full-job orchestrates 5+ sub-skills in sequence",
+            "All 15 skills have consistent frontmatter schema",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "7 skill files in .claude/skills/",
+              "src/engines/hypermill/HyperMillSkillRegistryMap.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "skill references broken"
+            ],
+            "rollback_procedure": "git checkout -- .claude/skills/hypermill-*.md src/engines/hypermill/HyperMillSkillRegistryMap.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 15 Phase 1 skills created | ✓ Each skill wired to specific engine actions | ✓ HyperMillSkillRegistryMap built | ✓ /hypermill-full-job orchestrates sub-skills | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +1%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [
+          "/hypermill-material-lookup",
+          "/hypermill-speeds-feeds",
+          "/hypermill-drill",
+          "/hypermill-thread",
+          "/hypermill-2d-strategy",
+          "/hypermill-rough",
+          "/hypermill-finish",
+          "/hypermill-controller-select",
+          "/hypermill-nc-generate",
+          "/hypermill-safety-audit",
+          "/hypermill-collision-check",
+          "/hypermill-tool-export",
+          "/hypermill-automation-script",
+          "/hypermill-full-job"
+        ],
+        "available_to": [
+          "HM-REV-MS4",
+          "HM-REV-MS5",
+          "HM-REV-MS6",
+          "HM-REV-MS7",
+          "HM-REV-MS12"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

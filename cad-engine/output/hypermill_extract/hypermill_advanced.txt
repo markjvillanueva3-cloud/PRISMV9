@@ -1,0 +1,1094 @@
+al contours or holes can be machined in one job. The
+number of selected contours is displayed.
+Contour attributes
+To define contour attributes (top, bottom), select the machining contour in the contour list. By making
+multiple selections in this contour list, you can quickly define the same top and bottom values for several
+contours.
+Use the following buttons to change the order of selected contours or delete a contour. (1) To the top, (2)
+Up, (3) Delete, (4) Down, (5) To the bottom.
+Visualisation
+Selected contours (2) are shown in the model at the Z level of the defined top (1) and bottom (3). Depend-
+ing on the current cycle, the contour directions may also be shown. The contour list on the dialogue page
+shows further parameters such as Start, End and Plunge.
+Top and bottom contours of selected 3D contours are projected into the corresponding planes from the
+point of view of the current frame (4). Please observe:
+• Relative = 0: Upper edge of the selected geometry (5).
+• Thickness = 0: Bottom edge of the selected geometry (6).
+hyperMILL
+713
+
+1
+2
+3
+4
+5
+6
+Top: Start of machining in Z direction (1).
+Bottom: End depth of machining in Z direction (2).
+Both parameters are relative to the current frame.
+It is possible to have various vertical machining areas for the different machining contours in a job. By
+making multiple selections, the same top and bottom definitions can be applied simultaneously to different
+contours.
+Y
+Z
+1
+2
+Both parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom
+definitions can be made with various measurements.
+Absolute (jobframe) (A): The values you set are relative to the current frame. Use the absolute dimensions
+when a drawing has no defined Z coordinates (2D drawing). In these cases, define the top (1) as absolute
+and the bottom as relative or as absolute depending on the dimensions in the drawing (3). Selected
+contour (2)
+Specifying relative dimensions (B): Relative values are relative to the position of the CAD geometry
+selected in the model. This way of specifying top (1) and/or bottom (3) should be used for drawings that
+have Z information (for example, 3D contours, solids, defined thicknesses). Here, (2) stands for Z = 0 as
+the upper edge of the geometry.
+hyperMILL
+714
+
+Working with thickness (C): Thicknesses are relative to the position of the CAD geometry selected in
+the model. This way of specifying top (1) and/or bottom (2) should be used for drawings that have Z
+information (for example, 3D contours, solids, defined thicknesses).
+1
+2
+3
+A B C
+1
+2
+3
+1
+2
+Examples:
+UE Contour (1): Machining begins each time at the upper edge of the object and ends at the object's lower
+edge.
+Top Relative 0
+Bottom Thickness 0
+Bottom of contour (2): Machining begins in each case at the object's lower edge (thickness 0) and ends at
+the specified bottom.
+Top Thickness 0
+Bottom absolute/relative/thickness -10
+Y
+Z
+Y
+Z
+1 2
+Relative to top: The bottom (2) relative to top refers to the defined top value (1).
+hyperMILL
+715
+
+3
+1
+2
+Freely select the start point (1) for each contour.
+1 1
+Set an end point (2) if the contour is to be machined only partially or if there should be an overlap.
+1
+2
+1
+2
+Plunge point: The plunge point (1) applies for the infeed to the first workplane. The cutter moves directly
+from the plunge point to the starting point or to the approach macro position. The plunge point is not
+collision checked.
+hyperMILL
+716
+
+1
+Reverse: In the default setting the machining direction follows the direction of the selected contour. This
+can be seen in the graphic preview. If the generated toolpaths do not result in the intended machining
+direction, select the relevant contours and select the Reverse option.
+Align closed contours: The machining direction can be reversed for all selected closed (!) contours simulta-
+neously. To do so, select the contours and specify the direction of the contours using the Align closed
+contours → Clockwise / Counterclockwise  function from the shortcut menu. The start point and end point
+are interchanged automatically.
+If you change the machining direction, you should change the cutter position as well.
+Overlap: An overlap is only permissible for closed contours. The toolpath will move the tool past the start
+point (1) until it reaches the given end point (2).
+1
+2
+Parameters
+Inclination
+Wall angle: Wall incline angle (1).
+hyperMILL
+717
+
+Z
+1
+Infeed
+Vertical stepdown: Z infeed to the next machining pass.
+Allowance
+Allowance XY / Allowance Z: Both allowances are remaining material that is to be removed in subsequent
+finishing machining. Distance from the final contour that the cutter has to keep
+Retract mode
+Clearance plane (1): all vertical retract and stepdown movements to the next machining plane take place
+via the clearance plane.
+Clearance distance / Lead-in position (2)
+The stepdown movement to the next workplane is realised with Contour Milling at the clearance distance
+(A), with Pocket Milling at the lead-in position (start position + lead-in macro) without retraction in the Z
+direction (B). Approach and retract macros are executed at each machining plane.
+1 2
+Clearance
+Select the clearance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-
+sions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.
+For a 3D model, the clearance plane value can be taken from the drawing.
+hyperMILL
+718
+
+The clearance plane is always situated above the workpiece boundaries in the Z direc-
+tion.
+Define a clearance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown infeed
+(relative dimensions). Below the clearance distance, Z-stepdown takes place at feedrate.
+1
+2
+3
+Macros
+Define the tool approach at the start point and the tool retraction from the end point of the contour.
+Perpendicular (1): Perpendicular to contour tangent, enter length.
+Tangential (2): On contour tangent, enter length.
+Quarter circle (3), Half circle (4): In quarter or half circle, enter radius.
+Macro extension : Only available for quarter circle. The macro is extended by the specified value. This
+guarantees that the tool can fully retract from the groove without leaving behind any material (such as
+chippings/shavings).This is particularly important for Bottom to top milling (see Parameters section).
+X
+Y1 2
+3 4
+hyperMILL
+719
+
+Macro position
+For the On contour tool position, either Left or Right can be defined as the macro position.
+For the Left tool position, the Left macro position is activated as standard (and cannot be changed).
+For the Right tool position, the Right macro position is activated as standard (and cannot be changed).
+Feedrate macros
+The feedrate may be defined for both Approach and Retract.
+Setup
+Make basic settings that are valid for all subsequent actions and definitions in hyperMILL.
+NC parameters
+Machining tolerance: Enter the required machining tolerance. The value defines the accuracy with which
+the calculation for the generation of the toolpath is carried out.
+Stop before execution: A stop marker in the toolpath causes the tool to stop.
+hyperMILL
+720
+
+Inclined Pocketing
+Milling of pockets with inclined pocket wall.
+Contours
+Define machining contours, the vertical machining area and cycle-specific contour parameters.
+Contour selection
+The following can be selected as 2D machining contours: points (drilling only), arcs, circles, reference
+lines, curves and edge curves of surfaces. Several contours or holes can be machined in one job. The
+number of selected contours is displayed.
+Contour attributes
+To define contour attributes (top, bottom), select the machining contour in the contour list. By making
+multiple selections in this contour list, you can quickly define the same top and bottom values for several
+contours.
+Use the following buttons to change the order of selected contours or delete a contour. (1) To the top, (2)
+Up, (3) Delete, (4) Down, (5) To the bottom.
+Visualisation
+Selected contours (2) are shown in the model at the Z level of the defined top (1) and bottom (3). Depend-
+ing on the current cycle, the contour directions may also be shown. The contour list on the dialogue page
+shows further parameters such as Start, End and Plunge.
+Top and bottom contours of selected 3D contours are projected into the corresponding planes from the
+point of view of the current frame (4). Please observe:
+• Relative = 0: Upper edge of the selected geometry (5).
+• Thickness = 0: Bottom edge of the selected geometry (6).
+hyperMILL
+721
+
+1
+2
+3
+4
+5
+6
+Top: Start of machining in Z direction (1).
+Bottom: End depth of machining in Z direction (2).
+Both parameters are relative to the current frame.
+It is possible to have various vertical machining areas for the different machining contours in a job. By
+making multiple selections, the same top and bottom definitions can be applied simultaneously to different
+contours.
+Y
+Z
+1
+2
+Both parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom
+definitions can be made with various measurements.
+Absolute (jobframe) (A): The values you set are relative to the current frame. Use the absolute dimensions
+when a drawing has no defined Z coordinates (2D drawing). In these cases, define the top (1) as absolute
+and the bottom as relative or as absolute depending on the dimensions in the drawing (3). Selected
+contour (2)
+Specifying relative dimensions (B): Relative values are relative to the position of the CAD geometry
+selected in the model. This way of specifying top (1) and/or bottom (3) should be used for drawings that
+have Z information (for example, 3D contours, solids, defined thicknesses). Here, (2) stands for Z = 0 as
+the upper edge of the geometry.
+hyperMILL
+722
+
+Working with thickness (C): Thicknesses are relative to the position of the CAD geometry selected in
+the model. This way of specifying top (1) and/or bottom (2) should be used for drawings that have Z
+information (for example, 3D contours, solids, defined thicknesses).
+1
+2
+3
+A B C
+1
+2
+3
+1
+2
+Global plunge point
+Plunge point: As the user-defined plunge point is not collision checked, steps need to be taken to ensure
+that collisions will not occur.
+Parameters
+Infeed
+Vertical stepdown (1): choose the stepdown to the next machining plane, from the Z direction of the active
+frame. This gives the number of machining planes. If a top is situated between two defined machining
+planes, the system will automatically reduce the vertical stepdown and insert an intermediate step.
+Horizontal stepover factor  (2): stepover in the XY plane is the distance between the centre points of two
+adjacent milling tool paths and is generally given as a factor of the milling tool's diameter
+Z
+X
+Y
+1
+2
+Allowance
+Choose Allowance XY (1) and Allowance Z (2). Remaining material that is to be removed in subsequent
+fine machining. Corresponds to the distance from the final contour that the cutter has to keep
+hyperMILL
+723
+
+X
+Z 1
+2
+Inclination
+Wall angle (1): Pocket wall incline angle. If the job is linked with a pocket feature (with defined wall angle
+and active status), the preset value for the wall angle is adopted.
+For further information on the Pocket feature, see section Pocket (page 227).
+Z
+1
+Retract mode
+Clearance plane (1): all vertical retract and stepdown movements to the next machining plane take place
+via the clearance plane.
+Clearance distance / Lead-in position (2)
+The stepdown movement to the next workplane is realised with Contour Milling at the clearance distance
+(A), with Pocket Milling at the lead-in position (start position + lead-in macro) without retraction in the Z
+direction (B). Approach and retract macros are executed at each machining plane.
+hyperMILL
+724
+
+1 2
+Clearance
+Select the clearance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-
+sions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.
+For a 3D model, the clearance plane value can be taken from the drawing.
+The clearance plane is always situated above the workpiece boundaries in the Z direc-
+tion.
+Define a clearance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown infeed
+(relative dimensions). Below the clearance distance, Z-stepdown takes place at feedrate.
+1
+2
+3
+Toolpath fillets
+The toolpaths in the plane can be smoothed.
+Fillet radius: Abrupt changes in direction within the cutting toolpaths are rounded with the specified radius
+(2).
+Radius for horizontal infeed : The horizontal infeed between the toolpaths is rounded with the horizontal
+infeed radius (1).
+hyperMILL
+725
+
+Fillet all toolpaths : model contour corners are rounded with the radius defined above, with the result that
+the machining contour deviates from the model contour at the corners (3).
+1
+2
+3
+Macros
+Define the border behaviour of the tool during machining. The following macros are available: approach
+macro, retract macro and plunge macro.
+Retract macro
+None: The tool approach/retraction takes place in the Z direction (1).
+When defining an approach or retract macro, the approach takes place at the starting point and the
+retraction from the endpoint in the workplane:
+Circular: in a quarter circle. Enter arc radius (2).
+Perpendicular: perpendicular to contour tangent. Enter length (3).
+X
+Z
+X
+Y
+X
+Y
+1
+2
+3
+Plunge macro
+Tool movement for stepdown to the next workplane.
+Not available in Stock mode.
+None (A): the infeed movement is executed as a linear movement in Z direction. To be used for:
+Use the vertical plunge macro for:
+hyperMILL
+726
+
+• Stepdown without material removal (user-defined starting point is outside the stock)
+• Soft materials (aluminium, plastics),
+• Existing predrilled hole at starting point,
+• Vertical plunging with a tool suitable for vertical chip removal
+Helical (B): Use to clear pockets without pre-drilling.
+Helix radius  (1): Offset of the cutter centre point relative to the axis of the helix (Z axis through infeed
+point).
+Angle (2): lead angle of the helix. The number of revolutions executed by the tool in the course of the
+infeed movement is computed from the value of the vertical stepdown and the lead angle of the helix. The
+direction of the helix is defined by the cutting mode.
+Ramp (C): Ramping-in proceeds along the first milling path. Use the ramp plunge macro for soft free
+cutting in tight spaces.
+Angle (1): lead angle of the ramp.
+A B C
+1
+12
+Setup
+Make basic settings that are valid for all subsequent actions and definitions in hyperMILL.
+NC parameters
+Machining tolerance: Enter the required machining tolerance. The value defines the accuracy with which
+the calculation for the generation of the toolpath is carried out.
+Stop before execution: A stop marker in the toolpath causes the tool to stop.
+hyperMILL
+727
+
+Rectangular Pocket
+Machining rectangular pockets parallel to contour with specifiable machining direction using climb milling
+or conventional milling.
+Contours
+The 2D contours must be defined as closed polylines.
+Contour selection
+Several circular and/or rectangular pockets of different sizes can be machined in one cycle. The size and
+position of the contours are taken from the drawing.
+It is not possible to machine islands by setting contours inside one another.
+If the controller is equipped with cycles for circular and/or rectangular pocket milling, the
+job steps defined here will be output in the NC file as corresponding cycles.
+Offset does not apply in the Z direction: The bottom of the inner pocket must correspond to the machining
+depth defined here.
+With uneven pre-machining, enter the maximum material height.
+Pre-machined pocket: Enable to avoid empty cuts for pockets that are already partially cleared. Define the
+allowance (1).
+hyperMILL
+728
+
+1 1
+Top: Start of machining in Z direction (1).
+Bottom: End depth of machining in Z direction (2).
+Both parameters are relative to the current frame.
+It is possible to have various vertical machining areas for the different machining contours in a job. By
+making multiple selections, the same top and bottom definitions can be applied simultaneously to different
+contours.
+Y
+Z
+1
+2
+Both parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom
+definitions can be made with various measurements.
+Absolute (jobframe) (A): The values you set are relative to the current frame. Use the absolute dimensions
+when a drawing has no defined Z coordinates (2D drawing). In these cases, define the top (1) as absolute
+and the bottom as relative or as absolute depending on the dimensions in the drawing (3). Selected
+contour (2)
+Specifying relative dimensions (B): Relative values are relative to the position of the CAD geometry
+selected in the model. This way of specifying top (1) and/or bottom (3) should be used for drawings that
+have Z information (for example, 3D contours, solids, defined thicknesses). Here, (2) stands for Z = 0 as
+the upper edge of the geometry.
+hyperMILL
+729
+
+Working with thickness (C): Thicknesses are relative to the position of the CAD geometry selected in
+the model. This way of specifying top (1) and/or bottom (2) should be used for drawings that have Z
+information (for example, 3D contours, solids, defined thicknesses).
+1
+2
+3
+A B C
+1
+2
+3
+1
+2
+Parameters
+Define infeed, approach and clearance parameters.
+The following describes all parameters available in each 2D milling cycle. Cycle-specific parameters are
+described in the chapters on the respective cycles.
+Infeed
+Vertical stepdown (1): choose the stepdown to the next machining plane, from the Z direction of the active
+frame. This gives the number of machining planes. If a top is situated between two defined machining
+planes, the system will automatically reduce the vertical stepdown and insert an intermediate step.
+Horizontal stepover factor  (2): stepover in the XY plane is the distance between the centre points of two
+adjacent milling tool paths and is generally given as a factor of the milling tool's diameter
+Z
+X
+Y
+1
+2
+Allowance
+Choose Allowance XY (1) and Allowance Z (2). Remaining material that is to be removed in subsequent
+fine machining. Corresponds to the distance from the final contour that the cutter has to keep
+hyperMILL
+730
+
+X
+Z 1
+2
+Cutting mode
+Select the Climb milling or Conventional milling option for the tool cutting mode. The cutting mode relates
+to tools rotating clockwise.
+1
+2
+For climb milling, the following cutting modes apply to tools that rotate clockwise:
+• Counterclockwise for pocket contours
+• Clockwise for island contours
+To perform climb milling with an anticlockwise rotating tool, select conventional milling. Climb milling and
+conventional milling are also available for High Performance Mode.
+Clearance
+Select the clearance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-
+sions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.
+For a 3D model, the clearance plane value can be taken from the drawing.
+The clearance plane is always situated above the workpiece boundaries in the Z direc-
+tion.
+hyperMILL
+731
+
+Define a clearance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown infeed
+(relative dimensions). Below the clearance distance, Z-stepdown takes place at feedrate.
+1
+2
+3
+Setup
+Make basic settings that are valid for all subsequent actions and definitions in hyperMILL.
+NC parameters
+Machining tolerance: Enter the required machining tolerance. The value defines the accuracy with which
+the calculation for the generation of the toolpath is carried out.
+Stop before execution: A stop marker in the toolpath causes the tool to stop.
+hyperMILL
+732
+
+Rest Machining
+Rest machining of rest material areas from a previous contour or pocket machining job. Requirements: The
+top and bottom have been defined in the previous job in absolute mode. If the Contour Milling cycle is used
+as the reference, only one contour may be included. The possible reference cycles are listed when you call
+up a rest material cycle.
+Tool
+The tool parameters window shows, for your information, the tool used in the reference job set as default.
+To machine all rest material areas, change the diameter of the reference tool. To remove the rest material
+areas, select a tool with a suitable smaller radius.
+Contours
+The machining contours are taken from the reference cycle. It is not possible to select new ones.
+Parameters
+Define infeed, approach and clearance parameters.
+Infeed
+Vertical stepdown (1): choose the stepdown to the next machining plane, from the Z direction of the active
+frame. This gives the number of machining planes. If a top is situated between two defined machining
+planes, the system will automatically reduce the vertical stepdown and insert an intermediate step.
+Horizontal stepover factor  (2): stepover in the XY plane is the distance between the centre points of two
+adjacent milling tool paths and is generally given as a factor of the milling tool's diameter
+Z
+X
+Y
+1
+2
+hyperMILL
+733
+
+Allowance
+Allowance XY: Enter horizontal stock allowance.
+Cutting mode
+Select the Climb milling or Conventional milling option for the tool cutting mode. The cutting mode relates
+to tools rotating clockwise.
+1
+2
+For climb milling, the following cutting modes apply to tools that rotate clockwise:
+• Counterclockwise for pocket contours
+• Clockwise for island contours
+To perform climb milling with an anticlockwise rotating tool, select conventional milling. Climb milling and
+conventional milling are also available for High Performance Mode.
+Clearance
+Select the clearance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-
+sions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.
+For a 3D model, the clearance plane value can be taken from the drawing.
+The clearance plane is always situated above the workpiece boundaries in the Z direc-
+tion.
+Define a clearance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown infeed
+(relative dimensions). Below the clearance distance, Z-stepdown takes place at feedrate.
+hyperMILL
+734
+
+1
+2
+3
+Setup
+Make basic settings that are valid for all subsequent actions and definitions in hyperMILL.
+NC parameters
+Machining tolerance: Enter the required machining tolerance. The value defines the accuracy with which
+the calculation for the generation of the toolpath is carried out.
+Stop before execution: A stop marker in the toolpath causes the tool to stop.
+hyperMILL
+735
+
+Face Milling
+Face Milling with parallel cuts within one or more contours, optionally with several steps in Z direction.
+Contours
+Several independent, closed contours can be machined. For general information on contour selection and
+defining top and bottom, see section Contours (page 633).
+Contour selection
+The following can be selected as 2D machining contours: points (drilling only), arcs, circles, reference
+lines, curves and edge curves of surfaces. Several contours or holes can be machined in one job. The
+number of selected contours is displayed.
+Contour attributes
+To define contour attributes (top, bottom), select the machining contour in the contour list. By making
+multiple selections in this contour list, you can quickly define the same top and bottom values for several
+contours.
+Use the following buttons to change the order of selected contours or delete a contour. (1) To the top, (2)
+Up, (3) Delete, (4) Down, (5) To the bottom.
+Top: Start of machining in Z direction (1).
+Bottom: End depth of machining in Z direction (2).
+Both parameters are relative to the current frame.
+It is possible to have various vertical machining areas for the different machining contours in a job. By
+making multiple selections, the same top and bottom definitions can be applied simultaneously to different
+contours.
+hyperMILL
+736
+
+Y
+Z
+1
+2
+Both parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom
+definitions can be made with various measurements.
+Absolute (jobframe) (A): The values you set are relative to the current frame. Use the absolute dimensions
+when a drawing has no defined Z coordinates (2D drawing). In these cases, define the top (1) as absolute
+and the bottom as relative or as absolute depending on the dimensions in the drawing (3). Selected
+contour (2)
+Specifying relative dimensions (B): Relative values are relative to the position of the CAD geometry
+selected in the model. This way of specifying top (1) and/or bottom (3) should be used for drawings that
+have Z information (for example, 3D contours, solids, defined thicknesses). Here, (2) stands for Z = 0 as
+the upper edge of the geometry.
+Working with thickness (C): Thicknesses are relative to the position of the CAD geometry selected in
+the model. This way of specifying top (1) and/or bottom (2) should be used for drawings that have Z
+information (for example, 3D contours, solids, defined thicknesses).
+1
+2
+3
+A B C
+1
+2
+3
+1
+2
+If the top and bottom are the same, a machining pass is carried out on this level according to the selected
+machining mode.
+hyperMILL
+737
+
+Parameters
+Machining mode
+Base the selection of the machining direction on the main extension of the surfaces.
+X parallel (1): Machining in X direction, infeed in Y direction.
+Y parallel (2): Machining in Y direction, infeed in (-X) direction.
+X
+Y
+45° 45°1 2
+Machining angle : inclined machining is possible by rotating the coordinate system around the Z axis.
+Specify the desired rotation angle.
+Infeed mode
+Zigzag direct : The machining direction changes per section. The infeed movement follows the shortest
+path. The horizontal stepover between two adjacent sections takes place with the machining feedrate (G1)
+(1).
+Zigzag smooth: The machining direction changes per section. The infeed path resembles that of a loop
+(G2/G3 movement). This mode is primarily intended for HSC machining (2).
+Oneway: the machining direction stays the same for each section (3). Machining can optionally take place
+in Conventional milling.
+X
+Y
+1 2 3
+Infeed
+Vertical stepdown (1): Z-Stepdown to the next machining plane, from the Z direction of the active frame.
+Horizontal stepover: Infeed in the XY plane.
+Stepover (factor of diameter) (2): Stepover in the XY plane as a factor of the cutter diameter (3).
+Allowance
+Allowance Z (4): Allowance in Z direction.
+hyperMILL
+738
+
+X
+Z
+Y
+1
+2
+3
+4
+Macros
+Return macro: Extend the approach and retract path of the tool by a distance (3) specified by the approach
+factor and retract factor in the plane of the current machining. Displayed in (1) for zigzag direct stepover
+mode, and in (2) for zigzag smooth. A factor > 0.5 for approach factor and retract factor ensures that
+before and after performing a cut, a tool is outside the area to be machined.
+X
+Y
+1 2
+3 3
+Overlap parameter
+Consider corner radius: An additional cut is performed at the end of machining to prevent material remain-
+ing when using bullnose end mills.
+Fit step: To improve the cut division for the tool, the steps are adjusted. Avoid rest material at the end of
+machining when using bullnose end mills.
+(1) Consider corner radius and fit step not activated,
+(2) Consider corner radius activated,
+(3) Fit step activated,
+(A) Stepover direction
+hyperMILL
+739
+
+Y
+Z
+Y
+Z
+Y
+Z
+1 2 3
+A A A
+Retract mode
+Clearance plane (1): all vertical retract and stepdown movements to the next machining plane take place
+via the clearance plane.
+Clearance distance / Lead-in position (2)
+The stepdown movement to the next workplane is realised with Contour Milling at the clearance distance
+(A), with Pocket Milling at the lead-in position (start position + lead-in macro) without retraction in the Z
+direction (B). Approach and retract macros are executed at each machining plane.
+1 2
+Clearance
+Select the clearance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-
+sions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.
+For a 3D model, the clearance plane value can be taken from the drawing.
+The clearance plane is always situated above the workpiece boundaries in the Z direc-
+tion.
+Define a clearance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown infeed
+(relative dimensions). Below the clearance distance, Z-stepdown takes place at feedrate.
+hyperMILL
+740
+
+1
+2
+3
+Setup
+Make basic settings that are valid for all subsequent actions and definitions in hyperMILL.
+NC parameters
+Machining tolerance: Specify the calculation accuracy for the generation of toolpaths.
+Stop before execution: A stop marker in the toolpath causes the tool to stop if a corresponding command
+has been defined in hyperVIEW.
+Rest material recognition applies to machining which only contains one contour and
+was created in Absolute (jobframe) mode. If the tool diameter is changed in the milling
+cycle generating the rest material, the corresponding rest material cycle must also be
+changed. Otherwise, there is a risk that the tool could plunge into the material.
+Reduced machining times are possible if contours and contour pockets are machined with tools that do not
+guarantee a perfect finish. The resultant rest material areas are automatically recognized by hyperMILL.
+hyperMILL
+741
+
+Playback Milling
+The playback method can be used for simple milling work such as face milling of a clamping surface
+in a fast and flexible manner. The path is generated under specification of the selected cutter diameter
+by moving the mouse over the corresponding areas. It is also possible to create a boundary for further
+machining.
+Contours
+Unlike other 2D cycles, you cannot select contours for Playback Milling. Furthermore, the tool always
+moves along the selected contour.
+Playback path
+ Contours: Click one of the icons if you want to create or modify a playback path. Note that the
+settings for displaying the tool are only displayed if a corresponding tool has been selected.
+Top: Specify the Z value of the playback contour.
+Perpendicular infeed X  / Perpendicular infeed Y : Depending on the tool diameter used, the intersection
+degree of the drawn toolpath is determined in the relevant direction (value = 0.2 > intersection degree =
+20%).
+Offset model XY: Accuracy for the tool collision check against the model used (= wall distance).
+Fillet radius: The toolpath drawn is rounded with the specified fillet radius. This applies to perpendicular
+and freely drawn contours.
+Coordinate grid: Accuracy of the transfer of X/Y coordinates when specifying the position of the toolpath.
+(1) Allow only perpendicular paths: Only perpendicular paths are possible.
+(2) Show playback paths as surface: Displays the playback path as a surface.
+(3) Show existing paths: Displays all paths that were drawn using playback.
+(4) Show hair cross: The exact tool position is shown in a hair cross.
+(5) Activate collision avoidance: There must be a defined model or milling area. The tool is retracted, while
+taking account of the offset defined for the model.
+hyperMILL
+742
+
+(6) Enable path collision check: When path collision check is enabled (see 5), an additional collision check
+is carried out for the path drawn.
+(7) Tool display at the last selected point: The tool is displayed at the last selected (point-and-click) point.
+(8) Tool display at mouse point. The tool is permanently displayed at the respective mouse position.
+(9) Show Tool Holder: Displays the tool holder.
+Save contour
+In job: This option saves the generated contour in the relevant job. The contour is only displayed if the job
+is selected in the job list.
+In CAD model: This option saves the generated contour in the CAD model.
+(1) Start / stop playback: Starts contour recording for the toolpath. To change the direction, click with the
+left mouse button and move the mouse to the required destination. All changes in direction are rounded
+with the radius defined under the fillet radius.
+(2) Take contour and close dialogue: Take a contour and close the playback dialogue.
+(3) Cancel contour: Delete a recorded contour.
+(4) Cancel last point: Delete the last recorded contour point.
+(5) Close contour: Close a recorded contour.
+(6) Take contour and start with new contour: Take a contour and start with a new contour. The dialogue
+box remains open.
+(7) Open the hyperMILL online help: Start the online help.
+Top: Start of machining in Z direction (1).
+Bottom: End depth of machining in Z direction (2).
+Both parameters are relative to the current frame.
+It is possible to have various vertical machining areas for the different machining contours in a job. By
+making multiple selections, the same top and bottom definitions can be applied simultaneously to different
+contours.
+hyperMILL
+743
+
+Y
+Z
+1
+2
+Both parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom
+definitions can be made with various measurements.
+Absolute (jobframe) (A): The values you set are relative to the current frame. Use the absolute dimensions
+when a drawing has no defined Z coordinates (2D drawing). In these cases, define the top (1) as absolute
+and the bottom as relative or as absolute depending on the dimensions in the drawing (3). Selected
+contour (2)
+Specifying relative dimensions (B): Relative values are relative to the position of the CAD geometry
+selected in the model. This way of specifying top (1) and/or bottom (3) should be used for drawings that
+have Z information (for example, 3D contours, solids, defined thicknesses). Here, (2) stands for Z = 0 as
+the upper edge of the geometry.
+Working with thickness (C): Thicknesses are relative to the position of the CAD geometry selected in
+the model. This way of specifying top (1) and/or bottom (2) should be used for drawings that have Z
+information (for example, 3D contours, solids, defined thicknesses).
+1
+2
+3
+A B C
+1
+2
+3
+1
+2
+Reverse: In the default setting the machining direction follows the direction of the selected contour. This
+can be seen in the graphic preview. If the generated toolpaths do not result in the intended machining
+direction, select the relevant contours and select the Reverse option.
+hyperMILL
+744
+
+Align closed contours: The machining direction can be reversed for all selected closed (!) contours simulta-
+neously. To do so, select the contours and specify the direction of the contours using the Align closed
+contours → Clockwise / Counterclockwise  function from the shortcut menu. The start point and end point
+are interchanged automatically.
+If you change the machining direction, you should change the cutter position as well.
+Strategy
+Infeed
+Vertical stepdown: Z infeed to the next machining pass.
+Zigzag: Machining with alternating orientation.
+Machining priority
+Depth (A): Each contour is fully machined in accordance with the defined vertical stepdown and while
+taking account of the top and bottom (1). The system then switches to the next contour (2).
+Plane (B): In every plane, the stock allowance will be completely removed in multiple horizontal stepovers,
+followed by a vertical stepdown to the next machining plane.
+2
+1
+2
+A B
+1
+2
+Global plane: If there are several contours, a horizontal plane is first processed for all contours (cross-con-
+tour), followed by a stepover to the next plane. Prerequisite: All contours have the same top and bottom.
+hyperMILL
+745
+
+2
+Parameters
+Vertical infeed mode
+Fixed step: The value defined under infeed for the vertical infeed is retained. The value for the last infeed
+is automatically adjusted to the machining depth (dialogue page Contours → Top/Bottom).
+Fit step : The value defined under Infeed for the vertical stepdown is automatically adjusted in such a
+way that all of the Z distances are the same. This is done while taking account of the machining depth
+(dialogue page Contours → Top/Bottom).
+Infeed
+Vertical stepdown: Z infeed to the next machining pass.
+Allowance Z: Remaining material that is to be removed in subsequent fine machining. Distance from the
+final contour that the cutter has to keep.
+Retract mode
+Clearance plane (1): all vertical retract and stepdown movements to the next machining plane take place
+via the clearance plane.
+Clearance distance / Lead-in position (2)
+The stepdown movement to the next workplane is realised with Contour Milling at the clearance distance
+(A), with Pocket Milling at the lead-in position (start position + lead-in macro) without retraction in the Z
+direction (B). Approach and retract macros are executed at each machining plane.
+hyperMILL
+746
+
+1 2
+Clearance
+Select the clearance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-
+sions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.
+For a 3D model, the clearance plane value can be taken from the drawing.
+The clearance plane is always situated above the workpiece boundaries in the Z direc-
+tion.
+Define a clearance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown infeed
+(relative dimensions). Below the clearance distance, Z-stepdown takes place at feedrate.
+1
+2
+3
+Macros
+Define the tool approach at the start point and the tool retraction from the end point of the contour. This
+behaviour can be defined manually or calculated automatically by hyperMILL.
+Macro mode
+Macros can be defined manually or calculated automatically by hyperMILL.
+hyperMILL
+747
+
+Automatic
+Length: Defines the length of the approach or retract movement.
+Side clearance/Axial clearance: Clearance in the axial or X/Y direction that can be travelled without a
+collision.
+Manual
+None: The tool approach/retraction takes place in the Z direction.
+Tangential (2): On contour tangent, enter length.
+X
+Y
+1 2
+Contour extension (open contours only)
+Click Start to extend the contour (of the toolpath) by the specified amount for the approach movement.
+Click End to extend the contour (of the toolpath) by the specified amount for the retract movement.
+Feedrate macros
+The feedrate may be defined for both Approach and Retract.
+Setup
+Model
+Specify the model (milling area) required for the current job. For further information, see section Prepare
+manufacturing geometry (page 60).
+Additional surfaces
+Additional surfaces: Temporary safety surfaces to avoid unnecessary rapid travel movements.
+Check tool
+The tool check ensures that all of the components defined for the tool are protected from a possible
+collision with the CAD model on the basis of existing material. The tool check is only available if you have
+defined a tool and also a model to be checked.
+Check on: You must always enable this option if you want the tool to be checked for collisions. If the tool
+check is not enabled, the tool used is shown in red in the graphic preview. When this check is enabled,
+the defined clearance is used to check all of the components defined for the tool. We recommend that you
+define the clearance so that it gets continuously larger, starting with the thick shank in the direction of the
+spindle.
+Tool check setup : the tool check settings are specified in this dialogue box. For further information, see
+section Tool check setup (page 768)
+NC parameters
+Machining tolerance: Specify the calculation accuracy for the generation of toolpaths.
+Stop before execution: A stop marker in the toolpath causes the tool to stop if a corresponding command
+has been defined in hyperVIEW.
+hyperMILL
+748
+
+Plunge Milling
+Contouring with plunge strategy.
+Tool
+The following tool types can be used for plunge milling: Ball Mill, End Mill, Bullnose End Mill and Drill Tool.
+Contours
+Contour selection
+The following can be selected as 2D machining contours: points (drilling only), arcs, circles, reference
+lines, curves and edge curves of surfaces. Several contours or holes can be machined in one job. The
+number of selected contours is displayed.
+Contour attributes
+To define contour attributes (top, bottom), select the machining contour in the contour list. By making
+multiple selections in this contour list, you can quickly define the same top and bottom values for several
+contours.
+Use the following buttons to change the order of selected contours or delete a contour. (1) To the top, (2)
+Up, (3) Delete, (4) Down, (5) To the bottom.
+Freely select the start point (1) for each contour.
+hyperMILL
+749
+
+1 1
+Set an end point (2) if the contour is to be machined only partially or if there should be an overlap.
+1
+2
+1
+2
+Reverse: In the default setting the machining direction follows the direction of the selected contour. This
+can be seen in the graphic preview. If the generated toolpaths do not result in the intended machining
+direction, select the relevant contours and select the Reverse option.
+Align closed contours: The machining direction can be reversed for all selected closed (!) contours simulta-
+neously. To do so, select the contours and specify the direction of the contours using the Align closed
+contours → Clockwise / Counterclockwise  function from the shortcut menu. The start point and end point
+are interchanged automatically.
+If you change the machining direction, you should change the cutter position as well.
+Overlap: An overlap is only permissible for closed contours. The toolpath will move the tool past the start
+point (1) until it reaches the given end point (2).
+hyperMILL
+750
+
+1
+2
+Strategy
+Infeed strategy
+Roughing / Finishing along the selected contour. The infeed (stepover) distance is calculated for roughing
+(1) based on the tool reference point and the toolpath. When finishing, the infeed (stepover) distance is
+calculated directly on the contour (2). You can optionally machine in stepover mode Scallop height when
+finishing (3).
+21 3
+X
+Y
+Tool position
+Left / right: the tool is advanced to the left or right of the contour.
+On contour: the tool moves directly on the contour. The behaviour in sharp corners cannot be defined.
+Automatic: The tool position is adjusted automatically to the contour direction (enabled by default).
+The Model check function must be enabled.
+hyperMILL
+751
+
+Sharp edge behaviour
+Define the behaviour of the tool at the outer edges of a model.
+Roll (standard) (1): Edge rolling (only for Roughing infeed strategy). Trim (standard) (2): Trim toolpath on
+the corners (only for finishing infeed strategy).
+Sharp (3): Tangential extension on the edges.
+X
+Y 1 2 3
+Retract strategy
+Rapid retract: Retract movement is executed in rapid mode.
+Parameters
+Machining area / Allowances
+Define start and end of the grooving motion with the values for Top and depth. Additional allowance XY /
+allowance Z: toolpath offset in the lateral or Z direction. 
+Infeed mode
+Constant lateral infeed  (1): Constant infeed in the XY plane over the entire contour. Specify the infeed in
+the XY plane using the value for the Lateral infeed.
+Scallop height  (2): Available for finishing only. The tool is run so that the defined scallop height is
+observed. Specify the automatically calculated lateral distance for tool grooving with the Scallop height
+value and the minimum infeed in the XY plane with Min. stepover.
+X
+Y
+1 2
+Retract movement
+For the Roughing infeed strategy, the retract movement is always linear (1). For the finishing infeed
+strategy, the retract movement can be linear (1) or circular (2).
+Use Retract distance (4) to specify the distance of the retract movement from the plunge movement and
+use the Axial retract angle  (5) to define the angle for the retract movement in axial direction. Allowed
+values for the axial retract angle for vertical retract movement or withdrawal of for the roughing infeed
+strategy are between 0 and 90°, and for circular retract movement between 0 and 180°.
+hyperMILL
+752
+
+With the Plane retract angle (6), specify the angle for the retract movement in the XY plane (only available
+for the Roughing infeed strategy). Permissible values for the plane retract angle are between 0 and 90°.
+Z
+2
+0°
+5
+ 
+0°
+90°
+5
+ 
+0°180°
+X
+Y
+0°
+90°
+Z Z
+90°
+1 4
+6
+2 2
+4 4 4
+5
+5
+5
+Zigzag: The machining direction changes per section. The infeed movement follows the shortest path. The
+horizontal stepover between two adjacent sections takes place with the machining feedrate (G1) (1).
+Z
+1
+Inclined plunging
+An inclined Plunge movement (2) can be realised with the Plunge angle (1).
+1
+ 
+Z
+1
+2
+hyperMILL
+753
+
+Retract mode / Clearance
+For further information, see sections Retract mode (page 759)and Clearance (page 432).
+Macros
+Define the tool approach at the start point and the tool retraction from the end point of the contour.
+Perpendicular (1): Perpendicular to contour tangent, enter length.
+Tangential (2): On contour tangent, enter length.
+Quarter circle (3), Half circle (4): In quarter or half circle, enter radius.
+Macro extension : Only available for quarter circle. The macro is extended by the specified value. This
+guarantees that the tool can fully retract from the groove without leaving behind any material (such as
+chippings/shavings).This is particularly important for Bottom to top milling (see Parameters section).
+X
+Y1 2
+3 4
+Contour extension (open contours only)
+Click Start to extend the contour (of the toolpath) by the specified amount for the approach movement.
+Click End to extend the contour (of the toolpath) by the specified amount for the retract movement.
+Macro position
+For the On contour tool position, either Left or Right can be defined as the macro position.
+For the Left tool position, the Left macro position is activated as standard (and cannot be changed).
+For the Right tool position, the Right macro position is activated as standard (and cannot be changed).
+Feedrate macros
+The feedrate may be defined for both Approach and Retract.
+Setup
+Make basic settings that are valid for all subsequent actions and definitions in  hyperMILL .
+Model
+Specify the  model (milling area) required for the current job. For further information, see section  Vorberei-
+tungen zur Kollisionsprüfung (page 127).
+hyperMILL
+754
+
+Additional surfaces
+Additional surfaces: Temporary safety surfaces to avoid unnecessary rapid travel movements.
+Stock model
+Specify the stock model required for the current job.
+Check tool
+If the Compensated centre path option is enabled, the offset contour is used for the collision check.
+For information on the tool check settings, see section Check tool (page 272).
+NC parameters
+Check tolerance: Permissible violation of the model geometry. Factor of the tool radius. 
+Machining tolerance: Enter the required machining tolerance. The value defines the accuracy with which
+the calculation for the generation of the toolpath is carried out.
+Stop before execution: A stop marker in the toolpath causes the tool to stop.
+hyperMILL
+755
+
+11. 3D Machining
+Available machining cycles
+Arbitrary Stock Roughing (page 870): Z constant stock removal for stock models of any shape with the
+option of stock model update. Machining proceeds parallel to the specified contour or parallel to axis.
+Optimised Roughing (page 773): Roughing and rest roughing of any workpieces. Calculate toolpaths
+for standard pocket shapes such as rectangular and circular pockets. The model geometry and stock
+model geometry will be taken into consideration to calculate highly efficient toolpaths and reduce direction
+changes ("high speed cutting"). Machine remaining rest material areas based on the generated "resulting
+stock".
+Profile Finishing (page 793): Allows multi-surface, collision-free milling with different guide curve strat-
+egies; optional slope-dependent machining. XY optimised machining is offered for the X axis and Y axis
+machining profiles.
+Z Level Finishing (page 889): Z constant finishing with optional slope-dependent machining. By adapting
+the vertical stepdown values to the surface flow especially for steep surfaces, unnecessary fine infeed
+increments are avoided and an optimal line distance is thus guaranteed.
+Z Level Shape Finishing (page 823): Z-Level machining for steep areas. Optionally, plane machining can
+be replaced by cuts parallel to any shape.
+Iso Machining (page 841): The milling paths follow the ISO lines (U, V) so that the toolpaths are optimally
+adapted to the surface curve.
+Free Path Milling (page 855): Milling of freely defined 3D contours. Multiple vertical stepdown and ramped
+transition between milling paths are possible.
+Plane Machining (page 862): Face Milling of planar surfaces with pocket strategy. Automatic plane level
+detection or manual selection of surfaces. The stockmodel can be used for trimming.
+Complete Finishing (page 905): Z constant finishing with automatic pocket-shaped machining of flat
+areas.
+Equidistant Finishing (page 915): Finishing with constant infeed on surface; particularly suitable for
+high-speed milling. Machining takes place equidistantly within a closed guide curve or flowing between two
+guide curves.
+Form Pocket (page 989): Finishing of pockets with free-form floor.
+Automatic Rest Machining (page 926): Targeted rework machining of individual rest material areas left
+during a finishing cycle.
+Corner Rest Machining (page 943): Optimised removal of rest material in vertical corners and adjacent
+bottom surfaces within pocket and pocket-like geometries with constant corner radii.
+Cutting Edge (page 953): Optimised machining of cutting edges using curve-based pre-roughing (strat-
+egy: manual curve) in 3D mode, followed by rest machining in 2D mode (strategy: reference cycle).
+Pencil Milling (page 997): Automatic detection and machining of grooves.
+Rework Machining (page 968): Machining of pre-calculated toolpaths from a reference job where the
+toolpaths could not be machined due to detected collisions. For the rework machining, a different tool is
+applied to avoid the previously detected collision areas from the reference job.
+Rib / Groove Machining (page 977): Roughing and finishing of ribs and grooves or limited groups thereof
+in one job for side surfaces and

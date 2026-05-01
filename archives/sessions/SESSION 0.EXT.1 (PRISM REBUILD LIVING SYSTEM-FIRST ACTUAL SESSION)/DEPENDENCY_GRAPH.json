@@ -1,0 +1,147 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-20",
+  "lastSession": "0.SETUP.1.1",
+  "description": "Maps dependencies between all modules - enables cascade detection",
+  "layers": {
+    "L0_CONSTANTS": {
+      "dependsOn": [],
+      "usedBy": [
+        "L1_VALIDATORS",
+        "L2_UNITS",
+        "L3_ERROR_LOGGING",
+        "L4_COMMUNICATION",
+        "L5_GATEWAY",
+        "ALL_MODULES"
+      ]
+    },
+    "L1_VALIDATORS": {
+      "dependsOn": [
+        "L0_CONSTANTS"
+      ],
+      "usedBy": [
+        "L2_UNITS",
+        "L3_ERROR_LOGGING",
+        "L4_COMMUNICATION",
+        "L5_GATEWAY",
+        "ALL_MODULES"
+      ]
+    },
+    "L2_UNITS": {
+      "dependsOn": [
+        "L0_CONSTANTS",
+        "L1_VALIDATORS"
+      ],
+      "usedBy": [
+        "L3_ERROR_LOGGING",
+        "L4_COMMUNICATION",
+        "L5_GATEWAY",
+        "ALL_MODULES"
+      ]
+    },
+    "L3_ERROR_LOGGING": {
+      "dependsOn": [
+        "L0_CONSTANTS",
+        "L1_VALIDATORS",
+        "L2_UNITS"
+      ],
+      "usedBy": [
+        "L4_COMMUNICATION",
+        "L5_GATEWAY",
+        "ALL_MODULES"
+      ]
+    },
+    "L4_COMMUNICATION": {
+      "dependsOn": [
+        "L0_CONSTANTS",
+        "L1_VALIDATORS",
+        "L2_UNITS",
+        "L3_ERROR_LOGGING"
+      ],
+      "usedBy": [
+        "L5_GATEWAY",
+        "ALL_MODULES"
+      ]
+    },
+    "L5_GATEWAY": {
+      "dependsOn": [
+        "L0_CONSTANTS",
+        "L1_VALIDATORS",
+        "L2_UNITS",
+        "L3_ERROR_LOGGING",
+        "L4_COMMUNICATION"
+      ],
+      "usedBy": [
+        "ALL_MODULES"
+      ]
+    }
+  },
+  "databases": {
+    "PRISM_MATERIALS_MASTER": {
+      "dependsOn": [
+        "L0_CONSTANTS",
+        "L1_VALIDATORS",
+        "L5_GATEWAY"
+      ],
+      "usedBy": [
+        "PRISM_SPEED_FEED_CALCULATOR",
+        "PRISM_FORCE_CALCULATOR",
+        "PRISM_THERMAL_ENGINE",
+        "PRISM_TOOL_LIFE_ENGINE",
+        "PRISM_SURFACE_FINISH_ENGINE",
+        "PRISM_CHATTER_PREDICTION_ENGINE",
+        "PRISM_QUOTING_ENGINE",
+        "PRISM_COOLANT_SELECTOR",
+        "PRISM_POST_PROCESSOR_GENERATOR",
+        "PRISM_TOOL_RECOMMENDER",
+        "PRISM_BAYESIAN_LEARNING",
+        "PRISM_HISTORICAL_ANALYSIS",
+        "PRISM_MATERIAL_SELECTOR_UI",
+        "PRISM_REPORT_GENERATOR",
+        "PRISM_API_MATERIALS_ENDPOINT"
+      ],
+      "fields": {
+        "base_speed": [
+          "PRISM_SPEED_FEED_CALCULATOR",
+          "PRISM_QUOTING_ENGINE"
+        ],
+        "hardness": [
+          "PRISM_TOOL_LIFE_ENGINE",
+          "PRISM_FORCE_CALCULATOR"
+        ],
+        "thermal_conductivity": [
+          "PRISM_THERMAL_ENGINE",
+          "PRISM_COOLANT_SELECTOR"
+        ],
+        "kc1_1": [
+          "PRISM_FORCE_CALCULATOR",
+          "PRISM_POWER_CALCULATOR"
+        ]
+      }
+    }
+  },
+  "engines": {
+    "PRISM_PSO_OPTIMIZER": {
+      "dependsOn": [
+        "L0_CONSTANTS",
+        "L1_VALIDATORS",
+        "L5_GATEWAY"
+      ],
+      "usedBy": [
+        "PRISM_SPEED_FEED_CALCULATOR",
+        "PRISM_TOOLPATH_OPTIMIZER",
+        "PRISM_TOOL_RECOMMENDER",
+        "PRISM_SCHEDULING_ENGINE",
+        "PRISM_INVENTORY_ENGINE"
+      ]
+    }
+  },
+  "propagationRules": {
+    "L0_CHANGE": "Changes to L0 require review of ALL modules",
+    "L1_CHANGE": "Changes to L1 require review of L2+ and all consumers",
+    "DATABASE_SCHEMA_CHANGE": "Adding field requires updating all consumers that should use it",
+    "DATABASE_VALUE_CHANGE": "Changing values may affect calculations - requires validation",
+    "ENGINE_SIGNATURE_CHANGE": "Changing function signature requires updating all callers",
+    "ENGINE_ALGORITHM_CHANGE": "Changing algorithm requires re-validation of outputs"
+  }
+}

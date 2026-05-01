@@ -1,0 +1,608 @@
+{
+  "agent_id": "AGT-OPUS-003",
+  "name": "physics_validator",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Physics Model Validator - Ensures All Data Obeys Physical Laws",
+  
+  "domain_expertise": [
+    "Mechanics of metal cutting",
+    "Thermodynamics of machining",
+    "Vibration and chatter theory",
+    "Material deformation models",
+    "Force and power calculations",
+    "Dimensional analysis",
+    "Unit systems and conversions",
+    "Error propagation and uncertainty"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-PHV-001",
+      "name": "Kienzle Cutting Force Validation",
+      "description": "Validates cutting force calculations using Kienzle model (Fc = kc1.1 × b × h^(1-mc)), checking inputs, formula application, and result reasonableness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["kc1_1", "mc", "chip_thickness", "width_of_cut", "calculated_force"],
+        "optional": ["material_type", "tool_geometry", "cutting_conditions"]
+      },
+      "outputs": {
+        "primary": "kienzle_validation_report",
+        "secondary": ["expected_force", "deviation_percent", "issue_list"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-KIENZLE-CHECK", "FORCE-VALIDATE"],
+      "synergizes_with": ["force_calculator", "materials_scientist", "data_quality_enforcer"],
+      "validation_rules": [
+        "kc1_1 in range 100-10000 N/mm²",
+        "mc in range 0.1-0.5",
+        "Calculated force within 20% of expected",
+        "Units consistent (N, mm)"
+      ],
+      "success_criteria": "Cutting force physically valid"
+    },
+    {
+      "id": "CAP-PHV-002",
+      "name": "Taylor Tool Life Validation",
+      "description": "Validates tool life predictions using Taylor equation (VT^n = C), ensuring coefficients and results are physically realistic",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["taylor_C", "taylor_n", "cutting_speed", "predicted_life"],
+        "optional": ["material", "tool_type", "cutting_conditions"]
+      },
+      "outputs": {
+        "primary": "taylor_validation_report",
+        "secondary": ["expected_life", "coefficient_assessment", "reliability_score"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-TAYLOR-CHECK", "TOOL-LIFE-VALIDATE"],
+      "synergizes_with": ["materials_scientist", "machinist", "force_calculator"],
+      "validation_rules": [
+        "Taylor n typically 0.1-0.5",
+        "Taylor C depends on material/tool",
+        "Tool life > 0 and < 1000 hours",
+        "Higher speed = shorter life"
+      ],
+      "success_criteria": "Tool life prediction physically valid"
+    },
+    {
+      "id": "CAP-PHV-003",
+      "name": "Material Property Consistency Validation",
+      "description": "Validates that material properties are internally consistent (e.g., yield < tensile, hardness correlates with strength, thermal properties reasonable)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["material_properties"],
+        "optional": ["material_category", "heat_treatment"]
+      },
+      "outputs": {
+        "primary": "property_consistency_report",
+        "secondary": ["violations", "correlations_checked", "outliers"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["PHYSICS-MATERIAL-CONSISTENCY", "PROPERTY-VALIDATE"],
+      "synergizes_with": ["materials_scientist", "data_quality_enforcer", "material_validator"],
+      "validation_rules": [
+        "yield_strength <= tensile_strength",
+        "hardness correlates with tensile (HB ≈ tensile/3.45)",
+        "elastic_modulus in expected range for material class",
+        "thermal properties consistent with category"
+      ],
+      "success_criteria": "All material properties internally consistent"
+    },
+    {
+      "id": "CAP-PHV-004",
+      "name": "Thermal Calculation Validation",
+      "description": "Validates thermal calculations including cutting temperature, heat partition, and thermal expansion ensuring results don't exceed physical limits",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["thermal_calculation", "material_properties"],
+        "optional": ["cutting_conditions", "coolant_data"]
+      },
+      "outputs": {
+        "primary": "thermal_validation_report",
+        "secondary": ["temperature_assessment", "heat_balance_check", "limit_violations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-THERMAL-CHECK", "TEMPERATURE-VALIDATE"],
+      "synergizes_with": ["thermal_calculator", "materials_scientist", "force_calculator"],
+      "validation_rules": [
+        "Temperature < material melting point",
+        "Heat balance conserved",
+        "Partition ratios sum to 1.0",
+        "Thermal expansion reasonable"
+      ],
+      "success_criteria": "Thermal results physically valid"
+    },
+    {
+      "id": "CAP-PHV-005",
+      "name": "Power and Energy Validation",
+      "description": "Validates power calculations (P = Fc × Vc / 60000) and energy consumption ensuring results match machine capabilities",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["cutting_force", "cutting_speed", "calculated_power"],
+        "optional": ["machine_specs", "spindle_efficiency"]
+      },
+      "outputs": {
+        "primary": "power_validation_report",
+        "secondary": ["expected_power", "efficiency_assessment", "overload_check"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-POWER-CHECK", "ENERGY-VALIDATE"],
+      "synergizes_with": ["force_calculator", "machinist", "machine_validator"],
+      "validation_rules": [
+        "P = Fc × Vc / 60000 (kW)",
+        "Power < machine spindle rating",
+        "Account for efficiency (~80-95%)",
+        "Energy consumption reasonable"
+      ],
+      "success_criteria": "Power within physical and machine limits"
+    },
+    {
+      "id": "CAP-PHV-006",
+      "name": "Dimensional Analysis Validation",
+      "description": "Performs dimensional analysis to ensure all equations are dimensionally consistent and unit conversions are correct",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["equation", "variable_units"],
+        "optional": ["expected_result_unit"]
+      },
+      "outputs": {
+        "primary": "dimensional_analysis_report",
+        "secondary": ["unit_trace", "inconsistencies", "conversion_errors"]
+      },
+      "skills_used": ["prism-code-master", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-DIMENSIONAL-CHECK", "UNIT-VALIDATE"],
+      "synergizes_with": ["force_calculator", "thermal_calculator", "data_quality_enforcer"],
+      "validation_rules": [
+        "All terms must have compatible units",
+        "Result unit must be correct",
+        "No mixing of unit systems without conversion",
+        "Dimensionless quantities properly handled"
+      ],
+      "success_criteria": "All equations dimensionally consistent"
+    },
+    {
+      "id": "CAP-PHV-007",
+      "name": "Speed and Feed Validation",
+      "description": "Validates cutting speed, feed rate, and related parameters ensuring they are within safe and effective ranges for the material/tool combination",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["cutting_speed", "feed_rate", "material", "tool"],
+        "optional": ["depth_of_cut", "machine_limits"]
+      },
+      "outputs": {
+        "primary": "speed_feed_validation_report",
+        "secondary": ["recommended_ranges", "safety_assessment", "optimization_suggestions"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-SPEED-FEED-CHECK", "MACHINING-VALIDATE"],
+      "synergizes_with": ["machinist", "materials_scientist", "force_calculator"],
+      "validation_rules": [
+        "Speed appropriate for material/tool",
+        "Feed within tool capability",
+        "Chip load reasonable",
+        "MRR achievable with machine power"
+      ],
+      "success_criteria": "Cutting parameters safe and effective"
+    },
+    {
+      "id": "CAP-PHV-008",
+      "name": "Vibration and Stability Validation",
+      "description": "Validates vibration-related calculations including stability lobe predictions, chatter frequency analysis, and dynamic stiffness assessments",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["vibration_data"],
+        "optional": ["machine_dynamics", "tool_assembly", "workpiece_setup"]
+      },
+      "outputs": {
+        "primary": "vibration_validation_report",
+        "secondary": ["stability_assessment", "frequency_analysis", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-VIBRATION-CHECK", "STABILITY-VALIDATE"],
+      "synergizes_with": ["machinist", "force_calculator", "machine_validator"],
+      "validation_rules": [
+        "Natural frequencies reasonable",
+        "Damping ratios in expected range",
+        "Stability limits physically achievable",
+        "Chatter predictions validated"
+      ],
+      "success_criteria": "Vibration analysis physically valid"
+    },
+    {
+      "id": "CAP-PHV-009",
+      "name": "Deflection and Stress Validation",
+      "description": "Validates deflection and stress calculations for tools, workpieces, and fixtures ensuring structural integrity",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["force_data", "geometry", "material_properties"],
+        "optional": ["safety_factor", "allowable_deflection"]
+      },
+      "outputs": {
+        "primary": "structural_validation_report",
+        "secondary": ["deflection_check", "stress_analysis", "safety_margins"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-STRUCTURAL-CHECK", "STRESS-VALIDATE"],
+      "synergizes_with": ["force_calculator", "machinist", "machine_validator"],
+      "validation_rules": [
+        "Deflection < allowable (typically < 0.1mm)",
+        "Stress < yield strength / safety factor",
+        "No buckling under load",
+        "Fatigue life adequate"
+      ],
+      "success_criteria": "Structural integrity ensured"
+    },
+    {
+      "id": "CAP-PHV-010",
+      "name": "Surface Finish Prediction Validation",
+      "description": "Validates surface finish predictions based on cutting parameters, ensuring results are within achievable ranges",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["feed_rate", "tool_nose_radius", "predicted_roughness"],
+        "optional": ["cutting_speed", "material", "coolant"]
+      },
+      "outputs": {
+        "primary": "surface_finish_validation_report",
+        "secondary": ["theoretical_roughness", "achievable_range", "deviations"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-SURFACE-CHECK", "FINISH-VALIDATE"],
+      "synergizes_with": ["machinist", "force_calculator", "materials_scientist"],
+      "validation_rules": [
+        "Ra = f²/(32×r) theoretical minimum",
+        "Actual Ra typically 1.5-3x theoretical",
+        "Ra within capability of process",
+        "Consistent with material/tool combination"
+      ],
+      "success_criteria": "Surface finish predictions realistic"
+    },
+    {
+      "id": "CAP-PHV-011",
+      "name": "Conservation Law Validation",
+      "description": "Validates that all calculations obey conservation laws (mass, energy, momentum) without creating or destroying matter/energy",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["calculation_system"],
+        "optional": ["boundary_conditions", "time_period"]
+      },
+      "outputs": {
+        "primary": "conservation_validation_report",
+        "secondary": ["mass_balance", "energy_balance", "momentum_check"]
+      },
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-CONSERVATION-CHECK"],
+      "synergizes_with": ["thermal_calculator", "force_calculator"],
+      "validation_rules": [
+        "Mass in = mass out (chip + workpiece)",
+        "Energy in = work + heat + deformation",
+        "Momentum balanced",
+        "No perpetual motion"
+      ],
+      "success_criteria": "All conservation laws satisfied"
+    },
+    {
+      "id": "CAP-PHV-012",
+      "name": "Johnson-Cook Model Validation",
+      "description": "Validates Johnson-Cook constitutive model parameters and calculations for material deformation under cutting conditions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["jc_parameters", "strain_rate", "temperature"],
+        "optional": ["experimental_data", "material_category"]
+      },
+      "outputs": {
+        "primary": "johnson_cook_validation_report",
+        "secondary": ["parameter_assessment", "prediction_accuracy", "calibration_needs"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["PHYSICS-JC-CHECK", "CONSTITUTIVE-VALIDATE"],
+      "synergizes_with": ["materials_scientist", "force_calculator"],
+      "validation_rules": [
+        "A (yield stress) reasonable for material",
+        "B (hardening) positive",
+        "n (strain hardening) typically 0.1-0.5",
+        "C (strain rate) typically 0.01-0.1",
+        "m (thermal softening) typically 0.5-1.5"
+      ],
+      "success_criteria": "J-C parameters physically valid"
+    },
+    {
+      "id": "CAP-PHV-013",
+      "name": "Chip Formation Validation",
+      "description": "Validates chip formation predictions including chip type, curl radius, breaking behavior, and chip control effectiveness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["cutting_conditions", "material", "chip_predictions"],
+        "optional": ["tool_geometry", "chip_breaker"]
+      },
+      "outputs": {
+        "primary": "chip_formation_validation_report",
+        "secondary": ["chip_type_assessment", "curl_analysis", "control_effectiveness"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-CHIP-CHECK"],
+      "synergizes_with": ["machinist", "materials_scientist"],
+      "validation_rules": [
+        "Chip type matches conditions",
+        "Curl radius reasonable",
+        "Breaking behavior predictable",
+        "No bird-nesting risk"
+      ],
+      "success_criteria": "Chip formation predictions valid"
+    },
+    {
+      "id": "CAP-PHV-014",
+      "name": "Machine Kinematics Validation",
+      "description": "Validates machine kinematic specifications including travel limits, axis accelerations, and motion capabilities",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_specs"],
+        "optional": ["motion_profile", "workpiece_envelope"]
+      },
+      "outputs": {
+        "primary": "kinematics_validation_report",
+        "secondary": ["travel_check", "acceleration_limits", "capability_assessment"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-api-contracts"],
+      "hooks_triggered": ["PHYSICS-KINEMATICS-CHECK", "MACHINE-VALIDATE"],
+      "synergizes_with": ["machine_validator", "collision_checker"],
+      "validation_rules": [
+        "Travel within physical machine",
+        "Acceleration achievable by motors",
+        "Rapid rates realistic",
+        "5-axis rotary limits correct"
+      ],
+      "success_criteria": "Machine kinematics physically valid"
+    },
+    {
+      "id": "CAP-PHV-015",
+      "name": "Coolant Effectiveness Validation",
+      "description": "Validates coolant performance predictions including heat removal, lubrication effectiveness, and flow requirements",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["coolant_type", "flow_rate", "cutting_conditions"],
+        "optional": ["pressure", "temperature_data"]
+      },
+      "outputs": {
+        "primary": "coolant_validation_report",
+        "secondary": ["heat_removal_capacity", "lubrication_effectiveness", "recommendations"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-COOLANT-CHECK"],
+      "synergizes_with": ["thermal_calculator", "machinist"],
+      "validation_rules": [
+        "Flow rate adequate for heat removal",
+        "Pressure sufficient for penetration",
+        "Coolant type appropriate for material",
+        "No thermal shock risk"
+      ],
+      "success_criteria": "Coolant effectiveness validated"
+    },
+    {
+      "id": "CAP-PHV-016",
+      "name": "Tolerance Stack-Up Validation",
+      "description": "Validates tolerance stack-up calculations ensuring final assembly tolerances are achievable",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["tolerance_chain", "assembly_requirements"],
+        "optional": ["statistical_method", "process_capability"]
+      },
+      "outputs": {
+        "primary": "tolerance_validation_report",
+        "secondary": ["stack_up_result", "capability_check", "critical_dimensions"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["PHYSICS-TOLERANCE-CHECK"],
+      "synergizes_with": ["machinist", "data_quality_enforcer"],
+      "validation_rules": [
+        "RSS or worst-case appropriate",
+        "Final tolerance achievable",
+        "Process Cp/Cpk adequate",
+        "Critical dimensions identified"
+      ],
+      "success_criteria": "Tolerance stack-up validated"
+    },
+    {
+      "id": "CAP-PHV-017",
+      "name": "Specific Energy Validation",
+      "description": "Validates specific cutting energy (energy per unit volume removed) ensuring values are consistent with material properties",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["power", "mrr", "material"],
+        "optional": ["tool_condition", "cutting_conditions"]
+      },
+      "outputs": {
+        "primary": "specific_energy_validation_report",
+        "secondary": ["calculated_specific_energy", "expected_range", "anomalies"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["PHYSICS-SPECIFIC-ENERGY-CHECK"],
+      "synergizes_with": ["force_calculator", "materials_scientist"],
+      "validation_rules": [
+        "Specific energy = Power / MRR",
+        "Value consistent with material hardness",
+        "Sharp tool lower than worn tool",
+        "Typical ranges by material class"
+      ],
+      "success_criteria": "Specific energy physically reasonable"
+    },
+    {
+      "id": "CAP-PHV-018",
+      "name": "Friction and Wear Model Validation",
+      "description": "Validates friction coefficients and wear models ensuring they represent realistic tool-workpiece interactions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["friction_data", "wear_model"],
+        "optional": ["material_pair", "cutting_conditions", "coating"]
+      },
+      "outputs": {
+        "primary": "friction_wear_validation_report",
+        "secondary": ["friction_assessment", "wear_prediction_check", "coating_effect"]
+      },
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-FRICTION-CHECK", "WEAR-VALIDATE"],
+      "synergizes_with": ["materials_scientist", "force_calculator"],
+      "validation_rules": [
+        "Friction coefficient 0.2-0.8 typical",
+        "Wear rate physically reasonable",
+        "Coating effects appropriate",
+        "Temperature effects included"
+      ],
+      "success_criteria": "Friction and wear models valid"
+    },
+    {
+      "id": "CAP-PHV-019",
+      "name": "Uncertainty Propagation Validation",
+      "description": "Validates uncertainty propagation through calculations ensuring error bars and confidence intervals are correctly computed",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["calculation_chain", "input_uncertainties"],
+        "optional": ["correlation_matrix", "confidence_level"]
+      },
+      "outputs": {
+        "primary": "uncertainty_validation_report",
+        "secondary": ["propagated_uncertainty", "sensitivity_analysis", "dominant_contributors"]
+      },
+      "skills_used": ["prism-uncertainty-propagation", "prism-quality-master"],
+      "hooks_triggered": ["PHYSICS-UNCERTAINTY-CHECK"],
+      "synergizes_with": ["data_quality_enforcer", "proof_generator"],
+      "validation_rules": [
+        "Root-sum-square for independent",
+        "Correlation handled correctly",
+        "Confidence level stated",
+        "Dominant sources identified"
+      ],
+      "success_criteria": "Uncertainty correctly propagated"
+    },
+    {
+      "id": "CAP-PHV-020",
+      "name": "Material Removal Rate Validation",
+      "description": "Validates material removal rate calculations (MRR = ap × ae × vf) ensuring they match machine capability and process requirements",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["depth_of_cut", "width_of_cut", "feed_rate"],
+        "optional": ["spindle_power", "machine_rigidity"]
+      },
+      "outputs": {
+        "primary": "mrr_validation_report",
+        "secondary": ["calculated_mrr", "power_check", "capability_assessment"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-material-physics"],
+      "hooks_triggered": ["PHYSICS-MRR-CHECK"],
+      "synergizes_with": ["force_calculator", "machinist"],
+      "validation_rules": [
+        "MRR = ap × ae × vf (mm³/min)",
+        "Power sufficient for MRR",
+        "Within machine rigidity limits",
+        "Chip evacuation adequate"
+      ],
+      "success_criteria": "MRR achievable and valid"
+    },
+    {
+      "id": "CAP-PHV-021",
+      "name": "Physics Range Database Maintenance",
+      "description": "Maintains and validates the database of physical ranges for all manufacturing parameters",
+      "category": "INTEGRATION",
+      "inputs": {
+        "required": ["parameter_type"],
+        "optional": ["update_data", "source_reference"]
+      },
+      "outputs": {
+        "primary": "range_database_status",
+        "secondary": ["current_ranges", "updates_applied", "validation_results"]
+      },
+      "skills_used": ["prism-manufacturing-tables", "prism-deep-learning"],
+      "hooks_triggered": ["PHYSICS-RANGE-UPDATE", "DATABASE-MAINTAIN"],
+      "synergizes_with": ["data_quality_enforcer", "calibration_engineer"],
+      "validation_rules": [
+        "Ranges based on physics",
+        "Literature supported",
+        "Conservative for safety",
+        "Regularly reviewed"
+      ],
+      "success_criteria": "Range database accurate and current"
+    },
+    {
+      "id": "CAP-PHV-022",
+      "name": "Multi-Physics Coupling Validation",
+      "description": "Validates calculations that couple multiple physics domains (thermal-mechanical, thermo-fluid, etc.) ensuring proper interaction modeling",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["coupled_calculation"],
+        "optional": ["coupling_method", "convergence_criteria"]
+      },
+      "outputs": {
+        "primary": "multi_physics_validation_report",
+        "secondary": ["coupling_check", "convergence_analysis", "interaction_effects"]
+      },
+      "skills_used": ["prism-material-physics", "prism-quality-master"],
+      "hooks_triggered": ["PHYSICS-COUPLING-CHECK"],
+      "synergizes_with": ["thermal_calculator", "force_calculator", "materials_scientist"],
+      "validation_rules": [
+        "Coupling terms correctly formulated",
+        "Convergence achieved",
+        "Physical interactions captured",
+        "No artificial instabilities"
+      ],
+      "success_criteria": "Multi-physics coupling valid"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-material-physics",
+    "prism-material-schema",
+    "prism-manufacturing-tables",
+    "prism-uncertainty-propagation",
+    "prism-code-master",
+    "prism-quality-master",
+    "prism-deep-learning",
+    "prism-api-contracts"
+  ],
+
+  "hooks_subscribed": [
+    "PHYSICS-KIENZLE-CHECK",
+    "PHYSICS-TAYLOR-CHECK",
+    "PHYSICS-THERMAL-CHECK",
+    "PHYSICS-POWER-CHECK",
+    "PHYSICS-DIMENSIONAL-CHECK",
+    "PHYSICS-SPEED-FEED-CHECK",
+    "PHYSICS-VIBRATION-CHECK",
+    "PHYSICS-STRUCTURAL-CHECK",
+    "PHYSICS-SURFACE-CHECK",
+    "PHYSICS-CONSERVATION-CHECK",
+    "PHYSICS-JC-CHECK",
+    "PHYSICS-KINEMATICS-CHECK",
+    "PHYSICS-UNCERTAINTY-CHECK",
+    "PHYSICS-MRR-CHECK",
+    "PHYSICS-RANGE-UPDATE"
+  ],
+
+  "can_delegate_to": [
+    "force_calculator",
+    "thermal_calculator",
+    "material_validator"
+  ],
+
+  "receives_from": [
+    "data_quality_enforcer",
+    "materials_scientist",
+    "force_calculator",
+    "thermal_calculator"
+  ],
+
+  "quality_gates": [
+    "All calculations dimensionally consistent",
+    "All values within physical ranges",
+    "Conservation laws satisfied",
+    "Uncertainty properly propagated"
+  ],
+
+  "performance_metrics": {
+    "accuracy_target": 0.99,
+    "calculation_precision": 0.001,
+    "latency_target_ms": 3000,
+    "throughput_validations_per_second": 50,
+    "cost_budget_per_call": 0.15
+  }
+}

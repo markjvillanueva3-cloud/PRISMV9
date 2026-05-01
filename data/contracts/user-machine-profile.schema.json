@@ -1,0 +1,391 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prism.local/contracts/user-machine-profile.schema.json",
+  "title": "User Machine Profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "userId",
+    "displayName",
+    "machine",
+    "selectedControllerId",
+    "enabledControllerFeatureIds",
+    "selectedSpindlePackageId",
+    "enabledCoolantStrategyIds"
+  ],
+  "properties": {
+    "profileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "machine": {
+      "type": "object",
+      "required": [
+        "machineId",
+        "canonicalMachineId",
+        "packageId",
+        "manufacturerId",
+        "manufacturerLabel",
+        "modelLabel",
+        "familyId",
+        "familyLabel",
+        "controllerPackages",
+        "spindlePackages",
+        "coolantStrategies",
+        "kinematics",
+        "sourceRecords"
+      ],
+      "properties": {
+        "machineId": {
+          "type": "string"
+        },
+        "canonicalMachineId": {
+          "type": "string"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "manufacturerId": {
+          "type": "string"
+        },
+        "manufacturerLabel": {
+          "type": "string"
+        },
+        "modelLabel": {
+          "type": "string"
+        },
+        "familyId": {
+          "type": "string"
+        },
+        "familyLabel": {
+          "type": "string"
+        },
+        "controllerPackages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "controllerId",
+              "controllerLabel",
+              "controlFeatures"
+            ],
+            "properties": {
+              "controllerId": {
+                "type": "string"
+              },
+              "controllerLabel": {
+                "type": "string"
+              },
+              "controlFeatures": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/option"
+                }
+              }
+            }
+          }
+        },
+        "spindlePackages": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/option"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "taper": {
+                    "type": "string"
+                  },
+                  "maxRpm": {
+                    "type": "number"
+                  },
+                  "maxPowerHp": {
+                    "type": "number"
+                  },
+                  "maxTorqueFtLb": {
+                    "type": "number"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "coolantStrategies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/option"
+          }
+        },
+        "kinematics": {
+          "type": "object",
+          "required": [
+            "familyId",
+            "familyLabel",
+            "topology"
+          ],
+          "properties": {
+            "familyId": {
+              "type": "string"
+            },
+            "familyLabel": {
+              "type": "string"
+            },
+            "topology": {
+              "type": "string"
+            },
+            "travelXIn": {
+              "type": "number"
+            },
+            "travelYIn": {
+              "type": "number"
+            },
+            "travelZIn": {
+              "type": "number"
+            },
+            "maxPartDiameterIn": {
+              "type": "number"
+            },
+            "maxPartLengthIn": {
+              "type": "number"
+            },
+            "maxPartWeightLb": {
+              "type": "number"
+            }
+          }
+        },
+        "sourceRecords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "guidewayType": {
+          "type": "string",
+          "enum": ["box", "linear", "hydrostatic"]
+        },
+        "naturalFrequencyHz": {
+          "type": "number"
+        },
+        "axisAccelerationMps2": {
+          "type": "number"
+        },
+        "axisJerkMps3": {
+          "type": "number"
+        }
+      }
+    },
+    "selectedControllerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enabledControllerFeatureIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabledMachineFeatureIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "selectedSpindlePackageId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enabledCoolantStrategyIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "toolingStationCountOverride": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500
+    },
+    "enabledWorkholdingIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabledProbeIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabledAutomationIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabledSoftwareBindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "softwareId",
+          "label"
+        ],
+        "properties": {
+          "softwareId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "postProcessorId": {
+            "type": "string"
+          },
+          "postProcessorLabel": {
+            "type": "string"
+          },
+          "postRevision": {
+            "type": "string"
+          },
+          "verifiedForMachine": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "preferredMaterials": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preferredToolingFamilies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preferredToolpathFamilies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "measuredPerformance": {
+      "type": "object",
+      "properties": {
+        "guidewayType": {
+          "type": "string",
+          "enum": ["box", "linear", "hydrostatic"]
+        },
+        "machineAgeYears": {
+          "type": "number"
+        },
+        "measuredPowerKw": {
+          "type": "number"
+        },
+        "measuredMaxTorqueNm": {
+          "type": "number"
+        },
+        "measuredNaturalFrequencyHz": {
+          "type": "number"
+        },
+        "measuredSystemStiffnessNPerUm": {
+          "type": "number"
+        },
+        "measuredDampingRatio": {
+          "type": "number"
+        },
+        "measuredAxisAccelerationMps2": {
+          "type": "number"
+        },
+        "measuredAxisJerkMps3": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lastAuditedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lastAuditedBy": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "availability": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "source"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "option": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "availability"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "availability": {
+          "$ref": "#/$defs/availability"
+        }
+      }
+    }
+  }
+}

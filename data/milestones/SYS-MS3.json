@@ -1,0 +1,70 @@
+{
+  "id": "SYS-MS3",
+  "title": "Automation & Token Efficiency",
+  "track": "SYS",
+  "status": "not_started",
+  "description": "Verify auto-registration pipeline end-to-end, optimize session-start for conditional loading, stress-test multi-Claude coordination, expand hookify automation coverage.",
+  "units": [
+    {
+      "id": "SYS-MS3-U00",
+      "title": "Auto-Registration Pipeline Verification",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Create a test engine file and verify hookify master-index-drift fires"},
+        {"number": 2, "instruction": "Run /pick-task completion checklist on a test unit and verify all 11 steps execute"},
+        {"number": 3, "instruction": "Run /audit-task on a completed milestone and verify findings are saved"},
+        {"number": 4, "instruction": "Document the 3-layer auto-registration flow with sequence diagram"}
+      ],
+      "exit_conditions": ["All 3 layers verified working", "Sequence diagram in state/"]
+    },
+    {
+      "id": "SYS-MS3-U01",
+      "title": "Session-Start Optimization",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Measure current session-start token cost (hook output + CLAUDE.md loading)"},
+        {"number": 2, "instruction": "Implement conditional context loading based on working directory"},
+        {"number": 3, "instruction": "Reduce session-start hook output to essential information only"},
+        {"number": 4, "instruction": "Measure improved token cost and document savings"}
+      ],
+      "exit_conditions": ["Measurable token reduction documented", "No loss of critical context"]
+    },
+    {
+      "id": "SYS-MS3-U02",
+      "title": "Multi-Claude Stress Test",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Write a script that simulates 3 concurrent claim attempts on the same unit"},
+        {"number": 2, "instruction": "Verify exactly 1 wins and 2 get EEXIST"},
+        {"number": 3, "instruction": "Test heartbeat renewal and stale reap timing"},
+        {"number": 4, "instruction": "Test claim-release-reclaim cycle under load"}
+      ],
+      "exit_conditions": ["Race condition test passes 100/100 times", "Stale reap verified at 5-minute threshold"]
+    },
+    {
+      "id": "SYS-MS3-U03",
+      "title": "Hookify Workflow Coverage Expansion",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Create autofire rule for /pick-task on session start with open roadmap items"},
+        {"number": 2, "instruction": "Create autofire rule for /audit-task when working in completed milestone directories"},
+        {"number": 3, "instruction": "Review all 40 existing hookify rules for staleness or redundancy"},
+        {"number": 4, "instruction": "Consolidate or remove rules that no longer add value"}
+      ],
+      "exit_conditions": ["New autofire rules active", "Hookify rule audit complete"]
+    },
+    {
+      "id": "SYS-MS3-U04",
+      "title": "CLAUDE.md Count Auto-Sync",
+      "status": "not_started",
+      "steps": [
+        {"number": 1, "instruction": "Create a script that reads live system counts and compares to CLAUDE.md values"},
+        {"number": 2, "instruction": "Create a cadence function or hookify rule that warns when counts drift"},
+        {"number": 3, "instruction": "Wire the drift check into the /audit-task flow"}
+      ],
+      "exit_conditions": ["Automated count drift detection working", "Integrated with audit flow"]
+    }
+  ],
+  "dependencies": ["SYS-MS0"],
+  "deliverables": ["Verified auto-registration pipeline", "Token efficiency improvements", "Multi-Claude stress test results", "Automated count sync"]
+}

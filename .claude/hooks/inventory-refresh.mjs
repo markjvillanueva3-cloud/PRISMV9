@@ -30,13 +30,18 @@ const TTL_MS = 24 * 60 * 60 * 1000;
 // Resolve script relative to the hook location, so this works from the main
 // tree, a worktree, or wherever the hook is invoked from. Hook lives at
 // <repo-root>/.claude/hooks/ so the script is at <repo-root>/scripts/.
-const SCRIPT_CANDIDATES = [
+const INVENTORY_SCRIPT_CANDIDATES = [
   path.join(__dirname, "..", "..", "scripts", "update-prism-inventory.mjs"),
   "H:/prism/scripts/update-prism-inventory.mjs",
 ];
 
-function resolveScript() {
-  for (const p of SCRIPT_CANDIDATES) {
+const SYNC_SCRIPT_CANDIDATES = [
+  path.join(__dirname, "..", "..", "scripts", "sync-awareness-counts.mjs"),
+  "H:/prism/scripts/sync-awareness-counts.mjs",
+];
+
+function resolveScript(candidates) {
+  for (const p of candidates) {
     if (fs.existsSync(p)) return p;
   }
   return null;
@@ -77,20 +82,36 @@ function main() {
   process.stdin.on("data", (c) => (_buf += c));
   process.stdin.on("end", () => {
     if (isThrottled()) process.exit(0);
-    const script = resolveScript();
-    if (!script) {
-      logErr(`inventory script not found in any of: ${SCRIPT_CANDIDATES.join(", ")}`);
+    const inventoryScript = resolveScript(INVENTORY_SCRIPT_CANDIDATES);
+    const syncScript = resolveScript(SYNC_SCRIPT_CANDIDATES);
+
+    if (!inventoryScript) {
+      logErr(`inventory script not found in any of: ${INVENTORY_SCRIPT_CANDIDATES.join(", ")}`);
       process.exit(0);
     }
 
     // Spawn detached so the session isn't blocked
-    const child = spawn(process.execPath, [script, "--quiet"], {
+    const child1 = spawn(process.execPath, [inventoryScript, "--quiet"], {
       detached: true,
       stdio: "ignore",
       windowsHide: true,
     });
-    child.on("error", (e) => logErr(`spawn error: ${e.message}`));
-    child.unref();
+    child1.on("error", (e) => logErr(`spawn error: ${e.message}`));
+    child1.unref();
+
+    // Also sync CLAUDE.md counts (small delay to let inventory write first)
+    if (syncScript) {
+      setTimeout(() => {
+        const child2 = spawn(process.execPath, [syncScript, "--quiet"], {
+          detached: true,
+          stdio: "ignore",
+          windowsHide: true,
+        });
+        child2.on("error", (e) => logErr(`sync error: ${e.message}`));
+        child2.unref();
+      }, 500);
+    }
+
     markRefreshed();
     process.exit(0);
   });

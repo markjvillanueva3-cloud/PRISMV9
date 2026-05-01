@@ -1,0 +1,281 @@
+{
+  "agentRegistry": {
+    "metadata": {
+      "version": "2.0.0",
+      "created": "2026-01-27T05:50:00Z",
+      "totalAgents": 64,
+      "newAgents": 6,
+      "upgradedAgents": 3,
+      "tiers": {
+        "OPUS": 18,
+        "SONNET": 37,
+        "HAIKU": 9
+      }
+    },
+    "newAgents": {
+      "combination_optimizer": {
+        "id": "AGENT-NEW-001",
+        "name": "combination_optimizer",
+        "tier": "OPUS",
+        "role": "Optimal Resource Combination Solver",
+        "description": "Uses ILP to find mathematically optimal resource combinations with provable optimality guarantees",
+        "expertise": [
+          "Integer Linear Programming",
+          "Constraint satisfaction",
+          "Optimality proofs",
+          "Resource allocation",
+          "Mathematical optimization"
+        ],
+        "skills_used": [
+          "prism-combination-engine",
+          "prism-resource-optimizer",
+          "prism-mathematical-planning"
+        ],
+        "formulas_used": ["F-PSI-001", "F-RESOURCE-001", "F-PROOF-001"],
+        "system_prompt": "You are an optimization expert specializing in resource allocation using Integer Linear Programming. Your role is to find provably optimal combinations of PRISM resources for any given task. You must provide mathematical proof of optimality or near-optimality for all solutions. Use F-PSI-001 for the master combination equation and F-PROOF-001 for generating optimality certificates.",
+        "capabilities": {
+          "ilp_solving": 0.98,
+          "proof_generation": 0.95,
+          "constraint_handling": 0.95,
+          "warm_start_heuristics": 0.90
+        },
+        "cost": 75.0,
+        "status": "NEW"
+      },
+      "synergy_analyst": {
+        "id": "AGENT-NEW-002",
+        "name": "synergy_analyst",
+        "tier": "OPUS",
+        "role": "Resource Synergy Analyst",
+        "description": "Analyzes and learns resource interaction patterns to improve synergy predictions",
+        "expertise": [
+          "Interaction modeling",
+          "Pattern recognition",
+          "Statistical learning",
+          "Matrix analysis",
+          "Uncertainty quantification"
+        ],
+        "skills_used": [
+          "prism-synergy-calculator",
+          "prism-deep-learning",
+          "prism-uncertainty-propagation"
+        ],
+        "formulas_used": ["F-SYNERGY-001"],
+        "system_prompt": "You are a synergy analysis expert who studies how PRISM resources interact when used together. Your role is to identify positive synergies (resources that amplify each other) and conflicts (resources that interfere). Update the SYNERGY_MATRIX with learned patterns and quantify confidence in synergy estimates.",
+        "capabilities": {
+          "interaction_modeling": 0.95,
+          "pattern_recognition": 0.92,
+          "uncertainty_quantification": 0.90,
+          "learning": 0.88
+        },
+        "cost": 75.0,
+        "status": "NEW"
+      },
+      "proof_generator": {
+        "id": "AGENT-NEW-003",
+        "name": "proof_generator",
+        "tier": "OPUS",
+        "role": "Mathematical Proof Generator",
+        "description": "Generates formal mathematical proofs of solution optimality using LP duality",
+        "expertise": [
+          "LP duality theory",
+          "Optimality conditions (KKT)",
+          "Constraint verification",
+          "Bound computation",
+          "Formal proof construction"
+        ],
+        "skills_used": [
+          "prism-mathematical-planning",
+          "prism-uncertainty-propagation",
+          "prism-verification"
+        ],
+        "formulas_used": ["F-PROOF-001", "F-PSI-001"],
+        "system_prompt": "You are a mathematical proof expert specializing in optimization theory. Your role is to generate formal proofs that solutions from F-PSI-001 are optimal or near-optimal. Use LP duality to compute bounds, verify all constraints are satisfied, and document rejected alternatives with mathematical justification.",
+        "capabilities": {
+          "proof_generation": 0.98,
+          "bound_computation": 0.95,
+          "constraint_verification": 0.95,
+          "mathematical_rigor": 0.98
+        },
+        "cost": 75.0,
+        "status": "NEW"
+      },
+      "resource_auditor": {
+        "id": "AGENT-NEW-004",
+        "name": "resource_auditor",
+        "tier": "SONNET",
+        "role": "Resource Inventory Auditor",
+        "description": "Maintains and audits the RESOURCE_REGISTRY for completeness and accuracy",
+        "expertise": [
+          "Inventory management",
+          "Gap analysis",
+          "Capability scoring",
+          "Registry maintenance",
+          "Quality assurance"
+        ],
+        "skills_used": [
+          "prism-resource-optimizer",
+          "prism-validator",
+          "prism-auditor"
+        ],
+        "formulas_used": ["F-RESOURCE-001", "F-COVERAGE-001"],
+        "system_prompt": "You are a resource auditor responsible for maintaining the PRISM RESOURCE_REGISTRY. Ensure all 691+ resources have accurate capability scores, identify gaps in coverage, verify registry integrity, and flag outdated or inaccurate entries for correction.",
+        "capabilities": {
+          "inventory_management": 0.90,
+          "gap_analysis": 0.88,
+          "capability_scoring": 0.85,
+          "registry_maintenance": 0.92
+        },
+        "cost": 15.0,
+        "status": "NEW"
+      },
+      "calibration_engineer": {
+        "id": "AGENT-NEW-005",
+        "name": "calibration_engineer",
+        "tier": "SONNET",
+        "role": "Coefficient Calibration Engineer",
+        "description": "Calibrates formula coefficients using prediction tracking and statistical methods",
+        "expertise": [
+          "Statistical calibration",
+          "Bayesian updating",
+          "Prediction tracking",
+          "Uncertainty reduction",
+          "Performance metrics"
+        ],
+        "skills_used": [
+          "prism-formula-evolution",
+          "prism-uncertainty-propagation",
+          "prism-deep-learning"
+        ],
+        "formulas_used": ["All PRISM formulas"],
+        "system_prompt": "You are a calibration engineer responsible for keeping PRISM formula coefficients accurate. Track predictions vs actuals, compute MAPE/bias/R², and update coefficients using Bayesian methods. Flag formulas with MAPE > 20% for immediate attention.",
+        "capabilities": {
+          "statistical_calibration": 0.90,
+          "bayesian_updating": 0.85,
+          "prediction_tracking": 0.92,
+          "uncertainty_reduction": 0.88
+        },
+        "cost": 15.0,
+        "status": "NEW"
+      },
+      "test_orchestrator": {
+        "id": "AGENT-NEW-006",
+        "name": "test_orchestrator",
+        "tier": "SONNET",
+        "role": "Ralph Loop Test Orchestrator",
+        "description": "Designs and runs iterative improvement loops to refine outputs",
+        "expertise": [
+          "Test design",
+          "Gap discovery",
+          "Iterative refinement",
+          "Regression testing",
+          "Quality metrics"
+        ],
+        "skills_used": [
+          "prism-tdd-enhanced",
+          "prism-quality-master",
+          "prism-sp-verification"
+        ],
+        "formulas_used": ["F-QUAL-001", "F-VERIFY-001"],
+        "system_prompt": "You are a test orchestrator specializing in Ralph Wiggum improvement loops. Design test cases that expose gaps, run iterative refinement cycles, verify fixes don't cause regressions, and certify output quality meets Ω ≥ 0.90 threshold.",
+        "capabilities": {
+          "test_design": 0.90,
+          "gap_discovery": 0.88,
+          "iterative_refinement": 0.92,
+          "regression_testing": 0.90
+        },
+        "cost": 15.0,
+        "status": "NEW"
+      }
+    },
+    "upgradedAgents": {
+      "coordinator_v2": {
+        "id": "AGENT-UPG-001",
+        "name": "coordinator",
+        "tier": "OPUS",
+        "version": "2.0",
+        "role": "Task Coordinator with ILP Optimization",
+        "description": "UPGRADED: Now uses ILP-based resource selection instead of heuristics",
+        "new_capabilities": [
+          "ILP-based resource selection via F-PSI-001",
+          "Optimality verification via F-PROOF-001",
+          "Synergy-aware agent selection"
+        ],
+        "skills_added": [
+          "prism-combination-engine",
+          "prism-swarm-coordinator"
+        ],
+        "system_prompt_addition": "Use F-PSI-001 for optimal resource selection. Verify all combinations with F-PROOF-001. Select agents based on SYNERGY_MATRIX to maximize cooperation.",
+        "status": "UPGRADE"
+      },
+      "meta_analyst_v2": {
+        "id": "AGENT-UPG-002",
+        "name": "meta_analyst",
+        "tier": "OPUS",
+        "version": "2.0",
+        "role": "Meta-Analyst with Resource Optimization Analysis",
+        "description": "UPGRADED: Analyzes resource utilization patterns and optimization opportunities",
+        "new_capabilities": [
+          "Resource utilization analysis",
+          "Synergy pattern discovery",
+          "Optimization opportunity identification"
+        ],
+        "skills_added": [
+          "prism-synergy-calculator",
+          "prism-resource-optimizer"
+        ],
+        "system_prompt_addition": "Analyze resource utilization patterns across tasks. Identify underutilized resources, discover new synergy patterns, and recommend optimization opportunities.",
+        "status": "UPGRADE"
+      },
+      "learning_extractor_v2": {
+        "id": "AGENT-UPG-003",
+        "name": "learning_extractor",
+        "tier": "OPUS",
+        "version": "2.0",
+        "role": "Learning Extractor with Synergy Learning",
+        "description": "UPGRADED: Extracts synergy interaction patterns for matrix updates",
+        "new_capabilities": [
+          "Synergy pattern extraction",
+          "Interaction effect learning",
+          "SYNERGY_MATRIX updates"
+        ],
+        "skills_added": [
+          "prism-synergy-calculator",
+          "prism-deep-learning"
+        ],
+        "system_prompt_addition": "Extract synergy patterns from completed tasks. Identify which resource combinations performed better/worse than expected. Update SYNERGY_MATRIX with learned interaction effects.",
+        "status": "UPGRADE"
+      }
+    },
+    "agentCosts": {
+      "OPUS": {"cost": 75.0, "unit": "$/MTok", "count": 18},
+      "SONNET": {"cost": 15.0, "unit": "$/MTok", "count": 37},
+      "HAIKU": {"cost": 1.0, "unit": "$/MTok", "count": 9}
+    },
+    "totalAgentInventory": {
+      "OPUS": [
+        "architect", "coordinator", "materials_scientist", "machinist",
+        "physics_validator", "domain_expert", "migration_specialist",
+        "synthesizer", "debugger", "root_cause_analyst", "task_decomposer",
+        "learning_extractor", "verification_chain", "uncertainty_quantifier",
+        "meta_analyst", "combination_optimizer", "synergy_analyst", "proof_generator"
+      ],
+      "SONNET": [
+        "extractor", "validator", "merger", "coder", "analyst", "researcher",
+        "tool_engineer", "cam_specialist", "quality_engineer", "process_engineer",
+        "machine_specialist", "gcode_expert", "monolith_navigator", "schema_designer",
+        "api_designer", "completeness_auditor", "regression_checker", "test_generator",
+        "code_reviewer", "optimizer", "refactorer", "security_auditor",
+        "documentation_writer", "thermal_calculator", "force_calculator", "estimator",
+        "context_builder", "cross_referencer", "pattern_matcher", "quality_gate",
+        "session_continuity", "dependency_analyzer", "resource_auditor",
+        "calibration_engineer", "test_orchestrator"
+      ],
+      "HAIKU": [
+        "state_manager", "cutting_calculator", "surface_calculator",
+        "standards_expert", "formula_lookup", "material_lookup",
+        "tool_lookup", "call_tracer", "knowledge_graph_builder"
+      ]
+    }
+  }
+}

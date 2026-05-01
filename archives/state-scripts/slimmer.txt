@@ -1,0 +1,121 @@
+Total lines: 190
+L1: /**
+L2:  * PRISM Response Slimmer
+L3:  * ======================
+L4:  * 
+L5:  * Reduces response payload sizes to minimize context pressure.
+L6:  * Three tiers: NORMAL (light trim), MODERATE (significant trim), AGGRESSIVE (bare minimum).
+L7:  * 
+L8:  * Used by dispatchers to keep results context-friendly without losing critical data.
+L9:  * 
+L10:  * @version 1.0.0
+L11:  * @date 2026-02-08
+L12:  */
+L13: 
+L14: export type SlimLevel = "NORMAL" | "MODERATE" | "AGGRESSIVE";
+L15: 
+L16: interface SlimConfig {
+L17:   maxArrayItems: number;      // Cap array results
+L18:   maxStringLength: number;    // Truncate long strings
+L19:   maxObjectDepth: number;     // Depth-limit nested objects
+L20:   stripFields: Set<string>;   // Remove low-value fields
+L21:   keepFields: Set<string>;    // Always keep these
+L22: }
+L23: 
+L24: const CONFIGS: Record<SlimLevel, SlimConfig> = {
+L25:   NORMAL: {
+L26:     maxArrayItems: 20,
+L27:     maxStringLength: 2000,
+L28:     maxObjectDepth: 4,
+L29:     stripFields: new Set(["_raw", "_debug", "raw_data", "internal_id", "created_at", "updated_at", "metadata_version"]),
+L30:     keepFields: new Set(["id", "name", "error", "status", "success", "blocked", "result", "value", "score"]),
+L31:   },
+L32:   MODERATE: {
+L33:     maxArrayItems: 8,
+L34:     maxStringLength: 800,
+L35:     maxObjectDepth: 3,
+L36:     stripFields: new Set([
+L37:       "_raw", "_debug", "raw_data", "internal_id", "created_at", "updated_at", "metadata_version",
+L38:       "description", "notes", "comments", "history", "changelog", "tags", "aliases",
+L39:       "source_reference", "last_modified_by", "validation_details"
+L40:     ]),
+L41:     keepFields: new Set(["id", "name", "error", "status", "success", "blocked", "result", "value", "score", "count", "total"]),
+L42:   },
+L43:   AGGRESSIVE: {
+L44:     maxArrayItems: 3,
+L45:     maxStringLength: 300,
+L46:     maxObjectDepth: 2,
+L47:     stripFields: new Set([
+L48:       "_raw", "_debug", "raw_data", "internal_id", "created_at", "updated_at", "metadata_version",
+L49:       "description", "notes", "comments", "history", "changelog", "tags", "aliases",
+L50:       "source_reference", "last_modified_by", "validation_details",
+L51:       "specifications", "properties", "extended_data", "mechanical_properties",
+L52:       "thermal_properties", "physical_properties", "processing_notes"
+L53:     ]),
+L54:     keepFields: new Set(["id", "name", "error", "status", "success", "blocked", "result", "value", "score", "count", "total"]),
+L55:   }
+L56: };
+L57: 
+L58: 
+L59: /**
+L60:  * Get slim level based on current pressure percentage.
+L61:  */
+L62: export function getSlimLevel(pressurePct: number): SlimLevel {
+L63:   if (pressurePct >= 70) return "AGGRESSIVE";
+L64:   if (pressurePct >= 50) return "MODERATE";
+L65:   return "NORMAL";
+L66: }
+L67: 
+L68: /**
+L69:  * Get current pressure from disk state (non-blocking read).
+L70:  * Returns 0 if no pressure data available.
+L71:  */
+L72: let _cachedPressurePct = 0;
+L73: let _lastPressureRead = 0;
+L74: 
+L75: export function getCurrentPressurePct(): number {
+L76:   const now = Date.now();
+L77:   // Cache for 10 seconds to avoid disk thrash
+L78:   if (now - _lastPressureRead < 10000) return _cachedPressurePct;
+L79:   _lastPressureRead = now;
+L80:   try {
+L81:     const fs = require("fs");
+L82:     const data = fs.readFileSync("C:\\PRISM\\state\\context_pressure.json", "utf-8");
+L83:     const parsed = JSON.parse(data);
+L84:     _cachedPressurePct = parsed.pressure_pct || 0;
+L85:   } catch { _cachedPressurePct = 0; }
+L86:   return _cachedPressurePct;
+L87: }
+L88: 
+L89: /**
+L90:  * Slim a value recursively based on config.
+L91:  */
+L92: function slimValue(val: any, config: SlimConfig, depth: number = 0): any {
+L93:   if (val === null || val === undefined) return val;
+L94:   
+L95:   // Strings: truncate
+L96:   if (typeof val === "string") {
+L97:     if (val.length > config.maxStringLength) {
+L98:       return val.slice(0, config.maxStringLength) + `…[+${val.length - config.maxStringLength}]`;
+L99:     }
+L100:     return val;
+L101:   }
+L102:   
+L103:   // Primitives pass through
+L104:   if (typeof val !== "object") return val;
+L105:   
+L106:   // Arrays: cap length
+L107:   if (Array.isArray(val)) {
+L108:     const capped = val.slice(0, config.maxArrayItems);
+L109:     const slimmed = depth < config.maxObjectDepth 
+L110:       ? capped.map(item => slimValue(item, config, depth + 1))
+L111:       : capped;
+L112:     if (val.length > config.maxArrayItems) {
+L113:       return { _items: slimmed, _total: val.length, _showing: config.maxArrayItems };
+L114:     }
+L115:     return slimmed;
+L116:   }
+L117:   
+L118:   // Objects: filter fields, depth-limit
+L119:   if (depth >= config.maxObjectDepth) {
+L120:     const keys = Object.keys(val);

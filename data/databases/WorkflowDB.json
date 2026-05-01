@@ -1,0 +1,177 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-27",
+  "description": "PRISM Pre-Built Workflow Chains — 10 manufacturing workflow templates",
+  "source_file": "mcp-server/src/engines/WorkflowChainsEngine.ts",
+  "total_workflows": 10,
+  "workflows": [
+    {
+      "id": "plan_job",
+      "name": "Plan This Job",
+      "description": "Full manufacturing plan: material → tool → parameters → strategy → cost → setup sheet",
+      "trigger_phrases": ["plan this job", "how should I make this", "set up for", "machining plan", "full plan"],
+      "trigger_patterns": ["\\bplan\\s+(this\\s+)?job\\b", "\\bhow\\s+should\\s+I\\s+make\\b", "\\bmachining\\s+plan\\b", "\\bset\\s*up\\s+for\\b", "\\bfull\\s+plan\\b"],
+      "persona": "all",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Look up material properties", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "machine_get", "dispatcher": "prism_data", "label": "Look up machine specs", "params_template": {"id": "$machine"}, "depends_on": []},
+        {"action": "tool_recommend", "dispatcher": "prism_intelligence", "label": "Recommend cutting tool", "params_template": {"material": "$material", "operation": "$operation"}, "depends_on": [0]},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Calculate speed & feed", "params_template": {"material": "$material", "tool_diameter": "$tool_diameter", "operation": "$operation"}, "depends_on": [0, 2]},
+        {"action": "strategy_select", "dispatcher": "prism_toolpath", "label": "Select toolpath strategy", "params_template": {"feature": "$feature", "material_group": "$iso_group"}, "depends_on": [0]},
+        {"action": "stability", "dispatcher": "prism_calc", "label": "Check chatter stability", "params_template": {"rpm": "$rpm", "ap": "$ap", "ae": "$ae"}, "depends_on": [3]},
+        {"action": "surface_finish", "dispatcher": "prism_calc", "label": "Predict surface finish", "params_template": {"fz": "$fz", "tool_radius": "$tool_radius"}, "depends_on": [3]},
+        {"action": "process_cost", "dispatcher": "prism_intelligence", "label": "Estimate process cost", "params_template": {"material": "$material", "cycle_time_min": "$cycle_time"}, "depends_on": [3]},
+        {"action": "setup_sheet", "dispatcher": "prism_intelligence", "label": "Generate setup sheet", "params_template": {"material": "$material", "operations": "$operations"}, "depends_on": [3, 4, 5]}
+      ],
+      "estimated_steps": 9,
+      "estimated_tokens": 8000,
+      "estimated_time_sec": 4
+    },
+    {
+      "id": "quick_params",
+      "name": "Quick Parameters",
+      "description": "Speed, feed, DOC, WOC, coolant — nothing else",
+      "trigger_phrases": ["what speed", "what feed", "parameters for", "rpm for", "speeds and feeds"],
+      "trigger_patterns": ["\\bwhat\\s+speed\\b", "\\bwhat\\s+feed\\b", "\\bparameters?\\s+for\\b", "\\brpm\\s+for\\b", "\\bspeeds?\\s+and\\s+feeds?\\b", "\\bwhat\\s+(?:should\\s+I\\s+)?run\\b"],
+      "persona": "machinist",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Look up material", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Calculate speed & feed", "params_template": {"material": "$material", "tool_diameter": "$tool_diameter", "operation": "$operation"}, "depends_on": [0]}
+      ],
+      "estimated_steps": 2,
+      "estimated_tokens": 2000,
+      "estimated_time_sec": 1
+    },
+    {
+      "id": "compare_strategies",
+      "name": "Compare Strategies",
+      "description": "Compare toolpath strategies with cycle time, tool life, and risk analysis",
+      "trigger_phrases": ["compare", "which strategy", "trochoidal vs", "best approach for", "best strategy"],
+      "trigger_patterns": ["\\bcompare\\s+(?:strategies|toolpath)", "\\bwhich\\s+strategy\\b", "\\btrochoidal\\s+vs\\b", "\\bbest\\s+(?:approach|strategy)\\s+for\\b", "\\bvs\\.?\\s+(?:adaptive|conventional|trochoidal|hsm)"],
+      "persona": "programmer",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Look up material", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "machine_get", "dispatcher": "prism_data", "label": "Look up machine", "params_template": {"id": "$machine"}, "depends_on": []},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Calculate baseline parameters", "params_template": {"material": "$material", "tool_diameter": "$tool_diameter"}, "depends_on": [0]},
+        {"action": "strategy_select", "dispatcher": "prism_toolpath", "label": "Evaluate all strategies", "params_template": {"feature": "$feature", "material_group": "$iso_group", "compare": true}, "depends_on": [0], "fan_out": true},
+        {"action": "process_cost", "dispatcher": "prism_intelligence", "label": "Cost each strategy", "params_template": {"material": "$material"}, "depends_on": [2, 3], "fan_out": true}
+      ],
+      "estimated_steps": 6,
+      "estimated_tokens": 6000,
+      "estimated_time_sec": 3
+    },
+    {
+      "id": "quote_part",
+      "name": "Quote This Part",
+      "description": "Per-part cost breakdown, recommended quote price, margin analysis",
+      "trigger_phrases": ["quote", "rfq", "cost to make", "price this", "how much"],
+      "trigger_patterns": ["\\bquote\\b", "\\brfq\\b", "\\bcost\\s+to\\s+make\\b", "\\bprice\\s+this\\b", "\\bhow\\s+much\\s+(?:to|does|will|would)\\b", "\\bcost\\s+per\\s+part\\b"],
+      "persona": "manager",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Look up material", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "tool_recommend", "dispatcher": "prism_intelligence", "label": "Recommend tools", "params_template": {"material": "$material", "operation": "$operation"}, "depends_on": [0]},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Calculate parameters", "params_template": {"material": "$material", "tool_diameter": "$tool_diameter"}, "depends_on": [0, 1]},
+        {"action": "process_cost", "dispatcher": "prism_intelligence", "label": "Calculate cost", "params_template": {"material": "$material", "cycle_time_min": "$cycle_time"}, "depends_on": [2]},
+        {"action": "format_response", "dispatcher": "prism_intelligence", "label": "Format for manager", "params_template": {"persona": "manager", "result": "$cost_result"}, "depends_on": [3]}
+      ],
+      "estimated_steps": 5,
+      "estimated_tokens": 10000,
+      "estimated_time_sec": 3
+    },
+    {
+      "id": "fix_chatter",
+      "name": "Fix My Chatter",
+      "description": "Diagnose chatter, find stable RPM pockets, suggest parameter adjustments",
+      "trigger_phrases": ["getting chatter", "vibration", "squealing", "tool is chattering", "chatter problem"],
+      "trigger_patterns": ["\\bchatter(?:ing)?\\b", "\\bvibration\\b", "\\bsquealing\\b", "\\btool\\s+is\\s+(?:chattering|vibrating|squealing)", "\\bgetting\\s+(?:chatter|vibration)"],
+      "persona": "machinist",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Check material", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "stability", "dispatcher": "prism_calc", "label": "Run stability analysis", "params_template": {"rpm": "$rpm", "ap": "$ap", "ae": "$ae"}, "depends_on": []},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Find stable alternatives", "params_template": {"material": "$material", "optimize": "stability"}, "depends_on": [0, 1], "condition": "unstable"}
+      ],
+      "estimated_steps": 3,
+      "estimated_tokens": 4000,
+      "estimated_time_sec": 2
+    },
+    {
+      "id": "tool_select",
+      "name": "Tool Selection",
+      "description": "Find top tools for the job with parameters, pros/cons, cost comparison",
+      "trigger_phrases": ["what tool", "tool for", "which endmill", "recommend a drill", "which insert"],
+      "trigger_patterns": ["\\bwhat\\s+tool\\b", "\\btool\\s+for\\b", "\\bwhich\\s+(?:endmill|drill|insert|tool|cutter)\\b", "\\brecommend\\s+a?\\s*(?:tool|drill|endmill|insert)\\b"],
+      "persona": "all",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Look up material", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "tool_search", "dispatcher": "prism_data", "label": "Search compatible tools", "params_template": {"material": "$material", "operation": "$operation"}, "depends_on": [0]},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Calculate params for top tools", "params_template": {"material": "$material"}, "depends_on": [0, 1], "fan_out": true}
+      ],
+      "estimated_steps": 5,
+      "estimated_tokens": 5000,
+      "estimated_time_sec": 2
+    },
+    {
+      "id": "capability_check",
+      "name": "Capability Check",
+      "description": "Check if your machine can handle the job — power, torque, RPM, envelope",
+      "trigger_phrases": ["can I run", "will my machine", "is my machine capable", "enough power", "can my machine"],
+      "trigger_patterns": ["\\bcan\\s+(?:I|my\\s+machine)\\s+(?:run|do|handle)\\b", "\\bwill\\s+my\\s+machine\\b", "\\benough\\s+(?:power|torque|rpm)\\b", "\\bmachine\\s+capable\\b"],
+      "persona": "machinist",
+      "steps": [
+        {"action": "material_get", "dispatcher": "prism_data", "label": "Look up material", "params_template": {"name": "$material"}, "depends_on": []},
+        {"action": "machine_get", "dispatcher": "prism_data", "label": "Get machine specs", "params_template": {"id": "$machine"}, "depends_on": []},
+        {"action": "speed_feed", "dispatcher": "prism_calc", "label": "Calculate required parameters", "params_template": {"material": "$material", "tool_diameter": "$tool_diameter"}, "depends_on": [0]},
+        {"action": "power", "dispatcher": "prism_calc", "label": "Check power & torque requirements", "params_template": {"Fc": "$cutting_force", "Vc": "$cutting_speed"}, "depends_on": [2]}
+      ],
+      "estimated_steps": 4,
+      "estimated_tokens": 3000,
+      "estimated_time_sec": 2
+    },
+    {
+      "id": "schedule_shop",
+      "name": "Schedule My Shop",
+      "description": "Assign jobs to machines, timeline, utilization, bottleneck analysis",
+      "trigger_phrases": ["schedule", "which machine for", "assign jobs", "utilization", "shop floor"],
+      "trigger_patterns": ["\\bschedule\\s+(?:my\\s+)?(?:shop|jobs|work)\\b", "\\bwhich\\s+machine\\s+for\\b", "\\bassign\\s+jobs\\b", "\\butilization\\b", "\\bshop\\s+floor\\b"],
+      "persona": "manager",
+      "steps": [
+        {"action": "shop_schedule", "dispatcher": "prism_intelligence", "label": "Generate schedule", "params_template": {"jobs": "$jobs", "machines": "$machines", "optimize_for": "$optimize"}, "depends_on": []},
+        {"action": "machine_utilization", "dispatcher": "prism_intelligence", "label": "Analyze utilization", "params_template": {"machines": "$machines", "schedule": "$schedule"}, "depends_on": [0]}
+      ],
+      "estimated_steps": 4,
+      "estimated_tokens": 8000,
+      "estimated_time_sec": 3
+    },
+    {
+      "id": "diagnose_alarm",
+      "name": "Diagnose Alarm",
+      "description": "Decode alarm code, root cause analysis, recovery procedure, prevention",
+      "trigger_phrases": ["alarm", "error code", "machine says", "what does alarm", "fault code"],
+      "trigger_patterns": ["\\balarm\\s+(?:code\\s+)?\\d+", "\\berror\\s+code\\b", "\\bmachine\\s+says\\b", "\\bfault\\s+code\\b", "\\bwhat\\s+(?:does|is)\\s+alarm\\b"],
+      "persona": "machinist",
+      "steps": [
+        {"action": "alarm_decode", "dispatcher": "prism_data", "label": "Decode alarm", "params_template": {"code": "$alarm_code", "controller": "$controller"}, "depends_on": []},
+        {"action": "alarm_fix", "dispatcher": "prism_data", "label": "Get fix procedure", "params_template": {"code": "$alarm_code"}, "depends_on": [0]},
+        {"action": "failure_diagnose", "dispatcher": "prism_intelligence", "label": "Root cause analysis", "params_template": {"symptoms": "$symptoms", "alarm": "$alarm_code"}, "depends_on": [0]}
+      ],
+      "estimated_steps": 3,
+      "estimated_tokens": 3000,
+      "estimated_time_sec": 1
+    },
+    {
+      "id": "teach_me",
+      "name": "Teach Me",
+      "description": "Explain manufacturing concepts with practical examples and calculations",
+      "trigger_phrases": ["why", "explain", "how does", "what's the difference between", "teach me"],
+      "trigger_patterns": ["\\bwhy\\s+(?:does|do|is|are|should)\\b", "\\bexplain\\s+(?:how|what|why)\\b", "\\bhow\\s+does\\s+\\w+\\s+work\\b", "\\bwhat(?:'s| is)\\s+the\\s+difference\\s+between\\b", "\\bteach\\s+me\\b"],
+      "persona": "all",
+      "steps": [
+        {"action": "search", "dispatcher": "prism_knowledge", "label": "Search knowledge base", "params_template": {"query": "$query"}, "depends_on": []},
+        {"action": "formula_get", "dispatcher": "prism_data", "label": "Get relevant formula", "params_template": {"name": "$formula"}, "depends_on": [], "condition": "has_formula"}
+      ],
+      "estimated_steps": 2,
+      "estimated_tokens": 4000,
+      "estimated_time_sec": 1
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "PP-REV-MS0",
+  "title": "The Demo — Before/After Optimization Report",
+  "track": "PP-REV",
+  "status": "complete",
+  "description": "Build the OptimizationReportEngine (backend) and OptimizationReportPage (frontend) that demonstrates PRISM's 38-stage physics pipeline. Upload G-code, see before/after cycle time savings, per-tool S/F changes, force data, setup sheet, and recommendations. The core sales demo of the post-processor product.",
+  "dependencies": [],
+  "sessions": [
+    {
+      "id": "PP-REV-MS0-S1",
+      "title": "Backend — OptimizationReportEngine + Wiring",
+      "units": [
+        {
+          "id": "U-REV01",
+          "title": "OptimizationReportEngine — core report generation",
+          "status": "complete"
+        },
+        {
+          "id": "U-REV02",
+          "title": "3-format output (Markdown, JSON, HTML)",
+          "status": "complete"
+        },
+        {
+          "id": "U-REV03",
+          "title": "ppg_optimization_report action wired to productDispatcher",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "PP-REV-MS0-S2",
+      "title": "Frontend — OptimizationReportPage + Components",
+      "units": [
+        {
+          "id": "U-REV04",
+          "title": "OptimizationReportPage.tsx — upload G-code, select machine/material, optimize",
+          "status": "complete"
+        },
+        {
+          "id": "U-REV05",
+          "title": "Report display components (SummaryCards, ToolBreakdownTable, RecommendationList, DownloadButtons, SetupSheetPanel)",
+          "status": "complete"
+        },
+        {
+          "id": "U-REV06",
+          "title": "Route wiring (/optimize in shellCatalog, App.tsx, API client, backend route)",
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

@@ -1,0 +1,93 @@
+{
+  "template_id": "SWARM-PIPELINE-001",
+  "pattern": "PIPELINE",
+  "description": "Sequential agent chain where output of each agent flows as input to the next. Best for multi-stage processing, progressive refinement, or transformation chains.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Multi-stage data transformation",
+    "Progressive refinement workflows",
+    "Generate → Validate → Polish patterns",
+    "Assembly line style processing"
+  ],
+  
+  "config": {
+    "min_agents": 2,
+    "max_agents": 10,
+    "timeout_ms": 30000,
+    "fail_strategy": "stop_on_error",
+    "data_flow": "output_to_input"
+  },
+  
+  "agent_selection": {
+    "strategy": "stage_appropriate",
+    "stage_tiers": {
+      "generation": "SONNET",
+      "validation": "OPUS",
+      "formatting": "HAIKU"
+    }
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["stages", "initial_input"],
+    "properties": {
+      "stages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "agent_id", "task"],
+          "properties": {
+            "id": {"type": "string"},
+            "agent_id": {"type": "string"},
+            "task": {"type": "string"},
+            "transform": {"type": "string"}
+          }
+        }
+      },
+      "initial_input": {"type": "object"}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "final_output": {"type": "object"},
+      "stage_outputs": {
+        "type": "array",
+        "items": {
+          "stage_id": {"type": "string"},
+          "agent_id": {"type": "string"},
+          "input": {"type": "object"},
+          "output": {"type": "object"},
+          "duration_ms": {"type": "number"}
+        }
+      },
+      "total_duration_ms": {"type": "number"}
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_pipeline",
+  
+  "example_usage": {
+    "name": "code_review_pipeline",
+    "agents": ["AGT-SONNET-CODE", "AGT-OPUS-REVIEW", "AGT-HAIKU-FORMAT"],
+    "input": {
+      "stages": [
+        {"id": "generate", "agent_id": "AGT-SONNET-CODE", "task": "Generate code"},
+        {"id": "review", "agent_id": "AGT-OPUS-REVIEW", "task": "Review and improve"},
+        {"id": "format", "agent_id": "AGT-HAIKU-FORMAT", "task": "Format and document"}
+      ],
+      "initial_input": {"requirement": "Create sorting algorithm"}
+    }
+  },
+  
+  "hooks_triggered": ["AGENT-START-001", "PIPELINE-STAGE-001", "AGENT-COMPLETE-001"],
+  
+  "performance_notes": {
+    "optimal_stages": "3-5 stages",
+    "bottleneck": "Slowest stage determines throughput",
+    "data_overhead": "Each stage adds ~10% latency for data transfer"
+  }
+}

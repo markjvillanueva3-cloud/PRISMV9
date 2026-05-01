@@ -1,0 +1,57 @@
+{
+  "document_id": "deep-hole-drilling-cnccookbook",
+  "title": "Deep Hole Drilling Guide",
+  "source": "CNCCookbook Deep Hole Drilling Guide",
+  "domain": "milling",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "Deep hole L/D ratio thresholds",
+      "body": "L/D ratio determines drilling technique: 0-5x D = standard twist drill; 5-7x D = peck drilling required; 7-10x D = parabolic flute + peck; 10-20x D = custom deep hole cycle; >20x D = gun drilling or BTA required. Manufacturer threshold for 'deep hole' is typically 3-4x diameter.",
+      "category": "speeds_feeds",
+      "tags": ["deep-hole", "drilling", "l-d-ratio", "peck", "gun-drill"],
+      "operation_types": ["drilling"],
+      "confidence": 90
+    },
+    {
+      "title": "Never fully retract drill during peck cycle",
+      "body": "Critical rule: NEVER retract the drill tip completely clear of the hole during peck drilling. Pulling out entirely allows chips to wash back to the bottom, preventing the drill from re-establishing bite. Results in premature dulling and poor surface finish. Use partial retract (0.001\" minimum) to break chips while keeping tip in hole.",
+      "category": "troubleshooting",
+      "tags": ["peck-drilling", "chip-evacuation", "deep-hole", "g83"],
+      "operation_types": ["drilling"],
+      "confidence": 95
+    },
+    {
+      "title": "Peck drilling dwell technique for chip clearance",
+      "body": "After 0.001\" partial retract, pause and allow 2 spindle revolutions before continuing retraction. This lets chips evacuate from the hole bottom without washing back. Then complete the retract motion. This technique dramatically improves tool life in deep holes.",
+      "category": "shop_floor",
+      "tags": ["peck-drilling", "dwell", "chip-clearance", "tool-life"],
+      "operation_types": ["drilling"],
+      "confidence": 85
+    },
+    {
+      "title": "Through-spindle coolant critical for deep holes",
+      "body": "Through-spindle coolant (TSC) is optimal for deep holes. Coolant passages drilled through the drill body deliver high-pressure fluid directly to the cutting edge, blasting chips up and out. Primary function is chip evacuation force, secondary is cooling. Without TSC, use maximum external coolant pressure aimed at hole entry.",
+      "category": "coolant",
+      "tags": ["through-spindle-coolant", "TSC", "deep-hole", "chip-evacuation"],
+      "operation_types": ["drilling"],
+      "confidence": 90
+    },
+    {
+      "title": "Parabolic flute drills for 7-20x D holes",
+      "body": "Parabolic flute geometry is optimized for chip extraction in deep holes. Extends practical twist drill capability from 7x D to 20x D. Larger flute area provides better chip flow, reduced web thickness with split point improves centering. Beyond 20x D, switch to gun drilling.",
+      "category": "tooling",
+      "tags": ["parabolic-flute", "deep-hole", "tool-selection", "chip-flow"],
+      "operation_types": ["drilling"],
+      "confidence": 90
+    },
+    {
+      "title": "Custom G-code beats canned cycles for deep holes",
+      "body": "Custom deep hole cycles outperform G83 canned cycles because: (1) No peck for first 2x D depth, (2) increasing peck frequency as hole deepens, (3) variable retract distance by depth, (4) rapids for non-cutting retracts (G83 uses feedrate for all motion). Significant cycle time savings on production drilling.",
+      "category": "optimization",
+      "tags": ["g83", "custom-cycle", "deep-hole", "cycle-time", "optimization"],
+      "operation_types": ["drilling"],
+      "confidence": 85
+    }
+  ]
+}

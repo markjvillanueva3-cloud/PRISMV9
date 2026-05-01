@@ -1,0 +1,18 @@
+{
+  "id": "EIGC-MS9",
+  "version": "1.0.0",
+  "title": "Product Capability Support Matrix",
+  "brief": "Build one machine-readable support matrix mapping runtime capabilities to supported/partial/bridge_only/experimental/unsupported/planned. Populate for machines, controllers, CAM systems, exports, physics, quoting. Require all docs and claims to consume this matrix.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Support Matrix", "sessions": "2", "units": [
+    {"id": "P0-U01", "title": "Build machine-readable product-capability-matrix.json", "effort": 70, "dependencies": []},
+    {"id": "P0-U02", "title": "Populate for all engine families and product pillars", "effort": 60, "dependencies": ["P0-U01"]},
+    {"id": "P0-U03", "title": "Define promotion/downgrade rules between support states", "effort": 40, "dependencies": ["P0-U02"]}
+  ]}],
+  "dependencies": ["EIGC-MS8"],
+  "exit_conditions": ["No capability can be sold/documented/roadmap-marked outside the same support-truth matrix"]
+}

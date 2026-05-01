@@ -1,0 +1,463 @@
+{
+  "batch_id": "haas-speeds-feeds-batch",
+  "source": "Haas Automation YouTube Channel",
+  "extracted_date": "2026-03-27",
+  "videos": [
+    {
+      "video_id": "zzzIpC39WUg",
+      "title": "How To Calculate Speeds and Feeds (Inch Version) - Haas Automation Tip of the Day",
+      "url": "https://www.youtube.com/watch?v=zzzIpC39WUg",
+      "formulas": [
+        {
+          "name": "RPM from SFM (full form)",
+          "formula": "RPM = (Vc * 12) / (D * pi)",
+          "simplified": "RPM = (Vc * 3.82) / D",
+          "variables": {
+            "RPM": { "description": "Spindle speed in revolutions per minute", "unit": "rev/min" },
+            "Vc": { "description": "Cutting speed (surface feet per minute)", "unit": "SFM" },
+            "D": { "description": "Tool diameter", "unit": "inches" },
+            "pi": { "description": "3.14159", "unit": "dimensionless" }
+          },
+          "derivation": "12/pi = 3.82, so RPM = Vc * 3.82 / D",
+          "notes": "The 12 converts feet to inches (12 inches per foot). Simplified constant 3.82 = 12/pi."
+        },
+        {
+          "name": "SFM from RPM",
+          "formula": "SFM = (RPM * D * pi) / 12",
+          "variables": {
+            "SFM": { "description": "Surface feet per minute", "unit": "ft/min" },
+            "RPM": { "description": "Spindle speed", "unit": "rev/min" },
+            "D": { "description": "Tool diameter", "unit": "inches" }
+          }
+        },
+        {
+          "name": "Feed Rate (milling, inches per minute)",
+          "formula": "Vf = fz * z * n",
+          "variables": {
+            "Vf": { "description": "Table feed rate", "unit": "in/min" },
+            "fz": { "description": "Feed per tooth (chip load)", "unit": "in/tooth" },
+            "z": { "description": "Number of teeth (flutes)", "unit": "count" },
+            "n": { "description": "Spindle speed RPM", "unit": "rev/min" }
+          },
+          "notes": "Feed per tooth comes from tool manufacturer catalog for specific tool-material combination."
+        },
+        {
+          "name": "Tapping Feed Rate",
+          "formula": "F = RPM / TPI",
+          "variables": {
+            "F": { "description": "Feed rate for tapping", "unit": "in/min" },
+            "RPM": { "description": "Spindle speed", "unit": "rev/min" },
+            "TPI": { "description": "Threads per inch", "unit": "threads/in" }
+          },
+          "notes": "Feed rate must be perfectly synchronized with spindle speed for tapping."
+        }
+      ],
+      "parameters": {
+        "iso_material_groups": {
+          "P": "Steels (blue) - e.g., 4140, 1018, 1045",
+          "M": "Stainless steels (yellow)",
+          "K": "Cast irons (red)",
+          "N": "Non-ferrous metals (green) - aluminum, magnesium",
+          "S": "Super alloys (brown) - titanium, Inconel",
+          "H": "Hard cast irons / hardened steels (gray)"
+        },
+        "tool_materials": ["High Speed Steel (HSS)", "Carbide", "PCD", "CBN"],
+        "example_calculation": {
+          "material": "4140 steel (ISO P class)",
+          "tool_diameter_in": 0.75,
+          "cutting_speed_sfm": 300,
+          "rpm_calculated": 1528,
+          "notes": "RPM = 300 * 3.82 / 0.75 = 1528. S code: S1528"
+        }
+      },
+      "tribal_tips": [
+        "Coatings can double allowable cutting speeds - always check exact tool number, not just generic carbide values",
+        "ISO material sub-groups vary between manufacturers: Kennametal P4 vs Sandvik P2.1 vs Iscar P6 for same 4140 steel",
+        "If catalog gives SFM range (e.g., 200-300), choose based on rigidity: more rigid setup = higher SFM",
+        "Tools live longer at slower cutting speeds - conservative SFM extends tool life",
+        "If you can't identify material group, call your tooling representative",
+        "Different countries use different material naming: 4140 (US) = 42CrMo4 (Europe) = SCM440 (Japan) - all ISO P class",
+        "Always get cutting speed from the specific tool's catalog, not from generic tables",
+        "Surface feet per minute (SFM) is the speed at the cutting edge, not the spindle RPM - two different concepts"
+      ]
+    },
+    {
+      "video_id": "gTnkNHB7dss",
+      "title": "How To Calculate Speeds and Feeds (Metric Version) - Haas Automation Tip of the Day",
+      "url": "https://www.youtube.com/watch?v=gTnkNHB7dss",
+      "formulas": [
+        {
+          "name": "RPM from Vc (metric, full form)",
+          "formula": "n = (Vc * 1000) / (D * pi)",
+          "simplified": "n = (Vc * 318) / D",
+          "variables": {
+            "n": { "description": "Spindle speed in revolutions per minute", "unit": "rev/min" },
+            "Vc": { "description": "Cutting speed", "unit": "m/min" },
+            "D": { "description": "Tool diameter", "unit": "mm" },
+            "pi": { "description": "3.14159", "unit": "dimensionless" }
+          },
+          "derivation": "1000/pi = 318.31, simplified to 318. So n = Vc * 318 / D",
+          "notes": "The 1000 converts meters to millimeters. Simplified constant 318 = 1000/pi."
+        },
+        {
+          "name": "Vc from RPM (metric)",
+          "formula": "Vc = (n * D * pi) / 1000",
+          "variables": {
+            "Vc": { "description": "Cutting speed", "unit": "m/min" },
+            "n": { "description": "Spindle speed RPM", "unit": "rev/min" },
+            "D": { "description": "Tool diameter", "unit": "mm" }
+          }
+        },
+        {
+          "name": "Feed Rate (milling, metric)",
+          "formula": "Vf = fz * z * n",
+          "variables": {
+            "Vf": { "description": "Table feed rate", "unit": "mm/min" },
+            "fz": { "description": "Feed per tooth", "unit": "mm/tooth" },
+            "z": { "description": "Number of teeth (flutes)", "unit": "count" },
+            "n": { "description": "Spindle speed RPM", "unit": "rev/min" }
+          }
+        },
+        {
+          "name": "Circumference",
+          "formula": "C = D * pi",
+          "variables": {
+            "C": { "description": "Circumference", "unit": "mm" },
+            "D": { "description": "Diameter", "unit": "mm" }
+          },
+          "example": "100mm diameter tire has 314mm circumference (100 * pi = 314)"
+        }
+      ],
+      "parameters": {
+        "metric_examples": {
+          "tire_small": { "diameter_mm": 100, "circumference_mm": 314 },
+          "tire_large": { "diameter_m": 1, "circumference_m": 3.14 }
+        },
+        "iso_material_groups": {
+          "P": "Steels",
+          "M": "Stainless steels",
+          "K": "Cast irons",
+          "N": "Non-ferrous (aluminum, magnesium)",
+          "S": "Super alloys (titanium)",
+          "H": "Hardened steels/hard cast irons"
+        }
+      },
+      "tribal_tips": [
+        "Same formulas as inch version but with 1000 instead of 12 (meters to mm vs feet to inches)",
+        "Simplified metric constant: 1000/pi = 318 (vs inch constant 12/pi = 3.82)",
+        "Tool catalogs provide Vc in m/min; CNC control needs RPM - that's why we convert",
+        "Material naming is universal via ISO groups regardless of regional naming conventions"
+      ]
+    },
+    {
+      "video_id": "6wLU97gVo5k",
+      "title": "YOUR FEEDRATE IS WRONG! - Haas Automation Tip of the Day",
+      "url": "https://www.youtube.com/watch?v=6wLU97gVo5k",
+      "formulas": [
+        {
+          "name": "Effective Feed Rate Compensation (circular interpolation)",
+          "formula": "F_program = F_desired * (D_hole - D_tool) / D_hole",
+          "variables": {
+            "F_program": { "description": "Programmed feed rate (at tool centerline)", "unit": "in/min or mm/min" },
+            "F_desired": { "description": "Desired effective feed rate at cutting edge", "unit": "in/min or mm/min" },
+            "D_hole": { "description": "Hole/pocket diameter being cut", "unit": "in or mm" },
+            "D_tool": { "description": "Tool diameter", "unit": "in or mm" }
+          },
+          "notes": "Use this whenever milling circular pockets or thread milling. For thread milling, replace D_hole with major thread diameter."
+        },
+        {
+          "name": "Feed Rate Amplification Factor",
+          "formula": "amplification = D_hole / (D_hole - D_tool)",
+          "variables": {
+            "amplification": { "description": "How many times faster the edge moves vs programmed center", "unit": "ratio" }
+          },
+          "notes": "When tool is nearly the same size as the hole, amplification can be 10x or more."
+        },
+        {
+          "name": "Toolpath Diameter",
+          "formula": "D_toolpath = D_hole - D_tool",
+          "variables": {
+            "D_toolpath": { "description": "Diameter of the circle the tool center follows", "unit": "in or mm" }
+          },
+          "notes": "This is the circle the CNC programs the feed rate for. The outer edge (actual cut) is D_hole."
+        }
+      ],
+      "parameters": {
+        "example_calculation": {
+          "hole_diameter_in": 0.550,
+          "tool_diameter_in": 0.500,
+          "toolpath_diameter_in": 0.050,
+          "amplification_factor": 11,
+          "desired_feedrate_ipm": 30,
+          "programmed_feedrate_ipm": 2.73,
+          "notes": "550/50 = 11x amplification. To get F30 at the edge, program F2.73 at centerline."
+        }
+      },
+      "tribal_tips": [
+        "Programmed feed rate is at the CENTERLINE of the tool, not at the cutting edge",
+        "When milling circular pockets with a tool nearly the same size as the hole, effective feed rate can be 10x higher than programmed",
+        "This is the most common cause of bad surface finish in circular pocket milling",
+        "Solution 1 (preferred): Use CAM system arc feed rate compensation (e.g., Mastercam has this built in)",
+        "Solution 2: Calculate manually using F_program = F_desired * (D_hole - D_tool) / D_hole",
+        "Solution 3: Use cutter compensation (G41/G42) with tool diameter in offset page - control auto-compensates in tight corners via Setting 44",
+        "This problem is worst when thread milling - thread mill moves much faster at edge than centerline",
+        "For thread milling: replace hole diameter with major thread diameter in the formula",
+        "Most CAM systems handle this automatically when you let them calculate toolpaths",
+        "If hand programming to part contour with cutter comp, enter exact tool diameter on offset page"
+      ]
+    },
+    {
+      "video_id": "dXR2wDDFFm4",
+      "title": "Spindle Speed Variation (SSV) - Stop Chatter on Your CNC Lathe - Haas Automation",
+      "url": "https://www.youtube.com/watch?v=dXR2wDDFFm4",
+      "formulas": [
+        {
+          "name": "SSV RPM Range",
+          "formula": "RPM_high = RPM_commanded + Setting_165; RPM_low = RPM_commanded - Setting_165",
+          "variables": {
+            "RPM_high": { "description": "Maximum RPM during SSV cycle", "unit": "rev/min" },
+            "RPM_low": { "description": "Minimum RPM during SSV cycle", "unit": "rev/min" },
+            "RPM_commanded": { "description": "Base spindle speed", "unit": "rev/min" },
+            "Setting_165": { "description": "SSV variation amount", "unit": "RPM" }
+          },
+          "notes": "Total swing = 2 * Setting_165"
+        },
+        {
+          "name": "SSV Cycle Period",
+          "formula": "T_cycle = Setting_166 * 0.1",
+          "variables": {
+            "T_cycle": { "description": "Time for one complete SSV cycle", "unit": "seconds" },
+            "Setting_166": { "description": "SSV cycle rate value", "unit": "0.1 sec units" }
+          },
+          "notes": "Each unit of Setting 166 equals 0.1 seconds"
+        }
+      ],
+      "parameters": {
+        "haas_settings": {
+          "Setting_165": {
+            "name": "SSV Spindle Speed Variation",
+            "description": "Controls how many RPM above and below commanded speed the spindle will vary",
+            "unit": "RPM",
+            "example_value": 150,
+            "effect": "At 150, spindle varies +/- 150 RPM from commanded speed (total 300 RPM range)"
+          },
+          "Setting_166": {
+            "name": "SSV Variation Cycle Rate",
+            "description": "Controls how fast the spindle cycles through the RPM variation",
+            "unit": "0.1 second increments",
+            "example_value": 12,
+            "effect": "At 12, one complete RPM sweep takes 1.2 seconds"
+          }
+        },
+        "g_codes": {
+          "M38": "Turn SSV ON in program",
+          "M39": "Turn SSV OFF in program"
+        },
+        "example_settings": {
+          "commanded_rpm": 1500,
+          "setting_165": 150,
+          "setting_166": 12,
+          "rpm_high": 1650,
+          "rpm_low": 1350,
+          "total_rpm_swing": 300,
+          "cycle_time_seconds": 1.2
+        },
+        "demo_results": {
+          "without_ssv": {
+            "shaft_diameter_in": 1.75,
+            "shaft_length_in": 7,
+            "ltd_ratio": "4:1",
+            "chatter_onset_diameter_in": 1.25,
+            "chatter_severe_diameter_in": 1.15,
+            "ltd_at_severe_chatter": "6:1"
+          },
+          "with_ssv": {
+            "result": "Much better finish at same diameter where chatter occurred",
+            "notes": "SSV prevented chatter escalation even at 6:1 L/D ratio"
+          },
+          "extreme_test": {
+            "shaft_diameter_in": 0.5,
+            "shaft_length_in": 10,
+            "ltd_ratio": "20:1",
+            "material": "1040 steel",
+            "result": "No chatter with SSV and decent finish even at 20:1 L/D with tail stock"
+          }
+        }
+      },
+      "tribal_tips": [
+        "SSV = Spindle Speed Variation - continuously varies RPM to prevent chatter resonance from building",
+        "Chatter is a self-reinforcing resonance: rough surface -> more vibration -> rougher surface -> more vibration",
+        "SSV breaks the resonance cycle by spending very little time at any single RPM",
+        "Available on ALL Haas lathes - use M38 to turn ON, M39 to turn OFF",
+        "Setting 165 controls RPM swing (how much variation), Setting 166 controls cycle time (how fast it varies)",
+        "SSV is most effective for: boring, turning long shafts, grooving, any operation prone to chatter",
+        "Start with moderate values: Setting 165 = 100-200 RPM, Setting 166 = 10-15",
+        "SSV works best when chatter is moderate - extreme chatter from terrible setups may still have some chatter",
+        "SSV can extend your capabilities: turn thinner/longer parts without tail stock support",
+        "The ST-30 cut so well under normal conditions it was hard to force chatter - SSV is preventive, not just corrective",
+        "Typical L/D ratios: under 4:1 usually fine, 4:1 to 6:1 may need SSV, above 6:1 usually needs tail stock + SSV",
+        "With SSV, achieved 20:1 L/D ratio in 1040 steel with decent finish - normally impossible without special tooling",
+        "Tool geometry matters: larger nose radius + slow feed rate = more time in cut = more chatter tendency",
+        "SSV does NOT affect programmed feed rate - only spindle speed varies"
+      ]
+    },
+    {
+      "video_id": "I5kF6a3-SN8",
+      "title": "Haas Apps Min - Quickly Calculate Feeds and Speeds",
+      "url": "https://www.youtube.com/watch?v=I5kF6a3-SN8",
+      "formulas": [
+        {
+          "name": "Haas Control Built-in Calculator - Tapping",
+          "formula": "F = RPM / TPI",
+          "variables": {
+            "F": { "description": "Feed rate", "unit": "in/min" },
+            "RPM": { "description": "Spindle speed", "unit": "rev/min" },
+            "TPI": { "description": "Threads per inch", "unit": "threads/in" }
+          },
+          "notes": "Haas NGC control has built-in tapping calculator under Current Commands > Calculator > Tapping tab"
+        },
+        {
+          "name": "Haas Control Built-in Calculator - Milling",
+          "formula": "Standard RPM and feed calculation with material lookup",
+          "notes": "Milling tab: enter diameter, number of flutes, work material, tool material. Control recommends SFM and chip load."
+        },
+        {
+          "name": "Haas Control Built-in Calculator - Power",
+          "formula": "HP estimation from width and depth of cut",
+          "notes": "Enter width and depth of cut to get approximate horsepower requirement for the cut."
+        }
+      ],
+      "parameters": {
+        "haas_ngc_calculator": {
+          "location": "Current Commands > Calculator Tab",
+          "tabs": ["Tapping", "Milling", "Turning", "Drilling"],
+          "tapping_inputs": ["TPI (threads per inch)", "Spindle RPM"],
+          "tapping_outputs": ["Feed rate (in/min)"],
+          "milling_inputs": ["Tool diameter", "Number of flutes", "Work material", "Tool material", "SFM", "Chip load per tooth"],
+          "milling_outputs": ["RPM", "Feed rate (in/min)", "Horsepower requirement"],
+          "material_options": ["Low carbon steel", "Medium carbon steel", "Alloy steel", "Stainless steel", "Cast iron", "Aluminum", "Titanium"]
+        },
+        "example_calculation": {
+          "tool": "1/2-13 tap",
+          "tpi": 13,
+          "rpm": 1200,
+          "feed_ipm": 92.31,
+          "notes": "1200 / 13 = 92.31 IPM"
+        },
+        "milling_example": {
+          "tool": "5/8 carbide endmill, 4 flute",
+          "diameter_in": 0.625,
+          "flutes": 4,
+          "material": "Low carbon steel (mild steel)",
+          "tool_material": "Carbide",
+          "sfm": 500,
+          "rpm_calculated": 3056,
+          "rpm_programmed": 3100,
+          "chipload_ipt": 0.004,
+          "feed_ipm": 48.89,
+          "notes": "Conservative values used. RPM rounded up to 3100 for program."
+        }
+      },
+      "tribal_tips": [
+        "Haas NGC control has a built-in calculator - no need to do math by hand",
+        "Calculator is under Current Commands > Calculator tab on the control",
+        "Tapping tab automatically calculates feed rate from RPM and TPI - ensures perfect synchronization",
+        "Milling tab can recommend SFM and chip load based on work material and tool material selections",
+        "Enter width and depth of cut to get horsepower estimate before cutting",
+        "Round RPM values for cleaner programs (e.g., 3056 -> 3100)",
+        "Start conservative with SFM and chip load values, then optimize based on results",
+        "Use this calculator to verify hand calculations or CAM-generated values"
+      ]
+    }
+  ],
+  "consolidated_formulas": {
+    "speed_formulas": {
+      "rpm_from_sfm_inch": {
+        "full": "RPM = (SFM * 12) / (D * pi)",
+        "simplified": "RPM = (SFM * 3.82) / D",
+        "units": { "SFM": "ft/min", "D": "inches", "RPM": "rev/min" }
+      },
+      "rpm_from_vc_metric": {
+        "full": "n = (Vc * 1000) / (D * pi)",
+        "simplified": "n = (Vc * 318) / D",
+        "units": { "Vc": "m/min", "D": "mm", "n": "rev/min" }
+      },
+      "sfm_from_rpm": {
+        "formula": "SFM = (RPM * D * pi) / 12",
+        "units": { "RPM": "rev/min", "D": "inches", "SFM": "ft/min" }
+      },
+      "vc_from_rpm_metric": {
+        "formula": "Vc = (n * D * pi) / 1000",
+        "units": { "n": "rev/min", "D": "mm", "Vc": "m/min" }
+      }
+    },
+    "feed_formulas": {
+      "milling_feed_rate": {
+        "formula": "Vf = fz * z * n",
+        "description": "Table feed = chip load per tooth * number of teeth * RPM",
+        "units_inch": { "Vf": "in/min", "fz": "in/tooth", "z": "count", "n": "rev/min" },
+        "units_metric": { "Vf": "mm/min", "fz": "mm/tooth", "z": "count", "n": "rev/min" }
+      },
+      "tapping_feed_rate": {
+        "formula": "F = RPM / TPI",
+        "description": "Feed must be synchronized with spindle rotation for tapping",
+        "units": { "F": "in/min", "RPM": "rev/min", "TPI": "threads/in" }
+      }
+    },
+    "correction_formulas": {
+      "circular_pocket_feed_compensation": {
+        "formula": "F_program = F_desired * (D_hole - D_tool) / D_hole",
+        "description": "Compensate programmed feed rate for circular interpolation to achieve desired feed at cutting edge",
+        "when_to_use": "Circular pocket milling, thread milling, any G2/G3 arc moves where tool is large relative to arc",
+        "units": { "F_program": "in/min or mm/min", "F_desired": "in/min or mm/min", "D_hole": "in or mm", "D_tool": "in or mm" }
+      },
+      "feed_amplification_factor": {
+        "formula": "amplification = D_hole / (D_hole - D_tool)",
+        "description": "How many times faster the edge moves compared to programmed centerline feed rate"
+      }
+    },
+    "ssv_formulas": {
+      "ssv_rpm_range": {
+        "formula": "RPM_range = [RPM_cmd - Setting165, RPM_cmd + Setting165]",
+        "total_swing": "2 * Setting165"
+      },
+      "ssv_cycle_period": {
+        "formula": "T = Setting166 * 0.1 seconds"
+      }
+    },
+    "key_constants": {
+      "inch_conversion_factor": {
+        "value": 3.82,
+        "derivation": "12 / pi = 3.8197",
+        "usage": "RPM = SFM * 3.82 / D (inches)"
+      },
+      "metric_conversion_factor": {
+        "value": 318,
+        "derivation": "1000 / pi = 318.31",
+        "usage": "n = Vc * 318 / D (metric)"
+      }
+    }
+  },
+  "consolidated_tips": [
+    "SPEED vs RPM: 'Speed' (SFM/Vc) is the linear velocity at the cutting edge. RPM is rotational speed. Same SFM requires different RPM for different diameters.",
+    "The tractor tire analogy: A small tire and large tire traveling at the same ground speed have the same SFM, but the small tire spins at higher RPM.",
+    "Always get cutting speed (SFM/Vc) from the specific tool manufacturer's catalog, not generic tables - coatings can double allowable speeds.",
+    "Know your material: ISO groups (P/M/K/N/S/H) are universal, but the sub-number varies by tool manufacturer.",
+    "4140 steel example: Kennametal P4, Sandvik P2.1, Niagara/Seco P5, Iscar P6/P7 - same material, different vendor numbering.",
+    "When catalog gives a range (e.g., 200-300 SFM), more rigid setup = use higher end, longer tool = use lower end.",
+    "Tools live longer at slower cutting speeds - there is always a tool life vs productivity trade-off.",
+    "Programmed feed rate is at tool CENTERLINE, not cutting edge - critical for circular pocket milling and thread milling.",
+    "When tool diameter approaches hole diameter, effective feed at edge can be 10x+ higher than programmed - compensate or you'll get terrible finish.",
+    "Preferred compensation method: Let CAM system handle arc feed rates (Mastercam, etc.). Manual method: F_prog = F_desired * (D_hole - D_tool) / D_hole.",
+    "Haas NGC control has built-in calculator: Current Commands > Calculator tab with Tapping, Milling, Turning, Drilling tabs.",
+    "SSV (Spindle Speed Variation) is the primary tool for fighting chatter on Haas lathes - M38 ON, M39 OFF.",
+    "SSV works by preventing resonance from building - spindle never stays at one RPM long enough for chatter to escalate.",
+    "SSV Settings: Setting 165 = RPM variation amount, Setting 166 = cycle time (units of 0.1 sec).",
+    "Starting SSV values: Setting 165 = 100-200 RPM variation, Setting 166 = 10-15 (1.0-1.5 seconds per cycle).",
+    "SSV achieved 20:1 L/D ratio turning in 1040 steel with decent finish - normally requires special tooling or steady rest.",
+    "Chatter is self-reinforcing: rough cut -> vibration -> rougher cut -> more vibration. SSV breaks this cycle.",
+    "SSV does NOT change feed rate - only spindle speed varies. Feed rate stays as programmed.",
+    "Cutter compensation (G41/G42) with tool diameter in offset page + Setting 44 allows the control to auto-compensate feed rates in tight corners.",
+    "Round RPM values for cleaner programs (3056 -> 3100) - exact decimal RPM is unnecessary."
+  ]
+}

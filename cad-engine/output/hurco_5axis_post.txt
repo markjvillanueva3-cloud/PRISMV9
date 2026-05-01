@@ -1,0 +1,167 @@
+Building a Hurco 5-Axis Post Processor 
+Author: Michael Cope - November, 2012 
+ 
+ 
+ 
+Provided Example IGES Model: 
+  
+ The provided program examples (5 Axis Simultaneous.FNC  ;  and  3+2.FNC) both reference the 
+features on the supplied .IGES file (pictured above).  
+ The 3+2.FNC program uses G68.2 Transform Planes to drill the 4 angled holes, and to position and 
+machine the J-shaped slot on the right side of the part. 
+ The 5 Axis Simultaneous.FNC program shows an example of simultaneous machining of the red 
+projected square with the tool tilted normal to the surface of the sphere.  
+ The simultaneous example uses Tool Center Point Management (TCPM) and is programmed using 
+IJK tool vectors. 
+ 
+ 
+ 
+ 
+ 
+
+
+Miscellaneous Post Processor Considerations 
+ 
+Program Header: 
+% 
+:0001 
+M31  (Rotary Axes Encoder Reset) 
+M126  (Shortest Angular Traverse) 
+G0 G20 G40 G80 G54 G90   (Traditional Safety Line) 
+M140  (Retract Along Tool Vector) 
+G53  Z0. 
+G0 X0. Y0. A0 . C0. 
+ 
+ Make sure to output an M31 to reset the rotary axis encoder to the current machine position. 
+Failure to do this can cause the rotary axis to “unwind” when commanded to return to a position of 
+zero degrees. 
+ Shortest Angular Traverse (M126) will force the control to take the shortest path to the commanded 
+rotary position - regardless of negative or positive. This can be cancelled using an M127 for special 
+cases in which a particular rotary direction is necessary. 
+ DO NOT call a G17 or other plane designation in the safety line. This can cause problems when 
+programming in 5-axis…especially with Transform Planes. 
+ M140 will cause the tool to retract along the current tool vector to the machine limit position. The 
+tool can be commanded to retract a specified distance by the addition of an “L”.  
+Example: M140 L3.0 
+ When retracting the Z axis to the home position, it is recommended that a G53 Z0 be used (machine 
+coordinate system). The traditional G91 G28 Z0 will work, but the post must be configured to output 
+the G90 immediately after to return the control to absolute. 
+ 
+ 
+Transform Plane - G68.2: 
+ 
+G68.2 X0. Y0. Z0. A-45. C225.  (Transform Plane Data) 
+ 
+ G68.2 also enables Tool Center Point Management. 
+ G68.2 does NOT command any machine movement – rotary axis machine commands must be 
+output on a separate line of code, or by use of the ASR command (G08.2). 
+ G69 cancels the Transform Plane.  
+ The XYZ data in a G68.2 is used to reposition the origin point for the transform plane if desired, and 
+all following XYZ data will reference this new zero location. This reference position is relative to the 
+original workpiece zero…unless another transform plane was active when the G68.2 was called. 
+Note: G68.2’s can be stacked, but a separate G69 is required to cancel each active transform plane. 
+They will be cancelled in the reverse order they were called – the last one called will be cancelled 
+first. When stacking G68.2, each additional transform plane will be relative to the previous 
+workplane. 
+
+ The rotary information (A, B, C) (I, J, K) (U, V, W) is used to determine the angle of the new 
+workplane. 
+ Rotation angles in the G68.2 are commanded using ISO standard rotation conventions.  
+Example: rotations to the front or right side of a block are positive movements; rotations to the 
+back or left side of a block are negative movements; counter-clockwise rotations (CCW) around the 
+Z-axis are positive rotations; clockwise (CW) rotations around the Z-axis are negative rotations. 
+ NOTE: actual machine rotation commands can be either ISO standard or NON-ISO standard - 
+depending on the parameter setting within the control.  
+ 
+To verify the current machine setting follow the steps below: 
+o Press the AUXILIRY button on the control panel 
+o Select the UTILITY SCREEN icon from the pup-up menu 
+o Select the USER PREFERENCES softkey on the screen 
+o Select the MORE softkey on the screen 
+o Select the ROTARY AXES PARAMETERS softkey on the screen 
+o Recommended Settings: 
+ ISO Standard = YES 
+ Tilt Axis Preference = NEGATIVE 
+ 
+ 
+Simultaneous Movement: 
+ 
+T03 M6 
+S1200 M3 M8 
+G0 X0.Y0. (XY Initial Position) 
+Z5.0  (Initial Z Axis Position) 
+M128 (Tool Center Point Management ON) 
+G8.2 X-1.0934 Y-1.0941 Z3.5643 I-0.4893582 J-0.4902342 K0.7212482 (ASR Target Position) 
+G43.4 (Toolpath Linearization) 
+M13 (C Axis Unclamp) 
+M33 (A Axis Unclamp) 
+G01 X-1.0934 Y-1.0941 Z3.5643 I-0.4893582 J-0.4902342 K0.7212482 F50. 
+X-0.8487 Y-0.849 Z3.2037 I-0.4893582 J-0.4902342 K0.7212482 
+~ 
+~ 
+~ 
+X-0.75 Y-0.75 Z3.0607 I-0.4893582 J-0.4902342 K0.7212482 F200. 
+X-0.7471 Z3.0627 I-0.4877059 J-0.4906040 K0.7221154 
+X-0.7441 Z3.0647 I-0.4860530 J-0.4909710 K0.7229800 
+X-0.7412 Y-0.7499 Z3.0667 I-0.4844140 J-0.4913580 K0.7238165 
+~ 
+~ 
+~ 
+M129 (Tool Center Point Management Cancel) 
+G0 M140 (Retract Along Tool Vector) 
+G53 Z0. 
+M31 (Rotary Axis Encoder Reset) 
+
+G53 A0. C0. 
+M30 
+ 
+ It is a good idea to position the XY & Z axes to an initial point location prior to invoking the M128 
+TCPM command. This will help eliminate out of travel limit errors when running the program. 
+ M128 forces all preceding XYZ data to reference the un-rotated workpiece coordinate system.  
+Example: if the part is rotated -90 degrees around the A-axis (toward the operator), a commanded 
+position of Z-1.0” will still be located along the backside of the part in the Y-axis machine 
+direction…but one inch down from what would actually be the top of the part if the part was not 
+rotated. The physical or corresponding rotary angle position will determine the tool vector for the 
+move – in the above example the tool would be perpendicular to the backside of the part. 
+ Simultaneous moves can also be programmed using ABC rotary angles instead of IJK tool vectors if 
+desired. 
+ IJK tool vector tokens are not modal and must be output for every line.  
+ Tool vectors should be output to 6 decimal places. Outputting to only 4 is not sufficient and can 
+cause erratic movement or poor surface finishes. 
+NOTE: tool vector IJK tokens have no unit of measurement – therefore they should remain 
+unchanged when switching between inch and metric. It is recommended that this function be tested 
+by posting a process in both inch and metric - verify the tool vector data in the program did not 
+change.  
+ M129 cancels TCPM. 
+ 
+ 
+G8.2 - ASR (Automatic Safe Repositioning): 
+ 
+G8.2 X-1.0934 Y-1.0941 Z3.5643 I-0.489358 J-0.490234 K0.721248 (ASR Target Position with tool 
+tilted, or not perpendicular to active workplane) 
+(OR) 
+G8.2 X0. Y-0. Z4.0472 I0 J0 K1 (ASR Target Position with tool perpendicular to active workplane) 
+ 
+ ASR is a command buffer that occurs internally within the control, and causes the machine to 
+reposition automatically to a specified target point – without allowing the machine to overtravel in 
+any axes. The post should be triggered to output the necessary G08.2 whenever a reposition of the 
+tool-tip is necessary. The post-processor would simply output a line of NC code with the G08.2, 
+followed by the desired XYZ position and necessary tool vector or rotary angle data. 
+The ASR command causes the machine to find the most optimized path to the new target point by 
+creeping along the machine travel limits, without the operator or post having to designate these 
+moves in the program code.  
+ The rotary angles on the G8.2 line should be output using IJK vectors - to align the tool with the 
+active work coordinate. If rotary ABC axis commands are used, and an offset is applied to the tilting 
+axis in the part setup, the axis will tilt correctly in one direction but mis-position by the same 
+amount in the other direction. 
+ 
+
+G43.4 – Toolpath Linearization: 
+ Toolpath Linearization eliminates gouging of the workpiece, and removes the looped line segments 
+on the part that are formed from the XYZBC or AC moves that a CAM system outputs. 
+ Without linearization, only the starting and ending points of a move are controlled…whatever 
+happens in between is a blind rotation. 
+ With linearization the tool-tip “attached itself to the workpiece” and in the example below, the Z-
+axis would move with the rotation – creating a linear movement between the start and endpoints of 
+the move. 
+ 

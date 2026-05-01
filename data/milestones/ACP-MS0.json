@@ -1,0 +1,57 @@
+{
+  "id": "ACP-MS0",
+  "version": "1.0.0",
+  "title": "Existing Automation Census & Gap Map",
+  "brief": "Inventory slash commands by workflow. Inventory hook definitions + CCM planned work. Inventory core scripts by purpose. Identify partial chains and missing links between existing automation fragments.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Automation Census & Gap Analysis",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory all slash commands grouped by workflow (build, test, deploy, CAD, speed-feed, post, etc.)",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Inventory hook definitions (existing + CCM planned) and map to automation lifecycle stages",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Inventory core scripts by purpose (build guards, quality checks, context management, telemetry)",
+          "effort": 50,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U04",
+          "title": "Cross-reference inventories to identify partial chains (commands with no post-validation, hooks with no follow-up)",
+          "effort": 70,
+          "dependencies": ["P0-U01", "P0-U02", "P0-U03"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Produce gap map document: missing links, unconnected fragments, chains that need wiring",
+          "effort": 60,
+          "dependencies": ["P0-U04"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["ACP-MS0A"],
+  "exit_conditions": [
+    "Complete inventory of slash commands, hooks, and scripts",
+    "Partial chains identified with specific missing links documented",
+    "Gap map produced showing what must be wired for full automation chains"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

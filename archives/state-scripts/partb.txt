@@ -1,0 +1,54 @@
+=== PART B: TOOLPATH DISPATCHER WIRING ===
+Effort: ~4 calls
+
+B1. Read ToolpathStrategyRegistry to identify available methods:
+    prism_dev action=code_search pattern="getStrategies\|getBest\|getByCategory\|getPrismNovel\|getById" path="src/registries/ToolpathStrategyRegistry.ts"  [effort=high]
+    List ALL public methods that are NOT exposed through toolpathDispatcher.
+
+B2. Read current toolpathDispatcher.ts:
+    prism_dev action=file_read path="src/tools/dispatchers/toolpathDispatcher.ts"  [effort=low]
+    Identify the 8 existing actions and what's missing.
+
+B3. Add new actions to toolpathDispatcher.ts:
+    str_replace to add handlers for:
+
+    ACTION: strategy_for_job
+    INPUT: { feature: string, material: string, machine_axes?: number,
+             tool_diameter?: number, depth?: number }
+    LOGIC:
+      1. getStrategiesForFeature(feature) â†’ filter by feature type (pocket, slot, contour, etc.)
+      2. getStrategiesForMaterial(material) â†’ filter by material suitability
+      3. If machine_axes: filter strategies requiring more axes than available
+      4. getBestStrategy(filtered, { material, depth, tool_diameter }) â†’ rank by suitability
+      5. Get cutting parameter presets for top 3 strategies
+    OUTPUT: { recommendations: [{ strategy_name, description, reasoning, params: {Vc, fz, ae, ap},
+              advantages: string[], limitations: string[] }], feature, material }
+
+    ACTION: category_browse
+    INPUT: { category?: string }
+    LOGIC: getStrategiesByCategory(category) or list all categories with counts
+    OUTPUT: { categories: [{name, count, description}] } or { strategies: [{name, description}] }
+
+    ACTION: novel_strategies
+    INPUT: {}
+    LOGIC: getPrismNovelStrategies() â†’ return PRISM-original strategies not in standard CAM
+    OUTPUT: { novel_strategies: [{name, description, use_case, advantages}] }
+
+    ACTION: strategy_detail
+    INPUT: { strategy_id: string }
+    LOGIC: getStrategyById(strategy_id) â†’ full strategy details
+    OUTPUT: Full strategy object with parameters, use cases, limitations
+
+    ACTION: strategy_compare
+    INPUT: { strategy_a: string, strategy_b: string, feature?: string, material?: string }
+    LOGIC: Compare two strategies side-by-side for given conditions
+    OUTPUT: { comparison: { mrr_advantage, tool_life_advantage, surface_finish,
+              recommended: string, reasoning: string } }
+
+B4. Build + verify:
+    prism_dev action=build target=mcp-server  [effort=medium]
+    Restart Claude Desktop.
+    Test: strategy_for_job { feature: "pocket", material: "Inconel 718", machine_axes: 3 }
+    EXPECTED: Trochoidal or HEM recommended, NOT conventional (wrong for superalloys)
+
+=== PART C: THREAD DISPATCHER WIRING ===

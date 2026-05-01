@@ -1,0 +1,346 @@
+{
+  "category": "N_NONFERROUS",
+  "subcategory": "austenitic",
+  "material_count": 1,
+  "generated": "2026-01-26T10:23:20.704160",
+  "materials": [
+    {
+      "id": "N-AL-374",
+      "name": "AA 5083-H321",
+      "designation": {
+        "aa": "5083",
+        "uns": "A95083",
+        "din": "3.3547",
+        "en": "EN AW-5083"
+      },
+      "iso_group": "N",
+      "material_class": "Aluminum - 5xxx Al-Mg",
+      "condition": "H321",
+      "condition_description": "Special marine temper",
+      "composition": {
+        "Al": 94.8,
+        "Mg": 4.4,
+        "Mn": 0.7,
+        "Cr": 0.15
+      },
+      "physical": {
+        "density": 2660,
+        "thermal_conductivity": 117,
+        "elastic_modulus": 71000,
+        "poissons_ratio": 0.33,
+        "specific_heat": 900,
+        "specific_heat_source": "class_default"
+      },
+      "mechanical": {
+        "tensile_strength": {
+          "typical": 333
+        },
+        "yield_strength": {
+          "typical": 195
+        },
+        "elongation": {
+          "typical": 17
+        },
+        "hardness": {
+          "brinell": 97,
+          "source": "estimated_from_tensile"
+        }
+      },
+      "kienzle": {
+        "kc1_1": 890,
+        "mc": 0.23
+      },
+      "taylor": {
+        "C": 547,
+        "n": 0.27
+      },
+      "recommended_cutting": {
+        "turning": {
+          "carbide": {
+            "speed": {
+              "min": 264,
+              "opt": 352,
+              "max": 492
+            }
+          },
+          "pcd": {
+            "speed": {
+              "min": 528,
+              "opt": 704,
+              "max": 1056
+            }
+          }
+        }
+      },
+      "machinability": "Good - improved chip control",
+      "tooling": {
+        "primary": "Uncoated Carbide or PCD",
+        "insert_grade": "K10 Uncoated or PCD",
+        "coating": [
+          "None",
+          "DLC (optional)"
+        ],
+        "geometry": "Sharp positive rake 12-20\u00b0, polished rake face",
+        "coolant": "Flood coolant or MQL",
+        "notes": "High helix cutters, 2-3 flute for chip evacuation"
+      },
+      "applications": [
+        "shipbuilding",
+        "cryogenic",
+        "pressure_vessels"
+      ],
+      "notes": "Marine grade",
+      "chipFormation": {
+        "chipType": {
+          "primary": "CONTINUOUS",
+          "secondary": "varies with parameters"
+        },
+        "shearAngle": {
+          "value": 30,
+          "unit": "degrees",
+          "range": {
+            "min": 25,
+            "max": 36
+          }
+        },
+        "chipCompressionRatio": {
+          "value": 2.0,
+          "range": {
+            "min": 1.5,
+            "max": 3.5
+          }
+        },
+        "segmentationFrequency": {
+          "value": 20,
+          "unit": "kHz"
+        },
+        "builtUpEdge": {
+          "tendency": "MODERATE",
+          "speedRange": {
+            "min": 10,
+            "max": 40,
+            "unit": "m/min"
+          }
+        },
+        "breakability": {
+          "rating": "FAIR",
+          "chipBreakerRequired": false
+        },
+        "colorAtSpeed": {
+          "slow": "silver",
+          "optimal": "straw",
+          "high": "blue"
+        }
+      },
+      "friction": {
+        "toolChipInterface": {
+          "dry": 0.4,
+          "withCoolant": 0.26,
+          "withMQL": 0.31
+        },
+        "toolWorkpieceInterface": {
+          "dry": 0.33,
+          "withCoolant": 0.22
+        },
+        "contactLength": {
+          "stickingZone": {
+            "ratio": 0.35
+          },
+          "slidingZone": {
+            "ratio": 0.65
+          }
+        },
+        "seizureTemperature": {
+          "value": 800,
+          "unit": "C"
+        },
+        "adhesionTendency": {
+          "rating": "HIGH"
+        },
+        "abrasiveness": {
+          "rating": "LOW"
+        },
+        "diffusionWearTendency": {
+          "rating": "MODERATE"
+        }
+      },
+      "thermalMachining": {
+        "cuttingTemperature": {
+          "model": "empirical",
+          "coefficients": {
+            "a": 180,
+            "b": 0.22,
+            "c": 0.08
+          },
+          "maxRecommended": {
+            "value": 450,
+            "unit": "C"
+          }
+        },
+        "heatPartition": {
+          "chip": 0.85,
+          "tool": 0.09,
+          "workpiece": 0.05,
+          "coolant": 0.01
+        },
+        "coolantEffectiveness": {
+          "flood": 0.3,
+          "mist": 0.1,
+          "mql": 0.22,
+          "cryogenic": 0.35
+        },
+        "thermalDamageThreshold": {
+          "whiteLayer": 530,
+          "overTempering": 270,
+          "burning": 650
+        }
+      },
+      "surfaceIntegrity": {
+        "residualStress": {
+          "surface": -60,
+          "subsurface": 36,
+          "unit": "MPa",
+          "depth": 50
+        },
+        "workHardening": {
+          "depthAffected": 65,
+          "hardnessIncrease": 12,
+          "strainHardeningExponent": 0.15
+        },
+        "surfaceRoughness": {
+          "roughing": {
+            "Ra": 4.5
+          },
+          "finishing": {
+            "Ra": 0.8
+          },
+          "unit": "um"
+        },
+        "metallurgicalDamage": {
+          "whiteLayerRisk": "NONE",
+          "microcrackRisk": "LOW"
+        },
+        "burr": {
+          "tendency": "HIGH",
+          "type": "rollover"
+        }
+      },
+      "statisticalData": {
+        "dataPoints": 95,
+        "confidenceLevel": 0.86,
+        "standardDeviation": {
+          "speed": 3.2,
+          "force": 165,
+          "toolLife": 11
+        },
+        "sources": [
+          "ASM Handbook Vol 16",
+          "Machining Data Handbook 3rd Ed"
+        ],
+        "lastValidated": "2026-Q1",
+        "reliability": "ESTIMATED"
+      },
+      "_category": "N_NONFERROUS",
+      "_subcategory": "austenitic",
+      "kc1_1": {
+        "value": 2760.0,
+        "unit": "N/mm2",
+        "uncertainty": 414.0,
+        "confidence": 0.85,
+        "source": "calculated_correlation",
+        "method": "Kienzle_hardness_tensile_correlation"
+      },
+      "taylor_C": {
+        "value": 87.0,
+        "unit": "m/min",
+        "uncertainty": 17.4,
+        "confidence": 0.8,
+        "source": "calculated_correlation"
+      },
+      "taylor_n": {
+        "value": 0.18,
+        "unit": "dimensionless",
+        "uncertainty": 0.027,
+        "confidence": 0.85,
+        "source": "calculated_correlation"
+      },
+      "jc_A": {
+        "value": 460.0,
+        "unit": "MPa",
+        "uncertainty": 69.0,
+        "confidence": 0.8,
+        "source": "calculated_correlation"
+      },
+      "jc_B": {
+        "value": 276.0,
+        "unit": "MPa",
+        "uncertainty": 55.0,
+        "confidence": 0.75,
+        "source": "calculated_correlation"
+      },
+      "jc_n": {
+        "value": 0.35,
+        "unit": "dimensionless",
+        "uncertainty": 0.052,
+        "confidence": 0.8,
+        "source": "literature_typical"
+      },
+      "jc_C": {
+        "value": 0.008,
+        "unit": "dimensionless",
+        "uncertainty": 0.002,
+        "confidence": 0.75,
+        "source": "literature_typical"
+      },
+      "jc_m": {
+        "value": 0.8,
+        "unit": "dimensionless",
+        "uncertainty": 0.12,
+        "confidence": 0.8,
+        "source": "literature_typical"
+      },
+      "_enhanced": true,
+      "_enhanced_date": "2026-01-26T10:45:58.590383",
+      "_safety_factor": 1.15,
+      "_physics_mode": "accurate",
+      "johnson_cook": {
+        "A": 150,
+        "A_source": "class_default",
+        "B": 350,
+        "B_source": "class_default",
+        "n": 0.4,
+        "n_source": "class_default",
+        "C": 0.01,
+        "C_source": "class_default",
+        "m": 1.3,
+        "m_source": "class_default",
+        "T_melt": 660,
+        "T_melt_source": "class_default",
+        "T_ref": 20,
+        "epsilon_ref": 1.0
+      },
+      "_enhancement": {
+        "timestamp": "2026-01-27T13:51:21.440644",
+        "version": "1.0",
+        "changes": [
+          "J-C A set to class default 150",
+          "J-C B set to class default 350",
+          "J-C n set to class default 0.4",
+          "J-C C set to class default 0.01",
+          "J-C m set to class default 1.3",
+          "T_melt set to class default",
+          "specific_heat set to class default",
+          "Brinell hardness estimated from tensile: 97"
+        ],
+        "confidence": "estimated"
+      }
+    }
+  ],
+  "enhanced_date": "2026-01-26T10:45:58.590383",
+  "physics_complete": true,
+  "physics_mode": "accurate",
+  "_enhanced": {
+    "timestamp": "2026-01-27T13:51:21.440644",
+    "version": "1.0"
+  }
+}

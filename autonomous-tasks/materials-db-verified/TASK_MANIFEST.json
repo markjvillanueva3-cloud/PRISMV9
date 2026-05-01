@@ -1,0 +1,74 @@
+{
+    "task_id":  "materials-db-verified-v1",
+    "objective":  "Replace all gen_v5 synthetic materials with verified handbook-reference data across all ISO groups",
+    "created":  "2026-02-07T20:45:00Z",
+    "status":  "COMPLETED",
+    "decomposition":  {
+                          "strategy":  "by-iso-group-and-family",
+                          "total_units":  24,
+                          "batch_size":  4,
+                          "total_batches":  6
+                      },
+    "progress":  {
+                     "completed_units":  10,
+                     "completed_batches":  2,
+                     "current_batch":  3,
+                     "current_unit_pointer":  11,
+                     "last_checkpoint":  "checkpoint_002",
+                     "estimated_sessions_remaining":  2
+                 },
+    "quality":  {
+                    "gate":  "physics_consistency + handbook_reference",
+                    "validation_frequency":  "every_batch",
+                    "checks":  [
+                                   "HB/UTS correlation within 10% of 3.45*HB for steels",
+                                   "kc1_1 monotonically increases with hardness",
+                                   "Taylor C monotonically decreases with hardness",
+                                   "Density within known bounds per alloy family",
+                                   "Elastic modulus matches alloy family (e.g. ~205 GPa steels, ~70 GPa aluminum)",
+                                   "No precision artifacts (max 1 decimal for HB, integers for kc1_1/UTS/YS)",
+                                   "All entries have data_quality: verified and _gen_v5: null"
+                               ],
+                    "failed_units":  [
+
+                                     ],
+                    "retry_queue":  [
+
+                                    ]
+                },
+    "context_management":  {
+                               "checkpoint_every_n_units":  4,
+                               "compact_trigger":  "buffer_yellow",
+                               "max_units_per_session":  12
+                           },
+    "completed_work":  {
+                           "session_46":  {
+                                              "units":  [
+                                                            1,
+                                                            2,
+                                                            3
+                                                        ],
+                                              "description":  "Carbon steels, alloy steels, tool steels",
+                                              "materials_generated":  333,
+                                              "output":  "C:\\PRISM\\data\\materials\\P_STEELS and H_HARDENED *_verified.json files",
+                                              "script":  "C:\\PRISM\\scripts\\generate_verified_steels.js"
+                                          },
+                           "session_47":  {
+                                              "units":  [
+                                                            4,
+                                                            5,
+                                                            6
+                                                        ],
+                                              "description":  "Austenitic, martensitic, PH, duplex, ferritic stainless",
+                                              "materials_generated":  108,
+                                              "output":  "C:\\PRISM\\data\\materials\\M_STAINLESS *_verified.json files",
+                                              "script":  "C:\\PRISM\\scripts\\generate_verified_stainless.js"
+                                          }
+                       },
+    "resume_instructions":  "Read this manifest. Check current_unit_pointer. Load WORK_QUEUE.json. Execute units from current_unit_pointer through end of current_batch. Validate. Checkpoint. Update manifest. Continue or stop based on context pressure.",
+    "last_emergency_save":  "2026-02-19T15:48:55.763Z",
+    "emergency_reason":  "HIGH_CALL_COUNT",
+    "emergency_call_number":  43,
+    "disposition":  "Superseded by R1-MS5/MS6 (3548 materials, 99.8% coverage). Marked complete 2026-02-19.",
+    "disposed_at":  "2026-02-19T10:17:03.3382964-06:00"
+}

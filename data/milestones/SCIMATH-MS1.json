@@ -1,0 +1,50 @@
+{
+  "id": "SCIMATH-MS1",
+  "version": "1.0.0",
+  "title": "Symbolic Calculus, PDE Solvers & FEM Expansion",
+  "brief": "Automatic differentiation, Gauss quadrature, FDM thermal/elastic, FEM 2D/3D, thermo-mechanical coupling, residual stress prediction.",
+  "track": "SCIMATH",
+  "created_at": "2026-04-01T14:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "not_started",
+  "total_units": 20,
+  "completed_units": 0,
+  "dependencies": ["SCIMATH-MS0"],
+  "phases": [
+    {"id": "P0", "title": "Symbolic Calculus Engine", "units": [
+      {"id": "P0-U01", "title": "SymbolicDifferentiationEngine — AD forward+reverse mode", "status": "not_started"},
+      {"id": "P0-U02", "title": "NumericalIntegrationEngine — Gauss-Legendre/Lobatto/Monte Carlo", "status": "not_started"},
+      {"id": "P0-U03", "title": "CalculusRegistryUpdate — manufacturing derivative formulas", "status": "not_started"},
+      {"id": "P0-U04", "title": "CalculusDispatcherActions — wire to calcDispatcher", "status": "not_started"}
+    ]},
+    {"id": "P1", "title": "Finite Difference Method (FDM)", "units": [
+      {"id": "P1-U01", "title": "FDMSolverEngine — 1D/2D explicit/implicit/Crank-Nicolson/ADI", "status": "not_started"},
+      {"id": "P1-U02", "title": "FDMThermalFieldEngine — 2D heat equation with moving source", "status": "not_started"},
+      {"id": "P1-U03", "title": "FDMElasticityEngine — 2D plane stress/strain", "status": "not_started"},
+      {"id": "P1-U04", "title": "FDMValidationSuite — analytical solution comparison", "status": "not_started"}
+    ]},
+    {"id": "P2", "title": "FEM Expansion to 2D/3D", "units": [
+      {"id": "P2-U01", "title": "FEM2DQuadEngine — 4/8-node quad isoparametric", "status": "not_started"},
+      {"id": "P2-U02", "title": "FEM2DTriEngine — 3/6-node triangular", "status": "not_started"},
+      {"id": "P2-U03", "title": "FEM3DHexEngine — 8-node hexahedral (Phase B only)", "status": "not_started"},
+      {"id": "P2-U04", "title": "FEMNonlinearEngine — Newton-Raphson with line search", "status": "not_started"},
+      {"id": "P2-U05", "title": "FEMThermalCoupledEngine — sequential/staggered coupling", "status": "not_started"}
+    ]},
+    {"id": "P3", "title": "Special PDE Solvers", "units": [
+      {"id": "P3-U01", "title": "MethodOfLinesEngine — semi-discrete PDE+ODE", "status": "not_started"},
+      {"id": "P3-U02", "title": "ConvectionDiffusionEngine — SUPG stabilization", "status": "not_started"},
+      {"id": "P3-U03", "title": "ResidualStressFEMEngine — layer-by-layer material removal", "status": "not_started"},
+      {"id": "P3-U04", "title": "PDEDispatcherActions — 12 actions wired", "status": "not_started"}
+    ]},
+    {"id": "P4", "title": "Integration & Validation", "units": [
+      {"id": "P4-U01", "title": "FEMTestSuite — 50 cases including NAFEMS benchmarks", "status": "not_started"},
+      {"id": "P4-U02", "title": "PhysicsFusionFEMPlugin — tier-3 FEM integration", "status": "not_started"},
+      {"id": "P4-U03", "title": "FormulaRegistryUpdate_PDE — stability criteria, convergence", "status": "not_started"}
+    ]}
+  ],
+  "forge_triple": {
+    "hook": "enforce-fem-mesh-quality",
+    "action": "scimath_pde (12 sub-actions)",
+    "skill": "/scimath-fem"
+  }
+}

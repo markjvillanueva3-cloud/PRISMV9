@@ -1,0 +1,66 @@
+{
+  "id": "MXU-MS5",
+  "version": "1.0.0",
+  "title": "Hook, Script, Agent & Worktree Orchestration",
+  "brief": "Reconcile hook truth source. Implement phase-aware hook activation. Define script recommendation rules. Coordinate agent teams with existing forge-team/pipeline-team patterns. Add telemetry for orchestration quality.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Hook Reconciliation & Phase Awareness",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Reconcile hook truth: single source between settings.json, CLAUDE.md, and hook scripts",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement phase-aware hook activation: activate/deactivate hooks based on current workflow phase",
+          "effort": 80,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define script recommendation rules: suggest scripts based on detected work class",
+          "effort": 60,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Agent Coordination & Telemetry",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Agent team coordination: integrate with forge-team/pipeline-team patterns for multi-agent work",
+          "effort": 70,
+          "dependencies": ["P0-U02"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Worktree orchestration: coordinate worktree lifecycle with agent teams and hook phases",
+          "effort": 60,
+          "dependencies": ["P1-U01"]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Add orchestration telemetry: hook fire rates, script usage, agent team outcomes",
+          "effort": 50,
+          "dependencies": ["P1-U01", "P1-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS1", "CCM-MS0"],
+  "exit_conditions": ["Hook truth reconciled to single source", "Phase-aware hook activation working", "Agent teams coordinated with existing patterns", "Orchestration telemetry collecting data"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

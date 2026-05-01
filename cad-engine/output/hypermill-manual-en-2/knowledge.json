@@ -1,0 +1,214 @@
+{
+  "schema_version": "2.0.0",
+  "video_id": "hypermill-manual-en-2",
+  "items": [
+    {
+      "id": "cam-safety-001",
+      "category": "safety_warning",
+      "domain": "cam",
+      "title": "Safety: be slightly larger than the radius of the tool",
+      "body": "be slightly larger than the radius of the tool",
+      "confidence": 0.8,
+      "tags": [
+        "safety",
+        "always"
+      ]
+    },
+    {
+      "id": "cam-safety-002",
+      "category": "safety_warning",
+      "domain": "cam",
+      "title": "Safety: aligned with the z axis of the defined frame system",
+      "body": "aligned with the z axis of the defined frame system",
+      "confidence": 0.8,
+      "tags": [
+        "safety",
+        "always"
+      ]
+    },
+    {
+      "id": "cam-safety-003",
+      "category": "safety_warning",
+      "domain": "cam",
+      "title": "Safety: message is output",
+      "body": "message is output",
+      "confidence": 0.8,
+      "tags": [
+        "safety",
+        "warning"
+      ]
+    },
+    {
+      "id": "cam-safety-004",
+      "category": "safety_warning",
+      "domain": "cam",
+      "title": "Safety: with perpendicular walls (residual stock)",
+      "body": "with perpendicular walls (residual stock)",
+      "confidence": 0.8,
+      "tags": [
+        "safety",
+        "hazard"
+      ]
+    },
+    {
+      "id": "cam-safety-005",
+      "category": "safety_warning",
+      "domain": "cam",
+      "title": "Safety: checked using the milling area",
+      "body": "checked using the milling area",
+      "confidence": 0.8,
+      "tags": [
+        "safety",
+        "hazard"
+      ]
+    },
+    {
+      "id": "cam-proc-006",
+      "category": "procedure",
+      "domain": "cam",
+      "title": "CAM workflow: hyperMILL Manual Part 2 - Turning",
+      "body": "1. path or during retraction after the last path\n2. path or during retraction after the last path\n3. path or during retraction after the last path\n4. path or during retraction after the last path\n5. path or during retraction after the last path\n6. path or during retraction after the last path\n7. path or during retraction after the last path\n8. path or during retraction after the last path\n9. machining plane\n10. cut parallel to the turning axis\n11. machining plane\n12. cut parallel to the turning axis\n13. continues along the x axis of the defined frame\n14. continues along the x axis of the defined frame\n15. continues along the x axis of the defined frame\n16. continues along the x axis of the defined frame\n17. continues along the x axis of the defined frame\n18. rapid retract to the clearance radius\n19. rapid retract at feedrate up to the clearance radius\n20. rapid retract to the clearance radius\n21. thread turn, calculated within the cycle",
+      "confidence": 0.7,
+      "tags": [
+        "procedure",
+        "workflow",
+        "cam"
+      ],
+      "steps": [
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "path or during retraction after the last path",
+        "machining plane",
+        "cut parallel to the turning axis",
+        "machining plane",
+        "cut parallel to the turning axis",
+        "continues along the x axis of the defined frame",
+        "continues along the x axis of the defined frame",
+        "continues along the x axis of the defined frame",
+        "continues along the x axis of the defined frame",
+        "continues along the x axis of the defined frame",
+        "rapid retract to the clearance radius",
+        "rapid retract at feedrate up to the clearance radius",
+        "rapid retract to the clearance radius",
+        "thread turn, calculated within the cycle"
+      ],
+      "step_count": 21
+    },
+    {
+      "id": "cam-rule-007",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Use this ( hypermill maxx machining for turning jobs)",
+      "body": "Decision rule: use this ( hypermill maxx machining when turning jobs)",
+      "confidence": 0.65,
+      "tags": [
+        "decision-rule",
+        "cam"
+      ],
+      "conditions": [
+        "turning jobs)"
+      ]
+    },
+    {
+      "id": "cam-rule-008",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Use sections: enable for machining should be done in sections (2)",
+      "body": "Decision rule: use sections: enable when machining should be done in sections (2)",
+      "confidence": 0.65,
+      "tags": [
+        "decision-rule",
+        "cam"
+      ],
+      "conditions": [
+        "machining should be done in sections (2)"
+      ]
+    },
+    {
+      "id": "cam-rule-009",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "Use part catcher: enable for a part catcher should be swung in",
+      "body": "Decision rule: use part catcher: enable when a part catcher should be swung in",
+      "confidence": 0.65,
+      "tags": [
+        "decision-rule",
+        "cam"
+      ],
+      "conditions": [
+        "a part catcher should be swung in"
+      ]
+    },
+    {
+      "id": "cam-tools-010",
+      "category": "tribal_tip",
+      "domain": "cam",
+      "title": "Tool selection for CAM job",
+      "body": "Recommended tools: drill; boring bar; tap; insert; thread mill",
+      "confidence": 0.7,
+      "tags": [
+        "tooling",
+        "tool-selection"
+      ]
+    },
+    {
+      "id": "cam-strat-011",
+      "category": "decision_rule",
+      "domain": "cam",
+      "title": "CAM strategy: Parallel",
+      "body": "Parallel passes for smooth floor/surface finishing. Context: ur parallel turning: roughing of turning stock of any shape parallel to contour.\nfinishing: contour parallel finishing of workpieces of any shape based on a preceding roughing operation.\nrollfeed turn",
+      "confidence": 0.7,
+      "tags": [
+        "cam-strategy",
+        "toolpath",
+        "parallel"
+      ]
+    },
+    {
+      "id": "cam-gcode-012",
+      "category": "tribal_tip",
+      "domain": "cam",
+      "title": "G-code commands used: G0, G41, G42",
+      "body": "G-codes referenced in tutorial: G0, G41, G42",
+      "confidence": 0.75,
+      "tags": [
+        "gcode",
+        "cnc-programming"
+      ],
+      "parameters": {
+        "gcodes": [
+          "G0",
+          "G41",
+          "G42"
+        ],
+        "mcodes": []
+      }
+    }
+  ],
+  "metadata": {
+    "title": "hyperMILL Manual Part 2 - Turning",
+    "primary_domain": "cam",
+    "domain_confidence": 1.0,
+    "source_type": "document",
+    "uploader": null,
+    "document_metadata": {
+      "author": null,
+      "publication_title": "hyperMILL Manual Part 2 - Turning",
+      "publication_date": "D:20260109072324-06'00",
+      "doi": null,
+      "page_count": 33,
+      "format": "pdf",
+      "url": null,
+      "doc_type": "technical_manual"
+    }
+  },
+  "extraction_stats": {
+    "total_items": 12,
+    "extraction_mode": "offline"
+  }
+}

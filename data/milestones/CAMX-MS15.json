@@ -1,0 +1,146 @@
+{
+  "id": "CAMX-MS15",
+  "version": "7.0.0",
+  "title": "Self-Learning Strategy Optimizer",
+  "brief": "Track actual vs predicted performance. Bayesian strategy ranking updates. Anomaly detection. Fleet learning. Strategy evolution. Physics calibration.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Self-Learning System",
+      "units": [
+        {
+          "id": "U01",
+          "title": "StrategyPerformanceTrackerEngine",
+          "description": "Track actual vs predicted: cycle time, tool life, Ra, force, power.",
+          "exit_conditions": [
+            "Performance tracking works",
+            "Prediction accuracy computed",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "StrategyRankingUpdateEngine",
+          "description": "Bayesian updating of rankings from results. Wilson score CI.",
+          "exit_conditions": [
+            "Bayesian updating works",
+            "Per-material/tool calibration",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "AnomalyDetectionEngine",
+          "description": "Mahalanobis distance anomaly detection. Auto-adjust when actual deviates.",
+          "exit_conditions": [
+            "Anomalies detected",
+            "Auto-adjustment",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "FleetLearningStrategyEngine",
+          "description": "Aggregate across machines/shops/users. Hierarchical Bayesian shrinkage.",
+          "exit_conditions": [
+            "Fleet learning works",
+            "Transfer learning",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "StrategyEvolutionEngine",
+          "description": "Genetic algorithm for strategy parameter exploration.",
+          "exit_conditions": [
+            "GA exploration works",
+            "Discovers better params",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "PredictionCalibrationEngine",
+          "description": "Continuously calibrate Kienzle kc1.1, Taylor C/n from measurements.",
+          "exit_conditions": [
+            "Auto-calibration works",
+            "Per-machine per-material",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Dispatcher wiring",
+          "description": "6 actions.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests",
+          "description": "30+ tests.",
+          "exit_conditions": [
+            "30+ tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Wire SelfLearningCAMEngine into P2P",
+          "description": "Feed production results back to improve future programs.",
+          "exit_conditions": [
+            "Learning loop active",
+            "Proven recipes stored",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Wire PhysicsAutoCalibrationEngine into SFO",
+          "description": "Auto-calibrate from actual force/life measurements.",
+          "exit_conditions": [
+            "Auto-calibration in SFO",
+            "Constants improve with data",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "Wire TransferLearningEngine",
+          "description": "Transfer physics from closest known material/tool for cold-start.",
+          "exit_conditions": [
+            "Transfer learning works",
+            "Reduces cold-start",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "Wire FeedbackPersistence + MLFeedback",
+          "description": "Persist all decisions+outcomes. Train gradient-boosted predictor.",
+          "exit_conditions": [
+            "Persistence active",
+            "ML predictor trained",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

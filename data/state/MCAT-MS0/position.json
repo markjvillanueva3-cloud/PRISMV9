@@ -1,0 +1,127 @@
+{
+  "roadmap_id": "MCAT-MS0",
+  "roadmap_file": "mcp-server/data/milestones/MCAT-MS0.json",
+  "version": "1.1.0",
+  "current_phase": "P1",
+  "current_unit": "P1-U01",
+  "status": "IN_PROGRESS",
+  "units_completed": 4,
+  "total_units": 21,
+  "percent_complete": 19,
+  "created_at": "2026-04-01T02:30:00Z",
+  "updated_at": "2026-04-02T00:05:47.6772973Z",
+  "history": [
+    {
+      "at": "2026-04-01T02:50:00Z",
+      "phase": "P0",
+      "unit": "P0-U04",
+      "status": "completed",
+      "note": "Completed source+consumer inventory, taxonomy, package schema, and initial gap matrix. Calculator normalization now carries canonical taxonomy and package provenance metadata."
+    },
+    {
+      "at": "2026-04-01T13:18:55.621Z",
+      "phase": "P1",
+      "unit": "P1-U01",
+      "status": "working",
+      "note": "ProgramReleaseCatalogEngine now projects enriched spindle-capable machine profiles instead of a three-machine demo list, giving Print to CNC a real downstream bridge onto the machine-catalog convergence lane while canonical package/overlay reuse remains in progress."
+    },
+    {
+      "at": "2026-04-01T13:31:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U01",
+      "status": "working",
+      "note": "Added a reusable Program Release machine-search surface so downstream consumers can query the same projected release-safe machine catalog instead of rebuilding separate machine lists."
+    },
+    {
+      "at": "2026-04-01T13:40:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Extended the downstream machine-search surface with controller and kinematics facets so categorized selectors can reuse one normalized vocabulary instead of inventing their own groupings."
+    },
+    {
+      "at": "2026-04-01T13:49:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Added a direct Program Release machine lookup surface on top of the shared projected catalog so downstream consumers can resolve one normalized machine summary by id without loading or filtering the full catalog first."
+    },
+    {
+      "at": "2026-04-01T13:57:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Expanded the shared downstream machine-search surface to return manufacturer, controller, and kinematics facets so grouped selectors can converge on one normalized vocabulary."
+    },
+    {
+      "at": "2026-04-01T14:05:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Hardened the shared manufacturer facet generation so multi-word brands like DMG MORI remain intact instead of being split into misleading one-token labels."
+    },
+    {
+      "at": "2026-04-01T14:14:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Extended the frontend operating-system seam so downstream desks can consume Program Release machine catalog, search, facet, and direct-lookup surfaces without rebuilding separate machine grouping logic."
+    },
+    {
+      "at": "2026-04-01T14:23:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "ProgramReleasePage now adopts the shared Program Release machine-search surface when available, so the first downstream desk begins consuming the converged machine selector instead of only the bulk catalog payload."
+    },
+    {
+      "at": "2026-04-01T14:33:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Introduced normalized machine family ids/labels and family facets into the shared Program Release machine surface so downstream consumers can group by a structured vocabulary instead of parsing freeform kinematics text."
+    },
+    {
+      "at": "2026-04-01T14:39:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Hardened ProgramReleasePage route-driven machine selection so a routed machine id can be resolved through direct lookup even when it falls outside the current machine-search result window."
+    },
+    {
+      "at": "2026-04-01T14:46:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Extended the shared Program Release machine search so manufacturer and normalized family filters can drive actual narrowing, not just facet display, keeping live and fixture search behavior aligned."
+    },
+    {
+      "at": "2026-04-01T14:52:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Aligned the frontend live/fixture seam with the structured facet contract so manufacturer and family facets now carry ids and labels consistently in fallback mode too."
+    },
+    {
+      "at": "2026-04-01T14:58:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "ProgramReleasePage now accepts route-driven machineManufacturer and machineFamilyId context so upstream desks can prefilter against the normalized shared machine vocabulary before dedicated UI controls land."
+    },
+    {
+      "at": "2026-04-01T15:07:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U02",
+      "status": "working",
+      "note": "Normalized manufacturer facets into canonical id/label pairs and aligned live/fixture fallback behavior so brand filters can use stable keys instead of raw display strings."
+    },
+    {
+      "at": "2026-04-02T00:05:47.6772973Z",
+      "phase": "P1",
+      "unit": "P1-U01",
+      "status": "working",
+      "note": "Audited existing machine-profile, inventory, ROI, and purchase surfaces and extended MCAT-MS0 to absorb calculator PRISM mode rather than opening a new roadmap. Added future units for inventory-aware auto-selection plus ranked budget/standard/premium acquisition recommendations."
+    }
+  ]
+}

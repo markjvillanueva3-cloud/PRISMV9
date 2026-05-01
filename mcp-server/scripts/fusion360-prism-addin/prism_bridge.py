@@ -25,7 +25,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # -- Configuration --------------------------------------------------------
 
-DEFAULT_SERVER_URL = "http://localhost:18361"
+DEFAULT_SERVER_URL = "http://localhost:3100"
 TIMEOUT_SECONDS = 5
 MAX_RETRIES = 1
 RETRY_DELAY_SECONDS = 0.5

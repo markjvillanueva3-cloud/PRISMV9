@@ -1,0 +1,170 @@
+Dynamic Milling
+June 2014
+
+Mastercam® X8 Dynamic Milling
+Date: June 2014
+Copyright © 2014 CNC Software, Inc.— All rights reserved.
+Software: Mastercam X8
+TERMS OF USE Use of this document is subject to the Mastercam End User License Agreement. A 
+copy of the Mastercam End User License Agreement is included with the 
+Mastercam product package of which this document is part. The Mastercam End 
+User License Agreement can also be found at: 
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+ 
+Be sure you 
+have the latest 
+information!
+Information might have been changed or added since this document was 
+published. The latest version of this document is installed with Mastercam or can 
+be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)—installed 
+with each release—includes the latest information about Mastercam features and 
+enhancements.
+
+   iii
+Contents
+Introduction.......................................................................................................  1
+ Tutorial Goals................................................................................................. 3
+1. Dynamic Milling Overview.................................................... 5
+ Chain Selection for Dynamic Toolpaths...................................................... 5
+ Dynamic Mill (Stay Inside strategy) ........................................................... 6
+ Dynamic Mill (Rest Material strategy) ....................................................... 7
+ Dynamic Mill (From Outside Strategy)....................................................... 7
+ Dynamic Contour .......................................................................................... 8
+ Dynamic Milling Parameters ....................................................................... 9
+2. Chain and Entry Selection...................................................  11
+ Lesson Goals ............................................................................................... 11
+ Exercise 1: Preparing Mastercam for Toolpath Creation ..................... 11
+ Exercise 2: Creating a Dynamic Toolpath............................................ 12
+ Exercise 3: Adding Avoidance Regions to an Operation...................... 15
+ Exercise 4: Adding Containment Regions to an Operation .................. 18
+ Exercise 5: Selecting an Entry Method ............................................... 20
+ Exercise 6: Adding Air regions to an Operation................................... 22
+3. Dynamic Mill Toolpath (Stay Inside Strategy)....................  25
+ Lesson Goals ............................................................................................... 25
+ Exercise 1: Preparing Mastercam for Toolpath Creation ..................... 25
+ Exercise 2: Creating a Dynamic Mill Toolpath..................................... 26
+ Exercise 3: Creating a Pocket Toolpath............................................... 31
+ Exercise 4: Comparing the Operations ................................................34
+
+iv  MASTERCAM X8
+4. Dynamic Mill Toolpath (Rest Mill Strategy) ....................... 37
+ Lesson Goals............................................................................................... 37
+ Exercise 1: Preparing Mastercam for Toolpath Creation...................... 37
+ Exercise 2: Creating a Dynamic Mill Toolpath .....................................38
+ Exercise 3: Creating An Area Mill Toolpath .........................................44
+ Exercise 4: Comparing the Operations ................................................48
+5. Dynamic Mill Toolpath (From Outside Strategy) ................ 51
+ Lesson Goals............................................................................................... 51
+ Exercise 1: Preparing Mastercam for Toolpath Creation...................... 51
+ Exercise 2: Creating a Dynamic Mill Toolpath .....................................52
+ Exercise 3: Creating a Pocket Toolpath ...............................................56
+ Exercise 4: Comparing the Operations ................................................59
+6. Dynamic Contour Toolpath.................................................. 61
+ Lesson Goals............................................................................................... 61
+ Exercise 1: Preparing Mastercam for Toolpath Creation...................... 61
+ Exercise 2: Creating a Dynamic Contour Toolpath............................... 62
+ Exercise 3: Creating a Contour Toolpath ............................................. 65
+ Exercise 4: Comparing the Operations ................................................67
+Conclusion......................................................................................................... 69
+ Mastercam Resources............................................................................... 69
+ Mastercam Documentation....................................................................... 70
+
+Introduction
+Mastercam’s 2D high speed dynamic milling toolpaths utilize the entire flute length of 
+their cutting tools to achieve great efficiency in milling. They are designed to maximize 
+material removal while minimizing tool wear. 
+Additional benefits you gain by using high speed dynamic milling toolpaths include:
+ Tool burial avoidance
+ Minimum heat buildup
+ Better chip evacuation
+This tutorial introduces you to all of the following intelligent application-specific 2D 
+high speed dynamic milling toolpaths available in Mastercam.
+Dynamic Mill (Stay Inside Strategy)—Machines pockets using one or more chains to 
+drive the toolpath. This strategy is enabled by default.
+Dynamic Mill (From Outside Strategy)—Machines open pocket shapes or standing 
+core shapes using the outmost chain as the stock boundary. The tool moves freely 
+
+
+2  MASTERCAM X8/ Introduction
+DYNAMIC MILLING
+outside of this area.The toolpath starts from the outside and works its way towards the 
+inner boundary. 
+Dynamic Mill (Rest Mill Strategy) —Targets material left from previous operations. 
+Dynamic motion is used to rapidly remove material left by previous operations or by a 
+specified tool size. Use this strategy when the roughing tools leave material in corners 
+or narrow part areas. 
+Dynamic Contour— Mills material off walls supporting closed or open chains. The tool 
+motion converts to dynamic in areas where the tool would bind or encounter too 
+much material. Use Dynamic Contour on walls or contours that contain small radii. 
+
+
+TUTORIAL GOALS   3
+DYNAMIC MILLING
+Tutorial Goals
+ Learn the benefits and uses of the Dynamic toolpath types
+ Understand chaining and entry options specific to Dynamic toolpaths
+ Create basic Dynamic toolpaths
+ Compare and contrast the Dynamic toolpaths with their non-Dynamic 
+counterparts.
+IMPORTANT: Screen colors in the tutorial pictures were modified to 
+enhance image quality; they may not match your Mastercam settings or 
+the tutorial results. These color differences do not affect the lesson or 
+the exercise results.
+General Tutorial Requirements
+All Mastercam tutorials have the following general requirements:
+ You must be comfortable using the Windows® operating system.
+ The tutorials cannot be used with Mastercam Demo/Home Learning Edition 
+(HLE). The Demo/HLE file format (EMCX-8) is different from Mastercam (MCX-
+8), and basic Mastercam functions, such as file conversions and posting, are 
+unavailable.
+ Each lesson in the tutorial builds on the mastery of preceding lesson’s skills. 
+We recommend that you complete them in order. 
+ Additional files may accompany a tutorial. Unless the tutorial provides specific 
+instructions on where to place these files, store them in a folder that can be 
+accessed from the Mastercam workstation, either with the tutorial or in any 
+location that you prefer.
+ You will need an internet connection to view videos that are referenced in the 
+tutorials. All videos can be found on our YouTube channel: 
+www.youtube.com/user/MastercamTechDocs.
+ All Mastercam tutorials require you to configure Mastercam to work in a 
+default metric or English configuration. The tutorial provides instructions for 
+loading the appropriate configuration file.
+
+4  MASTERCAM X8/ Introduction
+DYNAMIC MILLING
+
+LESSON 1
+1Dynamic Milling Overview
+Mastercam’s 2D high speed toolpaths (HST) contain two types that utilize dynamic 
+motion:
+ Dynamic Mill 
+ Dynamic Contour
+Dynamic toolpaths utilize as much of the tool’s flute length as possible, while mini-
+mizing tool burial. This method enables the toolpath to rapidly and efficiently remove 
+the maximum amount of material and extend tool life at the same time.
+Chain Selection for Dynamic Toolpaths
+Dynamic Mill and Dynamic Contour require a unique way of understanding chain 
+selection. Dynamic Mill requires at least one Machining region defined, which can be 
+either a closed chain or open chain. Any remaining geometry can be defined as an 
+Avoidance region, Containment region, or Air region.
+
+
+6  MASTERCAM X8/ Dynamic Milling Overview
+DYNAMIC MILLING
+Dynamic Contour does not require a closed chain to calculate a toolpath. All geometry 
+selected will be cut by the tool motion. 
+Chaining options are explored further throughout subsequent lessons.
+Dynamic Mill (Stay Inside strategy)
+Dynamic Mill with the Machining region strategy set to Stay Inside is a pocket tool-
+path that utilizes dynamic motion. A boundary is selected; islands, bosses, and geom-
+etry to avoid are added; tooling, parameters, entry method, and linking values are 
+entered; and the toolpath is generated. Material is removed from the inside to the 
+outside in a highly efficient manner.
+
+
+DYNAMIC MILL (REST MATERIAL STRATEGY)   7
+DYNAMIC MILLING
+Dynamic Mill (Rest Material strategy)
+Dynamic Mill with the Rest Mill strategy enabled specializes in removing material left 
+by previous operations using dynamic motion. The material to remove is calculated by 
+previous operations or previou

@@ -1,0 +1,312 @@
+{
+  "version": "1.0",
+  "created": "2026-01-30",
+  "total_skills": 120,
+  "total_branches": 20,
+  "policy": "MAXIMUM_UTILIZATION",
+  
+  "tree": {
+    "L0_CORE": {
+      "description": "Always-On - Load every session, cannot be disabled",
+      "load_policy": "ALWAYS",
+      "priority": 0,
+      "inheritance": "ROOT",
+      "count": 15,
+      "skills": [
+        "prism-anti-regression",
+        "prism-combination-engine",
+        "prism-deep-learning",
+        "prism-formula-evolution",
+        "prism-hook-system",
+        "prism-life-safety-mindset",
+        "prism-mandatory-microsession",
+        "prism-mathematical-planning",
+        "prism-maximum-completeness",
+        "prism-predictive-thinking",
+        "prism-prompt-engineering",
+        "prism-skill-deployer",
+        "prism-skill-orchestrator",
+        "prism-tree-navigator",
+        "prism-uncertainty-propagation"
+      ]
+    },
+    
+    "L1_COGNITIVE": {
+      "description": "Complex multi-resource reasoning tasks",
+      "load_policy": "ON_COMPLEX_TASK",
+      "priority": 1,
+      "parent": "L0_CORE",
+      "count": 8,
+      "skills": [
+        "prism-agent-selector",
+        "prism-master-equation",
+        "prism-process-optimizer",
+        "prism-reasoning-engine",
+        "prism-resource-optimizer",
+        "prism-swarm-coordinator",
+        "prism-swarm-orchestrator",
+        "prism-synergy-calculator"
+      ]
+    },
+    
+    "L2_WORKFLOW": {
+      "description": "Development phase skills",
+      "load_policy": "BY_PHASE",
+      "priority": 2,
+      "parent": "L0_CORE",
+      "total_count": 30,
+      
+      "sub_branches": {
+        "SP_DEVELOPMENT": {
+          "triggers": ["design", "plan", "brainstorm", "feature"],
+          "count": 3,
+          "skills": [
+            "prism-sp-brainstorm",
+            "prism-sp-execution",
+            "prism-sp-planning"
+          ]
+        },
+        "SP_REVIEW": {
+          "triggers": ["review", "check", "spec compliance"],
+          "count": 3,
+          "skills": [
+            "prism-review",
+            "prism-sp-review-quality",
+            "prism-sp-review-spec"
+          ]
+        },
+        "SP_DEBUG": {
+          "triggers": ["debug", "error", "fix", "broken", "issue"],
+          "count": 3,
+          "skills": [
+            "prism-debugging",
+            "prism-error-recovery",
+            "prism-sp-debugging"
+          ]
+        },
+        "SP_VERIFY": {
+          "triggers": ["verify", "prove", "evidence", "validate"],
+          "count": 3,
+          "skills": [
+            "prism-sp-verification",
+            "prism-validator",
+            "prism-verification"
+          ]
+        },
+        "SP_SESSION": {
+          "triggers": ["session", "state", "handoff", "resume", "context"],
+          "count": 9,
+          "skills": [
+            "prism-context-dna",
+            "prism-context-pressure",
+            "prism-quick-start",
+            "prism-session-buffer",
+            "prism-session-handoff",
+            "prism-session-master",
+            "prism-sp-handoff",
+            "prism-state-manager",
+            "prism-task-continuity"
+          ]
+        },
+        "TESTING": {
+          "triggers": ["test", "TDD", "quality gate", "unit test"],
+          "count": 4,
+          "skills": [
+            "prism-quality-gates",
+            "prism-quality-master",
+            "prism-tdd",
+            "prism-tdd-enhanced"
+          ]
+        },
+        "TOOLS": {
+          "triggers": ["script", "python", "tool", "utility", "dev"],
+          "count": 5,
+          "skills": [
+            "prism-claude-code-bridge",
+            "prism-dev-utilities",
+            "prism-development",
+            "prism-planning",
+            "prism-python-tools"
+          ]
+        }
+      }
+    },
+    
+    "L3_DOMAIN": {
+      "description": "Domain-specific skills",
+      "load_policy": "BY_DOMAIN",
+      "priority": 3,
+      "parent": "L0_CORE",
+      "total_count": 59,
+      
+      "sub_branches": {
+        "MATERIALS": {
+          "triggers": ["material", "steel", "aluminum", "alloy", "127 param", "Kienzle", "Johnson-Cook"],
+          "count": 7,
+          "skills": [
+            "prism-material-enhancer",
+            "prism-material-lookup",
+            "prism-material-physics",
+            "prism-material-schema",
+            "prism-material-template",
+            "prism-material-templates",
+            "prism-material-validator"
+          ]
+        },
+        "CONTROLLERS": {
+          "triggers": ["Fanuc", "Siemens", "Heidenhain", "G-code", "M-code", "controller", "CNC"],
+          "count": 6,
+          "skills": [
+            "prism-controller-quick-ref",
+            "prism-fanuc-programming",
+            "prism-gcode-reference",
+            "prism-heidenhain-programming",
+            "prism-post-processor-reference",
+            "prism-siemens-programming"
+          ]
+        },
+        "EXTRACTION": {
+          "triggers": ["extract", "monolith", "module", "pull out", "codebase"],
+          "count": 7,
+          "skills": [
+            "prism-codebase-packaging",
+            "prism-extraction-index",
+            "prism-extractor",
+            "prism-monolith-extractor",
+            "prism-monolith-index",
+            "prism-monolith-navigator",
+            "prism-monolith-navigator-sp"
+          ]
+        },
+        "EXPERTS": {
+          "triggers": ["expert", "consult", "machinist", "scientist", "engineer"],
+          "count": 11,
+          "skills": [
+            "prism-expert-cad-expert",
+            "prism-expert-cam-programmer",
+            "prism-expert-master",
+            "prism-expert-master-machinist",
+            "prism-expert-materials-scientist",
+            "prism-expert-mathematics",
+            "prism-expert-mechanical-engineer",
+            "prism-expert-post-processor",
+            "prism-expert-quality-control",
+            "prism-expert-quality-manager",
+            "prism-expert-thermodynamics"
+          ]
+        },
+        "CODE": {
+          "triggers": ["code", "pattern", "SOLID", "design pattern", "architecture"],
+          "count": 12,
+          "skills": [
+            "prism-code-complete-integration",
+            "prism-code-master",
+            "prism-code-perfection",
+            "prism-coding-patterns",
+            "prism-dependency-graph",
+            "prism-design-patterns",
+            "prism-error-handling-patterns",
+            "prism-large-file-writer",
+            "prism-performance-patterns",
+            "prism-security-coding",
+            "prism-solid-principles",
+            "prism-typescript-safety"
+          ]
+        },
+        "PHYSICS": {
+          "triggers": ["physics", "force", "thermal", "speed feed", "cutting", "Taylor"],
+          "count": 5,
+          "skills": [
+            "prism-physics-formulas",
+            "prism-physics-reference",
+            "prism-product-calculators",
+            "prism-speed-feed-engine",
+            "prism-universal-formulas"
+          ]
+        },
+        "TOOLS_MACHINES": {
+          "triggers": ["tool holder", "tool select", "machine", "unit convert"],
+          "count": 3,
+          "skills": [
+            "prism-tool-holder-schema",
+            "prism-tool-selector",
+            "prism-unit-converter"
+          ]
+        },
+        "KNOWLEDGE": {
+          "triggers": ["knowledge", "course", "MIT", "Stanford", "academic"],
+          "count": 2,
+          "skills": [
+            "prism-knowledge-base",
+            "prism-knowledge-master"
+          ]
+        },
+        "ALGORITHMS": {
+          "triggers": ["algorithm", "optimization", "PSO", "genetic", "NSGA"],
+          "count": 1,
+          "skills": [
+            "prism-algorithm-selector"
+          ]
+        },
+        "WIRING": {
+          "triggers": ["wiring", "consumer", "utilization", "audit"],
+          "count": 5,
+          "skills": [
+            "prism-auditor",
+            "prism-consumer-mapper",
+            "prism-hierarchy-manager",
+            "prism-utilization",
+            "prism-wiring-templates"
+          ]
+        }
+      }
+    },
+    
+    "L4_REFERENCE": {
+      "description": "Lookup-only reference materials",
+      "load_policy": "ON_DEMAND",
+      "priority": 4,
+      "parent": "L0_CORE",
+      "count": 8,
+      "skills": [
+        "prism-all-skills",
+        "prism-api-contracts",
+        "prism-category-defaults",
+        "prism-derivation-helpers",
+        "prism-error-catalog",
+        "prism-formal-definitions",
+        "prism-manufacturing-tables",
+        "prism-safety-framework"
+      ]
+    }
+  },
+  
+  "loading_algorithm": {
+    "description": "Tree traversal for skill loading",
+    "steps": [
+      "1. ALWAYS load L0_CORE (root) - 15 skills",
+      "2. If task.complexity > 0.6 OR task.domains.length > 2: load L1_COGNITIVE - 8 skills",
+      "3. For each L2_WORKFLOW sub-branch: if triggers match task, load branch",
+      "4. For each L3_DOMAIN sub-branch: if triggers match task, load branch",
+      "5. L4_REFERENCE: load individual skills on-demand only"
+    ],
+    "policy": "Load ALL matching branches (UNLIMITED)"
+  },
+  
+  "inheritance": {
+    "constraints_from_root": {
+      "safety": "S >= 0.70 (HARD)",
+      "rigor": "M >= 0.60",
+      "coverage": "100%",
+      "hook_enforcement": true,
+      "state_management": true
+    },
+    "propagation": "All child branches inherit L0_CORE constraints"
+  },
+  
+  "paths": {
+    "tree_root": "/mnt/skills/user/",
+    "tree_index": "/mnt/skills/user/TREE_INDEX.md",
+    "branch_manifest": "BRANCH.md (in each branch directory)"
+  }
+}

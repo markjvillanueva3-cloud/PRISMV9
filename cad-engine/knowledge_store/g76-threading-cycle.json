@@ -1,0 +1,73 @@
+{
+  "document_id": "g76-threading-cycle-cnccookbook",
+  "title": "G76 Threading Cycle for CNC Lathes (Fanuc)",
+  "source": "CNCCookbook G76 Threading Guide",
+  "domain": "lathe",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "G76 Fanuc P-word 6-digit format",
+      "body": "Fanuc G76 double-line format uses a 6-digit P-word on line 1: P(mm)(rr)(aa) where mm=spring passes (01-99), rr=chamfer amount (01-99), aa=tool nose angle (80,60,55,30,29,0). Example: P021029 = 2 spring passes, 10 chamfer units, 29° tool angle. A58 produces 29° infeed for 60° threads.",
+      "category": "programming",
+      "tags": ["g76", "fanuc", "threading", "lathe", "p-word"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "G76 spring passes with G92 fallback",
+      "body": "If your control's G76 doesn't support spring passes natively, add G92 threading cycles immediately after G76 at the same final depth. 1-2 spring passes typically suffice. Spring passes combat part deflection (spring-back) and clean up the thread form. This works on Fanuc single-line, Haas, and older controls.",
+      "category": "shop_floor",
+      "tags": ["g76", "g92", "spring-pass", "threading", "lathe", "deflection"],
+      "operation_types": ["threading"],
+      "confidence": 85
+    },
+    {
+      "title": "G76 infeed angle selection: A58 vs A60",
+      "body": "For 60° threads, A58 produces 29° infeed (cuts mostly on one flank, light rub on other), while A60 produces 30° infeed (cuts on one flank only). A58/29° is preferred for better chip control and balanced insert wear. Radial infeed (A0) works for fine pitches but causes V-shaped chips and high temperatures on coarse threads.",
+      "category": "tooling",
+      "tags": ["g76", "infeed-angle", "threading", "flank-infeed", "chip-control"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "G76 first pass depth should be the deepest",
+      "body": "Set the first threading pass to be the deepest cut. Subsequent passes get progressively shallower due to the triangular thread cutter geometry — more area is engaged as you go deeper. The constant-area method (sqrt progression) maintains consistent chip load. Typical first pass: 0.015-0.020\" for 1/4-20.",
+      "category": "speeds_feeds",
+      "tags": ["g76", "threading", "depth-of-cut", "constant-area", "lathe"],
+      "operation_types": ["threading"],
+      "confidence": 85
+    },
+    {
+      "title": "G76 minimum cutting depth vs finish allowance",
+      "body": "The minimum cutting depth parameter (Fanuc Q on line 1) must be ≤ finish allowance. If min depth > finish allowance, the control may skip the finish pass entirely, leaving threads undercut. Always verify with a G-code simulator before running.",
+      "category": "programming",
+      "tags": ["g76", "min-depth", "finish-allowance", "fanuc", "safety"],
+      "operation_types": ["threading"],
+      "confidence": 95
+    },
+    {
+      "title": "G76 slow RPM for synchronization issues",
+      "body": "If threading passes aren't synchronizing properly (thread start position varies), reduce spindle RPM. Fast feedrates stress the spindle encoder synchronization. Threading feedrate = pitch, so RPM directly controls how fast you're moving. Start slower and increase only after confirming consistent thread start.",
+      "category": "troubleshooting",
+      "tags": ["g76", "synchronization", "rpm", "threading", "encoder"],
+      "operation_types": ["threading"],
+      "confidence": 85
+    },
+    {
+      "title": "LinuxCNC G76 depth regression parameter R",
+      "body": "LinuxCNC/PathPilot G76 has an R parameter for depth regression: R=1 for constant depth per pass, R=2 for constant area (chip load). R=2 is the default and preferred for most threading as it maintains consistent cutting forces. R=1 is useful for very fine threads where constant small passes are acceptable.",
+      "category": "programming",
+      "tags": ["g76", "linuxcnc", "pathpilot", "depth-regression", "constant-area"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "G76 chamfering at thread shoulder",
+      "body": "Use the chamfer parameter to cleanly end threads at a shoulder. On Fanuc double-line, digits 3-4 of the P-word control chamfer (01-99 units). On Mach3, use the L parameter. Chamfering prevents sharp thread ends and improves assembly fit when threading to a shoulder.",
+      "category": "quality",
+      "tags": ["g76", "chamfer", "threading", "shoulder", "finish"],
+      "operation_types": ["threading"],
+      "confidence": 85
+    }
+  ]
+}

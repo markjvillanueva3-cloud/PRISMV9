@@ -1,0 +1,1729 @@
+/**
+ * PRISM_HAAS_MACHINE_DATABASE_ENHANCED_v3.js
+ * LEVEL 5 COMPLETE - Full Kinematics + Actual STEP Files
+ * 
+ * Haas Automation is the largest machine tool builder in the United States,
+ * known for affordable, reliable CNC machines. Famous for the VF series VMCs,
+ * UMC 5-axis machines, ST turning centers, and EC horizontal machines.
+ * 
+ * THIS VERSION INCLUDES ALL 61 MACHINES WITH CAD FILES
+ * 
+ * @version 3.0.0-LEVEL5-COMPLETE
+ * @created 2026-01-21
+ * @session PRISM_REBUILD
+ * @machine_count 61
+ * @enhancement_level 5
+ */
+
+const PRISM_HAAS_MACHINE_DATABASE_ENHANCED = {
+    metadata: {
+        manufacturer: "Haas",
+        full_name: "Haas Automation, Inc.",
+        country: "USA",
+        founded: 1983,
+        headquarters: "Oxnard, California, USA",
+        specialty: "Affordable, reliable VMCs, HMCs, lathes, and rotary products",
+        controller: "Haas NGC (Next Generation Control)",
+        unique: "Largest US machine tool builder, vertically integrated manufacturing",
+        website: "https://www.haascnc.com",
+        version: "3.0.0-LEVEL5-COMPLETE",
+        last_updated: "2026-01-21",
+        machine_count: 61,
+        enhancement_level: 5,
+        cad_files_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/"
+    },
+
+    machines: [
+        // ════════════════════════════════════════════════════════════════════════════════
+        // VF SERIES - VERTICAL MACHINING CENTERS (Main Product Line)
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_VF1",
+            manufacturer: "Haas",
+            model: "VF-1",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc",
+            series: "VF",
+            description: "Entry-level full-size VMC, perfect for job shops",
+            
+            step_file: "HAAS VF-1.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-1.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 508, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" },
+                table_length: 660,
+                table_width: 356,
+                table_load_capacity: 1361,
+                table_load_unit: "kg",
+                spindle_nose_to_table_min: 102,
+                spindle_nose_to_table_max: 610
+            },
+            
+            spindle: {
+                type: "inline_direct_drive",
+                taper: "BT40",
+                max_rpm: 8100,
+                power_rating: 22.4,
+                power_unit: "kW",
+                torque_max: 122,
+                torque_unit: "Nm",
+                torque_at_rpm: 2000,
+                bearing_type: "angular_contact",
+                cooling: "oil_cooling"
+            },
+            
+            axis_specs: {
+                x: { travel: 508, rapid_rate: 25400, max_feed: 16510, guideway_type: "hardened_box_way", ballscrew_diameter: 40, positioning_accuracy: 0.005, repeatability: 0.003 },
+                y: { travel: 406, rapid_rate: 25400, max_feed: 16510, guideway_type: "hardened_box_way", ballscrew_diameter: 40, positioning_accuracy: 0.005, repeatability: 0.003 },
+                z: { travel: 508, rapid_rate: 25400, max_feed: 16510, guideway_type: "hardened_box_way", ballscrew_diameter: 40, positioning_accuracy: 0.005, repeatability: 0.003 }
+            },
+            
+            atc: { type: "side_mount_carousel", capacity: 20, max_tool_diameter: 89, max_tool_length: 254, max_tool_weight: 5.4, tool_change_time: 4.2 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 2667, width: 1981, height: 2591, weight: 3175, weight_unit: "kg" },
+            
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "table" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" }
+            },
+            collision_zones: {
+                spindle_head: { type: "cylinder", diameter: 200, length: 350, position: { x: 0, y: 0, z: 0 } },
+                table: { type: "box", dimensions: { x: 660, y: 356, z: 50 }, position: { x: 0, y: 0, z: -50 } },
+                column: { type: "box", dimensions: { x: 400, y: 600, z: 2000 }, position: { x: 0, y: 400, z: 0 } }
+            }
+        },
+        
+        {
+            id: "HAAS_VF2",
+            manufacturer: "Haas",
+            model: "VF-2",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc",
+            series: "VF",
+            description: "Most popular VMC worldwide, excellent all-around performer",
+            
+            step_file: "HAAS VF-2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-2.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" },
+                table_length: 914,
+                table_width: 356,
+                table_load_capacity: 1361,
+                table_load_unit: "kg"
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, power_unit: "kW", torque_max: 122, torque_unit: "Nm" },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005, repeatability: 0.003 },
+                y: { travel: 406, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005, repeatability: 0.003 },
+                z: { travel: 508, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005, repeatability: 0.003 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 20, tool_change_time: 4.2 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 3327, width: 2134, height: 2743, weight: 4082, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] },
+            transformations: { x: { type: "translation", vector: [1, 0, 0], component: "table" }, y: { type: "translation", vector: [0, 1, 0], component: "saddle" }, z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" } },
+            collision_zones: { spindle_head: { type: "cylinder", diameter: 200, length: 350 }, table: { type: "box", dimensions: { x: 914, y: 356, z: 50 } } }
+        },
+        
+        {
+            id: "HAAS_VF2_TR",
+            manufacturer: "Haas",
+            model: "VF-2 TR",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_integrated",
+            series: "VF",
+            description: "VF-2 with factory-integrated trunnion for 5-axis capability",
+            
+            step_file: "HAAS VF-2 TR.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-2 TR.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true, unit: "deg" },
+                table_diameter: 310,
+                table_load_capacity: 91,
+                table_load_unit: "kg"
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 },
+                y: { travel: 406, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 },
+                z: { travel: 508, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 },
+                a: { type: "tilting_trunnion", travel: { min: -35, max: 120 }, rapid_rate: 120, rapid_rate_unit: "deg/sec", positioning_accuracy: 0.004 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 150, rapid_rate_unit: "deg/sec", positioning_accuracy: 0.004 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 20, tool_change_time: 4.2 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, simultaneous_axes: 5, tcpc: true },
+            machine_dimensions: { length: 3327, width: 2134, height: 2743, weight: 4536, weight_unit: "kg" },
+            kinematic_chain: { type: "table_table", structure: "haas_VF_TR_integrated_trunnion", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "trunnion_base" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" },
+                a: { type: "rotation", axis: [1, 0, 0], center: [0, 0, 152], component: "a_tilt" },
+                c: { type: "rotation", axis: [0, 0, 1], center: [0, 0, 0], component: "c_rotary" }
+            },
+            collision_zones: {
+                spindle_head: { type: "cylinder", diameter: 200, length: 350 },
+                trunnion_left: { type: "cylinder", diameter: 180, length: 100, position: { x: -200, y: 0, z: 152 } },
+                trunnion_right: { type: "cylinder", diameter: 180, length: 100, position: { x: 200, y: 0, z: 152 } },
+                rotary_table: { type: "cylinder", diameter: 310, height: 60, rotatesWith: ["a", "c"] }
+            }
+        },
+        
+        {
+            id: "HAAS_VF2_WITH_TRT100",
+            manufacturer: "Haas",
+            model: "VF-2 with TRT100",
+            type: "vertical_machining_center",
+            subtype: "5_axis_vmc_with_trunnion",
+            series: "VF",
+            description: "VF-2 with TRT100 tilting rotary table for 5-axis work",
+            
+            step_file: "HAAS VF-2 WITH TRT100 TILTING ROTARY RABLE.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-2 WITH TRT100 TILTING ROTARY RABLE.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" },
+                a_axis: { min: -30, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true, unit: "deg" },
+                table_diameter: 254,
+                rotary_load_capacity: 45
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                y: { travel: 406, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                z: { travel: 508, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                a: { type: "tilting_trunnion", travel: { min: -30, max: 120 }, rapid_rate: 100, positioning_accuracy: 0.004, torque: 95 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 185, positioning_accuracy: 0.004, torque: 75 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 20 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            machine_dimensions: { length: 3327, width: 2134, height: 2743, weight: 4200, weight_unit: "kg" },
+            kinematic_chain: { type: "table_table", structure: "vmc_with_trt", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z", "a_tilt", "c_rotary"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "table" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" },
+                a: { type: "rotation", axis: [1, 0, 0], center: [0, 0, 127], component: "a_tilt" },
+                c: { type: "rotation", axis: [0, 0, 1], component: "c_rotary" }
+            }
+        },
+        
+        {
+            id: "HAAS_VF2SSYT",
+            manufacturer: "Haas",
+            model: "VF-2SSYT",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_super_speed_y_table",
+            series: "VF",
+            description: "Super-speed VF-2 with Y-axis on table for high-speed machining",
+            
+            step_file: "HAAS VF-2SSYT.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-2SSYT.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" },
+                table_length: 914,
+                table_width: 356
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76, high_speed: true },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 35560, guideway_type: "linear_guides", positioning_accuracy: 0.005 },
+                y: { travel: 406, rapid_rate: 35560, guideway_type: "linear_guides", positioning_accuracy: 0.005 },
+                z: { travel: 508, rapid_rate: 35560, guideway_type: "linear_guides", positioning_accuracy: 0.005 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 24, tool_change_time: 1.6 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 3327, width: 2134, height: 2743, weight: 4200, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_SS_y_table", chain: ["base", "column_fixed", "saddle_X", "table_Y", "spindle_head_Z"] },
+            transformations: { x: { type: "translation", vector: [1, 0, 0], component: "saddle" }, y: { type: "translation", vector: [0, 1, 0], component: "table" }, z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" } }
+        },
+        
+        {
+            id: "HAAS_VF2YT",
+            manufacturer: "Haas",
+            model: "VF-2YT",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_y_table",
+            series: "VF",
+            description: "VF-2 with Y-axis on table configuration",
+            
+            step_file: "HAAS VF-2YT.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-2YT.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" },
+                y: { min: 0, max: 406, unit: "mm" },
+                z: { min: 0, max: 508, unit: "mm" }
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                y: { travel: 406, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                z: { travel: 508, rapid_rate: 25400, positioning_accuracy: 0.005 }
+            },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_y_table", chain: ["base", "column_fixed", "saddle_X", "table_Y", "spindle_head_Z"] },
+            transformations: { x: { type: "translation", vector: [1, 0, 0], component: "saddle" }, y: { type: "translation", vector: [0, 1, 0], component: "table" }, z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" } }
+        },
+        
+        {
+            id: "HAAS_VF3",
+            manufacturer: "Haas",
+            model: "VF-3",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc",
+            series: "VF",
+            description: "Larger Y-travel version of VF-2, popular for mold work",
+            
+            step_file: "HAAS VF-3.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-3.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1016, unit: "mm" },
+                y: { min: 0, max: 508, unit: "mm" },
+                z: { min: 0, max: 635, unit: "mm" },
+                table_length: 1219,
+                table_width: 457,
+                table_load_capacity: 1588
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 1016, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 },
+                y: { travel: 508, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 },
+                z: { travel: 635, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 20, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 3531, width: 2464, height: 2921, weight: 5216, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] },
+            transformations: { x: { type: "translation", vector: [1, 0, 0], component: "table" }, y: { type: "translation", vector: [0, 1, 0], component: "saddle" }, z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" } }
+        },
+        
+        {
+            id: "HAAS_VF3_WITH_TR160",
+            manufacturer: "Haas",
+            model: "VF-3 with TR160",
+            type: "vertical_machining_center",
+            subtype: "5_axis_vmc_with_trunnion",
+            series: "VF",
+            description: "VF-3 with TR160 trunnion table for 5-axis capability",
+            
+            step_file: "HAAS VF-3 WITH TR160 TRUNNION ROTARY TABLE.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-3 WITH TR160 TRUNNION ROTARY TABLE.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1016, unit: "mm" },
+                y: { min: 0, max: 508, unit: "mm" },
+                z: { min: 0, max: 635, unit: "mm" },
+                a_axis: { min: -30, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 406,
+                rotary_load_capacity: 136
+            },
+            
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 1016, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                y: { travel: 508, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                z: { travel: 635, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                a: { type: "tilting_trunnion", travel: { min: -30, max: 120 }, rapid_rate: 80, positioning_accuracy: 0.004, torque: 244 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 150, positioning_accuracy: 0.004, torque: 149 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 20 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "vmc_with_trunnion", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z", "a_tilt", "c_rotary"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "table" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" },
+                a: { type: "rotation", axis: [1, 0, 0], center: [0, 0, 203], component: "a_tilt" },
+                c: { type: "rotation", axis: [0, 0, 1], component: "c_rotary" }
+            }
+        },
+        
+        {
+            id: "HAAS_VF3YT",
+            manufacturer: "Haas",
+            model: "VF-3YT",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_y_table",
+            series: "VF",
+            description: "VF-3 with Y-axis on table configuration",
+            
+            step_file: "HAAS VF-3YT.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-3YT.step",
+            
+            work_envelope: { x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 1016, rapid_rate: 25400 }, y: { travel: 508, rapid_rate: 25400 }, z: { travel: 635, rapid_rate: 25400 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_y_table", chain: ["base", "column_fixed", "saddle_X", "table_Y", "spindle_head_Z"] },
+            transformations: { x: { type: "translation", vector: [1, 0, 0], component: "saddle" }, y: { type: "translation", vector: [0, 1, 0], component: "table" }, z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" } }
+        },
+        
+        {
+            id: "HAAS_VF3YT_50",
+            manufacturer: "Haas",
+            model: "VF-3YT/50",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_50_taper_y_table",
+            series: "VF",
+            description: "VF-3 50-taper with Y-table for heavy cutting",
+            
+            step_file: "HAAS VF-3YT-50.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-3YT-50.step",
+            
+            work_envelope: { x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" } },
+            spindle: { type: "gear_driven", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500, gear_ranges: 2 },
+            axis_specs: { x: { travel: 1016, rapid_rate: 18288 }, y: { travel: 508, rapid_rate: 18288 }, z: { travel: 635, rapid_rate: 18288 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_50_taper_y_table", chain: ["base", "column_fixed", "saddle_X", "table_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF4",
+            manufacturer: "Haas",
+            model: "VF-4",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_large",
+            series: "VF",
+            description: "Large-format VMC for bigger parts",
+            
+            step_file: "HAAS VF-4.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-4.step",
+            
+            work_envelope: { x: { min: 0, max: 1270, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" }, table_length: 1321, table_width: 457, table_load_capacity: 1814 },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 1270, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 }, y: { travel: 508, rapid_rate: 25400 }, z: { travel: 635, rapid_rate: 25400 } },
+            atc: { type: "side_mount_carousel", capacity: 20, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 3556, width: 2464, height: 2921, weight: 5443, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF4SS_WITH_TRT210",
+            manufacturer: "Haas",
+            model: "VF-4SS with TRT210",
+            type: "vertical_machining_center",
+            subtype: "5_axis_super_speed_with_trunnion",
+            series: "VF",
+            description: "Super-speed VF-4 with TRT210 trunnion for high-speed 5-axis",
+            
+            step_file: "HAAS VF-4SS WITH TRT210 TRUNNION ROTARY TABLE.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-4SS WITH TRT210 TRUNNION ROTARY TABLE.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1270, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" },
+                a_axis: { min: -30, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 530,
+                rotary_load_capacity: 227
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76 },
+            axis_specs: {
+                x: { travel: 1270, rapid_rate: 35560, guideway_type: "linear_guides" },
+                y: { travel: 508, rapid_rate: 35560 },
+                z: { travel: 635, rapid_rate: 35560 },
+                a: { type: "tilting_trunnion", travel: { min: -30, max: 120 }, rapid_rate: 70, torque: 339 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 100, torque: 271 }
+            },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_SS_with_trunnion", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_VF5_40",
+            manufacturer: "Haas",
+            model: "VF-5/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_large",
+            series: "VF",
+            description: "Extended Y-travel VMC for large parts",
+            
+            step_file: "HAAS VF-5-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-5-40.step",
+            
+            work_envelope: { x: { min: 0, max: 1270, unit: "mm" }, y: { min: 0, max: 660, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" }, table_length: 1321, table_width: 559 },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 1270, rapid_rate: 25400 }, y: { travel: 660, rapid_rate: 25400 }, z: { travel: 635, rapid_rate: 25400 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF6_40",
+            manufacturer: "Haas",
+            model: "VF-6/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_extended",
+            series: "VF",
+            description: "Extended X-travel VMC with 40-taper",
+            
+            step_file: "HAAS VF-6-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-6-40.step",
+            
+            work_envelope: { x: { min: 0, max: 1626, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" }, table_length: 1829, table_width: 711 },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 1626, rapid_rate: 25400 }, y: { travel: 813, rapid_rate: 25400 }, z: { travel: 762, rapid_rate: 25400 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 4420, width: 3073, height: 3175, weight: 10000, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column_large", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF7_40",
+            manufacturer: "Haas",
+            model: "VF-7/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_large",
+            series: "VF",
+            description: "Extended X and Y-travel VMC",
+            
+            step_file: "HAAS VF-7-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-7-40.step",
+            
+            work_envelope: { x: { min: 0, max: 2134, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 2134, rapid_rate: 18288 }, y: { travel: 813, rapid_rate: 18288 }, z: { travel: 762, rapid_rate: 18288 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column_extended", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF8_40",
+            manufacturer: "Haas",
+            model: "VF-8/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_large",
+            series: "VF",
+            description: "Long-bed VMC for extended parts",
+            
+            step_file: "HAAS VF-8-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-8-40.step",
+            
+            work_envelope: { x: { min: 0, max: 1626, unit: "mm" }, y: { min: 0, max: 1016, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 1626, rapid_rate: 18288 }, y: { travel: 1016, rapid_rate: 18288 }, z: { travel: 762, rapid_rate: 18288 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_fixed_column_extended", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF10",
+            manufacturer: "Haas",
+            model: "VF-10",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_large",
+            series: "VF",
+            description: "Extra-large VMC with extended travels",
+            
+            step_file: "HAAS VF-10.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-10.step",
+            
+            work_envelope: { x: { min: 0, max: 3048, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 3048, rapid_rate: 18288 }, y: { travel: 813, rapid_rate: 18288 }, z: { travel: 762, rapid_rate: 18288 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_extended_bed", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF10_50",
+            manufacturer: "Haas",
+            model: "VF-10/50",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_50_taper_large",
+            series: "VF",
+            description: "Extra-large 50-taper VMC for heavy cutting",
+            
+            step_file: "HAAS VF-10-50.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-10-50.step",
+            
+            work_envelope: { x: { min: 0, max: 3048, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "gear_driven", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500 },
+            axis_specs: { x: { travel: 3048, rapid_rate: 15240 }, y: { travel: 813, rapid_rate: 15240 }, z: { travel: 762, rapid_rate: 15240 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_50_taper_extended", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF11_40",
+            manufacturer: "Haas",
+            model: "VF-11/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_large",
+            series: "VF",
+            
+            step_file: "HAAS VF-11-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-11-40.step",
+            
+            work_envelope: { x: { min: 0, max: 3048, unit: "mm" }, y: { min: 0, max: 1016, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 3048, rapid_rate: 18288 }, y: { travel: 1016, rapid_rate: 18288 }, z: { travel: 762, rapid_rate: 18288 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_extended_bed", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF11_50",
+            manufacturer: "Haas",
+            model: "VF-11/50",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_50_taper_large",
+            series: "VF",
+            
+            step_file: "HAAS VF-11-50.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-11-50.step",
+            
+            work_envelope: { x: { min: 0, max: 3048, unit: "mm" }, y: { min: 0, max: 1016, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "gear_driven", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500 },
+            axis_specs: { x: { travel: 3048, rapid_rate: 15240 }, y: { travel: 1016, rapid_rate: 15240 }, z: { travel: 762, rapid_rate: 15240 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_50_taper_extended", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF12_40",
+            manufacturer: "Haas",
+            model: "VF-12/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_extra_large",
+            series: "VF",
+            
+            step_file: "HAAS VF-12-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-12-40.step",
+            
+            work_envelope: { x: { min: 0, max: 3810, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: { x: { travel: 3810, rapid_rate: 15240 }, y: { travel: 813, rapid_rate: 15240 }, z: { travel: 762, rapid_rate: 15240 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_extended_bed", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF12_50",
+            manufacturer: "Haas",
+            model: "VF-12/50",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_50_taper_extra_large",
+            series: "VF",
+            
+            step_file: "HAAS VF-12-50.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-12-50.step",
+            
+            work_envelope: { x: { min: 0, max: 3810, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "gear_driven", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_50_taper_extended", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF14_40",
+            manufacturer: "Haas",
+            model: "VF-14/40",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_extra_large",
+            series: "VF",
+            
+            step_file: "HAAS VF-14-40.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-14-40.step",
+            
+            work_envelope: { x: { min: 0, max: 3810, unit: "mm" }, y: { min: 0, max: 1016, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_extended_bed", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VF14_50",
+            manufacturer: "Haas",
+            model: "VF-14/50",
+            type: "vertical_machining_center",
+            subtype: "3_axis_vmc_50_taper_extra_large",
+            series: "VF",
+            
+            step_file: "HAAS VF-14-50.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VF-14-50.step",
+            
+            work_envelope: { x: { min: 0, max: 3810, unit: "mm" }, y: { min: 0, max: 1016, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "gear_driven", taper: "BT50", max_rpm: 6000, torque_max: 500 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_50_taper_extended", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // VM SERIES - MOLD MAKING VMCs
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_VM2",
+            manufacturer: "Haas",
+            model: "VM-2",
+            type: "vertical_machining_center",
+            subtype: "mold_maker_vmc",
+            series: "VM",
+            description: "Mold maker VMC with high-performance spindle",
+            
+            step_file: "HAAS VM-2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VM-2.step",
+            
+            work_envelope: { x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76, high_speed: true },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 35560, guideway_type: "linear_guides", positioning_accuracy: 0.004 },
+                y: { travel: 508, rapid_rate: 35560, guideway_type: "linear_guides", positioning_accuracy: 0.004 },
+                z: { travel: 508, rapid_rate: 35560, guideway_type: "linear_guides", positioning_accuracy: 0.004 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 24, tool_change_time: 1.6 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_mold_maker", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VM3",
+            manufacturer: "Haas",
+            model: "VM-3",
+            type: "vertical_machining_center",
+            subtype: "mold_maker_vmc",
+            series: "VM",
+            description: "Large mold maker VMC",
+            
+            step_file: "HAAS VM-3.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VM-3.step",
+            
+            work_envelope: { x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 660, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76 },
+            axis_specs: { x: { travel: 1016, rapid_rate: 35560 }, y: { travel: 660, rapid_rate: 35560 }, z: { travel: 635, rapid_rate: 35560 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_mold_maker", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+        
+        {
+            id: "HAAS_VM6",
+            manufacturer: "Haas",
+            model: "VM-6",
+            type: "vertical_machining_center",
+            subtype: "mold_maker_vmc_large",
+            series: "VM",
+            description: "Extra-large mold maker VMC",
+            
+            step_file: "HAAS VM-6.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VM-6.step",
+            
+            work_envelope: { x: { min: 0, max: 1626, unit: "mm" }, y: { min: 0, max: 813, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76 },
+            axis_specs: { x: { travel: 1626, rapid_rate: 30480 }, y: { travel: 813, rapid_rate: 30480 }, z: { travel: 762, rapid_rate: 30480 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_mold_maker_large", chain: ["base", "column_fixed", "table_X", "saddle_Y", "spindle_head_Z"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // UMC SERIES - 5-AXIS UNIVERSAL MACHINING CENTERS
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_UMC350HD_EDU",
+            manufacturer: "Haas",
+            model: "UMC 350HD-EDU",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_education",
+            series: "UMC",
+            description: "Educational 5-axis for training programs",
+            
+            step_file: "HAAS UMC 350HD-EDU.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC 350HD-EDU.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 508, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 394, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 350
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 508, rapid_rate: 25400 }, y: { travel: 406, rapid_rate: 25400 }, z: { travel: 394, rapid_rate: 25400 },
+                a: { type: "tilting_trunnion", travel: { min: -35, max: 120 }, rapid_rate: 75 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 100 }
+            },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_AC_trunnion", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC400",
+            manufacturer: "Haas",
+            model: "UMC-400",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_compact",
+            series: "UMC",
+            description: "Compact 5-axis for small precision parts",
+            
+            step_file: "HAAS UMC-400.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-400.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 610, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 400, table_load_capacity: 136
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 610, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                y: { travel: 406, rapid_rate: 25400 },
+                z: { travel: 406, rapid_rate: 25400 },
+                a: { type: "tilting_trunnion", travel: { min: -35, max: 120 }, rapid_rate: 75, torque: 271, clamping_torque: 1086 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 100, torque: 271, clamping_torque: 1086 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 40, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            machine_dimensions: { length: 2946, width: 2413, height: 3175, weight: 5443, weight_unit: "kg" },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_AC_trunnion", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "trunnion_base" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" },
+                a: { type: "rotation", axis: [1, 0, 0], center: [0, 0, 200], component: "a_tilt" },
+                c: { type: "rotation", axis: [0, 0, 1], component: "c_rotary" }
+            }
+        },
+        
+        {
+            id: "HAAS_UMC500SS",
+            manufacturer: "Haas",
+            model: "UMC-500SS",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_super_speed",
+            series: "UMC",
+            description: "Super-speed 5-axis with 12000 RPM spindle",
+            
+            step_file: "HAAS UMC-500SS.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-500SS.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 610, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 500, table_load_capacity: 181
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76, high_speed: true },
+            axis_specs: {
+                x: { travel: 610, rapid_rate: 35560, guideway_type: "linear_guides" },
+                y: { travel: 406, rapid_rate: 35560 },
+                z: { travel: 406, rapid_rate: 35560 },
+                a: { type: "tilting_trunnion", travel: { min: -35, max: 120 }, rapid_rate: 100 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 150 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 40, tool_change_time: 2.4 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_SS", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC750",
+            manufacturer: "Haas",
+            model: "UMC-750",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion",
+            series: "UMC",
+            description: "Popular mid-size 5-axis universal machining center",
+            
+            step_file: "HAAS UMC-750.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-750.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 630, table_load_capacity: 300
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 25400, guideway_type: "hardened_box_way", positioning_accuracy: 0.005 },
+                y: { travel: 508, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                z: { travel: 508, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                a: { type: "tilting_trunnion", travel: { min: -35, max: 120 }, rapid_rate: 65, torque: 678, clamping_torque: 2712, positioning_accuracy: 0.0033 },
+                c: { type: "rotary_table", continuous: true, rapid_rate: 90, torque: 610, clamping_torque: 2440, positioning_accuracy: 0.0028 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 40, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true, rtcp: true },
+            machine_dimensions: { length: 3454, width: 2464, height: 3175, weight: 7711, weight_unit: "kg" },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_AC_trunnion", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "spindle", "trunnion_base_X", "a_tilt", "c_rotary"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "trunnion_base" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "spindle_head" },
+                a: { type: "rotation", axis: [1, 0, 0], center: [0, 0, 254], component: "a_tilt" },
+                c: { type: "rotation", axis: [0, 0, 1], component: "c_rotary" }
+            },
+            collision_zones: {
+                spindle_head: { type: "cylinder", diameter: 200, length: 400 },
+                trunnion_left: { type: "cylinder", diameter: 250, length: 150, position: { x: -350, y: 0, z: 254 } },
+                trunnion_right: { type: "cylinder", diameter: 250, length: 150, position: { x: 350, y: 0, z: 254 } },
+                rotary_table: { type: "cylinder", diameter: 630, height: 80, rotatesWith: ["a", "c"] }
+            }
+        },
+        
+        {
+            id: "HAAS_UMC750_NEW_DESIGN",
+            manufacturer: "Haas",
+            model: "UMC-750 (New Design)",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_new",
+            series: "UMC",
+            description: "Updated UMC-750 with improved design",
+            
+            step_file: "HAAS UMC-750 NEW DESIGN.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-750 NEW DESIGN.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 630
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_AC_trunnion_v2", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC750SS",
+            manufacturer: "Haas",
+            model: "UMC-750SS",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_super_speed",
+            series: "UMC",
+            description: "Super-speed UMC-750 with 12000 RPM",
+            
+            step_file: "HAAS UMC-750SS.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-750SS.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 630
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76, high_speed: true },
+            axis_specs: {
+                x: { travel: 762, rapid_rate: 35560 }, y: { travel: 508, rapid_rate: 35560 }, z: { travel: 508, rapid_rate: 35560 },
+                a: { travel: { min: -35, max: 120 }, rapid_rate: 85 },
+                c: { continuous: true, rapid_rate: 115 }
+            },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_SS", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC1000",
+            manufacturer: "Haas",
+            model: "UMC-1000",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_large",
+            series: "UMC",
+            description: "Large 5-axis universal machining center",
+            
+            step_file: "HAAS UMC-1000.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1000.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 635, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 800, table_load_capacity: 450
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            axis_specs: {
+                x: { travel: 1016, rapid_rate: 25400, positioning_accuracy: 0.005 },
+                y: { travel: 635, rapid_rate: 25400 },
+                z: { travel: 635, rapid_rate: 25400 },
+                a: { travel: { min: -35, max: 120 }, positioning_accuracy: 0.0033 },
+                c: { continuous: true, positioning_accuracy: 0.0028 }
+            },
+            atc: { type: "side_mount_carousel", capacity: 40, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            machine_dimensions: { length: 4064, width: 3175, height: 3175, weight: 11340, weight_unit: "kg" },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_AC_trunnion_large", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC1000P",
+            manufacturer: "Haas",
+            model: "UMC-1000-P",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_pallet",
+            series: "UMC",
+            description: "UMC-1000 with pallet system for automation",
+            
+            step_file: "HAAS UMC-1000-P.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1000-P.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 635, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 800
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            pallet_changer: { type: "dual_pallet", pallet_count: 2, pallet_change_time: 15, automation_ready: true },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_with_pallet", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "pallet_system", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC1000SS",
+            manufacturer: "Haas",
+            model: "UMC-1000SS",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_super_speed_large",
+            series: "UMC",
+            description: "Large super-speed 5-axis",
+            
+            step_file: "HAAS UMC-1000SS.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1000SS.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 635, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 800
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76, high_speed: true },
+            axis_specs: {
+                x: { travel: 1016, rapid_rate: 35560 }, y: { travel: 635, rapid_rate: 35560 }, z: { travel: 635, rapid_rate: 35560 },
+                a: { travel: { min: -35, max: 120 }, rapid_rate: 85 },
+                c: { continuous: true, rapid_rate: 115 }
+            },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_SS_large", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC1250",
+            manufacturer: "Haas",
+            model: "UMC-1250",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_extra_large",
+            series: "UMC",
+            description: "Extra-large 5-axis for big parts",
+            
+            step_file: "HAAS UMC-1250.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1250.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1270, unit: "mm" }, y: { min: 0, max: 762, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 1000, table_load_capacity: 680
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "haas_UMC_AC_trunnion_xl", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_UMC1500_DUO",
+            manufacturer: "Haas",
+            model: "UMC-1500-DUO",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_dual",
+            series: "UMC",
+            description: "Dual-trunnion 5-axis for pendulum machining",
+            
+            step_file: "HAAS UMC-1500-DUO.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1500-DUO.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1524, unit: "mm" }, y: { min: 0, max: 762, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 500, tables: 2
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true, pendulum_machining: true },
+            kinematic_chain: { type: "table_table_dual", structure: "haas_UMC_DUO", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt_L", "c_rotary_L", "a_tilt_R", "c_rotary_R"] }
+        },
+        
+        {
+            id: "HAAS_UMC1500SS_DUO",
+            manufacturer: "Haas",
+            model: "UMC-1500SS-DUO",
+            type: "vertical_machining_center",
+            subtype: "5_axis_trunnion_dual_super_speed",
+            series: "UMC",
+            description: "Super-speed dual-trunnion 5-axis",
+            
+            step_file: "HAAS UMC-1500SS-DUO.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1500SS-DUO.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1524, unit: "mm" }, y: { min: 0, max: 762, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" },
+                a_axis: { min: -35, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 500, tables: 2
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 12000, power_rating: 22.4, torque_max: 76, high_speed: true },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true, pendulum_machining: true },
+            kinematic_chain: { type: "table_table_dual", structure: "haas_UMC_SS_DUO", chain: ["base", "column_fixed", "saddle_Y", "spindle_head_Z", "trunnion_base_X", "a_tilt_L", "c_rotary_L", "a_tilt_R", "c_rotary_R"] }
+        },
+        
+        {
+            id: "HAAS_UMC1600H",
+            manufacturer: "Haas",
+            model: "UMC-1600-H",
+            type: "horizontal_machining_center",
+            subtype: "5_axis_horizontal",
+            series: "UMC",
+            description: "Horizontal 5-axis for aerospace parts",
+            
+            step_file: "HAAS UMC-1600-H.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS UMC-1600-H.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1626, unit: "mm" }, y: { min: 0, max: 1016, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" },
+                a_axis: { min: -110, max: 110, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 800
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122, orientation: "horizontal" },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "head_table", structure: "haas_UMC_horizontal", chain: ["base", "column_Z", "saddle_Y", "spindle_head_X", "a_tilt_head", "c_rotary_table"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // EC SERIES - HORIZONTAL MACHINING CENTERS
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_EC400",
+            manufacturer: "Haas",
+            model: "EC-400",
+            type: "horizontal_machining_center",
+            subtype: "4_axis_hmc",
+            series: "EC",
+            description: "Compact horizontal with pallet changer",
+            
+            step_file: "HAAS EC-400.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS EC-400.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 508, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" },
+                b_axis: { min: 0, max: 360, indexing: 0.001 },
+                pallet_size: 400, table_load_capacity: 454
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122, orientation: "horizontal" },
+            pallet_changer: { type: "dual_pallet", pallet_count: 2, pallet_change_time: 8 },
+            atc: { type: "side_mount", capacity: 24, tool_change_time: 4.2 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 4 },
+            machine_dimensions: { length: 2743, width: 2413, height: 2743, weight: 5443, weight_unit: "kg" },
+            kinematic_chain: { type: "T_configuration", structure: "haas_EC_horizontal", chain: ["base", "pallet_B", "column_Z", "saddle_Y", "spindle_X"] },
+            transformations: {
+                x: { type: "translation", vector: [1, 0, 0], component: "spindle_head" },
+                y: { type: "translation", vector: [0, 1, 0], component: "saddle" },
+                z: { type: "translation", vector: [0, 0, 1], component: "column" },
+                b: { type: "rotation", axis: [0, 1, 0], component: "pallet" }
+            }
+        },
+        
+        {
+            id: "HAAS_EC500",
+            manufacturer: "Haas",
+            model: "EC-500",
+            type: "horizontal_machining_center",
+            subtype: "4_axis_hmc",
+            series: "EC",
+            description: "Mid-size horizontal machining center",
+            
+            step_file: "HAAS EC-500.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS EC-500.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 635, unit: "mm" }, y: { min: 0, max: 635, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" },
+                b_axis: { min: 0, max: 360, indexing: 0.001 },
+                pallet_size: 500, table_load_capacity: 680
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122, orientation: "horizontal" },
+            pallet_changer: { type: "dual_pallet", pallet_count: 2, pallet_change_time: 8 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 4 },
+            machine_dimensions: { length: 3658, width: 2921, height: 2921, weight: 8618, weight_unit: "kg" },
+            kinematic_chain: { type: "T_configuration", structure: "haas_EC_horizontal", chain: ["base", "pallet_B", "column_Z", "saddle_Y", "spindle_X"] }
+        },
+        
+        {
+            id: "HAAS_EC500_50",
+            manufacturer: "Haas",
+            model: "EC-500/50",
+            type: "horizontal_machining_center",
+            subtype: "4_axis_hmc_50_taper",
+            series: "EC",
+            description: "50-taper horizontal for heavy cutting",
+            
+            step_file: "HAAS EC-500-50.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS EC-500-50.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 635, unit: "mm" }, y: { min: 0, max: 635, unit: "mm" }, z: { min: 0, max: 635, unit: "mm" },
+                b_axis: { min: 0, max: 360, indexing: 0.001 },
+                pallet_size: 500
+            },
+            spindle: { type: "gear_driven", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500, orientation: "horizontal" },
+            controller: { brand: "Haas", model: "NGC", axes_count: 4 },
+            kinematic_chain: { type: "T_configuration", structure: "haas_EC_50_taper", chain: ["base", "pallet_B", "column_Z", "saddle_Y", "spindle_X"] }
+        },
+        
+        {
+            id: "HAAS_EC630",
+            manufacturer: "Haas",
+            model: "EC-630",
+            type: "horizontal_machining_center",
+            subtype: "4_axis_hmc_large",
+            series: "EC",
+            description: "Large horizontal machining center",
+            
+            step_file: "HAAS EC-630.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS EC-630.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 762, unit: "mm" }, z: { min: 0, max: 762, unit: "mm" },
+                b_axis: { min: 0, max: 360, indexing: 0.001 },
+                pallet_size: 630, table_load_capacity: 907
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122, orientation: "horizontal" },
+            pallet_changer: { type: "dual_pallet", pallet_count: 2, pallet_change_time: 10 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 4 },
+            kinematic_chain: { type: "T_configuration", structure: "haas_EC_horizontal_large", chain: ["base", "pallet_B", "column_Z", "saddle_Y", "spindle_X"] }
+        },
+        
+        {
+            id: "HAAS_EC1600",
+            manufacturer: "Haas",
+            model: "EC-1600",
+            type: "horizontal_machining_center",
+            subtype: "4_axis_hmc_extra_large",
+            series: "EC",
+            description: "Extra-large horizontal for big parts",
+            
+            step_file: "HAAS EC-1600.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS EC-1600.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1626, unit: "mm" }, y: { min: 0, max: 1270, unit: "mm" }, z: { min: 0, max: 1016, unit: "mm" },
+                b_axis: { min: 0, max: 360, indexing: 0.001 },
+                pallet_size: 1016, table_load_capacity: 2268
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500, orientation: "horizontal" },
+            controller: { brand: "Haas", model: "NGC", axes_count: 4 },
+            kinematic_chain: { type: "T_configuration", structure: "haas_EC_horizontal_xl", chain: ["base", "pallet_B", "column_Z", "saddle_Y", "spindle_X"] }
+        },
+        
+        {
+            id: "HAAS_EC1600ZT",
+            manufacturer: "Haas",
+            model: "EC-1600ZT",
+            type: "horizontal_machining_center",
+            subtype: "4_axis_hmc_extra_large_extended_z",
+            series: "EC",
+            description: "EC-1600 with extended Z travel",
+            
+            step_file: "HAAS EC-1600ZT.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS EC-1600ZT.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1626, unit: "mm" }, y: { min: 0, max: 1270, unit: "mm" }, z: { min: 0, max: 1524, unit: "mm" },
+                b_axis: { min: 0, max: 360, indexing: 0.001 },
+                pallet_size: 1016
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT50", max_rpm: 6000, power_rating: 22.4, torque_max: 500, orientation: "horizontal" },
+            controller: { brand: "Haas", model: "NGC", axes_count: 4 },
+            kinematic_chain: { type: "T_configuration", structure: "haas_EC_horizontal_xl_zt", chain: ["base", "pallet_B", "column_Z", "saddle_Y", "spindle_X"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // DT/DM SERIES - DRILL TAP CENTERS
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_DT1",
+            manufacturer: "Haas",
+            model: "DT-1",
+            type: "vertical_machining_center",
+            subtype: "drill_tap_center",
+            series: "DT",
+            description: "High-speed drill/tap machine",
+            
+            step_file: "HAAS DT-1.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS DT-1.step",
+            
+            work_envelope: { x: { min: 0, max: 508, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 394, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT30", max_rpm: 15000, power_rating: 11.2, torque_max: 30 },
+            axis_specs: { x: { travel: 508, rapid_rate: 61000, guideway_type: "linear_guides" }, y: { travel: 406, rapid_rate: 61000 }, z: { travel: 394, rapid_rate: 61000 } },
+            atc: { type: "carousel", capacity: 20, tool_change_time: 1.6 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3, high_speed_rigid_tap: true },
+            machine_dimensions: { length: 2159, width: 1651, height: 2464, weight: 2268, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_DT_high_speed", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_DT2",
+            manufacturer: "Haas",
+            model: "DT-2",
+            type: "vertical_machining_center",
+            subtype: "drill_tap_center_large",
+            series: "DT",
+            description: "Larger drill/tap machine with extended travels",
+            
+            step_file: "HAAS DT-2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS DT-2.step",
+            
+            work_envelope: { x: { min: 0, max: 660, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 394, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT30", max_rpm: 15000, power_rating: 11.2, torque_max: 30 },
+            axis_specs: { x: { travel: 660, rapid_rate: 61000 }, y: { travel: 406, rapid_rate: 61000 }, z: { travel: 394, rapid_rate: 61000 } },
+            atc: { type: "carousel", capacity: 20, tool_change_time: 1.6 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3, high_speed_rigid_tap: true },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_DT_high_speed", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_DM1",
+            manufacturer: "Haas",
+            model: "DM-1",
+            type: "vertical_machining_center",
+            subtype: "drill_mill_center",
+            series: "DM",
+            description: "Compact drill/mill for general purpose",
+            
+            step_file: "HAAS DM-1.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS DM-1.step",
+            
+            work_envelope: { x: { min: 0, max: 508, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 394, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT30", max_rpm: 15000, power_rating: 11.2, torque_max: 30 },
+            axis_specs: { x: { travel: 508, rapid_rate: 30480 }, y: { travel: 406, rapid_rate: 30480 }, z: { travel: 394, rapid_rate: 30480 } },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_DM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_DM2",
+            manufacturer: "Haas",
+            model: "DM-2",
+            type: "vertical_machining_center",
+            subtype: "drill_mill_center_large",
+            series: "DM",
+            description: "Larger drill/mill center",
+            
+            step_file: "HAAS DM-2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS DM-2.step",
+            
+            work_envelope: { x: { min: 0, max: 711, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 394, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT30", max_rpm: 15000, power_rating: 11.2, torque_max: 30 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_DM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // TM SERIES - TOOLROOM MILLS
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_TM1",
+            manufacturer: "Haas",
+            model: "TM-1",
+            type: "vertical_machining_center",
+            subtype: "toolroom_mill",
+            series: "TM",
+            description: "Entry-level toolroom mill for training and light production",
+            
+            step_file: "HAAS TM-1.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS TM-1.step",
+            
+            work_envelope: { x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" } },
+            spindle: { type: "belt_driven", taper: "BT40", max_rpm: 4000, power_rating: 5.6, torque_max: 54 },
+            axis_specs: { x: { travel: 762, rapid_rate: 7620 }, y: { travel: 305, rapid_rate: 7620 }, z: { travel: 406, rapid_rate: 7620 } },
+            atc: { type: "manual", capacity: 1 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 2083, width: 1778, height: 2159, weight: 1361, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_TM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_TM1P",
+            manufacturer: "Haas",
+            model: "TM-1P",
+            type: "vertical_machining_center",
+            subtype: "toolroom_mill_with_atc",
+            series: "TM",
+            description: "TM-1 with automatic tool changer",
+            
+            step_file: "HAAS TM-1P.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS TM-1P.step",
+            
+            work_envelope: { x: { min: 0, max: 762, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" } },
+            spindle: { type: "belt_driven", taper: "BT40", max_rpm: 6000, power_rating: 5.6, torque_max: 54 },
+            atc: { type: "side_mount_carousel", capacity: 10, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_TM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_TM2",
+            manufacturer: "Haas",
+            model: "TM-2",
+            type: "vertical_machining_center",
+            subtype: "toolroom_mill",
+            series: "TM",
+            description: "Larger toolroom mill with extended travels",
+            
+            step_file: "HAAS TM-2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS TM-2.step",
+            
+            work_envelope: { x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" } },
+            spindle: { type: "belt_driven", taper: "BT40", max_rpm: 4000, power_rating: 5.6, torque_max: 54 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_TM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_TM2P",
+            manufacturer: "Haas",
+            model: "TM-2P",
+            type: "vertical_machining_center",
+            subtype: "toolroom_mill_with_atc",
+            series: "TM",
+            description: "TM-2 with automatic tool changer",
+            
+            step_file: "HAAS TM-2P.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS TM-2P.step",
+            
+            work_envelope: { x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 406, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" } },
+            spindle: { type: "belt_driven", taper: "BT40", max_rpm: 6000, power_rating: 5.6, torque_max: 54 },
+            atc: { type: "side_mount_carousel", capacity: 10, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_TM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_TM3P",
+            manufacturer: "Haas",
+            model: "TM-3P",
+            type: "vertical_machining_center",
+            subtype: "toolroom_mill_with_atc_large",
+            series: "TM",
+            description: "Large toolroom mill with ATC",
+            
+            step_file: "HAAS TM-3P.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS TM-3P.step",
+            
+            work_envelope: { x: { min: 0, max: 1016, unit: "mm" }, y: { min: 0, max: 508, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" } },
+            spindle: { type: "belt_driven", taper: "BT40", max_rpm: 6000, power_rating: 7.5, torque_max: 68 },
+            atc: { type: "side_mount_carousel", capacity: 10, tool_change_time: 4.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_TM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // GM SERIES - GANTRY MILLS
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_GM2",
+            manufacturer: "Haas",
+            model: "GM-2",
+            type: "gantry_mill",
+            subtype: "3_axis_gantry",
+            series: "GM",
+            description: "Gantry-style mill for large panel work",
+            
+            step_file: "HAAS GM-2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS GM-2.step",
+            
+            work_envelope: { x: { min: 0, max: 1524, unit: "mm" }, y: { min: 0, max: 1270, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "gantry", structure: "haas_GM_gantry", chain: ["base", "table_fixed", "gantry_X", "crossrail_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_GM2_5AX",
+            manufacturer: "Haas",
+            model: "GM-2-5AX",
+            type: "gantry_mill",
+            subtype: "5_axis_gantry",
+            series: "GM",
+            description: "5-axis gantry mill for complex surfaces",
+            
+            step_file: "HAAS GM-2-5AX.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS GM-2-5AX.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 1524, unit: "mm" }, y: { min: 0, max: 1270, unit: "mm" }, z: { min: 0, max: 508, unit: "mm" },
+                a_axis: { min: -30, max: 180, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true }
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 22.4, torque_max: 122 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "gantry_head_head", structure: "haas_GM_5axis", chain: ["base", "table_fixed", "gantry_X", "crossrail_Y", "spindle_Z", "a_tilt", "c_rotate"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // MINI MILL SERIES - COMPACT MILLS
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_MINI_MILL",
+            manufacturer: "Haas",
+            model: "Mini Mill",
+            type: "vertical_machining_center",
+            subtype: "compact_vmc",
+            series: "Mini Mill",
+            description: "Compact VMC for small parts",
+            
+            step_file: "HAAS Mini Mill.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS Mini Mill.step",
+            
+            work_envelope: { x: { min: 0, max: 406, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 254, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 6000, power_rating: 5.6, torque_max: 34 },
+            atc: { type: "carousel", capacity: 10, tool_change_time: 2.8 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            machine_dimensions: { length: 1651, width: 1727, height: 2083, weight: 1134, weight_unit: "kg" },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_mini_mill", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_MINI_MILL_2",
+            manufacturer: "Haas",
+            model: "Mini Mill 2",
+            type: "vertical_machining_center",
+            subtype: "compact_vmc",
+            series: "Mini Mill",
+            description: "Updated Mini Mill with more power",
+            
+            step_file: "HAAS Mini Mill 2.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS Mini Mill 2.step",
+            
+            work_envelope: { x: { min: 0, max: 406, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 254, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 11.2, torque_max: 34 },
+            atc: { type: "carousel", capacity: 10, tool_change_time: 2.8 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_mini_mill", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_MINI_MILL_EDU",
+            manufacturer: "Haas",
+            model: "Mini Mill-EDU",
+            type: "vertical_machining_center",
+            subtype: "compact_vmc_education",
+            series: "Mini Mill",
+            description: "Educational Mini Mill",
+            
+            step_file: "HAAS Mini Mill-EDU.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS Mini Mill-EDU.step",
+            
+            work_envelope: { x: { min: 0, max: 406, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 254, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 6000, power_rating: 5.6, torque_max: 34 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_mini_mill", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_MINI_MILL_EDU_WITH_HRT160",
+            manufacturer: "Haas",
+            model: "Mini Mill-EDU with HRT160",
+            type: "vertical_machining_center",
+            subtype: "compact_vmc_5_axis",
+            series: "Mini Mill",
+            description: "Educational Mini Mill with HRT160 trunnion table",
+            
+            step_file: "HAAS Mini Mill-EDU WITH HRT160 TRUNNION TABLE.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS Mini Mill-EDU WITH HRT160 TRUNNION TABLE.step",
+            
+            work_envelope: {
+                x: { min: 0, max: 406, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 254, unit: "mm" },
+                a_axis: { min: -30, max: 120, unit: "deg" },
+                c_axis: { min: -360, max: 360, continuous: true },
+                table_diameter: 160
+            },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 6000, power_rating: 5.6, torque_max: 34 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 5, tcpc: true },
+            kinematic_chain: { type: "table_table", structure: "mini_mill_with_trunnion", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z", "a_tilt", "c_rotary"] }
+        },
+        
+        {
+            id: "HAAS_SUPER_MINI_MILL",
+            manufacturer: "Haas",
+            model: "Super Mini Mill",
+            type: "vertical_machining_center",
+            subtype: "super_compact_vmc",
+            series: "Mini Mill",
+            description: "Smallest Haas VMC for very small parts",
+            
+            step_file: "HAAS Super Mini Mill.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS Super Mini Mill.step",
+            
+            work_envelope: { x: { min: 0, max: 305, unit: "mm" }, y: { min: 0, max: 254, unit: "mm" }, z: { min: 0, max: 254, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT30", max_rpm: 10000, power_rating: 5.6, torque_max: 17 },
+            atc: { type: "carousel", capacity: 10, tool_change_time: 2.5 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_super_mini", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_CM1",
+            manufacturer: "Haas",
+            model: "CM-1",
+            type: "vertical_machining_center",
+            subtype: "compact_mill",
+            series: "CM",
+            description: "Compact mill for small shop applications",
+            
+            step_file: "HAAS CM-1.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS CM-1.step",
+            
+            work_envelope: { x: { min: 0, max: 381, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 305, unit: "mm" } },
+            spindle: { type: "inline_direct_drive", taper: "BT40", max_rpm: 8100, power_rating: 11.2, torque_max: 61 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_CM", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // SPECIALTY MACHINES
+        // ════════════════════════════════════════════════════════════════════════════════
+        
+        {
+            id: "HAAS_DESKTOP_MILL",
+            manufacturer: "Haas",
+            model: "Desktop Mill",
+            type: "vertical_machining_center",
+            subtype: "desktop_mill",
+            series: "Desktop",
+            description: "Desktop mill for education and prototyping",
+            
+            step_file: "HAAS Desktop Mill.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS Desktop Mill.step",
+            
+            work_envelope: { x: { min: 0, max: 152, unit: "mm" }, y: { min: 0, max: 102, unit: "mm" }, z: { min: 0, max: 102, unit: "mm" } },
+            spindle: { type: "brushless_motor", max_rpm: 10000, power_rating: 0.4, power_unit: "kW" },
+            controller: { brand: "Haas", model: "Mini-CNC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "desktop", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        },
+        
+        {
+            id: "HAAS_VC400",
+            manufacturer: "Haas",
+            model: "VC-400",
+            type: "vertical_machining_center",
+            subtype: "drill_mill_center",
+            series: "VC",
+            description: "Value-oriented vertical machining center",
+            
+            step_file: "HAAS VC-400.step",
+            step_file_path: "RESOURCES/MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION/HAAS/HAAS VC-400.step",
+            
+            work_envelope: { x: { min: 0, max: 508, unit: "mm" }, y: { min: 0, max: 305, unit: "mm" }, z: { min: 0, max: 406, unit: "mm" } },
+            spindle: { type: "belt_driven", taper: "BT40", max_rpm: 8100, power_rating: 11.2, torque_max: 61 },
+            controller: { brand: "Haas", model: "NGC", axes_count: 3 },
+            kinematic_chain: { type: "serial_C_prime", structure: "haas_VC", chain: ["base", "column", "table_X", "saddle_Y", "spindle_Z"] }
+        }
+    ],
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // ════════════════════════════════════════════════════════════════════════════════
+    
+    getMachineById: function(id) { return this.machines.find(m => m.id === id); },
+    getMachineByModel: function(model) { return this.machines.find(m => m.model === model || m.model.replace(/-/g, '') === model.replace(/-/g, '')); },
+    getMachinesByType: function(type) { return this.machines.filter(m => m.type === type); },
+    getMachinesBySeries: function(series) { return this.machines.filter(m => m.series === series); },
+    getMachinesBySubtype: function(subtype) { return this.machines.filter(m => m.subtype && m.subtype.includes(subtype)); },
+    
+    get5AxisMachines: function() { return this.machines.filter(m => m.subtype && m.subtype.includes("5_axis")); },
+    getVFSeries: function() { return this.machines.filter(m => m.series === "VF"); },
+    getUMCSeries: function() { return this.machines.filter(m => m.series === "UMC"); },
+    getECSeries: function() { return this.machines.filter(m => m.series === "EC"); },
+    getTMSeries: function() { return this.machines.filter(m => m.series === "TM"); },
+    getMiniMills: function() { return this.machines.filter(m => m.series === "Mini Mill"); },
+    getDrillTapMachines: function() { return this.machines.filter(m => m.series === "DT" || m.series === "DM"); },
+    
+    getMachinesWithStepFiles: function() { return this.machines.filter(m => m.step_file); },
+    getStepFilePath: function(machineId) {
+        const machine = this.getMachineById(machineId);
+        return machine ? machine.step_file_path : null;
+    },
+    
+    exportForSimulation: function(machineId) {
+        const machine = this.getMachineById(machineId);
+        if (!machine) return null;
+        return {
+            id: machine.id,
+            name: `${machine.manufacturer} ${machine.model}`,
+            step_file: machine.step_file,
+            step_file_path: machine.step_file_path,
+            kinematic_chain: machine.kinematic_chain,
+            transformations: machine.transformations,
+            collision_zones: machine.collision_zones,
+            axis_specs: machine.axis_specs,
+            work_envelope: machine.work_envelope
+        };
+    },
+    
+    getStatistics: function() {
+        return {
+            total_machines: this.machines.length,
+            by_series: {
+                VF: this.getVFSeries().length,
+                UMC: this.getUMCSeries().length,
+                EC: this.getECSeries().length,
+                VM: this.machines.filter(m => m.series === "VM").length,
+                TM: this.getTMSeries().length,
+                DT: this.machines.filter(m => m.series === "DT").length,
+                DM: this.machines.filter(m => m.series === "DM").length,
+                GM: this.machines.filter(m => m.series === "GM").length,
+                Mini_Mill: this.getMiniMills().length,
+                Other: this.machines.filter(m => !["VF","UMC","EC","VM","TM","DT","DM","GM","Mini Mill"].includes(m.series)).length
+            },
+            by_type: {
+                vmc: this.machines.filter(m => m.type === "vertical_machining_center").length,
+                hmc: this.machines.filter(m => m.type === "horizontal_machining_center").length,
+                gantry: this.machines.filter(m => m.type === "gantry_mill").length
+            },
+            five_axis_count: this.get5AxisMachines().length,
+            with_step_files: this.getMachinesWithStepFiles().length
+        };
+    }
+};
+
+// Export
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = PRISM_HAAS_MACHINE_DATABASE_ENHANCED;
+}
+if (typeof window !== 'undefined') {
+    window.PRISM_HAAS_MACHINE_DATABASE_ENHANCED = PRISM_HAAS_MACHINE_DATABASE_ENHANCED;
+}
+
+console.log(`[HAAS_DATABASE_V3] LEVEL 5 database loaded: ${PRISM_HAAS_MACHINE_DATABASE_ENHANCED.machines.length} machines with CAD files`);

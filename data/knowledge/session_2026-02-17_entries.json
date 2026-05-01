@@ -1,0 +1,57 @@
+[
+  {
+    "id": "2026-02-17_da-ms6-opt1-branches",
+    "type": "decision",
+    "phase": "DA",
+    "milestone": "MS6",
+    "summary": "OPT-1: Only branches 1+2 fully implemented; 3-8 scaffolded in index_schema.json",
+    "detail": "Hierarchical index branches 3-8 deferred per audit fix OPT-1. Branch 1 = EXECUTION_CHAIN.json (dispatchers/actions/engines). Branch 2 = DATA_TAXONOMY.json (6 data domains). Scaffolds in index_schema.json ready for future expansion.",
+    "tags": ["hierarchical_index", "OPT-1", "DA-MS6"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  },
+  {
+    "id": "2026-02-17_knowledge-system-dc-approach",
+    "type": "decision",
+    "phase": "DA",
+    "milestone": "MS7",
+    "summary": "Knowledge extraction uses DC-based PowerShell script, not MCP server action",
+    "detail": "extract_knowledge.ps1 at C:\\PRISM\\knowledge\\ takes entries JSON, writes individual .md files per type dir, updates SESSION_KNOWLEDGE_INDEX.json. Chose DC/PS1 over MCP action to avoid rebuild requirement. Works now.",
+    "tags": ["knowledge_system", "extract_knowledge", "DA-MS7"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  },
+  {
+    "id": "2026-02-17_da-gate-cc-deferred",
+    "type": "blocker",
+    "phase": "DA",
+    "milestone": "MS8",
+    "summary": "DA phase gate: 4 criteria CC_DEFERRED — subagents, slash commands, skill auto-load",
+    "detail": "Claude Code not available. Gate criteria 6-9 deferred. Conditional pass issued. When CC becomes available, run E2E test sequence from DA-MS8 spec to fully close. All non-CC infrastructure complete and tested.",
+    "tags": ["claude_code", "phase_gate", "CC_DEFERRED", "DA-MS8"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  },
+  {
+    "id": "2026-02-17_skill-tier-superseded",
+    "type": "decision",
+    "phase": "DA",
+    "milestone": "MS2",
+    "summary": "Skill tier classification (A/B/C/D) skipped — superseded by MS9-10 atomization",
+    "detail": "DA-MS2 Step 1 called for classifying 126 skills into tiers. Skipped because DA-MS9/MS10 will atomize all skills into single-function units <=5KB each, making tier classification obsolete. Top 15 identification still needed for atomization priority.",
+    "tags": ["skills", "atomization", "DA-MS2", "DA-MS9"],
+    "date": "2026-02-17",
+    "confidence": "verified"
+  },
+  {
+    "id": "2026-02-17_multiple-compactions-recovery",
+    "type": "performance",
+    "phase": "DA",
+    "milestone": "MS1",
+    "summary": "Session survived 3+ compactions; position files + uploaded transcripts enabled recovery each time",
+    "detail": "CURRENT_POSITION.md, SESSION_HANDOFF.md, and user-uploaded pre-compaction transcripts were the primary recovery mechanisms. autoPreCompactionDump not yet tested in production (implemented this session). Health_check correctly reported GREEN throughout.",
+    "tags": ["compaction", "recovery", "session_continuity"],
+    "date": "2026-02-17",
+    "confidence": "observed"
+  }
+]

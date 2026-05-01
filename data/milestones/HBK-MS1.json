@@ -1,0 +1,53 @@
+{
+  "id": "HBK-MS1",
+  "version": "1.0.0",
+  "title": "Handbook Extraction Engine",
+  "brief": "Build HandbookExtractionEngine that parses raw handbook content (PDF text, OCR output, structured tables) into typed section records. Includes section boundary detection, table parsing, unit normalization, and confidence scoring per extracted field.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:00:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Extraction Core",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Implement section boundary detector: classify raw text blocks into one of 10 handbook section types using keyword patterns and structural heuristics",
+          "effort": 75,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement table parser: extract specification tables (spindle speed ranges, axis travel limits, tool capacity) into typed key-value records with unit detection",
+          "effort": 85,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Implement unit normalizer and confidence scorer: convert imperial/metric values to canonical units, assign confidence (0-1) per extracted field based on extraction method and source quality",
+          "effort": 70,
+          "dependencies": ["P0-U02"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Build extraction test suite with real handbook samples: validate against known Haas VF-2, Mazak QTN-200, and DMG MORI NLX-2500 specification pages",
+          "effort": 65,
+          "dependencies": ["P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS0"],
+  "exit_conditions": [
+    "HandbookExtractionEngine extracts at least 8 of 10 section types from sample handbooks",
+    "Table parser correctly extracts numeric spec values with >90% accuracy on test samples",
+    "All extracted values carry confidence scores and canonical units",
+    "Extraction test suite passes with 0 failures against 3 manufacturer sample sets"
+  ]
+}

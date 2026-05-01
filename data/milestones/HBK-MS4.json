@@ -1,0 +1,53 @@
+{
+  "id": "HBK-MS4",
+  "version": "1.0.0",
+  "title": "Machine Capability Intelligence",
+  "brief": "Build MachineCapabilityIntelligenceEngine that extracts and structures spindle torque curves, axis acceleration profiles, work envelope geometry, rapid traverse rates, and thermal compensation parameters from handbook data. Provides queryable capability profiles that replace conservative generic defaults.",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "completed_at": "2026-03-29T04:00:00Z",
+  "completed_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Capability Intelligence",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Extract spindle performance data from handbook spindle sections: torque curves (Nm vs RPM), power curves (kW vs RPM), max RPM, gear ranges, and spindle motor characteristics",
+          "effort": 85,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Extract axis capability data: rapid traverse rates, acceleration limits per axis, work envelope dimensions, backlash compensation values, and positioning accuracy specifications",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build MachineCapabilityIntelligenceEngine with queryable capability profiles: given machine ID, return full capability record with confidence per field and handbook provenance",
+          "effort": 75,
+          "dependencies": ["P0-U01", "P0-U02"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Validate extracted capability data against MachineRegistry existing records: flag discrepancies, prefer handbook values with higher confidence, generate reconciliation report",
+          "effort": 70,
+          "dependencies": ["P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["HBK-MS1"],
+  "exit_conditions": [
+    "Spindle torque curves extracted from at least 3 sample handbooks match published manufacturer specifications within 5%",
+    "Axis capability profiles include rapid rates, accel limits, and work envelope for all extracted machines",
+    "MachineCapabilityIntelligenceEngine returns full capability record for any machine with an ingested handbook",
+    "Reconciliation report identifies and explains any discrepancies between handbook data and existing MachineRegistry records"
+  ]
+}

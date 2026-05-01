@@ -1,0 +1,4726 @@
+{
+  "metadata": {
+    "source": "Manufacturer published catalogs",
+    "created": "2026-02-15T04:24:06.424Z",
+    "count": 33,
+    "manufacturers": [
+      "Hermle",
+      "Spinner",
+      "GROB",
+      "Citizen",
+      "Star",
+      "Tsugami",
+      "YCM",
+      "Hartford",
+      "Quaser"
+    ],
+    "description": "Batch 4: Hermle, Spinner, GROB, Swiss expansion, YCM, Hartford, Quaser"
+  },
+  "machines": [
+    {
+      "id": "HERMLE_C_12_U",
+      "name": "Hermle C 12 U",
+      "manufacturer": "Hermle",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 350,
+        "y": 300,
+        "z": 330
+      },
+      "spindle": {
+        "rpm": 18000,
+        "taper": "HSK-A63",
+        "power_kW": 15,
+        "torque_Nm": 70,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 18,
+        "type": "arm",
+        "changeTime_sec": 3.5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 320,
+        "width": 280,
+        "load_kg": 100
+      },
+      "weight_kg": 4500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 40
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 350,
+          "y": 300,
+          "z": 330,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 505
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 580
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1130
+            },
+            "position": {
+              "x": 0,
+              "y": -450,
+              "z": 165
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 210,
+            "length": 380,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 320,
+              "y": 280,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 300,
+              "z": 330
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 165
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 950,
+              "y": 900,
+              "z": 1130
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 165
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HERMLE_C_22_U",
+      "name": "Hermle C 22 U",
+      "manufacturer": "Hermle",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 450,
+        "y": 350,
+        "z": 330
+      },
+      "spindle": {
+        "rpm": 18000,
+        "taper": "HSK-A63",
+        "power_kW": 25,
+        "torque_Nm": 87,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "chain",
+        "changeTime_sec": 4
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 450,
+        "width": 400,
+        "load_kg": 200
+      },
+      "weight_kg": 6800,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 40
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 450,
+          "y": 350,
+          "z": 330,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 505
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 580
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1130
+            },
+            "position": {
+              "x": 0,
+              "y": -475,
+              "z": 165
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 275,
+            "length": 500,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 450,
+              "y": 400,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 450,
+              "y": 350,
+              "z": 330
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 165
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 950,
+              "z": 1130
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 165
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HERMLE_C_42_U_MT",
+      "name": "Hermle C 42 U MT",
+      "manufacturer": "Hermle",
+      "type": "5axis_mill_turn",
+      "travels": {
+        "x": 800,
+        "y": 800,
+        "z": 550
+      },
+      "spindle": {
+        "rpm": 18000,
+        "taper": "HSK-A63",
+        "power_kW": 35,
+        "torque_Nm": 130,
+        "max_rpm": 12000,
+        "min_rpm": 10,
+        "power_continuous": 22,
+        "power_30min": 26,
+        "torque_max": 200,
+        "torque_continuous": 130,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 42,
+        "type": "chain",
+        "changeTime_sec": 5
+      },
+      "table": {
+        "type": "trunnion_rotary",
+        "length": 800,
+        "width": 630,
+        "load_kg": 700,
+        "rpm": 800
+      },
+      "weight_kg": 17000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 800,
+          "y": 800,
+          "z": 550,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 725
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 800
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1350
+            },
+            "position": {
+              "x": 0,
+              "y": -700,
+              "z": 275
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 450,
+            "length": 730,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 630,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 800,
+              "y": 800,
+              "z": 550
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 275
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1400,
+              "y": 1400,
+              "z": 1350
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 275
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HERMLE_C_52_U_MT",
+      "name": "Hermle C 52 U MT",
+      "manufacturer": "Hermle",
+      "type": "5axis_mill_turn",
+      "travels": {
+        "x": 1000,
+        "y": 1100,
+        "z": 750
+      },
+      "spindle": {
+        "rpm": 18000,
+        "taper": "HSK-A63",
+        "power_kW": 44,
+        "torque_Nm": 200,
+        "max_rpm": 12000,
+        "min_rpm": 10,
+        "power_continuous": 22,
+        "power_30min": 26,
+        "torque_max": 200,
+        "torque_continuous": 130,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 60,
+        "type": "chain",
+        "changeTime_sec": 6
+      },
+      "table": {
+        "type": "trunnion_rotary",
+        "length": 1000,
+        "width": 800,
+        "load_kg": 1500,
+        "rpm": 500
+      },
+      "weight_kg": 28000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1000,
+          "y": 1100,
+          "z": 750,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 925
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1000
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1550
+            },
+            "position": {
+              "x": 0,
+              "y": -850,
+              "z": 375
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 550,
+            "length": 900,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 800,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 1100,
+              "z": 750
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 375
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1600,
+              "y": 1700,
+              "z": 1550
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 375
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HERMLE_C_62_U_MT",
+      "name": "Hermle C 62 U MT",
+      "manufacturer": "Hermle",
+      "type": "5axis_mill_turn",
+      "travels": {
+        "x": 1200,
+        "y": 1300,
+        "z": 900
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A100",
+        "power_kW": 58,
+        "torque_Nm": 430,
+        "max_rpm": 12000,
+        "min_rpm": 10,
+        "power_continuous": 22,
+        "power_30min": 26,
+        "torque_max": 200,
+        "torque_continuous": 130,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 80,
+        "type": "chain",
+        "changeTime_sec": 7
+      },
+      "table": {
+        "type": "trunnion_rotary",
+        "length": 1200,
+        "width": 1000,
+        "load_kg": 2500,
+        "rpm": 400
+      },
+      "weight_kg": 42000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1200,
+          "y": 1300,
+          "z": 900,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1075
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1150
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1700
+            },
+            "position": {
+              "x": 0,
+              "y": -950,
+              "z": 450
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 650,
+            "length": 1100,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 1000,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 1300,
+              "z": 900
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 450
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1800,
+              "y": 1900,
+              "z": 1700
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 450
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HERMLE_C_250",
+      "name": "Hermle C 250",
+      "manufacturer": "Hermle",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 600,
+        "y": 550,
+        "z": 450
+      },
+      "spindle": {
+        "rpm": 15000,
+        "taper": "HSK-A63",
+        "power_kW": 25,
+        "torque_Nm": 130,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "chain",
+        "changeTime_sec": 4
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 650,
+        "width": 540,
+        "load_kg": 300
+      },
+      "weight_kg": 9500,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 40
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 600,
+          "y": 550,
+          "z": 450,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 625
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 700
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1250
+            },
+            "position": {
+              "x": 0,
+              "y": -575,
+              "z": 225
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 375,
+            "length": 640,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 650,
+              "y": 540,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 550,
+              "z": 450
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 1150,
+              "z": 1250
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 225
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HERMLE_C_650",
+      "name": "Hermle C 650",
+      "manufacturer": "Hermle",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 1050,
+        "y": 900,
+        "z": 600
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A63",
+        "power_kW": 35,
+        "torque_Nm": 200,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Heidenhain",
+        "model": "TNC 640",
+        "type": "Heidenhain TNC 640"
+      },
+      "atc": {
+        "capacity": 50,
+        "type": "chain",
+        "changeTime_sec": 5.5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 1100,
+        "width": 900,
+        "load_kg": 1500
+      },
+      "weight_kg": 22000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1050,
+          "y": 900,
+          "z": 600,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 775
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 850
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1400
+            },
+            "position": {
+              "x": 0,
+              "y": -750,
+              "z": 300
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 600,
+            "length": 1000,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1100,
+              "y": 900,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1050,
+              "y": 900,
+              "z": 600
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 300
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1650,
+              "y": 1500,
+              "z": 1400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 300
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "SPINNER_VC_750",
+      "name": "Spinner VC 750",
+      "manufacturer": "Spinner",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 750,
+        "y": 500,
+        "z": 500
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 18.5,
+        "torque_Nm": 119,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 828D",
+        "type": "Siemens SINUMERIK 828D"
+      },
+      "atc": {
+        "capacity": 24,
+        "type": "arm",
+        "changeTime_sec": 1.5
+      },
+      "table": {
+        "type": "fixed",
+        "length": 900,
+        "width": 500,
+        "load_kg": 600
+      },
+      "weight_kg": 5000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 750,
+          "y": 500,
+          "z": 500,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 675
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 700
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1200
+            },
+            "position": {
+              "x": 0,
+              "y": -500,
+              "z": 250
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 900,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 750,
+              "y": 500,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 250
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 950,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1250,
+              "y": 900,
+              "z": 1200
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 250
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "SPINNER_VC_1150",
+      "name": "Spinner VC 1150",
+      "manufacturer": "Spinner",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1150,
+        "y": 600,
+        "z": 600
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 22,
+        "torque_Nm": 175,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 828D",
+        "type": "Siemens SINUMERIK 828D"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1300,
+        "width": 600,
+        "load_kg": 1200
+      },
+      "weight_kg": 7500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1150,
+          "y": 600,
+          "z": 600,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 775
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 800
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1300
+            },
+            "position": {
+              "x": 0,
+              "y": -550,
+              "z": 300
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1300,
+              "y": 600,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1150,
+              "y": 600,
+              "z": 600
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 300
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1350,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -300,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1650,
+              "y": 1000,
+              "z": 1300
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 300
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "SPINNER_U5_620",
+      "name": "Spinner U5-620",
+      "manufacturer": "Spinner",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 620,
+        "y": 520,
+        "z": 460
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A63",
+        "power_kW": 25,
+        "torque_Nm": 130,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 840D sl",
+        "type": "Siemens SINUMERIK 840D sl"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 3
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 620,
+        "width": 500,
+        "load_kg": 300
+      },
+      "weight_kg": 8000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 620,
+          "y": 520,
+          "z": 460,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 635
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": -560,
+              "z": 230
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 360,
+            "length": 600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 620,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 620,
+              "y": 520,
+              "z": 460
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1220,
+              "y": 1120,
+              "z": 1260
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "SPINNER_TC_300_MC",
+      "name": "Spinner TC 300 MC",
+      "manufacturer": "Spinner",
+      "type": "turning_center",
+      "travels": {
+        "x": 170,
+        "y": 50,
+        "z": 320
+      },
+      "spindle": {
+        "rpm": 5000,
+        "power_kW": 11,
+        "torque_Nm": 95,
+        "taper": "A2-5",
+        "max_rpm": 4500,
+        "min_rpm": 20,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 350,
+        "torque_continuous": 200,
+        "spindle_nose": "A2-6",
+        "coolant_through": false,
+        "coolant_pressure": 0,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 828D",
+        "type": "Siemens SINUMERIK 828D"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI30",
+        "indexTime": 0.12,
+        "liveTools": true
+      },
+      "barCapacity_mm": 42,
+      "yAxis": true,
+      "maxTurningDia": 260,
+      "weight_kg": 3200,
+      "coolant": {
+        "pressure_bar": 10,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 170,
+          "y": 50,
+          "z": 320,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 180,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 160,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 130,
+            "length": 320,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 220,
+              "y": 0,
+              "z": 160
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 370,
+              "y": 400,
+              "z": 620
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 160
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 570,
+              "y": 460,
+              "z": 720
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 160
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "SPINNER_TC_600_MC",
+      "name": "Spinner TC 600 MC",
+      "manufacturer": "Spinner",
+      "type": "turning_center",
+      "travels": {
+        "x": 210,
+        "y": 60,
+        "z": 600
+      },
+      "spindle": {
+        "rpm": 4000,
+        "power_kW": 18.5,
+        "torque_Nm": 240,
+        "taper": "A2-6",
+        "max_rpm": 4500,
+        "min_rpm": 20,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 350,
+        "torque_continuous": 200,
+        "spindle_nose": "A2-6",
+        "coolant_through": false,
+        "coolant_pressure": 0,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 828D",
+        "type": "Siemens SINUMERIK 828D"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI40",
+        "indexTime": 0.15,
+        "liveTools": true
+      },
+      "barCapacity_mm": 65,
+      "yAxis": true,
+      "maxTurningDia": 400,
+      "weight_kg": 5000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 210,
+          "y": 60,
+          "z": 600,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 250,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 230,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 200,
+            "length": 600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 260,
+              "y": 0,
+              "z": 300
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 410,
+              "y": 400,
+              "z": 900
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 300
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 610,
+              "y": 600,
+              "z": 1000
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 300
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "SPINNER_TTS_65_SMC",
+      "name": "Spinner TTS-65 SMC",
+      "manufacturer": "Spinner",
+      "type": "turning_center",
+      "travels": {
+        "x": 250,
+        "y": 80,
+        "z": 800
+      },
+      "spindle": {
+        "rpm": 3500,
+        "power_kW": 22,
+        "torque_Nm": 350,
+        "taper": "A2-8",
+        "max_rpm": 4500,
+        "min_rpm": 20,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 350,
+        "torque_continuous": 200,
+        "spindle_nose": "A2-6",
+        "coolant_through": false,
+        "coolant_pressure": 0,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 840D sl",
+        "type": "Siemens SINUMERIK 840D sl"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI50",
+        "indexTime": 0.18,
+        "liveTools": true
+      },
+      "barCapacity_mm": 80,
+      "subSpindle": true,
+      "yAxis": true,
+      "maxTurningDia": 500,
+      "weight_kg": 7000,
+      "coolant": {
+        "pressure_bar": 20,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 250,
+          "y": 80,
+          "z": 800,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 300,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 280,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 250,
+            "length": 800,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 300,
+              "y": 0,
+              "z": 400
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 450,
+              "y": 400,
+              "z": 1100
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 400
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 650,
+              "y": 700,
+              "z": 1200
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 400
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "GROB_G150",
+      "name": "GROB G150",
+      "manufacturer": "Grob",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 350,
+        "y": 440,
+        "z": 380
+      },
+      "spindle": {
+        "rpm": 18000,
+        "taper": "HSK-A63",
+        "power_kW": 29,
+        "torque_Nm": 87,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 840D sl",
+        "type": "Siemens SINUMERIK 840D sl"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "chain",
+        "changeTime_sec": 2
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 350,
+        "width": 350,
+        "load_kg": 200
+      },
+      "weight_kg": 6000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 350,
+          "y": 440,
+          "z": 380,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 555
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 630
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1180
+            },
+            "position": {
+              "x": 0,
+              "y": -520,
+              "z": 190
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 225,
+            "length": 450,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 440,
+              "z": 380
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 190
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 950,
+              "y": 1040,
+              "z": 1180
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 190
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "GROB_G350T",
+      "name": "GROB G350T",
+      "manufacturer": "Grob",
+      "type": "5axis_mill_turn",
+      "travels": {
+        "x": 600,
+        "y": 725,
+        "z": 590
+      },
+      "spindle": {
+        "rpm": 18000,
+        "taper": "HSK-A63",
+        "power_kW": 29,
+        "torque_Nm": 87,
+        "max_rpm": 12000,
+        "min_rpm": 10,
+        "power_continuous": 22,
+        "power_30min": 26,
+        "torque_max": 200,
+        "torque_continuous": 130,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 70,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 840D sl",
+        "type": "Siemens SINUMERIK 840D sl"
+      },
+      "atc": {
+        "capacity": 48,
+        "type": "chain",
+        "changeTime_sec": 3
+      },
+      "table": {
+        "type": "trunnion_rotary",
+        "length": 600,
+        "width": 500,
+        "load_kg": 350,
+        "rpm": 1200
+      },
+      "weight_kg": 11000,
+      "coolant": {
+        "pressure_bar": 40,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 600,
+          "y": 725,
+          "z": 590,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 765
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 840
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1390
+            },
+            "position": {
+              "x": 0,
+              "y": -662.5,
+              "z": 295
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 350,
+            "length": 600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 600,
+              "y": 725,
+              "z": 590
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 295
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 1325,
+              "z": 1390
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 295
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "GROB_G750",
+      "name": "GROB G750",
+      "manufacturer": "Grob",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 1000,
+        "y": 1040,
+        "z": 1000
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "HSK-A100",
+        "power_kW": 52,
+        "torque_Nm": 430,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Siemens",
+        "model": "SINUMERIK 840D sl",
+        "type": "Siemens SINUMERIK 840D sl"
+      },
+      "atc": {
+        "capacity": 80,
+        "type": "chain",
+        "changeTime_sec": 5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 1000,
+        "width": 800,
+        "load_kg": 1500
+      },
+      "weight_kg": 22000,
+      "coolant": {
+        "pressure_bar": 80,
+        "tsc": true,
+        "tsc_pressure_bar": 80
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1000,
+          "y": 1040,
+          "z": 1000,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1175
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 1250
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1800
+            },
+            "position": {
+              "x": 0,
+              "y": -820,
+              "z": 500
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 550,
+            "length": 900,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 800,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1000,
+              "y": 1040,
+              "z": 1000
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 500
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1600,
+              "y": 1640,
+              "z": 1800
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 500
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "CITIZEN_L12_X",
+      "name": "Citizen Cincom L12-X",
+      "manufacturer": "Citizen",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 100,
+        "y": 30,
+        "z": 180
+      },
+      "spindle": {
+        "rpm": 15000,
+        "power_kW": 1.5,
+        "torque_Nm": 1.5,
+        "taper": "collet_12mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Citizen",
+        "model": "Cincom M70",
+        "type": "Citizen Cincom M70"
+      },
+      "turret": {
+        "stations": 14,
+        "type": "gang"
+      },
+      "barCapacity_mm": 12,
+      "weight_kg": 1100,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 100,
+          "y": 30,
+          "z": 180,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 150,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 130,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 180,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 150,
+              "y": 0,
+              "z": 90
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 400,
+              "z": 480
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 90
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 400,
+              "z": 580
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 90
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "CITIZEN_M16_V",
+      "name": "Citizen Cincom M16-V",
+      "manufacturer": "Citizen",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 120,
+        "y": 40,
+        "z": 190
+      },
+      "spindle": {
+        "rpm": 12000,
+        "power_kW": 2.2,
+        "torque_Nm": 3.5,
+        "taper": "collet_16mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Citizen",
+        "model": "Cincom M70",
+        "type": "Citizen Cincom M70"
+      },
+      "turret": {
+        "stations": 16,
+        "type": "gang"
+      },
+      "barCapacity_mm": 16,
+      "weight_kg": 1400,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 120,
+          "y": 40,
+          "z": 190,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 170,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 150,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 120,
+            "length": 190,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 170,
+              "y": 0,
+              "z": 95
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 320,
+              "y": 400,
+              "z": 490
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 95
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 520,
+              "y": 440,
+              "z": 590
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 95
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "CITIZEN_K16_VII",
+      "name": "Citizen Cincom K16-VII",
+      "manufacturer": "Citizen",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 115,
+        "y": 35,
+        "z": 185
+      },
+      "spindle": {
+        "rpm": 12000,
+        "power_kW": 2.2,
+        "torque_Nm": 3,
+        "taper": "collet_16mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Citizen",
+        "model": "Cincom M70",
+        "type": "Citizen Cincom M70"
+      },
+      "turret": {
+        "stations": 13,
+        "type": "gang"
+      },
+      "barCapacity_mm": 16,
+      "weight_kg": 1200,
+      "coolant": {
+        "pressure_bar": 10,
+        "tsc": false
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 115,
+          "y": 35,
+          "z": 185,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 165,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 145,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 115,
+            "length": 185,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 165,
+              "y": 0,
+              "z": 92.5
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 315,
+              "y": 400,
+              "z": 485
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 92.5
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 515,
+              "y": 430,
+              "z": 585
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 92.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "CITIZEN_MIYANO_BNE_51MSY",
+      "name": "Citizen Miyano BNE-51MSY",
+      "manufacturer": "Citizen",
+      "type": "turning_center",
+      "travels": {
+        "x": 185,
+        "y": 50,
+        "z": 330
+      },
+      "spindle": {
+        "rpm": 5000,
+        "power_kW": 11,
+        "torque_Nm": 55,
+        "taper": "collet_51mm",
+        "max_rpm": 4500,
+        "min_rpm": 20,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 350,
+        "torque_continuous": 200,
+        "spindle_nose": "A2-6",
+        "coolant_through": false,
+        "coolant_pressure": 0,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Mitsubishi",
+        "model": "M80",
+        "type": "Mitsubishi M80"
+      },
+      "turret": {
+        "stations": 24,
+        "type": "BMT",
+        "indexTime": 0.15,
+        "liveTools": true
+      },
+      "barCapacity_mm": 51,
+      "subSpindle": true,
+      "yAxis": true,
+      "weight_kg": 4500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 185,
+          "y": 50,
+          "z": 330,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 235,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 215,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 185,
+            "length": 330,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 235,
+              "y": 0,
+              "z": 165
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 385,
+              "y": 400,
+              "z": 630
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 165
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 585,
+              "y": 570,
+              "z": 730
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 165
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "CITIZEN_MIYANO_BNA_42S",
+      "name": "Citizen Miyano BNA-42S",
+      "manufacturer": "Citizen",
+      "type": "turning_center",
+      "travels": {
+        "x": 170,
+        "z": 310
+      },
+      "spindle": {
+        "rpm": 6000,
+        "power_kW": 7.5,
+        "torque_Nm": 40,
+        "taper": "collet_42mm",
+        "max_rpm": 4500,
+        "min_rpm": 20,
+        "power_continuous": 15,
+        "power_30min": 18.5,
+        "torque_max": 350,
+        "torque_continuous": 200,
+        "spindle_nose": "A2-6",
+        "coolant_through": false,
+        "coolant_pressure": 0,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Mitsubishi",
+        "model": "M80",
+        "type": "Mitsubishi M80"
+      },
+      "turret": {
+        "stations": 12,
+        "type": "VDI30"
+      },
+      "barCapacity_mm": 42,
+      "subSpindle": true,
+      "weight_kg": 3200,
+      "coolant": {
+        "pressure_bar": 10,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 170,
+          "y": 0,
+          "z": 310,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 220,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 200,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 170,
+            "length": 310,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 220,
+              "y": 0,
+              "z": 155
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 370,
+              "y": 400,
+              "z": 610
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 155
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 570,
+              "y": 540,
+              "z": 710
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 155
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "STAR_SR_10JN",
+      "name": "Star SR-10JN",
+      "manufacturer": "Star",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 100,
+        "y": 30,
+        "z": 155
+      },
+      "spindle": {
+        "rpm": 15000,
+        "power_kW": 1.5,
+        "torque_Nm": 1.5,
+        "taper": "collet_10mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "turret": {
+        "stations": 14,
+        "type": "gang"
+      },
+      "barCapacity_mm": 10,
+      "weight_kg": 1100,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 100,
+          "y": 30,
+          "z": 155,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 150,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 130,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 100,
+            "length": 155,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 150,
+              "y": 0,
+              "z": 77.5
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 400,
+              "z": 455
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 77.5
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 500,
+              "y": 400,
+              "z": 555
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 77.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "STAR_SB_16RIII",
+      "name": "Star SB-16RIII",
+      "manufacturer": "Star",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 120,
+        "y": 40,
+        "z": 180
+      },
+      "spindle": {
+        "rpm": 10000,
+        "power_kW": 2.2,
+        "torque_Nm": 3.5,
+        "taper": "collet_16mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "turret": {
+        "stations": 18,
+        "type": "gang"
+      },
+      "barCapacity_mm": 16,
+      "weight_kg": 1500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 120,
+          "y": 40,
+          "z": 180,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 170,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 150,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 120,
+            "length": 180,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 170,
+              "y": 0,
+              "z": 90
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 320,
+              "y": 400,
+              "z": 480
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 90
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 520,
+              "y": 440,
+              "z": 580
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 90
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "TSUGAMI_SS20_V",
+      "name": "Tsugami SS20-V",
+      "manufacturer": "Tsugami",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 140,
+        "y": 50,
+        "z": 200
+      },
+      "spindle": {
+        "rpm": 10000,
+        "power_kW": 3.7,
+        "torque_Nm": 6,
+        "taper": "collet_20mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "turret": {
+        "stations": 22,
+        "type": "gang"
+      },
+      "barCapacity_mm": 20,
+      "weight_kg": 1800,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 140,
+          "y": 50,
+          "z": 200,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 190,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 170,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 140,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 190,
+              "y": 0,
+              "z": 100
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 340,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 100
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 540,
+              "y": 480,
+              "z": 600
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 100
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "TSUGAMI_S205_V",
+      "name": "Tsugami S205-V",
+      "manufacturer": "Tsugami",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 140,
+        "y": 50,
+        "z": 200
+      },
+      "spindle": {
+        "rpm": 10000,
+        "power_kW": 3.7,
+        "torque_Nm": 6,
+        "taper": "collet_20mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "turret": {
+        "stations": 18,
+        "type": "gang"
+      },
+      "barCapacity_mm": 20,
+      "weight_kg": 1600,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 140,
+          "y": 50,
+          "z": 200,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 190,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 170,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 140,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 190,
+              "y": 0,
+              "z": 100
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 340,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 100
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 540,
+              "y": 480,
+              "z": 600
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 100
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "TSUGAMI_BO38S_V",
+      "name": "Tsugami BO38S-V",
+      "manufacturer": "Tsugami",
+      "type": "swiss_lathe",
+      "travels": {
+        "x": 230,
+        "y": 70,
+        "z": 310
+      },
+      "spindle": {
+        "rpm": 6000,
+        "power_kW": 7.5,
+        "torque_Nm": 20,
+        "taper": "collet_38mm",
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 3.7,
+        "power_30min": 5.5,
+        "torque_max": 16,
+        "torque_continuous": 10,
+        "spindle_nose": "5C",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "turret": {
+        "stations": 28,
+        "type": "gang"
+      },
+      "barCapacity_mm": 38,
+      "weight_kg": 3200,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 230,
+          "y": 70,
+          "z": 310,
+          "shape": "cylindrical"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 280,
+            "length": 200,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -100
+            }
+          },
+          "chuck": {
+            "type": "cylinder",
+            "radius": 260,
+            "length": 150,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "workpiece_envelope": {
+            "type": "cylinder",
+            "radius": 230,
+            "length": 310,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "turret": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 200,
+              "z": 200
+            },
+            "position": {
+              "x": 280,
+              "y": 0,
+              "z": 155
+            }
+          },
+          "bed": {
+            "type": "box",
+            "dimensions": {
+              "x": 430,
+              "y": 400,
+              "z": 610
+            },
+            "position": {
+              "x": 0,
+              "y": -250,
+              "z": 155
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 630,
+              "y": 660,
+              "z": 710
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 155
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "YCM_NXV_560A",
+      "name": "YCM NXV 560A",
+      "manufacturer": "YCM",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 560,
+        "y": 410,
+        "z": 460
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 11,
+        "torque_Nm": 70,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF",
+        "type": "Fanuc 0i-MF"
+      },
+      "atc": {
+        "capacity": 20,
+        "type": "arm",
+        "changeTime_sec": 1.3
+      },
+      "table": {
+        "type": "fixed",
+        "length": 700,
+        "width": 410,
+        "load_kg": 400
+      },
+      "weight_kg": 3800,
+      "coolant": {
+        "pressure_bar": 7,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 560,
+          "y": 410,
+          "z": 460,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 635
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 660
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1160
+            },
+            "position": {
+              "x": 0,
+              "y": -455,
+              "z": 230
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 700,
+              "y": 410,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 560,
+              "y": 410,
+              "z": 460
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 760,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -205,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1060,
+              "y": 810,
+              "z": 1160
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 230
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "YCM_TV_158B",
+      "name": "YCM TV 158B",
+      "manufacturer": "YCM",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1524,
+        "y": 810,
+        "z": 610
+      },
+      "spindle": {
+        "rpm": 8000,
+        "taper": "CAT50",
+        "power_kW": 30,
+        "torque_Nm": 350,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF",
+        "type": "Fanuc 0i-MF"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 3
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1700,
+        "width": 810,
+        "load_kg": 2500
+      },
+      "weight_kg": 14000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1524,
+          "y": 810,
+          "z": 610,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 785
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 810
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1310
+            },
+            "position": {
+              "x": 0,
+              "y": -655,
+              "z": 305
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1700,
+              "y": 810,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1524,
+              "y": 810,
+              "z": 610
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 305
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1724,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -405,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 2024,
+              "y": 1210,
+              "z": 1310
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 305
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HARTFORD_LG_1000",
+      "name": "Hartford LG-1000",
+      "manufacturer": "Hartford",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1020,
+        "y": 610,
+        "z": 610
+      },
+      "spindle": {
+        "rpm": 10000,
+        "taper": "BT40",
+        "power_kW": 15,
+        "torque_Nm": 95,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF",
+        "type": "Fanuc 0i-MF"
+      },
+      "atc": {
+        "capacity": 24,
+        "type": "arm",
+        "changeTime_sec": 2
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1200,
+        "width": 600,
+        "load_kg": 800
+      },
+      "weight_kg": 6500,
+      "coolant": {
+        "pressure_bar": 7,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1020,
+          "y": 610,
+          "z": 610,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 785
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 810
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1310
+            },
+            "position": {
+              "x": 0,
+              "y": -555,
+              "z": 305
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 600,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1020,
+              "y": 610,
+              "z": 610
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 305
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1220,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -305,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1520,
+              "y": 1010,
+              "z": 1310
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 305
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HARTFORD_PRO_1000",
+      "name": "Hartford PRO-1000",
+      "manufacturer": "Hartford",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1020,
+        "y": 510,
+        "z": 510
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 18.5,
+        "torque_Nm": 119,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF",
+        "type": "Fanuc 0i-MF"
+      },
+      "atc": {
+        "capacity": 24,
+        "type": "arm",
+        "changeTime_sec": 1.5
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1200,
+        "width": 510,
+        "load_kg": 800
+      },
+      "weight_kg": 5800,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1020,
+          "y": 510,
+          "z": 510,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 685
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": -505,
+              "z": 255
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 510,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1020,
+              "y": 510,
+              "z": 510
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1220,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -255,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1520,
+              "y": 910,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "HARTFORD_5A_65",
+      "name": "Hartford 5A-65",
+      "manufacturer": "Hartford",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 650,
+        "y": 520,
+        "z": 475
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 22,
+        "torque_Nm": 120,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2.5
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 650,
+        "width": 500,
+        "load_kg": 300
+      },
+      "weight_kg": 9000,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 650,
+          "y": 520,
+          "z": 475,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 650
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 725
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1275
+            },
+            "position": {
+              "x": 0,
+              "y": -560,
+              "z": 237.5
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 375,
+            "length": 600,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 650,
+              "y": 500,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 650,
+              "y": 520,
+              "z": 475
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 237.5
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1250,
+              "y": 1120,
+              "z": 1275
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 237.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "QUASER_MV_204EL",
+      "name": "Quaser MV 204EL",
+      "manufacturer": "Quaser",
+      "type": "vertical_machining_center",
+      "travels": {
+        "x": 1020,
+        "y": 510,
+        "z": 510
+      },
+      "spindle": {
+        "rpm": 12000,
+        "taper": "BT40",
+        "power_kW": 18.5,
+        "torque_Nm": 119,
+        "max_rpm": 10000,
+        "min_rpm": 50,
+        "power_continuous": 11,
+        "power_30min": 15,
+        "torque_max": 120,
+        "torque_continuous": 70,
+        "spindle_nose": "BT40",
+        "coolant_through": true,
+        "coolant_pressure": 20,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "0i-MF",
+        "type": "Fanuc 0i-MF"
+      },
+      "atc": {
+        "capacity": 24,
+        "type": "arm",
+        "changeTime_sec": 1.5
+      },
+      "table": {
+        "type": "fixed",
+        "length": 1200,
+        "width": 510,
+        "load_kg": 800
+      },
+      "weight_kg": 6200,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 1020,
+          "y": 510,
+          "z": 510,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 685
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 350,
+              "z": 400
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 710
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 500,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": -505,
+              "z": 255
+            }
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 1200,
+              "y": 510,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 1020,
+              "y": 510,
+              "z": 510
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          },
+          "y_saddle": {
+            "type": "box",
+            "dimensions": {
+              "x": 1220,
+              "y": 300,
+              "z": 200
+            },
+            "position": {
+              "x": 0,
+              "y": -255,
+              "z": 0
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 1520,
+              "y": 910,
+              "z": 1210
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 255
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "QUASER_UX_300",
+      "name": "Quaser UX 300",
+      "manufacturer": "Quaser",
+      "type": "5axis_machining_center",
+      "travels": {
+        "x": 350,
+        "y": 440,
+        "z": 350
+      },
+      "spindle": {
+        "rpm": 15000,
+        "taper": "HSK-A63",
+        "power_kW": 22,
+        "torque_Nm": 95,
+        "max_rpm": 12000,
+        "min_rpm": 50,
+        "power_continuous": 18.5,
+        "power_30min": 22,
+        "torque_max": 150,
+        "torque_continuous": 90,
+        "spindle_nose": "HSK-A63",
+        "coolant_through": true,
+        "coolant_pressure": 40,
+        "_enriched": "default"
+      },
+      "controller": {
+        "brand": "Fanuc",
+        "model": "31i-B5",
+        "type": "Fanuc 31i-B5"
+      },
+      "atc": {
+        "capacity": 30,
+        "type": "arm",
+        "changeTime_sec": 2.8
+      },
+      "table": {
+        "type": "trunnion",
+        "length": 300,
+        "width": 300,
+        "load_kg": 100
+      },
+      "weight_kg": 5500,
+      "coolant": {
+        "pressure_bar": 15,
+        "tsc": true,
+        "tsc_pressure_bar": 70
+      },
+      "layer": "ENHANCED",
+      "has3DModel": true,
+      "collision_model": {
+        "type": "parametric_envelope",
+        "generated": true,
+        "source": "spec_derived",
+        "work_volume": {
+          "x": 350,
+          "y": 440,
+          "z": 350,
+          "shape": "rectangular"
+        },
+        "zones": {
+          "spindle": {
+            "type": "cylinder",
+            "radius": 80,
+            "length": 350,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 525
+            },
+            "orientation": "vertical"
+          },
+          "head": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 400,
+              "z": 500
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 600
+            }
+          },
+          "column": {
+            "type": "box",
+            "dimensions": {
+              "x": 400,
+              "y": 600,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": -520,
+              "z": 175
+            }
+          },
+          "trunnion": {
+            "type": "cylinder",
+            "radius": 200,
+            "length": 400,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": "horizontal"
+          },
+          "table": {
+            "type": "box",
+            "dimensions": {
+              "x": 300,
+              "y": 300,
+              "z": 80
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "work_envelope": {
+            "type": "box",
+            "dimensions": {
+              "x": 350,
+              "y": 440,
+              "z": 350
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 175
+            }
+          },
+          "splash_guard": {
+            "type": "box",
+            "dimensions": {
+              "x": 950,
+              "y": 1040,
+              "z": 1150
+            },
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 175
+            }
+          }
+        }
+      }
+    }
+  ]
+}

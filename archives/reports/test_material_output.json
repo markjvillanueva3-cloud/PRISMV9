@@ -1,0 +1,284 @@
+{
+  "id": "S-NI-TEST",
+  "name": "Inconel 718 (Solution Treated + Aged)",
+  "UNS": "N07718",
+  "standard": "AMS 5663",
+  "isoGroup": "S",
+  "composition": {
+    "Ni": {
+      "min": 50.0,
+      "max": 55.0,
+      "typical": 52.5
+    },
+    "Cr": {
+      "min": 17.0,
+      "max": 21.0,
+      "typical": 19.0
+    },
+    "Fe": {
+      "min": 17.0,
+      "max": 21.0,
+      "typical": 18.5
+    },
+    "Nb": {
+      "min": 4.75,
+      "max": 5.5,
+      "typical": 5.13
+    },
+    "Mo": {
+      "min": 2.8,
+      "max": 3.3,
+      "typical": 3.05
+    },
+    "Ti": {
+      "min": 0.65,
+      "max": 1.15,
+      "typical": 0.9
+    },
+    "Al": {
+      "min": 0.2,
+      "max": 0.8,
+      "typical": 0.5
+    },
+    "C": {
+      "min": 0.01,
+      "max": 0.08,
+      "typical": 0.04
+    },
+    "Co": {
+      "min": 0.0,
+      "max": 1.0,
+      "typical": 0.2
+    }
+  },
+  "physicalProperties": {
+    "density": {
+      "value": 8.19,
+      "unit": "g/cm3",
+      "temperature": 20
+    },
+    "meltingPoint": {
+      "value": 1336,
+      "unit": "\u00b0C"
+    },
+    "thermalConductivity": {
+      "value": 11.4,
+      "unit": "W/m\u00b7K",
+      "temperature": 20
+    },
+    "elasticModulus": {
+      "value": 205,
+      "unit": "GPa",
+      "temperature": 20
+    },
+    "thermalExpansion": {
+      "value": 13.0,
+      "unit": "\u00b5m/m\u00b7K",
+      "temperatureRange": "20-100\u00b0C"
+    }
+  },
+  "mechanicalProperties": {
+    "tensileStrength": {
+      "value": 1380,
+      "unit": "MPa",
+      "temperature": 20
+    },
+    "yieldStrength": {
+      "value": 1035,
+      "unit": "MPa",
+      "temperature": 20
+    },
+    "elongation": {
+      "value": 12,
+      "unit": "%"
+    },
+    "hardness": {
+      "value": 42,
+      "unit": "HRC"
+    },
+    "reductionInArea": {
+      "value": 15,
+      "unit": "%"
+    }
+  },
+  "kienzle": {
+    "kc1_1": {
+      "value": 2450,
+      "unit": "N/mm2",
+      "description": "Specific cutting force at 1mm chip thickness"
+    },
+    "mc": {
+      "value": 0.18,
+      "unit": "dimensionless",
+      "description": "Material exponent"
+    }
+  },
+  "taylorToolLife": {
+    "carbide": {
+      "C": 45,
+      "n": 0.15,
+      "unit": "m/min"
+    },
+    "ceramic": {
+      "C": 180,
+      "n": 0.25,
+      "unit": "m/min"
+    },
+    "CBN": {
+      "C": 95,
+      "n": 0.2,
+      "unit": "m/min"
+    }
+  },
+  "johnsonCook": {
+    "A": 1241,
+    "B": 622,
+    "n": 0.652,
+    "C": 0.0134,
+    "m": 1.1,
+    "temperatureRange": {
+      "room": 25,
+      "melt": 1336,
+      "unit": "\u00b0C"
+    }
+  },
+  "chipFormation": {
+    "type": "segmented",
+    "characteristics": [
+      "Severe segmentation at low speeds",
+      "Built-up edge formation",
+      "High shear strain localization",
+      "Poor chip breakability"
+    ],
+    "segmentationFrequency": "high"
+  },
+  "friction": {
+    "coefficient": 0.6,
+    "adhesionTendency": "very high",
+    "characteristics": [
+      "Strong chemical affinity with tool materials",
+      "Galling tendency",
+      "Welding to cutting edge"
+    ]
+  },
+  "thermalMachining": {
+    "cuttingTemperature": {
+      "typical": 850,
+      "range": {
+        "min": 700,
+        "max": 1100
+      },
+      "unit": "\u00b0C"
+    },
+    "thermalConductivity": "low",
+    "heatGeneration": "very high",
+    "coolantEffectiveness": "critical"
+  },
+  "surfaceIntegrity": {
+    "workHardening": {
+      "tendency": "very high",
+      "depthAffected": {
+        "min": 50,
+        "max": 150,
+        "unit": "\u00b5m"
+      },
+      "hardnessIncrease": {
+        "min": 15,
+        "max": 25,
+        "unit": "HRC"
+      }
+    },
+    "residualStress": {
+      "type": "compressive",
+      "magnitude": {
+        "min": -200,
+        "max": -500,
+        "unit": "MPa"
+      }
+    },
+    "microstructuralChanges": [
+      "Grain refinement in surface layer",
+      "Phase transformation possible at high temperatures",
+      "Recrystallization in severely deformed regions"
+    ]
+  },
+  "machinability": {
+    "index": 15,
+    "reference": "B1112 steel = 100%",
+    "rating": "very difficult",
+    "primaryChallenges": [
+      "Work hardening",
+      "High cutting forces",
+      "Tool wear",
+      "Heat generation",
+      "Built-up edge"
+    ]
+  },
+  "recommendedParameters": {
+    "turning": {
+      "speed": {
+        "min": 30,
+        "max": 80,
+        "unit": "m/min"
+      },
+      "feed": {
+        "min": 0.1,
+        "max": 0.3,
+        "unit": "mm/rev"
+      },
+      "depth": {
+        "min": 0.5,
+        "max": 3.0,
+        "unit": "mm"
+      }
+    },
+    "milling": {
+      "speed": {
+        "min": 40,
+        "max": 120,
+        "unit": "m/min"
+      },
+      "feed": {
+        "min": 0.05,
+        "max": 0.15,
+        "unit": "mm/tooth"
+      },
+      "axialDepth": {
+        "min": 0.5,
+        "max": 2.0,
+        "unit": "mm"
+      },
+      "radialDepth": {
+        "min": 0.2,
+        "max": 1.0,
+        "unit": "mm"
+      }
+    },
+    "coolant": {
+      "type": "flood or high-pressure",
+      "pressure": {
+        "min": 70,
+        "max": 150,
+        "unit": "bar"
+      },
+      "essential": true
+    },
+    "toolMaterial": "Carbide or ceramic with positive geometry"
+  },
+  "statisticalData": {
+    "sources": [
+      "ASM Metals Handbook Vol. 16",
+      "Machining Data Handbook 3rd Ed",
+      "NIST Material Properties Database",
+      "Sandvik Coromant Technical Guide"
+    ],
+    "confidence": 0.9,
+    "uncertaintyBounds": {
+      "mechanicalProperties": "\u00b15%",
+      "machiningParameters": "\u00b115%",
+      "toolLife": "\u00b125%"
+    },
+    "validationStatus": "peer-reviewed",
+    "lastUpdated": "2024-01-15"
+  }
+}

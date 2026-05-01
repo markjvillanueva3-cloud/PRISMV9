@@ -1,0 +1,93 @@
+{
+  "template_id": "SWARM-PARALLEL-001",
+  "pattern": "PARALLEL_EXTRACTION",
+  "description": "Execute multiple agents simultaneously on independent tasks. Best for bulk extraction, independent validations, or embarrassingly parallel workloads.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Multiple independent data extraction tasks",
+    "Parallel validation of different aspects",
+    "Bulk processing where order doesn't matter",
+    "Time-critical tasks that can be parallelized"
+  ],
+  
+  "config": {
+    "min_agents": 2,
+    "max_agents": 10,
+    "timeout_ms": 30000,
+    "fail_strategy": "continue_on_error",
+    "result_aggregation": "collect_all"
+  },
+  
+  "agent_selection": {
+    "strategy": "capability_match",
+    "preferred_tiers": ["SONNET", "HAIKU"],
+    "fallback_tier": "SONNET"
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["tasks"],
+    "properties": {
+      "tasks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "description"],
+          "properties": {
+            "id": {"type": "string"},
+            "description": {"type": "string"},
+            "inputs": {"type": "object"},
+            "assigned_agent": {"type": "string"}
+          }
+        }
+      },
+      "shared_context": {"type": "object"}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "task_id": {"type": "string"},
+          "agent_id": {"type": "string"},
+          "status": {"enum": ["success", "error", "timeout"]},
+          "output": {"type": "object"},
+          "duration_ms": {"type": "number"}
+        }
+      },
+      "summary": {
+        "total_tasks": {"type": "number"},
+        "successful": {"type": "number"},
+        "failed": {"type": "number"},
+        "total_duration_ms": {"type": "number"}
+      }
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_parallel",
+  
+  "example_usage": {
+    "name": "extract_multiple_materials",
+    "agents": ["AGT-SONNET-MATERIALS", "AGT-SONNET-EXTRACTION", "AGT-SONNET-VALIDATION"],
+    "input": {
+      "tasks": [
+        {"id": "steel", "description": "Extract all steel materials"},
+        {"id": "aluminum", "description": "Extract all aluminum materials"},
+        {"id": "titanium", "description": "Extract all titanium materials"}
+      ]
+    }
+  },
+  
+  "hooks_triggered": ["AGENT-START-001", "AGENT-COMPLETE-001", "BATCH-MERGE-001"],
+  
+  "performance_notes": {
+    "optimal_task_count": "3-8 tasks",
+    "memory_overhead": "~500KB per agent",
+    "typical_speedup": "2-5x vs sequential"
+  }
+}

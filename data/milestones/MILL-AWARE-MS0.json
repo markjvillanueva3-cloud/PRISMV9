@@ -1,0 +1,381 @@
+{
+  "id": "MILL-AWARE-MS0",
+  "title": "Mill AI Full-Awareness — Dispatcher, Resource Wiring, Tribal Knowledge, Machine Profiles",
+  "track": "MILL",
+  "version": "1.0.0",
+  "created_at": "2026-04-15T18:55:00Z",
+  "status": "pending",
+  "description": "Close the mill-vs-lathe awareness asymmetry. Mill has 109 domain engines but only 6 aiReasoningDispatcher actions (5% wired) vs lathe's 82 turning actions on 57 engines (44% wired). JM DIE mill roots contain 566 mill files across CNC MILL HAAS (58 customers/41 files), HAAS-HURCO (63 customers/41 files), ROKU-ROKU (78 customers/34 files), and MATTHEW programs (444 files). Resources folder includes hyperMILL 31.0/33.0, WinMax Mill docs, Mastercam X8 Haas posts, HSMWorks 2026 posts for Haas/Hurco/Okuma, and 14+ machine simulation models. This milestone creates a dedicated MillingDispatcher, wires all unwired mill engines, generates test coverage, adds machine profile catalogs (Haas VF-2, Hurco VMX 30i, Roku-Roku HC-658, Okuma Genos M460V-5AX), bridges MillAISelfAwarenessIntegrationEngine to the central PRISMSelfAwarenessEngine, indexes mill tribal knowledge for search, and expands MachiningPlaybookEngine with mill-specific rules. Coordinates with a parallel PRISM-wide awareness roadmap being built in another chat — this track focuses specifically on MILL scope.",
+  "coordination": {
+    "parallel_chat": "PRISM-wide awareness roadmap in separate chat",
+    "this_scope": "MILL machines/engines/tooling/toolpaths/CAD-CAM/tribal knowledge",
+    "shared_surfaces": [
+      "PRISMSelfAwarenessEngine (central APIs)",
+      "MachiningPlaybookEngine (rule catalog)",
+      "duplicationGuardEngine (cross-session registry)",
+      "ACTIVE_WORK_REGISTRY.json"
+    ],
+    "handoff_points": [
+      "P5 exposes MillSelfAwarenessBridgeEngine that registers with PRISMSelfAwarenessEngine",
+      "P7 playbook extensions are mill-tagged so PRISM-wide can discover them",
+      "Machine profiles (P4) follow shopConfiguration schema used across tracks"
+    ]
+  },
+  "jm_die_inventory": {
+    "scanned_at": "2026-04-15T18:55:00Z",
+    "mill_roots": {
+      "CNC MILL HAAS": { "customers": 58, "files": 41, "file_types": ["MIN", "NC", "STEP", "STP", "PDF"] },
+      "HAAS-HURCO": { "customers": 63, "files": 41, "file_types": ["HNC", "STP", "PDF", "DXF"] },
+      "ROKU-ROKU": { "customers": 78, "files": 34, "file_types": ["MIN", "NC", "STEP", "STP", "DXF", "PDF"] },
+      "MATTHEW programs": { "files": 444, "file_types": ["MIN", "NC", "STP", "HNC", "PDF", "DXF"] },
+      "REVERSE ENGINEERING": { "files": 5 },
+      "SETUPS": { "files": 1 }
+    },
+    "total_mill_files": 566,
+    "resources": {
+      "hyperMILL_versions": ["31.0", "33.0"],
+      "hyperMILL_docs": ["hyperMILL_Manual-en.pdf", "hyperMILL_Basic.hmc", "3D TRAINING PART_1 Milling area"],
+      "winmax_docs": ["WinMax Mill CUTTER COMPENSATION.pdf", "WinMax Mill RECOVERY AND RESTART.pdf"],
+      "cam_posts": ["Mastercam X8 Haas samples", "HSMWorks 2026 (Haas, Hurco, Okuma)", "OPEN MIND NcGenerator (Haas, Hurco, Okuma)"],
+      "machine_models": ["Haas VF-2", "Hurco VMX 30i", "Roku-Roku HC-658", "Okuma Genos M460V-5AX", "Okuma Multus"],
+      "simulation_models": ["Brother", "Datron", "DMG Mori", "DN Solutions", "Heller", "Kern", "Makino", "Matsuura", "Mazak"],
+      "total_pdfs": 1015
+    },
+    "customer_overlap": "Same customers appear across CNC MILL HAAS, HAAS-HURCO, ROKU-ROKU roots — dedup required when indexing"
+  },
+  "dependencies": ["PB-MS0"],
+  "total_units": 9,
+  "completed_units": 0,
+  "rgs_quality_target": 16,
+  "rgs_scrutiny_target": 87,
+  "omega_target": 1.0,
+  "forge_triple": {
+    "engines": [
+      "MillingDispatcher (NEW — parity with turningDispatcher's 82 actions)",
+      "MillResourceSearchEngine (NEW — searches JM DIE mill programs + tribal + playbook)",
+      "MillSelfAwarenessBridgeEngine (NEW — bridges MillAISelfAwarenessIntegrationEngine to PRISMSelfAwarenessEngine)"
+    ],
+    "skill": "/mill-studio (NEW — mirror of /lathe-studio for milling operations)",
+    "hooks": [
+      "MILL-M-001: post-mill-toolpath validation (playbook + tribal)",
+      "MILL-M-002: pre-mill-cam advice injection",
+      "MILL-M-003: mill machine-profile capability guard"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Forge-Triple — MillingDispatcher + Mill Resource Search + Self-Awareness Bridge",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P1-U01",
+          "title": "Create MillingDispatcher with 40+ actions for mill domain engines",
+          "status": "pending",
+          "steps": [
+            "Run duplicationGuardEngine.checkBeforeCreating for MillingDispatcher — confirm no existing",
+            "Create src/tools/dispatchers/millingDispatcher.ts following turningDispatcher.ts pattern",
+            "Define z.enum with 40+ mill actions covering: toolpath (pocket, profile, helical, trochoidal, adaptive), speeds (face_mill, end_mill, drill, tap, bore, ream), geometry (feature_detect, setup_plan, workholding), intelligence (mill_agi_analyze, mill_deep_reason, mill_strategy_select), quality (surface_predict, deflection_check, chatter_check)",
+            "Lazy imports for 40+ mill engines from the Mill*/Milling* families",
+            "Schema file src/schemas/millingActionSchemas.ts with Zod validation per action",
+            "Register in src/tools/dispatchers/index.ts",
+            "Parameter normalization: accept flat or nested params.material/tool/machine",
+            "Return {result, metadata} objects with schemaVersion field"
+          ],
+          "exit_conditions": [
+            "MillingDispatcher callable with 40+ registered actions",
+            "All lazy imports resolve without circular dependency errors",
+            "Schema validation rejects invalid params with descriptive errors",
+            "Anti-regression: total dispatcher action count increases by 40+",
+            "Build clean (npx tsc --noEmit — 0 new errors)"
+          ]
+        },
+        {
+          "id": "MILL-AWARE-MS0-P1-U02",
+          "title": "Create MillResourceSearchEngine for JM DIE mill programs + tribal + playbook",
+          "status": "pending",
+          "steps": [
+            "duplicationGuardEngine check: confirm no existing MillResourceSearch* engine",
+            "Create src/engines/MillResourceSearchEngine.ts as singleton",
+            "Method searchMillPrograms(query, customer?) → scan jmdie-mill-program-index for matches",
+            "Method searchMillTribal(query) → filter tribal tips tagged mill/milling/haas/hurco/okuma-multus/roku-roku",
+            "Method searchMillPlaybook(query) → filter MachiningPlaybookEngine rules where category matches mill ops",
+            "Method findSimilarMillSetup(features[], material) → returns ranked prior programs + their setups",
+            "Method getMillCapabilityFor(machineId) → looks up machine profile constraints",
+            "Wire into MillingDispatcher actions: mill_search_programs, mill_search_tribal, mill_search_playbook, mill_find_similar, mill_capability"
+          ],
+          "exit_conditions": [
+            "MillResourceSearchEngine exports singleton millResourceSearchEngine",
+            "≥10 unit tests covering each search method with realistic JM DIE queries",
+            "Returns structured results with confidence scores",
+            "Handles empty/missing queries gracefully",
+            "Dispatcher actions wired and callable"
+          ]
+        },
+        {
+          "id": "MILL-AWARE-MS0-P1-U03",
+          "title": "Create MillSelfAwarenessBridgeEngine wiring MillAISelfAwarenessIntegrationEngine to PRISMSelfAwarenessEngine",
+          "status": "pending",
+          "steps": [
+            "duplicationGuardEngine check for MillSelfAwarenessBridge*",
+            "Create src/engines/MillSelfAwarenessBridgeEngine.ts",
+            "On module load, register mill surfaces with PRISMSelfAwarenessEngine:",
+            "  - Mill program paths (Haas, Okuma-mill, Hurco, Roku-Roku)",
+            "  - Mill tribal knowledge index",
+            "  - Mill playbook rule filter (mill-tagged)",
+            "  - Mill machine profile catalog",
+            "Expose getMillAwarenessSnapshot() returning combined capability map",
+            "Expose injectMillContext(prompt) helper for agent prompts",
+            "Coordinate field: PRISM-wide chat can call PRISMSelfAwarenessEngine.getMillAwareness() and this bridge responds"
+          ],
+          "exit_conditions": [
+            "Bridge engine exports millSelfAwarenessBridgeEngine singleton",
+            "Registers mill surfaces at import time (idempotent)",
+            "PRISMSelfAwarenessEngine.getFullDriveAwareness() includes mill block",
+            "≥10 tests covering registration, snapshot, prompt injection, idempotency"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Wire 103 Unwired Mill Engines",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P2-U01",
+          "title": "Audit mill engines and generate wiring matrix",
+          "status": "pending",
+          "steps": [
+            "Scan src/engines/Mill*.ts and src/engines/Milling*.ts (109 files)",
+            "For each: detect exported singleton, list public methods, categorize (toolpath/physics/ai/knowledge/orchestration)",
+            "Cross-reference aiReasoningDispatcher + calcDispatcher for already-wired engines",
+            "Output MILL-WIRING-MATRIX.md with rows: engine, category, wired?, target_dispatcher, target_action",
+            "Delta should show ~103 unwired engines targeted for MillingDispatcher"
+          ],
+          "exit_conditions": [
+            "MILL-WIRING-MATRIX.md generated with one row per mill engine",
+            "Wired column accurate vs current dispatcher codebase",
+            "Categorization matches engine categories from CLAUDE.md"
+          ]
+        },
+        {
+          "id": "MILL-AWARE-MS0-P2-U02",
+          "title": "Wire remaining mill engines via MillingDispatcher lazy imports",
+          "status": "pending",
+          "steps": [
+            "For each unwired engine, add lazy import in millingDispatcher.ts getEngine switch",
+            "Add action name to z.enum (snake_case)",
+            "Add Zod schema entry",
+            "Add case in switch routing to engine method",
+            "Keep per-commit batch size ≤ 25 engines to limit review surface",
+            "Track progress in MILL-WIRING-MATRIX.md (flip wired column)"
+          ],
+          "exit_conditions": [
+            "≥95% mill engines wired (target 103/109)",
+            "z.enum count grows by the wired delta",
+            "Build clean after each batch",
+            "MILL-WIRING-MATRIX.md shows progress"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Test Coverage — 109 Mill Engines",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P3-U01",
+          "title": "Generate test files for mill engines with ≥10 cases each",
+          "status": "pending",
+          "steps": [
+            "For each Mill*.ts / Milling*.ts engine, create EngineName.test.ts (if missing)",
+            "Minimum 10 test cases per engine per ~/.claude/rules/tests.md",
+            "Cover edge cases: zero inputs, negative values, NaN, empty arrays, extreme ranges",
+            "Physics engines: dimensional consistency + toBeCloseTo()",
+            "AI/orchestration engines: realistic manufacturing inputs + assertion on returned structure fields",
+            "Use engineTestHarness.ts helper where applicable",
+            "Stop hook compliance: test actual return values not just .toBeDefined()"
+          ],
+          "exit_conditions": [
+            "Every mill engine has a matching test file",
+            "Minimum 1,090 new test cases total (109 × 10)",
+            "npx vitest run — all new tests pass",
+            "No trivial assertions (expect(true), expect(1).toBe(1))"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Machine Profile Catalogs — Haas, Hurco, Okuma-Multus, Roku-Roku",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P4-U01",
+          "title": "Create machine profile TS catalogs for JM DIE mills (concrete models identified)",
+          "status": "pending",
+          "steps": [
+            "Create src/data/machines/haas-vf2.ts (Haas VF-2, BT40, NGC control, standard tooling envelope)",
+            "Create src/data/machines/hurco-vmx30i.ts (Hurco VMX 30i, WinMax control, conversational + ISO modes)",
+            "Create src/data/machines/roku-roku-hc658.ts (Roku-Roku HC-658 high-precision jig-boring mill, thermal comp)",
+            "Create src/data/machines/okuma-genos-m460v-5ax.ts (5-axis, OSP-P300 control, trunnion)",
+            "Create src/data/machines/okuma-multus.ts (mill-turn, live tooling, B-axis tilt, OSP control)",
+            "Each catalog: spindle limits, axis travels, tool capacity, coolant options, controller-specific quirks",
+            "Register in ShopConfigurationEngine machine inventory",
+            "Wire into MillingDispatcher mill_capability action"
+          ],
+          "exit_conditions": [
+            "4+ machine profile files created and typed",
+            "ShopConfigurationEngine returns JM DIE mill machines correctly",
+            "mill_capability action returns capability envelope for each machine",
+            "Tests verify capability lookups + out-of-envelope rejection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Central Self-Awareness Wiring",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P5-U01",
+          "title": "Extend PRISMSelfAwarenessEngine with mill-specific surfaces",
+          "status": "pending",
+          "steps": [
+            "Add PRISMSelfAwarenessEngine.getMillAwareness() → delegates to MillSelfAwarenessBridgeEngine",
+            "Add PRISMSelfAwarenessEngine.searchMillPrograms(query) wrapper",
+            "Add PRISMSelfAwarenessEngine.searchMillTribal(query) wrapper",
+            "Update getFullDriveAwareness() output to include mill-specific block (machines, programs, tribal_count, playbook_mill_rule_count)",
+            "Recommend mill features in recommendAIFeatures() when prompt contains mill/milling/pocket/face/drill/tap",
+            "Update state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md with mill APIs"
+          ],
+          "exit_conditions": [
+            "Mill APIs callable on central PRISMSelfAwarenessEngine",
+            "Directive markdown updated",
+            "Tests verify mill awareness surfaces are populated",
+            "recommendAIFeatures returns mill features for mill prompts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "title": "Mill Tribal Knowledge Indexing",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P6-U01",
+          "title": "Index mill tribal knowledge for searchable retrieval",
+          "status": "pending",
+          "steps": [
+            "Audit current tribal knowledge storage — find where mill tips live today",
+            "If hardcoded: migrate to data/knowledge/mill-tribal.json with schema {id, category, tip, source, tags, confidence}",
+            "Build inverted index for keyword search (tokenize tip + tags, stemming optional)",
+            "Expose via MillResourceSearchEngine.searchMillTribal",
+            "Backfill entries from Titans/Haas/Hurco/HyperMILL videos already processed by VideoLearningEngine",
+            "Provenance preserved (source channel + URL + timestamp)"
+          ],
+          "exit_conditions": [
+            "Mill tribal tips in structured JSON with schema",
+            "Search returns ranked results in <50ms for typical query",
+            "≥500 mill-specific tips indexed",
+            "Provenance chain preserved from video pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P7",
+      "title": "Playbook Expansion — Mill-Specific Rules",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P7-U01",
+          "title": "Extend MachiningPlaybookEngine with ≥60 mill-specific rules",
+          "status": "pending",
+          "steps": [
+            "Audit current playbook: count mill-specific vs lathe-biased rules",
+            "Add mill rules across categories: pocket_strategy, helical_entry, trochoidal, adaptive_clearing, face_milling, high_feed_milling, thin_wall_mill, thread_mill, rigid_tap, drill_strategy, chamfer, engraving",
+            "Each rule: id, category, severity, title, rule, reasoning, source",
+            "Sources: Haas tips, HyperMILL best practices, Titans of CNC videos, Mastercam examples, JM DIE program patterns",
+            "Minimum 60 new mill rules added",
+            "Tag rules with machine_type: [\"mill\", \"vmc\", \"mill-turn\"] for filter in MillResourceSearchEngine"
+          ],
+          "exit_conditions": [
+            "MachiningPlaybookEngine has ≥60 new mill rules",
+            "Rules discoverable via playbook_category_list and searchMillPlaybook",
+            "All rules have source provenance",
+            "Existing lathe rules untouched (no regression)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P8",
+      "title": "Skill Forge — /mill-studio + Hooks",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P8-U01",
+          "title": "Create /mill-studio skill mirroring /lathe-studio",
+          "status": "pending",
+          "steps": [
+            "Create C:/Users/Mark Villanueva/.claude/commands/mill-studio.md",
+            "Args: empty (show mill menu), 'analyze <file>' (analyze mill program), 'plan <features>' (feature-driven plan), 'optimize <program>' (optimize toolpath), 'capability <machine>' (show machine envelope), 'search <query>' (search mill resources)",
+            "Invokes MillingDispatcher actions + MillResourceSearchEngine",
+            "Output formatted for operator consumption with rule IDs traceable back to playbook/tribal",
+            "Include examples in help text"
+          ],
+          "exit_conditions": [
+            "/mill-studio callable from slash menu",
+            "Each subcommand routes to MillingDispatcher action",
+            "Help text includes 5+ examples",
+            "Skill registered in PRISM-COMMANDS-MANIFEST.md"
+          ]
+        },
+        {
+          "id": "MILL-AWARE-MS0-P8-U02",
+          "title": "Register mill awareness hooks in HookRegistry",
+          "status": "pending",
+          "steps": [
+            "Hook MILL-M-001 (post-mill-toolpath-gen): auto-validate generated toolpath against mill playbook + tribal; surface warnings",
+            "Hook MILL-M-002 (pre-mill-cam-strategy): inject mill playbook suggestions before CAM strategy selection",
+            "Hook MILL-M-003 (mill-machine-profile-guard): reject operations exceeding machine envelope (spindle RPM, torque, axis travel)",
+            "All hooks in src/hooks/MillAwarenessHooks.ts",
+            "Register with HookRegistry.register with proper metadata (severity, cadence, scope)",
+            "Severity: WARN for recommended, BLOCK for envelope violations"
+          ],
+          "exit_conditions": [
+            "3 hooks registered and callable",
+            "Hook tests verify firing + warning severity",
+            "MILL-M-003 blocks out-of-envelope with clear message",
+            "HookRegistry anti-regression passes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P9",
+      "title": "RGS Validation + Build Gate + Cross-Chat Sync",
+      "units": [
+        {
+          "id": "MILL-AWARE-MS0-P9-U01",
+          "title": "RGS 10-stage validation + build gate + coordination sync",
+          "status": "pending",
+          "steps": [
+            "Run RGS pipeline on MILL-AWARE-MS0 milestone (all 10 stages)",
+            "Target: 16/16 quality, scrutiny ≥87",
+            "Integration tests: mill_search_programs → returns JM DIE results; mill_capability → matches profile; mill_awareness_snapshot → includes all surfaces",
+            "Run npm run build — 0 new tsc errors",
+            "Run npx vitest run — 0 regressions in existing ~1500 tests",
+            "Write MILL-AWARENESS-COORDINATION.md entry for PRISM-wide chat summarizing surfaces exposed",
+            "Update ACTIVE_WORK_REGISTRY.json and ROADMAP_COLLABORATION_STATE.md",
+            "Commit with MILL-AWARE-MS0-COMPLETE marker"
+          ],
+          "exit_conditions": [
+            "RGS quality ≥ 16/16, scrutiny ≥ 87",
+            "Build clean + tests green",
+            "PRISM-wide chat can read mill surfaces via shared APIs",
+            "Coordination doc published",
+            "Omega = 1.0 for milestone"
+          ]
+        }
+      ]
+    }
+  ]
+}

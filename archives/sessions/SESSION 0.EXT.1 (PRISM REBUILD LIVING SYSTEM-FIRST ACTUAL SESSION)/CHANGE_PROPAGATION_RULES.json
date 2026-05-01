@@ -1,0 +1,142 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-20",
+  "description": "Rules for what needs updating when something changes",
+  "rules": [
+    {
+      "id": "CPR-001",
+      "trigger": "ADD_CONSTANT",
+      "layer": "L0_CONSTANTS",
+      "actions": [
+        "Update L0_CONSTANTS/_INDEX.js to export new constant",
+        "Update L0_CONSTANTS/_REGISTRY.json count",
+        "Identify which modules SHOULD use this constant",
+        "Queue enhancement for each identified module"
+      ]
+    },
+    {
+      "id": "CPR-002",
+      "trigger": "ADD_VALIDATOR",
+      "layer": "L1_VALIDATORS",
+      "actions": [
+        "Update L1_VALIDATORS/_INDEX.js to export new validator",
+        "Update L1_VALIDATORS/_REGISTRY.json count",
+        "Identify which modules handle this data type",
+        "Queue enhancement to add validation calls"
+      ]
+    },
+    {
+      "id": "CPR-003",
+      "trigger": "ADD_UNIT_CONVERSION",
+      "layer": "L2_UNITS",
+      "actions": [
+        "Update L2_UNITS/_INDEX.js to export new conversion",
+        "Update L2_UNITS/_REGISTRY.json count",
+        "Identify all I/O boundaries using this unit",
+        "Queue enhancement to add conversion calls"
+      ]
+    },
+    {
+      "id": "CPR-004",
+      "trigger": "ADD_DATABASE_FIELD",
+      "layer": "DATABASES",
+      "actions": [
+        "Add field to database schema",
+        "Populate field with data for all entries",
+        "Update database _REGISTRY.json",
+        "Identify consumers that SHOULD use this field",
+        "Queue enhancement for each consumer",
+        "Update DEPENDENCY_GRAPH.json field mappings"
+      ]
+    },
+    {
+      "id": "CPR-005",
+      "trigger": "ADD_DATABASE",
+      "layer": "DATABASES",
+      "actions": [
+        "Create database file with complete data (NO placeholders)",
+        "Define minimum 8-15 consumers",
+        "Create consumer wiring code for EACH consumer",
+        "Add gateway routes for database access",
+        "Update DATABASES/_REGISTRY.json",
+        "Update MASTER_INVENTORY.json",
+        "Update DEPENDENCY_GRAPH.json"
+      ]
+    },
+    {
+      "id": "CPR-006",
+      "trigger": "ADD_ENGINE",
+      "layer": "ENGINES",
+      "actions": [
+        "Create engine file with complete implementation (NO placeholders)",
+        "Define minimum 5 use cases",
+        "Create caller code for EACH use case",
+        "Add gateway routes for engine access",
+        "Update ENGINES/_REGISTRY.json",
+        "Update MASTER_INVENTORY.json",
+        "Update DEPENDENCY_GRAPH.json"
+      ]
+    },
+    {
+      "id": "CPR-007",
+      "trigger": "ADD_ALGORITHM",
+      "layer": "ENGINES",
+      "actions": [
+        "Add algorithm to appropriate engine",
+        "Document algorithm source (MIT course, paper, etc)",
+        "Identify use cases for algorithm",
+        "Wire algorithm to use cases",
+        "Update engine _REGISTRY.json",
+        "Add to PRISM_KNOWLEDGE_BASE"
+      ]
+    },
+    {
+      "id": "CPR-008",
+      "trigger": "ADD_CONSUMER",
+      "layer": "ANY",
+      "actions": [
+        "Create consumer code that ACTUALLY uses the data",
+        "Specify which fields are used",
+        "Add gateway route for consumer access",
+        "Update database consumer count",
+        "Update DEPENDENCY_GRAPH.json"
+      ]
+    },
+    {
+      "id": "CPR-009",
+      "trigger": "ADD_USE_CASE",
+      "layer": "ENGINES",
+      "actions": [
+        "Create use case implementation",
+        "Identify caller module",
+        "Wire caller to engine",
+        "Update engine use case count",
+        "Update DEPENDENCY_GRAPH.json"
+      ]
+    },
+    {
+      "id": "CPR-010",
+      "trigger": "ADD_PRODUCT_FEATURE",
+      "layer": "PRODUCTS",
+      "actions": [
+        "Design feature with full specification",
+        "Identify required databases/engines",
+        "Verify all dependencies exist (or queue them)",
+        "Implement with 6+ sources per calculation",
+        "Wire to learning pipeline",
+        "Add XAI explanation capability",
+        "Add uncertainty quantification"
+      ]
+    }
+  ],
+  "cascadeDetection": {
+    "description": "When module X changes, automatically detect what else needs updating",
+    "algorithm": [
+      "1. Look up X in DEPENDENCY_GRAPH.json",
+      "2. Get list of modules in 'usedBy'",
+      "3. For each dependent module, check if change affects it",
+      "4. If affected, add to ENHANCEMENT_QUEUE or CASCADE_QUEUE",
+      "5. Recursively check dependents of dependents for breaking changes"
+    ]
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "id": "HM-REV-MS2",
+  "version": "8.3.0",
+  "title": "Material Bridge + PPP Default Path",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire HyperMillMaterialBridgeEngine (2,544 materials, fuzzy match) and HyperMillMaterialMapEngine (190-grade taxonomy) to SpeedFeedOrchestratorEngine so that hyperMILL material selections automatically resolve to physics-backed cutting parameters. Reframe PPP as the default post-processing path for hyperMILL NC output (Agent 19 defect #3: AutoSpeedFeedEngine already does per-block S/F, make it the default). Wire HyperMillStrategyEngine to PRISM strategy recommendation pipeline.",
+  "dependencies": [
+    "HM-REV-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillMaterialBridgeEngine.ts (521 LOC — 2,544 materials, fuzzy match, machinability factors)",
+      "HyperMillMaterialMapEngine.ts (562 LOC — 190-grade taxonomy → ISO P/M/K/N/S/H)",
+      "SpeedFeedOrchestratorEngine.ts (2,851 LOC — 8 resolvers, Monte Carlo UQ)",
+      "AutoSpeedFeedEngine.ts (per-block S/F already built)",
+      "HyperMillStrategyEngine.ts (492 LOC — 20+ strategies)"
+    ],
+    "registries": [
+      "MaterialRegistry (2,957 materials)",
+      "ToolpathStrategyRegistry (762 strategies)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (kc1.1 per ISO group: P=1800, M=2100, K=1100, N=700, S=2800, H=3200)"
+    ],
+    "reference": [
+      "hypermill-materials.json (2,544 materials)",
+      "hypermill-cutting-tech.json (106 materials with speeds/feeds)",
+      "hypermill-speed-feed-catalog.ts (19 diameter-dependent entries)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-material-physics-gate — DECLARED+BUILT here (blocks if material has no Kienzle kc1.1)",
+    "action": "cam:hypermill_material_to_physics — DECLARED+BUILT here",
+    "skill": "/hypermill-material-lookup — DECLARED here, BUILT in HM-REV-MS3 (Skills Phase 1)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read MaterialBridge + SpeedFeedOrchestrator before coding)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker (kc1.1 values from constants.ts only)"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS2-S1",
+      "title": "MaterialBridge → SpeedFeedOrchestrator Wiring + ISO Group Resolution",
+      "smart_config": {
+        "role": "Materials Physics Engineer + MCP Wiring Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillMaterialBridgeEngine.ts",
+        "HyperMillMaterialMapEngine.ts",
+        "SpeedFeedOrchestratorEngine.ts",
+        "hypermill-materials.json",
+        "constants.ts"
+      ],
+      "intent": "Connect hyperMILL's 2,544-material database to PRISM's physics engine so that any hyperMILL material selection (DIN, AISI, JIS, UNS, AFNOR, BS standards) automatically resolves to Kienzle kc1.1 constants and machinability factors for speed/feed calculation.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR11",
+          "title": "Wire MaterialBridge fuzzy match → MaterialRegistry → kc1.1 resolution chain",
+          "description": "Create the resolution chain: hyperMILL material name (any standard) → MaterialBridge fuzzy match → ISO group classification → MaterialRegistry kc1.1 lookup → SpeedFeedOrchestrator input. Handle multi-standard aliases (e.g., 1.4404 = AISI 316L = X2CrNiMo17-12-2). Build hypermill-material-physics-gate hook that blocks operations if material cannot resolve to kc1.1.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Resolution chain handles all 6 material standards (DIN/AISI/JIS/UNS/AFNOR/BS)",
+            "Fuzzy match resolves 95%+ of hypermill-materials.json entries to ISO groups",
+            "hypermill-material-physics-gate hook blocks if kc1.1 is unresolvable",
+            "kc1.1 values come from constants.ts (never hardcoded)",
+            "5 unit tests covering each standard + fuzzy match + gate block"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillMaterialResolverBridge.ts"
+            ],
+            "files_modified": [
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "resolution rate < 90%"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillMaterialResolverBridge.ts src/hooks/registry.ts"
+          }
+        },
+        {
+          "id": "U-HMR12",
+          "title": "Wire MaterialMap ISO taxonomy to SpeedFeedOrchestrator resolver",
+          "description": "Connect HyperMillMaterialMapEngine's 190-grade taxonomy to SpeedFeedOrchestratorEngine as a new resolver. The orchestrator's 8 resolvers gain a 9th: hyperMILL material map resolver that uses ISO P/M/K/N/S/H group classification to select the correct kc1.1 and machinability correction factors. Include chipping class corrections from hypermill-materials-catalog.ts.",
+          "depends_on": [
+            "U-HMR11"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "SpeedFeedOrchestratorEngine has hyperMILL resolver registered",
+            "Resolver uses ISO group + chipping class corrections",
+            "Machinability factors (HB, thermal conductivity) propagate to force model",
+            "A machinist querying 316L gets correct kc1.1=2100 and correction factors",
+            "4 unit tests: ISO P steel, ISO M stainless, ISO S titanium, ISO H hardened"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/SpeedFeedOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "kc1.1 values don't match constants.ts"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/SpeedFeedOrchestratorEngine.ts"
+          }
+        },
+        {
+          "id": "U-HMR13",
+          "title": "Wire hypermill-cutting-tech.json speeds/feeds as calibration data for orchestrator",
+          "description": "Load the 106 material cutting technology entries from hypermill-cutting-tech.json as calibration reference data in SpeedFeedOrchestratorEngine. These manufacturer-recommended speeds/feeds serve as validation bounds: PRISM's physics-computed values should be within +/-20% of hyperMILL's catalog values. Flag deviations for machinist review.",
+          "depends_on": [
+            "U-HMR12"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "106 cutting tech entries loaded as calibration bounds",
+            "SpeedFeedOrchestrator compares physics output to hyperMILL catalog values",
+            "Deviations > 20% flagged with explanation (material property difference, tool geometry difference)",
+            "3 unit tests verify calibration comparison logic"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/SpeedFeedOrchestratorEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/SpeedFeedOrchestratorEngine.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 2,544 hyperMILL materials resolve to physics constants | ✓ 9th resolver in SpeedFeedOrchestrator | ✓ 106 calibration entries loaded | ✓ hypermill-material-physics-gate active | ✓ tsc 0 errors | ✓ 12+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-material-physics-gate"
+        ],
+        "new_actions": [
+          "cam:hypermill_material_to_physics"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS4",
+          "HM-REV-MS6",
+          "HM-REV-MS7"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS2-S2",
+      "title": "PPP Default Path + Strategy Pipeline Wiring",
+      "smart_config": {
+        "role": "Post-Processor Integration Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "PostProcessorPipelineEngine.ts (38 stages)",
+        "AutoSpeedFeedEngine.ts",
+        "HyperMillStrategyEngine.ts (492 LOC)",
+        "ToolpathStrategyRegistry"
+      ],
+      "intent": "Make PPP the default post-processing path for hyperMILL NC output and wire HyperMillStrategyEngine to PRISM's strategy recommendation pipeline. Per-block S/F via AutoSpeedFeedEngine is already built — this session makes it the default, not an opt-in.",
+      "skills": [
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR14",
+          "title": "Wire PPP as default hyperMILL post-processing path",
+          "description": "Configure PostProcessorPipelineEngine to be the default post-processing path for hyperMILL NC output. Create HyperMillPPPDefaultConfig that sets: (1) AutoSpeedFeedEngine as the default per-block optimizer, (2) hyperMILL controller dialect selection from HyperMillControllerCatalogEngine, (3) output path routing to hyperMILL project folder structure. This is a WIRE unit — AutoSpeedFeedEngine already does per-block S/F, we're making it the default path.",
+          "depends_on": [
+            "U-HMR13"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "PPP configured as default post path for hyperMILL actions",
+            "AutoSpeedFeedEngine engaged for all hyperMILL NC output",
+            "Controller dialect auto-selected from HyperMillControllerCatalogEngine",
+            "3 unit tests verify default path activation",
+            "A machinist would see per-block optimized S/F in hyperMILL output"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillPPPDefaultConfig.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillPPPDefaultConfig.ts"
+          }
+        },
+        {
+          "id": "U-HMR15",
+          "title": "Wire HyperMillStrategyEngine to ToolpathStrategyRegistry + recommendation pipeline",
+          "description": "Register HyperMillStrategyEngine's 20+ strategies in ToolpathStrategyRegistry (762 existing strategies from 18 CAM systems). Create bidirectional mapping: PRISM generic strategy → hyperMILL specific cycle, and hyperMILL cycle → PRISM physics parameters. This enables cross-CAM strategy comparison (e.g., hyperMILL MAXX roughing vs Fusion adaptive clearing).",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "20+ hyperMILL strategies registered in ToolpathStrategyRegistry",
+            "Bidirectional mapping: PRISM generic ↔ hyperMILL specific",
+            "Cross-CAM comparison possible (hyperMILL vs Fusion strategies)",
+            "3 unit tests verify mapping + lookup + comparison"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/registries/ToolpathStrategyRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/registries/ToolpathStrategyRegistry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ PPP is default hyperMILL post path | ✓ Per-block S/F active by default | ✓ 20+ strategies in ToolpathStrategyRegistry | ✓ Cross-CAM strategy comparison works | ✓ tsc 0 errors | ✓ 6+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS4",
+          "HM-REV-MS11"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

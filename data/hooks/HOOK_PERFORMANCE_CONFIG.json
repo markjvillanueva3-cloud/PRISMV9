@@ -1,0 +1,349 @@
+{
+  "version": "1.0.0",
+  "created": "2026-02-02",
+  "description": "Hook Performance Optimization Configuration - Session 19",
+  "phase": "Phase 0 - Hook Maximization",
+  "session": "19",
+  "optimization_strategies": {
+    "caching": {
+      "enabled": true,
+      "description": "Cache expensive hook results",
+      "config": {
+        "cache_provider": "memory",
+        "default_ttl_seconds": 300,
+        "max_entries": 10000,
+        "eviction_policy": "LRU",
+        "cache_key_generator": "hook_id + JSON.stringify(context)"
+      },
+      "cacheable_hooks": [
+        {
+          "pattern": "material:*query*",
+          "ttl_seconds": 3600,
+          "reason": "Material data rarely changes"
+        },
+        {
+          "pattern": "machine:*query*",
+          "ttl_seconds": 3600,
+          "reason": "Machine data rarely changes"
+        },
+        {
+          "pattern": "formula:*validate*",
+          "ttl_seconds": 1800,
+          "reason": "Formula validation stable"
+        },
+        {
+          "pattern": "calculation:cache_check",
+          "ttl_seconds": 600,
+          "reason": "Calculation cache"
+        }
+      ],
+      "non_cacheable_hooks": [
+        "safety:*",
+        "state:*",
+        "*:rollback*",
+        "*:error*"
+      ]
+    },
+    "parallel_execution": {
+      "enabled": true,
+      "description": "Execute independent hooks in parallel",
+      "config": {
+        "max_parallel": 10,
+        "thread_pool": "ThreadPoolExecutor",
+        "timeout_per_hook_ms": 5000
+      },
+      "parallel_groups": [
+        {
+          "group": "pre_calculation_checks",
+          "hooks": [
+            "calculation:validate_input",
+            "calculation:cache_check",
+            "material:coefficient_check"
+          ],
+          "execution": "parallel",
+          "reason": "Independent validation checks"
+        },
+        {
+          "group": "post_calculation_logging",
+          "hooks": [
+            "calculation:log",
+            "calculation:cache_store",
+            "metrics:record"
+          ],
+          "execution": "parallel",
+          "reason": "Independent logging operations"
+        },
+        {
+          "group": "file_pre_checks",
+          "hooks": [
+            "file:path_validate",
+            "file:content_validate",
+            "file:anti_regression"
+          ],
+          "execution": "sequential",
+          "reason": "Must validate in order"
+        }
+      ],
+      "sequential_required": [
+        {
+          "pattern": "safety:*",
+          "reason": "Safety checks must be sequential"
+        },
+        {
+          "pattern": "*:before* -> *:after*",
+          "reason": "Lifecycle order required"
+        }
+      ]
+    },
+    "batching": {
+      "enabled": true,
+      "description": "Batch similar hook calls",
+      "config": {
+        "batch_window_ms": 50,
+        "max_batch_size": 100,
+        "batch_timeout_ms": 1000
+      },
+      "batchable_hooks": [
+        {
+          "pattern": "*:log*",
+          "batch_size": 50,
+          "reason": "Logging can be batched"
+        },
+        {
+          "pattern": "*:registry_update*",
+          "batch_size": 20,
+          "reason": "Registry updates can be batched"
+        },
+        {
+          "pattern": "*:metrics*",
+          "batch_size": 100,
+          "reason": "Metrics always batched"
+        }
+      ]
+    },
+    "lazy_loading": {
+      "enabled": true,
+      "description": "Load hooks on demand",
+      "config": {
+        "eager_load_patterns": [
+          "safety:*",
+          "calculation:before*",
+          "file:anti_regression*"
+        ],
+        "lazy_load_patterns": [
+          "*:log*",
+          "*:metrics*",
+          "*:progress*"
+        ]
+      }
+    },
+    "circuit_breaker": {
+      "enabled": true,
+      "description": "Prevent cascade failures",
+      "config": {
+        "failure_threshold": 5,
+        "reset_timeout_seconds": 60,
+        "half_open_requests": 3
+      },
+      "excluded_hooks": [
+        "safety:*",
+        "*:rollback*",
+        "*:error*"
+      ]
+    }
+  },
+  "performance_monitoring": {
+    "enabled": true,
+    "metrics": {
+      "execution_time": {
+        "enabled": true,
+        "percentiles": [50, 90, 95, 99],
+        "alert_threshold_p99_ms": 1000
+      },
+      "throughput": {
+        "enabled": true,
+        "window_seconds": 60,
+        "alert_threshold_per_second": 1000
+      },
+      "error_rate": {
+        "enabled": true,
+        "window_seconds": 300,
+        "alert_threshold_percent": 5
+      },
+      "cache_hit_rate": {
+        "enabled": true,
+        "alert_threshold_percent": 70
+      }
+    },
+    "alerting": {
+      "enabled": true,
+      "channels": ["log", "metrics"],
+      "rules": [
+        {
+          "name": "slow_hook",
+          "condition": "duration_ms > 1000",
+          "severity": "warning",
+          "action": "log_and_analyze"
+        },
+        {
+          "name": "very_slow_hook",
+          "condition": "duration_ms > 5000",
+          "severity": "critical",
+          "action": "alert_and_circuit_break"
+        },
+        {
+          "name": "high_failure_rate",
+          "condition": "failure_rate_5min > 0.1",
+          "severity": "critical",
+          "action": "alert_and_investigate"
+        },
+        {
+          "name": "low_cache_hit",
+          "condition": "cache_hit_rate < 0.5",
+          "severity": "warning",
+          "action": "review_cache_config"
+        }
+      ]
+    }
+  },
+  "hook_priorities": {
+    "description": "Execution priority tiers for hooks",
+    "tiers": [
+      {
+        "tier": 0,
+        "name": "CRITICAL_SAFETY",
+        "priority_range": [0, 10],
+        "execution": "immediate",
+        "can_timeout": false,
+        "hooks": [
+          "safety:*",
+          "calculation:safety_violation",
+          "state:rollback"
+        ]
+      },
+      {
+        "tier": 1,
+        "name": "VALIDATION",
+        "priority_range": [11, 20],
+        "execution": "high_priority",
+        "can_timeout": true,
+        "timeout_ms": 2000,
+        "hooks": [
+          "*:validate*",
+          "*:anti_regression*",
+          "calculation:physics_check"
+        ]
+      },
+      {
+        "tier": 2,
+        "name": "STANDARD",
+        "priority_range": [21, 50],
+        "execution": "normal",
+        "can_timeout": true,
+        "timeout_ms": 5000,
+        "hooks": [
+          "*:before*",
+          "*:after*",
+          "formula:*"
+        ]
+      },
+      {
+        "tier": 3,
+        "name": "AUXILIARY",
+        "priority_range": [51, 100],
+        "execution": "low_priority",
+        "can_timeout": true,
+        "timeout_ms": 10000,
+        "can_skip_on_pressure": true,
+        "hooks": [
+          "*:log*",
+          "*:metrics*",
+          "*:progress*",
+          "*:cache*"
+        ]
+      }
+    ]
+  },
+  "resource_limits": {
+    "max_concurrent_hooks": 50,
+    "max_hook_queue_size": 1000,
+    "max_memory_per_hook_mb": 100,
+    "global_timeout_ms": 30000,
+    "context_pressure_thresholds": {
+      "GREEN": {
+        "max_percent": 60,
+        "action": "normal"
+      },
+      "YELLOW": {
+        "max_percent": 75,
+        "action": "skip_tier_3_hooks"
+      },
+      "ORANGE": {
+        "max_percent": 85,
+        "action": "skip_tier_2_3_hooks"
+      },
+      "RED": {
+        "max_percent": 92,
+        "action": "only_tier_0_1_hooks"
+      },
+      "CRITICAL": {
+        "max_percent": 100,
+        "action": "only_tier_0_hooks"
+      }
+    }
+  },
+  "optimization_benchmarks": {
+    "before_optimization": {
+      "avg_hook_execution_ms": 150,
+      "p99_hook_execution_ms": 2000,
+      "hooks_per_second": 100,
+      "cache_hit_rate": 0,
+      "parallel_utilization": 0
+    },
+    "target_after_optimization": {
+      "avg_hook_execution_ms": 50,
+      "p99_hook_execution_ms": 500,
+      "hooks_per_second": 500,
+      "cache_hit_rate": 0.7,
+      "parallel_utilization": 0.8
+    },
+    "expected_improvement": {
+      "execution_time": "3x faster",
+      "throughput": "5x higher",
+      "cache_efficiency": "70% hit rate",
+      "parallel_efficiency": "80% utilization"
+    }
+  },
+  "implementation_checklist": [
+    {
+      "item": "Implement caching layer",
+      "status": "DEFINED",
+      "priority": "HIGH"
+    },
+    {
+      "item": "Add parallel execution support",
+      "status": "DEFINED",
+      "priority": "HIGH"
+    },
+    {
+      "item": "Implement circuit breaker",
+      "status": "DEFINED",
+      "priority": "MEDIUM"
+    },
+    {
+      "item": "Add performance monitoring",
+      "status": "DEFINED",
+      "priority": "HIGH"
+    },
+    {
+      "item": "Configure batching",
+      "status": "DEFINED",
+      "priority": "MEDIUM"
+    },
+    {
+      "item": "Set up alerting",
+      "status": "DEFINED",
+      "priority": "LOW"
+    }
+  ]
+}

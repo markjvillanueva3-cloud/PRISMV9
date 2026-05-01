@@ -1,0 +1,44 @@
+{
+  "id": "SCIMATH-MS3",
+  "version": "1.0.0",
+  "title": "Quantum-Inspired Optimization & Topological Data Analysis",
+  "brief": "Classical simulation of quantum annealing/QAOA/VQE for combinatorial manufacturing problems. Persistent homology for process fingerprinting and defect detection. Discrete Morse theory for CAD feature recognition.",
+  "track": "SCIMATH",
+  "created_at": "2026-04-01T14:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "not_started",
+  "total_units": 16,
+  "completed_units": 0,
+  "dependencies": ["SCIMATH-MS0"],
+  "phases": [
+    {"id": "P0", "title": "Quantum-Inspired Classical Optimization", "units": [
+      {"id": "P0-U01", "title": "QuantumAnnealingEngine — QUBO/Ising classical simulation", "status": "not_started"},
+      {"id": "P0-U02", "title": "QAOAEngine — variational circuit simulation", "status": "not_started"},
+      {"id": "P0-U03", "title": "VQEEngine — ground state via variational ansatz", "status": "not_started"},
+      {"id": "P0-U04", "title": "QuantumWalkSearchEngine — graph search heuristic", "status": "not_started"},
+      {"id": "P0-U05", "title": "QISPBenchmarkEngine — benchmark vs PSO/GA/CMA-ES", "status": "not_started"}
+    ]},
+    {"id": "P1", "title": "TDA for Manufacturing", "units": [
+      {"id": "P1-U01", "title": "PersistentHomologyPipelineEngine — Rips/alpha complex filtration", "status": "not_started"},
+      {"id": "P1-U02", "title": "TDADefectDetectionEngine — Betti numbers for porosity/cracks", "status": "not_started"},
+      {"id": "P1-U03", "title": "TDAProcessFingerprintEngine — persistence landscapes for ML", "status": "not_started"},
+      {"id": "P1-U04", "title": "DiscreteMorseTheoryEngine — Forman discrete Morse for CAD", "status": "not_started"}
+    ]},
+    {"id": "P2", "title": "Algebraic & Geometric Topology", "units": [
+      {"id": "P2-U01", "title": "ManifoldAnalysisEngine — Isomap/UMAP embedding", "status": "not_started"},
+      {"id": "P2-U02", "title": "SimplicialDataAnalysisEngine — sensor coverage verification", "status": "not_started"},
+      {"id": "P2-U03", "title": "HomologicalFeatureEngine — cubical homology for CT scans", "status": "not_started"}
+    ]},
+    {"id": "P3", "title": "Dispatcher & Validation", "units": [
+      {"id": "P3-U01", "title": "QuantumDispatcherActions — 5 actions wired", "status": "not_started"},
+      {"id": "P3-U02", "title": "TDADispatcherActions — 7 actions wired", "status": "not_started"},
+      {"id": "P3-U03", "title": "QuantumTDATestSuite — 30 cases", "status": "not_started"},
+      {"id": "P3-U04", "title": "FormulaRegistryUpdate_QTDA", "status": "not_started"}
+    ]}
+  ],
+  "forge_triple": {
+    "hook": "enforce-quantum-benchmark — requires comparison vs classical optimizer",
+    "action": "prism_quantum_math (5), scimath_tda (7)",
+    "skill": "/scimath-quantum, /scimath-tda"
+  }
+}

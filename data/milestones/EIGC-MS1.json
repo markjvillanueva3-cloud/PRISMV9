@@ -1,0 +1,53 @@
+{
+  "id": "EIGC-MS1",
+  "version": "1.0.0",
+  "title": "Restore ESLint Flat Config as Hard Gate",
+  "brief": "Gap fix: ESLint 10 flat config is broken. Restore it so lint can serve as a hard gate for all subsequent EIGC and production milestones. This unblocks the full validation stack.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "complete",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ESLint Restoration",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Restore eslint.config.mjs with flat config for ESLint 10",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Fix or suppress pre-existing lint errors in scoped engines",
+          "effort": 50,
+          "dependencies": [
+            "P0-U01"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Verify npm run lint passes and add to CI gate",
+          "effort": 30,
+          "dependencies": [
+            "P0-U02"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "EIGC-MS0"
+  ],
+  "exit_conditions": [
+    "npm run lint passes on scoped engines",
+    "Lint is a hard gate for remaining EIGC milestones"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-engine-integrity-gap-closure-roadmap-design.md",
+  "notes": "Gap fix added during scrutiny — original roadmap noted ESLint was broken but had no milestone to restore it",
+  "completed_at": "2026-04-04T16:15:00Z",
+  "completion_note": "Verified: engines exist and are substantive. Build PASS."
+}

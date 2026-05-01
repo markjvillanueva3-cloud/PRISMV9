@@ -1,0 +1,60 @@
+L1671:                 const cur = wf.steps[wf.current_step - 1];
+L1672:                 const done = wf.steps.filter((s) => s.status === "done").length;
+L1673:                 ctx.workflow = `${wf.workflow_type}:${wf.current_step}/${wf.total_steps} ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
+L1674:                 ctx.task = `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}: ${cur?.name || "?"} \u2014 ${cur?.intent || "?"}`;
+L1675:                 ctx.next = wf.current_step < wf.total_steps ? `Step ${wf.current_step + 1}: ${wf.steps[wf.current_step]?.name} \u2014 ${wf.steps[wf.current_step]?.intent}` : "Final step \u2014 complete workflow after this";
+L1676:               }
+L1677:             }
+L1678:           } catch {
+L1679:           }
+L1680:           if (ctx.resume || ctx.task || ctx.next || ctx.workflow) {
+L1681:             // _hint REMOVED ? static waste, points stale
+L1682:             if (cadence.agent_recommend?.classification) {
+L1683:               const c = cadence.agent_recommend.classification;
+L1684:               if (c.recommended_agents?.length > 0 || c.recommended_swarm) {
+L1685:                 ctx.agent_hint = cadence.agent_recommend.hint;
+L1686:               }
+L1687:             }
+L1688:             if (cadence.skill_hints?.bundle_name) {
+L1689:               const sh = cadence.skill_hints;
+L1690:               ctx.skill_bundle = `\u{1F4E6} ${sh.bundle_name} (${sh.loaded_excerpts} skills, ${sh.pressure_mode || "full"})${sh.chain_suggestion ? ` | chain: ${sh.chain_suggestion}` : ""}`;
+L1691:             }
+L1692:             if (cadence.agent_recommend?.atcs_recommendation?.suggested) {
+L1693:               const atcs = cadence.agent_recommend.atcs_recommendation;
+L1694:               ctx.atcs_hint = `\u{1F504} ATCS RECOMMENDED: ${atcs.reason} (~${atcs.estimated_units} units). Consider: prism_atcs\u2192task_init to manage this as autonomous multi-unit task.`;
+L1695:             }
+L1696:             try {
+L1697:               const bridge = getBridgeStatus();
+L1698:               if (bridge.active_delegations > 0) {
+L1699:                 ctx.manus_bridge = `\u{1F916} ${bridge.active_delegations} delegated units (${bridge.by_status.running || 0} running, ${bridge.by_status.completed || 0} ready). Auto-completing on next poll cycle.`;
+L1700:               }
+L1701:             } catch {
+L1702:             }
+L1703:             if (callNum > 0 && callNum % 8 === 0) {
+L1704:               ctx._wip_reminder = "\u26A0\uFE0F Add _notes to your next tool call to save your current reasoning. Example: {action: '...', params: {_notes: 'what I found/decided/plan next', ...other_params}}. Notes auto-save to SESSION_JOURNAL.jsonl and survive compaction.";
+L1705:             }
+L1706:             parsed._context = ctx;
+L1707:           }
+L1708:         } catch {
+L1709:         }
+L1710:         const recoveryData = cadence.rehydrated || compactionRecoverySurvival;
+L1711:         if (recoveryData && compactionRecoveryCallsRemaining > 0) {
+L1712:           const nextAction = recoveryData.next_action || "Run prism_gsd\u2192quick_resume then prism_context\u2192todo_read";
+L1713:           parsed._COMPACTION_RECOVERY = {
+L1714:             alert: `\u26A0\uFE0F COMPACTION RECOVERY (${compactionRecoveryCallsRemaining} reminders left) \u2014 You lost context. Read files before responding.`,
+L1715:             instruction: `STOP. Before doing ANYTHING: 1) Read C:\\PRISM\\state\\RECENT_ACTIONS.json 2) Read /mnt/transcripts/ latest file 3) Then: ${nextAction}`,
+L1716:             context: {
+L1717:               you_were_doing: recoveryData.previous_task,
+L1718:               quick_resume: recoveryData.quick_resume,
+L1719:               recent_decisions: recoveryData.recent_decisions
+L1720:             },
+L1721:             // protocol string REMOVED ? static waste
+L1722:             rule: "Do NOT ask the user what to do. Do NOT explain compaction. Just continue the task seamlessly."
+L1723:           };
+L1724:           compactionRecoveryCallsRemaining--;
+L1725:           if (compactionRecoveryCallsRemaining <= 0) compactionRecoverySurvival = null;
+L1726:         }
+L1727:         if (compactionDetectedThisCall) {
+L1728:           let recoveryManifest = null;
+L1729:           try {
+L1730:             const manifestPath = path.join("C:\\PRISM\\state", "RECOVERY_MANIFEST.json");

@@ -1,0 +1,94 @@
+{
+  "id": "MAZAK_QT_COMPACT_200MS",
+  "name": "Mazak QT-COMPACT 200MS",
+  "manufacturer": "Mazak",
+  "type": "turning_center",
+  "travels": {
+    "x": 180,
+    "y": 45,
+    "z": 380
+  },
+  "spindle": {
+    "rpm": 5000,
+    "power_kW": 15,
+    "torque_Nm": 145,
+    "taper": "A2-6",
+    "bore_mm": 52
+  },
+  "controller": {
+    "brand": "Mazak",
+    "model": "MAZATROL SmoothG",
+    "type": "MAZATROL SmoothG"
+  },
+  "turret": {
+    "stations": 12,
+    "type": "VDI30",
+    "indexTime": 0.12
+  },
+  "barCapacity_mm": 52,
+  "maxTurningDia": 300,
+  "liveTools": true,
+  "yAxis": true,
+  "subSpindle": true,
+  "weight_kg": 4200,
+  "coolant": {
+    "pressure_bar": 15,
+    "tsc": true,
+    "tsc_pressure_bar": 70
+  },
+  "rapidTraverse": {
+    "x": 30000,
+    "z": 30000
+  },
+  "positioning_accuracy_mm": 0.004,
+  "repeatability_mm": 0.002,
+  "layer": "ENHANCED",
+  "has3DModel": true,
+  "collision_model": {
+    "type": "parametric_envelope",
+    "generated": true,
+    "source": "spec_derived",
+    "work_volume": {
+      "x": 180,
+      "y": 45,
+      "z": 380,
+      "shape": "cylindrical"
+    },
+    "zones": {
+      "spindle": {
+        "type": "cylinder",
+        "radius": 200,
+        "length": 200
+      },
+      "workpiece_envelope": {
+        "type": "cylinder",
+        "radius": 150,
+        "length": 380
+      },
+      "turret": {
+        "type": "box",
+        "dimensions": {
+          "x": 300,
+          "y": 200,
+          "z": 200
+        }
+      },
+      "bed": {
+        "type": "box",
+        "dimensions": {
+          "x": 380,
+          "y": 400,
+          "z": 680
+        }
+      },
+      "splash_guard": {
+        "type": "box",
+        "dimensions": {
+          "x": 580,
+          "y": 500,
+          "z": 780
+        }
+      }
+    }
+  }
+}

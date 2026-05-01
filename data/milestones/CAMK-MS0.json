@@ -1,0 +1,77 @@
+{
+  "id": "CAMK-MS0",
+  "version": "7.0.0",
+  "title": "Feature-to-Toolpath Bridge — Geometry Pipeline Foundation",
+  "brief": "Bridge the gap between part geometry/features and novel toolpath algorithms. Feature recognition → zone decomposition → algorithm selection → cutter-contact computation.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Feature Recognition & Zone Decomposition",
+      "units": [
+        {
+          "id": "U01",
+          "title": "FeatureToZoneEngine — Geometric feature → machining zone mapper",
+          "description": "Engine that takes feature descriptions (pocket dims, wall angles, freeform patches, hole patterns) and decomposes into machining zones with attributes: zone_type (flat/pocket/freeform/corner/wall/boss/undercut), area_mm2, depth_mm, curvature stats, draft angles, accessibility vectors. Outputs directly compatible with MTHZD/MACS zone inputs.",
+          "exit_conditions": [
+            "Engine created with 8+ zone types",
+            "Outputs MTHZD-compatible zone arrays",
+            "Unit tests for each zone type",
+            "Wired to toolpathDispatcher"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "AlgorithmSelectorEngine — Auto-select best novel algorithm per zone",
+          "description": "Decision engine that maps (zone_type, material, machine_capability, priority) → best novel algorithm from all 24. Uses scoring matrix: physics_match (Kienzle applicability), geometry_fit (pocket→TGAR, freeform→CFSF, deep→VCER, thin_wall→PTDC), material_fit (Ti→WHAP, hardened→PTAP), objective_fit (speed→DPLS, quality→HRAF). Returns ranked list with confidence scores.",
+          "exit_conditions": [
+            "Scoring matrix covers all 24 algorithms",
+            "Material-aware selection",
+            "Returns top-3 ranked",
+            "Tests with 10+ scenarios"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "CutterContactEngine — Analytical cutter-contact point computation",
+          "description": "Compute cutter-contact (CC) points on analytical surfaces: planes, cylinders, cones, spheres, tori. For ball/flat/bull-nose/barrel cutters. CC point + tool axis vector + surface normal. Uses differential geometry: κ₁, κ₂ principal curvatures → scallop height = R - sqrt(R² - (stepover/2)²). Supports 3-axis and 5-axis (tilted tool axis).",
+          "exit_conditions": [
+            "CC computation for 5 surface types",
+            "4 cutter types",
+            "Scallop height prediction",
+            "5-axis tool axis optimization"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "StepoverOptimizationEngine — Curvature-adaptive stepover",
+          "description": "Given target scallop height (Ra), surface curvature field, and cutter geometry: compute optimal stepover at each point. For ball: ae = 2*sqrt(2*R*scallop). For barrel (hyperMILL hm-104): ae = 2*sqrt(2*R_barrel*scallop). For flat: ae = stepover (constant). Adaptive: reduces stepover in high-curvature regions, increases in flat regions. Integrates with CFSF (constant-force) and AMEF (morphed engagement).",
+          "exit_conditions": [
+            "Curvature-adaptive stepover",
+            "Ball/barrel/flat formulas",
+            "Integration with CFSF/AMEF",
+            "Scallop height validation tests"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "ToolAxisOptimizationEngine — 5-axis tool orientation for novel algorithms",
+          "description": "Compute optimal tool axis orientation using: (1) gouge avoidance (minimum tilt), (2) stiffness maximization (align with cutting force), (3) surface normal following, (4) machine singularity avoidance. Uses Rodrigues' rotation formula, quaternion SLERP for smooth transitions. Integrates with PTDC (deflection compensation) and MACS (swarf cutting). Outputs (i,j,k) tool axis vectors per segment.",
+          "exit_conditions": [
+            "4 optimization criteria",
+            "Gouge-free guarantee",
+            "Smooth axis transitions (SLERP)",
+            "Integration with PTDC/MACS"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

@@ -1,0 +1,7147 @@
+{
+  "version": "4.0.0",
+  "wave": "FINAL",
+  "generatedAt": "2026-01-31T17:46:37.389959",
+  "totalEngines": 447,
+  "byNovelty": {
+    "STANDARD": 177,
+    "ENHANCED": 90,
+    "NOVEL": 88,
+    "INVENTION": 92
+  },
+  "byCategory": {
+    "PHYSICS": 121,
+    "AI_ML": 129,
+    "CAD": 29,
+    "CAM": 71,
+    "DIGITAL_TWIN": 12,
+    "PROCESS_INTEL": 21,
+    "INTEGRATION": 13,
+    "QUALITY": 13,
+    "BUSINESS": 13,
+    "KNOWLEDGE": 10,
+    "PRISM_UNIQUE": 15
+  },
+  "engines": [
+    {
+      "id": "ENG-FORCE-KIENZLE_BASIC",
+      "name": "Kienzle Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Fc = kc1.1 \u00d7 h^mc \u00d7 b",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-CUT-001",
+        "F-CUT-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-KIENZLE_EXTENDED",
+      "name": "Extended Kienzle with corrections",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Speed, rake, wear corrections",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-CUT-001",
+        "F-CUT-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MERCHANT_SHEAR",
+      "name": "Merchant Shear Plane Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Shear angle analysis",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-OXLEY_PREDICTIVE",
+      "name": "Oxley Predictive Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Strain rate sensitive",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-LEE_SHAFFER",
+      "name": "Lee-Shaffer Slip Line",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Slip line field theory",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MECHANISTIC",
+      "name": "Mechanistic Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Cutting coefficient based",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-FEM_CUTTING",
+      "name": "FEM-based Cutting Simulation",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Finite element analysis",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-KIENZLE_THERMAL",
+      "name": "Kienzle with Thermal Softening",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Temperature-dependent kc",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-CUT-001",
+        "F-CUT-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MERCHANT_BUE",
+      "name": "Merchant with BUE Effects",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Built-up edge consideration",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-OXLEY_JOHNSON_COOK",
+      "name": "Oxley-Johnson-Cook Hybrid",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Combined constitutive",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MECHANISTIC_RUNOUT",
+      "name": "Mechanistic with Runout",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Tool runout effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-OBLIQUE_CUTTING",
+      "name": "Oblique Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "3D chip flow",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-HYBRID_PHYSICS_ML_FORCE",
+      "name": "Hybrid Physics-ML Force Prediction",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Physics-informed neural network",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-REAL_TIME_FORCE_ADAPT",
+      "name": "Real-time Adaptive Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Online learning force prediction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MULTI_MATERIAL_FORCE",
+      "name": "Multi-Material Interface Forces",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Composite/stack cutting",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-MICRO_CUTTING_FORCE",
+      "name": "Micro-Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Size effect integration",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-CRYOGENIC_FORCE",
+      "name": "Cryogenic Cutting Force Model",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "LN2/CO2 cooling effects",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-ULTRASONIC_ASSISTED_FORCE",
+      "name": "Ultrasonic-Assisted Cutting Force",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "VAM force reduction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-LASER_ASSISTED_FORCE",
+      "name": "Laser-Assisted Machining Force",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Thermal softening integration",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-PREDICTIVE_FORCE_FIELD",
+      "name": "Predictive Force Field Engine",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "3D force distribution prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-ADAPTIVE_COEFFICIENT_ENGINE",
+      "name": "Self-Calibrating Coefficient Engine",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Auto-tuning kc from sensor data",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-FORCE_FINGERPRINT_ENGINE",
+      "name": "Force Fingerprint Recognition",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Anomaly detection via force signature",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-QUANTUM_FORCE_MODEL",
+      "name": "Quantum-Enhanced Force Prediction",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Quantum computing optimization",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-FORCE-DIGITAL_TWIN_FORCE",
+      "name": "Digital Twin Force Synchronization",
+      "category": "PHYSICS",
+      "subcategory": "CUTTING_FORCE",
+      "description": "Real-time model updating",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "tribology",
+        "plasticity"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "HIGH",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-FLASH_TEMPERATURE",
+      "name": "Flash Temperature Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Tool-chip interface temp",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-BULK_TEMPERATURE",
+      "name": "Bulk Temperature Distribution",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Average cutting zone temp",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-HEAT_PARTITION",
+      "name": "Heat Partition Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Chip/tool/workpiece distribution",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-MOVING_HEAT_SOURCE",
+      "name": "Moving Heat Source Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Jaeger's solution",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-FINITE_DIFF_THERMAL",
+      "name": "Finite Difference Thermal",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Numerical heat transfer",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-MULTI_ZONE_THERMAL",
+      "name": "Multi-Zone Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Primary/secondary/tertiary zones",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-TRANSIENT_THERMAL",
+      "name": "Transient Thermal Analysis",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Time-dependent temperature",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-COOLANT_THERMAL",
+      "name": "Coolant Effect Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Flood/MQL/cryogenic",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-COATING_THERMAL",
+      "name": "Coating Thermal Barrier Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Multi-layer coating effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-INTERRUPTED_CUT_THERMAL",
+      "name": "Interrupted Cutting Thermal",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Milling thermal cycles",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 450,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-HYBRID_THERMAL_ML",
+      "name": "Hybrid Thermal-ML Prediction",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Physics-informed temperature",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-REAL_TIME_THERMAL_MAP",
+      "name": "Real-time Thermal Mapping",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "IR camera integration",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-CRYOGENIC_THERMAL",
+      "name": "Cryogenic Cooling Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "LN2 jet cooling analysis",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-MQL_DROPLET_THERMAL",
+      "name": "MQL Droplet Thermal Model",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Micro-lubrication cooling",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-TOOL_WEAR_THERMAL_COUPLING",
+      "name": "Tool Wear-Thermal Coupling",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Bidirectional modeling",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-PREDICTIVE_THERMAL_FIELD",
+      "name": "Predictive Thermal Field Engine",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "3D temperature prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-THERMAL_DAMAGE_PREDICTOR",
+      "name": "Thermal Damage Prediction Engine",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "White layer/burn prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-ADAPTIVE_COOLING_OPTIMIZER",
+      "name": "Adaptive Cooling Optimization",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Real-time coolant adjustment",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-THERMAL_DIGITAL_TWIN",
+      "name": "Thermal Digital Twin Engine",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Live thermal model sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-THERM-QUANTUM_THERMAL_SOLVER",
+      "name": "Quantum-Enhanced Thermal Solver",
+      "category": "PHYSICS",
+      "subcategory": "THERMAL",
+      "description": "Fast thermal simulation",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "heat_transfer",
+        "thermodynamics"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-THERM-001",
+        "F-THERM-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-STABILITY_LOBES",
+      "name": "Stability Lobe Diagram Generator",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Chatter-free zone mapping",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-FRF_ANALYZER",
+      "name": "FRF Analysis Engine",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Frequency response function",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-MODAL_ANALYSIS",
+      "name": "Modal Analysis Engine",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Natural frequencies/modes",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-SDOF_CHATTER",
+      "name": "SDOF Chatter Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Single degree of freedom",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-MDOF_CHATTER",
+      "name": "MDOF Chatter Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Multi-degree of freedom",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-PROCESS_DAMPING",
+      "name": "Process Damping Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Low-speed stability",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-RUNOUT_VIBRATION",
+      "name": "Runout-Induced Vibration",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Tool runout effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-VARIABLE_PITCH_STABILITY",
+      "name": "Variable Pitch Stability",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Unequal tooth spacing",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-VARIABLE_HELIX_STABILITY",
+      "name": "Variable Helix Stability",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Helix angle variation",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-THIN_WALL_CHATTER",
+      "name": "Thin-Wall Chatter Model",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Flexible workpiece",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 550,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-REAL_TIME_STABILITY",
+      "name": "Real-time Stability Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Online chatter detection",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-ADAPTIVE_SPINDLE_SPEED",
+      "name": "Adaptive Spindle Speed Control",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Active chatter avoidance",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-ML_CHATTER_PREDICTION",
+      "name": "ML-Based Chatter Prediction",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Pattern recognition",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-HYBRID_STABILITY_SOLVER",
+      "name": "Hybrid Stability Solver",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Semi-analytical + ML",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-MULTI_TOOL_STABILITY",
+      "name": "Multi-Tool Stability Analysis",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Tool assembly dynamics",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-PREDICTIVE_VIBRATION_FIELD",
+      "name": "Predictive Vibration Field",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "3D vibration mapping",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-ACTIVE_DAMPING_OPTIMIZER",
+      "name": "Active Damping Optimization",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Smart tool holder control",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-CHATTER_FINGERPRINT",
+      "name": "Chatter Fingerprint Engine",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Vibration signature library",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-STABILITY_DIGITAL_TWIN",
+      "name": "Stability Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Real-time stability sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VIB-QUANTUM_MODAL_SOLVER",
+      "name": "Quantum Modal Analysis",
+      "category": "PHYSICS",
+      "subcategory": "VIBRATION",
+      "description": "Fast eigenvalue computation",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "dynamics",
+        "vibration",
+        "control"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-VIB-001",
+        "F-VIB-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-THEORETICAL_ROUGHNESS",
+      "name": "Theoretical Surface Roughness",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Geometric Ra prediction",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-ACTUAL_ROUGHNESS",
+      "name": "Actual Surface Roughness Model",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "With tool wear effects",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-SURFACE_TEXTURE",
+      "name": "Surface Texture Analysis",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Waviness, roughness, lay",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-RESIDUAL_STRESS",
+      "name": "Residual Stress Prediction",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Machining-induced stress",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-BALL_END_SURFACE",
+      "name": "Ball End Mill Surface Model",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Scallop height/cusp",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-MULTI_AXIS_SURFACE",
+      "name": "Multi-Axis Surface Quality",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "5-axis surface finish",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-VIBRATION_SURFACE",
+      "name": "Vibration-Induced Surface",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Chatter marks prediction",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-THERMAL_SURFACE",
+      "name": "Thermal-Induced Surface Effects",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "White layer, burns",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-ML_SURFACE_PREDICTION",
+      "name": "ML Surface Roughness Prediction",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Multi-factor ML model",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-REAL_TIME_SURFACE_MONITOR",
+      "name": "Real-time Surface Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "In-process measurement",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-HYBRID_SURFACE_MODEL",
+      "name": "Hybrid Physics-ML Surface",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Combined prediction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-SURFACE_DIGITAL_TWIN",
+      "name": "Surface Quality Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Live surface prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-ADAPTIVE_SURFACE_OPTIMIZER",
+      "name": "Adaptive Surface Optimization",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Real-time parameter adjust",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-SURFACE_FINGERPRINT",
+      "name": "Surface Fingerprint Engine",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Quality signature matching",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-SURF-NANO_SURFACE_PREDICTOR",
+      "name": "Nano-Scale Surface Prediction",
+      "category": "PHYSICS",
+      "subcategory": "SURFACE",
+      "description": "Atomic-level modeling",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "surface_science"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-TAYLOR_TOOL_LIFE",
+      "name": "Taylor Tool Life Equation",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "VT^n = C",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-EXTENDED_TAYLOR",
+      "name": "Extended Taylor Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Feed, depth corrections",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-FLANK_WEAR",
+      "name": "Flank Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "VB progression",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-CRATER_WEAR",
+      "name": "Crater Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "KT progression",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-NOTCH_WEAR",
+      "name": "Notch Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Depth-of-cut notching",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-USUI_WEAR",
+      "name": "Usui Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Adhesive/abrasive combined",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-DIFFUSION_WEAR",
+      "name": "Diffusion Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "High-temperature diffusion",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-ABRASIVE_WEAR",
+      "name": "Abrasive Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Hard particle effects",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-COMBINED_WEAR",
+      "name": "Combined Wear Mechanisms",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Multi-mechanism model",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-ML_WEAR_PREDICTION",
+      "name": "ML Tool Wear Prediction",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Pattern-based prediction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-REAL_TIME_WEAR_MONITOR",
+      "name": "Real-time Wear Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Sensor-based estimation",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-HYBRID_WEAR_MODEL",
+      "name": "Hybrid Physics-ML Wear",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Combined approach",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-COATING_WEAR_MODEL",
+      "name": "Coating-Specific Wear Model",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Multi-layer coating wear",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-PREDICTIVE_WEAR_FIELD",
+      "name": "Predictive Wear Field Engine",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "3D wear distribution",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-ADAPTIVE_TOOL_CHANGE",
+      "name": "Adaptive Tool Change Optimizer",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Optimal replacement timing",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-WEAR_FINGERPRINT",
+      "name": "Wear Fingerprint Engine",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Wear pattern recognition",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-DIGITAL_TWIN_WEAR",
+      "name": "Tool Wear Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Real-time wear sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-WEAR-SELF_HEALING_PREDICTION",
+      "name": "Self-Healing Tool Prediction",
+      "category": "PHYSICS",
+      "subcategory": "WEAR",
+      "description": "Regenerative coating model",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "tribology",
+        "materials"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [
+        "F-LIFE-001",
+        "F-LIFE-002"
+      ],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_FORMATION_BASIC",
+      "name": "Basic Chip Formation Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Continuous/discontinuous",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_THICKNESS",
+      "name": "Chip Thickness Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Deformed chip geometry",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_CURL",
+      "name": "Chip Curl Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Curl radius prediction",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_BREAKING",
+      "name": "Chip Breaking Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Natural/forced breaking",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-SEGMENTED_CHIP",
+      "name": "Segmented Chip Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Adiabatic shear bands",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-BUE_FORMATION",
+      "name": "BUE Formation Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Built-up edge dynamics",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_FLOW_3D",
+      "name": "3D Chip Flow Model",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Oblique cutting chip",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-ML_CHIP_PREDICTION",
+      "name": "ML Chip Form Prediction",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Image-based classification",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-REAL_TIME_CHIP_MONITOR",
+      "name": "Real-time Chip Monitoring",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Vision-based analysis",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_DIGITAL_TWIN",
+      "name": "Chip Formation Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Real-time chip prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-ADAPTIVE_CHIPBREAKER",
+      "name": "Adaptive Chipbreaker Optimizer",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Geometry optimization",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CHIP-CHIP_EVACUATION_PREDICTOR",
+      "name": "Chip Evacuation Predictor",
+      "category": "PHYSICS",
+      "subcategory": "CHIP",
+      "description": "Clearance analysis",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "plasticity",
+        "fracture"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-TOOL_DEFLECTION",
+      "name": "Tool Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Cantilever beam analysis",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-WORKPIECE_DEFLECTION",
+      "name": "Workpiece Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Flexible part bending",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-FIXTURE_DEFLECTION",
+      "name": "Fixture Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Clamping deformation",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-MACHINE_DEFLECTION",
+      "name": "Machine Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Structural compliance",
+      "type": "PHYSICS",
+      "novelty": "STANDARD",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-COMBINED_DEFLECTION",
+      "name": "Combined Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "All sources combined",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-DYNAMIC_DEFLECTION",
+      "name": "Dynamic Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Time-varying deflection",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-THERMAL_DEFLECTION",
+      "name": "Thermal Deflection Model",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Temperature-induced",
+      "type": "PHYSICS",
+      "novelty": "ENHANCED",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 350,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-REAL_TIME_DEFLECTION",
+      "name": "Real-time Deflection Compensation",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Online correction",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-ML_DEFLECTION_PREDICTION",
+      "name": "ML Deflection Prediction",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Learning-based",
+      "type": "PHYSICS",
+      "novelty": "NOVEL",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-DEFLECTION_DIGITAL_TWIN",
+      "name": "Deflection Digital Twin",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Real-time deflection sync",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-ADAPTIVE_COMPENSATION",
+      "name": "Adaptive Deflection Compensation",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Self-adjusting toolpath",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DEFL-PREDICTIVE_ACCURACY",
+      "name": "Predictive Accuracy Engine",
+      "category": "PHYSICS",
+      "subcategory": "DEFLECTION",
+      "description": "Part accuracy prediction",
+      "type": "PHYSICS",
+      "novelty": "INVENTION",
+      "physics_basis": [
+        "mechanics",
+        "structures"
+      ],
+      "ml_components": [],
+      "inputs": [],
+      "outputs": [],
+      "formulas": [],
+      "dependencies": [],
+      "consumers": [],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-PSO_BASIC",
+      "name": "Particle Swarm Optimization",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Basic PSO implementation",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-PSO_ADAPTIVE",
+      "name": "Adaptive PSO",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Self-tuning parameters",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-PSO_MULTI_SWARM",
+      "name": "Multi-Swarm PSO",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Cooperative swarms",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-ACO",
+      "name": "Ant Colony Optimization",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Pheromone-based optimization",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-ABC",
+      "name": "Artificial Bee Colony",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Foraging behavior",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-FIREFLY",
+      "name": "Firefly Algorithm",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Light attraction",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-GREY_WOLF",
+      "name": "Grey Wolf Optimizer",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Pack hunting behavior",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-WHALE",
+      "name": "Whale Optimization Algorithm",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Bubble-net feeding",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-BAT",
+      "name": "Bat Algorithm",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Echolocation",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-GA_BASIC",
+      "name": "Genetic Algorithm",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Basic GA",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-GA_ADAPTIVE",
+      "name": "Adaptive Genetic Algorithm",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Self-tuning operators",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-NSGA2",
+      "name": "NSGA-II Multi-Objective",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Pareto front",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-NSGA3",
+      "name": "NSGA-III Reference Point",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Many-objective",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-MOEAD",
+      "name": "MOEA/D Decomposition",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Weight vector based",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-DE",
+      "name": "Differential Evolution",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Mutation strategies",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-CMA_ES",
+      "name": "CMA-ES",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Covariance matrix adaptation",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-GRADIENT_DESCENT",
+      "name": "Gradient Descent",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Basic GD",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-SGD",
+      "name": "Stochastic Gradient Descent",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Mini-batch training",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-ADAM",
+      "name": "Adam Optimizer",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Adaptive moments",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-ADAMW",
+      "name": "AdamW",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Weight decay fix",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-LBFGS",
+      "name": "L-BFGS",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Quasi-Newton",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-NEWTON",
+      "name": "Newton Method",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Second-order",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-PENALTY_METHOD",
+      "name": "Penalty Method",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Constraint handling",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-BARRIER_METHOD",
+      "name": "Barrier Method",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Interior point",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-AUGMENTED_LAGRANGIAN",
+      "name": "Augmented Lagrangian",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Dual optimization",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-SQP",
+      "name": "Sequential Quadratic Programming",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "NLP solver",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-HYBRID_PSO_GA",
+      "name": "Hybrid PSO-GA",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Combined swarm-evolutionary",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-PHYSICS_GUIDED_OPT",
+      "name": "Physics-Guided Optimization",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Constrained by physics",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-TRANSFER_OPTIMIZATION",
+      "name": "Transfer Optimization",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Cross-domain transfer",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-META_OPTIMIZATION",
+      "name": "Meta-Optimization Engine",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Optimizer of optimizers",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-ROBUST_OPTIMIZATION",
+      "name": "Robust Optimization Engine",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Uncertainty handling",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-QUANTUM_INSPIRED_OPT",
+      "name": "Quantum-Inspired Optimizer",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "QAOA-inspired classical",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-NEURAL_GUIDED_SEARCH",
+      "name": "Neural-Guided Search",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "NN guides optimization",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-SELF_EVOLVING_OPTIMIZER",
+      "name": "Self-Evolving Optimizer",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Auto-adapting algorithm",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-FEDERATED_OPTIMIZATION",
+      "name": "Federated Optimization",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Distributed learning opt",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-OPT-DIGITAL_TWIN_OPTIMIZER",
+      "name": "Digital Twin Optimizer",
+      "category": "AI_ML",
+      "subcategory": "OPTIMIZATION",
+      "description": "Simulation-based opt",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "optimization",
+        "search"
+      ],
+      "estimated_lines": 700,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-MLP",
+      "name": "Multi-Layer Perceptron",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Basic feedforward NN",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-DEEP_MLP",
+      "name": "Deep MLP",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Many hidden layers",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-RESIDUAL_MLP",
+      "name": "Residual MLP",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Skip connections",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-CNN_1D",
+      "name": "1D Convolutional Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Time series/signals",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-CNN_2D",
+      "name": "2D Convolutional Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Images/spatial",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-RESNET",
+      "name": "ResNet Architecture",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Deep residual",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-UNET",
+      "name": "U-Net Architecture",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Encoder-decoder",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-RNN",
+      "name": "Recurrent Neural Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Basic RNN",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-LSTM",
+      "name": "Long Short-Term Memory",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Gated memory",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-GRU",
+      "name": "Gated Recurrent Unit",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Simplified LSTM",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-BIDIRECTIONAL",
+      "name": "Bidirectional RNN",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Forward-backward",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-SEQ2SEQ",
+      "name": "Sequence-to-Sequence",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Encoder-decoder RNN",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-ATTENTION",
+      "name": "Attention Mechanism",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Self-attention",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-TRANSFORMER",
+      "name": "Transformer Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Full transformer",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-BERT_STYLE",
+      "name": "BERT-Style Encoder",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Masked language model",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-GPT_STYLE",
+      "name": "GPT-Style Decoder",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Autoregressive",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-GNN",
+      "name": "Graph Neural Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Node/edge learning",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-GCN",
+      "name": "Graph Convolutional Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Spectral convolution",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-GAT",
+      "name": "Graph Attention Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Attention on graphs",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-VAE",
+      "name": "Variational Autoencoder",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Latent space",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-GAN",
+      "name": "Generative Adversarial Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Generator-discriminator",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-DIFFUSION",
+      "name": "Diffusion Model",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Denoising process",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-PINN",
+      "name": "Physics-Informed Neural Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "PDE constraints",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-NEURAL_ODE",
+      "name": "Neural ODE",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Continuous-depth",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-HAMILTONIAN_NN",
+      "name": "Hamiltonian Neural Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Energy conservation",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-MACHINING_TRANSFORMER",
+      "name": "Machining Transformer",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Process sequence modeling",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-TOOLPATH_CNN",
+      "name": "Toolpath CNN",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Spatial toolpath learning",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-SENSOR_FUSION_NN",
+      "name": "Sensor Fusion Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Multi-modal sensor",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-ADAPTIVE_ARCHITECTURE",
+      "name": "Adaptive Architecture Engine",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Self-designing network",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-CONTINUAL_LEARNER",
+      "name": "Continual Learning Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "No catastrophic forgetting",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-FEW_SHOT_MACHINING",
+      "name": "Few-Shot Machining Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Learn from <10 examples",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-EXPLAINABLE_NN",
+      "name": "Explainable Neural Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Interpretable predictions",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-NN-QUANTUM_NN",
+      "name": "Quantum Neural Network",
+      "category": "AI_ML",
+      "subcategory": "NEURAL",
+      "description": "Quantum circuit learning",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "neural_network",
+        "deep_learning"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-DECISION_TREE",
+      "name": "Decision Tree",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Basic tree",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-RANDOM_FOREST",
+      "name": "Random Forest",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Bagged trees",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-XGBOOST",
+      "name": "XGBoost",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Gradient boosting",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-LIGHTGBM",
+      "name": "LightGBM",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Fast gradient boosting",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-CATBOOST",
+      "name": "CatBoost",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Categorical features",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-BAGGING",
+      "name": "Bagging Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Bootstrap aggregating",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-BOOSTING",
+      "name": "Boosting Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Sequential learning",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-STACKING",
+      "name": "Stacking Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Meta-learner",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-VOTING",
+      "name": "Voting Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Majority/weighted vote",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-SVM",
+      "name": "Support Vector Machine",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Kernel methods",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-KNN",
+      "name": "K-Nearest Neighbors",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Instance-based",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-NAIVE_BAYES",
+      "name": "Naive Bayes",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Probabilistic",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-LOGISTIC_REGRESSION",
+      "name": "Logistic Regression",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Linear classification",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-LINEAR_REGRESSION",
+      "name": "Linear Regression",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Linear prediction",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 300,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-MACHINING_ENSEMBLE",
+      "name": "Machining-Specific Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Domain-optimized",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-ADAPTIVE_ENSEMBLE",
+      "name": "Adaptive Ensemble Selector",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Auto model selection",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-HYBRID_PHYSICS_ENSEMBLE",
+      "name": "Hybrid Physics-Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Physics + ML trees",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-SELF_CALIBRATING_ENSEMBLE",
+      "name": "Self-Calibrating Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Auto-tuning weights",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-UNCERTAINTY_ENSEMBLE",
+      "name": "Uncertainty-Aware Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Confidence estimation",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-ENS-STREAMING_ENSEMBLE",
+      "name": "Streaming Ensemble",
+      "category": "AI_ML",
+      "subcategory": "ENSEMBLE",
+      "description": "Online learning ensemble",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "ensemble",
+        "tree"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-Q_LEARNING",
+      "name": "Q-Learning",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Tabular Q",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-DQN",
+      "name": "Deep Q-Network",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Neural Q-function",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-DOUBLE_DQN",
+      "name": "Double DQN",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Overestimation fix",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-DUELING_DQN",
+      "name": "Dueling DQN",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Value-advantage split",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-RAINBOW",
+      "name": "Rainbow DQN",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Combined improvements",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-REINFORCE",
+      "name": "REINFORCE",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Basic policy gradient",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-A2C",
+      "name": "Advantage Actor-Critic",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Synchronous A2C",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-A3C",
+      "name": "Async Advantage Actor-Critic",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Parallel training",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-PPO",
+      "name": "Proximal Policy Optimization",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Clipped surrogate",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-TRPO",
+      "name": "Trust Region Policy Opt",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "KL constraint",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-DDPG",
+      "name": "Deep Deterministic PG",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Continuous actions",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-TD3",
+      "name": "Twin Delayed DDPG",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "TD3 improvements",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-SAC",
+      "name": "Soft Actor-Critic",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Entropy regularization",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-WORLD_MODEL",
+      "name": "World Model",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Learned dynamics",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-MBPO",
+      "name": "Model-Based Policy Opt",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Dyna-style",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 500,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-MACHINING_RL",
+      "name": "Machining Control RL",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Process parameter control",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-ADAPTIVE_FEED_RL",
+      "name": "Adaptive Feed Rate RL",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Real-time feed adjustment",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-TOOL_CHANGE_RL",
+      "name": "Tool Change Decision RL",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Optimal replacement",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-MULTI_MACHINE_RL",
+      "name": "Multi-Machine Scheduling RL",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Shop floor optimization",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-SAFE_RL",
+      "name": "Safe RL for Manufacturing",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Constraint satisfaction",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-TRANSFER_RL",
+      "name": "Transfer RL Engine",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Cross-machine transfer",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-HIERARCHICAL_MACHINING_RL",
+      "name": "Hierarchical Machining RL",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Multi-level control",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-RL-HUMAN_IN_LOOP_RL",
+      "name": "Human-in-the-Loop RL",
+      "category": "AI_ML",
+      "subcategory": "REINFORCEMENT",
+      "description": "Operator feedback learning",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "reinforcement_learning",
+        "policy"
+      ],
+      "estimated_lines": 800,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-BAYESIAN_INFERENCE",
+      "name": "Bayesian Inference Engine",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Posterior computation",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-GAUSSIAN_PROCESS",
+      "name": "Gaussian Process",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "GP regression",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-BAYESIAN_NN",
+      "name": "Bayesian Neural Network",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Uncertainty in weights",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-BAYESIAN_OPTIMIZATION",
+      "name": "Bayesian Optimization",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Acquisition functions",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-MCMC",
+      "name": "MCMC Sampling",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Markov chain Monte Carlo",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-HMC",
+      "name": "Hamiltonian Monte Carlo",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Gradient-based MCMC",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-VARIATIONAL_INFERENCE",
+      "name": "Variational Inference",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Approximate posterior",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-KALMAN_FILTER",
+      "name": "Kalman Filter",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Linear state estimation",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-EKF",
+      "name": "Extended Kalman Filter",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Nonlinear estimation",
+      "type": "AI_ML",
+      "novelty": "STANDARD",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-UKF",
+      "name": "Unscented Kalman Filter",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Sigma point",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-PARTICLE_FILTER",
+      "name": "Particle Filter",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Sequential Monte Carlo",
+      "type": "AI_ML",
+      "novelty": "ENHANCED",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 400,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-MACHINING_GP",
+      "name": "Machining-Specific GP",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Process-optimized kernel",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-UNCERTAINTY_QUANTIFIER",
+      "name": "Uncertainty Quantification Engine",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Full UQ pipeline",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-PROBABILISTIC_PHYSICS",
+      "name": "Probabilistic Physics Engine",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Stochastic physics",
+      "type": "AI_ML",
+      "novelty": "NOVEL",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-ONLINE_BAYESIAN",
+      "name": "Online Bayesian Engine",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Real-time Bayesian update",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-MULTI_FIDELITY_GP",
+      "name": "Multi-Fidelity GP",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Cheap + expensive data",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PROB-CAUSAL_INFERENCE",
+      "name": "Causal Inference Engine",
+      "category": "AI_ML",
+      "subcategory": "PROBABILISTIC",
+      "description": "Cause-effect discovery",
+      "type": "AI_ML",
+      "novelty": "INVENTION",
+      "ml_components": [
+        "probabilistic",
+        "bayesian"
+      ],
+      "estimated_lines": 600,
+      "complexity": "MEDIUM",
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-BREP_KERNEL",
+      "name": "B-Rep Kernel Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Boundary representation",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-NURBS_ENGINE",
+      "name": "NURBS Surface Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "NURBS evaluation/manipulation",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-BSPLINE_ENGINE",
+      "name": "B-Spline Curve Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Curve mathematics",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-BEZIER_ENGINE",
+      "name": "Bezier Curve/Surface Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Bezier math",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-MESH_ENGINE",
+      "name": "Mesh Processing Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Triangle mesh operations",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-TESSELLATION",
+      "name": "Tessellation Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Surface to mesh conversion",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-BOOLEAN_OPS",
+      "name": "Boolean Operations Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Union/subtract/intersect",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-OFFSET_ENGINE",
+      "name": "Offset Surface Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Parallel surfaces",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-FILLET_BLEND",
+      "name": "Fillet/Blend Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Edge blending",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-CURVATURE_ANALYSIS",
+      "name": "Curvature Analysis Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Surface curvature",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-DRAFT_ANALYSIS",
+      "name": "Draft Angle Analysis",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Moldability check",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-THICKNESS_ANALYSIS",
+      "name": "Wall Thickness Analysis",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Minimum wall check",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-UNDERCUT_DETECTION",
+      "name": "Undercut Detection Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Manufacturing feasibility",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-MASS_PROPERTIES",
+      "name": "Mass Properties Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Volume, COG, inertia",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-HOLE_RECOGNITION",
+      "name": "Hole Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect holes",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-POCKET_RECOGNITION",
+      "name": "Pocket Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect pockets",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-BOSS_RECOGNITION",
+      "name": "Boss Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect bosses",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-SLOT_RECOGNITION",
+      "name": "Slot Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect slots",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-RIB_RECOGNITION",
+      "name": "Rib Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect ribs",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-FILLET_RECOGNITION",
+      "name": "Fillet Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect fillets",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-CHAMFER_RECOGNITION",
+      "name": "Chamfer Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect chamfers",
+      "type": "CAD",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-THREAD_RECOGNITION",
+      "name": "Thread Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect threads",
+      "type": "CAD",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-PATTERN_RECOGNITION",
+      "name": "Pattern Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Detect patterns",
+      "type": "CAD",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-ML_FEATURE_RECOGNITION",
+      "name": "ML-Based Feature Recognition",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Deep learning features",
+      "type": "CAD",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-SEMANTIC_CAD",
+      "name": "Semantic CAD Understanding",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Intent from geometry",
+      "type": "CAD",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-GENERATIVE_GEOMETRY",
+      "name": "Generative Geometry Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "AI-generated shapes",
+      "type": "CAD",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-AUTO_DFM",
+      "name": "Automated DFM Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Design for manufacturing check",
+      "type": "CAD",
+      "novelty": "INVENTION",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-TOPOLOGY_OPTIMIZER",
+      "name": "Topology Optimization Engine",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Generative design",
+      "type": "CAD",
+      "novelty": "INVENTION",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAD-CAD_DIGITAL_TWIN",
+      "name": "CAD Digital Twin Sync",
+      "category": "CAD",
+      "subcategory": "GEOMETRY",
+      "description": "Live geometry updates",
+      "type": "CAD",
+      "novelty": "INVENTION",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-FACING_TOOLPATH",
+      "name": "Facing Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Face milling",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-POCKET_2D",
+      "name": "2D Pocket Toolpath",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Pocket clearing",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-CONTOUR_2D",
+      "name": "2D Contour Toolpath",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Profile milling",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-SLOT_TOOLPATH",
+      "name": "Slot Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Slot milling",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ENGRAVE_TOOLPATH",
+      "name": "Engraving Toolpath",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Text/pattern engraving",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ROUGH_3D",
+      "name": "3D Roughing Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Volumetric roughing",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-SEMIFINISH_3D",
+      "name": "3D Semi-Finish Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Near-net shape",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-FINISH_3D",
+      "name": "3D Finishing Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Final surface",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-REST_MACHINING",
+      "name": "Rest Machining Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Remaining material",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-PENCIL_TOOLPATH",
+      "name": "Pencil Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Corner cleanup",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-SCALLOP_TOOLPATH",
+      "name": "Scallop Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Constant cusp",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-WATERLINE_TOOLPATH",
+      "name": "Waterline Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Z-level finishing",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-PARALLEL_TOOLPATH",
+      "name": "Parallel Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Lace/zigzag",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-RADIAL_TOOLPATH",
+      "name": "Radial Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Radial passes",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-SPIRAL_TOOLPATH",
+      "name": "Spiral Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Continuous spiral",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-SWARF_5AXIS",
+      "name": "5-Axis Swarf Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Side cutting",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-MULTIAXIS_CONTOUR",
+      "name": "Multi-Axis Contour Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "5-axis profiling",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-MULTIAXIS_DRILLING",
+      "name": "Multi-Axis Drilling Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Angled holes",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-FLOWLINE_5AXIS",
+      "name": "Flowline 5-Axis Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "UV-based paths",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-PORT_MACHINING",
+      "name": "Port Machining Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Impeller/port",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-OD_ROUGH_TURN",
+      "name": "OD Roughing Turning",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "External rough",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-OD_FINISH_TURN",
+      "name": "OD Finishing Turning",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "External finish",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ID_ROUGH_TURN",
+      "name": "ID Roughing Turning",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Boring rough",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ID_FINISH_TURN",
+      "name": "ID Finishing Turning",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Boring finish",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-FACE_TURN",
+      "name": "Face Turning Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Facing on lathe",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-GROOVE_TURN",
+      "name": "Grooving Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Groove cutting",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-THREAD_TURN",
+      "name": "Thread Turning Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Single-point threading",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-PARTING",
+      "name": "Parting Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Cut-off",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-TROCHOIDAL",
+      "name": "Trochoidal Milling Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Circular entry",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ADAPTIVE_HSM",
+      "name": "Adaptive HSM Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Constant engagement",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-VORTEX_TOOLPATH",
+      "name": "Vortex/Profit Milling Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "High-efficiency",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ML_TOOLPATH_GEN",
+      "name": "ML Toolpath Generator",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Learning-based paths",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-INTENT_TO_TOOLPATH",
+      "name": "Intent-to-Toolpath Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "NLP to toolpath",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-PHYSICS_AWARE_CAM",
+      "name": "Physics-Aware CAM",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Force-optimized paths",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-ADAPTIVE_STRATEGY",
+      "name": "Adaptive Strategy Selector",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Auto strategy selection",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-GENERATIVE_CAM",
+      "name": "Generative CAM Engine",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "AI-generated toolpaths",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-SELF_OPTIMIZING_CAM",
+      "name": "Self-Optimizing CAM",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Continuous improvement",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-CAM-DIGITAL_TWIN_CAM",
+      "name": "Digital Twin CAM Sync",
+      "category": "CAM",
+      "subcategory": "TOOLPATH",
+      "description": "Live toolpath updating",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-TOOL_COLLISION",
+      "name": "Tool Collision Detection",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Tool vs workpiece/fixture",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-HOLDER_COLLISION",
+      "name": "Holder Collision Detection",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Holder interference",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-MACHINE_COLLISION",
+      "name": "Machine Collision Detection",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Axis limits, components",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-FIXTURE_COLLISION",
+      "name": "Fixture Collision Detection",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Clamp interference",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-STOCK_SIMULATION",
+      "name": "Stock Simulation Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Material removal viz",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-CUTTER_SWEPT",
+      "name": "Cutter Swept Volume Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Tool envelope",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-GOUGE_DETECTION",
+      "name": "Gouge Detection Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Surface damage check",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-EXCESS_MATERIAL",
+      "name": "Excess Material Detection",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Unmachined areas",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-NC_VERIFY",
+      "name": "NC Code Verification",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "G-code validation",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-BACKPLOT",
+      "name": "Backplot Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Toolpath visualization",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-MACHINE_SIM",
+      "name": "Machine Simulation Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Full kinematics",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-CYCLE_TIME",
+      "name": "Cycle Time Estimation",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Machining time calc",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-TOOL_ENGAGEMENT",
+      "name": "Tool Engagement Analysis",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Engagement angle/depth",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-CHIP_LOAD_ANALYSIS",
+      "name": "Chip Load Analysis",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Feed per tooth variation",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-REAL_TIME_VERIFY",
+      "name": "Real-Time Verification",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Stream verification",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-ML_COLLISION_PREDICT",
+      "name": "ML Collision Prediction",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Learning-based",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-PHYSICS_SIMULATION",
+      "name": "Physics-Based Simulation",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Force/thermal sim",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-PREDICTIVE_VERIFICATION",
+      "name": "Predictive Verification Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Anticipate issues",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-AUTO_CORRECTION",
+      "name": "Auto-Correction Engine",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Self-fixing toolpaths",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-VER-DIGITAL_TWIN_VERIFY",
+      "name": "Digital Twin Verification",
+      "category": "CAM",
+      "subcategory": "VERIFICATION",
+      "description": "Real vs virtual compare",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-GENERIC_POST",
+      "name": "Generic Post Processor",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Base post engine",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-FANUC_POST",
+      "name": "FANUC Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "FANUC-specific",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-SIEMENS_POST",
+      "name": "Siemens Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Sinumerik-specific",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-HEIDENHAIN_POST",
+      "name": "Heidenhain Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "TNC-specific",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-MAZAK_POST",
+      "name": "Mazak Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Mazatrol/EIA",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-OKUMA_POST",
+      "name": "Okuma Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "OSP-specific",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-HAAS_POST",
+      "name": "HAAS Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "HAAS-specific",
+      "type": "CAM",
+      "novelty": "STANDARD",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-5AXIS_POST",
+      "name": "5-Axis Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Multi-axis output",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-MILL_TURN_POST",
+      "name": "Mill-Turn Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Combined ops",
+      "type": "CAM",
+      "novelty": "ENHANCED",
+      "estimated_lines": 350,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-ADAPTIVE_POST",
+      "name": "Adaptive Post Processor",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Self-configuring",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-ML_POST_OPTIMIZER",
+      "name": "ML Post Optimizer",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Learning-based optimization",
+      "type": "CAM",
+      "novelty": "NOVEL",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-UNIVERSAL_POST",
+      "name": "Universal Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "Any controller output",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-POST-BIDIRECTIONAL_POST",
+      "name": "Bidirectional Post Engine",
+      "category": "CAM",
+      "subcategory": "POST",
+      "description": "G-code to toolpath",
+      "type": "CAM",
+      "novelty": "INVENTION",
+      "estimated_lines": 500,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-STATE_SYNC",
+      "name": "Real-Time State Synchronization",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Physical-virtual sync <10ms",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-VIRTUAL_SENSOR",
+      "name": "Virtual Sensor Engine",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Soft sensors from data",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-PREDICTIVE_STATE",
+      "name": "Predictive State Estimator",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Kalman-based prediction",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-THERMAL_COMPENSATION",
+      "name": "Thermal Growth Compensation",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Real-time thermal error",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-GEOMETRIC_ERROR",
+      "name": "Geometric Error Mapper",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Volumetric error model",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-DYNAMIC_STIFFNESS",
+      "name": "Dynamic Stiffness Mapper",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Position-dependent stiffness",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-WEAR_TWIN",
+      "name": "Tool Wear Digital Twin",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Live wear tracking",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-PROCESS_TWIN",
+      "name": "Process Digital Twin",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Cutting process mirror",
+      "type": "DIGITAL_TWIN",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-MACHINE_TWIN",
+      "name": "Machine Digital Twin",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Complete machine model",
+      "type": "DIGITAL_TWIN",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-FACTORY_TWIN",
+      "name": "Factory Digital Twin",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Shop floor simulation",
+      "type": "DIGITAL_TWIN",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-PREDICTIVE_TWIN",
+      "name": "Predictive Digital Twin",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Future state prediction",
+      "type": "DIGITAL_TWIN",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-DT-AUTONOMOUS_TWIN",
+      "name": "Autonomous Digital Twin",
+      "category": "DIGITAL_TWIN",
+      "subcategory": "TWIN",
+      "description": "Self-updating model",
+      "type": "DIGITAL_TWIN",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-ACOUSTIC_EMISSION",
+      "name": "Acoustic Emission Analyzer",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "AE signal processing",
+      "type": "PROCESS_INTEL",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-VIBRATION_MONITOR",
+      "name": "Vibration Monitoring Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Accelerometer analysis",
+      "type": "PROCESS_INTEL",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-POWER_MONITOR",
+      "name": "Power Monitoring Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Spindle/axis power",
+      "type": "PROCESS_INTEL",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-CURRENT_MONITOR",
+      "name": "Current Monitoring Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Motor current analysis",
+      "type": "PROCESS_INTEL",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-FORCE_MONITOR",
+      "name": "Force Monitoring Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Dynamometer signals",
+      "type": "PROCESS_INTEL",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-TEMPERATURE_MONITOR",
+      "name": "Temperature Monitoring Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Thermal tracking",
+      "type": "PROCESS_INTEL",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-FFT_ANALYZER",
+      "name": "FFT Analysis Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Frequency analysis",
+      "type": "PROCESS_INTEL",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-WAVELET_ANALYZER",
+      "name": "Wavelet Analysis Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Time-frequency",
+      "type": "PROCESS_INTEL",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-ENVELOPE_ANALYZER",
+      "name": "Envelope Analysis Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Bearing/gear faults",
+      "type": "PROCESS_INTEL",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-CEPSTRUM_ANALYZER",
+      "name": "Cepstrum Analysis Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Echo detection",
+      "type": "PROCESS_INTEL",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-ANOMALY_DETECTOR",
+      "name": "Anomaly Detection Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Real-time anomalies",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-FAULT_CLASSIFIER",
+      "name": "Fault Classification Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Problem identification",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-TOOL_STATE_CLASSIFIER",
+      "name": "Tool State Classifier",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Wear/breakage detection",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-PROCESS_STATE_CLASSIFIER",
+      "name": "Process State Classifier",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Normal/chatter/etc",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-RUL_PREDICTOR",
+      "name": "Remaining Useful Life Predictor",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Tool/component RUL",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-FAILURE_PREDICTOR",
+      "name": "Failure Prediction Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Anticipate failures",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-QUALITY_PREDICTOR",
+      "name": "Quality Prediction Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Part quality forecast",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-MAINTENANCE_PREDICTOR",
+      "name": "Maintenance Predictor",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Predictive maintenance",
+      "type": "PROCESS_INTEL",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-SELF_LEARNING_MONITOR",
+      "name": "Self-Learning Monitor",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Adaptive thresholds",
+      "type": "PROCESS_INTEL",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-ROOT_CAUSE_ANALYZER",
+      "name": "Automated Root Cause Engine",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Causal analysis",
+      "type": "PROCESS_INTEL",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PI-PRESCRIPTIVE_ENGINE",
+      "name": "Prescriptive Intelligence",
+      "category": "PROCESS_INTEL",
+      "subcategory": "MONITORING",
+      "description": "Recommend actions",
+      "type": "PROCESS_INTEL",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-MTCONNECT_ADAPTER",
+      "name": "MTConnect Adapter Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "MTConnect protocol",
+      "type": "INTEGRATION",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-OPCUA_ADAPTER",
+      "name": "OPC-UA Adapter Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "OPC-UA protocol",
+      "type": "INTEGRATION",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-FOCAS_ADAPTER",
+      "name": "FOCAS Adapter Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "FANUC FOCAS",
+      "type": "INTEGRATION",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-NCLINK_ADAPTER",
+      "name": "NC-Link Adapter Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "Universal NC interface",
+      "type": "INTEGRATION",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-ERP_CONNECTOR",
+      "name": "ERP Connector Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "ERP integration",
+      "type": "INTEGRATION",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-MES_CONNECTOR",
+      "name": "MES Connector Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "MES integration",
+      "type": "INTEGRATION",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-PLM_CONNECTOR",
+      "name": "PLM Connector Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "PLM integration",
+      "type": "INTEGRATION",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-CMM_CONNECTOR",
+      "name": "CMM Connector Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "Inspection integration",
+      "type": "INTEGRATION",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-CAD_CONNECTOR",
+      "name": "CAD System Connector",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "CAD import/export",
+      "type": "INTEGRATION",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-UNIVERSAL_MACHINE_API",
+      "name": "Universal Machine API",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "Any-controller interface",
+      "type": "INTEGRATION",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-SEMANTIC_INTEGRATION",
+      "name": "Semantic Integration Engine",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "Ontology-based",
+      "type": "INTEGRATION",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-ZERO_CONFIG_CONNECT",
+      "name": "Zero-Config Connection",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "Auto-discover machines",
+      "type": "INTEGRATION",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-INT-FEDERATED_LEARNING_HUB",
+      "name": "Federated Learning Hub",
+      "category": "INTEGRATION",
+      "subcategory": "CONNECTOR",
+      "description": "Cross-machine learning",
+      "type": "INTEGRATION",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-SPC_ENGINE",
+      "name": "SPC Analysis Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Statistical process control",
+      "type": "QUALITY",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-CAPABILITY_ANALYZER",
+      "name": "Process Capability Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Cp, Cpk calculation",
+      "type": "QUALITY",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-GAGE_RR",
+      "name": "Gage R&R Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Measurement system analysis",
+      "type": "QUALITY",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-CONTROL_CHART",
+      "name": "Control Chart Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "X-bar, R, etc",
+      "type": "QUALITY",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-HISTOGRAM_ANALYZER",
+      "name": "Histogram Analysis Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Distribution analysis",
+      "type": "QUALITY",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-PARETO_ANALYZER",
+      "name": "Pareto Analysis Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "80/20 analysis",
+      "type": "QUALITY",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-FMEA_ENGINE",
+      "name": "FMEA Analysis Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Failure mode analysis",
+      "type": "QUALITY",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-TOLERANCE_STACK",
+      "name": "Tolerance Stack Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Tolerance accumulation",
+      "type": "QUALITY",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-PREDICTIVE_SPC",
+      "name": "Predictive SPC Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Anticipate drift",
+      "type": "QUALITY",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-ADAPTIVE_CONTROL",
+      "name": "Adaptive Quality Control",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Auto-adjust limits",
+      "type": "QUALITY",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-INLINE_INSPECTION",
+      "name": "Inline Inspection Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "In-process measurement",
+      "type": "QUALITY",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-ZERO_DEFECT_ENGINE",
+      "name": "Zero Defect Engine",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Prevent before occur",
+      "type": "QUALITY",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-QUAL-QUALITY_DIGITAL_TWIN",
+      "name": "Quality Digital Twin",
+      "category": "QUALITY",
+      "subcategory": "CONTROL",
+      "description": "Virtual quality model",
+      "type": "QUALITY",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-COST_ESTIMATOR",
+      "name": "Machining Cost Estimator",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Part cost calculation",
+      "type": "BUSINESS",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-CYCLE_TIME_ESTIMATOR",
+      "name": "Cycle Time Estimator",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Time prediction",
+      "type": "BUSINESS",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-TOOL_COST_ENGINE",
+      "name": "Tool Cost Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Tooling economics",
+      "type": "BUSINESS",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-MACHINE_RATE_ENGINE",
+      "name": "Machine Rate Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Hourly rates",
+      "type": "BUSINESS",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-SETUP_TIME_ENGINE",
+      "name": "Setup Time Estimator",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Setup prediction",
+      "type": "BUSINESS",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-BATCH_OPTIMIZER",
+      "name": "Batch Size Optimizer",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Economic batch",
+      "type": "BUSINESS",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-SCHEDULING_ENGINE",
+      "name": "Production Scheduling Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Job scheduling",
+      "type": "BUSINESS",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-CAPACITY_PLANNER",
+      "name": "Capacity Planning Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Resource planning",
+      "type": "BUSINESS",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-ML_COST_PREDICTOR",
+      "name": "ML Cost Prediction",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Learning-based cost",
+      "type": "BUSINESS",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-DYNAMIC_PRICING",
+      "name": "Dynamic Pricing Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Real-time quoting",
+      "type": "BUSINESS",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-WHAT_IF_ANALYZER",
+      "name": "What-If Analysis Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Scenario comparison",
+      "type": "BUSINESS",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-AUTONOMOUS_QUOTING",
+      "name": "Autonomous Quoting Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "AI-powered quotes",
+      "type": "BUSINESS",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-BIZ-PROFIT_OPTIMIZER",
+      "name": "Profit Optimization Engine",
+      "category": "BUSINESS",
+      "subcategory": "ECONOMICS",
+      "description": "Maximize profitability",
+      "type": "BUSINESS",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-KNOWLEDGE_GRAPH",
+      "name": "Knowledge Graph Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Ontology-based KB",
+      "type": "KNOWLEDGE",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-RULE_ENGINE",
+      "name": "Rule-Based Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "If-then reasoning",
+      "type": "KNOWLEDGE",
+      "novelty": "STANDARD",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-CASE_BASED",
+      "name": "Case-Based Reasoning Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Similar case lookup",
+      "type": "KNOWLEDGE",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-SEMANTIC_SEARCH",
+      "name": "Semantic Search Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Meaning-based search",
+      "type": "KNOWLEDGE",
+      "novelty": "ENHANCED",
+      "estimated_lines": 400,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-EXPERT_SYSTEM",
+      "name": "Expert System Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Encoded expertise",
+      "type": "KNOWLEDGE",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-CAUSAL_REASONER",
+      "name": "Causal Reasoning Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Cause-effect analysis",
+      "type": "KNOWLEDGE",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-ANALOGICAL_REASONER",
+      "name": "Analogical Reasoning Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Cross-domain transfer",
+      "type": "KNOWLEDGE",
+      "novelty": "NOVEL",
+      "estimated_lines": 600,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-COLLECTIVE_INTELLIGENCE",
+      "name": "Collective Intelligence Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Crowd wisdom",
+      "type": "KNOWLEDGE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-KNOWLEDGE_SYNTHESIZER",
+      "name": "Knowledge Synthesis Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "New knowledge creation",
+      "type": "KNOWLEDGE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-KB-AUTONOMOUS_LEARNER",
+      "name": "Autonomous Learning Engine",
+      "category": "KNOWLEDGE",
+      "subcategory": "REASONING",
+      "description": "Self-directed learning",
+      "type": "KNOWLEDGE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-UNIFIED_PHYSICS_ML",
+      "name": "Unified Physics-ML Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Seamless physics+AI",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-CROSS_DOMAIN_TRANSFER",
+      "name": "Cross-Domain Transfer Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Material\u2192tool\u2192machine",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-EXPLAINABLE_RECOMMENDATION",
+      "name": "Explainable Recommendation Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Why this speed/feed",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-UNCERTAINTY_PROPAGATOR",
+      "name": "Uncertainty Propagation Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Error through chain",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-MULTI_SCALE_SIMULATOR",
+      "name": "Multi-Scale Simulation Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Micro\u2192macro modeling",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-INVERSE_PROBLEM_SOLVER",
+      "name": "Inverse Problem Solver",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Desired output\u2192parameters",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-GENERATIVE_PROCESS_PLANNER",
+      "name": "Generative Process Planner",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "AI process planning",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-ADAPTIVE_OPTIMIZATION_ENGINE",
+      "name": "Adaptive Optimization Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Self-tuning optimizer",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-HUMAN_AI_COLLABORATION",
+      "name": "Human-AI Collaboration Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Hybrid intelligence",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-CONTINUOUS_IMPROVEMENT",
+      "name": "Continuous Improvement Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Kaizen automation",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-SHOP_FLOOR_AI",
+      "name": "Shop Floor AI Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Edge manufacturing AI",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-SUSTAINABILITY_OPTIMIZER",
+      "name": "Sustainability Optimizer",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Green machining",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-CIRCULAR_ECONOMY",
+      "name": "Circular Economy Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Waste minimization",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-ENERGY_OPTIMIZER",
+      "name": "Energy Optimization Engine",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Power minimization",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    },
+    {
+      "id": "ENG-PRISM-MULTI_OBJECTIVE_BALANCER",
+      "name": "Multi-Objective Balancer",
+      "category": "PRISM_UNIQUE",
+      "subcategory": "INVENTION",
+      "description": "Quality-cost-time-safety",
+      "type": "PRISM_UNIQUE",
+      "novelty": "INVENTION",
+      "estimated_lines": 800,
+      "status": "DEFINED"
+    }
+  ]
+}

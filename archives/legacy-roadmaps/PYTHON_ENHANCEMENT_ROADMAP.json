@@ -1,0 +1,265 @@
+{
+  "version": "2.0.0",
+  "created": "2026-02-03T03:05:00Z",
+  "title": "Python MCP Server Enhancement Roadmap v2",
+  "status": "UPDATED - Found pre-built modules!",
+  
+  "discovery": {
+    "message": "MAJOR FINDING: Many critical modules ALREADY EXIST in C:\\PRISM\\scripts\\core but are NOT INTEGRATED!",
+    "pre_built_modules": {
+      "manus_context_engineering.py": {"size_kb": 33, "lines": 855, "status": "NOT_INTEGRATED"},
+      "phase0_hooks.py": {"size_kb": 30, "lines": 785, "status": "NOT_INTEGRATED"},
+      "session_lifecycle.py": {"size_kb": 29, "lines": 763, "status": "NOT_INTEGRATED"},
+      "state_reconstructor.py": {"size_kb": 20, "lines": 530, "status": "NOT_INTEGRATED"},
+      "compaction_detector.py": {"size_kb": 19, "lines": 492, "status": "NOT_INTEGRATED"},
+      "diff_based_updates.py": {"size_kb": 29, "lines": 771, "status": "NOT_INTEGRATED"},
+      "clone_factory.py": {"size_kb": 26, "lines": 677, "status": "NOT_INTEGRATED"},
+      "computation_cache.py": {"size_kb": 25, "lines": 647, "status": "NOT_INTEGRATED"},
+      "wip_capturer.py": {"size_kb": 21, "lines": 544, "status": "NOT_INTEGRATED"},
+      "graceful_shutdown.py": {"size_kb": 18, "lines": 485, "status": "NOT_INTEGRATED"}
+    },
+    "total_pre_built_lines": 6549,
+    "implication": "We can add 40+ tools by WIRING existing modules instead of porting from TypeScript!"
+  },
+
+  "current_state": {
+    "python_server": {
+      "version": "2.5",
+      "tools": 116,
+      "file": "C:/PRISM/scripts/prism_mcp_server.py",
+      "lines": 6493
+    },
+    "core_modules": {
+      "total": 69,
+      "integrated": 12,
+      "not_integrated": 57
+    },
+    "typescript_server": {
+      "version": "2.9",
+      "tools": 277,
+      "status": "WON'T_COMPILE"
+    }
+  },
+
+  "revised_implementation_plan": {
+    "PHASE_1_WIRE_EXISTING": {
+      "name": "Wire Pre-Built Core Modules",
+      "priority": "IMMEDIATE",
+      "effort": "LOW (wiring only)",
+      "duration": "This session",
+      "modules_to_wire": [
+        {
+          "module": "manus_context_engineering.py",
+          "provides": ["prism_manus_*", "prism_kv_*", "prism_token_*"],
+          "tools_added": 11,
+          "impact": "Manus 6 Laws - 10x token efficiency"
+        },
+        {
+          "module": "phase0_hooks.py",
+          "provides": ["prism_hook_fire", "prism_hook_chain", "41 Phase 0 hooks"],
+          "tools_added": 10,
+          "impact": "Hook-First enforcement, S(x) hard block"
+        },
+        {
+          "module": "session_lifecycle.py",
+          "provides": ["prism_session_*", "prism_quick_resume"],
+          "tools_added": 8,
+          "impact": "Session continuity"
+        },
+        {
+          "module": "compaction_detector.py",
+          "provides": ["prism_compaction_detect", "prism_compaction_recover"],
+          "tools_added": 4,
+          "impact": "Compaction recovery"
+        },
+        {
+          "module": "state_reconstructor.py",
+          "provides": ["prism_state_reconstruct", "prism_transcript_read"],
+          "tools_added": 4,
+          "impact": "State recovery"
+        },
+        {
+          "module": "diff_based_updates.py",
+          "provides": ["prism_diff_*"],
+          "tools_added": 5,
+          "impact": "Efficient updates"
+        },
+        {
+          "module": "wip_capturer.py",
+          "provides": ["prism_wip_*"],
+          "tools_added": 4,
+          "impact": "Work-in-progress preservation"
+        },
+        {
+          "module": "graceful_shutdown.py",
+          "provides": ["prism_shutdown_*"],
+          "tools_added": 3,
+          "impact": "Clean session end"
+        }
+      ],
+      "total_new_tools": 49,
+      "new_total": 165
+    },
+
+    "PHASE_2_ENHANCE_INTEGRATIONS": {
+      "name": "Enhance Already-Integrated Modules",
+      "priority": "HIGH",
+      "effort": "MEDIUM",
+      "duration": "1 session",
+      "actions": [
+        {
+          "module": "gsd_mcp.py",
+          "action": "Update to v8.0 content with Hook-First",
+          "tools_enhanced": 4
+        },
+        {
+          "module": "hook_mcp.py",
+          "action": "Add Phase 0 hooks + enforcement",
+          "tools_enhanced": 6
+        },
+        {
+          "module": "master_orchestrator.py",
+          "action": "Add SP workflow tools",
+          "tools_added": 8
+        }
+      ],
+      "total_new_tools": 18,
+      "new_total": 183
+    },
+
+    "PHASE_3_PORT_CRITICAL": {
+      "name": "Port Critical TypeScript Tools",
+      "priority": "MEDIUM",
+      "effort": "HIGH",
+      "duration": "2-3 sessions",
+      "tools_to_port": [
+        {
+          "source": "developmentProtocolTools.ts",
+          "target": "prism_sp_tools.py",
+          "tools": ["prism_sp_brainstorm", "prism_sp_plan", "prism_sp_execute", "prism_sp_review_*", "prism_cognitive_*"],
+          "count": 18
+        },
+        {
+          "source": "validationTools.ts",
+          "target": "prism_validation_tools.py",
+          "tools": ["prism_validate_*"],
+          "count": 12
+        },
+        {
+          "source": "contextEngineeringTools.ts",
+          "target": "prism_context_tools.py",
+          "tools": ["prism_todo_update", "prism_teammate_*", "prism_decision_*"],
+          "count": 8
+        }
+      ],
+      "total_new_tools": 38,
+      "new_total": 221
+    },
+
+    "PHASE_4_SAFETY_ENGINES": {
+      "name": "Port Safety-Critical Engines",
+      "priority": "HIGH",
+      "effort": "HIGH",
+      "duration": "1-2 sessions",
+      "tools_to_port": [
+        {
+          "source": "collisionTools.ts",
+          "target": "prism_collision_tools.py",
+          "count": 8
+        },
+        {
+          "source": "spindleProtectionTools.ts",
+          "target": "prism_spindle_tools.py",
+          "count": 8
+        },
+        {
+          "source": "toolBreakageTools.ts",
+          "target": "prism_tool_breakage_tools.py",
+          "count": 8
+        }
+      ],
+      "total_new_tools": 24,
+      "new_total": 245
+    },
+
+    "PHASE_5_COMPLETE_PARITY": {
+      "name": "Remaining Tools for Full Parity",
+      "priority": "LOW",
+      "effort": "MEDIUM",
+      "duration": "2 sessions",
+      "remaining": 32,
+      "final_total": 277
+    }
+  },
+
+  "immediate_action_plan": {
+    "step_1": {
+      "action": "Create wiring module for pre-built core modules",
+      "file": "prism_enhanced_wiring.py",
+      "imports": [
+        "manus_context_engineering",
+        "phase0_hooks",
+        "session_lifecycle",
+        "compaction_detector",
+        "state_reconstructor"
+      ]
+    },
+    "step_2": {
+      "action": "Update prism_mcp_server.py to load wiring module",
+      "changes": [
+        "Add import for prism_enhanced_wiring",
+        "Register new tools in tool registry",
+        "Update version to 2.6"
+      ]
+    },
+    "step_3": {
+      "action": "Test new tools",
+      "verify": [
+        "prism_manus_audit",
+        "prism_hook_fire",
+        "prism_session_checkpoint",
+        "prism_compaction_detect"
+      ]
+    }
+  },
+
+  "key_capabilities_after_phase_1": {
+    "context_window_expansion": {
+      "tool": "prism_memory_externalize",
+      "mechanism": "File system as unlimited context (Manus Law 3)",
+      "ready": true
+    },
+    "session_continuity": {
+      "tool": "prism_session_checkpoint + prism_quick_resume",
+      "mechanism": "Checkpoint-based preservation",
+      "ready": true
+    },
+    "compaction_recovery": {
+      "tool": "prism_compaction_detect + prism_state_reconstruct",
+      "mechanism": "Transcript-based recovery",
+      "ready": true
+    },
+    "token_efficiency": {
+      "tool": "prism_kv_sort_json + prism_manus_audit",
+      "mechanism": "KV-cache optimization (Manus Law 1)",
+      "ready": true
+    },
+    "hook_enforcement": {
+      "tool": "prism_hook_fire + 41 Phase 0 hooks",
+      "mechanism": "S(x) >= 0.70 hard block",
+      "ready": true
+    }
+  },
+
+  "success_metrics": {
+    "phase_1_target": "165 tools (49 new from wiring)",
+    "final_target": "277 tools (parity with TypeScript)",
+    "critical_capabilities": [
+      "Manus 6 Laws ✓ (pre-built)",
+      "Session lifecycle ✓ (pre-built)",
+      "Compaction recovery ✓ (pre-built)",
+      "Hook enforcement ✓ (pre-built)",
+      "SP workflow - needs porting"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+recovery_context starts at L1838
+L1838:             recovery_context: {
+L1839:               quick_resume: survivalInfo.quick_resume || parsed._context?.resume || "Unknown",
+L1840:               current_task: survivalInfo.current_task || parsed._context?.task || "Unknown",
+L1841:               next_action: survivalInfo.next_action || "Read ACTION_TRACKER.md and WORKFLOW_STATE.json",
+L1842:               phase: (() => {
+L1843:                 if (survivalInfo.phase) return survivalInfo.phase;
+L1844:                 try {
+L1845:                   const cs = JSON.parse(fs.readFileSync(path.join(STATE_DIR12, "CURRENT_STATE.json"), "utf-8"));
+L1846:                   return cs.phase || "unknown";
+L1847:                 } catch {
+L1848:                   return "unknown";
+L1849:                 }
+L1850:               })(),
+L1851:               call_at_capture: survivalInfo.call_number || 0,
+L1852:               pressure_at_capture: survivalInfo.pressure_pct || 0,
+L1853:               active_files: survivalInfo.active_files || [],
+L1854:               recent_decisions: (survivalInfo.recent_decisions || []).slice(-5)
+L1855:             },
+
+---
+reasoning_trail starts at L1806
+L1806:             reasoning_trail: {
+L1807:               total_entries: reasoningTrail.length,
+L1808:               entries_with_notes: notesEntries.length,
+L1809:               your_notes: notesEntries.map((e) => `[call ${e.call}] ${e.tool}:${e.action} \u2014 ${e.notes}`),
+L1810:               recent_calls: reasoningTrail.slice(-8).map((e) => `[${e.call}] ${e.tool}:${e.action}${e.notes ? " \u{1F4DD} " + e.notes : ""}`),
+L1811:               _hint: notesEntries.length > 0 ? "\u26A1 You left notes for yourself. READ THEM. They contain your reasoning from before compaction." : "No notes found. Check WIP_NOTES.md and /mnt/transcripts/ for context."
+L1812:             },

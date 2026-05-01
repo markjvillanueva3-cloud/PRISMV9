@@ -1,0 +1,460 @@
+{
+  "version": "5.1.0",
+  "wave": 3,
+  "generatedAt": "2026-01-31T20:57:46.464974",
+  "description": "Architecture v16 scripts for constants, types, validators, wiring, layers, MCP",
+  "totalNewScripts": 63,
+  "estimatedLines": 13585,
+  "byCategory": {
+    "CONSTANT": 7,
+    "TYPE": 8,
+    "VALIDATOR": 10,
+    "WIRING": 10,
+    "LAYER": 7,
+    "ARCHITECTURE": 8,
+    "MCP": 13
+  },
+  "scripts": [
+    {
+      "id": "SCR-CONST-LOOKUP",
+      "name": "constant_lookup.py",
+      "category": "CONSTANT",
+      "desc": "Look up constant by ID or name",
+      "lines": 85
+    },
+    {
+      "id": "SCR-CONST-VALIDATE",
+      "name": "constant_validate.py",
+      "category": "CONSTANT",
+      "desc": "Validate constant value against schema",
+      "lines": 120
+    },
+    {
+      "id": "SCR-CONST-LIST-CATEGORY",
+      "name": "constant_list_category.py",
+      "category": "CONSTANT",
+      "desc": "List all constants in a category",
+      "lines": 60
+    },
+    {
+      "id": "SCR-CONST-SEARCH",
+      "name": "constant_search.py",
+      "category": "CONSTANT",
+      "desc": "Search constants by name/description",
+      "lines": 95
+    },
+    {
+      "id": "SCR-CONST-EXPORT",
+      "name": "constant_export.py",
+      "category": "CONSTANT",
+      "desc": "Export constants to various formats",
+      "lines": 150
+    },
+    {
+      "id": "SCR-CONST-UNIT-CONVERT",
+      "name": "constant_unit_convert.py",
+      "category": "CONSTANT",
+      "desc": "Convert constant to different unit system",
+      "lines": 180
+    },
+    {
+      "id": "SCR-CONST-DEPENDENCY",
+      "name": "constant_dependency.py",
+      "category": "CONSTANT",
+      "desc": "Find constants that depend on a constant",
+      "lines": 110
+    },
+    {
+      "id": "SCR-TYPE-VALIDATE",
+      "name": "type_validate.py",
+      "category": "TYPE",
+      "desc": "Validate value against type schema",
+      "lines": 200
+    },
+    {
+      "id": "SCR-TYPE-COERCE",
+      "name": "type_coerce.py",
+      "category": "TYPE",
+      "desc": "Coerce value to match type schema",
+      "lines": 180
+    },
+    {
+      "id": "SCR-TYPE-SCHEMA-GET",
+      "name": "type_schema_get.py",
+      "category": "TYPE",
+      "desc": "Get schema for a type",
+      "lines": 75
+    },
+    {
+      "id": "SCR-TYPE-SCHEMA-LIST",
+      "name": "type_schema_list.py",
+      "category": "TYPE",
+      "desc": "List all type schemas",
+      "lines": 60
+    },
+    {
+      "id": "SCR-TYPE-CHECK-INPUT",
+      "name": "type_check_input.py",
+      "category": "TYPE",
+      "desc": "Check formula inputs against expected types",
+      "lines": 220
+    },
+    {
+      "id": "SCR-TYPE-CHECK-OUTPUT",
+      "name": "type_check_output.py",
+      "category": "TYPE",
+      "desc": "Check formula outputs against expected types",
+      "lines": 220
+    },
+    {
+      "id": "SCR-TYPE-GENERATE-TS",
+      "name": "type_generate_typescript.py",
+      "category": "TYPE",
+      "desc": "Generate TypeScript interfaces from schemas",
+      "lines": 300
+    },
+    {
+      "id": "SCR-TYPE-GENERATE-JSON",
+      "name": "type_generate_jsonschema.py",
+      "category": "TYPE",
+      "desc": "Generate JSON Schema from type definitions",
+      "lines": 250
+    },
+    {
+      "id": "SCR-VAL-EXECUTE",
+      "name": "validator_execute.py",
+      "category": "VALIDATOR",
+      "desc": "Execute a validator and return result",
+      "lines": 150
+    },
+    {
+      "id": "SCR-VAL-BATCH",
+      "name": "validator_batch.py",
+      "category": "VALIDATOR",
+      "desc": "Execute multiple validators",
+      "lines": 200
+    },
+    {
+      "id": "SCR-VAL-CRITICAL",
+      "name": "validator_critical.py",
+      "category": "VALIDATOR",
+      "desc": "Execute all CRITICAL validators (17)",
+      "lines": 250
+    },
+    {
+      "id": "SCR-VAL-BOUNDARY",
+      "name": "validator_boundary.py",
+      "category": "VALIDATOR",
+      "desc": "Execute boundary validators (6)",
+      "lines": 180
+    },
+    {
+      "id": "SCR-VAL-PHYSICS",
+      "name": "validator_physics.py",
+      "category": "VALIDATOR",
+      "desc": "Physics validators (spindle, feed, force)",
+      "lines": 300
+    },
+    {
+      "id": "SCR-VAL-TOOL",
+      "name": "validator_tool.py",
+      "category": "VALIDATOR",
+      "desc": "Tool validators (diameter, strength, deflection)",
+      "lines": 280
+    },
+    {
+      "id": "SCR-VAL-MACHINE",
+      "name": "validator_machine.py",
+      "category": "VALIDATOR",
+      "desc": "Machine validators (envelope, power, axes)",
+      "lines": 260
+    },
+    {
+      "id": "SCR-VAL-SAFETY",
+      "name": "validator_safety.py",
+      "category": "VALIDATOR",
+      "desc": "Safety validators (S(x) >= 0.70)",
+      "lines": 200
+    },
+    {
+      "id": "SCR-VAL-ANTI-REGRESSION",
+      "name": "validator_anti_regression.py",
+      "category": "VALIDATOR",
+      "desc": "Anti-regression validator (new >= old)",
+      "lines": 180
+    },
+    {
+      "id": "SCR-VAL-REPORT",
+      "name": "validator_report.py",
+      "category": "VALIDATOR",
+      "desc": "Generate validation report",
+      "lines": 150
+    },
+    {
+      "id": "SCR-WIRE-D2F-RESOLVE",
+      "name": "wiring_d2f_resolve.py",
+      "category": "WIRING",
+      "desc": "Resolve database to formula connections",
+      "lines": 180
+    },
+    {
+      "id": "SCR-WIRE-F2E-RESOLVE",
+      "name": "wiring_f2e_resolve.py",
+      "category": "WIRING",
+      "desc": "Resolve formula to engine connections",
+      "lines": 180
+    },
+    {
+      "id": "SCR-WIRE-E2S-RESOLVE",
+      "name": "wiring_e2s_resolve.py",
+      "category": "WIRING",
+      "desc": "Resolve engine to skill connections",
+      "lines": 180
+    },
+    {
+      "id": "SCR-WIRE-S2P-RESOLVE",
+      "name": "wiring_s2p_resolve.py",
+      "category": "WIRING",
+      "desc": "Resolve skill to product connections",
+      "lines": 150
+    },
+    {
+      "id": "SCR-WIRE-TRACE-FULL",
+      "name": "wiring_trace_full.py",
+      "category": "WIRING",
+      "desc": "Trace full path D->F->E->S->P",
+      "lines": 300
+    },
+    {
+      "id": "SCR-WIRE-QUERY",
+      "name": "wiring_query.py",
+      "category": "WIRING",
+      "desc": "Query wiring by source or target",
+      "lines": 200
+    },
+    {
+      "id": "SCR-WIRE-VALIDATE",
+      "name": "wiring_validate.py",
+      "category": "WIRING",
+      "desc": "Validate wiring integrity",
+      "lines": 250
+    },
+    {
+      "id": "SCR-WIRE-ORPHAN-CHECK",
+      "name": "wiring_orphan_check.py",
+      "category": "WIRING",
+      "desc": "Find orphaned components",
+      "lines": 180
+    },
+    {
+      "id": "SCR-WIRE-STATS",
+      "name": "wiring_stats.py",
+      "category": "WIRING",
+      "desc": "Generate wiring statistics",
+      "lines": 150
+    },
+    {
+      "id": "SCR-WIRE-VISUALIZE",
+      "name": "wiring_visualize.py",
+      "category": "WIRING",
+      "desc": "Generate wiring visualization",
+      "lines": 400
+    },
+    {
+      "id": "SCR-LAYER-GET",
+      "name": "layer_get.py",
+      "category": "LAYER",
+      "desc": "Get layer definition",
+      "lines": 80
+    },
+    {
+      "id": "SCR-LAYER-LIST",
+      "name": "layer_list.py",
+      "category": "LAYER",
+      "desc": "List all 22 layers",
+      "lines": 100
+    },
+    {
+      "id": "SCR-LAYER-CONTENTS",
+      "name": "layer_contents.py",
+      "category": "LAYER",
+      "desc": "Get contents of a layer",
+      "lines": 150
+    },
+    {
+      "id": "SCR-LAYER-TRANSITION",
+      "name": "layer_transition.py",
+      "category": "LAYER",
+      "desc": "Handle layer transition",
+      "lines": 200
+    },
+    {
+      "id": "SCR-LAYER-BOUNDARY",
+      "name": "layer_boundary.py",
+      "category": "LAYER",
+      "desc": "Execute boundary checks",
+      "lines": 180
+    },
+    {
+      "id": "SCR-LAYER-VALIDATE",
+      "name": "layer_validate.py",
+      "category": "LAYER",
+      "desc": "Validate layer structure",
+      "lines": 150
+    },
+    {
+      "id": "SCR-LAYER-DEPENDENCIES",
+      "name": "layer_dependencies.py",
+      "category": "LAYER",
+      "desc": "Get layer dependencies",
+      "lines": 120
+    },
+    {
+      "id": "SCR-ARCH-LOAD",
+      "name": "architecture_load.py",
+      "category": "ARCHITECTURE",
+      "desc": "Load complete architecture",
+      "lines": 200
+    },
+    {
+      "id": "SCR-ARCH-VALIDATE",
+      "name": "architecture_validate.py",
+      "category": "ARCHITECTURE",
+      "desc": "Validate architecture integrity",
+      "lines": 350
+    },
+    {
+      "id": "SCR-ARCH-QUERY",
+      "name": "architecture_query.py",
+      "category": "ARCHITECTURE",
+      "desc": "Query architecture components",
+      "lines": 250
+    },
+    {
+      "id": "SCR-ARCH-STATS",
+      "name": "architecture_stats.py",
+      "category": "ARCHITECTURE",
+      "desc": "Generate architecture statistics",
+      "lines": 200
+    },
+    {
+      "id": "SCR-ARCH-DIFF",
+      "name": "architecture_diff.py",
+      "category": "ARCHITECTURE",
+      "desc": "Compare two architecture versions",
+      "lines": 300
+    },
+    {
+      "id": "SCR-ARCH-EXPORT",
+      "name": "architecture_export.py",
+      "category": "ARCHITECTURE",
+      "desc": "Export architecture to various formats",
+      "lines": 400
+    },
+    {
+      "id": "SCR-ARCH-GENERATE-TS",
+      "name": "architecture_generate_ts.py",
+      "category": "ARCHITECTURE",
+      "desc": "Generate TypeScript from architecture",
+      "lines": 500
+    },
+    {
+      "id": "SCR-ARCH-GENERATE-MCP",
+      "name": "architecture_generate_mcp.py",
+      "category": "ARCHITECTURE",
+      "desc": "Generate MCP tools from architecture",
+      "lines": 600
+    },
+    {
+      "id": "SCR-MCP-TOOL-MATERIAL",
+      "name": "mcp_tool_material.ts",
+      "category": "MCP",
+      "desc": "MCP tool: query_material",
+      "lines": 200
+    },
+    {
+      "id": "SCR-MCP-TOOL-MACHINE",
+      "name": "mcp_tool_machine.ts",
+      "category": "MCP",
+      "desc": "MCP tool: query_machine",
+      "lines": 200
+    },
+    {
+      "id": "SCR-MCP-TOOL-TOOL",
+      "name": "mcp_tool_tool.ts",
+      "category": "MCP",
+      "desc": "MCP tool: query_tool",
+      "lines": 180
+    },
+    {
+      "id": "SCR-MCP-TOOL-FORMULA",
+      "name": "mcp_tool_formula.ts",
+      "category": "MCP",
+      "desc": "MCP tool: execute_formula",
+      "lines": 250
+    },
+    {
+      "id": "SCR-MCP-TOOL-ENGINE",
+      "name": "mcp_tool_engine.ts",
+      "category": "MCP",
+      "desc": "MCP tool: invoke_engine",
+      "lines": 300
+    },
+    {
+      "id": "SCR-MCP-TOOL-VALIDATE",
+      "name": "mcp_tool_validate.ts",
+      "category": "MCP",
+      "desc": "MCP tool: validate",
+      "lines": 250
+    },
+    {
+      "id": "SCR-MCP-TOOL-WIRING",
+      "name": "mcp_tool_wiring.ts",
+      "category": "MCP",
+      "desc": "MCP tool: resolve_wiring",
+      "lines": 200
+    },
+    {
+      "id": "SCR-MCP-TOOL-SAFETY",
+      "name": "mcp_tool_safety.ts",
+      "category": "MCP",
+      "desc": "MCP tool: compute_safety_score",
+      "lines": 300
+    },
+    {
+      "id": "SCR-MCP-TOOL-KIENZLE",
+      "name": "mcp_tool_kienzle.ts",
+      "category": "MCP",
+      "desc": "MCP tool: compute_kienzle",
+      "lines": 200
+    },
+    {
+      "id": "SCR-MCP-TOOL-TAYLOR",
+      "name": "mcp_tool_taylor.ts",
+      "category": "MCP",
+      "desc": "MCP tool: compute_taylor",
+      "lines": 200
+    },
+    {
+      "id": "SCR-MCP-SERVER",
+      "name": "mcp_server_main.ts",
+      "category": "MCP",
+      "desc": "Main MCP server entry point",
+      "lines": 400
+    },
+    {
+      "id": "SCR-MCP-ROUTER",
+      "name": "mcp_router.ts",
+      "category": "MCP",
+      "desc": "MCP request router",
+      "lines": 300
+    },
+    {
+      "id": "SCR-MCP-REGISTRY",
+      "name": "mcp_registry.ts",
+      "category": "MCP",
+      "desc": "MCP tool registry",
+      "lines": 200
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+L1009: ## R1-MS8: Formula Registry + Dispatcher Wiring
+L1010: <!-- ANCHOR: r1_role_systems_architect_model_opus_wiring_architecture_sonnet_impl_tests_effort_l_18_calls_sessions_2 -->
+L1011: ### Role: Systems Architect | Model: Opus (wiring architecture) â†’ Sonnet (impl + tests) | Effort: L (18 calls) | Sessions: 2
+L1012: 
+L1013: **Source:** SUPERPOWER_ROADMAP_AUDIT.md GAPs 4, 6, 7, 10
+L1014: **Effort:** ~18 calls | **Tier:** DEEP | **Context:** ~8KB
+L1015: **Response Budget:** ~15KB throughput, ~6KB peak
+L1016: **Entry:** R1-MS5 COMPLETE (ToolIndex exists â€” needed for tool_recommend in unified search).
+L1017:   MS6 and MS7 can be in-progress or complete â€” this MS is independent of enrichment data.
+L1018: 
+L1019: **WHY THIS IS CRITICAL:**
+L1020:   GAP 4: 9 calculator formulas hardcoded in calcDispatcher but NOT in FormulaRegistry.
+L1021:     App needs a "Calculator" page where machinists pick a formula, enter values, get results.
+L1022:     Without formulas in the registry, they're undiscoverable.
+L1023:   GAP 6: ToolpathStrategyRegistry has 697 strategies in 4,449 lines but toolpathDispatcher
+L1024:     exposes only 8 actions. Massive domain knowledge (trochoidal vs HEM vs conventional vs
+L1025:     adaptive clearing) is locked behind unexposed methods.
+L1026:   GAP 7: ThreadCalculationEngine has 658 lines of math (tap drill, thread milling, depth,
+L1027:     engagement, specs, Go/NoGo) but threadDispatcher has minimal wiring.
+L1028:   GAP 10: No unified search across registries. Each registry has different search signature.
+...
+
+L1418: ## R1-MS9: Quality Metrics + Phase Gate
+L1419: <!-- ANCHOR: r1_role_safety_engineer_model_sonnet_metrics_opus_gate_review_quality_effort_m_12_calls_sessions_1 -->
+L1420: ### Role: Safety Engineer | Model: Sonnet (metrics) â†’ Opus (gate review + quality) | Effort: M (12 calls) | Sessions: 1
+L1421: 
+L1422: **Source:** Original R1-MS5 (renumbered) + fault injection test
+L1423: **Effort:** ~12 calls | **Tier:** RELEASE | **Context:** ~6KB
+L1424: **Response Budget:** ~10KB throughput, ~4KB peak
+L1425: **Entry:** R1-MS5 through R1-MS8 ALL COMPLETE.
+L1426: 
+L1427: ```
+L1428: === DATA QUALITY METRICS ===
+L1429: 1. Tool normalization metrics:
+L1430:    prism_data action=tool_facets  [effort=low]
+L1431:    VERIFY: All entries have canonical schema. Index coverage = 100% of loaded tools.
+L1432:    Record: total tools indexed, categories, vendors, diameter range.
+L1433: 
+L1434: 2. Material enrichment metrics:
+L1435:    Run enrichment count: tribology %, composition %, designation %
+L1436:    TARGETS: >80% tribology, >80% composition, >90% designation
+L1437:    If below: identify worst-coverage ISO groups. Document for R3 gap fill.
+...
+
+L1518: ## R1-MS9.5: WIRING VERIFICATION AUDIT (v15.0)
+L1519: ### Role: Platform Engineer | Model: Sonnet | Effort: S (5-8 calls) | Sessions: 0.5
+L1520: # PURPOSE: Catch orphaned artifacts from R1 before phase gate passes.
+L1521: # R1 builds registries, pipelines, and data loaders — verify all are consumed downstream.
+L1522: 
+L1523: PROCEDURE (follow PHASE_TEMPLATE.md § WIRING VERIFICATION AUDIT):
+L1524:   1. INVENTORY: List all new engines, dispatchers, scripts, skills created during R1
+L1525:   2. CALLER CHECK: grep codebase for each — flag anything with 0 callers
+L1526:   3. DOWNSTREAM CHECK: verify R2/R3 phase docs reference R1 artifacts they'll need
+L1527:   4. DISPOSITION: for each orphan — WIRE / DEFER / DEPRECATE / DELETE
+L1528:   5. VERIFY: build passes, smoke test on any newly wired items
+L1529: 
+L1530: SPECIFIC R1 CHECKS:
+L1531:   - Every registry (materials, machines, tools) has at least 1 query consumer
+L1532:   - Data validation pipeline (MS4.5) is called by material_get/machine_get actions
+L1533:   - Formula registry entries are callable via prism_calc actions
+L1534:   - SKILL_INDEX.json entries for R1 skills have triggers that match real queries
+L1535:   - Scripts created for R1 are referenced in SCRIPT_INDEX or autoScriptRecommend
+L1536: 
+L1537: GAP ASSESSMENT (Step 6 — what R2 will need):
+...
+
+=== FUTURE PHASES ===
+R2_SAFETY: # PHASE R2: SAFETY + ENGINE VALIDATION â€” v14.2 ### RECOMMENDED_SKILLS: prism-safety-framework, prism-master-equation, prism-cutting-mechanics, prism-material-physics ### HOOKS_EXPECTED: DISPATCH, F
+R3_CAMPAIGNS: # PHASE R3: INTELLIGENCE + DATA CAMPAIGNS — v14.2 # Status: not-started | Sessions: 4-6 | MS: 7 (MS0-MS5, with MS0.5 new) | Role: Principal Architect # DEPENDS ON: R1 complete (data foundation), R2 
+R4_ENTERPRISE: # PHASE R4: ENTERPRISE + API LAYER    v14.2 (STUB    expand via Brainstorm-to-Ship at phase start) ### RECOMMENDED_SKILLS: prism-hook-system, prism-design-patterns, prism-codebase-packaging ### HOOKS
+R5_VISUAL: # PHASE R5: VISUAL PLATFORM    v14.2 (STUB    expand via Brainstorm-to-Ship at phase start) ### RECOMMENDED_SKILLS: prism-design-patterns, prism-perf-patterns ### HOOKS_EXPECTED: DISPATCH, FILE, STAT
+R6_PRODUCTION: # PHASE R6: PRODUCTION HARDENING    v14.2 (STUB    expand via Brainstorm-to-Ship at phase start) ### RECOMMENDED_SKILLS: prism-anti-regression, prism-safety-framework, prism-perf-patterns ### HOOKS_E
+R7_INTELLIGENCE: # PHASE R7: INTELLIGENCE EVOLUTION ### RECOMMENDED_SKILLS: prism-master-equation, prism-material-physics, prism-cutting-mechanics, prism-process-optimizer ### HOOKS_EXPECTED: ALL ### DATA_PATHS: C:\P
+R8_EXPERIENCE: # PHASE R8: USER EXPERIENCE & INTENT ENGINE ### RECOMMENDED_SKILLS: prism-skill-orchestrator, prism-prompt-eng, prism-session-master ### HOOKS_EXPECTED: ALL ### DATA_PATHS: C:\PRISM\skills-consolidat
+R9_INTEGRATION: # PHASE R9: REAL-WORLD INTEGRATION ### RECOMMENDED_SKILLS: prism-design-patterns, prism-codebase-packaging, prism-hook-system ### HOOKS_EXPECTED: ALL ### DATA_PATHS: C:\PRISM\mcp-server\src 
+R10_REVOLUTION: # PHASE R10: MANUFACTURING REVOLUTION ### RECOMMENDED_SKILLS: prism-master-equation, prism-material-physics, prism-process-optimizer ### HOOKS_EXPECTED: ALL ### DATA_PATHS: C:\PRISM\data\materials, C
+R11_PRODUCT: # PHASE R11: PRODUCT PACKAGING â€” v14.2 ### RECOMMENDED_SKILLS: prism-codebase-packaging, prism-perf-patterns, prism-anti-regression ### HOOKS_EXPECTED: ALL ### DATA_PATHS: C:\PRISM\mcp-server 

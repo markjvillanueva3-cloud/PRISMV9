@@ -3,6 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { z } from "zod";
+import { inferAgentIdentity, sanitizeIdentityKey } from "./agent-identity.mjs";
 
 // CPP-MS4-U-CPP32: Zod schema at the SESSION_ARTIFACTS.json read boundary.
 // Mirrors the canonical schema in mcp-server/src/schemas/hookStateSchemas.ts
@@ -125,60 +126,127 @@ async function generateFallbackResume() {
   return parts.join(". ") + ". Check roadmap for next unblocked task.";
 }
 
+/**
+ * FIX: Find handoff by session identity, not just mtime.
+ * The handoff filename should contain our session key (PID or explicit ID).
+ */
 async function findMyHandoff() {
+  const identity = inferAgentIdentity({});
+  const sessionKey = identity.sessionKey;
+  const machine = identity.machine;
+
+  // Expected handoff filename pattern: HANDOFF-{Family}@{Machine}_pid-{PID}.md
+  // or HANDOFF-{Family}-s-{Machine}-{session}.md
+  const possiblePatterns = [
+    `HANDOFF-${identity.family}@${machine}_${sessionKey}.md`,
+    `HANDOFF-${identity.family}@${machine}-${sessionKey}.md`,
+    `HANDOFF-Agent@${machine}_${sessionKey}.md`,
+    `HANDOFF-Claude@${machine}_${sessionKey}.md`,
+  ];
+
   try {
-    // Find the most recently modified handoff file — that's likely ours
     const files = await fs.readdir(HANDOFFS_DIR);
+
+    // Step 1: Look for EXACT match by session identity
+    for (const pattern of possiblePatterns) {
+      if (files.includes(pattern)) {
+        const fp = path.join(HANDOFFS_DIR, pattern);
+        const content = await fs.readFile(fp, "utf8");
+        return enhanceHandoffIfNeeded(content, pattern, "EXACT MATCH");
+      }
+    }
+
+    // Step 2: Look for partial match (contains our sessionKey in filename)
+    for (const f of files) {
+      if (!f.startsWith("HANDOFF-") || !f.endsWith(".md")) continue;
+      if (f.includes(sessionKey)) {
+        const fp = path.join(HANDOFFS_DIR, f);
+        const content = await fs.readFile(fp, "utf8");
+        return enhanceHandoffIfNeeded(content, f, "SESSION KEY MATCH");
+      }
+    }
+
+    // Step 3: Fallback to mtime-based selection (original behavior) but with tighter window
     const handoffs = [];
     for (const f of files) {
       if (!f.startsWith("HANDOFF-") || !f.endsWith(".md")) continue;
       const fp = path.join(HANDOFFS_DIR, f);
-      const stat = await fs.stat(fp);
-      handoffs.push({ file: f, path: fp, mtime: stat.mtimeMs });
+      try {
+        const stat = await fs.stat(fp);
+        handoffs.push({ file: f, path: fp, mtime: stat.mtimeMs });
+      } catch { continue; }
     }
     if (handoffs.length === 0) return null;
-    // Sort by most recent
+
     handoffs.sort((a, b) => b.mtime - a.mtime);
     const newest = handoffs[0];
     const ageMin = Math.round((Date.now() - newest.mtime) / 60000);
-    if (ageMin < 30) {
-      // Only return if fresh (within 30 min — likely our session)
+
+    // Only use mtime fallback if VERY fresh (< 5 min) to reduce cross-session risk
+    if (ageMin < 5) {
       const content = await fs.readFile(newest.path, "utf8");
-
-      // Check if RESUME is a placeholder and replace with smart fallback
-      const resumeMatch = content.match(/## RESUME\n([\s\S]*?)(?=\n##|\n$)/);
-      const resume = resumeMatch?.[1]?.trim() || "";
-
-      if (isPlaceholderResume(resume)) {
-        // Generate a meaningful fallback RESUME
-        const fallback = await generateFallbackResume();
-        const enhanced = content.replace(
-          /## RESUME\n[\s\S]*?(?=\n##|\n$)/,
-          `## RESUME\n${fallback}\n(auto-generated fallback — /precompact was not run before /compact)`
-        );
-        return enhanced;
-      }
-
-      return content;
+      return enhanceHandoffIfNeeded(content, newest.file, `MTIME FALLBACK ${ageMin}m ago — expected pattern with ${sessionKey}`);
     }
+
     return null;
   } catch {
     return null;
   }
 }
 
+async function enhanceHandoffIfNeeded(content, filename, matchType) {
+  // Check if RESUME is a placeholder and replace with smart fallback
+  const resumeMatch = content.match(/## RESUME\n([\s\S]*?)(?=\n##|\n$)/);
+  const resume = resumeMatch?.[1]?.trim() || "";
+
+  let enhanced = content;
+  if (isPlaceholderResume(resume)) {
+    const fallback = await generateFallbackResume();
+    enhanced = content.replace(
+      /## RESUME\n[\s\S]*?(?=\n##|\n$)/,
+      `## RESUME\n${fallback}\n(auto-generated fallback — /precompact was not run before /compact)`
+    );
+  }
+
+  // Add match type header for debugging
+  return `# HANDOFF: ${filename} (${matchType})\n` + enhanced;
+}
+
 /**
- * CPP-MS3-U-CPP23: Resolve compaction-survival content from the per-instance
+ * CPP-MS3-U-CPP23 + FIX: Resolve compaction-survival content from the per-instance
  * directory, falling back to the legacy single file.
  *
- * Strategy:
- *   1. Glob `.compaction-survival-*.md` in SURVIVAL_DIR
- *   2. Pick the freshest file (most recently modified within last 30 min)
- *      — that's our session's pre-compact write
- *   3. If none are fresh, fall back to legacy `.compaction-survival.md`
- *   4. If file is older than ~30 min, treat as stale but still readable
+ * FIXED Strategy (prevents cross-session context bleed):
+ *   1. Compute THIS session's expected filename using inferAgentIdentity()
+ *   2. Look for EXACT match first — that's our session's pre-compact write
+ *   3. Only fall back to mtime-based selection if exact match doesn't exist
+ *   4. Legacy `.compaction-survival.md` is the final fallback
+ *
+ * The original bug: picking "freshest by mtime" caused Session A to read
+ * Session B's file when sessions overlapped, leading to wrong roadmap context.
  */
 async function readCompactionSurvival() {
+  // Step 1: Compute OUR expected filename using the same identity logic as the writer
+  const identity = inferAgentIdentity({});
+  const key = sanitizeIdentityKey(identity.instance, `${identity.family}-${identity.sessionKey}`);
+  const ourExpectedFile = `${SURVIVAL_PER_INSTANCE_PREFIX}${key}${SURVIVAL_PER_INSTANCE_SUFFIX}`;
+  const ourExpectedPath = path.join(SURVIVAL_DIR, ourExpectedFile);
+
+  // Step 2: Try to read OUR session's file first (exact match by identity)
+  try {
+    const stat = await fs.stat(ourExpectedPath);
+    const ageMin = Math.round((Date.now() - stat.mtimeMs) / 60000);
+    const content = await fs.readFile(ourExpectedPath, "utf8");
+    const header = ageMin < 30
+      ? `## Compaction Survival (per-instance: ${ourExpectedFile}, ${ageMin}m ago, EXACT MATCH)\n`
+      : `## Compaction Survival (per-instance: ${ourExpectedFile}, stale ${ageMin}m, EXACT MATCH)\n`;
+    return header + content;
+  } catch {
+    // Our exact file doesn't exist — fall through to mtime-based fallback
+  }
+
+  // Step 3: Fallback — try mtime-based selection (original behavior for backward compat)
+  // This handles cases where PID changed but session continued (rare edge case)
   try {
     const entries = await fs.readdir(SURVIVAL_DIR);
     const perInstance = [];
@@ -197,17 +265,21 @@ async function readCompactionSurvival() {
       perInstance.sort((a, b) => b.mtime - a.mtime);
       const freshest = perInstance[0];
       const ageMin = Math.round((Date.now() - freshest.mtime) / 60000);
-      const content = await fs.readFile(freshest.path, "utf8");
-      const header = ageMin < 30
-        ? `## Compaction Survival (per-instance: ${freshest.file}, ${ageMin}m ago)\n`
-        : `## Compaction Survival (per-instance: ${freshest.file}, stale ${ageMin}m)\n`;
-      return header + content;
+      // Only use mtime fallback if the file is VERY fresh (< 5 min) to reduce cross-session risk
+      if (ageMin < 5) {
+        const content = await fs.readFile(freshest.path, "utf8");
+        const header = `## Compaction Survival (per-instance: ${freshest.file}, ${ageMin}m ago, MTIME FALLBACK — expected ${ourExpectedFile})\n`;
+        return header + content;
+      }
     }
   } catch {
     // Directory unreadable — fall through to legacy.
   }
+
+  // Step 4: Final fallback — legacy single file
   try {
-    return await fs.readFile(SURVIVAL_FILE, "utf8");
+    const content = await fs.readFile(SURVIVAL_FILE, "utf8");
+    return `## Compaction Survival (LEGACY FALLBACK — expected ${ourExpectedFile})\n` + content;
   } catch {
     return null;
   }

@@ -1,0 +1,353 @@
+{
+  "timestamp": "2026-01-29T21:24:41.499802",
+  "monolith_lines": 986622,
+  "targets_searched": 15,
+  "modules_found": [
+    {
+      "name": "PRISM_LSTM_ENGINE",
+      "locations": 7,
+      "first_location": {
+        "line": 779142,
+        "content": "    createLSTMCell(inputSize, hiddenSize) {",
+        "pattern": "PRISM_LSTM|LSTM_ENGINE|LSTMCell"
+      },
+      "keywords_found": [
+        "LSTM"
+      ],
+      "confidence": 1.0,
+      "category": "sequence_models",
+      "priority": 1
+    },
+    {
+      "name": "PRISM_TRANSFORMER",
+      "locations": 68,
+      "first_location": {
+        "line": 7904,
+        "content": "        TRANSFORMER_D_MODEL: 512,",
+        "pattern": "PRISM_TRANSFORMER|TRANSFORMER_|MultiHeadAttention"
+      },
+      "keywords_found": [
+        "attention",
+        "self_attention",
+        "positional_encoding",
+        "transformer"
+      ],
+      "confidence": 1.0,
+      "category": "attention",
+      "priority": 1
+    },
+    {
+      "name": "PRISM_RL_ENGINE",
+      "locations": 109,
+      "first_location": {
+        "line": 123,
+        "content": "//   \u2705 PRISM_RL_ALGORITHMS - 50+ reinforcement learning functions",
+        "pattern": "PRISM_RL_|ReinforcementLearning|RL_ALGORITHMS"
+      },
+      "keywords_found": [
+        "Q_learning",
+        "policy_gradient",
+        "reward"
+      ],
+      "confidence": 1.0,
+      "category": "reinforcement_learning",
+      "priority": 1
+    },
+    {
+      "name": "PRISM_DQN",
+      "locations": 30,
+      "first_location": {
+        "line": 19321,
+        "content": "        'ai.rl.dqn': { module: 'PRISM_ADVANCED_DQN', method: 'predict', category: 'AI' },",
+        "pattern": "PRISM_DQN|PRISM_ADVANCED_DQN|DeepQNetwork"
+      },
+      "keywords_found": [
+        "DQN",
+        "epsilon_greedy"
+      ],
+      "confidence": 1.0,
+      "category": "reinforcement_learning",
+      "priority": 1
+    },
+    {
+      "name": "PRISM_ATTENTION",
+      "locations": 71,
+      "first_location": {
+        "line": 20808,
+        "content": "            module: 'PRISM_ATTENTION_COMPLETE',",
+        "pattern": "PRISM_ATTENTION|AttentionMechanism|SelfAttention"
+      },
+      "keywords_found": [
+        "query",
+        "key",
+        "value",
+        "softmax"
+      ],
+      "confidence": 1.0,
+      "category": "attention",
+      "priority": 1
+    },
+    {
+      "name": "PRISM_DEEP_LEARNING",
+      "locations": 1,
+      "first_location": {
+        "line": 11560,
+        "content": "const PRISM_DEEP_LEARNING_PARAMS = {",
+        "pattern": "const\\s+PRISM_DEEP_LEARNING"
+      },
+      "keywords_found": [
+        "CNN",
+        "getCNN",
+        "convolution"
+      ],
+      "confidence": 0.5,
+      "category": "deep_learning",
+      "priority": 1
+    },
+    {
+      "name": "PRISM_GENETIC_ALGORITHM",
+      "locations": 12,
+      "first_location": {
+        "line": 19312,
+        "content": "        'ai.opt.ga': { module: 'PRISM_GA_ENGINE', method: 'optimize', category: 'OPTIMIZER' },",
+        "pattern": "PRISM_GA_ENGINE|GeneticAlgorithm|PRISM_GENETIC"
+      },
+      "keywords_found": [
+        "crossover",
+        "mutation",
+        "selection",
+        "fitness",
+        "chromosome"
+      ],
+      "confidence": 1.0,
+      "category": "optimization",
+      "priority": 2
+    },
+    {
+      "name": "PRISM_ACTOR_CRITIC",
+      "locations": 65,
+      "first_location": {
+        "line": 19323,
+        "content": "        'ai.rl.actorcritic': { module: 'PRISM_ACTOR_CRITIC_ENGINE', method: 'act', category: 'AI' },",
+        "pattern": "PRISM_ACTOR_CRITIC|ActorCritic|A2C|A3C"
+      },
+      "keywords_found": [
+        "actor",
+        "critic",
+        "advantage"
+      ],
+      "confidence": 1.0,
+      "category": "reinforcement_learning",
+      "priority": 2
+    },
+    {
+      "name": "PRISM_POLICY_GRADIENT",
+      "locations": 169,
+      "first_location": {
+        "line": 123,
+        "content": "//   \u2705 PRISM_RL_ALGORITHMS - 50+ reinforcement learning functions",
+        "pattern": "PRISM_POLICY_GRADIENT|PolicyGradient|REINFORCE"
+      },
+      "keywords_found": [
+        "policy",
+        "gradient",
+        "log_prob",
+        "baseline"
+      ],
+      "confidence": 1.0,
+      "category": "reinforcement_learning",
+      "priority": 2
+    },
+    {
+      "name": "PRISM_SIMULATED_ANNEALING",
+      "locations": 23,
+      "first_location": {
+        "line": 19316,
+        "content": "        'ai.opt.sa': { module: 'PRISM_SIMULATED_ANNEALING', method: 'optimize', category: 'OPTIMIZER' },",
+        "pattern": "PRISM_SIMULATED_ANNEALING|SimulatedAnnealing"
+      },
+      "keywords_found": [
+        "temperature",
+        "cooling",
+        "metropolis",
+        "annealing"
+      ],
+      "confidence": 1.0,
+      "category": "optimization",
+      "priority": 2
+    },
+    {
+      "name": "PRISM_DIFFERENTIAL_EVOLUTION",
+      "locations": 10,
+      "first_location": {
+        "line": 19317,
+        "content": "        'ai.opt.de': { module: 'PRISM_DIFFERENTIAL_EVOLUTION', method: 'optimize', category: 'OPTIMIZER' },",
+        "pattern": "PRISM_DIFFERENTIAL_EVOLUTION|DifferentialEvolution"
+      },
+      "keywords_found": [
+        "crossover_rate",
+        "differential"
+      ],
+      "confidence": 1.0,
+      "category": "optimization",
+      "priority": 2
+    },
+    {
+      "name": "PRISM_GRADIENT_BOOSTING",
+      "locations": 21,
+      "first_location": {
+        "line": 7966,
+        "content": "        // Sources: scikit-learn, XGBoost, LightGBM documentation",
+        "pattern": "PRISM_GRADIENT_BOOSTING|GradientBoosting|XGBoost"
+      },
+      "keywords_found": [
+        "boosting",
+        "residual",
+        "shrinkage"
+      ],
+      "confidence": 1.0,
+      "category": "ensemble",
+      "priority": 2
+    },
+    {
+      "name": "PRISM_GAN",
+      "locations": 1379,
+      "first_location": {
+        "line": 125,
+        "content": "//   \u2705 PRISM_COURSE_GATEWAY_GENERATOR - Auto-registers 51+ gateway routes",
+        "pattern": "PRISM_GAN|GenerativeAdversarial|Discriminator|Generator"
+      },
+      "keywords_found": [
+        "generator",
+        "discriminator",
+        "adversarial",
+        "latent"
+      ],
+      "confidence": 1.0,
+      "category": "generative",
+      "priority": 3
+    },
+    {
+      "name": "PRISM_AUTOENCODER",
+      "locations": 85,
+      "first_location": {
+        "line": 8025,
+        "content": "        // Autoencoders",
+        "pattern": "PRISM_AUTOENCODER|Autoencoder|VAE"
+      },
+      "keywords_found": [
+        "encoder",
+        "decoder",
+        "reconstruction"
+      ],
+      "confidence": 1.0,
+      "category": "generative",
+      "priority": 3
+    }
+  ],
+  "modules_not_found": [
+    "PRISM_SIGNAL_AI"
+  ],
+  "extraction_plan": [
+    {
+      "module": "PRISM_LSTM_ENGINE",
+      "start_line": 779142,
+      "estimated_effort": "low",
+      "category": "sequence_models"
+    },
+    {
+      "module": "PRISM_TRANSFORMER",
+      "start_line": 7904,
+      "estimated_effort": "low",
+      "category": "attention"
+    },
+    {
+      "module": "PRISM_RL_ENGINE",
+      "start_line": 123,
+      "estimated_effort": "low",
+      "category": "reinforcement_learning"
+    },
+    {
+      "module": "PRISM_DQN",
+      "start_line": 19321,
+      "estimated_effort": "low",
+      "category": "reinforcement_learning"
+    },
+    {
+      "module": "PRISM_ATTENTION",
+      "start_line": 20808,
+      "estimated_effort": "low",
+      "category": "attention"
+    },
+    {
+      "module": "PRISM_DEEP_LEARNING",
+      "start_line": 11560,
+      "estimated_effort": "medium",
+      "category": "deep_learning"
+    },
+    {
+      "module": "PRISM_GENETIC_ALGORITHM",
+      "start_line": 19312,
+      "estimated_effort": "low",
+      "category": "optimization"
+    },
+    {
+      "module": "PRISM_ACTOR_CRITIC",
+      "start_line": 19323,
+      "estimated_effort": "low",
+      "category": "reinforcement_learning"
+    },
+    {
+      "module": "PRISM_POLICY_GRADIENT",
+      "start_line": 123,
+      "estimated_effort": "low",
+      "category": "reinforcement_learning"
+    },
+    {
+      "module": "PRISM_SIMULATED_ANNEALING",
+      "start_line": 19316,
+      "estimated_effort": "low",
+      "category": "optimization"
+    },
+    {
+      "module": "PRISM_DIFFERENTIAL_EVOLUTION",
+      "start_line": 19317,
+      "estimated_effort": "low",
+      "category": "optimization"
+    },
+    {
+      "module": "PRISM_GRADIENT_BOOSTING",
+      "start_line": 7966,
+      "estimated_effort": "low",
+      "category": "ensemble"
+    },
+    {
+      "module": "PRISM_GAN",
+      "start_line": 125,
+      "estimated_effort": "low",
+      "category": "generative"
+    },
+    {
+      "module": "PRISM_AUTOENCODER",
+      "start_line": 8025,
+      "estimated_effort": "low",
+      "category": "generative"
+    }
+  ],
+  "priority_order": [
+    "PRISM_LSTM_ENGINE",
+    "PRISM_TRANSFORMER",
+    "PRISM_RL_ENGINE",
+    "PRISM_DQN",
+    "PRISM_ATTENTION",
+    "PRISM_DEEP_LEARNING",
+    "PRISM_GENETIC_ALGORITHM",
+    "PRISM_ACTOR_CRITIC",
+    "PRISM_POLICY_GRADIENT",
+    "PRISM_SIMULATED_ANNEALING",
+    "PRISM_DIFFERENTIAL_EVOLUTION",
+    "PRISM_GRADIENT_BOOSTING",
+    "PRISM_GAN",
+    "PRISM_AUTOENCODER"
+  ]
+}

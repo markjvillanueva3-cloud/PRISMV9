@@ -1,0 +1,44 @@
+L433: var compactionRecoveryCallsRemaining = 0;
+L510:   compactionRecoveryCallsRemaining = 0;
+L555:     if (lastCallTimestamp > 0 && compactionRecoveryCallsRemaining <= 0) {
+L575:             compactionRecoveryCallsRemaining = 5;
+L640:               compactionRecoveryCallsRemaining = 5;
+L1711:         if (recoveryData && compactionRecoveryCallsRemaining > 0) {
+L1714:             alert: `\u26A0\uFE0F COMPACTION RECOVERY (${compactionRecoveryCallsRemaining} reminders left) \u2014 You lost context. Read files before responding.`,
+L1724:           compactionRecoveryCallsRemaining--;
+L1725:           if (compactionRecoveryCallsRemaining <= 0) compactionRecoverySurvival = null;
+
+--- _context construction ---
+L1706:             parsed._context = ctx;
+L1707:           }
+L1708:         } catch {
+L1709:         }
+L1710:         const recoveryData = cadence.rehydrated || compactionRecoverySurvival;
+L1711:         if (recoveryData && compactionRecoveryCallsRemaining > 0) {
+L1712:           const nextAction = recoveryData.next_action || "Run prism_gsd\u2192quick_resume then prism_context\u2192todo_read";
+L1713:           parsed._COMPACTION_RECOVERY = {
+L1714:             alert: `\u26A0\uFE0F COMPACTION RECOVERY (${compactionRecoveryCallsRemaining} reminders left) \u2014 You lost context. Read files before responding.`,
+L1715:             instruction: `STOP. Before doing ANYTHING: 1) Read C:\\PRISM\\state\\RECENT_ACTIONS.json 2) Read /mnt/transcripts/ latest file 3) Then: ${nextAction}`,
+L1716:             context: {
+L1717:               you_were_doing: recoveryData.previous_task,
+L1718:               quick_resume: recoveryData.quick_resume,
+L1719:               recent_decisions: recoveryData.recent_decisions
+L1720:             },
+L1721:             // protocol string REMOVED ? static waste
+L1722:             rule: "Do NOT ask the user what to do. Do NOT explain compaction. Just continue the task seamlessly."
+L1723:           };
+
+--- original_response echo ---
+L1833:             // original_response REMOVED ? was doubling token cost by re-injecting full response
+L1834:             // Include the actual tool response too
+L1835:             protocol: "6 LAWS: S(x)\u22650.70|No placeholders|New\u2265Old|MCP First|No dupes|100% util."
+L1836:           };
+L1837:           result.content[0].text = JSON.stringify(hijacked);
+L1838:           compactionDetectedThisCall = false;
+L1839:         } else {
+L1840:           result.content[0].text = JSON.stringify(parsed);
+L1841:         }
+L1842:       } catch {
+
+--- Compaction block extent ---
+Block: L1727 to L1743 (16 lines)

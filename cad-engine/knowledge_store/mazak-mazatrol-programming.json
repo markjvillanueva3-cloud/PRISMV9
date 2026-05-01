@@ -1,0 +1,89 @@
+{
+  "document_id": "mazak-mazatrol-matrix-manual",
+  "title": "Mazak Mazatrol Matrix Programming Reference",
+  "source": "PDF-LEARN from Mazak INTEGREX IV Mazatrol Matrix Manual",
+  "domain": "controller",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "Mazatrol uses conversational UNIT-based programming, not G-code",
+      "body": "MAZATROL programs are composed of discrete units: Common (UNo.0), BAR, CPY, THREAD, GROOVE, DRILLING, TAPPING, LINE, FACE machining units. Each unit contains tool sequence data and shape sequence data. The controller auto-generates toolpaths from unit data.",
+      "category": "programming",
+      "tags": ["mazak", "mazatrol", "conversational", "unit", "programming"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 95
+    },
+    {
+      "title": "Three-Digit G-Format bridges Mazatrol and EIA/ISO programming",
+      "body": "Three-Digit G-Format (G300-G377) allows CAM post-processors to output Mazatrol-compatible programs. Use identifier (MG3-251:ProgramName) in header. G300=Common unit, G324=THREAD, G350=DRILLING, G371-377=Face machining. Include G420-G425 markers for shape/tool data.",
+      "category": "programming",
+      "tags": ["mazak", "three-digit", "g-format", "cam", "post-processor"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 90
+    },
+    {
+      "title": "Mazatrol THREAD unit auto-develops tool sequences",
+      "body": "THREAD unit automatically generates tool sequences based on parameters: PART (OUT/IN), PAT (pattern), No. (starts), PITCH, WIDTH. Controller selects threading insert from tool library and calculates cutting conditions from material data. SNo prefixes: R=rough, F=finish.",
+      "category": "programming",
+      "tags": ["mazak", "mazatrol", "thread", "unit", "auto-develop"],
+      "operation_types": ["threading"],
+      "confidence": 90
+    },
+    {
+      "title": "Mazak auto cutting conditions from material + tool library",
+      "body": "C-SP (cutting speed) and FR (feed rate) are automatically calculated from work material (CST IRN, DUCT IRN, CBN STL, ALY STL, STNLESS, ALUMINUM, etc.) and tool selection. Override with explicit values or use '!' for auto-calculation.",
+      "category": "speeds_feeds",
+      "tags": ["mazak", "cutting-conditions", "material", "auto-calculate"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Mazak automatic tool development rules for drilling",
+      "body": "For drilling units: 0 < DIA <= D8: 1 drill, D8 < DIA <= D9: 2 drills, D9 < DIA <= D10: 3 drills. Controller auto-adds CTR-DR (center drill) always, CHAMFER tool if CHMF > 0 and DIA+(CHMF*2) > D2-D4. Alarm 416 if conditions invalid.",
+      "category": "tooling",
+      "tags": ["mazak", "drilling", "auto-develop", "tool-selection"],
+      "operation_types": ["drilling"],
+      "confidence": 85
+    },
+    {
+      "title": "TPC data fine-tunes auto-generated Mazatrol toolpaths",
+      "body": "Tool Path Control (TPC) data modifies auto-paths without changing unit data: TC1=cutting pattern, TC5/TC6=relay points, TC37-40=M-code injection, TC62=measurement interval. Access via TPC DISPLAY sections: UPPER/LOWER turret, ROUGH/FINISH, APPROACH/ESCAPE.",
+      "category": "toolpath",
+      "tags": ["mazak", "tpc", "toolpath", "modification"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Mazak tapping auto-settings from TapPrDia.txt",
+      "body": "Tapping pre-hole diameters are auto-calculated from text files: TapPrDia.txt (metric/unified), Pipescdt.txt (pipe). Parameters stored in 1/10000 mm units. Editable by user for custom tap specifications.",
+      "category": "programming",
+      "tags": ["mazak", "tapping", "pre-hole", "auto-calculate"],
+      "operation_types": ["tapping"],
+      "confidence": 80
+    },
+    {
+      "title": "G10 tool data format in Three-Digit programs",
+      "body": "G10L40 outputs tool data: T=tool#, H=holder, C=code, &C=material code, D=diameter, I=insert, S=style, P=position, A=angle, E=edge. Milling: G10L40T_H_C_&C_D_I_S_P_A_E_. Turning adds B for tool nose angle.",
+      "category": "programming",
+      "tags": ["mazak", "g10", "tool-data", "three-digit"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Mazak SIMUL.No for simultaneous upper/lower turret operations",
+      "body": "Assign same SIMUL.No to operations for concurrent execution on upper and lower turrets. B2 designation enables balanced cutting which doubles feed rate. Essential for reducing cycle time on mill-turn machines.",
+      "category": "optimization",
+      "tags": ["mazak", "simultaneous", "turret", "balanced-cut", "cycle-time"],
+      "operation_types": ["turning"],
+      "confidence": 85
+    },
+    {
+      "title": "Mazak barrier information prevents collision",
+      "body": "Barrier data specifies chuck jaw positions, tailstock locations, and tool interference zones. Controller automatically avoids these areas during rapid moves. Critical for safe automatic toolpath generation.",
+      "category": "safety",
+      "tags": ["mazak", "barrier", "collision", "safety"],
+      "operation_types": ["turning", "milling"],
+      "confidence": 90
+    }
+  ]
+}

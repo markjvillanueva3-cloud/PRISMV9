@@ -1,0 +1,23664 @@
+/**
+ * PRISM MATERIALS DATABASE - Tool Steels (Comprehensive Hardness Conditions)
+ * File: tool_steels_hardness_conditions.js
+ * Materials: P-TS-201 through P-TS-387
+ * 
+ * COMPREHENSIVE COVERAGE:
+ * - 40 distinct tool steel grades
+ * - Multiple hardness conditions per grade (annealed + hardened variants)
+ * - Physics adjusted for each hardness level (Kienzle, Taylor, Johnson-Cook)
+ * - Proper tooling recommendations per hardness
+ * 
+ * CRITICAL: Same steel at different hardness requires COMPLETELY different:
+ * - Cutting speeds (150 m/min annealed → 15 m/min at 60 HRC)
+ * - Tool materials (Carbide → CBN → PCD)
+ * - Cutting forces (kc1.1 doubles or triples)
+ * 
+ * ISO Category: P (Soft) / H (Hardened >50 HRC)
+ * Parameters per material: 127
+ * Schema version: 3.0.0
+ * 
+ * Generated: 2026-01-24 22:03:03
+ * Generator: PRISM Tool Steel Hardness Generator v2.0
+ */
+
+const TOOL_STEELS_HARDNESS_CONDITIONS = {
+  metadata: {
+    file: "tool_steels_hardness_conditions.js",
+    category: "P_STEELS",
+    subcategory: "Tool Steels - Hardness Variants",
+    materialCount: 187,
+    idRange: { start: "P-TS-201", end: "P-TS-387" },
+    schemaVersion: "3.0.0",
+    created: "2026-01-24",
+    generatorVersion: "2.0",
+    coverage: {
+      grades: 39,
+      totalConditions: 187,
+      hardnessRange: "Annealed through 70 HRC"
+    }
+  },
+
+  materials: {
+    "P-TS-201":     {
+      "id": "P-TS-201",
+      "name": "W1 Water Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "W1",
+            "uns": "T72301",
+            "din": "1.1545",
+            "en": "C105U",
+            "jis": "SK3"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.7,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.35,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 190,
+                  "vickers": 199,
+                  "rockwell_b": 98
+                },
+            "tensile_strength":     {
+                  "min": 622,
+                  "typical": 655,
+                  "max": 687
+                },
+            "yield_strength":     {
+                  "min": 403,
+                  "typical": 425,
+                  "max": 446
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 229,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2200,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 180,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 450,
+            "B": 750,
+            "n": 0.3,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 62,
+                              "opt": 90,
+                              "max": 117
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "taps",
+            "reamers",
+            "files",
+            "drills",
+            "cold_heading_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-202":     {
+      "id": "P-TS-202",
+      "name": "W1 Water Hardening Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "W1",
+            "uns": "T72301",
+            "din": "1.1545",
+            "en": "C105U",
+            "jis": "SK3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.7,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.35,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4401,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 45,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 682,
+            "n": 0.26,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 17,
+                              "opt": 25,
+                              "max": 33
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "taps",
+            "reamers",
+            "files",
+            "drills",
+            "cold_heading_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-203":     {
+      "id": "P-TS-203",
+      "name": "W1 Water Hardening Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "W1",
+            "uns": "T72301",
+            "din": "1.1545",
+            "en": "C105U",
+            "jis": "SK3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.7,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.35,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4639,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 42,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 675,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "taps",
+            "reamers",
+            "files",
+            "drills",
+            "cold_heading_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-204":     {
+      "id": "P-TS-204",
+      "name": "W1 Water Hardening Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "W1",
+            "uns": "T72301",
+            "din": "1.1545",
+            "en": "C105U",
+            "jis": "SK3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.7,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.35,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4894,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 667,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "taps",
+            "reamers",
+            "files",
+            "drills",
+            "cold_heading_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-205":     {
+      "id": "P-TS-205",
+      "name": "W1 Water Hardening Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "W1",
+            "uns": "T72301",
+            "din": "1.1545",
+            "en": "C105U",
+            "jis": "SK3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.7,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.35,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5172,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 660,
+            "n": 0.24,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "taps",
+            "reamers",
+            "files",
+            "drills",
+            "cold_heading_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-206":     {
+      "id": "P-TS-206",
+      "name": "W2 Vanadium Water Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "W2",
+            "uns": "T72302",
+            "din": "1.1645",
+            "en": "C105W2",
+            "jis": "SK2"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 195,
+                  "vickers": 204,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 638,
+                  "typical": 672,
+                  "max": 705
+                },
+            "yield_strength":     {
+                  "min": 414,
+                  "typical": 436,
+                  "max": 457
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 235,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2250,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 175,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 460,
+            "B": 760,
+            "n": 0.3,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 59,
+                              "opt": 85,
+                              "max": 110
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "woodworking_tools",
+            "taps",
+            "reamers",
+            "cold_forming_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-207":     {
+      "id": "P-TS-207",
+      "name": "W2 Vanadium Water Hardening Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "W2",
+            "uns": "T72302",
+            "din": "1.1645",
+            "en": "C105W2",
+            "jis": "SK2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4404,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 45,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 691,
+            "n": 0.26,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "woodworking_tools",
+            "taps",
+            "reamers",
+            "cold_forming_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-208":     {
+      "id": "P-TS-208",
+      "name": "W2 Vanadium Water Hardening Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "W2",
+            "uns": "T72302",
+            "din": "1.1645",
+            "en": "C105W2",
+            "jis": "SK2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4641,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 42,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 684,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "woodworking_tools",
+            "taps",
+            "reamers",
+            "cold_forming_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-209":     {
+      "id": "P-TS-209",
+      "name": "W2 Vanadium Water Hardening Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "W2",
+            "uns": "T72302",
+            "din": "1.1645",
+            "en": "C105W2",
+            "jis": "SK2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4893,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 676,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "woodworking_tools",
+            "taps",
+            "reamers",
+            "cold_forming_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-210":     {
+      "id": "P-TS-210",
+      "name": "W2 Vanadium Water Hardening Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "W2",
+            "uns": "T72302",
+            "din": "1.1645",
+            "en": "C105W2",
+            "jis": "SK2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Water Hardening",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Si":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 48,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5169,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 668,
+            "n": 0.24,
+            "C": 0.015,
+            "m": 1.0,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 13,
+                              "opt": 19,
+                              "max": 25
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "woodworking_tools",
+            "taps",
+            "reamers",
+            "cold_forming_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-211":     {
+      "id": "P-TS-211",
+      "name": "O1 Oil Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "O1",
+            "uns": "T31501",
+            "din": "1.2510",
+            "en": "100MnCrW4",
+            "jis": "SKS3"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.0,
+                  "typ": 0.95
+                },
+            "Mn":     {
+                  "min": 1.0,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "W":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.1
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 45,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 200,
+                  "vickers": 210,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 655,
+                  "typical": 690,
+                  "max": 724
+                },
+            "yield_strength":     {
+                  "min": 425,
+                  "typical": 448,
+                  "max": 470
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 241,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2300,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 170,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 480,
+            "B": 780,
+            "n": 0.28,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 59,
+                              "opt": 85,
+                              "max": 110
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "jigs",
+            "knives"
+      ],
+      "notes": ""
+    },
+    "P-TS-212":     {
+      "id": "P-TS-212",
+      "name": "O1 Oil Hardening Hardened 57 HRC",
+      "designation":     {
+            "aisi_sae": "O1",
+            "uns": "T31501",
+            "din": "1.2510",
+            "en": "100MnCrW4",
+            "jis": "SKS3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 57 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.0,
+                  "typ": 0.95
+                },
+            "Mn":     {
+                  "min": 1.0,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "W":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.1
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 45,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 531,
+                  "vickers": 557,
+                  "rockwell_c": 57
+                },
+            "tensile_strength":     {
+                  "min": 1739,
+                  "typical": 1831,
+                  "max": 1922
+                },
+            "yield_strength":     {
+                  "min": 1478,
+                  "typical": 1556,
+                  "max": 1633
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 640,
+            "fracture_toughness": 33
+          },
+      "kienzle":     {
+            "kc1_1": 4301,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 47,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 823,
+            "B": 713,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "jigs",
+            "knives"
+      ],
+      "notes": ""
+    },
+    "P-TS-213":     {
+      "id": "P-TS-213",
+      "name": "O1 Oil Hardening Hardened 59 HRC",
+      "designation":     {
+            "aisi_sae": "O1",
+            "uns": "T31501",
+            "din": "1.2510",
+            "en": "100MnCrW4",
+            "jis": "SKS3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 59 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.0,
+                  "typ": 0.95
+                },
+            "Mn":     {
+                  "min": 1.0,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "W":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.1
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 45,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 564,
+                  "vickers": 592,
+                  "rockwell_c": 59
+                },
+            "tensile_strength":     {
+                  "min": 1847,
+                  "typical": 1945,
+                  "max": 2042
+                },
+            "yield_strength":     {
+                  "min": 1570,
+                  "typical": 1653,
+                  "max": 1735
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 680,
+            "fracture_toughness": 31
+          },
+      "kienzle":     {
+            "kc1_1": 4522,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 875,
+            "B": 705,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "jigs",
+            "knives"
+      ],
+      "notes": ""
+    },
+    "P-TS-214":     {
+      "id": "P-TS-214",
+      "name": "O1 Oil Hardening Hardened 61 HRC",
+      "designation":     {
+            "aisi_sae": "O1",
+            "uns": "T31501",
+            "din": "1.2510",
+            "en": "100MnCrW4",
+            "jis": "SKS3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 61 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.0,
+                  "typ": 0.95
+                },
+            "Mn":     {
+                  "min": 1.0,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "W":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.1
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 45,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 600,
+                  "vickers": 630,
+                  "rockwell_c": 61
+                },
+            "tensile_strength":     {
+                  "min": 1966,
+                  "typical": 2070,
+                  "max": 2173
+                },
+            "yield_strength":     {
+                  "min": 1671,
+                  "typical": 1759,
+                  "max": 1846
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 724,
+            "fracture_toughness": 29
+          },
+      "kienzle":     {
+            "kc1_1": 4765,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 40,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 931,
+            "B": 698,
+            "n": 0.23,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "jigs",
+            "knives"
+      ],
+      "notes": ""
+    },
+    "P-TS-215":     {
+      "id": "P-TS-215",
+      "name": "O1 Oil Hardening Hardened 63 HRC",
+      "designation":     {
+            "aisi_sae": "O1",
+            "uns": "T31501",
+            "din": "1.2510",
+            "en": "100MnCrW4",
+            "jis": "SKS3"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 63 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 1.0,
+                  "typ": 0.95
+                },
+            "Mn":     {
+                  "min": 1.0,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "W":     {
+                  "min": 0.4,
+                  "max": 0.6,
+                  "typ": 0.5
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.1
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 45,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 639,
+                  "vickers": 670,
+                  "rockwell_c": 63
+                },
+            "tensile_strength":     {
+                  "min": 2093,
+                  "typical": 2204,
+                  "max": 2314
+                },
+            "yield_strength":     {
+                  "min": 1779,
+                  "typical": 1873,
+                  "max": 1966
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 771,
+            "fracture_toughness": 27
+          },
+      "kienzle":     {
+            "kc1_1": 5030,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 37,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 991,
+            "B": 690,
+            "n": 0.23,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "jigs",
+            "knives"
+      ],
+      "notes": ""
+    },
+    "P-TS-216":     {
+      "id": "P-TS-216",
+      "name": "O2 Oil Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "O2",
+            "uns": "T31502",
+            "din": "1.2842",
+            "en": "90MnCrV8",
+            "jis": "SKS93"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 0.95,
+                  "typ": 0.9
+                },
+            "Mn":     {
+                  "min": 1.4,
+                  "max": 1.8,
+                  "typ": 1.6
+                },
+            "Cr":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 46,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 195,
+                  "vickers": 204,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 638,
+                  "typical": 672,
+                  "max": 705
+                },
+            "yield_strength":     {
+                  "min": 414,
+                  "typical": 436,
+                  "max": 457
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 235,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2280,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 165,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 470,
+            "B": 770,
+            "n": 0.28,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 56,
+                              "opt": 80,
+                              "max": 104
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "taps",
+            "reamers",
+            "broaches"
+      ],
+      "notes": ""
+    },
+    "P-TS-217":     {
+      "id": "P-TS-217",
+      "name": "O2 Oil Hardening Hardened 57 HRC",
+      "designation":     {
+            "aisi_sae": "O2",
+            "uns": "T31502",
+            "din": "1.2842",
+            "en": "90MnCrV8",
+            "jis": "SKS93"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 57 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 0.95,
+                  "typ": 0.9
+                },
+            "Mn":     {
+                  "min": 1.4,
+                  "max": 1.8,
+                  "typ": 1.6
+                },
+            "Cr":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 46,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 531,
+                  "vickers": 557,
+                  "rockwell_c": 57
+                },
+            "tensile_strength":     {
+                  "min": 1739,
+                  "typical": 1831,
+                  "max": 1922
+                },
+            "yield_strength":     {
+                  "min": 1478,
+                  "typical": 1556,
+                  "max": 1633
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 640,
+            "fracture_toughness": 33
+          },
+      "kienzle":     {
+            "kc1_1": 4354,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 823,
+            "B": 704,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "taps",
+            "reamers",
+            "broaches"
+      ],
+      "notes": ""
+    },
+    "P-TS-218":     {
+      "id": "P-TS-218",
+      "name": "O2 Oil Hardening Hardened 59 HRC",
+      "designation":     {
+            "aisi_sae": "O2",
+            "uns": "T31502",
+            "din": "1.2842",
+            "en": "90MnCrV8",
+            "jis": "SKS93"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 59 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 0.95,
+                  "typ": 0.9
+                },
+            "Mn":     {
+                  "min": 1.4,
+                  "max": 1.8,
+                  "typ": 1.6
+                },
+            "Cr":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 46,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 564,
+                  "vickers": 592,
+                  "rockwell_c": 59
+                },
+            "tensile_strength":     {
+                  "min": 1847,
+                  "typical": 1945,
+                  "max": 2042
+                },
+            "yield_strength":     {
+                  "min": 1570,
+                  "typical": 1653,
+                  "max": 1735
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 680,
+            "fracture_toughness": 31
+          },
+      "kienzle":     {
+            "kc1_1": 4579,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 875,
+            "B": 696,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "taps",
+            "reamers",
+            "broaches"
+      ],
+      "notes": ""
+    },
+    "P-TS-219":     {
+      "id": "P-TS-219",
+      "name": "O2 Oil Hardening Hardened 61 HRC",
+      "designation":     {
+            "aisi_sae": "O2",
+            "uns": "T31502",
+            "din": "1.2842",
+            "en": "90MnCrV8",
+            "jis": "SKS93"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 61 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 0.95,
+                  "typ": 0.9
+                },
+            "Mn":     {
+                  "min": 1.4,
+                  "max": 1.8,
+                  "typ": 1.6
+                },
+            "Cr":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 46,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 600,
+                  "vickers": 630,
+                  "rockwell_c": 61
+                },
+            "tensile_strength":     {
+                  "min": 1966,
+                  "typical": 2070,
+                  "max": 2173
+                },
+            "yield_strength":     {
+                  "min": 1671,
+                  "typical": 1759,
+                  "max": 1846
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 724,
+            "fracture_toughness": 29
+          },
+      "kienzle":     {
+            "kc1_1": 4827,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 931,
+            "B": 689,
+            "n": 0.23,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "taps",
+            "reamers",
+            "broaches"
+      ],
+      "notes": ""
+    },
+    "P-TS-220":     {
+      "id": "P-TS-220",
+      "name": "O2 Oil Hardening Hardened 63 HRC",
+      "designation":     {
+            "aisi_sae": "O2",
+            "uns": "T31502",
+            "din": "1.2842",
+            "en": "90MnCrV8",
+            "jis": "SKS93"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening",
+      "condition": "Hardened 63 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.85,
+                  "max": 0.95,
+                  "typ": 0.9
+                },
+            "Mn":     {
+                  "min": 1.4,
+                  "max": 1.8,
+                  "typ": 1.6
+                },
+            "Cr":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 0.3,
+                  "typ": 0.15
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 46,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 639,
+                  "vickers": 670,
+                  "rockwell_c": 63
+                },
+            "tensile_strength":     {
+                  "min": 2093,
+                  "typical": 2204,
+                  "max": 2314
+                },
+            "yield_strength":     {
+                  "min": 1779,
+                  "typical": 1873,
+                  "max": 1966
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 771,
+            "fracture_toughness": 27
+          },
+      "kienzle":     {
+            "kc1_1": 5098,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 991,
+            "B": 681,
+            "n": 0.23,
+            "C": 0.014,
+            "m": 0.98,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 13,
+                              "opt": 19,
+                              "max": 25
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "taps",
+            "reamers",
+            "broaches"
+      ],
+      "notes": ""
+    },
+    "P-TS-221":     {
+      "id": "P-TS-221",
+      "name": "O6 Graphitic Oil Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "O6",
+            "uns": "T31506",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Oil Hardening - Graphitic",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.55,
+                  "typ": 1.45
+                },
+            "Mn":     {
+                  "min": 0.3,
+                  "max": 1.1,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 0.55,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 0.3,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 50,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 185,
+                  "vickers": 194,
+                  "rockwell_b": 96
+                },
+            "tensile_strength":     {
+                  "min": 606,
+                  "typical": 638,
+                  "max": 669
+                },
+            "yield_strength":     {
+                  "min": 393,
+                  "typical": 414,
+                  "max": 434
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 223,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2150,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 190,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 440,
+            "B": 720,
+            "n": 0.3,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 70,
+                              "opt": 100,
+                              "max": 130
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "bushings",
+            "wear_plates"
+      ],
+      "notes": "Free graphite improves machinability and lubricity"
+    },
+    "P-TS-222":     {
+      "id": "P-TS-222",
+      "name": "O6 Graphitic Oil Hardening Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "O6",
+            "uns": "T31506",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Graphitic",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.55,
+                  "typ": 1.45
+                },
+            "Mn":     {
+                  "min": 0.3,
+                  "max": 1.1,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 0.55,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 0.3,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 50,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4399,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 46,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 655,
+            "n": 0.26,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 27,
+                              "max": 36
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "bushings",
+            "wear_plates"
+      ],
+      "notes": "Free graphite improves machinability and lubricity"
+    },
+    "P-TS-223":     {
+      "id": "P-TS-223",
+      "name": "O6 Graphitic Oil Hardening Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "O6",
+            "uns": "T31506",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Graphitic",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.55,
+                  "typ": 1.45
+                },
+            "Mn":     {
+                  "min": 0.3,
+                  "max": 1.1,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 0.55,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 0.3,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 50,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4639,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 42,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 648,
+            "n": 0.25,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 17,
+                              "opt": 25,
+                              "max": 33
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "bushings",
+            "wear_plates"
+      ],
+      "notes": "Free graphite improves machinability and lubricity"
+    },
+    "P-TS-224":     {
+      "id": "P-TS-224",
+      "name": "O6 Graphitic Oil Hardening Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "O6",
+            "uns": "T31506",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Graphitic",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.55,
+                  "typ": 1.45
+                },
+            "Mn":     {
+                  "min": 0.3,
+                  "max": 1.1,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 0.55,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 0.3,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 50,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4896,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 39,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 640,
+            "n": 0.25,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "bushings",
+            "wear_plates"
+      ],
+      "notes": "Free graphite improves machinability and lubricity"
+    },
+    "P-TS-225":     {
+      "id": "P-TS-225",
+      "name": "O6 Graphitic Oil Hardening Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "O6",
+            "uns": "T31506",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Graphitic",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.55,
+                  "typ": 1.45
+                },
+            "Mn":     {
+                  "min": 0.3,
+                  "max": 1.1,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 0.55,
+                  "max": 1.5,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 0.3,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 50,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5176,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 36,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 633,
+            "n": 0.24,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "bushings",
+            "wear_plates"
+      ],
+      "notes": "Free graphite improves machinability and lubricity"
+    },
+    "P-TS-226":     {
+      "id": "P-TS-226",
+      "name": "O7 Tungsten Oil Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "O7",
+            "uns": "T31507",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Oil Hardening - Tungsten",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.1,
+                  "max": 1.3,
+                  "typ": 1.2
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.4,
+                  "typ": 0.2
+                },
+            "Cr":     {
+                  "min": 0.35,
+                  "max": 0.85,
+                  "typ": 0.6
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 2.0,
+                  "typ": 1.75
+                }
+          },
+      "physical":     {
+            "density": 7900,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 42,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 210,
+                  "vickers": 220,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 687,
+                  "typical": 724,
+                  "max": 760
+                },
+            "yield_strength":     {
+                  "min": 446,
+                  "typical": 470,
+                  "max": 493
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 253,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2400,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 155,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 510,
+            "B": 830,
+            "n": 0.27,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 49,
+                              "opt": 70,
+                              "max": 91
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "knives",
+            "paper_cutting",
+            "shear_blades",
+            "woodworking"
+      ],
+      "notes": ""
+    },
+    "P-TS-227":     {
+      "id": "P-TS-227",
+      "name": "O7 Tungsten Oil Hardening Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "O7",
+            "uns": "T31507",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Tungsten",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.1,
+                  "max": 1.3,
+                  "typ": 1.2
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.4,
+                  "typ": 0.2
+                },
+            "Cr":     {
+                  "min": 0.35,
+                  "max": 0.85,
+                  "typ": 0.6
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 2.0,
+                  "typ": 1.75
+                }
+          },
+      "physical":     {
+            "density": 7900,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 42,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4418,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 755,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knives",
+            "paper_cutting",
+            "shear_blades",
+            "woodworking"
+      ],
+      "notes": ""
+    },
+    "P-TS-228":     {
+      "id": "P-TS-228",
+      "name": "O7 Tungsten Oil Hardening Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "O7",
+            "uns": "T31507",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Tungsten",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.1,
+                  "max": 1.3,
+                  "typ": 1.2
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.4,
+                  "typ": 0.2
+                },
+            "Cr":     {
+                  "min": 0.35,
+                  "max": 0.85,
+                  "typ": 0.6
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 2.0,
+                  "typ": 1.75
+                }
+          },
+      "physical":     {
+            "density": 7900,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 42,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4650,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 747,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knives",
+            "paper_cutting",
+            "shear_blades",
+            "woodworking"
+      ],
+      "notes": ""
+    },
+    "P-TS-229":     {
+      "id": "P-TS-229",
+      "name": "O7 Tungsten Oil Hardening Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "O7",
+            "uns": "T31507",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Tungsten",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.1,
+                  "max": 1.3,
+                  "typ": 1.2
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.4,
+                  "typ": 0.2
+                },
+            "Cr":     {
+                  "min": 0.35,
+                  "max": 0.85,
+                  "typ": 0.6
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 2.0,
+                  "typ": 1.75
+                }
+          },
+      "physical":     {
+            "density": 7900,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 42,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4898,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 738,
+            "n": 0.22,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 13,
+                              "opt": 19,
+                              "max": 25
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knives",
+            "paper_cutting",
+            "shear_blades",
+            "woodworking"
+      ],
+      "notes": ""
+    },
+    "P-TS-230":     {
+      "id": "P-TS-230",
+      "name": "O7 Tungsten Oil Hardening Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "O7",
+            "uns": "T31507",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Oil Hardening - Tungsten",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.1,
+                  "max": 1.3,
+                  "typ": 1.2
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.4,
+                  "typ": 0.2
+                },
+            "Cr":     {
+                  "min": 0.35,
+                  "max": 0.85,
+                  "typ": 0.6
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 2.0,
+                  "typ": 1.75
+                }
+          },
+      "physical":     {
+            "density": 7900,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 42,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5168,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 730,
+            "n": 0.22,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knives",
+            "paper_cutting",
+            "shear_blades",
+            "woodworking"
+      ],
+      "notes": ""
+    },
+    "P-TS-231":     {
+      "id": "P-TS-231",
+      "name": "A2 Air Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "A2",
+            "uns": "T30102",
+            "din": "1.2363",
+            "en": "X100CrMoV5",
+            "jis": "SKD12"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.95,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.6
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.5,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7860,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 210,
+                  "vickers": 220,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 687,
+                  "typical": 724,
+                  "max": 760
+                },
+            "yield_strength":     {
+                  "min": 446,
+                  "typical": 470,
+                  "max": 493
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 253,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2400,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 160,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 500,
+            "B": 820,
+            "n": 0.27,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 52,
+                              "opt": 75,
+                              "max": 97
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "punches",
+            "trim_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-232":     {
+      "id": "P-TS-232",
+      "name": "A2 Air Hardening Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "A2",
+            "uns": "T30102",
+            "din": "1.2363",
+            "en": "X100CrMoV5",
+            "jis": "SKD12"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.95,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.6
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.5,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7860,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4111,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 51,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 758,
+            "n": 0.24,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "punches",
+            "trim_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-233":     {
+      "id": "P-TS-233",
+      "name": "A2 Air Hardening Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "A2",
+            "uns": "T30102",
+            "din": "1.2363",
+            "en": "X100CrMoV5",
+            "jis": "SKD12"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.95,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.6
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.5,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7860,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4418,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 46,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 746,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "punches",
+            "trim_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-234":     {
+      "id": "P-TS-234",
+      "name": "A2 Air Hardening Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "A2",
+            "uns": "T30102",
+            "din": "1.2363",
+            "en": "X100CrMoV5",
+            "jis": "SKD12"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.95,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.6
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.5,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7860,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4650,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 42,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 738,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "punches",
+            "trim_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-235":     {
+      "id": "P-TS-235",
+      "name": "A2 Air Hardening Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "A2",
+            "uns": "T30102",
+            "din": "1.2363",
+            "en": "X100CrMoV5",
+            "jis": "SKD12"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.95,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.6
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.5,
+                  "typ": 0.25
+                }
+          },
+      "physical":     {
+            "density": 7860,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4898,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 39,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 729,
+            "n": 0.22,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "gauges",
+            "punches",
+            "trim_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-236":     {
+      "id": "P-TS-236",
+      "name": "A6 Air Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "A6",
+            "uns": "T30106",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.75,
+                  "typ": 0.7
+                },
+            "Mn":     {
+                  "min": 1.8,
+                  "max": 2.5,
+                  "typ": 2.0
+                },
+            "Cr":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 7840,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 220,
+                  "vickers": 231,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 721,
+                  "typical": 759,
+                  "max": 796
+                },
+            "yield_strength":     {
+                  "min": 468,
+                  "typical": 493,
+                  "max": 517
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 265,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2450,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 155,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 510,
+            "B": 840,
+            "n": 0.27,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 49,
+                              "opt": 70,
+                              "max": 91
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "dies",
+            "punches",
+            "forming_tools",
+            "shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-237":     {
+      "id": "P-TS-237",
+      "name": "A6 Air Hardening Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "A6",
+            "uns": "T30106",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.75,
+                  "typ": 0.7
+                },
+            "Mn":     {
+                  "min": 1.8,
+                  "max": 2.5,
+                  "typ": 2.0
+                },
+            "Cr":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 7840,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4047,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 53,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 777,
+            "n": 0.24,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "dies",
+            "punches",
+            "forming_tools",
+            "shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-238":     {
+      "id": "P-TS-238",
+      "name": "A6 Air Hardening Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "A6",
+            "uns": "T30106",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.75,
+                  "typ": 0.7
+                },
+            "Mn":     {
+                  "min": 1.8,
+                  "max": 2.5,
+                  "typ": 2.0
+                },
+            "Cr":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 7840,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4344,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 47,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 764,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "dies",
+            "punches",
+            "forming_tools",
+            "shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-239":     {
+      "id": "P-TS-239",
+      "name": "A6 Air Hardening Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "A6",
+            "uns": "T30106",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.75,
+                  "typ": 0.7
+                },
+            "Mn":     {
+                  "min": 1.8,
+                  "max": 2.5,
+                  "typ": 2.0
+                },
+            "Cr":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 7840,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4568,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 43,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 756,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "dies",
+            "punches",
+            "forming_tools",
+            "shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-240":     {
+      "id": "P-TS-240",
+      "name": "A6 Air Hardening Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "A6",
+            "uns": "T30106",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening Cold Work",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.75,
+                  "typ": 0.7
+                },
+            "Mn":     {
+                  "min": 1.8,
+                  "max": 2.5,
+                  "typ": 2.0
+                },
+            "Cr":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.4,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 7840,
+            "melting_point":     {
+                  "solidus": 1390,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4807,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 40,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 747,
+            "n": 0.22,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "dies",
+            "punches",
+            "forming_tools",
+            "shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-241":     {
+      "id": "P-TS-241",
+      "name": "A10 Graphitic Air Hardening Annealed",
+      "designation":     {
+            "aisi_sae": "A10",
+            "uns": "T30110",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Air Hardening - Graphitic",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.5,
+                  "typ": 1.35
+                },
+            "Mn":     {
+                  "min": 1.6,
+                  "max": 2.1,
+                  "typ": 1.8
+                },
+            "Ni":     {
+                  "min": 1.55,
+                  "max": 2.05,
+                  "typ": 1.8
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.5
+                }
+          },
+      "physical":     {
+            "density": 7780,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 200,
+                  "vickers": 210,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 655,
+                  "typical": 690,
+                  "max": 724
+                },
+            "yield_strength":     {
+                  "min": 425,
+                  "typical": 448,
+                  "max": 470
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 241,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2300,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 175,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 480,
+            "B": 780,
+            "n": 0.28,
+            "C": 0.014,
+            "m": 0.97,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 59,
+                              "opt": 85,
+                              "max": 110
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "gauges",
+            "arbors",
+            "mandrels",
+            "precision_tooling"
+      ],
+      "notes": "Graphite provides dimensional stability and wear resistance"
+    },
+    "P-TS-242":     {
+      "id": "P-TS-242",
+      "name": "A10 Graphitic Air Hardening Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "A10",
+            "uns": "T30110",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening - Graphitic",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.5,
+                  "typ": 1.35
+                },
+            "Mn":     {
+                  "min": 1.6,
+                  "max": 2.1,
+                  "typ": 1.8
+                },
+            "Ni":     {
+                  "min": 1.55,
+                  "max": 2.05,
+                  "typ": 1.8
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.5
+                }
+          },
+      "physical":     {
+            "density": 7780,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4096,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 53,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 721,
+            "n": 0.25,
+            "C": 0.014,
+            "m": 0.97,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 19,
+                              "opt": 28,
+                              "max": 37
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "gauges",
+            "arbors",
+            "mandrels",
+            "precision_tooling"
+      ],
+      "notes": "Graphite provides dimensional stability and wear resistance"
+    },
+    "P-TS-243":     {
+      "id": "P-TS-243",
+      "name": "A10 Graphitic Air Hardening Hardened 57 HRC",
+      "designation":     {
+            "aisi_sae": "A10",
+            "uns": "T30110",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening - Graphitic",
+      "condition": "Hardened 57 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.5,
+                  "typ": 1.35
+                },
+            "Mn":     {
+                  "min": 1.6,
+                  "max": 2.1,
+                  "typ": 1.8
+                },
+            "Ni":     {
+                  "min": 1.55,
+                  "max": 2.05,
+                  "typ": 1.8
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.5
+                }
+          },
+      "physical":     {
+            "density": 7780,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 531,
+                  "vickers": 557,
+                  "rockwell_c": 57
+                },
+            "tensile_strength":     {
+                  "min": 1739,
+                  "typical": 1831,
+                  "max": 1922
+                },
+            "yield_strength":     {
+                  "min": 1478,
+                  "typical": 1556,
+                  "max": 1633
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 640,
+            "fracture_toughness": 33
+          },
+      "kienzle":     {
+            "kc1_1": 4301,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 49,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 823,
+            "B": 713,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.97,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "gauges",
+            "arbors",
+            "mandrels",
+            "precision_tooling"
+      ],
+      "notes": "Graphite provides dimensional stability and wear resistance"
+    },
+    "P-TS-244":     {
+      "id": "P-TS-244",
+      "name": "A10 Graphitic Air Hardening Hardened 59 HRC",
+      "designation":     {
+            "aisi_sae": "A10",
+            "uns": "T30110",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening - Graphitic",
+      "condition": "Hardened 59 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.5,
+                  "typ": 1.35
+                },
+            "Mn":     {
+                  "min": 1.6,
+                  "max": 2.1,
+                  "typ": 1.8
+                },
+            "Ni":     {
+                  "min": 1.55,
+                  "max": 2.05,
+                  "typ": 1.8
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.5
+                }
+          },
+      "physical":     {
+            "density": 7780,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 564,
+                  "vickers": 592,
+                  "rockwell_c": 59
+                },
+            "tensile_strength":     {
+                  "min": 1847,
+                  "typical": 1945,
+                  "max": 2042
+                },
+            "yield_strength":     {
+                  "min": 1570,
+                  "typical": 1653,
+                  "max": 1735
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 680,
+            "fracture_toughness": 31
+          },
+      "kienzle":     {
+            "kc1_1": 4522,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 45,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 875,
+            "B": 705,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.97,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "gauges",
+            "arbors",
+            "mandrels",
+            "precision_tooling"
+      ],
+      "notes": "Graphite provides dimensional stability and wear resistance"
+    },
+    "P-TS-245":     {
+      "id": "P-TS-245",
+      "name": "A10 Graphitic Air Hardening Hardened 61 HRC",
+      "designation":     {
+            "aisi_sae": "A10",
+            "uns": "T30110",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Air Hardening - Graphitic",
+      "condition": "Hardened 61 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.5,
+                  "typ": 1.35
+                },
+            "Mn":     {
+                  "min": 1.6,
+                  "max": 2.1,
+                  "typ": 1.8
+                },
+            "Ni":     {
+                  "min": 1.55,
+                  "max": 2.05,
+                  "typ": 1.8
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.5
+                }
+          },
+      "physical":     {
+            "density": 7780,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 600,
+                  "vickers": 630,
+                  "rockwell_c": 61
+                },
+            "tensile_strength":     {
+                  "min": 1966,
+                  "typical": 2070,
+                  "max": 2173
+                },
+            "yield_strength":     {
+                  "min": 1671,
+                  "typical": 1759,
+                  "max": 1846
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 724,
+            "fracture_toughness": 29
+          },
+      "kienzle":     {
+            "kc1_1": 4765,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 931,
+            "B": 698,
+            "n": 0.23,
+            "C": 0.014,
+            "m": 0.97,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "gauges",
+            "arbors",
+            "mandrels",
+            "precision_tooling"
+      ],
+      "notes": "Graphite provides dimensional stability and wear resistance"
+    },
+    "P-TS-246":     {
+      "id": "P-TS-246",
+      "name": "D2 High Carbon High Chromium Annealed",
+      "designation":     {
+            "aisi_sae": "D2",
+            "uns": "T30402",
+            "din": "1.2379",
+            "en": "X153CrMoV12",
+            "jis": "SKD11"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.4,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 0.8
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 1.1,
+                  "typ": 0.9
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1395,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 21,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 230,
+                  "vickers": 241,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 753,
+                  "typical": 793,
+                  "max": 832
+                },
+            "yield_strength":     {
+                  "min": 489,
+                  "typical": 515,
+                  "max": 540
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 277,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2600,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 140,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 550,
+            "B": 900,
+            "n": 0.25,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 45,
+                              "opt": 65,
+                              "max": 84
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "punches",
+            "shear_blades",
+            "slitters"
+      ],
+      "notes": ""
+    },
+    "P-TS-247":     {
+      "id": "P-TS-247",
+      "name": "D2 High Carbon High Chromium Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "D2",
+            "uns": "T30402",
+            "din": "1.2379",
+            "en": "X153CrMoV12",
+            "jis": "SKD11"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.4,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 0.8
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 1.1,
+                  "typ": 0.9
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1395,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 21,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4150,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 51,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 832,
+            "n": 0.22,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 17,
+                              "opt": 25,
+                              "max": 33
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "punches",
+            "shear_blades",
+            "slitters"
+      ],
+      "notes": ""
+    },
+    "P-TS-248":     {
+      "id": "P-TS-248",
+      "name": "D2 High Carbon High Chromium Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "D2",
+            "uns": "T30402",
+            "din": "1.2379",
+            "en": "X153CrMoV12",
+            "jis": "SKD11"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.4,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 0.8
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 1.1,
+                  "typ": 0.9
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1395,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 21,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4450,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 45,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 819,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "punches",
+            "shear_blades",
+            "slitters"
+      ],
+      "notes": ""
+    },
+    "P-TS-249":     {
+      "id": "P-TS-249",
+      "name": "D2 High Carbon High Chromium Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "D2",
+            "uns": "T30402",
+            "din": "1.2379",
+            "en": "X153CrMoV12",
+            "jis": "SKD11"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.4,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 0.8
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 1.1,
+                  "typ": 0.9
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1395,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 21,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4676,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 810,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "punches",
+            "shear_blades",
+            "slitters"
+      ],
+      "notes": ""
+    },
+    "P-TS-250":     {
+      "id": "P-TS-250",
+      "name": "D2 High Carbon High Chromium Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "D2",
+            "uns": "T30402",
+            "din": "1.2379",
+            "en": "X153CrMoV12",
+            "jis": "SKD11"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.4,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 0.8
+                },
+            "V":     {
+                  "min": 0,
+                  "max": 1.1,
+                  "typ": 0.9
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1395,
+                  "liquidus": 1440
+                },
+            "thermal_conductivity": 21,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4917,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 801,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1440
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 13,
+                              "opt": 19,
+                              "max": 25
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "punches",
+            "shear_blades",
+            "slitters"
+      ],
+      "notes": ""
+    },
+    "P-TS-251":     {
+      "id": "P-TS-251",
+      "name": "D3 High Carbon High Chromium Annealed",
+      "designation":     {
+            "aisi_sae": "D3",
+            "uns": "T30403",
+            "din": "1.2080",
+            "en": "X210Cr12",
+            "jis": "SKD1"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 2.0,
+                  "max": 2.35,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.5,
+                  "typ": 12.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 235,
+                  "vickers": 246,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 769,
+                  "typical": 810,
+                  "max": 850
+                },
+            "yield_strength":     {
+                  "min": 499,
+                  "typical": 526,
+                  "max": 552
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 283,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2650,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 135,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 560,
+            "B": 920,
+            "n": 0.25,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 42,
+                              "opt": 60,
+                              "max": 78
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "brick_molds",
+            "drawing_dies",
+            "rolls"
+      ],
+      "notes": ""
+    },
+    "P-TS-252":     {
+      "id": "P-TS-252",
+      "name": "D3 High Carbon High Chromium Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "D3",
+            "uns": "T30403",
+            "din": "1.2080",
+            "en": "X210Cr12",
+            "jis": "SKD1"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.0,
+                  "max": 2.35,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.5,
+                  "typ": 12.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4162,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 50,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 851,
+            "n": 0.22,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "brick_molds",
+            "drawing_dies",
+            "rolls"
+      ],
+      "notes": ""
+    },
+    "P-TS-253":     {
+      "id": "P-TS-253",
+      "name": "D3 High Carbon High Chromium Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "D3",
+            "uns": "T30403",
+            "din": "1.2080",
+            "en": "X210Cr12",
+            "jis": "SKD1"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.0,
+                  "max": 2.35,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.5,
+                  "typ": 12.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4459,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 45,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 837,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "brick_molds",
+            "drawing_dies",
+            "rolls"
+      ],
+      "notes": ""
+    },
+    "P-TS-254":     {
+      "id": "P-TS-254",
+      "name": "D3 High Carbon High Chromium Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "D3",
+            "uns": "T30403",
+            "din": "1.2080",
+            "en": "X210Cr12",
+            "jis": "SKD1"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.0,
+                  "max": 2.35,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.5,
+                  "typ": 12.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4684,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 828,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "brick_molds",
+            "drawing_dies",
+            "rolls"
+      ],
+      "notes": ""
+    },
+    "P-TS-255":     {
+      "id": "P-TS-255",
+      "name": "D3 High Carbon High Chromium Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "D3",
+            "uns": "T30403",
+            "din": "1.2080",
+            "en": "X210Cr12",
+            "jis": "SKD1"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.0,
+                  "max": 2.35,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.5,
+                  "typ": 12.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4924,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 818,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 12,
+                              "opt": 18,
+                              "max": 24
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "brick_molds",
+            "drawing_dies",
+            "rolls"
+      ],
+      "notes": ""
+    },
+    "P-TS-256":     {
+      "id": "P-TS-256",
+      "name": "D4 Extra High Carbon Annealed",
+      "designation":     {
+            "aisi_sae": "D4",
+            "uns": "T30404",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 2.05,
+                  "max": 2.4,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 245,
+                  "vickers": 257,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 802,
+                  "typical": 845,
+                  "max": 887
+                },
+            "yield_strength":     {
+                  "min": 521,
+                  "typical": 549,
+                  "max": 576
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 295,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2750,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 125,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 590,
+            "B": 970,
+            "n": 0.24,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 38,
+                              "opt": 55,
+                              "max": 71
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "burnishing_dies",
+            "drawing_dies",
+            "extrusion_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-257":     {
+      "id": "P-TS-257",
+      "name": "D4 Extra High Carbon Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "D4",
+            "uns": "T30404",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.05,
+                  "max": 2.4,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4186,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 49,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 897,
+            "n": 0.21,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "burnishing_dies",
+            "drawing_dies",
+            "extrusion_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-258":     {
+      "id": "P-TS-258",
+      "name": "D4 Extra High Carbon Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "D4",
+            "uns": "T30404",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.05,
+                  "max": 2.4,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4480,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 43,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 882,
+            "n": 0.21,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "burnishing_dies",
+            "drawing_dies",
+            "extrusion_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-259":     {
+      "id": "P-TS-259",
+      "name": "D4 Extra High Carbon Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "D4",
+            "uns": "T30404",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.05,
+                  "max": 2.4,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4702,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 40,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 873,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 13,
+                              "opt": 19,
+                              "max": 25
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "burnishing_dies",
+            "drawing_dies",
+            "extrusion_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-260":     {
+      "id": "P-TS-260",
+      "name": "D4 Extra High Carbon Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "D4",
+            "uns": "T30404",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.05,
+                  "max": 2.4,
+                  "typ": 2.25
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.0,
+                  "max": 13.0,
+                  "typ": 12.0
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4939,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 37,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 863,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 12,
+                              "opt": 18,
+                              "max": 24
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "burnishing_dies",
+            "drawing_dies",
+            "extrusion_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-261":     {
+      "id": "P-TS-261",
+      "name": "D7 Vanadium Enhanced Annealed",
+      "designation":     {
+            "aisi_sae": "D7",
+            "uns": "T30407",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Cold Work High Chromium - High Vanadium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 2.15,
+                  "max": 2.5,
+                  "typ": 2.35
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.5,
+                  "max": 13.5,
+                  "typ": 12.5
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 3.8,
+                  "max": 4.4,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1360,
+                  "liquidus": 1410
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 255,
+                  "vickers": 267,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 835,
+                  "typical": 879,
+                  "max": 922
+                },
+            "yield_strength":     {
+                  "min": 542,
+                  "typical": 571,
+                  "max": 599
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 307,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2850,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 115,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 620,
+            "B": 1020,
+            "n": 0.23,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1410
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 35,
+                              "opt": 50,
+                              "max": 65
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brick_molds",
+            "ceramic_dies",
+            "powder_compacting",
+            "abrasive_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-262":     {
+      "id": "P-TS-262",
+      "name": "D7 Vanadium Enhanced Hardened 55 HRC",
+      "designation":     {
+            "aisi_sae": "D7",
+            "uns": "T30407",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium - High Vanadium",
+      "condition": "Hardened 55 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.15,
+                  "max": 2.5,
+                  "typ": 2.35
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.5,
+                  "max": 13.5,
+                  "typ": 12.5
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 3.8,
+                  "max": 4.4,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1360,
+                  "liquidus": 1410
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 500,
+                  "vickers": 525,
+                  "rockwell_c": 55
+                },
+            "tensile_strength":     {
+                  "min": 1638,
+                  "typical": 1725,
+                  "max": 1811
+                },
+            "yield_strength":     {
+                  "min": 1392,
+                  "typical": 1466,
+                  "max": 1539
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 603,
+            "fracture_toughness": 35
+          },
+      "kienzle":     {
+            "kc1_1": 4213,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 47,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 776,
+            "B": 943,
+            "n": 0.2,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1410
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_molds",
+            "ceramic_dies",
+            "powder_compacting",
+            "abrasive_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-263":     {
+      "id": "P-TS-263",
+      "name": "D7 Vanadium Enhanced Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "D7",
+            "uns": "T30407",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium - High Vanadium",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.15,
+                  "max": 2.5,
+                  "typ": 2.35
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.5,
+                  "max": 13.5,
+                  "typ": 12.5
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 3.8,
+                  "max": 4.4,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1360,
+                  "liquidus": 1410
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4504,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 42,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 928,
+            "n": 0.2,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1410
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 20,
+                              "max": 27
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_molds",
+            "ceramic_dies",
+            "powder_compacting",
+            "abrasive_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-264":     {
+      "id": "P-TS-264",
+      "name": "D7 Vanadium Enhanced Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "D7",
+            "uns": "T30407",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium - High Vanadium",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.15,
+                  "max": 2.5,
+                  "typ": 2.35
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.5,
+                  "max": 13.5,
+                  "typ": 12.5
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 3.8,
+                  "max": 4.4,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1360,
+                  "liquidus": 1410
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4723,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 39,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 918,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1410
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 12,
+                              "opt": 18,
+                              "max": 24
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_molds",
+            "ceramic_dies",
+            "powder_compacting",
+            "abrasive_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-265":     {
+      "id": "P-TS-265",
+      "name": "D7 Vanadium Enhanced Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "D7",
+            "uns": "T30407",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium - High Vanadium",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.15,
+                  "max": 2.5,
+                  "typ": 2.35
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.5,
+                  "max": 13.5,
+                  "typ": 12.5
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 3.8,
+                  "max": 4.4,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1360,
+                  "liquidus": 1410
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4957,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 36,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 907,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1410
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_molds",
+            "ceramic_dies",
+            "powder_compacting",
+            "abrasive_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-266":     {
+      "id": "P-TS-266",
+      "name": "D7 Vanadium Enhanced Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "D7",
+            "uns": "T30407",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Cold Work High Chromium - High Vanadium",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.15,
+                  "max": 2.5,
+                  "typ": 2.35
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 0.6,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 11.5,
+                  "max": 13.5,
+                  "typ": 12.5
+                },
+            "Mo":     {
+                  "min": 0.7,
+                  "max": 1.2,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 3.8,
+                  "max": 4.4,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1360,
+                  "liquidus": 1410
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5213,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 33,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 897,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1410
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_molds",
+            "ceramic_dies",
+            "powder_compacting",
+            "abrasive_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-267":     {
+      "id": "P-TS-267",
+      "name": "H11 Chromium Hot Work Annealed",
+      "designation":     {
+            "aisi_sae": "H11",
+            "uns": "T20811",
+            "din": "1.2343",
+            "en": "X38CrMoV5-1",
+            "jis": "SKD6"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.33,
+                  "max": 0.43,
+                  "typ": 0.38
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.6,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 200,
+                  "vickers": 210,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 655,
+                  "typical": 690,
+                  "max": 724
+                },
+            "yield_strength":     {
+                  "min": 425,
+                  "typical": 448,
+                  "max": 470
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 241,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2350,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 165,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 490,
+            "B": 800,
+            "n": 0.28,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 56,
+                              "opt": 80,
+                              "max": 104
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "extrusion_dies",
+            "forging_dies",
+            "mandrels",
+            "die_casting"
+      ],
+      "notes": ""
+    },
+    "P-TS-268":     {
+      "id": "P-TS-268",
+      "name": "H11 Chromium Hot Work Hardened 38 HRC",
+      "designation":     {
+            "aisi_sae": "H11",
+            "uns": "T20811",
+            "din": "1.2343",
+            "en": "X38CrMoV5-1",
+            "jis": "SKD6"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 38 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.33,
+                  "max": 0.43,
+                  "typ": 0.38
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.6,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 316,
+                  "vickers": 331,
+                  "rockwell_c": 38
+                },
+            "tensile_strength":     {
+                  "min": 1035,
+                  "typical": 1090,
+                  "max": 1144
+                },
+            "yield_strength":     {
+                  "min": 879,
+                  "typical": 926,
+                  "max": 972
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 381,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2995,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 91,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 490,
+            "B": 800,
+            "n": 0.28,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 13,
+            "relative_to_1212": 0.13
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 32,
+                              "opt": 46,
+                              "max": 62
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "extrusion_dies",
+            "forging_dies",
+            "mandrels",
+            "die_casting"
+      ],
+      "notes": ""
+    },
+    "P-TS-269":     {
+      "id": "P-TS-269",
+      "name": "H11 Chromium Hot Work Hardened 44 HRC",
+      "designation":     {
+            "aisi_sae": "H11",
+            "uns": "T20811",
+            "din": "1.2343",
+            "en": "X38CrMoV5-1",
+            "jis": "SKD6"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 44 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.33,
+                  "max": 0.43,
+                  "typ": 0.38
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.6,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 367,
+                  "vickers": 385,
+                  "rockwell_c": 44
+                },
+            "tensile_strength":     {
+                  "min": 1202,
+                  "typical": 1266,
+                  "max": 1329
+                },
+            "yield_strength":     {
+                  "min": 1022,
+                  "typical": 1076,
+                  "max": 1129
+                },
+            "elongation":     {
+                  "min": 17,
+                  "typical": 19,
+                  "max": 21
+                },
+            "fatigue_strength": 443,
+            "fracture_toughness": 46
+          },
+      "kienzle":     {
+            "kc1_1": 3313,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 74,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 569,
+            "B": 784,
+            "n": 0.27,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 10,
+            "relative_to_1212": 0.1
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 26,
+                              "opt": 38,
+                              "max": 51
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "extrusion_dies",
+            "forging_dies",
+            "mandrels",
+            "die_casting"
+      ],
+      "notes": ""
+    },
+    "P-TS-270":     {
+      "id": "P-TS-270",
+      "name": "H11 Chromium Hot Work Hardened 48 HRC",
+      "designation":     {
+            "aisi_sae": "H11",
+            "uns": "T20811",
+            "din": "1.2343",
+            "en": "X38CrMoV5-1",
+            "jis": "SKD6"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 48 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.33,
+                  "max": 0.43,
+                  "typ": 0.38
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.6,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 409,
+                  "vickers": 429,
+                  "rockwell_c": 48
+                },
+            "tensile_strength":     {
+                  "min": 1340,
+                  "typical": 1411,
+                  "max": 1481
+                },
+            "yield_strength":     {
+                  "min": 1139,
+                  "typical": 1199,
+                  "max": 1258
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 493,
+            "fracture_toughness": 42
+          },
+      "kienzle":     {
+            "kc1_1": 3583,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 65,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 634,
+            "B": 768,
+            "n": 0.26,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 23,
+                              "opt": 33,
+                              "max": 44
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "extrusion_dies",
+            "forging_dies",
+            "mandrels",
+            "die_casting"
+      ],
+      "notes": ""
+    },
+    "P-TS-271":     {
+      "id": "P-TS-271",
+      "name": "H11 Chromium Hot Work Hardened 52 HRC",
+      "designation":     {
+            "aisi_sae": "H11",
+            "uns": "T20811",
+            "din": "1.2343",
+            "en": "X38CrMoV5-1",
+            "jis": "SKD6"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 52 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.33,
+                  "max": 0.43,
+                  "typ": 0.38
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.6,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 201000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 458,
+                  "vickers": 480,
+                  "rockwell_c": 52
+                },
+            "tensile_strength":     {
+                  "min": 1501,
+                  "typical": 1580,
+                  "max": 1659
+                },
+            "yield_strength":     {
+                  "min": 1275,
+                  "typical": 1343,
+                  "max": 1410
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 553,
+            "fracture_toughness": 38
+          },
+      "kienzle":     {
+            "kc1_1": 3904,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 56,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 711,
+            "B": 752,
+            "n": 0.25,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 20,
+                              "opt": 29,
+                              "max": 39
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "extrusion_dies",
+            "forging_dies",
+            "mandrels",
+            "die_casting"
+      ],
+      "notes": ""
+    },
+    "P-TS-272":     {
+      "id": "P-TS-272",
+      "name": "H11 Chromium Hot Work Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "H11",
+            "uns": "T20811",
+            "din": "1.2343",
+            "en": "X38CrMoV5-1",
+            "jis": "SKD6"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.33,
+                  "max": 0.43,
+                  "typ": 0.38
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.6,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 25,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 4084,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 52,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 744,
+            "n": 0.25,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 27,
+                              "max": 36
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "extrusion_dies",
+            "forging_dies",
+            "mandrels",
+            "die_casting"
+      ],
+      "notes": ""
+    },
+    "P-TS-273":     {
+      "id": "P-TS-273",
+      "name": "H13 Chromium Hot Work Annealed",
+      "designation":     {
+            "aisi_sae": "H13",
+            "uns": "T20813",
+            "din": "1.2344",
+            "en": "X40CrMoV5-1",
+            "jis": "SKD61"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.75,
+                  "typ": 1.35
+                },
+            "V":     {
+                  "min": 0.8,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 24.5,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 192,
+                  "vickers": 201,
+                  "rockwell_b": 99
+                },
+            "tensile_strength":     {
+                  "min": 628,
+                  "typical": 662,
+                  "max": 695
+                },
+            "yield_strength":     {
+                  "min": 408,
+                  "typical": 430,
+                  "max": 451
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 231,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2300,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 170,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 480,
+            "B": 780,
+            "n": 0.28,
+            "C": 0.015,
+            "m": 0.97,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 59,
+                              "opt": 85,
+                              "max": 110
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "die_casting_dies",
+            "extrusion_dies",
+            "forging_dies",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-274":     {
+      "id": "P-TS-274",
+      "name": "H13 Chromium Hot Work Hardened 38 HRC",
+      "designation":     {
+            "aisi_sae": "H13",
+            "uns": "T20813",
+            "din": "1.2344",
+            "en": "X40CrMoV5-1",
+            "jis": "SKD61"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 38 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.75,
+                  "typ": 1.35
+                },
+            "V":     {
+                  "min": 0.8,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 24.5,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 316,
+                  "vickers": 331,
+                  "rockwell_c": 38
+                },
+            "tensile_strength":     {
+                  "min": 1035,
+                  "typical": 1090,
+                  "max": 1144
+                },
+            "yield_strength":     {
+                  "min": 879,
+                  "typical": 926,
+                  "max": 972
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 381,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3010,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 88,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 490,
+            "B": 780,
+            "n": 0.28,
+            "C": 0.015,
+            "m": 0.97,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 12,
+            "relative_to_1212": 0.12
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 32,
+                              "opt": 46,
+                              "max": 62
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "die_casting_dies",
+            "extrusion_dies",
+            "forging_dies",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-275":     {
+      "id": "P-TS-275",
+      "name": "H13 Chromium Hot Work Hardened 44 HRC",
+      "designation":     {
+            "aisi_sae": "H13",
+            "uns": "T20813",
+            "din": "1.2344",
+            "en": "X40CrMoV5-1",
+            "jis": "SKD61"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 44 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.75,
+                  "typ": 1.35
+                },
+            "V":     {
+                  "min": 0.8,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 24.5,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 367,
+                  "vickers": 385,
+                  "rockwell_c": 44
+                },
+            "tensile_strength":     {
+                  "min": 1202,
+                  "typical": 1266,
+                  "max": 1329
+                },
+            "yield_strength":     {
+                  "min": 1022,
+                  "typical": 1076,
+                  "max": 1129
+                },
+            "elongation":     {
+                  "min": 17,
+                  "typical": 19,
+                  "max": 21
+                },
+            "fatigue_strength": 443,
+            "fracture_toughness": 46
+          },
+      "kienzle":     {
+            "kc1_1": 3338,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 73,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 569,
+            "B": 764,
+            "n": 0.27,
+            "C": 0.015,
+            "m": 0.97,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 27,
+                              "opt": 39,
+                              "max": 52
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "die_casting_dies",
+            "extrusion_dies",
+            "forging_dies",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-276":     {
+      "id": "P-TS-276",
+      "name": "H13 Chromium Hot Work Hardened 48 HRC",
+      "designation":     {
+            "aisi_sae": "H13",
+            "uns": "T20813",
+            "din": "1.2344",
+            "en": "X40CrMoV5-1",
+            "jis": "SKD61"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 48 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.75,
+                  "typ": 1.35
+                },
+            "V":     {
+                  "min": 0.8,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 24.5,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 409,
+                  "vickers": 429,
+                  "rockwell_c": 48
+                },
+            "tensile_strength":     {
+                  "min": 1340,
+                  "typical": 1411,
+                  "max": 1481
+                },
+            "yield_strength":     {
+                  "min": 1139,
+                  "typical": 1199,
+                  "max": 1258
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 493,
+            "fracture_toughness": 42
+          },
+      "kienzle":     {
+            "kc1_1": 3615,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 63,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 634,
+            "B": 748,
+            "n": 0.26,
+            "C": 0.015,
+            "m": 0.97,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 23,
+                              "opt": 34,
+                              "max": 45
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "die_casting_dies",
+            "extrusion_dies",
+            "forging_dies",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-277":     {
+      "id": "P-TS-277",
+      "name": "H13 Chromium Hot Work Hardened 52 HRC",
+      "designation":     {
+            "aisi_sae": "H13",
+            "uns": "T20813",
+            "din": "1.2344",
+            "en": "X40CrMoV5-1",
+            "jis": "SKD61"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 52 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.75,
+                  "typ": 1.35
+                },
+            "V":     {
+                  "min": 0.8,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 24.5,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 201000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 458,
+                  "vickers": 480,
+                  "rockwell_c": 52
+                },
+            "tensile_strength":     {
+                  "min": 1501,
+                  "typical": 1580,
+                  "max": 1659
+                },
+            "yield_strength":     {
+                  "min": 1275,
+                  "typical": 1343,
+                  "max": 1410
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 553,
+            "fracture_toughness": 38
+          },
+      "kienzle":     {
+            "kc1_1": 3946,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 54,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 711,
+            "B": 733,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 0.97,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 20,
+                              "opt": 29,
+                              "max": 39
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "die_casting_dies",
+            "extrusion_dies",
+            "forging_dies",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-278":     {
+      "id": "P-TS-278",
+      "name": "H13 Chromium Hot Work Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "H13",
+            "uns": "T20813",
+            "din": "1.2344",
+            "en": "X40CrMoV5-1",
+            "jis": "SKD61"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Chromium",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.5,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 4.75,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "Mo":     {
+                  "min": 1.1,
+                  "max": 1.75,
+                  "typ": 1.35
+                },
+            "V":     {
+                  "min": 0.8,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1425,
+                  "liquidus": 1475
+                },
+            "thermal_conductivity": 24.5,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 4130,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 50,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 725,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 0.97,
+            "T_melt": 1475
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 27,
+                              "max": 36
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "die_casting_dies",
+            "extrusion_dies",
+            "forging_dies",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-279":     {
+      "id": "P-TS-279",
+      "name": "H19 Tungsten Hot Work Annealed",
+      "designation":     {
+            "aisi_sae": "H19",
+            "uns": "T20819",
+            "din": "1.2678",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 2.0
+                },
+            "Co":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8450,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 230,
+                  "vickers": 241,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 753,
+                  "typical": 793,
+                  "max": 832
+                },
+            "yield_strength":     {
+                  "min": 489,
+                  "typical": 515,
+                  "max": 540
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 277,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2550,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 145,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 540,
+            "B": 880,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 42,
+                              "opt": 60,
+                              "max": 78
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "hot_punches",
+            "high_temp_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-280":     {
+      "id": "P-TS-280",
+      "name": "H19 Tungsten Hot Work Hardened 40 HRC",
+      "designation":     {
+            "aisi_sae": "H19",
+            "uns": "T20819",
+            "din": "1.2678",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 40 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 2.0
+                },
+            "Co":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8450,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 332,
+                  "vickers": 348,
+                  "rockwell_c": 40
+                },
+            "tensile_strength":     {
+                  "min": 1087,
+                  "typical": 1145,
+                  "max": 1202
+                },
+            "yield_strength":     {
+                  "min": 924,
+                  "typical": 973,
+                  "max": 1021
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 400,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3071,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 89,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 515,
+            "B": 880,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 15,
+            "relative_to_1212": 0.15
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 26,
+                              "opt": 38,
+                              "max": 51
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "hot_punches",
+            "high_temp_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-281":     {
+      "id": "P-TS-281",
+      "name": "H19 Tungsten Hot Work Hardened 45 HRC",
+      "designation":     {
+            "aisi_sae": "H19",
+            "uns": "T20819",
+            "din": "1.2678",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 45 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 2.0
+                },
+            "Co":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8450,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 377,
+                  "vickers": 395,
+                  "rockwell_c": 45
+                },
+            "tensile_strength":     {
+                  "min": 1235,
+                  "typical": 1300,
+                  "max": 1365
+                },
+            "yield_strength":     {
+                  "min": 1049,
+                  "typical": 1105,
+                  "max": 1160
+                },
+            "elongation":     {
+                  "min": 17,
+                  "typical": 19,
+                  "max": 21
+                },
+            "fatigue_strength": 454,
+            "fracture_toughness": 45
+          },
+      "kienzle":     {
+            "kc1_1": 3329,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 76,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 585,
+            "B": 858,
+            "n": 0.25,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 12,
+            "relative_to_1212": 0.12
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 23,
+                              "opt": 33,
+                              "max": 44
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "hot_punches",
+            "high_temp_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-282":     {
+      "id": "P-TS-282",
+      "name": "H19 Tungsten Hot Work Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "H19",
+            "uns": "T20819",
+            "din": "1.2678",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 2.0
+                },
+            "Co":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8450,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 3661,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 63,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 836,
+            "n": 0.24,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 19,
+                              "opt": 28,
+                              "max": 37
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "hot_punches",
+            "high_temp_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-283":     {
+      "id": "P-TS-283",
+      "name": "H19 Tungsten Hot Work Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "H19",
+            "uns": "T20819",
+            "din": "1.2678",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 2.0
+                },
+            "Co":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8450,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 3978,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 54,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 818,
+            "n": 0.23,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "hot_punches",
+            "high_temp_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-284":     {
+      "id": "P-TS-284",
+      "name": "H19 Tungsten Hot Work Hardened 56 HRC",
+      "designation":     {
+            "aisi_sae": "H19",
+            "uns": "T20819",
+            "din": "1.2678",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 56 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.32,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 2.0
+                },
+            "Co":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8450,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 515,
+                  "vickers": 540,
+                  "rockwell_c": 56
+                },
+            "tensile_strength":     {
+                  "min": 1687,
+                  "typical": 1776,
+                  "max": 1864
+                },
+            "yield_strength":     {
+                  "min": 1433,
+                  "typical": 1509,
+                  "max": 1584
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 621,
+            "fracture_toughness": 34
+          },
+      "kienzle":     {
+            "kc1_1": 4164,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 50,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 799,
+            "B": 809,
+            "n": 0.23,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "hot_punches",
+            "high_temp_dies"
+      ],
+      "notes": ""
+    },
+    "P-TS-285":     {
+      "id": "P-TS-285",
+      "name": "H21 Tungsten Hot Work Annealed",
+      "designation":     {
+            "aisi_sae": "H21",
+            "uns": "T20821",
+            "din": "1.2581",
+            "en": "X30WCrV9-3",
+            "jis": "SKD5"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.26,
+                  "max": 0.36,
+                  "typ": 0.3
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.75,
+                  "typ": 3.5
+                },
+            "W":     {
+                  "min": 8.5,
+                  "max": 10.0,
+                  "typ": 9.25
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.45
+                }
+          },
+      "physical":     {
+            "density": 8500,
+            "melting_point":     {
+                  "solidus": 1355,
+                  "liquidus": 1400
+                },
+            "thermal_conductivity": 27,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 235,
+                  "vickers": 246,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 769,
+                  "typical": 810,
+                  "max": 850
+                },
+            "yield_strength":     {
+                  "min": 499,
+                  "typical": 526,
+                  "max": 552
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 283,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2600,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 140,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 550,
+            "B": 900,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1400
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 38,
+                              "opt": 55,
+                              "max": 71
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "mandrels",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-286":     {
+      "id": "P-TS-286",
+      "name": "H21 Tungsten Hot Work Hardened 40 HRC",
+      "designation":     {
+            "aisi_sae": "H21",
+            "uns": "T20821",
+            "din": "1.2581",
+            "en": "X30WCrV9-3",
+            "jis": "SKD5"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 40 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.26,
+                  "max": 0.36,
+                  "typ": 0.3
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.75,
+                  "typ": 3.5
+                },
+            "W":     {
+                  "min": 8.5,
+                  "max": 10.0,
+                  "typ": 9.25
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.45
+                }
+          },
+      "physical":     {
+            "density": 8500,
+            "melting_point":     {
+                  "solidus": 1355,
+                  "liquidus": 1400
+                },
+            "thermal_conductivity": 27,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 332,
+                  "vickers": 348,
+                  "rockwell_c": 40
+                },
+            "tensile_strength":     {
+                  "min": 1087,
+                  "typical": 1145,
+                  "max": 1202
+                },
+            "yield_strength":     {
+                  "min": 924,
+                  "typical": 973,
+                  "max": 1021
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 400,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3091,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 89,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 515,
+            "B": 900,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1400
+          },
+      "machinability":     {
+            "aisi_rating": 16,
+            "relative_to_1212": 0.16
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 25,
+                              "opt": 36,
+                              "max": 48
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "mandrels",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-287":     {
+      "id": "P-TS-287",
+      "name": "H21 Tungsten Hot Work Hardened 45 HRC",
+      "designation":     {
+            "aisi_sae": "H21",
+            "uns": "T20821",
+            "din": "1.2581",
+            "en": "X30WCrV9-3",
+            "jis": "SKD5"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 45 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.26,
+                  "max": 0.36,
+                  "typ": 0.3
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.75,
+                  "typ": 3.5
+                },
+            "W":     {
+                  "min": 8.5,
+                  "max": 10.0,
+                  "typ": 9.25
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.45
+                }
+          },
+      "physical":     {
+            "density": 8500,
+            "melting_point":     {
+                  "solidus": 1355,
+                  "liquidus": 1400
+                },
+            "thermal_conductivity": 27,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 377,
+                  "vickers": 395,
+                  "rockwell_c": 45
+                },
+            "tensile_strength":     {
+                  "min": 1235,
+                  "typical": 1300,
+                  "max": 1365
+                },
+            "yield_strength":     {
+                  "min": 1049,
+                  "typical": 1105,
+                  "max": 1160
+                },
+            "elongation":     {
+                  "min": 17,
+                  "typical": 19,
+                  "max": 21
+                },
+            "fatigue_strength": 454,
+            "fracture_toughness": 45
+          },
+      "kienzle":     {
+            "kc1_1": 3346,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 75,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 585,
+            "B": 877,
+            "n": 0.25,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1400
+          },
+      "machinability":     {
+            "aisi_rating": 12,
+            "relative_to_1212": 0.12
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 21,
+                              "opt": 31,
+                              "max": 41
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "mandrels",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-288":     {
+      "id": "P-TS-288",
+      "name": "H21 Tungsten Hot Work Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "H21",
+            "uns": "T20821",
+            "din": "1.2581",
+            "en": "X30WCrV9-3",
+            "jis": "SKD5"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.26,
+                  "max": 0.36,
+                  "typ": 0.3
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.75,
+                  "typ": 3.5
+                },
+            "W":     {
+                  "min": 8.5,
+                  "max": 10.0,
+                  "typ": 9.25
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.45
+                }
+          },
+      "physical":     {
+            "density": 8500,
+            "melting_point":     {
+                  "solidus": 1355,
+                  "liquidus": 1400
+                },
+            "thermal_conductivity": 27,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 3676,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 63,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 855,
+            "n": 0.24,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1400
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "mandrels",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-289":     {
+      "id": "P-TS-289",
+      "name": "H21 Tungsten Hot Work Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "H21",
+            "uns": "T20821",
+            "din": "1.2581",
+            "en": "X30WCrV9-3",
+            "jis": "SKD5"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.26,
+                  "max": 0.36,
+                  "typ": 0.3
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.75,
+                  "typ": 3.5
+                },
+            "W":     {
+                  "min": 8.5,
+                  "max": 10.0,
+                  "typ": 9.25
+                },
+            "V":     {
+                  "min": 0.3,
+                  "max": 0.6,
+                  "typ": 0.45
+                }
+          },
+      "physical":     {
+            "density": 8500,
+            "melting_point":     {
+                  "solidus": 1355,
+                  "liquidus": 1400
+                },
+            "thermal_conductivity": 27,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 3991,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 54,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 837,
+            "n": 0.23,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1400
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brass_extrusion",
+            "hot_forging",
+            "mandrels",
+            "hot_shear_blades"
+      ],
+      "notes": ""
+    },
+    "P-TS-290":     {
+      "id": "P-TS-290",
+      "name": "H26 Tungsten Hot Work Annealed",
+      "designation":     {
+            "aisi_sae": "H26",
+            "uns": "T20826",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten - High Temperature",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 19.0,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.75,
+                  "max": 1.25,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1330,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 240,
+                  "vickers": 252,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 786,
+                  "typical": 828,
+                  "max": 869
+                },
+            "yield_strength":     {
+                  "min": 511,
+                  "typical": 538,
+                  "max": 564
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 289,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2700,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 130,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 580,
+            "B": 950,
+            "n": 0.25,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 35,
+                              "opt": 50,
+                              "max": 65
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "mandrels",
+            "hot_extrusion",
+            "high_temperature_tooling"
+      ],
+      "notes": ""
+    },
+    "P-TS-291":     {
+      "id": "P-TS-291",
+      "name": "H26 Tungsten Hot Work Hardened 45 HRC",
+      "designation":     {
+            "aisi_sae": "H26",
+            "uns": "T20826",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Hot Work Tungsten - High Temperature",
+      "condition": "Hardened 45 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 19.0,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.75,
+                  "max": 1.25,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1330,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 377,
+                  "vickers": 395,
+                  "rockwell_c": 45
+                },
+            "tensile_strength":     {
+                  "min": 1235,
+                  "typical": 1300,
+                  "max": 1365
+                },
+            "yield_strength":     {
+                  "min": 1049,
+                  "typical": 1105,
+                  "max": 1160
+                },
+            "elongation":     {
+                  "min": 17,
+                  "typical": 19,
+                  "max": 21
+                },
+            "fatigue_strength": 454,
+            "fracture_toughness": 45
+          },
+      "kienzle":     {
+            "kc1_1": 3428,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 72,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 585,
+            "B": 926,
+            "n": 0.24,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 13,
+            "relative_to_1212": 0.13
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 20,
+                              "opt": 29,
+                              "max": 39
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "mandrels",
+            "hot_extrusion",
+            "high_temperature_tooling"
+      ],
+      "notes": ""
+    },
+    "P-TS-292":     {
+      "id": "P-TS-292",
+      "name": "H26 Tungsten Hot Work Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "H26",
+            "uns": "T20826",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten - High Temperature",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 19.0,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.75,
+                  "max": 1.25,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1330,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 3762,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 60,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 902,
+            "n": 0.23,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 10,
+            "relative_to_1212": 0.1
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "mandrels",
+            "hot_extrusion",
+            "high_temperature_tooling"
+      ],
+      "notes": ""
+    },
+    "P-TS-293":     {
+      "id": "P-TS-293",
+      "name": "H26 Tungsten Hot Work Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "H26",
+            "uns": "T20826",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten - High Temperature",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 19.0,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.75,
+                  "max": 1.25,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1330,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 4080,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 52,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 883,
+            "n": 0.22,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 14,
+                              "opt": 21,
+                              "max": 28
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "mandrels",
+            "hot_extrusion",
+            "high_temperature_tooling"
+      ],
+      "notes": ""
+    },
+    "P-TS-294":     {
+      "id": "P-TS-294",
+      "name": "H26 Tungsten Hot Work Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "H26",
+            "uns": "T20826",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Hot Work Tungsten - High Temperature",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 19.0,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.75,
+                  "max": 1.25,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1330,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 26,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4469,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 864,
+            "n": 0.21,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 12,
+                              "opt": 18,
+                              "max": 24
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "mandrels",
+            "hot_extrusion",
+            "high_temperature_tooling"
+      ],
+      "notes": ""
+    },
+    "P-TS-295":     {
+      "id": "P-TS-295",
+      "name": "S1 Shock Resisting Annealed",
+      "designation":     {
+            "aisi_sae": "S1",
+            "uns": "T41901",
+            "din": "1.2550",
+            "en": "60WCrV8",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Shock Resisting",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.4,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Cr":     {
+                  "min": 1.0,
+                  "max": 1.8,
+                  "typ": 1.5
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 3.0,
+                  "typ": 2.5
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.3,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7880,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 185,
+                  "vickers": 194,
+                  "rockwell_b": 96
+                },
+            "tensile_strength":     {
+                  "min": 606,
+                  "typical": 638,
+                  "max": 669
+                },
+            "yield_strength":     {
+                  "min": 393,
+                  "typical": 414,
+                  "max": 434
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 223,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2200,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 180,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 460,
+            "B": 750,
+            "n": 0.29,
+            "C": 0.015,
+            "m": 0.99,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 62,
+                              "opt": 90,
+                              "max": 117
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "chisels",
+            "pneumatic_tools",
+            "punches",
+            "shear_blades",
+            "riveting_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-296":     {
+      "id": "P-TS-296",
+      "name": "S1 Shock Resisting Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "S1",
+            "uns": "T41901",
+            "din": "1.2550",
+            "en": "60WCrV8",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.4,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Cr":     {
+                  "min": 1.0,
+                  "max": 1.8,
+                  "typ": 1.5
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 3.0,
+                  "typ": 2.5
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.3,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7880,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 3718,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 59,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 712,
+            "n": 0.27,
+            "C": 0.015,
+            "m": 0.99,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 22,
+                              "opt": 32,
+                              "max": 43
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "pneumatic_tools",
+            "punches",
+            "shear_blades",
+            "riveting_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-297":     {
+      "id": "P-TS-297",
+      "name": "S1 Shock Resisting Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "S1",
+            "uns": "T41901",
+            "din": "1.2550",
+            "en": "60WCrV8",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.4,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Cr":     {
+                  "min": 1.0,
+                  "max": 1.8,
+                  "typ": 1.5
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 3.0,
+                  "typ": 2.5
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.3,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7880,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 4072,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 51,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 697,
+            "n": 0.26,
+            "C": 0.015,
+            "m": 0.99,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 19,
+                              "opt": 28,
+                              "max": 37
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "pneumatic_tools",
+            "punches",
+            "shear_blades",
+            "riveting_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-298":     {
+      "id": "P-TS-298",
+      "name": "S1 Shock Resisting Hardened 56 HRC",
+      "designation":     {
+            "aisi_sae": "S1",
+            "uns": "T41901",
+            "din": "1.2550",
+            "en": "60WCrV8",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting",
+      "condition": "Hardened 56 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.4,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Cr":     {
+                  "min": 1.0,
+                  "max": 1.8,
+                  "typ": 1.5
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 3.0,
+                  "typ": 2.5
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.3,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7880,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 515,
+                  "vickers": 540,
+                  "rockwell_c": 56
+                },
+            "tensile_strength":     {
+                  "min": 1687,
+                  "typical": 1776,
+                  "max": 1864
+                },
+            "yield_strength":     {
+                  "min": 1433,
+                  "typical": 1509,
+                  "max": 1584
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 621,
+            "fracture_toughness": 34
+          },
+      "kienzle":     {
+            "kc1_1": 4279,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 47,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 799,
+            "B": 690,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 0.99,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "pneumatic_tools",
+            "punches",
+            "shear_blades",
+            "riveting_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-299":     {
+      "id": "P-TS-299",
+      "name": "S1 Shock Resisting Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "S1",
+            "uns": "T41901",
+            "din": "1.2550",
+            "en": "60WCrV8",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.4,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.1,
+                  "max": 0.4,
+                  "typ": 0.25
+                },
+            "Cr":     {
+                  "min": 1.0,
+                  "max": 1.8,
+                  "typ": 1.5
+                },
+            "W":     {
+                  "min": 1.5,
+                  "max": 3.0,
+                  "typ": 2.5
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.3,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7880,
+            "melting_point":     {
+                  "solidus": 1380,
+                  "liquidus": 1430
+                },
+            "thermal_conductivity": 38,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4501,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 43,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 682,
+            "n": 0.25,
+            "C": 0.015,
+            "m": 0.99,
+            "T_melt": 1430
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "pneumatic_tools",
+            "punches",
+            "shear_blades",
+            "riveting_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-300":     {
+      "id": "P-TS-300",
+      "name": "S5 Silicon Shock Resisting Annealed",
+      "designation":     {
+            "aisi_sae": "S5",
+            "uns": "T41905",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Shock Resisting - High Silicon",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.5,
+                  "max": 0.65,
+                  "typ": 0.55
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 1.35,
+                  "typ": 0.4
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 200,
+                  "vickers": 210,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 655,
+                  "typical": 690,
+                  "max": 724
+                },
+            "yield_strength":     {
+                  "min": 425,
+                  "typical": 448,
+                  "max": 470
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 241,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2350,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 165,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 500,
+            "B": 820,
+            "n": 0.28,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 56,
+                              "opt": 80,
+                              "max": 104
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "chisels",
+            "punches",
+            "shear_blades",
+            "heavy_duty_springs"
+      ],
+      "notes": ""
+    },
+    "P-TS-301":     {
+      "id": "P-TS-301",
+      "name": "S5 Silicon Shock Resisting Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "S5",
+            "uns": "T41905",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - High Silicon",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.5,
+                  "max": 0.65,
+                  "typ": 0.55
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 1.35,
+                  "typ": 0.4
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 3739,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 60,
+            "n": 0.17
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 779,
+            "n": 0.26,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 21,
+                              "opt": 31,
+                              "max": 41
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "punches",
+            "shear_blades",
+            "heavy_duty_springs"
+      ],
+      "notes": ""
+    },
+    "P-TS-302":     {
+      "id": "P-TS-302",
+      "name": "S5 Silicon Shock Resisting Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "S5",
+            "uns": "T41905",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - High Silicon",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.5,
+                  "max": 0.65,
+                  "typ": 0.55
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 1.35,
+                  "typ": 0.4
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 4084,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 52,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 762,
+            "n": 0.25,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 27,
+                              "max": 36
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "punches",
+            "shear_blades",
+            "heavy_duty_springs"
+      ],
+      "notes": ""
+    },
+    "P-TS-303":     {
+      "id": "P-TS-303",
+      "name": "S5 Silicon Shock Resisting Hardened 56 HRC",
+      "designation":     {
+            "aisi_sae": "S5",
+            "uns": "T41905",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - High Silicon",
+      "condition": "Hardened 56 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.5,
+                  "max": 0.65,
+                  "typ": 0.55
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 1.35,
+                  "typ": 0.4
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 515,
+                  "vickers": 540,
+                  "rockwell_c": 56
+                },
+            "tensile_strength":     {
+                  "min": 1687,
+                  "typical": 1776,
+                  "max": 1864
+                },
+            "yield_strength":     {
+                  "min": 1433,
+                  "typical": 1509,
+                  "max": 1584
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 621,
+            "fracture_toughness": 34
+          },
+      "kienzle":     {
+            "kc1_1": 4286,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 48,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 799,
+            "B": 754,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 17,
+                              "opt": 25,
+                              "max": 33
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "punches",
+            "shear_blades",
+            "heavy_duty_springs"
+      ],
+      "notes": ""
+    },
+    "P-TS-304":     {
+      "id": "P-TS-304",
+      "name": "S5 Silicon Shock Resisting Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "S5",
+            "uns": "T41905",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - High Silicon",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.5,
+                  "max": 0.65,
+                  "typ": 0.55
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 1.35,
+                  "typ": 0.4
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4504,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 746,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "punches",
+            "shear_blades",
+            "heavy_duty_springs"
+      ],
+      "notes": ""
+    },
+    "P-TS-305":     {
+      "id": "P-TS-305",
+      "name": "S5 Silicon Shock Resisting Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "S5",
+            "uns": "T41905",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - High Silicon",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.5,
+                  "max": 0.65,
+                  "typ": 0.55
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Si":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.2,
+                  "max": 1.35,
+                  "typ": 0.4
+                },
+            "V":     {
+                  "min": 0.15,
+                  "max": 0.35,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1370,
+                  "liquidus": 1420
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4744,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 738,
+            "n": 0.24,
+            "C": 0.014,
+            "m": 0.96,
+            "T_melt": 1420
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "chisels",
+            "punches",
+            "shear_blades",
+            "heavy_duty_springs"
+      ],
+      "notes": ""
+    },
+    "P-TS-306":     {
+      "id": "P-TS-306",
+      "name": "S7 Shock Resisting Annealed",
+      "designation":     {
+            "aisi_sae": "S7",
+            "uns": "T41907",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Shock Resisting - Air Hardening",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.8,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.25
+                },
+            "Mo":     {
+                  "min": 1.3,
+                  "max": 1.8,
+                  "typ": 1.4
+                }
+          },
+      "physical":     {
+            "density": 7830,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 210,
+                  "vickers": 220,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 687,
+                  "typical": 724,
+                  "max": 760
+                },
+            "yield_strength":     {
+                  "min": 446,
+                  "typical": 470,
+                  "max": 493
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 253,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2400,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 160,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 510,
+            "B": 840,
+            "n": 0.27,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 52,
+                              "opt": 75,
+                              "max": 97
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "shear_blades",
+            "punches",
+            "concrete_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-307":     {
+      "id": "P-TS-307",
+      "name": "S7 Shock Resisting Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "S7",
+            "uns": "T41907",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - Air Hardening",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.8,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.25
+                },
+            "Mo":     {
+                  "min": 1.3,
+                  "max": 1.8,
+                  "typ": 1.4
+                }
+          },
+      "physical":     {
+            "density": 7830,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 3681,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 62,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 798,
+            "n": 0.25,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 21,
+                              "opt": 31,
+                              "max": 41
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "shear_blades",
+            "punches",
+            "concrete_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-308":     {
+      "id": "P-TS-308",
+      "name": "S7 Shock Resisting Hardened 54 HRC",
+      "designation":     {
+            "aisi_sae": "S7",
+            "uns": "T41907",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - Air Hardening",
+      "condition": "Hardened 54 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.8,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.25
+                },
+            "Mo":     {
+                  "min": 1.3,
+                  "max": 1.8,
+                  "typ": 1.4
+                }
+          },
+      "physical":     {
+            "density": 7830,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 202000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 485,
+                  "vickers": 509,
+                  "rockwell_c": 54
+                },
+            "tensile_strength":     {
+                  "min": 1589,
+                  "typical": 1673,
+                  "max": 1756
+                },
+            "yield_strength":     {
+                  "min": 1350,
+                  "typical": 1422,
+                  "max": 1493
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 585,
+            "fracture_toughness": 36
+          },
+      "kienzle":     {
+            "kc1_1": 4014,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 53,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 752,
+            "B": 781,
+            "n": 0.24,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 27,
+                              "max": 36
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "shear_blades",
+            "punches",
+            "concrete_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-309":     {
+      "id": "P-TS-309",
+      "name": "S7 Shock Resisting Hardened 56 HRC",
+      "designation":     {
+            "aisi_sae": "S7",
+            "uns": "T41907",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - Air Hardening",
+      "condition": "Hardened 56 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.8,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.25
+                },
+            "Mo":     {
+                  "min": 1.3,
+                  "max": 1.8,
+                  "typ": 1.4
+                }
+          },
+      "physical":     {
+            "density": 7830,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 515,
+                  "vickers": 540,
+                  "rockwell_c": 56
+                },
+            "tensile_strength":     {
+                  "min": 1687,
+                  "typical": 1776,
+                  "max": 1864
+                },
+            "yield_strength":     {
+                  "min": 1433,
+                  "typical": 1509,
+                  "max": 1584
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 621,
+            "fracture_toughness": 34
+          },
+      "kienzle":     {
+            "kc1_1": 4209,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 49,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 799,
+            "B": 772,
+            "n": 0.24,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 17,
+                              "opt": 25,
+                              "max": 33
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "shear_blades",
+            "punches",
+            "concrete_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-310":     {
+      "id": "P-TS-310",
+      "name": "S7 Shock Resisting Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "S7",
+            "uns": "T41907",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Shock Resisting - Air Hardening",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.45,
+                  "max": 0.55,
+                  "typ": 0.5
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.8,
+                  "typ": 0.35
+                },
+            "Cr":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.25
+                },
+            "Mo":     {
+                  "min": 1.3,
+                  "max": 1.8,
+                  "typ": 1.4
+                }
+          },
+      "physical":     {
+            "density": 7830,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 28,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4418,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 46,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 764,
+            "n": 0.23,
+            "C": 0.013,
+            "m": 0.95,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 23,
+                              "max": 31
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "forming_dies",
+            "shear_blades",
+            "punches",
+            "concrete_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-311":     {
+      "id": "P-TS-311",
+      "name": "M1 Molybdenum HSS Annealed",
+      "designation":     {
+            "aisi_sae": "M1",
+            "uns": "T11301",
+            "din": "1.3346",
+            "en": "HS2-9-1",
+            "jis": "SKH51"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.88,
+                  "typ": 0.83
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.7
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                }
+          },
+      "physical":     {
+            "density": 7950,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 220,
+                  "vickers": 231,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 721,
+                  "typical": 759,
+                  "max": 796
+                },
+            "yield_strength":     {
+                  "min": 468,
+                  "typical": 493,
+                  "max": 517
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 265,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2500,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 150,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 530,
+            "B": 870,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 45,
+                              "opt": 65,
+                              "max": 84
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-312":     {
+      "id": "P-TS-312",
+      "name": "M1 Molybdenum HSS Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "M1",
+            "uns": "T11301",
+            "din": "1.3346",
+            "en": "HS2-9-1",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.88,
+                  "typ": 0.83
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.7
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                }
+          },
+      "physical":     {
+            "density": 7950,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4906,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 39,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 774,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 12,
+                              "opt": 18,
+                              "max": 24
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-313":     {
+      "id": "P-TS-313",
+      "name": "M1 Molybdenum HSS Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "M1",
+            "uns": "T11301",
+            "din": "1.3346",
+            "en": "HS2-9-1",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.88,
+                  "typ": 0.83
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.7
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                }
+          },
+      "physical":     {
+            "density": 7950,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5172,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 36,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 765,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-314":     {
+      "id": "P-TS-314",
+      "name": "M1 Molybdenum HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "M1",
+            "uns": "T11301",
+            "din": "1.3346",
+            "en": "HS2-9-1",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.88,
+                  "typ": 0.83
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.7
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                }
+          },
+      "physical":     {
+            "density": 7950,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5313,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 34,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 761,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.93,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-315":     {
+      "id": "P-TS-315",
+      "name": "M2 Molybdenum-Tungsten HSS Annealed",
+      "designation":     {
+            "aisi_sae": "M2",
+            "uns": "T11302",
+            "din": "1.3343",
+            "en": "HS6-5-2",
+            "jis": "SKH51"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum/Tungsten",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 1.05,
+                  "typ": 0.85
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.15
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.35
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 1.9
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1220,
+                  "liquidus": 1300
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 225,
+                  "vickers": 236,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 737,
+                  "typical": 776,
+                  "max": 814
+                },
+            "yield_strength":     {
+                  "min": 478,
+                  "typical": 504,
+                  "max": 529
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 271,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2550,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 145,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 550,
+            "B": 900,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1300
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 42,
+                              "opt": 60,
+                              "max": 78
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "milling_cutters",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-316":     {
+      "id": "P-TS-316",
+      "name": "M2 Molybdenum-Tungsten HSS Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "M2",
+            "uns": "T11302",
+            "din": "1.3343",
+            "en": "HS6-5-2",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum/Tungsten",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 1.05,
+                  "typ": 0.85
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.15
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.35
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 1.9
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1220,
+                  "liquidus": 1300
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4911,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 801,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1300
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "milling_cutters",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-317":     {
+      "id": "P-TS-317",
+      "name": "M2 Molybdenum-Tungsten HSS Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "M2",
+            "uns": "T11302",
+            "din": "1.3343",
+            "en": "HS6-5-2",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum/Tungsten",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 1.05,
+                  "typ": 0.85
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.15
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.35
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 1.9
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1220,
+                  "liquidus": 1300
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5176,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 792,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1300
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "milling_cutters",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-318":     {
+      "id": "P-TS-318",
+      "name": "M2 Molybdenum-Tungsten HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "M2",
+            "uns": "T11302",
+            "din": "1.3343",
+            "en": "HS6-5-2",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum/Tungsten",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 1.05,
+                  "typ": 0.85
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.15
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.35
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 1.9
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1220,
+                  "liquidus": 1300
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5316,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 34,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 787,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1300
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "milling_cutters",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-319":     {
+      "id": "P-TS-319",
+      "name": "M2 Molybdenum-Tungsten HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "M2",
+            "uns": "T11302",
+            "din": "1.3343",
+            "en": "HS6-5-2",
+            "jis": "SKH51"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Molybdenum/Tungsten",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 1.05,
+                  "typ": 0.85
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.15
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.35
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.2,
+                  "typ": 1.9
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1220,
+                  "liquidus": 1300
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5457,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 33,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 783,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1300
+          },
+      "machinability":     {
+            "aisi_rating": 3,
+            "relative_to_1212": 0.03
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "milling_cutters",
+            "lathe_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-320":     {
+      "id": "P-TS-320",
+      "name": "M3 Class 2 HSS Annealed",
+      "designation":     {
+            "aisi_sae": "M3 Class2",
+            "uns": "T11323",
+            "din": "1.3344",
+            "en": "HS6-5-3",
+            "jis": "SKH53"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.15,
+                  "max": 1.25,
+                  "typ": 1.2
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.0
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 6.5,
+                  "typ": 5.5
+                },
+            "V":     {
+                  "min": 2.75,
+                  "max": 3.25,
+                  "typ": 3.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 235,
+                  "vickers": 246,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 769,
+                  "typical": 810,
+                  "max": 850
+                },
+            "yield_strength":     {
+                  "min": 499,
+                  "typical": 526,
+                  "max": 552
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 283,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2650,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 135,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 570,
+            "B": 930,
+            "n": 0.25,
+            "C": 0.011,
+            "m": 0.91,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 38,
+                              "opt": 55,
+                              "max": 71
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "hobs",
+            "drills",
+            "abrasion_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-321":     {
+      "id": "P-TS-321",
+      "name": "M3 Class 2 HSS Hardened 63 HRC",
+      "designation":     {
+            "aisi_sae": "M3 Class2",
+            "uns": "T11323",
+            "din": "1.3344",
+            "en": "HS6-5-3",
+            "jis": "SKH53"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Hardened 63 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.15,
+                  "max": 1.25,
+                  "typ": 1.2
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.0
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 6.5,
+                  "typ": 5.5
+                },
+            "V":     {
+                  "min": 2.75,
+                  "max": 3.25,
+                  "typ": 3.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 639,
+                  "vickers": 670,
+                  "rockwell_c": 63
+                },
+            "tensile_strength":     {
+                  "min": 2093,
+                  "typical": 2204,
+                  "max": 2314
+                },
+            "yield_strength":     {
+                  "min": 1779,
+                  "typical": 1873,
+                  "max": 1966
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 771,
+            "fracture_toughness": 27
+          },
+      "kienzle":     {
+            "kc1_1": 5054,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 36,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 991,
+            "B": 823,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.91,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "hobs",
+            "drills",
+            "abrasion_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-322":     {
+      "id": "P-TS-322",
+      "name": "M3 Class 2 HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "M3 Class2",
+            "uns": "T11323",
+            "din": "1.3344",
+            "en": "HS6-5-3",
+            "jis": "SKH53"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.15,
+                  "max": 1.25,
+                  "typ": 1.2
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.0
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 6.5,
+                  "typ": 5.5
+                },
+            "V":     {
+                  "min": 2.75,
+                  "max": 3.25,
+                  "typ": 3.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5324,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 33,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 813,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.91,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "hobs",
+            "drills",
+            "abrasion_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-323":     {
+      "id": "P-TS-323",
+      "name": "M3 Class 2 HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "M3 Class2",
+            "uns": "T11323",
+            "din": "1.3344",
+            "en": "HS6-5-3",
+            "jis": "SKH53"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.15,
+                  "max": 1.25,
+                  "typ": 1.2
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.75,
+                  "typ": 6.0
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 6.5,
+                  "typ": 5.5
+                },
+            "V":     {
+                  "min": 2.75,
+                  "max": 3.25,
+                  "typ": 3.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5463,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 32,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 809,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.91,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "hobs",
+            "drills",
+            "abrasion_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-324":     {
+      "id": "P-TS-324",
+      "name": "M4 High Vanadium HSS Annealed",
+      "designation":     {
+            "aisi_sae": "M4",
+            "uns": "T11304",
+            "din": "1.3351",
+            "en": "HS6-5-4",
+            "jis": "SKH54"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.4,
+                  "typ": 1.3
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.25,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.25,
+                  "max": 5.5,
+                  "typ": 4.75
+                },
+            "V":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1200,
+                  "liquidus": 1280
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 240,
+                  "vickers": 252,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 786,
+                  "typical": 828,
+                  "max": 869
+                },
+            "yield_strength":     {
+                  "min": 511,
+                  "typical": 538,
+                  "max": 564
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 289,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2700,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 130,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 585,
+            "B": 960,
+            "n": 0.25,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1280
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 35,
+                              "opt": 50,
+                              "max": 65
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "lathe_tools",
+            "milling_cutters"
+      ],
+      "notes": ""
+    },
+    "P-TS-325":     {
+      "id": "P-TS-325",
+      "name": "M4 High Vanadium HSS Hardened 63 HRC",
+      "designation":     {
+            "aisi_sae": "M4",
+            "uns": "T11304",
+            "din": "1.3351",
+            "en": "HS6-5-4",
+            "jis": "SKH54"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Hardened 63 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.4,
+                  "typ": 1.3
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.25,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.25,
+                  "max": 5.5,
+                  "typ": 4.75
+                },
+            "V":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1200,
+                  "liquidus": 1280
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 639,
+                  "vickers": 670,
+                  "rockwell_c": 63
+                },
+            "tensile_strength":     {
+                  "min": 2093,
+                  "typical": 2204,
+                  "max": 2314
+                },
+            "yield_strength":     {
+                  "min": 1779,
+                  "typical": 1873,
+                  "max": 1966
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 771,
+            "fracture_toughness": 27
+          },
+      "kienzle":     {
+            "kc1_1": 5061,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 36,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 991,
+            "B": 849,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1280
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "lathe_tools",
+            "milling_cutters"
+      ],
+      "notes": ""
+    },
+    "P-TS-326":     {
+      "id": "P-TS-326",
+      "name": "M4 High Vanadium HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "M4",
+            "uns": "T11304",
+            "din": "1.3351",
+            "en": "HS6-5-4",
+            "jis": "SKH54"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.4,
+                  "typ": 1.3
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.25,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.25,
+                  "max": 5.5,
+                  "typ": 4.75
+                },
+            "V":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1200,
+                  "liquidus": 1280
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5329,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 33,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 840,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1280
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "lathe_tools",
+            "milling_cutters"
+      ],
+      "notes": ""
+    },
+    "P-TS-327":     {
+      "id": "P-TS-327",
+      "name": "M4 High Vanadium HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "M4",
+            "uns": "T11304",
+            "din": "1.3351",
+            "en": "HS6-5-4",
+            "jis": "SKH54"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Vanadium",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.4,
+                  "typ": 1.3
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.75,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.25,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.25,
+                  "max": 5.5,
+                  "typ": 4.75
+                },
+            "V":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1200,
+                  "liquidus": 1280
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5468,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 32,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 835,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1280
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 13,
+                              "max": 17
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "form_tools",
+            "lathe_tools",
+            "milling_cutters"
+      ],
+      "notes": ""
+    },
+    "P-TS-328":     {
+      "id": "P-TS-328",
+      "name": "M7 Molybdenum HSS Annealed",
+      "designation":     {
+            "aisi_sae": "M7",
+            "uns": "T11307",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - High Molybdenum",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.97,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.75
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1215,
+                  "liquidus": 1295
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 230,
+                  "vickers": 241,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 753,
+                  "typical": 793,
+                  "max": 832
+                },
+            "yield_strength":     {
+                  "min": 489,
+                  "typical": 515,
+                  "max": 540
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 277,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2600,
+            "mc": 0.23
+          },
+      "taylor":     {
+            "C": 140,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 560,
+            "B": 920,
+            "n": 0.26,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1295
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 40,
+                              "opt": 58,
+                              "max": 75
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "twist_drills"
+      ],
+      "notes": ""
+    },
+    "P-TS-329":     {
+      "id": "P-TS-329",
+      "name": "M7 Molybdenum HSS Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "M7",
+            "uns": "T11307",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Molybdenum",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.97,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.75
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1215,
+                  "liquidus": 1295
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4917,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 818,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1295
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "twist_drills"
+      ],
+      "notes": ""
+    },
+    "P-TS-330":     {
+      "id": "P-TS-330",
+      "name": "M7 Molybdenum HSS Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "M7",
+            "uns": "T11307",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Molybdenum",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.97,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.75
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1215,
+                  "liquidus": 1295
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5180,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 809,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1295
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "twist_drills"
+      ],
+      "notes": ""
+    },
+    "P-TS-331":     {
+      "id": "P-TS-331",
+      "name": "M7 Molybdenum HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "M7",
+            "uns": "T11307",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - High Molybdenum",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.97,
+                  "max": 1.05,
+                  "typ": 1.0
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.0,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.4,
+                  "max": 2.1,
+                  "typ": 1.75
+                },
+            "Mo":     {
+                  "min": 8.2,
+                  "max": 9.2,
+                  "typ": 8.75
+                },
+            "V":     {
+                  "min": 1.75,
+                  "max": 2.25,
+                  "typ": 2.0
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1215,
+                  "liquidus": 1295
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5320,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 34,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 805,
+            "n": 0.21,
+            "C": 0.012,
+            "m": 0.92,
+            "T_melt": 1295
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "reamers",
+            "end_mills",
+            "twist_drills"
+      ],
+      "notes": ""
+    },
+    "P-TS-332":     {
+      "id": "P-TS-332",
+      "name": "M42 Cobalt HSS Annealed",
+      "designation":     {
+            "aisi_sae": "M42",
+            "uns": "T11342",
+            "din": "1.3247",
+            "en": "HS2-9-1-8",
+            "jis": "SKH59"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - Cobalt",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.05,
+                  "max": 1.15,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.25,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.15,
+                  "max": 1.85,
+                  "typ": 1.5
+                },
+            "Mo":     {
+                  "min": 9.0,
+                  "max": 10.0,
+                  "typ": 9.5
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                },
+            "Co":     {
+                  "min": 7.75,
+                  "max": 8.75,
+                  "typ": 8.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1190,
+                  "liquidus": 1270
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 250,
+                  "vickers": 262,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 818,
+                  "typical": 862,
+                  "max": 905
+                },
+            "yield_strength":     {
+                  "min": 532,
+                  "typical": 560,
+                  "max": 588
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 301,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2800,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 120,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 620,
+            "B": 1020,
+            "n": 0.24,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1270
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 33,
+                              "opt": 48,
+                              "max": 62
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "end_mills",
+            "difficult_materials",
+            "stainless_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-333":     {
+      "id": "P-TS-333",
+      "name": "M42 Cobalt HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "M42",
+            "uns": "T11342",
+            "din": "1.3247",
+            "en": "HS2-9-1-8",
+            "jis": "SKH59"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Cobalt",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.05,
+                  "max": 1.15,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.25,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.15,
+                  "max": 1.85,
+                  "typ": 1.5
+                },
+            "Mo":     {
+                  "min": 9.0,
+                  "max": 10.0,
+                  "typ": 9.5
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                },
+            "Co":     {
+                  "min": 7.75,
+                  "max": 8.75,
+                  "typ": 8.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1190,
+                  "liquidus": 1270
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5342,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 32,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 892,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1270
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "end_mills",
+            "difficult_materials",
+            "stainless_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-334":     {
+      "id": "P-TS-334",
+      "name": "M42 Cobalt HSS Hardened 67 HRC",
+      "designation":     {
+            "aisi_sae": "M42",
+            "uns": "T11342",
+            "din": "1.3247",
+            "en": "HS2-9-1-8",
+            "jis": "SKH59"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Cobalt",
+      "condition": "Hardened 67 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.05,
+                  "max": 1.15,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.25,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.15,
+                  "max": 1.85,
+                  "typ": 1.5
+                },
+            "Mo":     {
+                  "min": 9.0,
+                  "max": 10.0,
+                  "typ": 9.5
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                },
+            "Co":     {
+                  "min": 7.75,
+                  "max": 8.75,
+                  "typ": 8.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1190,
+                  "liquidus": 1270
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 722,
+                  "vickers": 758,
+                  "rockwell_c": 67
+                },
+            "tensile_strength":     {
+                  "min": 2365,
+                  "typical": 2490,
+                  "max": 2614
+                },
+            "yield_strength":     {
+                  "min": 2010,
+                  "typical": 2116,
+                  "max": 2221
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 871,
+            "fracture_toughness": 23
+          },
+      "kienzle":     {
+            "kc1_1": 5616,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 30,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1120,
+            "B": 882,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1270
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 13,
+                              "max": 17
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "end_mills",
+            "difficult_materials",
+            "stainless_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-335":     {
+      "id": "P-TS-335",
+      "name": "M42 Cobalt HSS Hardened 68 HRC",
+      "designation":     {
+            "aisi_sae": "M42",
+            "uns": "T11342",
+            "din": "1.3247",
+            "en": "HS2-9-1-8",
+            "jis": "SKH59"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Cobalt",
+      "condition": "Hardened 68 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.05,
+                  "max": 1.15,
+                  "typ": 1.1
+                },
+            "Cr":     {
+                  "min": 3.5,
+                  "max": 4.25,
+                  "typ": 3.75
+                },
+            "W":     {
+                  "min": 1.15,
+                  "max": 1.85,
+                  "typ": 1.5
+                },
+            "Mo":     {
+                  "min": 9.0,
+                  "max": 10.0,
+                  "typ": 9.5
+                },
+            "V":     {
+                  "min": 1.0,
+                  "max": 1.35,
+                  "typ": 1.15
+                },
+            "Co":     {
+                  "min": 7.75,
+                  "max": 8.75,
+                  "typ": 8.0
+                }
+          },
+      "physical":     {
+            "density": 8150,
+            "melting_point":     {
+                  "solidus": 1190,
+                  "liquidus": 1270
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 209000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 745,
+                  "vickers": 782,
+                  "rockwell_c": 68
+                },
+            "tensile_strength":     {
+                  "min": 2441,
+                  "typical": 2570,
+                  "max": 2698
+                },
+            "yield_strength":     {
+                  "min": 2074,
+                  "typical": 2184,
+                  "max": 2293
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 899,
+            "fracture_toughness": 22
+          },
+      "kienzle":     {
+            "kc1_1": 5767,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 29,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1156,
+            "B": 877,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.88,
+            "T_melt": 1270
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 12,
+                              "max": 16
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "drills",
+            "taps",
+            "end_mills",
+            "difficult_materials",
+            "stainless_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-336":     {
+      "id": "P-TS-336",
+      "name": "T1 18-4-1 Tungsten HSS Annealed",
+      "designation":     {
+            "aisi_sae": "T1",
+            "uns": "T12001",
+            "din": "1.3355",
+            "en": "HS18-0-1",
+            "jis": "SKH2"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - Tungsten",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.8,
+                  "typ": 0.75
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 18.75,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.9,
+                  "max": 1.3,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 8670,
+            "melting_point":     {
+                  "solidus": 1260,
+                  "liquidus": 1350
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 240,
+                  "vickers": 252,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 786,
+                  "typical": 828,
+                  "max": 869
+                },
+            "yield_strength":     {
+                  "min": 511,
+                  "typical": 538,
+                  "max": 564
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 289,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2650,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 135,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 580,
+            "B": 950,
+            "n": 0.25,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1350
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 38,
+                              "opt": 55,
+                              "max": 71
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "lathe_tools",
+            "planer_tools",
+            "form_tools",
+            "single_point_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-337":     {
+      "id": "P-TS-337",
+      "name": "T1 18-4-1 Tungsten HSS Hardened 63 HRC",
+      "designation":     {
+            "aisi_sae": "T1",
+            "uns": "T12001",
+            "din": "1.3355",
+            "en": "HS18-0-1",
+            "jis": "SKH2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Tungsten",
+      "condition": "Hardened 63 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.8,
+                  "typ": 0.75
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 18.75,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.9,
+                  "max": 1.3,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 8670,
+            "melting_point":     {
+                  "solidus": 1260,
+                  "liquidus": 1350
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 639,
+                  "vickers": 670,
+                  "rockwell_c": 63
+                },
+            "tensile_strength":     {
+                  "min": 2093,
+                  "typical": 2204,
+                  "max": 2314
+                },
+            "yield_strength":     {
+                  "min": 1779,
+                  "typical": 1873,
+                  "max": 1966
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 771,
+            "fracture_toughness": 27
+          },
+      "kienzle":     {
+            "kc1_1": 4967,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 37,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 991,
+            "B": 840,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1350
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "lathe_tools",
+            "planer_tools",
+            "form_tools",
+            "single_point_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-338":     {
+      "id": "P-TS-338",
+      "name": "T1 18-4-1 Tungsten HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "T1",
+            "uns": "T12001",
+            "din": "1.3355",
+            "en": "HS18-0-1",
+            "jis": "SKH2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Tungsten",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.8,
+                  "typ": 0.75
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 18.75,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.9,
+                  "max": 1.3,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 8670,
+            "melting_point":     {
+                  "solidus": 1260,
+                  "liquidus": 1350
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5230,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 34,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 831,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1350
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "lathe_tools",
+            "planer_tools",
+            "form_tools",
+            "single_point_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-339":     {
+      "id": "P-TS-339",
+      "name": "T1 18-4-1 Tungsten HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "T1",
+            "uns": "T12001",
+            "din": "1.3355",
+            "en": "HS18-0-1",
+            "jis": "SKH2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Tungsten",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.65,
+                  "max": 0.8,
+                  "typ": 0.75
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 17.25,
+                  "max": 18.75,
+                  "typ": 18.0
+                },
+            "V":     {
+                  "min": 0.9,
+                  "max": 1.3,
+                  "typ": 1.1
+                }
+          },
+      "physical":     {
+            "density": 8670,
+            "melting_point":     {
+                  "solidus": 1260,
+                  "liquidus": 1350
+                },
+            "thermal_conductivity": 19,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5366,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 33,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 826,
+            "n": 0.2,
+            "C": 0.011,
+            "m": 0.9,
+            "T_melt": 1350
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "lathe_tools",
+            "planer_tools",
+            "form_tools",
+            "single_point_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-340":     {
+      "id": "P-TS-340",
+      "name": "T15 Cobalt Tungsten HSS Annealed",
+      "designation":     {
+            "aisi_sae": "T15",
+            "uns": "T12015",
+            "din": "1.3202",
+            "en": "HS12-1-5-5",
+            "jis": "SKH10"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - High Speed Steel - Super HSS",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.5,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 5.0,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 11.75,
+                  "max": 13.0,
+                  "typ": 12.25
+                },
+            "V":     {
+                  "min": 4.5,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "Co":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 270,
+                  "vickers": 283,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 884,
+                  "typical": 931,
+                  "max": 977
+                },
+            "yield_strength":     {
+                  "min": 574,
+                  "typical": 605,
+                  "max": 635
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 325,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2950,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 110,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 660,
+            "B": 1080,
+            "n": 0.23,
+            "C": 0.009,
+            "m": 0.86,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 29,
+                              "opt": 42,
+                              "max": 54
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "heavy_cuts",
+            "interrupted_cuts",
+            "form_tools",
+            "superalloy_machining"
+      ],
+      "notes": ""
+    },
+    "P-TS-341":     {
+      "id": "P-TS-341",
+      "name": "T15 Cobalt Tungsten HSS Hardened 65 HRC",
+      "designation":     {
+            "aisi_sae": "T15",
+            "uns": "T12015",
+            "din": "1.3202",
+            "en": "HS12-1-5-5",
+            "jis": "SKH10"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Super HSS",
+      "condition": "Hardened 65 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.5,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 5.0,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 11.75,
+                  "max": 13.0,
+                  "typ": 12.25
+                },
+            "V":     {
+                  "min": 4.5,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "Co":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 680,
+                  "vickers": 714,
+                  "rockwell_c": 65
+                },
+            "tensile_strength":     {
+                  "min": 2228,
+                  "typical": 2346,
+                  "max": 2463
+                },
+            "yield_strength":     {
+                  "min": 1894,
+                  "typical": 1994,
+                  "max": 2093
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 821,
+            "fracture_toughness": 25
+          },
+      "kienzle":     {
+            "kc1_1": 5285,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 33,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1055,
+            "B": 945,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.86,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 13,
+                              "max": 17
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "heavy_cuts",
+            "interrupted_cuts",
+            "form_tools",
+            "superalloy_machining"
+      ],
+      "notes": ""
+    },
+    "P-TS-342":     {
+      "id": "P-TS-342",
+      "name": "T15 Cobalt Tungsten HSS Hardened 67 HRC",
+      "designation":     {
+            "aisi_sae": "T15",
+            "uns": "T12015",
+            "din": "1.3202",
+            "en": "HS12-1-5-5",
+            "jis": "SKH10"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Super HSS",
+      "condition": "Hardened 67 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.5,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 5.0,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 11.75,
+                  "max": 13.0,
+                  "typ": 12.25
+                },
+            "V":     {
+                  "min": 4.5,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "Co":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 722,
+                  "vickers": 758,
+                  "rockwell_c": 67
+                },
+            "tensile_strength":     {
+                  "min": 2365,
+                  "typical": 2490,
+                  "max": 2614
+                },
+            "yield_strength":     {
+                  "min": 2010,
+                  "typical": 2116,
+                  "max": 2221
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 871,
+            "fracture_toughness": 23
+          },
+      "kienzle":     {
+            "kc1_1": 5549,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 30,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1120,
+            "B": 934,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.86,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 12,
+                              "max": 16
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "heavy_cuts",
+            "interrupted_cuts",
+            "form_tools",
+            "superalloy_machining"
+      ],
+      "notes": ""
+    },
+    "P-TS-343":     {
+      "id": "P-TS-343",
+      "name": "T15 Cobalt Tungsten HSS Hardened 68 HRC",
+      "designation":     {
+            "aisi_sae": "T15",
+            "uns": "T12015",
+            "din": "1.3202",
+            "en": "HS12-1-5-5",
+            "jis": "SKH10"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Super HSS",
+      "condition": "Hardened 68 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.5,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 5.0,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 11.75,
+                  "max": 13.0,
+                  "typ": 12.25
+                },
+            "V":     {
+                  "min": 4.5,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "Co":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 209000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 745,
+                  "vickers": 782,
+                  "rockwell_c": 68
+                },
+            "tensile_strength":     {
+                  "min": 2441,
+                  "typical": 2570,
+                  "max": 2698
+                },
+            "yield_strength":     {
+                  "min": 2074,
+                  "typical": 2184,
+                  "max": 2293
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 899,
+            "fracture_toughness": 22
+          },
+      "kienzle":     {
+            "kc1_1": 5695,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 29,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1156,
+            "B": 928,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.86,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 12,
+                              "max": 16
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "heavy_cuts",
+            "interrupted_cuts",
+            "form_tools",
+            "superalloy_machining"
+      ],
+      "notes": ""
+    },
+    "P-TS-344":     {
+      "id": "P-TS-344",
+      "name": "T15 Cobalt Tungsten HSS Hardened 69 HRC",
+      "designation":     {
+            "aisi_sae": "T15",
+            "uns": "T12015",
+            "din": "1.3202",
+            "en": "HS12-1-5-5",
+            "jis": "SKH10"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - High Speed Steel - Super HSS",
+      "condition": "Hardened 69 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.5,
+                  "max": 1.6,
+                  "typ": 1.55
+                },
+            "Cr":     {
+                  "min": 3.75,
+                  "max": 5.0,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 11.75,
+                  "max": 13.0,
+                  "typ": 12.25
+                },
+            "V":     {
+                  "min": 4.5,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "Co":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                }
+          },
+      "physical":     {
+            "density": 8600,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 209500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 768,
+                  "vickers": 806,
+                  "rockwell_c": 69
+                },
+            "tensile_strength":     {
+                  "min": 2516,
+                  "typical": 2649,
+                  "max": 2781
+                },
+            "yield_strength":     {
+                  "min": 2138,
+                  "typical": 2251,
+                  "max": 2363
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 927,
+            "fracture_toughness": 21
+          },
+      "kienzle":     {
+            "kc1_1": 5842,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 28,
+            "n": 0.11
+          },
+      "johnson_cook":     {
+            "A": 1192,
+            "B": 923,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.86,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 11,
+                              "max": 14
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "heavy_cuts",
+            "interrupted_cuts",
+            "form_tools",
+            "superalloy_machining"
+      ],
+      "notes": ""
+    },
+    "P-TS-345":     {
+      "id": "P-TS-345",
+      "name": "P20 Mold Steel Hardened 28 HRC",
+      "designation":     {
+            "aisi_sae": "P20",
+            "uns": "T51620",
+            "din": "1.2311",
+            "en": "40CrMnMo7",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened",
+      "condition": "Hardened 28 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.28,
+                  "max": 0.4,
+                  "typ": 0.35
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 1.4,
+                  "max": 2.0,
+                  "typ": 1.7
+                },
+            "Mo":     {
+                  "min": 0.3,
+                  "max": 0.55,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1430,
+                  "liquidus": 1480
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 255,
+                  "vickers": 267,
+                  "rockwell_c": 28
+                },
+            "tensile_strength":     {
+                  "min": 835,
+                  "typical": 879,
+                  "max": 922
+                },
+            "yield_strength":     {
+                  "min": 709,
+                  "typical": 747,
+                  "max": 784
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 307,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2809,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 100,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 395,
+            "B": 680,
+            "n": 0.32,
+            "C": 0.018,
+            "m": 1.05,
+            "T_melt": 1480
+          },
+      "machinability":     {
+            "aisi_rating": 11,
+            "relative_to_1212": 0.11
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 40,
+                              "opt": 58,
+                              "max": 78
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "injection_molds",
+            "die_casting_dies",
+            "extrusion_dies",
+            "holder_blocks"
+      ],
+      "notes": ""
+    },
+    "P-TS-346":     {
+      "id": "P-TS-346",
+      "name": "P20 Mold Steel Hardened 30 HRC",
+      "designation":     {
+            "aisi_sae": "P20",
+            "uns": "T51620",
+            "din": "1.2311",
+            "en": "40CrMnMo7",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened",
+      "condition": "Hardened 30 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.28,
+                  "max": 0.4,
+                  "typ": 0.35
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 1.4,
+                  "max": 2.0,
+                  "typ": 1.7
+                },
+            "Mo":     {
+                  "min": 0.3,
+                  "max": 0.55,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1430,
+                  "liquidus": 1480
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 266,
+                  "vickers": 279,
+                  "rockwell_c": 30
+                },
+            "tensile_strength":     {
+                  "min": 871,
+                  "typical": 917,
+                  "max": 962
+                },
+            "yield_strength":     {
+                  "min": 740,
+                  "typical": 779,
+                  "max": 817
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 320,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2891,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 94,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 412,
+            "B": 680,
+            "n": 0.32,
+            "C": 0.018,
+            "m": 1.05,
+            "T_melt": 1480
+          },
+      "machinability":     {
+            "aisi_rating": 10,
+            "relative_to_1212": 0.1
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 38,
+                              "opt": 55,
+                              "max": 74
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "injection_molds",
+            "die_casting_dies",
+            "extrusion_dies",
+            "holder_blocks"
+      ],
+      "notes": ""
+    },
+    "P-TS-347":     {
+      "id": "P-TS-347",
+      "name": "P20 Mold Steel Hardened 32 HRC",
+      "designation":     {
+            "aisi_sae": "P20",
+            "uns": "T51620",
+            "din": "1.2311",
+            "en": "40CrMnMo7",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened",
+      "condition": "Hardened 32 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.28,
+                  "max": 0.4,
+                  "typ": 0.35
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 1.4,
+                  "max": 2.0,
+                  "typ": 1.7
+                },
+            "Mo":     {
+                  "min": 0.3,
+                  "max": 0.55,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1430,
+                  "liquidus": 1480
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 277,
+                  "vickers": 290,
+                  "rockwell_c": 32
+                },
+            "tensile_strength":     {
+                  "min": 907,
+                  "typical": 955,
+                  "max": 1002
+                },
+            "yield_strength":     {
+                  "min": 770,
+                  "typical": 811,
+                  "max": 851
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 334,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2974,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 90,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 429,
+            "B": 680,
+            "n": 0.32,
+            "C": 0.018,
+            "m": 1.05,
+            "T_melt": 1480
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 36,
+                              "opt": 52,
+                              "max": 70
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "injection_molds",
+            "die_casting_dies",
+            "extrusion_dies",
+            "holder_blocks"
+      ],
+      "notes": ""
+    },
+    "P-TS-348":     {
+      "id": "P-TS-348",
+      "name": "P20 Mold Steel Hardened 34 HRC",
+      "designation":     {
+            "aisi_sae": "P20",
+            "uns": "T51620",
+            "din": "1.2311",
+            "en": "40CrMnMo7",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened",
+      "condition": "Hardened 34 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.28,
+                  "max": 0.4,
+                  "typ": 0.35
+                },
+            "Mn":     {
+                  "min": 0.6,
+                  "max": 1.0,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 1.4,
+                  "max": 2.0,
+                  "typ": 1.7
+                },
+            "Mo":     {
+                  "min": 0.3,
+                  "max": 0.55,
+                  "typ": 0.4
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1430,
+                  "liquidus": 1480
+                },
+            "thermal_conductivity": 35,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 289,
+                  "vickers": 303,
+                  "rockwell_c": 34
+                },
+            "tensile_strength":     {
+                  "min": 947,
+                  "typical": 997,
+                  "max": 1046
+                },
+            "yield_strength":     {
+                  "min": 804,
+                  "typical": 847,
+                  "max": 889
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 348,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3065,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 85,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 448,
+            "B": 680,
+            "n": 0.32,
+            "C": 0.018,
+            "m": 1.05,
+            "T_melt": 1480
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 35,
+                              "opt": 50,
+                              "max": 67
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "injection_molds",
+            "die_casting_dies",
+            "extrusion_dies",
+            "holder_blocks"
+      ],
+      "notes": ""
+    },
+    "P-TS-349":     {
+      "id": "P-TS-349",
+      "name": "P20+Ni Modified Mold Steel Hardened 28 HRC",
+      "designation":     {
+            "aisi_sae": "P20 Ni",
+            "uns": "",
+            "din": "1.2738",
+            "en": "40CrMnNiMo8-6-4",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened Nickel",
+      "condition": "Hardened 28 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.35,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 1.3,
+                  "max": 1.6,
+                  "typ": 1.5
+                },
+            "Cr":     {
+                  "min": 1.8,
+                  "max": 2.1,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                },
+            "Ni":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1470
+                },
+            "thermal_conductivity": 33,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 255,
+                  "vickers": 267,
+                  "rockwell_c": 28
+                },
+            "tensile_strength":     {
+                  "min": 835,
+                  "typical": 879,
+                  "max": 922
+                },
+            "yield_strength":     {
+                  "min": 709,
+                  "typical": 747,
+                  "max": 784
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 307,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2813,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 102,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 395,
+            "B": 700,
+            "n": 0.31,
+            "C": 0.017,
+            "m": 1.04,
+            "T_melt": 1470
+          },
+      "machinability":     {
+            "aisi_rating": 12,
+            "relative_to_1212": 0.12
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 39,
+                              "opt": 57,
+                              "max": 76
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "large_molds",
+            "textured_molds",
+            "high_polishability"
+      ],
+      "notes": ""
+    },
+    "P-TS-350":     {
+      "id": "P-TS-350",
+      "name": "P20+Ni Modified Mold Steel Hardened 30 HRC",
+      "designation":     {
+            "aisi_sae": "P20 Ni",
+            "uns": "",
+            "din": "1.2738",
+            "en": "40CrMnNiMo8-6-4",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened Nickel",
+      "condition": "Hardened 30 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.35,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 1.3,
+                  "max": 1.6,
+                  "typ": 1.5
+                },
+            "Cr":     {
+                  "min": 1.8,
+                  "max": 2.1,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                },
+            "Ni":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1470
+                },
+            "thermal_conductivity": 33,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 266,
+                  "vickers": 279,
+                  "rockwell_c": 30
+                },
+            "tensile_strength":     {
+                  "min": 871,
+                  "typical": 917,
+                  "max": 962
+                },
+            "yield_strength":     {
+                  "min": 740,
+                  "typical": 779,
+                  "max": 817
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 320,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2894,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 96,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 412,
+            "B": 700,
+            "n": 0.31,
+            "C": 0.017,
+            "m": 1.04,
+            "T_melt": 1470
+          },
+      "machinability":     {
+            "aisi_rating": 11,
+            "relative_to_1212": 0.11
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 37,
+                              "opt": 54,
+                              "max": 72
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "large_molds",
+            "textured_molds",
+            "high_polishability"
+      ],
+      "notes": ""
+    },
+    "P-TS-351":     {
+      "id": "P-TS-351",
+      "name": "P20+Ni Modified Mold Steel Hardened 32 HRC",
+      "designation":     {
+            "aisi_sae": "P20 Ni",
+            "uns": "",
+            "din": "1.2738",
+            "en": "40CrMnNiMo8-6-4",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened Nickel",
+      "condition": "Hardened 32 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.35,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 1.3,
+                  "max": 1.6,
+                  "typ": 1.5
+                },
+            "Cr":     {
+                  "min": 1.8,
+                  "max": 2.1,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                },
+            "Ni":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1470
+                },
+            "thermal_conductivity": 33,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 277,
+                  "vickers": 290,
+                  "rockwell_c": 32
+                },
+            "tensile_strength":     {
+                  "min": 907,
+                  "typical": 955,
+                  "max": 1002
+                },
+            "yield_strength":     {
+                  "min": 770,
+                  "typical": 811,
+                  "max": 851
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 334,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2976,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 91,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 429,
+            "B": 700,
+            "n": 0.31,
+            "C": 0.017,
+            "m": 1.04,
+            "T_melt": 1470
+          },
+      "machinability":     {
+            "aisi_rating": 10,
+            "relative_to_1212": 0.1
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 36,
+                              "opt": 52,
+                              "max": 70
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "large_molds",
+            "textured_molds",
+            "high_polishability"
+      ],
+      "notes": ""
+    },
+    "P-TS-352":     {
+      "id": "P-TS-352",
+      "name": "P20+Ni Modified Mold Steel Hardened 34 HRC",
+      "designation":     {
+            "aisi_sae": "P20 Ni",
+            "uns": "",
+            "din": "1.2738",
+            "en": "40CrMnNiMo8-6-4",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened Nickel",
+      "condition": "Hardened 34 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.35,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 1.3,
+                  "max": 1.6,
+                  "typ": 1.5
+                },
+            "Cr":     {
+                  "min": 1.8,
+                  "max": 2.1,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                },
+            "Ni":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1470
+                },
+            "thermal_conductivity": 33,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 289,
+                  "vickers": 303,
+                  "rockwell_c": 34
+                },
+            "tensile_strength":     {
+                  "min": 947,
+                  "typical": 997,
+                  "max": 1046
+                },
+            "yield_strength":     {
+                  "min": 804,
+                  "typical": 847,
+                  "max": 889
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 348,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3065,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 86,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 448,
+            "B": 700,
+            "n": 0.31,
+            "C": 0.017,
+            "m": 1.04,
+            "T_melt": 1470
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 34,
+                              "opt": 49,
+                              "max": 66
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "large_molds",
+            "textured_molds",
+            "high_polishability"
+      ],
+      "notes": ""
+    },
+    "P-TS-353":     {
+      "id": "P-TS-353",
+      "name": "P20+Ni Modified Mold Steel Hardened 36 HRC",
+      "designation":     {
+            "aisi_sae": "P20 Ni",
+            "uns": "",
+            "din": "1.2738",
+            "en": "40CrMnNiMo8-6-4",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Prehardened Nickel",
+      "condition": "Hardened 36 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.35,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 1.3,
+                  "max": 1.6,
+                  "typ": 1.5
+                },
+            "Cr":     {
+                  "min": 1.8,
+                  "max": 2.1,
+                  "typ": 2.0
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                },
+            "Ni":     {
+                  "min": 0.9,
+                  "max": 1.2,
+                  "typ": 1.0
+                }
+          },
+      "physical":     {
+            "density": 7850,
+            "melting_point":     {
+                  "solidus": 1420,
+                  "liquidus": 1470
+                },
+            "thermal_conductivity": 33,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 302,
+                  "vickers": 317,
+                  "rockwell_c": 36
+                },
+            "tensile_strength":     {
+                  "min": 988,
+                  "typical": 1041,
+                  "max": 1093
+                },
+            "yield_strength":     {
+                  "min": 839,
+                  "typical": 884,
+                  "max": 928
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 364,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3164,
+            "mc": 0.26
+          },
+      "taylor":     {
+            "C": 81,
+            "n": 0.19
+          },
+      "johnson_cook":     {
+            "A": 468,
+            "B": 700,
+            "n": 0.31,
+            "C": 0.017,
+            "m": 1.04,
+            "T_melt": 1470
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 32,
+                              "opt": 47,
+                              "max": 63
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "large_molds",
+            "textured_molds",
+            "high_polishability"
+      ],
+      "notes": ""
+    },
+    "P-TS-354":     {
+      "id": "P-TS-354",
+      "name": "P21 Aluminum-Bearing Mold Steel Hardened 30 HRC",
+      "designation":     {
+            "aisi_sae": "P21",
+            "uns": "T51621",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Precipitation Hardening",
+      "condition": "Hardened 30 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.18,
+                  "max": 0.22,
+                  "typ": 0.2
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.4,
+                  "typ": 0.3
+                },
+            "Ni":     {
+                  "min": 3.9,
+                  "max": 4.25,
+                  "typ": 4.0
+                },
+            "Al":     {
+                  "min": 1.05,
+                  "max": 1.25,
+                  "typ": 1.15
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1410,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 32,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 266,
+                  "vickers": 279,
+                  "rockwell_c": 30
+                },
+            "tensile_strength":     {
+                  "min": 871,
+                  "typical": 917,
+                  "max": 962
+                },
+            "yield_strength":     {
+                  "min": 740,
+                  "typical": 779,
+                  "max": 817
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 320,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2899,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 95,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 412,
+            "B": 720,
+            "n": 0.3,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 12,
+            "relative_to_1212": 0.12
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 37,
+                              "opt": 54,
+                              "max": 72
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "zinc_die_casting",
+            "injection_molds",
+            "blow_molds"
+      ],
+      "notes": ""
+    },
+    "P-TS-355":     {
+      "id": "P-TS-355",
+      "name": "P21 Aluminum-Bearing Mold Steel Hardened 32 HRC",
+      "designation":     {
+            "aisi_sae": "P21",
+            "uns": "T51621",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Precipitation Hardening",
+      "condition": "Hardened 32 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.18,
+                  "max": 0.22,
+                  "typ": 0.2
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.4,
+                  "typ": 0.3
+                },
+            "Ni":     {
+                  "min": 3.9,
+                  "max": 4.25,
+                  "typ": 4.0
+                },
+            "Al":     {
+                  "min": 1.05,
+                  "max": 1.25,
+                  "typ": 1.15
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1410,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 32,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 277,
+                  "vickers": 290,
+                  "rockwell_c": 32
+                },
+            "tensile_strength":     {
+                  "min": 907,
+                  "typical": 955,
+                  "max": 1002
+                },
+            "yield_strength":     {
+                  "min": 770,
+                  "typical": 811,
+                  "max": 851
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 334,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2979,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 90,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 429,
+            "B": 720,
+            "n": 0.3,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 11,
+            "relative_to_1212": 0.11
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 35,
+                              "opt": 51,
+                              "max": 68
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "zinc_die_casting",
+            "injection_molds",
+            "blow_molds"
+      ],
+      "notes": ""
+    },
+    "P-TS-356":     {
+      "id": "P-TS-356",
+      "name": "P21 Aluminum-Bearing Mold Steel Hardened 34 HRC",
+      "designation":     {
+            "aisi_sae": "P21",
+            "uns": "T51621",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Precipitation Hardening",
+      "condition": "Hardened 34 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.18,
+                  "max": 0.22,
+                  "typ": 0.2
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.4,
+                  "typ": 0.3
+                },
+            "Ni":     {
+                  "min": 3.9,
+                  "max": 4.25,
+                  "typ": 4.0
+                },
+            "Al":     {
+                  "min": 1.05,
+                  "max": 1.25,
+                  "typ": 1.15
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1410,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 32,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 289,
+                  "vickers": 303,
+                  "rockwell_c": 34
+                },
+            "tensile_strength":     {
+                  "min": 947,
+                  "typical": 997,
+                  "max": 1046
+                },
+            "yield_strength":     {
+                  "min": 804,
+                  "typical": 847,
+                  "max": 889
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 348,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3067,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 85,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 448,
+            "B": 720,
+            "n": 0.3,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 10,
+            "relative_to_1212": 0.1
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 34,
+                              "opt": 49,
+                              "max": 66
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "zinc_die_casting",
+            "injection_molds",
+            "blow_molds"
+      ],
+      "notes": ""
+    },
+    "P-TS-357":     {
+      "id": "P-TS-357",
+      "name": "P21 Aluminum-Bearing Mold Steel Hardened 36 HRC",
+      "designation":     {
+            "aisi_sae": "P21",
+            "uns": "T51621",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Precipitation Hardening",
+      "condition": "Hardened 36 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.18,
+                  "max": 0.22,
+                  "typ": 0.2
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.4,
+                  "typ": 0.3
+                },
+            "Ni":     {
+                  "min": 3.9,
+                  "max": 4.25,
+                  "typ": 4.0
+                },
+            "Al":     {
+                  "min": 1.05,
+                  "max": 1.25,
+                  "typ": 1.15
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1410,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 32,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 302,
+                  "vickers": 317,
+                  "rockwell_c": 36
+                },
+            "tensile_strength":     {
+                  "min": 988,
+                  "typical": 1041,
+                  "max": 1093
+                },
+            "yield_strength":     {
+                  "min": 839,
+                  "typical": 884,
+                  "max": 928
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 364,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3164,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 81,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 468,
+            "B": 720,
+            "n": 0.3,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 32,
+                              "opt": 46,
+                              "max": 62
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "zinc_die_casting",
+            "injection_molds",
+            "blow_molds"
+      ],
+      "notes": ""
+    },
+    "P-TS-358":     {
+      "id": "P-TS-358",
+      "name": "P21 Aluminum-Bearing Mold Steel Hardened 38 HRC",
+      "designation":     {
+            "aisi_sae": "P21",
+            "uns": "T51621",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Precipitation Hardening",
+      "condition": "Hardened 38 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.18,
+                  "max": 0.22,
+                  "typ": 0.2
+                },
+            "Mn":     {
+                  "min": 0.2,
+                  "max": 0.4,
+                  "typ": 0.3
+                },
+            "Ni":     {
+                  "min": 3.9,
+                  "max": 4.25,
+                  "typ": 4.0
+                },
+            "Al":     {
+                  "min": 1.05,
+                  "max": 1.25,
+                  "typ": 1.15
+                },
+            "Mo":     {
+                  "min": 0.15,
+                  "max": 0.25,
+                  "typ": 0.2
+                }
+          },
+      "physical":     {
+            "density": 7800,
+            "melting_point":     {
+                  "solidus": 1410,
+                  "liquidus": 1460
+                },
+            "thermal_conductivity": 32,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 316,
+                  "vickers": 331,
+                  "rockwell_c": 38
+                },
+            "tensile_strength":     {
+                  "min": 1035,
+                  "typical": 1090,
+                  "max": 1144
+                },
+            "yield_strength":     {
+                  "min": 879,
+                  "typical": 926,
+                  "max": 972
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 381,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3269,
+            "mc": 0.25
+          },
+      "taylor":     {
+            "C": 76,
+            "n": 0.18
+          },
+      "johnson_cook":     {
+            "A": 490,
+            "B": 720,
+            "n": 0.3,
+            "C": 0.016,
+            "m": 1.02,
+            "T_melt": 1460
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 30,
+                              "opt": 44,
+                              "max": 59
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P10-P20",
+            "coating": [
+                  "TiAlN",
+                  "AlCrN"
+            ],
+            "geometry": "Neutral to positive",
+            "coolant": "Flood or MQL"
+          },
+      "chip_formation":     {
+            "type": "continuous_hard",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "zinc_die_casting",
+            "injection_molds",
+            "blow_molds"
+      ],
+      "notes": ""
+    },
+    "P-TS-359":     {
+      "id": "P-TS-359",
+      "name": "420 ESR Mold Steel Annealed",
+      "designation":     {
+            "aisi_sae": "420 ESR",
+            "uns": "S42000",
+            "din": "1.2083",
+            "en": "X40Cr14",
+            "jis": "SUS420J2"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Stainless",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.38,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 12.5,
+                  "max": 14.5,
+                  "typ": 13.5
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 24,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 180,
+                  "vickers": 189,
+                  "rockwell_b": 93
+                },
+            "tensile_strength":     {
+                  "min": 589,
+                  "typical": 621,
+                  "max": 652
+                },
+            "yield_strength":     {
+                  "min": 382,
+                  "typical": 403,
+                  "max": 423
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 217,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2450,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 155,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 520,
+            "B": 850,
+            "n": 0.27,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 49,
+                              "opt": 70,
+                              "max": 91
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "corrosive_plastic_molds",
+            "optical_molds",
+            "medical_molds",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-360":     {
+      "id": "P-TS-360",
+      "name": "420 ESR Mold Steel Hardened 48 HRC",
+      "designation":     {
+            "aisi_sae": "420 ESR",
+            "uns": "S42000",
+            "din": "1.2083",
+            "en": "X40Cr14",
+            "jis": "SUS420J2"
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Mold Steel - Stainless",
+      "condition": "Hardened 48 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.38,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 12.5,
+                  "max": 14.5,
+                  "typ": 13.5
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 24,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 409,
+                  "vickers": 429,
+                  "rockwell_c": 48
+                },
+            "tensile_strength":     {
+                  "min": 1340,
+                  "typical": 1411,
+                  "max": 1481
+                },
+            "yield_strength":     {
+                  "min": 1139,
+                  "typical": 1199,
+                  "max": 1258
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 493,
+            "fracture_toughness": 42
+          },
+      "kienzle":     {
+            "kc1_1": 4046,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 53,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 634,
+            "B": 816,
+            "n": 0.25,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 18,
+                              "opt": 26,
+                              "max": 35
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "corrosive_plastic_molds",
+            "optical_molds",
+            "medical_molds",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-361":     {
+      "id": "P-TS-361",
+      "name": "420 ESR Mold Steel Hardened 50 HRC",
+      "designation":     {
+            "aisi_sae": "420 ESR",
+            "uns": "S42000",
+            "din": "1.2083",
+            "en": "X40Cr14",
+            "jis": "SUS420J2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Mold Steel - Stainless",
+      "condition": "Hardened 50 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.38,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 12.5,
+                  "max": 14.5,
+                  "typ": 13.5
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 24,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 433,
+                  "vickers": 454,
+                  "rockwell_c": 50
+                },
+            "tensile_strength":     {
+                  "min": 1418,
+                  "typical": 1493,
+                  "max": 1567
+                },
+            "yield_strength":     {
+                  "min": 1205,
+                  "typical": 1269,
+                  "max": 1332
+                },
+            "elongation":     {
+                  "min": 15,
+                  "typical": 17,
+                  "max": 19
+                },
+            "fatigue_strength": 522,
+            "fracture_toughness": 40
+          },
+      "kienzle":     {
+            "kc1_1": 4231,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 49,
+            "n": 0.16
+          },
+      "johnson_cook":     {
+            "A": 671,
+            "B": 807,
+            "n": 0.25,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 16,
+                              "opt": 24,
+                              "max": 32
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Ceramic or Coated Carbide",
+            "insert_grade": "K10 or Ceramic",
+            "coating": [
+                  "TiAlN",
+                  "AlTiN"
+            ],
+            "geometry": "Negative rake",
+            "coolant": "Dry or air blast preferred"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "corrosive_plastic_molds",
+            "optical_molds",
+            "medical_molds",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-362":     {
+      "id": "P-TS-362",
+      "name": "420 ESR Mold Steel Hardened 52 HRC",
+      "designation":     {
+            "aisi_sae": "420 ESR",
+            "uns": "S42000",
+            "din": "1.2083",
+            "en": "X40Cr14",
+            "jis": "SUS420J2"
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Mold Steel - Stainless",
+      "condition": "Hardened 52 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.38,
+                  "max": 0.45,
+                  "typ": 0.4
+                },
+            "Mn":     {
+                  "min": 0,
+                  "max": 1.0,
+                  "typ": 0.5
+                },
+            "Cr":     {
+                  "min": 12.5,
+                  "max": 14.5,
+                  "typ": 13.5
+                }
+          },
+      "physical":     {
+            "density": 7700,
+            "melting_point":     {
+                  "solidus": 1400,
+                  "liquidus": 1450
+                },
+            "thermal_conductivity": 24,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 201000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 458,
+                  "vickers": 480,
+                  "rockwell_c": 52
+                },
+            "tensile_strength":     {
+                  "min": 1501,
+                  "typical": 1580,
+                  "max": 1659
+                },
+            "yield_strength":     {
+                  "min": 1275,
+                  "typical": 1343,
+                  "max": 1410
+                },
+            "elongation":     {
+                  "min": 14,
+                  "typical": 16,
+                  "max": 18
+                },
+            "fatigue_strength": 553,
+            "fracture_toughness": 38
+          },
+      "kienzle":     {
+            "kc1_1": 4425,
+            "mc": 0.24
+          },
+      "taylor":     {
+            "C": 46,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 711,
+            "B": 799,
+            "n": 0.24,
+            "C": 0.013,
+            "m": 0.94,
+            "T_melt": 1450
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 15,
+                              "opt": 22,
+                              "max": 29
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "corrosive_plastic_molds",
+            "optical_molds",
+            "medical_molds",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-363":     {
+      "id": "P-TS-363",
+      "name": "CPM M4 Powder HSS Annealed",
+      "designation":     {
+            "aisi_sae": "CPM M4",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Powder Metallurgy HSS",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.35,
+                  "max": 1.45,
+                  "typ": 1.42
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1195,
+                  "liquidus": 1275
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 260,
+                  "vickers": 273,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 852,
+                  "typical": 897,
+                  "max": 941
+                },
+            "yield_strength":     {
+                  "min": 553,
+                  "typical": 583,
+                  "max": 612
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 313,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2900,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 115,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 640,
+            "B": 1050,
+            "n": 0.24,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1275
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 31,
+                              "opt": 45,
+                              "max": 58
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "broaches",
+            "drills",
+            "end_mills",
+            "taps",
+            "cold_work_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-364":     {
+      "id": "P-TS-364",
+      "name": "CPM M4 Powder HSS Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "CPM M4",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.35,
+                  "max": 1.45,
+                  "typ": 1.42
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1195,
+                  "liquidus": 1275
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4967,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 37,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 934,
+            "n": 0.2,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1275
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "drills",
+            "end_mills",
+            "taps",
+            "cold_work_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-365":     {
+      "id": "P-TS-365",
+      "name": "CPM M4 Powder HSS Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "CPM M4",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.35,
+                  "max": 1.45,
+                  "typ": 1.42
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1195,
+                  "liquidus": 1275
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5222,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 34,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 924,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1275
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "drills",
+            "end_mills",
+            "taps",
+            "cold_work_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-366":     {
+      "id": "P-TS-366",
+      "name": "CPM M4 Powder HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "CPM M4",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.35,
+                  "max": 1.45,
+                  "typ": 1.42
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                },
+            "W":     {
+                  "min": 5.5,
+                  "max": 6.5,
+                  "typ": 5.75
+                },
+            "Mo":     {
+                  "min": 4.5,
+                  "max": 5.5,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.25
+                }
+          },
+      "physical":     {
+            "density": 8100,
+            "melting_point":     {
+                  "solidus": 1195,
+                  "liquidus": 1275
+                },
+            "thermal_conductivity": 17,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5492,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 31,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 913,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1275
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 13,
+                              "max": 17
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "broaches",
+            "drills",
+            "end_mills",
+            "taps",
+            "cold_work_tools"
+      ],
+      "notes": ""
+    },
+    "P-TS-367":     {
+      "id": "P-TS-367",
+      "name": "CPM 10V High Vanadium PM Annealed",
+      "designation":     {
+            "aisi_sae": "CPM 10V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Powder Metallurgy - Wear Resistant",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 2.4,
+                  "max": 2.5,
+                  "typ": 2.45
+                },
+            "Cr":     {
+                  "min": 5.0,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 9.5,
+                  "max": 10.5,
+                  "typ": 9.75
+                }
+          },
+      "physical":     {
+            "density": 7550,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 15,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 280,
+                  "vickers": 294,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 917,
+                  "typical": 966,
+                  "max": 1014
+                },
+            "yield_strength":     {
+                  "min": 595,
+                  "typical": 627,
+                  "max": 658
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 338,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3100,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 100,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 700,
+            "B": 1150,
+            "n": 0.22,
+            "C": 0.009,
+            "m": 0.84,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 26,
+                              "opt": 38,
+                              "max": 49
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "brick_dies",
+            "pellet_dies",
+            "food_processing",
+            "extreme_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-368":     {
+      "id": "P-TS-368",
+      "name": "CPM 10V High Vanadium PM Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 10V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Wear Resistant",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.4,
+                  "max": 2.5,
+                  "typ": 2.45
+                },
+            "Cr":     {
+                  "min": 5.0,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 9.5,
+                  "max": 10.5,
+                  "typ": 9.75
+                }
+          },
+      "physical":     {
+            "density": 7550,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 15,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4571,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 1046,
+            "n": 0.19,
+            "C": 0.009,
+            "m": 0.84,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_dies",
+            "pellet_dies",
+            "food_processing",
+            "extreme_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-369":     {
+      "id": "P-TS-369",
+      "name": "CPM 10V High Vanadium PM Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 10V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Wear Resistant",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.4,
+                  "max": 2.5,
+                  "typ": 2.45
+                },
+            "Cr":     {
+                  "min": 5.0,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 9.5,
+                  "max": 10.5,
+                  "typ": 9.75
+                }
+          },
+      "physical":     {
+            "density": 7550,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 15,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4784,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 1035,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.84,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 8,
+            "relative_to_1212": 0.08
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_dies",
+            "pellet_dies",
+            "food_processing",
+            "extreme_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-370":     {
+      "id": "P-TS-370",
+      "name": "CPM 10V High Vanadium PM Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 10V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Wear Resistant",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.4,
+                  "max": 2.5,
+                  "typ": 2.45
+                },
+            "Cr":     {
+                  "min": 5.0,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 9.5,
+                  "max": 10.5,
+                  "typ": 9.75
+                }
+          },
+      "physical":     {
+            "density": 7550,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 15,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 5012,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 35,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 1023,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.84,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 7,
+            "relative_to_1212": 0.07
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_dies",
+            "pellet_dies",
+            "food_processing",
+            "extreme_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-371":     {
+      "id": "P-TS-371",
+      "name": "CPM 10V High Vanadium PM Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 10V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Wear Resistant",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.4,
+                  "max": 2.5,
+                  "typ": 2.45
+                },
+            "Cr":     {
+                  "min": 5.0,
+                  "max": 5.5,
+                  "typ": 5.25
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 9.5,
+                  "max": 10.5,
+                  "typ": 9.75
+                }
+          },
+      "physical":     {
+            "density": 7550,
+            "melting_point":     {
+                  "solidus": 1230,
+                  "liquidus": 1310
+                },
+            "thermal_conductivity": 15,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5262,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 32,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 1012,
+            "n": 0.18,
+            "C": 0.009,
+            "m": 0.84,
+            "T_melt": 1310
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 13,
+                              "max": 17
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "brick_dies",
+            "pellet_dies",
+            "food_processing",
+            "extreme_wear"
+      ],
+      "notes": ""
+    },
+    "P-TS-372":     {
+      "id": "P-TS-372",
+      "name": "CPM S90V Super High Vanadium Annealed",
+      "designation":     {
+            "aisi_sae": "CPM S90V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Powder Metallurgy - Ultra Wear Resistant",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 13.5,
+                  "max": 14.5,
+                  "typ": 14.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.1,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 8.75,
+                  "max": 9.25,
+                  "typ": 9.0
+                }
+          },
+      "physical":     {
+            "density": 7450,
+            "melting_point":     {
+                  "solidus": 1250,
+                  "liquidus": 1330
+                },
+            "thermal_conductivity": 14,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 300,
+                  "vickers": 315,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 983,
+                  "typical": 1035,
+                  "max": 1086
+                },
+            "yield_strength":     {
+                  "min": 638,
+                  "typical": 672,
+                  "max": 705
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 362,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3300,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 90,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 750,
+            "B": 1230,
+            "n": 0.21,
+            "C": 0.008,
+            "m": 0.82,
+            "T_melt": 1330
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 22,
+                              "opt": 32,
+                              "max": 41
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "knife_blades",
+            "slitters",
+            "extreme_abrasion",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-373":     {
+      "id": "P-TS-373",
+      "name": "CPM S90V Super High Vanadium Hardened 56 HRC",
+      "designation":     {
+            "aisi_sae": "CPM S90V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Ultra Wear Resistant",
+      "condition": "Hardened 56 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 13.5,
+                  "max": 14.5,
+                  "typ": 14.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.1,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 8.75,
+                  "max": 9.25,
+                  "typ": 9.0
+                }
+          },
+      "physical":     {
+            "density": 7450,
+            "melting_point":     {
+                  "solidus": 1250,
+                  "liquidus": 1330
+                },
+            "thermal_conductivity": 14,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 203000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 515,
+                  "vickers": 540,
+                  "rockwell_c": 56
+                },
+            "tensile_strength":     {
+                  "min": 1687,
+                  "typical": 1776,
+                  "max": 1864
+                },
+            "yield_strength":     {
+                  "min": 1433,
+                  "typical": 1509,
+                  "max": 1584
+                },
+            "elongation":     {
+                  "min": 13,
+                  "typical": 15,
+                  "max": 17
+                },
+            "fatigue_strength": 621,
+            "fracture_toughness": 34
+          },
+      "kienzle":     {
+            "kc1_1": 4443,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.11
+          },
+      "johnson_cook":     {
+            "A": 799,
+            "B": 1131,
+            "n": 0.18,
+            "C": 0.008,
+            "m": 0.82,
+            "T_melt": 1330
+          },
+      "machinability":     {
+            "aisi_rating": 11,
+            "relative_to_1212": 0.11
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN or Ceramic",
+            "insert_grade": "CBN Grade 1-2",
+            "coating": [
+                  "None - CBN"
+            ],
+            "geometry": "Negative rake, honed edge",
+            "coolant": "Dry cutting required"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knife_blades",
+            "slitters",
+            "extreme_abrasion",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-374":     {
+      "id": "P-TS-374",
+      "name": "CPM S90V Super High Vanadium Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "CPM S90V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Ultra Wear Resistant",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 13.5,
+                  "max": 14.5,
+                  "typ": 14.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.1,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 8.75,
+                  "max": 9.25,
+                  "typ": 9.0
+                }
+          },
+      "physical":     {
+            "density": 7450,
+            "melting_point":     {
+                  "solidus": 1250,
+                  "liquidus": 1330
+                },
+            "thermal_conductivity": 14,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4632,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.11
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 1119,
+            "n": 0.18,
+            "C": 0.008,
+            "m": 0.82,
+            "T_melt": 1330
+          },
+      "machinability":     {
+            "aisi_rating": 10,
+            "relative_to_1212": 0.1
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 10,
+                              "opt": 15,
+                              "max": 20
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knife_blades",
+            "slitters",
+            "extreme_abrasion",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-375":     {
+      "id": "P-TS-375",
+      "name": "CPM S90V Super High Vanadium Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "CPM S90V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Ultra Wear Resistant",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 13.5,
+                  "max": 14.5,
+                  "typ": 14.0
+                },
+            "Mo":     {
+                  "min": 0.9,
+                  "max": 1.1,
+                  "typ": 1.0
+                },
+            "V":     {
+                  "min": 8.75,
+                  "max": 9.25,
+                  "typ": 9.0
+                }
+          },
+      "physical":     {
+            "density": 7450,
+            "melting_point":     {
+                  "solidus": 1250,
+                  "liquidus": 1330
+                },
+            "thermal_conductivity": 14,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4841,
+            "mc": 0.18
+          },
+      "taylor":     {
+            "C": 38,
+            "n": 0.11
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 1107,
+            "n": 0.18,
+            "C": 0.008,
+            "m": 0.82,
+            "T_melt": 1330
+          },
+      "machinability":     {
+            "aisi_rating": 9,
+            "relative_to_1212": 0.09
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "knife_blades",
+            "slitters",
+            "extreme_abrasion",
+            "food_processing"
+      ],
+      "notes": ""
+    },
+    "P-TS-376":     {
+      "id": "P-TS-376",
+      "name": "CPM 3V Impact Tough PM Annealed",
+      "designation":     {
+            "aisi_sae": "CPM 3V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Powder Metallurgy - Tough",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.82,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 7.25,
+                  "max": 7.75,
+                  "typ": 7.5
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 2.65,
+                  "max": 2.85,
+                  "typ": 2.75
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1300,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 240,
+                  "vickers": 252,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 786,
+                  "typical": 828,
+                  "max": 869
+                },
+            "yield_strength":     {
+                  "min": 511,
+                  "typical": 538,
+                  "max": 564
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 289,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2700,
+            "mc": 0.22
+          },
+      "taylor":     {
+            "C": 130,
+            "n": 0.15
+          },
+      "johnson_cook":     {
+            "A": 590,
+            "B": 970,
+            "n": 0.25,
+            "C": 0.011,
+            "m": 0.89,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 36,
+                              "opt": 52,
+                              "max": 67
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "industrial_knives",
+            "impact_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-377":     {
+      "id": "P-TS-377",
+      "name": "CPM 3V Impact Tough PM Hardened 58 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 3V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Tough",
+      "condition": "Hardened 58 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.82,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 7.25,
+                  "max": 7.75,
+                  "typ": 7.5
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 2.65,
+                  "max": 2.85,
+                  "typ": 2.75
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1300,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 204000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 547,
+                  "vickers": 574,
+                  "rockwell_c": 58
+                },
+            "tensile_strength":     {
+                  "min": 1792,
+                  "typical": 1887,
+                  "max": 1981
+                },
+            "yield_strength":     {
+                  "min": 1522,
+                  "typical": 1603,
+                  "max": 1683
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 660,
+            "fracture_toughness": 32
+          },
+      "kienzle":     {
+            "kc1_1": 4469,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 44,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 849,
+            "B": 882,
+            "n": 0.21,
+            "C": 0.011,
+            "m": 0.89,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 13,
+                              "opt": 19,
+                              "max": 25
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "industrial_knives",
+            "impact_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-378":     {
+      "id": "P-TS-378",
+      "name": "CPM 3V Impact Tough PM Hardened 60 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 3V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Tough",
+      "condition": "Hardened 60 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.82,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 7.25,
+                  "max": 7.75,
+                  "typ": 7.5
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 2.65,
+                  "max": 2.85,
+                  "typ": 2.75
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1300,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 205000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 582,
+                  "vickers": 611,
+                  "rockwell_c": 60
+                },
+            "tensile_strength":     {
+                  "min": 1906,
+                  "typical": 2007,
+                  "max": 2107
+                },
+            "yield_strength":     {
+                  "min": 1619,
+                  "typical": 1705,
+                  "max": 1790
+                },
+            "elongation":     {
+                  "min": 12,
+                  "typical": 14,
+                  "max": 16
+                },
+            "fatigue_strength": 702,
+            "fracture_toughness": 30
+          },
+      "kienzle":     {
+            "kc1_1": 4693,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 41,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 903,
+            "B": 873,
+            "n": 0.21,
+            "C": 0.011,
+            "m": 0.89,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 17,
+                              "max": 22
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "industrial_knives",
+            "impact_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-379":     {
+      "id": "P-TS-379",
+      "name": "CPM 3V Impact Tough PM Hardened 62 HRC",
+      "designation":     {
+            "aisi_sae": "CPM 3V",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy - Tough",
+      "condition": "Hardened 62 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 0.78,
+                  "max": 0.82,
+                  "typ": 0.8
+                },
+            "Cr":     {
+                  "min": 7.25,
+                  "max": 7.75,
+                  "typ": 7.5
+                },
+            "Mo":     {
+                  "min": 1.25,
+                  "max": 1.75,
+                  "typ": 1.3
+                },
+            "V":     {
+                  "min": 2.65,
+                  "max": 2.85,
+                  "typ": 2.75
+                }
+          },
+      "physical":     {
+            "density": 7750,
+            "melting_point":     {
+                  "solidus": 1300,
+                  "liquidus": 1380
+                },
+            "thermal_conductivity": 20,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 206000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 619,
+                  "vickers": 649,
+                  "rockwell_c": 62
+                },
+            "tensile_strength":     {
+                  "min": 2028,
+                  "typical": 2135,
+                  "max": 2241
+                },
+            "yield_strength":     {
+                  "min": 1723,
+                  "typical": 1814,
+                  "max": 1904
+                },
+            "elongation":     {
+                  "min": 11,
+                  "typical": 13,
+                  "max": 15
+                },
+            "fatigue_strength": 747,
+            "fracture_toughness": 28
+          },
+      "kienzle":     {
+            "kc1_1": 4931,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 37,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 960,
+            "B": 863,
+            "n": 0.21,
+            "C": 0.011,
+            "m": 0.89,
+            "T_melt": 1380
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 11,
+                              "opt": 16,
+                              "max": 21
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "CBN",
+            "insert_grade": "CBN Grade 1 (high CBN content)",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Negative rake, T-land edge prep",
+            "coolant": "Dry only - coolant causes thermal shock"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "blanking_dies",
+            "punches",
+            "industrial_knives",
+            "impact_resistant"
+      ],
+      "notes": ""
+    },
+    "P-TS-380":     {
+      "id": "P-TS-380",
+      "name": "ASP 2030 Powder HSS Annealed",
+      "designation":     {
+            "aisi_sae": "ASP 2030",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - B\u00f6hler",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.35,
+                  "typ": 1.28
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.2
+                },
+            "W":     {
+                  "min": 6.0,
+                  "max": 6.5,
+                  "typ": 6.4
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.1
+                },
+            "Co":     {
+                  "min": 8.0,
+                  "max": 8.75,
+                  "typ": 8.5
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 260,
+                  "vickers": 273,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 852,
+                  "typical": 897,
+                  "max": 941
+                },
+            "yield_strength":     {
+                  "min": 553,
+                  "typical": 583,
+                  "max": 612
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 313,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 2950,
+            "mc": 0.21
+          },
+      "taylor":     {
+            "C": 110,
+            "n": 0.14
+          },
+      "johnson_cook":     {
+            "A": 650,
+            "B": 1070,
+            "n": 0.24,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 30,
+                              "opt": 44,
+                              "max": 57
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "hobs",
+            "broaches",
+            "form_tools",
+            "gear_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-381":     {
+      "id": "P-TS-381",
+      "name": "ASP 2030 Powder HSS Hardened 64 HRC",
+      "designation":     {
+            "aisi_sae": "ASP 2030",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - B\u00f6hler",
+      "condition": "Hardened 64 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.35,
+                  "typ": 1.28
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.2
+                },
+            "W":     {
+                  "min": 6.0,
+                  "max": 6.5,
+                  "typ": 6.4
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.1
+                },
+            "Co":     {
+                  "min": 8.0,
+                  "max": 8.75,
+                  "typ": 8.5
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 207000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 659,
+                  "vickers": 691,
+                  "rockwell_c": 64
+                },
+            "tensile_strength":     {
+                  "min": 2159,
+                  "typical": 2273,
+                  "max": 2386
+                },
+            "yield_strength":     {
+                  "min": 1835,
+                  "typical": 1932,
+                  "max": 2028
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 795,
+            "fracture_toughness": 26
+          },
+      "kienzle":     {
+            "kc1_1": 5312,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 32,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1022,
+            "B": 941,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 14,
+                              "max": 18
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "hobs",
+            "broaches",
+            "form_tools",
+            "gear_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-382":     {
+      "id": "P-TS-382",
+      "name": "ASP 2030 Powder HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "ASP 2030",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - B\u00f6hler",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.35,
+                  "typ": 1.28
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.2
+                },
+            "W":     {
+                  "min": 6.0,
+                  "max": 6.5,
+                  "typ": 6.4
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.1
+                },
+            "Co":     {
+                  "min": 8.0,
+                  "max": 8.75,
+                  "typ": 8.5
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5587,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 30,
+            "n": 0.13
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 930,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 9,
+                              "opt": 13,
+                              "max": 17
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "hobs",
+            "broaches",
+            "form_tools",
+            "gear_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-383":     {
+      "id": "P-TS-383",
+      "name": "ASP 2030 Powder HSS Hardened 67 HRC",
+      "designation":     {
+            "aisi_sae": "ASP 2030",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - B\u00f6hler",
+      "condition": "Hardened 67 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 1.25,
+                  "max": 1.35,
+                  "typ": 1.28
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.2
+                },
+            "W":     {
+                  "min": 6.0,
+                  "max": 6.5,
+                  "typ": 6.4
+                },
+            "Mo":     {
+                  "min": 4.75,
+                  "max": 5.25,
+                  "typ": 5.0
+                },
+            "V":     {
+                  "min": 3.0,
+                  "max": 3.5,
+                  "typ": 3.1
+                },
+            "Co":     {
+                  "min": 8.0,
+                  "max": 8.75,
+                  "typ": 8.5
+                }
+          },
+      "physical":     {
+            "density": 8000,
+            "melting_point":     {
+                  "solidus": 1210,
+                  "liquidus": 1290
+                },
+            "thermal_conductivity": 18,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208500,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 722,
+                  "vickers": 758,
+                  "rockwell_c": 67
+                },
+            "tensile_strength":     {
+                  "min": 2365,
+                  "typical": 2490,
+                  "max": 2614
+                },
+            "yield_strength":     {
+                  "min": 2010,
+                  "typical": 2116,
+                  "max": 2221
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 871,
+            "fracture_toughness": 23
+          },
+      "kienzle":     {
+            "kc1_1": 5726,
+            "mc": 0.2
+          },
+      "taylor":     {
+            "C": 29,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 1120,
+            "B": 925,
+            "n": 0.19,
+            "C": 0.01,
+            "m": 0.87,
+            "T_melt": 1290
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 12,
+                              "max": 16
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "hobs",
+            "broaches",
+            "form_tools",
+            "gear_cutting"
+      ],
+      "notes": ""
+    },
+    "P-TS-384":     {
+      "id": "P-TS-384",
+      "name": "ASP 2060 Super PM HSS Annealed",
+      "designation":     {
+            "aisi_sae": "ASP 2060",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "P",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - Ultra Performance",
+      "condition": "Annealed",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Mo":     {
+                  "min": 6.75,
+                  "max": 7.25,
+                  "typ": 7.0
+                },
+            "V":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Co":     {
+                  "min": 10.25,
+                  "max": 10.75,
+                  "typ": 10.5
+                }
+          },
+      "physical":     {
+            "density": 8300,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 16,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 200000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 290,
+                  "vickers": 304,
+                  "rockwell_b": 100
+                },
+            "tensile_strength":     {
+                  "min": 950,
+                  "typical": 1000,
+                  "max": 1050
+                },
+            "yield_strength":     {
+                  "min": 617,
+                  "typical": 650,
+                  "max": 682
+                },
+            "elongation":     {
+                  "min": 16,
+                  "typical": 18,
+                  "max": 20
+                },
+            "fatigue_strength": 350,
+            "fracture_toughness": 50
+          },
+      "kienzle":     {
+            "kc1_1": 3150,
+            "mc": 0.19
+          },
+      "taylor":     {
+            "C": 95,
+            "n": 0.12
+          },
+      "johnson_cook":     {
+            "A": 720,
+            "B": 1180,
+            "n": 0.22,
+            "C": 0.009,
+            "m": 0.83,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 30,
+            "relative_to_1212": 0.3
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 25,
+                              "opt": 36,
+                              "max": 46
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "Coated Carbide",
+            "insert_grade": "P20-P30",
+            "coating": [
+                  "TiAlN",
+                  "TiCN",
+                  "Al2O3"
+            ],
+            "geometry": "Positive rake",
+            "coolant": "Flood recommended"
+          },
+      "chip_formation":     {
+            "type": "continuous_tough",
+            "chip_breaker": "Recommended"
+          },
+      "applications": [
+            "superalloy_machining",
+            "titanium_cutting",
+            "extreme_performance"
+      ],
+      "notes": ""
+    },
+    "P-TS-385":     {
+      "id": "P-TS-385",
+      "name": "ASP 2060 Super PM HSS Hardened 66 HRC",
+      "designation":     {
+            "aisi_sae": "ASP 2060",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - Ultra Performance",
+      "condition": "Hardened 66 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Mo":     {
+                  "min": 6.75,
+                  "max": 7.25,
+                  "typ": 7.0
+                },
+            "V":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Co":     {
+                  "min": 10.25,
+                  "max": 10.75,
+                  "typ": 10.5
+                }
+          },
+      "physical":     {
+            "density": 8300,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 16,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 208000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 701,
+                  "vickers": 736,
+                  "rockwell_c": 66
+                },
+            "tensile_strength":     {
+                  "min": 2297,
+                  "typical": 2418,
+                  "max": 2538
+                },
+            "yield_strength":     {
+                  "min": 1952,
+                  "typical": 2055,
+                  "max": 2157
+                },
+            "elongation":     {
+                  "min": 10,
+                  "typical": 12,
+                  "max": 14
+                },
+            "fatigue_strength": 846,
+            "fracture_toughness": 24
+          },
+      "kienzle":     {
+            "kc1_1": 5461,
+            "mc": 0.18
+          },
+      "taylor":     {
+            "C": 30,
+            "n": 0.11
+          },
+      "johnson_cook":     {
+            "A": 1088,
+            "B": 1026,
+            "n": 0.17,
+            "C": 0.009,
+            "m": 0.83,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 6,
+            "relative_to_1212": 0.06
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 12,
+                              "max": 16
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "superalloy_machining",
+            "titanium_cutting",
+            "extreme_performance"
+      ],
+      "notes": ""
+    },
+    "P-TS-386":     {
+      "id": "P-TS-386",
+      "name": "ASP 2060 Super PM HSS Hardened 68 HRC",
+      "designation":     {
+            "aisi_sae": "ASP 2060",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - Ultra Performance",
+      "condition": "Hardened 68 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Mo":     {
+                  "min": 6.75,
+                  "max": 7.25,
+                  "typ": 7.0
+                },
+            "V":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Co":     {
+                  "min": 10.25,
+                  "max": 10.75,
+                  "typ": 10.5
+                }
+          },
+      "physical":     {
+            "density": 8300,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 16,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 209000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 745,
+                  "vickers": 782,
+                  "rockwell_c": 68
+                },
+            "tensile_strength":     {
+                  "min": 2441,
+                  "typical": 2570,
+                  "max": 2698
+                },
+            "yield_strength":     {
+                  "min": 2074,
+                  "typical": 2184,
+                  "max": 2293
+                },
+            "elongation":     {
+                  "min": 9,
+                  "typical": 11,
+                  "max": 13
+                },
+            "fatigue_strength": 899,
+            "fracture_toughness": 22
+          },
+      "kienzle":     {
+            "kc1_1": 5734,
+            "mc": 0.18
+          },
+      "taylor":     {
+            "C": 27,
+            "n": 0.11
+          },
+      "johnson_cook":     {
+            "A": 1156,
+            "B": 1014,
+            "n": 0.17,
+            "C": 0.009,
+            "m": 0.83,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 5,
+            "relative_to_1212": 0.05
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 11,
+                              "max": 14
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "superalloy_machining",
+            "titanium_cutting",
+            "extreme_performance"
+      ],
+      "notes": ""
+    },
+    "P-TS-387":     {
+      "id": "P-TS-387",
+      "name": "ASP 2060 Super PM HSS Hardened 70 HRC",
+      "designation":     {
+            "aisi_sae": "ASP 2060",
+            "uns": "",
+            "din": "",
+            "en": "",
+            "jis": ""
+          },
+      "iso_group": "H",
+      "material_class": "Tool Steel - Powder Metallurgy HSS - Ultra Performance",
+      "condition": "Hardened 70 HRC",
+      "composition":     {
+            "C":     {
+                  "min": 2.25,
+                  "max": 2.35,
+                  "typ": 2.3
+                },
+            "Cr":     {
+                  "min": 4.0,
+                  "max": 4.5,
+                  "typ": 4.0
+                },
+            "W":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Mo":     {
+                  "min": 6.75,
+                  "max": 7.25,
+                  "typ": 7.0
+                },
+            "V":     {
+                  "min": 6.25,
+                  "max": 6.75,
+                  "typ": 6.5
+                },
+            "Co":     {
+                  "min": 10.25,
+                  "max": 10.75,
+                  "typ": 10.5
+                }
+          },
+      "physical":     {
+            "density": 8300,
+            "melting_point":     {
+                  "solidus": 1180,
+                  "liquidus": 1260
+                },
+            "thermal_conductivity": 16,
+            "poissons_ratio": 0.29,
+            "elastic_modulus": 210000,
+            "shear_modulus": 77500
+          },
+      "mechanical":     {
+            "hardness":     {
+                  "brinell": 792,
+                  "vickers": 831,
+                  "rockwell_c": 70
+                },
+            "tensile_strength":     {
+                  "min": 2595,
+                  "typical": 2732,
+                  "max": 2868
+                },
+            "yield_strength":     {
+                  "min": 2205,
+                  "typical": 2322,
+                  "max": 2438
+                },
+            "elongation":     {
+                  "min": 8,
+                  "typical": 10,
+                  "max": 12
+                },
+            "fatigue_strength": 956,
+            "fracture_toughness": 20
+          },
+      "kienzle":     {
+            "kc1_1": 6030,
+            "mc": 0.18
+          },
+      "taylor":     {
+            "C": 25,
+            "n": 0.1
+          },
+      "johnson_cook":     {
+            "A": 1229,
+            "B": 1003,
+            "n": 0.17,
+            "C": 0.009,
+            "m": 0.83,
+            "T_melt": 1260
+          },
+      "machinability":     {
+            "aisi_rating": 4,
+            "relative_to_1212": 0.04
+          },
+      "recommended_cutting":     {
+            "turning":     {
+                  "carbide":     {
+                        "speed":     {
+                              "min": 8,
+                              "opt": 10,
+                              "max": 13
+                            }
+                      }
+                }
+          },
+      "tooling":     {
+            "primary": "PCBN or PCD",
+            "insert_grade": "PCBN High Content",
+            "coating": [
+                  "None"
+            ],
+            "geometry": "Heavy negative rake, chamfered edge",
+            "coolant": "Absolutely dry",
+            "warning": "EXTREME HARDNESS - Grinding may be more economical"
+          },
+      "chip_formation":     {
+            "type": "segmented_sawtooth",
+            "chip_breaker": "Required"
+          },
+      "applications": [
+            "superalloy_machining",
+            "titanium_cutting",
+            "extreme_performance"
+      ],
+      "notes": ""
+    }
+  }
+};
+
+// Export
+if (typeof module !== 'undefined' && 
+// ============================================================================
+// ENHANCED SECTIONS - Auto-generated 2026-01-25 01:34
+// Category: P_STEELS | Materials: 187 | Sections added: 5
+// ADD THESE TO EACH MATERIAL:
+// ============================================================================
+/*
+      chipFormation: {
+        chipType: { primary: "CONTINUOUS", secondary: "varies with parameters" },
+        shearAngle: { value: 26, unit: "degrees", range: { min: 21, max: 32 } },
+        chipCompressionRatio: { value: 2.0, range: { min: 1.5, max: 3.5 } },
+        segmentationFrequency: { value: 20, unit: "kHz" },
+        builtUpEdge: { tendency: "LOW", speedRange: { min: 10, max: 40, unit: "m/min" } },
+        breakability: { rating: "FAIR", chipBreakerRequired: false },
+        colorAtSpeed: { slow: "silver", optimal: "straw", high: "blue" }
+      },
+      friction: {
+        toolChipInterface: { dry: 0.45, withCoolant: 0.28, withMQL: 0.33 },
+        toolWorkpieceInterface: { dry: 0.38, withCoolant: 0.24 },
+        contactLength: { stickingZone: { ratio: 0.35 }, slidingZone: { ratio: 0.65 } },
+        seizureTemperature: { value: 900, unit: "C" },
+        adhesionTendency: { rating: "MODERATE" },
+        abrasiveness: { rating: "LOW" },
+        diffusionWearTendency: { rating: "MODERATE" }
+      },
+      thermalMachining: {
+        cuttingTemperature: { model: "empirical", coefficients: { a: 280, b: 0.28, c: 0.12 }, maxRecommended: { value: 950, unit: "C" } },
+        heatPartition: { chip: 0.78, tool: 0.16, workpiece: 0.05, coolant: 0.01 },
+        coolantEffectiveness: { flood: 0.30, mist: 0.10, mql: 0.22, cryogenic: 0.35 },
+        thermalDamageThreshold: { whiteLayer: 1030, overTempering: 770, burning: 1150 }
+      },
+      surfaceIntegrity: {
+        residualStress: { surface: -150, subsurface: 90, unit: "MPa", depth: 50 },
+        workHardening: { depthAffected: 65, hardnessIncrease: 18, strainHardeningExponent: 0.23 },
+        surfaceRoughness: { roughing: { Ra: 4.5 }, finishing: { Ra: 0.8 }, unit: "um" },
+        metallurgicalDamage: { whiteLayerRisk: "LOW", microcrackRisk: "LOW" },
+        burr: { tendency: "MODERATE", type: "rollover" }
+      },
+      statisticalData: {
+        dataPoints: 95,
+        confidenceLevel: 0.88,
+        standardDeviation: { speed: 3.2, force: 165, toolLife: 11 },
+        sources: ["ASM Handbook Vol 16", "Machining Data Handbook 3rd Ed", "Estimated"],
+        lastValidated: "2026-Q1",
+        reliability: "ESTIMATED"
+      }
+*/
+
+module.exports) {
+  
+// ============================================================================
+// ENHANCED SECTIONS - Auto-generated 2026-01-25 01:34
+// Category: P_STEELS | Materials: 187 | Sections added: 5
+// ADD THESE TO EACH MATERIAL:
+// ============================================================================
+/*
+      chipFormation: {
+        chipType: { primary: "CONTINUOUS", secondary: "varies with parameters" },
+        shearAngle: { value: 26, unit: "degrees", range: { min: 21, max: 32 } },
+        chipCompressionRatio: { value: 2.0, range: { min: 1.5, max: 3.5 } },
+        segmentationFrequency: { value: 20, unit: "kHz" },
+        builtUpEdge: { tendency: "LOW", speedRange: { min: 10, max: 40, unit: "m/min" } },
+        breakability: { rating: "FAIR", chipBreakerRequired: false },
+        colorAtSpeed: { slow: "silver", optimal: "straw", high: "blue" }
+      },
+      friction: {
+        toolChipInterface: { dry: 0.45, withCoolant: 0.28, withMQL: 0.33 },
+        toolWorkpieceInterface: { dry: 0.38, withCoolant: 0.24 },
+        contactLength: { stickingZone: { ratio: 0.35 }, slidingZone: { ratio: 0.65 } },
+        seizureTemperature: { value: 900, unit: "C" },
+        adhesionTendency: { rating: "MODERATE" },
+        abrasiveness: { rating: "LOW" },
+        diffusionWearTendency: { rating: "MODERATE" }
+      },
+      thermalMachining: {
+        cuttingTemperature: { model: "empirical", coefficients: { a: 280, b: 0.28, c: 0.12 }, maxRecommended: { value: 950, unit: "C" } },
+        heatPartition: { chip: 0.78, tool: 0.16, workpiece: 0.05, coolant: 0.01 },
+        coolantEffectiveness: { flood: 0.30, mist: 0.10, mql: 0.22, cryogenic: 0.35 },
+        thermalDamageThreshold: { whiteLayer: 1030, overTempering: 770, burning: 1150 }
+      },
+      surfaceIntegrity: {
+        residualStress: { surface: -150, subsurface: 90, unit: "MPa", depth: 50 },
+        workHardening: { depthAffected: 65, hardnessIncrease: 18, strainHardeningExponent: 0.23 },
+        surfaceRoughness: { roughing: { Ra: 4.5 }, finishing: { Ra: 0.8 }, unit: "um" },
+        metallurgicalDamage: { whiteLayerRisk: "LOW", microcrackRisk: "LOW" },
+        burr: { tendency: "MODERATE", type: "rollover" }
+      },
+      statisticalData: {
+        dataPoints: 95,
+        confidenceLevel: 0.88,
+        standardDeviation: { speed: 3.2, force: 165, toolLife: 11 },
+        sources: ["ASM Handbook Vol 16", "Machining Data Handbook 3rd Ed", "Estimated"],
+        lastValidated: "2026-Q1",
+        reliability: "ESTIMATED"
+      }
+*/
+
+module.exports = TOOL_STEELS_HARDNESS_CONDITIONS;
+}

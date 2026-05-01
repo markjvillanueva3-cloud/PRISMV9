@@ -1,0 +1,82 @@
+{
+  "template_id": "SWARM-CONSENSUS-001",
+  "pattern": "CONSENSUS_BUILDING",
+  "description": "Multiple agents vote on solutions to reach agreement. Best for ambiguous decisions, design choices, or validation where multiple perspectives matter.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Ambiguous design decisions",
+    "Multi-perspective validation",
+    "Quality assurance voting",
+    "Reducing single-agent bias"
+  ],
+  
+  "config": {
+    "min_agents": 3,
+    "max_agents": 7,
+    "timeout_ms": 45000,
+    "consensus_threshold": 0.66,
+    "voting_method": "weighted_majority"
+  },
+  
+  "agent_selection": {
+    "strategy": "diverse_expertise",
+    "require_different_specialties": true,
+    "preferred_odd_count": true
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["question", "options"],
+    "properties": {
+      "question": {"type": "string"},
+      "options": {"type": "array", "items": {"type": "object"}},
+      "context": {"type": "object"},
+      "voting_criteria": {"type": "array", "items": {"type": "string"}}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "consensus_reached": {"type": "boolean"},
+      "winning_option": {"type": "object"},
+      "vote_breakdown": {
+        "type": "array",
+        "items": {
+          "agent_id": {"type": "string"},
+          "vote": {"type": "string"},
+          "confidence": {"type": "number"},
+          "reasoning": {"type": "string"}
+        }
+      },
+      "agreement_percentage": {"type": "number"},
+      "dissenting_views": {"type": "array"}
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_consensus",
+  
+  "example_usage": {
+    "name": "algorithm_selection",
+    "agents": ["AGT-OPUS-ARCHITECT", "AGT-SONNET-PERFORMANCE", "AGT-SONNET-MAINTAINABILITY"],
+    "input": {
+      "question": "Which sorting algorithm for 10M records?",
+      "options": [
+        {"id": "quicksort", "pros": ["fast avg"], "cons": ["worst case O(n²)"]},
+        {"id": "mergesort", "pros": ["stable", "O(n log n)"], "cons": ["extra memory"]},
+        {"id": "timsort", "pros": ["adaptive", "stable"], "cons": ["complex"]}
+      ],
+      "voting_criteria": ["performance", "memory", "maintainability"]
+    }
+  },
+  
+  "hooks_triggered": ["BAYES-003", "CONSENSUS-START-001", "CONSENSUS-VOTE-001"],
+  
+  "performance_notes": {
+    "optimal_agent_count": "3-5 agents (odd number)",
+    "threshold_guidance": "0.66 for majority, 0.8 for strong consensus",
+    "tie_breaker": "OPUS agent vote weighted 1.5x"
+  }
+}

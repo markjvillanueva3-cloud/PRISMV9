@@ -1,0 +1,18 @@
+{
+  "id": "EIGC-MS7",
+  "version": "1.0.0",
+  "title": "Canonical Manufacturing Domain Model",
+  "brief": "Inventory shared product entities (machine, controller, kinematics, spindle, holder, tool, material, fixture, CAM/post target) across the 4 flagship pillars. Identify conflicting schemas/enums. Define canonical representation + alias map.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Domain Model", "sessions": "2", "units": [
+    {"id": "P0-U01", "title": "Inventory shared entities across 4 pillars", "effort": 60, "dependencies": []},
+    {"id": "P0-U02", "title": "Identify conflicting schemas, enums, field names", "effort": 50, "dependencies": ["P0-U01"]},
+    {"id": "P0-U03", "title": "Define canonical representation + compatibility map", "effort": 60, "dependencies": ["P0-U02"]}
+  ]}],
+  "dependencies": ["EIGC-MS6"],
+  "exit_conditions": ["4 flagship pillars can reference same manufacturing entities without hidden schema drift"]
+}

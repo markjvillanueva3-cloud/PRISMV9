@@ -1,0 +1,5547 @@
+{
+  "metadata": {
+    "controller_family": "FANUC",
+    "version": "4.0.0-VERIFIED",
+    "created": "2026-01-28T09:04:48.059860",
+    "total_alarms": 369,
+    "status": "VERIFIED_ONLY",
+    "stripped_generic": 1148
+  },
+  "alarms": [
+    {
+      "alarm_id": "ALM-FAN-0000",
+      "code": "0000",
+      "name": "PLEASE TURN OFF POWER",
+      "category": "PROGRAM",
+      "severity": "CRITICAL",
+      "description": "Parameter change requires power cycle",
+      "causes": [
+        "Parameter change requires power cycle"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0001",
+      "code": "0001",
+      "name": "TH PARITY ALARM",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Tape reader parity error detected",
+      "causes": [
+        "Tape reader parity error detected"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0002",
+      "code": "0002",
+      "name": "TV PARITY ALARM",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "TV check error in program block",
+      "causes": [
+        "TV check error in program block"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0003",
+      "code": "0003",
+      "name": "TOO MANY DIGITS",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Excessive digits in data word",
+      "causes": [
+        "Excessive digits in data word"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0004",
+      "code": "0004",
+      "name": "ADDRESS NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Block missing address letter",
+      "causes": [
+        "Block missing address letter"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0005",
+      "code": "0005",
+      "name": "NO DATA AFTER ADDRESS",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Missing numeric value after address",
+      "causes": [
+        "Missing numeric value after address"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0006",
+      "code": "0006",
+      "name": "ILLEGAL NEGATIVE VALUE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Negative sign not allowed here",
+      "causes": [
+        "Negative sign not allowed here"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0007",
+      "code": "0007",
+      "name": "ILLEGAL DECIMAL POINT",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Decimal point not allowed",
+      "causes": [
+        "Decimal point not allowed"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0009",
+      "code": "0009",
+      "name": "ILLEGAL ADDRESS SPECIFIED",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Invalid address character used",
+      "causes": [
+        "Invalid address character used"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0010",
+      "code": "0010",
+      "name": "IMPROPER G-CODE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "G code not supported or invalid",
+      "causes": [
+        "G code not supported or invalid"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0011",
+      "code": "0011",
+      "name": "FEEDRATE NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "No feedrate for cutting move",
+      "causes": [
+        "No feedrate for cutting move"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0012",
+      "code": "0012",
+      "name": "FEEDRATE VALUE ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Feedrate out of valid range",
+      "causes": [
+        "Feedrate out of valid range"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0013",
+      "code": "0013",
+      "name": "SPINDLE SPEED NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Missing S word for operation",
+      "causes": [
+        "Missing S word for operation"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0014",
+      "code": "0014",
+      "name": "IMPROPER G51 COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Scaling command format error",
+      "causes": [
+        "Scaling command format error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0015",
+      "code": "0015",
+      "name": "TOO MANY AXES COMMANDED",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Exceeded simultaneous axis limit",
+      "causes": [
+        "Exceeded simultaneous axis limit"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0017",
+      "code": "0017",
+      "name": "OUT OF MOVING RANGE",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Position beyond software limits",
+      "causes": [
+        "Position beyond software limits"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0019",
+      "code": "0019",
+      "name": "SPINDLE MODE ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Invalid spindle mode selection",
+      "causes": [
+        "Invalid spindle mode selection"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0020",
+      "code": "0020",
+      "name": "MISSING COORDINATE WORD",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Required X/Y/Z not specified",
+      "causes": [
+        "Required X/Y/Z not specified"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0021",
+      "code": "0021",
+      "name": "NO REFERENCE POINT",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Machine not homed for G28",
+      "causes": [
+        "Machine not homed for G28"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0023",
+      "code": "0023",
+      "name": "PLANE SELECT ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Invalid plane selection",
+      "causes": [
+        "Invalid plane selection"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0024",
+      "code": "0024",
+      "name": "MOTION IN SAME BLOCK AS PLANE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "G17/18/19 with movement",
+      "causes": [
+        "G17/18/19 with movement"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0025",
+      "code": "0025",
+      "name": "SPINDLE RPM ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "RPM out of valid range",
+      "causes": [
+        "RPM out of valid range"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0026",
+      "code": "0026",
+      "name": "DRILLING AXIS ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Invalid drilling axis specified",
+      "causes": [
+        "Invalid drilling axis specified"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0027",
+      "code": "0027",
+      "name": "G43/G44 AXIS ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Tool length comp axis error",
+      "causes": [
+        "Tool length comp axis error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0028",
+      "code": "0028",
+      "name": "PLANE DATA ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Invalid plane definition data",
+      "causes": [
+        "Invalid plane definition data"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0029",
+      "code": "0029",
+      "name": "ILLEGAL TOOL OFFSET",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "H or D number out of range",
+      "causes": [
+        "H or D number out of range"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0030",
+      "code": "0030",
+      "name": "ILLEGAL P VALUE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "P parameter out of range",
+      "causes": [
+        "P parameter out of range"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0031",
+      "code": "0031",
+      "name": "ILLEGAL Q VALUE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Q parameter out of range",
+      "causes": [
+        "Q parameter out of range"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0032",
+      "code": "0032",
+      "name": "MISSING L VALUE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "L parameter required",
+      "causes": [
+        "L parameter required"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0033",
+      "code": "0033",
+      "name": "NO SOLUTION FOR CUTTER COMP",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Impossible geometry with comp",
+      "causes": [
+        "Impossible geometry with comp"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0034",
+      "code": "0034",
+      "name": "NO INTERSECTION AT START",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Cutter comp startup error",
+      "causes": [
+        "Cutter comp startup error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0035",
+      "code": "0035",
+      "name": "NO INTERSECTION AT END",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Cutter comp cancel error",
+      "causes": [
+        "Cutter comp cancel error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0036",
+      "code": "0036",
+      "name": "ARC ENDPOINT ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Arc geometry calculation error",
+      "causes": [
+        "Arc geometry calculation error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0037",
+      "code": "0037",
+      "name": "NO SOLUTION FOR ARC",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Cannot compute valid arc",
+      "causes": [
+        "Cannot compute valid arc"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0038",
+      "code": "0038",
+      "name": "G39 ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Corner rounding parameter error",
+      "causes": [
+        "Corner rounding parameter error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0039",
+      "code": "0039",
+      "name": "INTERFERENCE CUTTER COMP",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Compensation causes interference",
+      "causes": [
+        "Compensation causes interference"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0040",
+      "code": "0040",
+      "name": "CUTTER COMP START ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Cannot initiate compensation",
+      "causes": [
+        "Cannot initiate compensation"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0041",
+      "code": "0041",
+      "name": "NC AND PMC COMMAND COLLISION",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Conflicting NC/PLC commands",
+      "causes": [
+        "Conflicting NC/PLC commands"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0044",
+      "code": "0044",
+      "name": "THREAD LEAD ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Invalid thread lead value",
+      "causes": [
+        "Invalid thread lead value"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0045",
+      "code": "0045",
+      "name": "THREAD CUTTING AXIS ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Wrong axis for threading",
+      "causes": [
+        "Wrong axis for threading"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0046",
+      "code": "0046",
+      "name": "G96/G97 ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Constant surface speed error",
+      "causes": [
+        "Constant surface speed error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0047",
+      "code": "0047",
+      "name": "G96/G97 SPINDLE ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "CSS spindle configuration error",
+      "causes": [
+        "CSS spindle configuration error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0050",
+      "code": "0050",
+      "name": "IMPROPER G27 COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "G27 format error",
+      "causes": [
+        "G27 format error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0051",
+      "code": "0051",
+      "name": "G27 POSITION ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Not at reference position",
+      "causes": [
+        "Not at reference position"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0052",
+      "code": "0052",
+      "name": "IMPROPER G53 COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "G53 machine coord error",
+      "causes": [
+        "G53 machine coord error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0053",
+      "code": "0053",
+      "name": "IMPROPER MACRO COMMAND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Custom macro syntax error",
+      "causes": [
+        "Custom macro syntax error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0054",
+      "code": "0054",
+      "name": "WRONG FORMAT IN MACRO",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Macro format incorrect",
+      "causes": [
+        "Macro format incorrect"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0055",
+      "code": "0055",
+      "name": "MISSING ARGUMENT IN MACRO",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Required macro arg missing",
+      "causes": [
+        "Required macro arg missing"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0056",
+      "code": "0056",
+      "name": "IMPROPER CALL IN MACRO",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Invalid G65/G66 usage",
+      "causes": [
+        "Invalid G65/G66 usage"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0059",
+      "code": "0059",
+      "name": "IMPROPER G10 COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Data setting command error",
+      "causes": [
+        "Data setting command error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0060",
+      "code": "0060",
+      "name": "SEQUENCE NUMBER ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "N number error",
+      "causes": [
+        "N number error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0062",
+      "code": "0062",
+      "name": "IMPROPER MIRROR IMAGE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Mirror command error",
+      "causes": [
+        "Mirror command error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0070",
+      "code": "0070",
+      "name": "DATA PROTECTED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Memory write protected",
+      "causes": [
+        "Memory write protected"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0071",
+      "code": "0071",
+      "name": "DATA OVERFLOW",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Program memory full",
+      "causes": [
+        "Program memory full"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0072",
+      "code": "0072",
+      "name": "PROGRAM NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Called O number not in memory",
+      "causes": [
+        "Called O number not in memory"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0073",
+      "code": "0073",
+      "name": "SEQUENCE NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "N number not found",
+      "causes": [
+        "N number not found"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0074",
+      "code": "0074",
+      "name": "PROGRAM NUMBER ALREADY EXISTS",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Duplicate O number",
+      "causes": [
+        "Duplicate O number"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0076",
+      "code": "0076",
+      "name": "MACRO VARIABLE READ ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Cannot read variable",
+      "causes": [
+        "Cannot read variable"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0077",
+      "code": "0077",
+      "name": "MACRO VARIABLE WRITE ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Cannot write variable",
+      "causes": [
+        "Cannot write variable"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0085",
+      "code": "0085",
+      "name": "COMMUNICATION ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "RS232 communication fault",
+      "causes": [
+        "RS232 communication fault"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0086",
+      "code": "0086",
+      "name": "BUFFER OVERFLOW RS232",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "RS232 buffer overflow",
+      "causes": [
+        "RS232 buffer overflow"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0087",
+      "code": "0087",
+      "name": "FRAMING ERROR RS232",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "RS232 framing error",
+      "causes": [
+        "RS232 framing error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0089",
+      "code": "0089",
+      "name": "FLOPPY DISK ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Disk read/write error",
+      "causes": [
+        "Disk read/write error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0090",
+      "code": "0090",
+      "name": "FILE NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Requested file missing",
+      "causes": [
+        "Requested file missing"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0094",
+      "code": "0094",
+      "name": "CIRCULAR INTERPOLATION ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Arc type error",
+      "causes": [
+        "Arc type error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0101",
+      "code": "0101",
+      "name": "PARAMETER WRITE ENABLED",
+      "category": "PROGRAM",
+      "severity": "INFO",
+      "description": "Key switch in edit position",
+      "causes": [
+        "Key switch in edit position"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0102",
+      "code": "0102",
+      "name": "PARAMETER PROTECTED",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Cannot modify parameters",
+      "causes": [
+        "Cannot modify parameters"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0109",
+      "code": "0109",
+      "name": "EXCESSIVE CHAMFER",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Chamfer size too large",
+      "causes": [
+        "Chamfer size too large"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0110",
+      "code": "0110",
+      "name": "CORNER R TOO LARGE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Corner radius exceeds geometry",
+      "causes": [
+        "Corner radius exceeds geometry"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0111",
+      "code": "0111",
+      "name": "NO STRAIGHT LINE BEFORE ARC",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Arc start point error",
+      "causes": [
+        "Arc start point error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0112",
+      "code": "0112",
+      "name": "CONTINUOUS ARC ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Arc sequence error",
+      "causes": [
+        "Arc sequence error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0113",
+      "code": "0113",
+      "name": "NO ARC INTERSECTION",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Arcs do not intersect",
+      "causes": [
+        "Arcs do not intersect"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0115",
+      "code": "0115",
+      "name": "IMPROPER G02/G03",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Circular interpolation error",
+      "causes": [
+        "Circular interpolation error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0116",
+      "code": "0116",
+      "name": "NO PLANE SELECTED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Plane not defined for arc",
+      "causes": [
+        "Plane not defined for arc"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0118",
+      "code": "0118",
+      "name": "MULTIPLE RIGID TAPPING",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Simultaneous tapping error",
+      "causes": [
+        "Simultaneous tapping error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0120",
+      "code": "0120",
+      "name": "TOOL MANAGEMENT ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Tool data management fault",
+      "causes": [
+        "Tool data management fault"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0122",
+      "code": "0122",
+      "name": "TOOL NOT REGISTERED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Tool not in management list",
+      "causes": [
+        "Tool not in management list"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0124",
+      "code": "0124",
+      "name": "TOO MANY TOOLS",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Tool limit exceeded",
+      "causes": [
+        "Tool limit exceeded"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0126",
+      "code": "0126",
+      "name": "TOOL LIFE EXPIRED",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Tool wear limit reached",
+      "causes": [
+        "Tool wear limit reached"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0127",
+      "code": "0127",
+      "name": "TOOL MONITORING ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Tool monitor system fault",
+      "causes": [
+        "Tool monitor system fault"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0128",
+      "code": "0128",
+      "name": "SPINDLE POSITIONING ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Orientation failed",
+      "causes": [
+        "Orientation failed"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0129",
+      "code": "0129",
+      "name": "THREAD RETRACT ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Thread retraction failed",
+      "causes": [
+        "Thread retraction failed"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0130",
+      "code": "0130",
+      "name": "ATC ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Automatic tool change error",
+      "causes": [
+        "Automatic tool change error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0131",
+      "code": "0131",
+      "name": "TURRET INDEX ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Turret positioning fault",
+      "causes": [
+        "Turret positioning fault"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0132",
+      "code": "0132",
+      "name": "PALLET CHANGE ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Pallet changer fault",
+      "causes": [
+        "Pallet changer fault"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0135",
+      "code": "0135",
+      "name": "AXIS DATA ERROR",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "Axis configuration error",
+      "causes": [
+        "Axis configuration error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0136",
+      "code": "0136",
+      "name": "ILLEGAL AXIS NAME",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Invalid axis designation",
+      "causes": [
+        "Invalid axis designation"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0141",
+      "code": "0141",
+      "name": "CANNED CYCLE ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Fixed cycle error",
+      "causes": [
+        "Fixed cycle error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0142",
+      "code": "0142",
+      "name": "DRILLING DEPTH ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Invalid drilling depth",
+      "causes": [
+        "Invalid drilling depth"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0143",
+      "code": "0143",
+      "name": "DWELL TIME ERROR",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "Invalid dwell specification",
+      "causes": [
+        "Invalid dwell specification"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0144",
+      "code": "0144",
+      "name": "R PLANE ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Invalid R plane level",
+      "causes": [
+        "Invalid R plane level"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0149",
+      "code": "0149",
+      "name": "SPINDLE FUNCTION ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Spindle M/S code error",
+      "causes": [
+        "Spindle M/S code error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0150",
+      "code": "0150",
+      "name": "COORDINATE SYSTEM ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "G54-G59 error",
+      "causes": [
+        "G54-G59 error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0151",
+      "code": "0151",
+      "name": "WORK OFFSET ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Work coordinate error",
+      "causes": [
+        "Work coordinate error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0152",
+      "code": "0152",
+      "name": "TOOL LENGTH OFFSET ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "TLO calculation error",
+      "causes": [
+        "TLO calculation error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0155",
+      "code": "0155",
+      "name": "ILLEGAL P COMMAND",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "P format error",
+      "causes": [
+        "P format error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0156",
+      "code": "0156",
+      "name": "SUBPROGRAM NOT FOUND",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "M98 target not found",
+      "causes": [
+        "M98 target not found"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0157",
+      "code": "0157",
+      "name": "SUBPROGRAM NESTING ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Too many nested calls",
+      "causes": [
+        "Too many nested calls"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0158",
+      "code": "0158",
+      "name": "ILLEGAL M98/M99",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Subprogram call error",
+      "causes": [
+        "Subprogram call error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0159",
+      "code": "0159",
+      "name": "MACRO NESTING ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Macro call depth exceeded",
+      "causes": [
+        "Macro call depth exceeded"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0160",
+      "code": "0160",
+      "name": "ILLEGAL NC STATEMENT",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Invalid NC statement",
+      "causes": [
+        "Invalid NC statement"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0161",
+      "code": "0161",
+      "name": "IMPROPER P TYPE",
+      "category": "PROGRAM",
+      "severity": "LOW",
+      "description": "P type specification error",
+      "causes": [
+        "P type specification error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0162",
+      "code": "0162",
+      "name": "M CODE NOT ALLOWED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "M code prohibited here",
+      "causes": [
+        "M code prohibited here"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0170",
+      "code": "0170",
+      "name": "VARIABLE OUT OF RANGE",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Variable number invalid",
+      "causes": [
+        "Variable number invalid"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0175",
+      "code": "0175",
+      "name": "G CODE NOT ALLOWED",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "G code prohibited here",
+      "causes": [
+        "G code prohibited here"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0190",
+      "code": "0190",
+      "name": "ILLEGAL FORMAT",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Statement format error",
+      "causes": [
+        "Statement format error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0194",
+      "code": "0194",
+      "name": "CONTROL AXIS ERROR",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "Controlled axis error",
+      "causes": [
+        "Controlled axis error"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0197",
+      "code": "0197",
+      "name": "IMPROPER G-CODE GROUP",
+      "category": "PROGRAM",
+      "severity": "MEDIUM",
+      "description": "G code group conflict",
+      "causes": [
+        "G code group conflict"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-0199",
+      "code": "0199",
+      "name": "EXTERNAL ALARM",
+      "category": "PROGRAM",
+      "severity": "HIGH",
+      "description": "External alarm input active",
+      "causes": [
+        "External alarm input active"
+      ],
+      "quick_fix": "Check program syntax and parameters",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV400",
+      "code": "SV400",
+      "name": "SERVO ALARM: OVERLOAD",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo motor overload detected",
+      "causes": [
+        "Servo motor overload detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV401",
+      "code": "SV401",
+      "name": "SERVO ALARM: VRDY OFF",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo amplifier ready signal lost",
+      "causes": [
+        "Servo amplifier ready signal lost"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV402",
+      "code": "SV402",
+      "name": "SERVO ALARM: AXIS 3-4 OVERLOAD",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Axis 3-4 overload detected",
+      "causes": [
+        "Axis 3-4 overload detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV403",
+      "code": "SV403",
+      "name": "SERVO ALARM: AXIS 3-4 VRDY OFF",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Axis 3-4 ready signal lost",
+      "causes": [
+        "Axis 3-4 ready signal lost"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV404",
+      "code": "SV404",
+      "name": "SERVO ALARM: VRDY STILL ON",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Ready signal should be off",
+      "causes": [
+        "Ready signal should be off"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV405",
+      "code": "SV405",
+      "name": "SERVO ALARM: ZERO RETURN FAULT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Reference return position error",
+      "causes": [
+        "Reference return position error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV406",
+      "code": "SV406",
+      "name": "SERVO ALARM: ABNORMAL",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo system abnormality",
+      "causes": [
+        "Servo system abnormality"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV407",
+      "code": "SV407",
+      "name": "SERVO ALARM: EXCESS SYNC ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Synchronization error exceeded",
+      "causes": [
+        "Synchronization error exceeded"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV408",
+      "code": "SV408",
+      "name": "SERVO ALARM: DISCONNECTED",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo communication lost",
+      "causes": [
+        "Servo communication lost"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV409",
+      "code": "SV409",
+      "name": "SERVO ALARM: TORQUE",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Excessive torque detected",
+      "causes": [
+        "Excessive torque detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV410",
+      "code": "SV410",
+      "name": "SERVO ALARM: EXCESS ERROR STOP",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Position error at stop too large",
+      "causes": [
+        "Position error at stop too large"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV411",
+      "code": "SV411",
+      "name": "SERVO ALARM: EXCESS ERROR MOVE",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Position error while moving too large",
+      "causes": [
+        "Position error while moving too large"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV412",
+      "code": "SV412",
+      "name": "SERVO ALARM: EXCESSIVE HEAT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Servo motor overheated",
+      "causes": [
+        "Servo motor overheated"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV413",
+      "code": "SV413",
+      "name": "SERVO ALARM: DIGITAL LSI",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Digital servo LSI communication error",
+      "causes": [
+        "Digital servo LSI communication error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV414",
+      "code": "SV414",
+      "name": "SERVO ALARM: DIGITAL SOFTWARE",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Servo software error",
+      "causes": [
+        "Servo software error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV415",
+      "code": "SV415",
+      "name": "SERVO ALARM: POSITION SWITCH",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Position switch error",
+      "causes": [
+        "Position switch error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV416",
+      "code": "SV416",
+      "name": "SERVO ALARM: CURRENT ERROR",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Abnormal current detected",
+      "causes": [
+        "Abnormal current detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV417",
+      "code": "SV417",
+      "name": "SERVO ALARM: VOLTAGE ERROR",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Abnormal voltage detected",
+      "causes": [
+        "Abnormal voltage detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV418",
+      "code": "SV418",
+      "name": "SERVO ALARM: CURRENT FEEDBACK",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Current feedback error",
+      "causes": [
+        "Current feedback error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV419",
+      "code": "SV419",
+      "name": "SERVO ALARM: SPEED FEEDBACK",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Speed feedback error",
+      "causes": [
+        "Speed feedback error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV420",
+      "code": "SV420",
+      "name": "SERVO ALARM: SYNC MOTOR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Synchronous motor error",
+      "causes": [
+        "Synchronous motor error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV421",
+      "code": "SV421",
+      "name": "SERVO ALARM: MOTOR OVERHEAT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Motor temperature too high",
+      "causes": [
+        "Motor temperature too high"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV422",
+      "code": "SV422",
+      "name": "SERVO ALARM: ENCODER ERROR",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Encoder fault detected",
+      "causes": [
+        "Encoder fault detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV423",
+      "code": "SV423",
+      "name": "SERVO ALARM: ENCODER BATTERY",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Encoder battery voltage low",
+      "causes": [
+        "Encoder battery voltage low"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV424",
+      "code": "SV424",
+      "name": "SERVO ALARM: ENCODER COMMUNICATION",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Encoder comm error",
+      "causes": [
+        "Encoder comm error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV425",
+      "code": "SV425",
+      "name": "SERVO ALARM: ENCODER DATA",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Encoder data error",
+      "causes": [
+        "Encoder data error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV430",
+      "code": "SV430",
+      "name": "SERVO ALARM: N-TH AXIS ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Axis N servo error",
+      "causes": [
+        "Axis N servo error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV431",
+      "code": "SV431",
+      "name": "SERVO ALARM: PARAMETER ERROR",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Servo parameter invalid",
+      "causes": [
+        "Servo parameter invalid"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV432",
+      "code": "SV432",
+      "name": "SERVO ALARM: LINEAR SCALE ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Linear scale fault",
+      "causes": [
+        "Linear scale fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV433",
+      "code": "SV433",
+      "name": "SERVO ALARM: MOTOR ID MISMATCH",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Motor ID does not match",
+      "causes": [
+        "Motor ID does not match"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV434",
+      "code": "SV434",
+      "name": "SERVO ALARM: EXCESS VELOCITY",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Velocity limit exceeded",
+      "causes": [
+        "Velocity limit exceeded"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV435",
+      "code": "SV435",
+      "name": "SERVO ALARM: ACCELERATION ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Acceleration error",
+      "causes": [
+        "Acceleration error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV436",
+      "code": "SV436",
+      "name": "SERVO ALARM: SOFT DISCONNECT",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Soft disconnection",
+      "causes": [
+        "Soft disconnection"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV437",
+      "code": "SV437",
+      "name": "SERVO ALARM: HARD DISCONNECT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Hard disconnection",
+      "causes": [
+        "Hard disconnection"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV440",
+      "code": "SV440",
+      "name": "SERVO ALARM: EGB INTERFACE",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "EGB communication error",
+      "causes": [
+        "EGB communication error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV441",
+      "code": "SV441",
+      "name": "SERVO ALARM: SERIAL PULSE CODER",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "SPC fault",
+      "causes": [
+        "SPC fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV442",
+      "code": "SV442",
+      "name": "SERVO ALARM: APC ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Absolute pulse coder error",
+      "causes": [
+        "Absolute pulse coder error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV443",
+      "code": "SV443",
+      "name": "SERVO ALARM: POSITION CODER",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Position coder fault",
+      "causes": [
+        "Position coder fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV444",
+      "code": "SV444",
+      "name": "SERVO ALARM: EXCESSIVE DEVIATION",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Large position deviation",
+      "causes": [
+        "Large position deviation"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV445",
+      "code": "SV445",
+      "name": "SERVO ALARM: COLLISION DETECTION",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Collision detected",
+      "causes": [
+        "Collision detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV446",
+      "code": "SV446",
+      "name": "SERVO ALARM: GAIN ERROR",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Servo gain mismatch",
+      "causes": [
+        "Servo gain mismatch"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV447",
+      "code": "SV447",
+      "name": "SERVO ALARM: BRAKE ABNORMAL",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Motor brake fault",
+      "causes": [
+        "Motor brake fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV448",
+      "code": "SV448",
+      "name": "SERVO ALARM: MOTOR TYPE MISMATCH",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Wrong motor type",
+      "causes": [
+        "Wrong motor type"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV449",
+      "code": "SV449",
+      "name": "SERVO ALARM: FSSB ALARM",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "FSSB communication error",
+      "causes": [
+        "FSSB communication error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV450",
+      "code": "SV450",
+      "name": "SERVO ALARM: FSSB DISCONNECT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "FSSB link lost",
+      "causes": [
+        "FSSB link lost"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV451",
+      "code": "SV451",
+      "name": "SERVO ALARM: FSSB CONFIG",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "FSSB configuration error",
+      "causes": [
+        "FSSB configuration error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV456",
+      "code": "SV456",
+      "name": "SERVO ALARM: FSSB AXIS CONFIG",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "FSSB axis config error",
+      "causes": [
+        "FSSB axis config error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV458",
+      "code": "SV458",
+      "name": "SERVO ALARM: AMP DISCONNECT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Amplifier disconnected",
+      "causes": [
+        "Amplifier disconnected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV459",
+      "code": "SV459",
+      "name": "SERVO ALARM: TANDEM CONTROL",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Tandem axis error",
+      "causes": [
+        "Tandem axis error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV460",
+      "code": "SV460",
+      "name": "SERVO ALARM: RIGID TAP",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Rigid tapping error",
+      "causes": [
+        "Rigid tapping error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV462",
+      "code": "SV462",
+      "name": "SERVO ALARM: GANTRY AXIS",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Gantry axis error",
+      "causes": [
+        "Gantry axis error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV464",
+      "code": "SV464",
+      "name": "SERVO ALARM: POSITION LSI",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Position LSI error",
+      "causes": [
+        "Position LSI error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV465",
+      "code": "SV465",
+      "name": "SERVO ALARM: POSITION DATA",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Position data error",
+      "causes": [
+        "Position data error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV466",
+      "code": "SV466",
+      "name": "SERVO ALARM: AMP OVERHEAT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Amplifier overheated",
+      "causes": [
+        "Amplifier overheated"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV467",
+      "code": "SV467",
+      "name": "SERVO ALARM: AMP FAULT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Amplifier fault",
+      "causes": [
+        "Amplifier fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV468",
+      "code": "SV468",
+      "name": "SERVO ALARM: CURRENT DETECT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Current detection error",
+      "causes": [
+        "Current detection error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV469",
+      "code": "SV469",
+      "name": "SERVO ALARM: SPEED DETECT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Speed detection error",
+      "causes": [
+        "Speed detection error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV470",
+      "code": "SV470",
+      "name": "SERVO ALARM: MOTOR UNBALANCED",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Motor imbalance detected",
+      "causes": [
+        "Motor imbalance detected"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV471",
+      "code": "SV471",
+      "name": "SERVO ALARM: EXCESS CURRENT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Overcurrent condition",
+      "causes": [
+        "Overcurrent condition"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV472",
+      "code": "SV472",
+      "name": "SERVO ALARM: IPM FAULT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "IPM module fault",
+      "causes": [
+        "IPM module fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV473",
+      "code": "SV473",
+      "name": "SERVO ALARM: GATE DRIVER",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Gate driver fault",
+      "causes": [
+        "Gate driver fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV474",
+      "code": "SV474",
+      "name": "SERVO ALARM: OVERCURRENT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo overcurrent",
+      "causes": [
+        "Servo overcurrent"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV475",
+      "code": "SV475",
+      "name": "SERVO ALARM: OVERVOLTAGE",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo overvoltage",
+      "causes": [
+        "Servo overvoltage"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV476",
+      "code": "SV476",
+      "name": "SERVO ALARM: UNDERVOLTAGE",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Servo undervoltage",
+      "causes": [
+        "Servo undervoltage"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV477",
+      "code": "SV477",
+      "name": "SERVO ALARM: DC LINK",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "DC link error",
+      "causes": [
+        "DC link error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV478",
+      "code": "SV478",
+      "name": "SERVO ALARM: MOTOR OVERLOAD",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Motor overload condition",
+      "causes": [
+        "Motor overload condition"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV479",
+      "code": "SV479",
+      "name": "SERVO ALARM: IPM MODULE",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "IPM module error",
+      "causes": [
+        "IPM module error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV480",
+      "code": "SV480",
+      "name": "SERVO ALARM: REGEN FAULT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Regenerative circuit fault",
+      "causes": [
+        "Regenerative circuit fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV481",
+      "code": "SV481",
+      "name": "SERVO ALARM: REGEN RESISTOR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Regen resistor fault",
+      "causes": [
+        "Regen resistor fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV482",
+      "code": "SV482",
+      "name": "SERVO ALARM: REGEN OVERLOAD",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Regen overload",
+      "causes": [
+        "Regen overload"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV483",
+      "code": "SV483",
+      "name": "SERVO ALARM: PSU FAULT",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Power supply fault",
+      "causes": [
+        "Power supply fault"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV484",
+      "code": "SV484",
+      "name": "SERVO ALARM: PSU UNDERVOLT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "PSU undervoltage",
+      "causes": [
+        "PSU undervoltage"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV485",
+      "code": "SV485",
+      "name": "SERVO ALARM: FSSB ERROR",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "FSSB line error",
+      "causes": [
+        "FSSB line error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV486",
+      "code": "SV486",
+      "name": "SERVO ALARM: FSSB TIMEOUT",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "FSSB timeout",
+      "causes": [
+        "FSSB timeout"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV490",
+      "code": "SV490",
+      "name": "SERVO ALARM: OVERRUN",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Position overrun",
+      "causes": [
+        "Position overrun"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV491",
+      "code": "SV491",
+      "name": "SERVO ALARM: DRDY SIGNAL",
+      "category": "SERVO",
+      "severity": "CRITICAL",
+      "description": "Drive ready signal error",
+      "causes": [
+        "Drive ready signal error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV492",
+      "code": "SV492",
+      "name": "SERVO ALARM: MCON SIGNAL",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "MCON signal error",
+      "causes": [
+        "MCON signal error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV493",
+      "code": "SV493",
+      "name": "SERVO ALARM: RESET INCOMPLETE",
+      "category": "SERVO",
+      "severity": "MEDIUM",
+      "description": "Reset not completed",
+      "causes": [
+        "Reset not completed"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV494",
+      "code": "SV494",
+      "name": "SERVO ALARM: AXIS CARD",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Axis card error",
+      "causes": [
+        "Axis card error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SV495",
+      "code": "SV495",
+      "name": "SERVO ALARM: OPTICAL COMM",
+      "category": "SERVO",
+      "severity": "HIGH",
+      "description": "Optical communication error",
+      "causes": [
+        "Optical communication error"
+      ],
+      "quick_fix": "Check servo system and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP700",
+      "code": "SP700",
+      "name": "SPINDLE ALARM: OVERLOAD",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Spindle motor overload",
+      "causes": [
+        "Spindle motor overload"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP701",
+      "code": "SP701",
+      "name": "SPINDLE ALARM: VRDY OFF",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Spindle ready signal lost",
+      "causes": [
+        "Spindle ready signal lost"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP702",
+      "code": "SP702",
+      "name": "SPINDLE ALARM: SPEED ARRIVAL",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "description": "Target speed not reached",
+      "causes": [
+        "Target speed not reached"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP703",
+      "code": "SP703",
+      "name": "SPINDLE ALARM: ORIENT ERROR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Spindle orientation failed",
+      "causes": [
+        "Spindle orientation failed"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP704",
+      "code": "SP704",
+      "name": "SPINDLE ALARM: POSITION ERROR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Spindle position error",
+      "causes": [
+        "Spindle position error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP705",
+      "code": "SP705",
+      "name": "SPINDLE ALARM: SPEED FLUCTUATION",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "description": "Speed unstable",
+      "causes": [
+        "Speed unstable"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP706",
+      "code": "SP706",
+      "name": "SPINDLE ALARM: PARAMETER ERROR",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "description": "Spindle parameter wrong",
+      "causes": [
+        "Spindle parameter wrong"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP707",
+      "code": "SP707",
+      "name": "SPINDLE ALARM: MOTOR OVERHEAT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Motor temperature high",
+      "causes": [
+        "Motor temperature high"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP708",
+      "code": "SP708",
+      "name": "SPINDLE ALARM: MOTOR ID",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "description": "Motor ID error",
+      "causes": [
+        "Motor ID error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP709",
+      "code": "SP709",
+      "name": "SPINDLE ALARM: ROTATION SENSOR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Rotation sensor error",
+      "causes": [
+        "Rotation sensor error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP710",
+      "code": "SP710",
+      "name": "SPINDLE ALARM: DISCONNECTED",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Communication lost",
+      "causes": [
+        "Communication lost"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP711",
+      "code": "SP711",
+      "name": "SPINDLE ALARM: EXCESSIVE SPEED",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Speed exceeded limit",
+      "causes": [
+        "Speed exceeded limit"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP712",
+      "code": "SP712",
+      "name": "SPINDLE ALARM: GEAR SHIFT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Gear shift error",
+      "causes": [
+        "Gear shift error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP713",
+      "code": "SP713",
+      "name": "SPINDLE ALARM: CSS ERROR",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "description": "Constant surface speed error",
+      "causes": [
+        "Constant surface speed error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP714",
+      "code": "SP714",
+      "name": "SPINDLE ALARM: SYNCHRONOUS",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Sync control error",
+      "causes": [
+        "Sync control error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP715",
+      "code": "SP715",
+      "name": "SPINDLE ALARM: CONVERTER",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Converter fault",
+      "causes": [
+        "Converter fault"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP716",
+      "code": "SP716",
+      "name": "SPINDLE ALARM: OVERCURRENT",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Overcurrent detected",
+      "causes": [
+        "Overcurrent detected"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP717",
+      "code": "SP717",
+      "name": "SPINDLE ALARM: OVERVOLTAGE",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Overvoltage detected",
+      "causes": [
+        "Overvoltage detected"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP718",
+      "code": "SP718",
+      "name": "SPINDLE ALARM: UNDERVOLTAGE",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Undervoltage detected",
+      "causes": [
+        "Undervoltage detected"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP719",
+      "code": "SP719",
+      "name": "SPINDLE ALARM: BRAKE ERROR",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "Brake malfunction",
+      "causes": [
+        "Brake malfunction"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP720",
+      "code": "SP720",
+      "name": "SPINDLE ALARM: AMP OVERHEAT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Amplifier overheated",
+      "causes": [
+        "Amplifier overheated"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP721",
+      "code": "SP721",
+      "name": "SPINDLE ALARM: IPM FAULT",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "IPM module error",
+      "causes": [
+        "IPM module error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP722",
+      "code": "SP722",
+      "name": "SPINDLE ALARM: ENCODER ERROR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Encoder fault",
+      "causes": [
+        "Encoder fault"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP723",
+      "code": "SP723",
+      "name": "SPINDLE ALARM: ENCODER BATTERY",
+      "category": "SPINDLE",
+      "severity": "MEDIUM",
+      "description": "Battery voltage low",
+      "causes": [
+        "Battery voltage low"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP724",
+      "code": "SP724",
+      "name": "SPINDLE ALARM: CURRENT DETECT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Current detection error",
+      "causes": [
+        "Current detection error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP725",
+      "code": "SP725",
+      "name": "SPINDLE ALARM: FEEDBACK ERROR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Feedback signal error",
+      "causes": [
+        "Feedback signal error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP726",
+      "code": "SP726",
+      "name": "SPINDLE ALARM: COMM ERROR",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Communication error",
+      "causes": [
+        "Communication error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP730",
+      "code": "SP730",
+      "name": "SPINDLE ALARM: RIGID TAP",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Rigid tapping error",
+      "causes": [
+        "Rigid tapping error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP731",
+      "code": "SP731",
+      "name": "SPINDLE ALARM: SYNC CONTROL",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Synchronous control error",
+      "causes": [
+        "Synchronous control error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP732",
+      "code": "SP732",
+      "name": "SPINDLE ALARM: C-AXIS",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "C-axis mode error",
+      "causes": [
+        "C-axis mode error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP733",
+      "code": "SP733",
+      "name": "SPINDLE ALARM: POSITIONING",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Positioning mode error",
+      "causes": [
+        "Positioning mode error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP740",
+      "code": "SP740",
+      "name": "SPINDLE ALARM: EMERGENCY STOP",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "E-stop activated",
+      "causes": [
+        "E-stop activated"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP741",
+      "code": "SP741",
+      "name": "SPINDLE ALARM: EXTERNAL FAULT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "External fault signal",
+      "causes": [
+        "External fault signal"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP742",
+      "code": "SP742",
+      "name": "SPINDLE ALARM: COOLING FAULT",
+      "category": "SPINDLE",
+      "severity": "HIGH",
+      "description": "Cooling system error",
+      "causes": [
+        "Cooling system error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP749",
+      "code": "SP749",
+      "name": "SPINDLE ALARM: SYSTEM ERROR",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "System-level error",
+      "causes": [
+        "System-level error"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SP750",
+      "code": "SP750",
+      "name": "SPINDLE ALARM: CPU ERROR",
+      "category": "SPINDLE",
+      "severity": "CRITICAL",
+      "description": "CPU fault",
+      "causes": [
+        "CPU fault"
+      ],
+      "quick_fix": "Check spindle system",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT500",
+      "code": "OT500",
+      "name": "OVERTRAVEL: +X",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "X axis positive limit exceeded",
+      "causes": [
+        "X axis positive limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT501",
+      "code": "OT501",
+      "name": "OVERTRAVEL: -X",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "X axis negative limit exceeded",
+      "causes": [
+        "X axis negative limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT502",
+      "code": "OT502",
+      "name": "OVERTRAVEL: +Y",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Y axis positive limit exceeded",
+      "causes": [
+        "Y axis positive limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT503",
+      "code": "OT503",
+      "name": "OVERTRAVEL: -Y",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Y axis negative limit exceeded",
+      "causes": [
+        "Y axis negative limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT504",
+      "code": "OT504",
+      "name": "OVERTRAVEL: +Z",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Z axis positive limit exceeded",
+      "causes": [
+        "Z axis positive limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT505",
+      "code": "OT505",
+      "name": "OVERTRAVEL: -Z",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Z axis negative limit exceeded",
+      "causes": [
+        "Z axis negative limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT506",
+      "code": "OT506",
+      "name": "OVERTRAVEL: +A",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "A axis positive limit exceeded",
+      "causes": [
+        "A axis positive limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT507",
+      "code": "OT507",
+      "name": "OVERTRAVEL: -A",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "A axis negative limit exceeded",
+      "causes": [
+        "A axis negative limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT508",
+      "code": "OT508",
+      "name": "OVERTRAVEL: +B",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "B axis positive limit exceeded",
+      "causes": [
+        "B axis positive limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT509",
+      "code": "OT509",
+      "name": "OVERTRAVEL: -B",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "B axis negative limit exceeded",
+      "causes": [
+        "B axis negative limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT510",
+      "code": "OT510",
+      "name": "OVERTRAVEL: +C",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "C axis positive limit exceeded",
+      "causes": [
+        "C axis positive limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT511",
+      "code": "OT511",
+      "name": "OVERTRAVEL: -C",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "C axis negative limit exceeded",
+      "causes": [
+        "C axis negative limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT512",
+      "code": "OT512",
+      "name": "SOFT LIMIT: +X",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "X axis software limit",
+      "causes": [
+        "X axis software limit"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT513",
+      "code": "OT513",
+      "name": "SOFT LIMIT: -X",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "X axis software limit",
+      "causes": [
+        "X axis software limit"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT514",
+      "code": "OT514",
+      "name": "SOFT LIMIT: +Y",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Y axis software limit",
+      "causes": [
+        "Y axis software limit"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT515",
+      "code": "OT515",
+      "name": "SOFT LIMIT: -Y",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Y axis software limit",
+      "causes": [
+        "Y axis software limit"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT516",
+      "code": "OT516",
+      "name": "SOFT LIMIT: +Z",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Z axis software limit",
+      "causes": [
+        "Z axis software limit"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT517",
+      "code": "OT517",
+      "name": "SOFT LIMIT: -Z",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Z axis software limit",
+      "causes": [
+        "Z axis software limit"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OT520",
+      "code": "OT520",
+      "name": "STORED STROKE LIMIT",
+      "category": "OVERTRAVEL",
+      "severity": "CRITICAL",
+      "description": "Stored stroke limit exceeded",
+      "causes": [
+        "Stored stroke limit exceeded"
+      ],
+      "quick_fix": "Jog axis within limits, check work offset",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH700",
+      "code": "OH700",
+      "name": "OVERHEAT: SPINDLE MOTOR",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Spindle motor temperature too high",
+      "causes": [
+        "Spindle motor temperature too high"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH701",
+      "code": "OH701",
+      "name": "OVERHEAT: SERVO MOTOR X",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "X axis motor overheated",
+      "causes": [
+        "X axis motor overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH702",
+      "code": "OH702",
+      "name": "OVERHEAT: SERVO MOTOR Y",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Y axis motor overheated",
+      "causes": [
+        "Y axis motor overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH703",
+      "code": "OH703",
+      "name": "OVERHEAT: SERVO MOTOR Z",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Z axis motor overheated",
+      "causes": [
+        "Z axis motor overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH704",
+      "code": "OH704",
+      "name": "OVERHEAT: SPINDLE AMP",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Spindle amplifier overheated",
+      "causes": [
+        "Spindle amplifier overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH705",
+      "code": "OH705",
+      "name": "OVERHEAT: SERVO AMP",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Servo amplifier overheated",
+      "causes": [
+        "Servo amplifier overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH706",
+      "code": "OH706",
+      "name": "OVERHEAT: PSU",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Power supply overheated",
+      "causes": [
+        "Power supply overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH707",
+      "code": "OH707",
+      "name": "OVERHEAT: COOLANT",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Coolant temperature too high",
+      "causes": [
+        "Coolant temperature too high"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH708",
+      "code": "OH708",
+      "name": "OVERHEAT: HYDRAULIC OIL",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Hydraulic oil temperature high",
+      "causes": [
+        "Hydraulic oil temperature high"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-OH709",
+      "code": "OH709",
+      "name": "OVERHEAT: CONTROL UNIT",
+      "category": "OVERHEAT",
+      "severity": "HIGH",
+      "description": "Control unit overheated",
+      "causes": [
+        "Control unit overheated"
+      ],
+      "quick_fix": "Allow cooling, check ventilation and coolant",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS900",
+      "code": "SYS900",
+      "name": "SYSTEM: ROM PARITY",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "ROM checksum error",
+      "causes": [
+        "ROM checksum error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS901",
+      "code": "SYS901",
+      "name": "SYSTEM: RAM PARITY",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "RAM parity error",
+      "causes": [
+        "RAM parity error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS910",
+      "code": "SYS910",
+      "name": "SYSTEM: DRAM ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Dynamic RAM fault",
+      "causes": [
+        "Dynamic RAM fault"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS911",
+      "code": "SYS911",
+      "name": "SYSTEM: SRAM ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Static RAM fault",
+      "causes": [
+        "Static RAM fault"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS912",
+      "code": "SYS912",
+      "name": "SYSTEM: NV-RAM ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Non-volatile RAM error",
+      "causes": [
+        "Non-volatile RAM error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS913",
+      "code": "SYS913",
+      "name": "SYSTEM: PMC ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "PMC system error",
+      "causes": [
+        "PMC system error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS914",
+      "code": "SYS914",
+      "name": "SYSTEM: FSSB ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "FSSB system fault",
+      "causes": [
+        "FSSB system fault"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS915",
+      "code": "SYS915",
+      "name": "SYSTEM: CNC CPU ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "CNC CPU fault",
+      "causes": [
+        "CNC CPU fault"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS920",
+      "code": "SYS920",
+      "name": "SYSTEM: WATCHDOG",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Watchdog timer expired",
+      "causes": [
+        "Watchdog timer expired"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS921",
+      "code": "SYS921",
+      "name": "SYSTEM: PMC WATCHDOG",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "PMC watchdog error",
+      "causes": [
+        "PMC watchdog error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS926",
+      "code": "SYS926",
+      "name": "SYSTEM: FSSB DISCONNECT",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "FSSB link disconnected",
+      "causes": [
+        "FSSB link disconnected"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS927",
+      "code": "SYS927",
+      "name": "SYSTEM: SERVO FSSB",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Servo FSSB error",
+      "causes": [
+        "Servo FSSB error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS930",
+      "code": "SYS930",
+      "name": "SYSTEM: CPU INTERRUPT",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "CPU interrupt exception",
+      "causes": [
+        "CPU interrupt exception"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS931",
+      "code": "SYS931",
+      "name": "SYSTEM: NMI",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Non-maskable interrupt",
+      "causes": [
+        "Non-maskable interrupt"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS935",
+      "code": "SYS935",
+      "name": "SYSTEM: MACRO EXECUTOR",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Macro executor error",
+      "causes": [
+        "Macro executor error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS936",
+      "code": "SYS936",
+      "name": "SYSTEM: PMC EXECUTOR",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "PMC executor error",
+      "causes": [
+        "PMC executor error"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS940",
+      "code": "SYS940",
+      "name": "SYSTEM: BATTERY ALARM",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Backup battery low",
+      "causes": [
+        "Backup battery low"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS941",
+      "code": "SYS941",
+      "name": "SYSTEM: BATTERY ZERO",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Battery depleted",
+      "causes": [
+        "Battery depleted"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS942",
+      "code": "SYS942",
+      "name": "SYSTEM: ENCODER BATTERY",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "Encoder battery low",
+      "causes": [
+        "Encoder battery low"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS950",
+      "code": "SYS950",
+      "name": "SYSTEM: PMC COMM ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "PMC communication fault",
+      "causes": [
+        "PMC communication fault"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS951",
+      "code": "SYS951",
+      "name": "SYSTEM: PMC TIMEOUT",
+      "category": "SYSTEM",
+      "severity": "HIGH",
+      "description": "PMC timeout",
+      "causes": [
+        "PMC timeout"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS960",
+      "code": "SYS960",
+      "name": "SYSTEM: NMI OCCURRED",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "NMI occurred",
+      "causes": [
+        "NMI occurred"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS970",
+      "code": "SYS970",
+      "name": "SYSTEM: SOFTWARE ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Software exception",
+      "causes": [
+        "Software exception"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS971",
+      "code": "SYS971",
+      "name": "SYSTEM: ILLEGAL EXCEPTION",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Illegal exception",
+      "causes": [
+        "Illegal exception"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS972",
+      "code": "SYS972",
+      "name": "SYSTEM: NMI EXTERNAL",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "External NMI",
+      "causes": [
+        "External NMI"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS973",
+      "code": "SYS973",
+      "name": "SYSTEM: NMI BUS ERROR",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Bus error NMI",
+      "causes": [
+        "Bus error NMI"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS974",
+      "code": "SYS974",
+      "name": "SYSTEM: NMI MEMORY",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Memory NMI",
+      "causes": [
+        "Memory NMI"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS975",
+      "code": "SYS975",
+      "name": "SYSTEM: CPU EXCEPTION",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "CPU exception",
+      "causes": [
+        "CPU exception"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS976",
+      "code": "SYS976",
+      "name": "SYSTEM: MEMORY EXCEPTION",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Memory exception",
+      "causes": [
+        "Memory exception"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS998",
+      "code": "SYS998",
+      "name": "SYSTEM: SHUTDOWN",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "System shutdown",
+      "causes": [
+        "System shutdown"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-SYS999",
+      "code": "SYS999",
+      "name": "SYSTEM: RESTART REQUIRED",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "System restart needed",
+      "causes": [
+        "System restart needed"
+      ],
+      "quick_fix": "Power cycle, contact service if persists",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2000",
+      "code": "2000",
+      "name": "ATC: ARM ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool changer arm malfunction",
+      "causes": [
+        "Tool changer arm malfunction"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2001",
+      "code": "2001",
+      "name": "ATC: MAGAZINE ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Magazine rotation error",
+      "causes": [
+        "Magazine rotation error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2002",
+      "code": "2002",
+      "name": "ATC: POT POSITION ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool pot position wrong",
+      "causes": [
+        "Tool pot position wrong"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2003",
+      "code": "2003",
+      "name": "ATC: TOOL UNCLAMP ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool unclamp failure",
+      "causes": [
+        "Tool unclamp failure"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2004",
+      "code": "2004",
+      "name": "ATC: TOOL CLAMP ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool clamp failure",
+      "causes": [
+        "Tool clamp failure"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2005",
+      "code": "2005",
+      "name": "ATC: ARM FORWARD ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Arm forward motion error",
+      "causes": [
+        "Arm forward motion error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2006",
+      "code": "2006",
+      "name": "ATC: ARM RETURN ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Arm return motion error",
+      "causes": [
+        "Arm return motion error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2007",
+      "code": "2007",
+      "name": "ATC: ARM ROTATE ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Arm rotation error",
+      "causes": [
+        "Arm rotation error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2008",
+      "code": "2008",
+      "name": "ATC: TIMEOUT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC operation timeout",
+      "causes": [
+        "ATC operation timeout"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2009",
+      "code": "2009",
+      "name": "ATC: INTERFERENCE",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC interference detected",
+      "causes": [
+        "ATC interference detected"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2010",
+      "code": "2010",
+      "name": "ATC: DOOR ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC door error",
+      "causes": [
+        "ATC door error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2011",
+      "code": "2011",
+      "name": "ATC: TOOL MISSING",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Expected tool not found",
+      "causes": [
+        "Expected tool not found"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2012",
+      "code": "2012",
+      "name": "ATC: TOOL DOUBLE",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool in multiple locations",
+      "causes": [
+        "Tool in multiple locations"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2013",
+      "code": "2013",
+      "name": "ATC: SPINDLE ORIENT",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Spindle not oriented for TC",
+      "causes": [
+        "Spindle not oriented for TC"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2014",
+      "code": "2014",
+      "name": "ATC: AXIS POSITION",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Axis not in TC position",
+      "causes": [
+        "Axis not in TC position"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2015",
+      "code": "2015",
+      "name": "ATC: SENSOR ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC sensor malfunction",
+      "causes": [
+        "ATC sensor malfunction"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2016",
+      "code": "2016",
+      "name": "ATC: AIR PRESSURE",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Insufficient air pressure",
+      "causes": [
+        "Insufficient air pressure"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2017",
+      "code": "2017",
+      "name": "ATC: HYDRAULIC",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Hydraulic system error",
+      "causes": [
+        "Hydraulic system error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2018",
+      "code": "2018",
+      "name": "ATC: SEQUENCE ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC sequence error",
+      "causes": [
+        "ATC sequence error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2019",
+      "code": "2019",
+      "name": "ATC: MOTOR ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC motor error",
+      "causes": [
+        "ATC motor error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2020",
+      "code": "2020",
+      "name": "ATC: CLUTCH ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "ATC clutch error",
+      "causes": [
+        "ATC clutch error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2021",
+      "code": "2021",
+      "name": "ATC: GRIPPER ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool gripper error",
+      "causes": [
+        "Tool gripper error"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2022",
+      "code": "2022",
+      "name": "ATC: MAGAZINE FULL",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Magazine full",
+      "causes": [
+        "Magazine full"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2023",
+      "code": "2023",
+      "name": "ATC: MAGAZINE EMPTY",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "No tools in magazine",
+      "causes": [
+        "No tools in magazine"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2024",
+      "code": "2024",
+      "name": "ATC: TOOL DATA ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Tool data mismatch",
+      "causes": [
+        "Tool data mismatch"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-2025",
+      "code": "2025",
+      "name": "ATC: DRAWBAR ERROR",
+      "category": "ATC",
+      "severity": "HIGH",
+      "description": "Drawbar malfunction",
+      "causes": [
+        "Drawbar malfunction"
+      ],
+      "quick_fix": "Check ATC mechanism and sensors",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC600",
+      "code": "PMC600",
+      "name": "PMC: LADDER ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PLC ladder program error",
+      "causes": [
+        "PLC ladder program error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC601",
+      "code": "PMC601",
+      "name": "PMC: WATCHDOG",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC watchdog timeout",
+      "causes": [
+        "PMC watchdog timeout"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC602",
+      "code": "PMC602",
+      "name": "PMC: SEQUENCE ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC sequence error",
+      "causes": [
+        "PMC sequence error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC603",
+      "code": "PMC603",
+      "name": "PMC: COMMUNICATION",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC communication error",
+      "causes": [
+        "PMC communication error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC604",
+      "code": "PMC604",
+      "name": "PMC: MEMORY ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC memory fault",
+      "causes": [
+        "PMC memory fault"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC605",
+      "code": "PMC605",
+      "name": "PMC: I/O ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC I/O error",
+      "causes": [
+        "PMC I/O error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC606",
+      "code": "PMC606",
+      "name": "PMC: DI ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Digital input error",
+      "causes": [
+        "Digital input error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC607",
+      "code": "PMC607",
+      "name": "PMC: DO ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Digital output error",
+      "causes": [
+        "Digital output error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC608",
+      "code": "PMC608",
+      "name": "PMC: AI ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Analog input error",
+      "causes": [
+        "Analog input error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC609",
+      "code": "PMC609",
+      "name": "PMC: AO ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Analog output error",
+      "causes": [
+        "Analog output error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC610",
+      "code": "PMC610",
+      "name": "PMC: RELAY ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Relay fault",
+      "causes": [
+        "Relay fault"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC611",
+      "code": "PMC611",
+      "name": "PMC: TIMER ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Timer fault",
+      "causes": [
+        "Timer fault"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC612",
+      "code": "PMC612",
+      "name": "PMC: COUNTER ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Counter fault",
+      "causes": [
+        "Counter fault"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC613",
+      "code": "PMC613",
+      "name": "PMC: DATA ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC data error",
+      "causes": [
+        "PMC data error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC614",
+      "code": "PMC614",
+      "name": "PMC: PARAMETER ERROR",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "PMC parameter error",
+      "causes": [
+        "PMC parameter error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC620",
+      "code": "PMC620",
+      "name": "PMC: SAFETY",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Safety circuit error",
+      "causes": [
+        "Safety circuit error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC621",
+      "code": "PMC621",
+      "name": "PMC: INTERLOCK",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Interlock error",
+      "causes": [
+        "Interlock error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC622",
+      "code": "PMC622",
+      "name": "PMC: DOOR SWITCH",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "Door switch error",
+      "causes": [
+        "Door switch error"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-PMC623",
+      "code": "PMC623",
+      "name": "PMC: E-STOP",
+      "category": "PMC",
+      "severity": "HIGH",
+      "description": "E-stop active",
+      "causes": [
+        "E-stop active"
+      ],
+      "quick_fix": "Check PLC program and I/O",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8000",
+      "code": "8000",
+      "name": "POWER: MAIN FAULT",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Main power error",
+      "causes": [
+        "Main power error"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8001",
+      "code": "8001",
+      "name": "POWER: UNDERVOLTAGE",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Input undervoltage",
+      "causes": [
+        "Input undervoltage"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8002",
+      "code": "8002",
+      "name": "POWER: OVERVOLTAGE",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Input overvoltage",
+      "causes": [
+        "Input overvoltage"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8003",
+      "code": "8003",
+      "name": "POWER: PHASE ERROR",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Phase sequence error",
+      "causes": [
+        "Phase sequence error"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8004",
+      "code": "8004",
+      "name": "POWER: DC BUS FAULT",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "DC bus fault",
+      "causes": [
+        "DC bus fault"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8005",
+      "code": "8005",
+      "name": "POWER: CHARGING ERROR",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Capacitor charge error",
+      "causes": [
+        "Capacitor charge error"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8006",
+      "code": "8006",
+      "name": "POWER: REGEN RESISTOR",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Regen resistor fault",
+      "causes": [
+        "Regen resistor fault"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8007",
+      "code": "8007",
+      "name": "POWER: FAN FAULT",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Cooling fan failure",
+      "causes": [
+        "Cooling fan failure"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8008",
+      "code": "8008",
+      "name": "POWER: FUSE BLOWN",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Fuse blown",
+      "causes": [
+        "Fuse blown"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8009",
+      "code": "8009",
+      "name": "POWER: BREAKER TRIPPED",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Circuit breaker tripped",
+      "causes": [
+        "Circuit breaker tripped"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8010",
+      "code": "8010",
+      "name": "POWER: PSU ALARM",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "Power supply alarm",
+      "causes": [
+        "Power supply alarm"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8011",
+      "code": "8011",
+      "name": "POWER: PSU OVERHEAT",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "PSU overheated",
+      "causes": [
+        "PSU overheated"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8012",
+      "code": "8012",
+      "name": "POWER: DC LINK HIGH",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "DC link voltage high",
+      "causes": [
+        "DC link voltage high"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-8013",
+      "code": "8013",
+      "name": "POWER: DC LINK LOW",
+      "category": "POWER",
+      "severity": "CRITICAL",
+      "description": "DC link voltage low",
+      "causes": [
+        "DC link voltage low"
+      ],
+      "quick_fix": "Check power supply and connections",
+      "requires_power_cycle": true,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC360",
+      "code": "ENC360",
+      "name": "ENCODER: X-AXIS ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "X encoder error",
+      "causes": [
+        "X encoder error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC361",
+      "code": "ENC361",
+      "name": "ENCODER: Y-AXIS ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Y encoder error",
+      "causes": [
+        "Y encoder error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC362",
+      "code": "ENC362",
+      "name": "ENCODER: Z-AXIS ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Z encoder error",
+      "causes": [
+        "Z encoder error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC363",
+      "code": "ENC363",
+      "name": "ENCODER: A-AXIS ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "A encoder error",
+      "causes": [
+        "A encoder error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC364",
+      "code": "ENC364",
+      "name": "ENCODER: B-AXIS ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "B encoder error",
+      "causes": [
+        "B encoder error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC365",
+      "code": "ENC365",
+      "name": "ENCODER: C-AXIS ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "C encoder error",
+      "causes": [
+        "C encoder error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC366",
+      "code": "ENC366",
+      "name": "ENCODER: BATTERY X",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "X encoder battery",
+      "causes": [
+        "X encoder battery"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC367",
+      "code": "ENC367",
+      "name": "ENCODER: BATTERY Y",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Y encoder battery",
+      "causes": [
+        "Y encoder battery"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC368",
+      "code": "ENC368",
+      "name": "ENCODER: BATTERY Z",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Z encoder battery",
+      "causes": [
+        "Z encoder battery"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC370",
+      "code": "ENC370",
+      "name": "ENCODER: COMMUNICATION",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Encoder comm error",
+      "causes": [
+        "Encoder comm error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC371",
+      "code": "ENC371",
+      "name": "ENCODER: DATA ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Encoder data error",
+      "causes": [
+        "Encoder data error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC372",
+      "code": "ENC372",
+      "name": "ENCODER: PULSE ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Encoder pulse error",
+      "causes": [
+        "Encoder pulse error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC373",
+      "code": "ENC373",
+      "name": "ENCODER: PHASE ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Encoder phase error",
+      "causes": [
+        "Encoder phase error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-ENC374",
+      "code": "ENC374",
+      "name": "ENCODER: COUNT ERROR",
+      "category": "ENCODER",
+      "severity": "HIGH",
+      "description": "Encoder count error",
+      "causes": [
+        "Encoder count error"
+      ],
+      "quick_fix": "Check encoder and cables",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3000",
+      "code": "3000",
+      "name": "MACRO: UNDEFINED VARIABLE",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Variable not defined",
+      "causes": [
+        "Variable not defined"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3001",
+      "code": "3001",
+      "name": "MACRO: DIVISION BY ZERO",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Division by zero attempted",
+      "causes": [
+        "Division by zero attempted"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3002",
+      "code": "3002",
+      "name": "MACRO: OVERFLOW",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Arithmetic overflow",
+      "causes": [
+        "Arithmetic overflow"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3003",
+      "code": "3003",
+      "name": "MACRO: SQRT NEGATIVE",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Square root of negative",
+      "causes": [
+        "Square root of negative"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3004",
+      "code": "3004",
+      "name": "MACRO: ILLEGAL OPERATION",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Illegal operation",
+      "causes": [
+        "Illegal operation"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3005",
+      "code": "3005",
+      "name": "MACRO: ARGUMENT ERROR",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Argument out of range",
+      "causes": [
+        "Argument out of range"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3006",
+      "code": "3006",
+      "name": "MACRO: NESTING ERROR",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Nesting level exceeded",
+      "causes": [
+        "Nesting level exceeded"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3007",
+      "code": "3007",
+      "name": "MACRO: BRANCH ERROR",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Branch target error",
+      "causes": [
+        "Branch target error"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3008",
+      "code": "3008",
+      "name": "MACRO: LOOP ERROR",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Loop structure error",
+      "causes": [
+        "Loop structure error"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3009",
+      "code": "3009",
+      "name": "MACRO: RETURN ERROR",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Return without call",
+      "causes": [
+        "Return without call"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    },
+    {
+      "alarm_id": "ALM-FAN-3010",
+      "code": "3010",
+      "name": "MACRO: VARIABLE LIMIT",
+      "category": "MACRO",
+      "severity": "MEDIUM",
+      "description": "Variable limit reached",
+      "causes": [
+        "Variable limit reached"
+      ],
+      "quick_fix": "Debug macro program",
+      "requires_power_cycle": false,
+      "confidence": "VERIFIED",
+      "data_source": "manufacturer_documentation"
+    }
+  ]
+}

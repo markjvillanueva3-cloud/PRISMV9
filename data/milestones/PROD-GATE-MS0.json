@@ -1,0 +1,35 @@
+{
+  "id": "PROD-GATE-MS0",
+  "version": "1.0.0",
+  "title": "Unified Production Gate: Ship-Readiness for 4 Flagship Pillars",
+  "brief": "Single production gate that consumes outputs of EIGC, MXU, and ACP tracks. Validates: all 4 flagship pillars pass golden-path E2E, support matrix is truthful, automation chains are stable, memory/continuity is reliable, and cross-pillar workflows complete without degraded-but-hidden failures. Replaces the 3 separate gate milestones (EIGC-MS11, MXU-MS11, ACP-MS8) to prevent contradictory gate checks.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "PROD",
+  "track_name": "Production Readiness",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Gate Validation",
+      "sessions": "2-3",
+      "units": [
+        {"id": "P0-U01", "title": "Verify EIGC support matrix is complete and truthful", "effort": 50, "dependencies": []},
+        {"id": "P0-U02", "title": "Verify MXU activation matrix — >=90% product-critical engines active", "effort": 50, "dependencies": []},
+        {"id": "P0-U03", "title": "Verify ACP automation chains fire, downgrade cleanly, and survive compaction", "effort": 60, "dependencies": []},
+        {"id": "P0-U04", "title": "Run cross-pillar golden-path: quote->calculate->plan->post->ERP", "effort": 80, "dependencies": ["P0-U01", "P0-U02", "P0-U03"]},
+        {"id": "P0-U05", "title": "Verify production governance: lint, build, tests, audit scripts all pass", "effort": 50, "dependencies": ["P0-U04"]},
+        {"id": "P0-U06", "title": "Lock release gate matrix and production governance checklist", "effort": 40, "dependencies": ["P0-U05"]}
+      ]
+    }
+  ],
+  "dependencies": ["EIGC-MS10", "MXU-MS10", "ACP-MS7"],
+  "exit_conditions": [
+    "All 4 flagship pillars pass golden-path E2E",
+    "Support matrix truthful — no overclaimed capabilities",
+    "Automation chains stable and compaction-safe",
+    "Cross-pillar workflow completes without hidden degradation",
+    "Release gate matrix locked"
+  ],
+  "notes": "Unified gate replacing EIGC-MS11, MXU-MS11, ACP-MS8 to prevent contradictory gate checks"
+}

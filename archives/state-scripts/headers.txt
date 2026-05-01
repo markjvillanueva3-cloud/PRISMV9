@@ -1,0 +1,82 @@
+L6: # Status: in-progress | Sessions: 2-3 more | MS: 12 (MS0-MS10, MS10 optional) | Role: Data Architect
+L8: <!-- LOADER: SKIP TO LINE 170 for active milestones. MS0-MS4 complete (lines 1-169 are reference). -->
+L10: # v14.2: Added MS4.5 (Data Validation Pipeline â€” SA Audit Finding 5),
+L11: #   expanded MS5 (85-param tool holder upgrade â€” Gap 7, TOOL_HOLDER_DATABASE_ROADMAP_v4),
+L12: #   expanded MS8 (formula registry wiring â€” Gap 12, wiring registry protocol),
+L16: #         MS0-MS4 COMPLETE (registry loading + pipeline integration + tool expansion).
+L17: #         MS5-MS9 NEW: Data foundation work merged from Superpower Audit, Database Audit,
+L19: #         MS5 = Tool Schema Normalization (T-0 from Database Audit GAP 2)
+L20: #         MS6 = Material Enrichment Completion (M-0 from Database Audit GAP 1)
+L21: #         MS7 = Machine Field Population (MCH-0 from Database Audit GAP 3)
+L22: #         MS8 = Formula Registry + Dispatcher Wiring (GAPs 4, 6, 7, 10)
+L23: #         MS9 = Quality Metrics + Phase Gate (was original R1-MS5, renumbered)
+L31: #         SOURCE DOCUMENTS for MS5-MS9:
+L32: #           TOOL_EXPANSION_ROADMAP.md â€” detailed tool schema spec (load during R1-MS5 ONLY)
+L33: #           PRISM_DATABASE_AUDIT_AND_ROADMAP.md â€” registry gap analysis (load during R1-MS6/MS7)
+L53: ENV:        R1 = Claude Code 80% + MCP 20%. Haikuâ†’Sonnetâ†’Opus. Parallel: MS5+MS6+MS7.
+L59: BRANCH 2 (Data Taxonomy): MS5 builds tool taxonomy, MS6 material taxonomy, MS7 machine taxonomy.
+L60: â†’ Output: DATA_TAXONOMY.json sections for tools, materials, machines at MS9 gate.
+L64: AT MS9 GATE: Verify DATA_TAXONOMY.json has entries for all enriched registries.
+L76: - MS5 (tool normalization), MS6 (material enrichment), MS7 (machine population)
+L78: - MS8 (formula classification of 162 zero-coverage formulas) â†’ fan across 5 subagents
+L84: - Opus ONLY for the 85-param tool holder schema design decision (R1-MS5)
+L86: PARALLEL WORKTREE MERGE PROTOCOL (for MS5+MS6+MS7 concurrent execution):
+L91: MERGE ORDER: MS5 first (touches ToolRegistry.ts), then MS6 (MaterialRegistry.ts),
+L92: then MS7 (MachineRegistry.ts). These are independent file sets â€” no conflicts expected.
+L113: PART 1 (MS0-MS4 âœ…): Load DATA into the wiring P0 fixed. Materials 3518+ (127 params each),
+L116: PART 2 (MS5-MS9 NEW): Make data APP-READY. Normalize tool schema + build ToolIndex.
+L157: WHEN: After R1-MS1 material loading is working (need a baseline to break). âœ… BASELINE EXISTS
+L165: EFFORT: ~5 calls. Run during R1-MS9 (phase gate â€” natural place for stress testing).
+L173: ## COMPLETED MILESTONES (MS0-MS4) â€” Reference Only
+L178: ### R1-MS0: Registry Audit âœ… COMPLETE (2026-02-14)
+L183: ### R1-MS1: Material Loading âœ… COMPLETE (2026-02-15)
+L189: ### R1-MS1.5: Formula Validation âœ… COMPLETE
+L193: ### R1-MS2: Machine/Tool/Alarm Loading âœ… COMPLETE (2026-02-15)
+L196: R1-MS2b: V3 3D model database (225 machines in .js format) converted to JSON.
+L200: ### R1-MS3: Data Pipeline Integration âœ… COMPLETE
+L204: ### R1-MS4: Coverage Audit + Tool Expansion âœ… COMPLETE (2026-02-15)
+L209: REGISTRY TOTALS POST-MS4:
+L215: <!-- LOADER: SKIP TO HERE â€” MS0-MS4 complete. Content above is reference only. -->
+L219: ## NEW MILESTONES (MS4.5-MS9) â€” Data Foundation
+L224: ## R1-MS4.5: DATA VALIDATION PIPELINE â† NEW in v14.2
+L231: **Entry:** R1-MS4 COMPLETE. All registries loaded but data quality unverified.
+L303: "R1-MS4.5 DATA VALIDATION PIPELINE COMPLETE [date]
+L312: ## R1-MS5: Tool Schema Normalization + ToolIndex (T-0) â€” EXPANDED in v14.2
+L321: **Entry:** R1-MS4 COMPLETE. 5,238 tools on disk across 14 JSON files.
+L584: Build + validate 85-param schema with DataValidationEngine from MS4.5.
+L591: "R1-MS5 TOOL NORMALIZATION COMPLETE [date]
+L598: "R1-MS5 COMPLETE [date] â€” Tool schema normalization + ToolIndex + tool_facets"
+L601: "CURRENT: R1-MS6 | LAST_COMPLETE: R1-MS5 [date] | PHASE: R1 in-progress"
+L612: ## R1-MS6: Material Enrichment Completion (M-0)
+L621: **Entry:** R1-MS5 COMPLETE.
+L824: ## R1-MS7: Machine Field Population (MCH-0)
+L833: **Entry:** R1-MS6 COMPLETE (or can run PARALLEL with MS6 â€” independent data targets)
+L842: **NOTE:** This MS can run in the same session as MS6 if context budget allows.
+L843: MS6 modifies material data, MS7 modifies machine data â€” zero overlap.
+L966: KNOWN ISSUE FROM R1-MS2b: MachineRegistry needed a fix for {metadata, machines:[...]} wrapper.
+L1009: ## R1-MS8: Formula Registry + Dispatcher Wiring
+L1016: **Entry:** R1-MS5 COMPLETE (ToolIndex exists â€” needed for tool_recommend in unified search).
+L1017: MS6 and MS7 can be in-progress or complete â€” this MS is independent of enrichment data.
+L1396: **FORMULA COVERAGE CLASSIFICATION (mandatory, part of R1-MS8):**
+L1418: ## R1-MS9: Quality Metrics + Phase Gate
+L1422: **Source:** Original R1-MS5 (renumbered) + fault injection test
+L1425: **Entry:** R1-MS5 through R1-MS8 ALL COMPLETE.
+L1471: â†’ Machine constraints must be non-null (power, RPM from MS7).
+L1472: â†’ Tool recommendations should use indexed tools (from MS5).
+L1495: 13. Append ROADMAP_TRACKER: "R1-MS9 COMPLETE [date] â€” PHASE R1 COMPLETE"
+L1497: "CURRENT: R2-MS0 | LAST_COMPLETE: R1-MS9 [date] | PHASE: R2 not-started"
+L1518: ## R1-MS9.5: WIRING VERIFICATION AUDIT (v15.0)
+L1532: - Data validation pipeline (MS4.5) is called by material_get/machine_get actions
+L1543: Output: append findings to R1_WIRING_AUDIT.md → feed as dependencies into R2-MS0
+L1550: ## R1-MS10: Registry Optimization (Optional â€” if session budget allows)
+L1555: **Entry:** R1-MS9 COMPLETE. Only if remaining session budget >15K tokens.
+L1575: ## R1 COMPANION ASSETS (v14.5 -- built per-MS, verified at R1-MS9 gate)
+L1578: ### PER-MS COMPANION SCHEDULE:
+L1580: MS4.5 PRODUCES: data_validation_gate hook (build during MS4.5)
+L1581: MS5 PRODUCES: tool_schema_completeness hook + prism-data-diagnostics skill
+L1582: MS6 PRODUCES: material_enrichment_validate hook
+L1583: MS7 PRODUCES: (none -- data loading only)
+L1584: MS8 PRODUCES: formula_registry_consistency hook
+L1585: MS9 GATE VERIFIES:
+L1591: ## R1 COMPANION ASSETS DETAIL (v14.2 â€” build AFTER R1-MS9 gate passes)
+L1599: material_enrichment_validate â€” blocking, post-merge during MS6. Blocks if enrichment

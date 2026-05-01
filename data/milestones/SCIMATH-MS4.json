@@ -1,0 +1,43 @@
+{
+  "id": "SCIMATH-MS4",
+  "version": "1.0.0",
+  "title": "CAD Mathematical Enhancement",
+  "brief": "B-spline optimization, geodesic distance, Monte Carlo tolerance stack, DFM Bayesian learning, Lie group SE(3), dual quaternions, ICP alignment, differential geometry toolpaths.",
+  "track": "SCIMATH",
+  "created_at": "2026-04-01T14:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "not_started",
+  "total_units": 15,
+  "completed_units": 0,
+  "dependencies": ["SCIMATH-MS0", "SCIMATH-MS1"],
+  "phases": [
+    {"id": "P0", "title": "Surface Optimization", "units": [
+      {"id": "P0-U01", "title": "BSplineOptimizationEngine — fitting, knot optimization, fairness", "status": "not_started"},
+      {"id": "P0-U02", "title": "GeodesicDistanceEngine — MMP/fast marching on meshes", "status": "not_started"},
+      {"id": "P0-U03", "title": "CurvatureFlowEngine — mean curvature smoothing + classification", "status": "not_started"},
+      {"id": "P0-U04", "title": "MinimalSurfaceEngine — lightweight AM lattice design", "status": "not_started"}
+    ]},
+    {"id": "P1", "title": "Tolerance & DFM Enhancement", "units": [
+      {"id": "P1-U01", "title": "MonteCarloToleranceStackEngine — correlated sampling + Cpk prediction", "status": "not_started"},
+      {"id": "P1-U02", "title": "DFMBayesianLearningEngine — learn DFM rules from production data", "status": "not_started"},
+      {"id": "P1-U03", "title": "GeometricTolerancingEngine — full GD&T analysis (MMC/LMC/bonus)", "status": "not_started"},
+      {"id": "P1-U04", "title": "StatisticalToleranceAllocationEngine — cost-optimal allocation", "status": "not_started"}
+    ]},
+    {"id": "P2", "title": "Rigid Body & Lie Group Geometry", "units": [
+      {"id": "P2-U01", "title": "LieGroupSE3Engine — exp/log maps, screw axis, adjoint", "status": "not_started"},
+      {"id": "P2-U02", "title": "DualQuaternionEngine — ScLERP interpolation", "status": "not_started"},
+      {"id": "P2-U03", "title": "FrameAlignmentEngine — ICP + RANSAC + SVD Procrustes", "status": "not_started"},
+      {"id": "P2-U04", "title": "DifferentialGeometryToolpathEngine — parallel transport on surfaces", "status": "not_started"}
+    ]},
+    {"id": "P3", "title": "Dispatcher & Validation", "units": [
+      {"id": "P3-U01", "title": "CADMathDispatcherActions — 16 actions wired", "status": "not_started"},
+      {"id": "P3-U02", "title": "CADMathTestSuite — 35 cases", "status": "not_started"},
+      {"id": "P3-U03", "title": "FormulaRegistryUpdate_CADMath", "status": "not_started"}
+    ]}
+  ],
+  "forge_triple": {
+    "hook": "enforce-geodesic-5axis",
+    "action": "scimath_cad_geometry (16 sub-actions)",
+    "skill": "/scimath-cad"
+  }
+}

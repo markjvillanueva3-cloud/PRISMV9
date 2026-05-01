@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-schema-index-v1",
+  "title": "PRISM MCP Schema Index",
+  "description": "Index of all 12 PRISM MCP data schemas",
+  "version": "1.0.0",
+  "created": "2026-01-31T00:15:00Z",
+  "session": "1.2",
+  "schemas": {
+    "data_schemas": [
+      {
+        "name": "material-schema",
+        "file": "material-schema.json",
+        "lines": 210,
+        "purpose": "Complete 127-parameter material definition",
+        "registry": "MaterialRegistry",
+        "tools": ["prism_material_get", "prism_material_search", "prism_material_compare", "prism_material_add", "prism_material_enhance"]
+      },
+      {
+        "name": "machine-schema",
+        "file": "machine-schema.json",
+        "lines": 149,
+        "purpose": "CNC machine specification with kinematics",
+        "registry": "MachineRegistry",
+        "tools": ["prism_machine_get", "prism_machine_search", "prism_machine_add", "prism_machine_enhance"]
+      },
+      {
+        "name": "tool-schema",
+        "file": "tool-schema.json",
+        "lines": 82,
+        "purpose": "Cutting tool specification",
+        "registry": "ToolRegistry",
+        "tools": ["prism_tool_get", "prism_tool_search", "prism_tool_add"]
+      },
+      {
+        "name": "alarm-schema",
+        "file": "alarm-schema.json",
+        "lines": 56,
+        "purpose": "Controller alarm code definition",
+        "registry": "AlarmRegistry",
+        "tools": ["prism_alarm_decode", "prism_alarm_search", "prism_alarm_add"]
+      },
+      {
+        "name": "fixture-schema",
+        "file": "fixture-schema.json",
+        "lines": 63,
+        "purpose": "Workholding and fixture definition",
+        "registry": "FixtureRegistry",
+        "tools": ["prism_fixture_get"]
+      },
+      {
+        "name": "formula-schema",
+        "file": "formula-schema.json",
+        "lines": 82,
+        "purpose": "Manufacturing physics and AI formulas",
+        "registry": "FormulaRegistry",
+        "tools": ["prism_formula_get", "prism_formula_calc"]
+      },
+      {
+        "name": "gcode-schema",
+        "file": "gcode-schema.json",
+        "lines": 47,
+        "purpose": "G-code and M-code reference",
+        "registry": "GCodeRegistry",
+        "tools": ["prism_gcode_lookup"]
+      },
+      {
+        "name": "post-schema",
+        "file": "post-schema.json",
+        "lines": 51,
+        "purpose": "CNC post processor configuration",
+        "registry": "PostRegistry",
+        "tools": ["prism_post_get"]
+      }
+    ],
+    "orchestration_schemas": [
+      {
+        "name": "agent-schema",
+        "file": "agent-schema.json",
+        "lines": 63,
+        "purpose": "AI agent definition for multi-agent orchestration",
+        "registry": "AgentRegistry",
+        "tools": ["prism_agent_list", "prism_agent_invoke", "prism_agent_swarm"]
+      },
+      {
+        "name": "script-schema",
+        "file": "script-schema.json",
+        "lines": 69,
+        "purpose": "Python script metadata for execution",
+        "registry": "ScriptRegistry",
+        "tools": ["prism_script_list", "prism_script_run", "prism_script_status"]
+      },
+      {
+        "name": "hook-schema",
+        "file": "hook-schema.json",
+        "lines": 72,
+        "purpose": "Cognitive hook for AI enhancement",
+        "registry": "HookRegistry",
+        "tools": ["prism_hook_list", "prism_hook_trigger", "prism_safety_check"]
+      },
+      {
+        "name": "workflow-schema",
+        "file": "workflow-schema.json",
+        "lines": 85,
+        "purpose": "Multi-step workflow definition",
+        "registry": "WorkflowRegistry",
+        "tools": ["prism_workflow_start", "prism_workflow_status", "prism_ralph_loop"]
+      }
+    ]
+  },
+  "summary": {
+    "total_schemas": 12,
+    "total_lines": 1029,
+    "data_schemas": 8,
+    "orchestration_schemas": 4,
+    "registries_defined": 12,
+    "mcp_tools_covered": 35
+  },
+  "validation_rules": {
+    "required_fields": "All schemas have required fields enforced",
+    "patterns": "IDs follow strict naming patterns (e.g., ^MCH-[A-Z]+-...)",
+    "enums": "Controlled vocabularies for categorical fields",
+    "ranges": "Numeric fields have min/max constraints where appropriate"
+  },
+  "usage": {
+    "typescript": "import { MaterialSchema } from './schemas/material-schema.json'",
+    "validation": "Use Ajv or similar JSON Schema validator",
+    "generation": "Use json-schema-to-typescript for type generation"
+  }
+}

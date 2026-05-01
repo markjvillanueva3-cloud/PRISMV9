@@ -1,0 +1,99 @@
+{
+  "tree_id": "TT-DIMENSION",
+  "title": "Dimensional Inaccuracy Troubleshooting",
+  "symptom": "Parts not holding dimensional tolerance, consistent oversized or undersized features",
+  "root": {
+    "node_id": "TT-DIMENSION-ROOT",
+    "node_type": "symptom",
+    "text": "Part dimensions are outside tolerance specification",
+    "confidence": 1.0,
+    "children": [
+      {
+        "node_id": "TT-DIMENSION-C1",
+        "node_type": "cause",
+        "text": "Tool offset or work coordinate error",
+        "confidence": 0.85,
+        "children": [
+          {
+            "node_id": "TT-DIMENSION-D1",
+            "node_type": "diagnostic",
+            "text": "Is the error consistent across all features and consistent direction (all oversize or all undersize)?",
+            "confidence": 0.85,
+            "children": [
+              {"node_id": "TT-DIMENSION-S1", "node_type": "solution", "text": "Re-measure tool length offset and verify work coordinate origin", "confidence": 0.9, "children": [], "metadata": {}},
+              {"node_id": "TT-DIMENSION-S2", "node_type": "solution", "text": "Apply tool diameter compensation (G41/G42) correction", "confidence": 0.85, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-DIMENSION-C2",
+        "node_type": "cause",
+        "text": "Thermal drift during machining",
+        "confidence": 0.75,
+        "children": [
+          {
+            "node_id": "TT-DIMENSION-D2",
+            "node_type": "diagnostic",
+            "text": "Do dimensions change from first part to last part in a batch? Are morning parts different from afternoon?",
+            "confidence": 0.75,
+            "children": [
+              {"node_id": "TT-DIMENSION-S3", "node_type": "solution", "text": "Run machine warm-up cycle for 20+ minutes before precision work", "confidence": 0.85, "children": [], "metadata": {}},
+              {"node_id": "TT-DIMENSION-S4", "node_type": "solution", "text": "Re-measure tool offsets after machine is thermally stable", "confidence": 0.8, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-DIMENSION-C3",
+        "node_type": "cause",
+        "text": "Tool deflection under cutting forces",
+        "confidence": 0.7,
+        "children": [
+          {
+            "node_id": "TT-DIMENSION-D3",
+            "node_type": "diagnostic",
+            "text": "Does the error increase with deeper cuts or longer tool stickout? Is the error larger at the bottom of pockets?",
+            "confidence": 0.7,
+            "children": [
+              {"node_id": "TT-DIMENSION-S5", "node_type": "solution", "text": "Reduce depth of cut and/or use shorter, larger diameter tools", "confidence": 0.85, "children": [], "metadata": {}},
+              {"node_id": "TT-DIMENSION-S6", "node_type": "solution", "text": "Add a spring pass (zero-cut) to remove deflection error on finishing", "confidence": 0.8, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      },
+      {
+        "node_id": "TT-DIMENSION-C4",
+        "node_type": "cause",
+        "text": "Machine backlash in one or more axes",
+        "confidence": 0.6,
+        "children": [
+          {
+            "node_id": "TT-DIMENSION-D4",
+            "node_type": "diagnostic",
+            "text": "Does the error change depending on approach direction? Test with dial indicator and direction reversal",
+            "confidence": 0.6,
+            "children": [
+              {"node_id": "TT-DIMENSION-S7", "node_type": "solution", "text": "Verify and update backlash compensation parameters in controller", "confidence": 0.75, "children": [], "metadata": {}},
+              {"node_id": "TT-DIMENSION-S8", "node_type": "solution", "text": "Program approach from one direction only for critical dimensions", "confidence": 0.7, "children": [], "metadata": {}}
+            ],
+            "metadata": {}
+          }
+        ],
+        "metadata": {}
+      }
+    ],
+    "metadata": {}
+  },
+  "material_context": [],
+  "machine_context": ["3-axis_vertical", "5-axis", "lathe"],
+  "source_practice_ids": ["SP-0018"],
+  "created_at": "2026-03-01T22:00:00Z",
+  "tags": ["dimensional", "accuracy", "tolerance", "thermal", "deflection"]
+}

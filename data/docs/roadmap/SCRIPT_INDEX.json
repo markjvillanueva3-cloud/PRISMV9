@@ -1,0 +1,132 @@
+{
+  "scripts": [
+    {
+      "id": "position-validator",
+      "purpose": "Cross-validates CURRENT_POSITION.md against ROADMAP_TRACKER.md",
+      "trigger": "Session start, compaction recovery, before phase gate",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\position-validator.js",
+      "runtime": "node",
+      "parameters": "none",
+      "output": "PASS/FAIL with details",
+      "phases": ["ALL"],
+      "frequency": "every-session"
+    },
+    {
+      "id": "build-section-index",
+      "purpose": "Builds anchor index from phase doc ANCHOR comments",
+      "trigger": "After anchor placement in phase docs",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\build-section-index.ps1",
+      "runtime": "powershell",
+      "parameters": "none",
+      "output": "ROADMAP_SECTION_INDEX.md",
+      "phases": ["DA"],
+      "frequency": "after-anchor-edit"
+    },
+    {
+      "id": "place-anchors",
+      "purpose": "Places ANCHOR comments in phase files for section loading",
+      "trigger": "Phase doc creation or major restructure",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\place-anchors.ps1",
+      "runtime": "powershell",
+      "parameters": "none",
+      "output": "Modified phase files with anchors",
+      "phases": ["DA"],
+      "frequency": "per-phase-doc"
+    },
+    {
+      "id": "roadmap-lint",
+      "purpose": "Validates roadmap docs for consistency (anchors, line counts, references)",
+      "trigger": "Before phase gate, after phase doc edit",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\roadmap-lint.ps1",
+      "runtime": "powershell",
+      "parameters": "none",
+      "output": "Lint report with warnings/errors",
+      "phases": ["ALL"],
+      "frequency": "before-gate"
+    },
+    {
+      "id": "roadmap-regression-test",
+      "purpose": "Verifies no roadmap content was lost after edits",
+      "trigger": "After roadmap tracker update, after major edits",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\roadmap-regression-test.ps1",
+      "runtime": "powershell",
+      "parameters": "none",
+      "output": "PASS/FAIL regression report",
+      "phases": ["ALL"],
+      "frequency": "after-major-edit"
+    },
+    {
+      "id": "rebuild-section-index",
+      "purpose": "Regenerates ROADMAP_SECTION_INDEX.md from current anchor positions",
+      "trigger": "After any phase doc edit that changes line numbers",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\rebuild-section-index.ps1",
+      "runtime": "powershell",
+      "parameters": "none",
+      "output": "Updated ROADMAP_SECTION_INDEX.md with anchor count",
+      "phases": ["ALL"],
+      "frequency": "after-phase-edit"
+    },
+    {
+      "id": "update-token-estimates",
+      "purpose": "Updates token cost estimates based on current file sizes",
+      "trigger": "After file size changes from edits or archival",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\roadmap\\update-token-estimates.ps1",
+      "runtime": "powershell",
+      "parameters": "none",
+      "output": "Updated token estimates in recovery card/instructions",
+      "phases": ["ALL"],
+      "frequency": "occasional"
+    },
+    {
+      "id": "split-skill",
+      "purpose": "Analyzes monolithic skill and proposes atomic splits",
+      "trigger": "DA-MS10: Skill atomization pilot and bulk splitting",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\split-skill.ps1",
+      "runtime": "powershell",
+      "parameters": "-Path <skill-directory>",
+      "output": "Proposed atomic skill list with names, functions, estimated sizes",
+      "phases": ["DA"],
+      "frequency": "per-skill-split"
+    },
+    {
+      "id": "extract-course-skills",
+      "purpose": "Extracts skill proposals from MIT OCW course directories",
+      "trigger": "DA-MS10: Course extraction pilot and bulk processing",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\extract-course-skills.ps1",
+      "runtime": "powershell",
+      "parameters": "-Path <course-directory>",
+      "output": "Proposed skills with names, source lectures, function descriptions",
+      "phases": ["DA"],
+      "frequency": "per-course"
+    },
+    {
+      "id": "update-skill-index",
+      "purpose": "Adds/updates skills in SKILL_INDEX.json from skill directories",
+      "trigger": "After any skill creation or modification",
+      "location": "C:\\PRISM\\mcp-server\\scripts\\skills\\update-skill-index.ps1",
+      "runtime": "powershell",
+      "parameters": "-Path <skill-directory> or -BatchPath <parent-directory>",
+      "output": "Updated SKILL_INDEX.json with new/modified entries",
+      "phases": ["ALL"],
+      "frequency": "after-skill-change"
+    },
+    {
+      "id": "fix-encoding",
+      "purpose": "Multi-pass CP1252/UTF-8 encoding corruption fixer",
+      "trigger": "When garbled characters detected in roadmap files",
+      "location": "C:\\PRISM\\fix_encoding.js",
+      "runtime": "node",
+      "parameters": "none (hardcoded to roadmap directory)",
+      "output": "Report of files fixed with garble counts",
+      "phases": ["DA"],
+      "frequency": "on-demand"
+    }
+  ],
+  "metadata": {
+    "total": 11,
+    "last_updated": "2026-02-18",
+    "version": "1.0",
+    "by_runtime": { "node": 2, "powershell": 9 },
+    "by_frequency": { "every-session": 1, "before-gate": 2, "after-edit": 3, "per-task": 3, "on-demand": 2 }
+  }
+}

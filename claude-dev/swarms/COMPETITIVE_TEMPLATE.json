@@ -1,0 +1,95 @@
+{
+  "template_id": "SWARM-COMPETITIVE-001",
+  "pattern": "COMPETITIVE_OPTIMIZATION",
+  "description": "Agents compete to find the best solution, scored against objective criteria. Best for optimization problems, creative tasks, or A/B testing approaches.",
+  "version": "1.0.0",
+  "created": "2025-02-04",
+  
+  "when_to_use": [
+    "Optimization problems with multiple approaches",
+    "Creative tasks where variety is valuable",
+    "Benchmarking different strategies",
+    "Finding global optimum vs local"
+  ],
+  
+  "config": {
+    "min_competitors": 2,
+    "max_competitors": 6,
+    "timeout_ms": 45000,
+    "scoring_method": "objective_function",
+    "score_direction": "maximize",
+    "elimination_rounds": false
+  },
+  
+  "agent_selection": {
+    "strategy": "diverse_approaches",
+    "same_tier_preferred": true,
+    "different_specialties": true
+  },
+  
+  "input_schema": {
+    "type": "object",
+    "required": ["problem", "objective_function"],
+    "properties": {
+      "problem": {"type": "object"},
+      "objective_function": {
+        "type": "object",
+        "properties": {
+          "metric": {"type": "string"},
+          "direction": {"enum": ["maximize", "minimize"]},
+          "constraints": {"type": "array"}
+        }
+      },
+      "competitor_hints": {"type": "array"}
+    }
+  },
+  
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "winner": {
+        "agent_id": {"type": "string"},
+        "solution": {"type": "object"},
+        "score": {"type": "number"}
+      },
+      "leaderboard": {
+        "type": "array",
+        "items": {
+          "rank": {"type": "number"},
+          "agent_id": {"type": "string"},
+          "solution": {"type": "object"},
+          "score": {"type": "number"},
+          "approach_description": {"type": "string"}
+        }
+      },
+      "score_distribution": {"type": "object"}
+    }
+  },
+  
+  "mcp_tool": "prism:swarm_execute",
+  "mcp_pattern_param": "competition",
+  
+  "example_usage": {
+    "name": "optimize_cutting_parameters",
+    "input": {
+      "problem": {
+        "material": "Ti-6Al-4V",
+        "operation": "roughing",
+        "constraints": {"max_power": 15, "max_force": 5000}
+      },
+      "objective_function": {
+        "metric": "MRR",
+        "direction": "maximize",
+        "constraints": ["tool_life > 30min", "surface_finish < 6.3Ra"]
+      }
+    }
+  },
+  
+  "hooks_triggered": ["OPT-001", "COMPETITION-START-001", "SCORING-001", "WINNER-001"],
+  
+  "performance_notes": {
+    "optimal_competitors": "3-4 agents",
+    "diversity_bonus": "Different approaches often find better solutions",
+    "ensemble_opportunity": "Top 2-3 solutions can be combined"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-27",
+  "milestone": "L0-P0-MS2",
+  "description": "PRISM Coolant Strategy Database — flow requirements, pressure tables, MQL parameters, material factors",
+  "source_file": "mcp-server/src/engines/CoolantValidationEngine.ts",
+  "coolant_types": ["FLOOD", "MIST", "MQL", "THROUGH_SPINDLE", "CRYOGENIC", "AIR_BLAST", "WATER_SOLUBLE", "SEMI_SYNTHETIC", "FULL_SYNTHETIC", "STRAIGHT_OIL", "DRY"],
+  "operations": ["MILLING_GENERAL", "MILLING_HSM", "DRILLING_SHALLOW", "DRILLING_DEEP", "DRILLING_GUNDRILLING", "TAPPING", "REAMING", "BORING", "TURNING", "GRINDING"],
+  "flow_requirements_l_per_min_per_mm": {
+    "_description": "Flow rate requirements by operation [L/min per mm tool diameter]",
+    "MILLING_GENERAL": 0.5,
+    "MILLING_HSM": 0.3,
+    "DRILLING_SHALLOW": 0.8,
+    "DRILLING_DEEP": 1.5,
+    "DRILLING_GUNDRILLING": 3.0,
+    "TAPPING": 1.0,
+    "REAMING": 0.6,
+    "BORING": 0.5,
+    "TURNING": 0.4,
+    "GRINDING": 2.0
+  },
+  "pressure_by_ld_ratio_bar": {
+    "_description": "Required coolant pressure by length-to-diameter ratio for drilling [bar]",
+    "LD<3": 10,
+    "LD3-5": 20,
+    "LD5-8": 40,
+    "LD8-12": 70,
+    "LD12-20": 100,
+    "LD>20": 150
+  },
+  "material_factors": {
+    "_description": "Multiplier on base coolant requirements by material group",
+    "ALUMINUM": 0.7,
+    "CAST_IRON": 0.6,
+    "STEEL": 1.0,
+    "STAINLESS": 1.3,
+    "TITANIUM": 1.5,
+    "SUPERALLOY": 1.8
+  },
+  "mql_consumption_ml_per_hr": {
+    "_description": "Minimum Quantity Lubrication oil consumption rates [mL/hr] by operation",
+    "MILLING_GENERAL": { "min": 20, "max": 50 },
+    "MILLING_HSM": { "min": 10, "max": 30 },
+    "DRILLING_SHALLOW": { "min": 30, "max": 80 },
+    "DRILLING_DEEP": { "min": 50, "max": 150 },
+    "DRILLING_GUNDRILLING": { "min": 100, "max": 300 },
+    "TAPPING": { "min": 40, "max": 100 },
+    "REAMING": { "min": 20, "max": 50 },
+    "BORING": { "min": 20, "max": 60 },
+    "TURNING": { "min": 15, "max": 40 },
+    "GRINDING": { "min": 0, "max": 0, "note": "MQL not recommended for grinding" }
+  },
+  "recommended_coolant_by_material": {
+    "_description": "Best coolant type by material group",
+    "ALUMINUM": "SEMI_SYNTHETIC",
+    "CAST_IRON": "WATER_SOLUBLE",
+    "STEEL": "WATER_SOLUBLE",
+    "STAINLESS": "FULL_SYNTHETIC",
+    "TITANIUM": "FULL_SYNTHETIC",
+    "SUPERALLOY": "STRAIGHT_OIL"
+  },
+  "through_spindle_coolant": {
+    "_description": "Through-Spindle Coolant (TSC) specifications",
+    "pressure_ranges_bar": {
+      "standard": { "min": 20, "max": 40 },
+      "high_pressure": { "min": 40, "max": 70 },
+      "ultra_high_pressure": { "min": 70, "max": 150 }
+    },
+    "recommended_by_operation": {
+      "DRILLING_DEEP": "high_pressure",
+      "DRILLING_GUNDRILLING": "ultra_high_pressure",
+      "TAPPING": "standard",
+      "BORING": "standard",
+      "TURNING": "high_pressure"
+    }
+  }
+}

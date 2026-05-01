@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRISM Alarm Database Schema v1.0",
+  "description": "15-parameter alarm specification for CNC controllers",
+  "type": "object",
+  "required": ["alarm_id", "controller_family", "alarm_code", "alarm_name", "severity"],
+  "properties": {
+    "alarm_id": {
+      "type": "string",
+      "pattern": "^ALM-[A-Z]{2,4}-[0-9]{4,6}$",
+      "description": "Unique alarm identifier"
+    },
+    "controller_family": {
+      "type": "string",
+      "enum": ["FANUC", "SIEMENS", "HAAS", "HEIDENHAIN", "OKUMA", "MAZAK", "BROTHER", "HURCO", "MITSUBISHI", "FAGOR", "NUM", "CENTROID", "MACH", "OTHER"]
+    },
+    "controller_models": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Specific controller models this alarm applies to"
+    },
+    "alarm_code": {
+      "type": "string",
+      "description": "Original alarm code as displayed on controller"
+    },
+    "alarm_number": {
+      "type": "integer",
+      "description": "Numeric alarm code for sorting/lookup"
+    },
+    "alarm_name": {
+      "type": "string",
+      "description": "Short descriptive name"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["SERVO", "SPINDLE", "OVERTRAVEL", "OVERHEAT", "SYSTEM", "PLC", "COMMUNICATION", "PROGRAM", "ATC", "PROBE", "SAFETY", "POWER", "ENCODER", "AMPLIFIER", "PARAMETER", "MEMORY", "OTHER"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]
+    },
+    "message_text": {
+      "type": "string",
+      "description": "Exact message displayed on controller screen"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed explanation of alarm meaning"
+    },
+    "causes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Possible root causes"
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Observable symptoms when alarm occurs"
+    },
+    "fix_procedure_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "References to fix procedures"
+    },
+    "quick_fix": {
+      "type": "string",
+      "description": "Simple one-line fix for common cases"
+    },
+    "related_parameters": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "System parameters related to this alarm"
+    },
+    "related_alarms": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Related alarm codes that may occur together"
+    },
+    "requires_power_cycle": {
+      "type": "boolean",
+      "default": false
+    },
+    "requires_service": {
+      "type": "boolean",
+      "default": false
+    },
+    "machine_stoppage": {
+      "type": "string",
+      "enum": ["IMMEDIATE", "CONTROLLED", "WARNING_ONLY", "NONE"]
+    },
+    "common_parts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "part_name": {"type": "string"},
+          "part_number": {"type": "string"},
+          "manufacturer": {"type": "string"}
+        }
+      }
+    },
+    "diagnostic_steps": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Steps to diagnose root cause"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "verified": {"type": "boolean"},
+        "last_updated": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

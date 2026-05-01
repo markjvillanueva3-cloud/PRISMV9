@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "generated_at": "2026-04-29T04:43:14.590Z",
+    "model": "qwen2.5-coder:7b",
+    "elapsed_seconds": 127,
+    "ppg_milestones": 39,
+    "engines_cited_in_ppg": 257,
+    "engine_candidates_audited": 163,
+    "engine_opportunities_returned": 3,
+    "dispatcher_opportunities": 8,
+    "cross_domain_opportunities": 6,
+    "business_opportunities": 0,
+    "failure_modes": 0
+  },
+  "engine_opportunities": [
+    {
+      "engine": "WEDMWireBreakPredictor",
+      "reason": "Predicts wire break probability per pulse train to prevent downtime.",
+      "milestone_target": "NEW"
+    },
+    {
+      "engine": "WEDMWireBreakRiskCost",
+      "reason": "Models wire break risk cost for better decision-making during operations.",
+      "milestone_target": "NEW"
+    },
+    {
+      "engine": "WorkholdingSelection",
+      "reason": "Selects optimal workholding methods based on part geometry and machine capabilities.",
+      "milestone_target": "NEW"
+    }
+  ],
+  "dispatcher_action_gaps": [
+    {
+      "action": "predictive_maintenance",
+      "dispatcher": "prism_machine_live",
+      "value": "Predicts machine failures based on historical data.",
+      "milestone_target": "NEW"
+    },
+    {
+      "action": "optimize_tool_path",
+      "dispatcher": "prism_cam",
+      "value": "Optimizes toolpaths for better efficiency and quality.",
+      "milestone_target": "MS15"
+    },
+    {
+      "action": "route_collision_avoidance",
+      "dispatcher": "prism_machine_live",
+      "value": "Automatically routes toolpaths to avoid collisions.",
+      "milestone_target": "NEW"
+    },
+    {
+      "action": "recommend_tool_change",
+      "dispatcher": "prism_safety",
+      "value": "Recommends optimal tool changes based on wear and tear data.",
+      "milestone_target": "MS14"
+    },
+    {
+      "action": "simulate_post_output",
+      "dispatcher": "prism_cam",
+      "value": "Simulates post-processor output to ensure accuracy before emission.",
+      "milestone_target": "NEW"
+    },
+    {
+      "action": "analyze_process_performance",
+      "dispatcher": "prism_quality",
+      "value": "Analyzes process performance for continuous improvement.",
+      "milestone_target": "MS16"
+    },
+    {
+      "action": "predict_tool_life",
+      "dispatcher": "prism_safety",
+      "value": "Predicts tool life to prevent premature failures.",
+      "milestone_target": "MS14"
+    },
+    {
+      "action": "optimize_material_usage",
+      "dispatcher": "prism_data",
+      "value": "Optimizes material usage for cost savings and efficiency.",
+      "milestone_target": "NEW"
+    }
+  ],
+  "cross_domain_pattern_transfers": [
+    {
+      "transfer_name": "PID Control → Robotic Path Planning",
+      "source_domain": "Control Theory",
+      "target_problem": "Optimizing toolpaths for robotic manufacturing to reduce cycle time and improve accuracy.",
+      "value": "Enhances efficiency and precision in robotic operations.",
+      "milestone_target": "NEW"
+    },
+    {
+      "transfer_name": "Bayesian Uncertainty Quantification → Quality Control",
+      "source_domain": "Uncertainty Quantification",
+      "target_problem": "Predictive quality assurance by quantifying uncertainties in material properties during manufacturing.",
+      "value": "Improves product reliability and reduces scrap rates.",
+      "milestone_target": "NEW"
+    },
+    {
+      "transfer_name": "NURBS for CAD → CNC Path Generation",
+      "source_domain": "Computational Geometry",
+      "target_problem": "Generating smooth, precise toolpaths for complex geometries in CNC machining.",
+      "value": "Reduces tool wear and increases part accuracy.",
+      "milestone_target": "NEW"
+    },
+    {
+      "transfer_name": "Graph Theory → Supply Chain Optimization",
+      "source_domain": "Graph Theory",
+      "target_problem": "Optimizing material flow and inventory management in the supply chain.",
+      "value": "Improves operational efficiency and reduces costs.",
+      "milestone_target": "NEW"
+    },
+    {
+      "transfer_name": "Wavelets for Signal Processing → Post-Processing Analysis",
+      "source_domain": "Signal Processing",
+      "target_problem": "Analyzing post-processing data to identify anomalies and improve process control.",
+      "value": "Enhances quality control and reduces downtime.",
+      "milestone_target": "NEW"
+    },
+    {
+      "transfer_name": "NSGA-II for Optimization → Multi-Objective Job Scheduling",
+      "source_domain": "Optimization",
+      "target_problem": "Scheduling multiple jobs on a single machine to optimize resource utilization and minimize cycle time.",
+      "value": "Improves throughput and reduces idle time.",
+      "milestone_target": "NEW"
+    }
+  ],
+  "business_model_angles": [],
+  "failure_modes_and_risks": []
+}

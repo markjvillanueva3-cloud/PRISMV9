@@ -1,0 +1,880 @@
+{
+  "meta": {
+    "generated_at": "2026-04-29T04:49:31.403Z",
+    "elapsed_seconds": 9,
+    "cited_but_unused_total": 122,
+    "biz_returned": 6,
+    "failures_returned": 6,
+    "unused_returned": 8,
+    "raw_lengths": {
+      "biz": 1634,
+      "fail": 1482,
+      "unused": 823
+    }
+  },
+  "business_model_angles": [
+    {
+      "angle": "Technical Depth",
+      "mechanism": "PRISM offers advanced, proprietary algorithms for optimal toolpath generation and simulation.",
+      "moat": "Competitors lack the same level of technical sophistication."
+    },
+    {
+      "angle": "Compliance",
+      "mechanism": "PRISM includes built-in compliance features to ensure adherence to industry standards and regulations.",
+      "moat": "Other solutions often require additional, costly add-ons for compliance."
+    },
+    {
+      "angle": "Demo/ROI",
+      "mechanism": "PRISM provides a quick, no-risk demo with immediate ROI calculations based on machine hours saved.",
+      "moat": "Competitors typically require lengthy trials and do not offer such a straightforward ROI analysis."
+    },
+    {
+      "angle": "Pilot Program",
+      "mechanism": "JM Die Company can test PRISM in a pilot program to validate its effectiveness before full implementation.",
+      "moat": "Other solutions often require significant upfront investment without the option for trial."
+    },
+    {
+      "angle": "Customization",
+      "mechanism": "PRISM offers extensive customization options tailored to JM Die Company's specific needs and processes.",
+      "moat": "Competitors may not offer such a wide range of customization features."
+    },
+    {
+      "angle": "Customer Support",
+      "mechanism": "PRISM provides 24/7, dedicated customer support with on-site assistance available upon request.",
+      "moat": "Other solutions often lack the same level of personalized and responsive customer support."
+    }
+  ],
+  "failure_modes_and_risks": [
+    {
+      "risk": "Hidden Tool/Hardware Dependency",
+      "mode": "Inconsistent toolpaths between different machines lead to unexpected failures.",
+      "mitigation": "Implement a standardized toolpath library and regular audits."
+    },
+    {
+      "risk": "Dependency Bottleneck",
+      "mode": "A single vendor for critical components causes extended downtime if supply chain issues arise.",
+      "mitigation": "Diversify suppliers for key components."
+    },
+    {
+      "risk": "Copy-Vulnerability",
+      "mode": "Sensitive designs are accidentally copied and shared without proper authorization.",
+      "mitigation": "Implement strict access controls and regular audits of design repositories."
+    },
+    {
+      "risk": "Regulatory Exposure",
+      "mode": "Non-compliance with local regulations leads to fines and operational disruptions.",
+      "mitigation": "Stay updated on regulatory changes and conduct regular compliance reviews."
+    },
+    {
+      "risk": "Operator Confusion",
+      "mode": "Inconsistent operator training leads to errors in part production.",
+      "mitigation": "Standardize operator training programs and provide continuous learning opportunities."
+    },
+    {
+      "risk": "Data Security Breach",
+      "mode": "Sensitive data is compromised, leading to potential cyberattacks and legal issues.",
+      "mitigation": "Implement robust cybersecurity measures and regular security audits."
+    }
+  ],
+  "cited_but_unused_assessment": [
+    {
+      "engine": "PostProcessorGeneratorEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    },
+    {
+      "engine": "PRISMSelfAwarenessEngine",
+      "verdict": "GAP",
+      "reason": "No .ts file in files_to_modify, and no indication of modification need."
+    },
+    {
+      "engine": "DuplicationGuardEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    },
+    {
+      "engine": "CAMSpeedFeedBridgeEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    },
+    {
+      "engine": "SpeedFeedOrchestratorEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    },
+    {
+      "engine": "AutoSpeedFeedEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    },
+    {
+      "engine": "UltimateSpeedFeedEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    },
+    {
+      "engine": "MachineAwareSpeedFeedEngine",
+      "verdict": "OK",
+      "reason": "Invoked but not modified."
+    }
+  ],
+  "cited_but_unused_full_list": [
+    {
+      "engine": "PostProcessorGeneratorEngine",
+      "leverage_in": [
+        "PPG-MS0"
+      ]
+    },
+    {
+      "engine": "PRISMSelfAwarenessEngine",
+      "leverage_in": [
+        "PPG-MS0",
+        "PPG-MS12",
+        "PPG-MS8"
+      ]
+    },
+    {
+      "engine": "DuplicationGuardEngine",
+      "leverage_in": [
+        "PPG-MS0"
+      ]
+    },
+    {
+      "engine": "CAMSpeedFeedBridgeEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "SpeedFeedOrchestratorEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "AutoSpeedFeedEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "UltimateSpeedFeedEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "MachineAwareSpeedFeedEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "LatheSpeedFeedCalculatorFacadeEngine",
+      "leverage_in": [
+        "PPG-MS1",
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "AutoSpeedFeedCalculatorEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "PostProcessorFeedOptimizerEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "PostProcessorAGIMasterRegistryEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "MasterPostFineTuningEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "PostProcessorUnificationEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "ChatterStabilityLobeEngine",
+      "leverage_in": [
+        "PPG-MS1",
+        "PPG-MS11"
+      ]
+    },
+    {
+      "engine": "BayesianToolLifeEngine",
+      "leverage_in": [
+        "PPG-MS1",
+        "PPG-MS11",
+        "PPG-MS33",
+        "PPG-MS34",
+        "PPG-MS9"
+      ]
+    },
+    {
+      "engine": "KienzleForceModelEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "InstantaneousEngagementEngine",
+      "leverage_in": [
+        "PPG-MS1",
+        "PPG-MS2"
+      ]
+    },
+    {
+      "engine": "EngagementDynamicsEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "ChipThinningCompensationEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "SFCInferenceGateWireEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "SFCOutcomeCaptureWireEngine",
+      "leverage_in": [
+        "PPG-MS1",
+        "PPG-MS34"
+      ]
+    },
+    {
+      "engine": "OkumaB250LatheMasterPostEngine",
+      "leverage_in": [
+        "PPG-MS1"
+      ]
+    },
+    {
+      "engine": "DocumentKnowledgeExtractionEngine",
+      "leverage_in": [
+        "PPG-MS10",
+        "PPG-MS13"
+      ]
+    },
+    {
+      "engine": "ProductionToolpathRegressionEngine",
+      "leverage_in": [
+        "PPG-MS12"
+      ]
+    },
+    {
+      "engine": "BoringBarDeflectionEngine",
+      "leverage_in": [
+        "PPG-MS14"
+      ]
+    },
+    {
+      "engine": "LatheBeamDeflectionEngine",
+      "leverage_in": [
+        "PPG-MS14"
+      ]
+    },
+    {
+      "engine": "LatheChatterAnalysisEngine",
+      "leverage_in": [
+        "PPG-MS14"
+      ]
+    },
+    {
+      "engine": "QuoteEstimatorEngine",
+      "leverage_in": [
+        "PPG-MS16",
+        "PPG-MS35"
+      ]
+    },
+    {
+      "engine": "ActualCostEngine",
+      "leverage_in": [
+        "PPG-MS16"
+      ]
+    },
+    {
+      "engine": "CapacityPlanningEngine",
+      "leverage_in": [
+        "PPG-MS16",
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "JobLifecycleEngine",
+      "leverage_in": [
+        "PPG-MS16"
+      ]
+    },
+    {
+      "engine": "OEEEngine",
+      "leverage_in": [
+        "PPG-MS16"
+      ]
+    },
+    {
+      "engine": "PostOutcomeAggregatorEngine",
+      "leverage_in": [
+        "PPG-MS16"
+      ]
+    },
+    {
+      "engine": "WEDMRunPipelineEngine",
+      "leverage_in": [
+        "PPG-MS17"
+      ]
+    },
+    {
+      "engine": "WEDMSafetyGateEngine",
+      "leverage_in": [
+        "PPG-MS17",
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMSparkErosionEngine",
+      "leverage_in": [
+        "PPG-MS17"
+      ]
+    },
+    {
+      "engine": "WEDMGapVoltageEngine",
+      "leverage_in": [
+        "PPG-MS17",
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMMRREngine",
+      "leverage_in": [
+        "PPG-MS17",
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "MitsubishiMV1200RWireEDMMasterPostEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "RecastLayerEngine",
+      "leverage_in": [
+        "PPG-MS3",
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMThermalRecastEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "EDMWireSlugCornerTaperEngine",
+      "leverage_in": [
+        "PPG-MS3",
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMTaperCompensationEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "EDMCuttingParamFlushEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMFlushAdequacyEngine",
+      "leverage_in": [
+        "PPG-MS3",
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "EDMMultiPassStrategyEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMMultiPassPlanEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMWireStressAnalysisEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMTaperUVCompensationEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMRecastMLEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMHazPredictEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMHazStockAllowanceEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMSparkErosionModelEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMMaterialSparkDatabaseEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMWireDeflectionEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMWireFlushDeflectionEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMWireHeatingJouleEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMWireHeatingRACascadeEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMThinWireDerateEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMKerfOverkerfEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMKerfWidthEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMKerfRoughnessEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMUnitTagEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMHeadClearanceEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMThermalReleaseEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMDialectVerifyEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMTribalRuntimeEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMTipLearnerEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "WEDMTribalPlaybookEngine",
+      "leverage_in": [
+        "PPG-MS3"
+      ]
+    },
+    {
+      "engine": "MonteCarloProcessEngine",
+      "leverage_in": [
+        "PPG-MS33",
+        "PPG-MS34"
+      ]
+    },
+    {
+      "engine": "StochasticForcePipelineEngine",
+      "leverage_in": [
+        "PPG-MS33"
+      ]
+    },
+    {
+      "engine": "InverseSolveEngine",
+      "leverage_in": [
+        "PPG-MS33"
+      ]
+    },
+    {
+      "engine": "ToleranceStackEngine",
+      "leverage_in": [
+        "PPG-MS33"
+      ]
+    },
+    {
+      "engine": "PRISMCreativeReasoningEngine",
+      "leverage_in": [
+        "PPG-MS33",
+        "PPG-MS35"
+      ]
+    },
+    {
+      "engine": "ChanceConstrainedOptimizeEngine",
+      "leverage_in": [
+        "PPG-MS33"
+      ]
+    },
+    {
+      "engine": "TribalEnrichmentCoordinatorEngine",
+      "leverage_in": [
+        "PPG-MS34",
+        "PPG-MS35",
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "OutcomeCaptureEngine",
+      "leverage_in": [
+        "PPG-MS34"
+      ]
+    },
+    {
+      "engine": "FederatedLearningEngine",
+      "leverage_in": [
+        "PPG-MS34",
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "AnalyticsConversionEngine",
+      "leverage_in": [
+        "PPG-MS35"
+      ]
+    },
+    {
+      "engine": "BayesianOptimizeEngine",
+      "leverage_in": [
+        "PPG-MS35"
+      ]
+    },
+    {
+      "engine": "AcousticEmissionMonitorEngine",
+      "leverage_in": [
+        "PPG-MS36"
+      ]
+    },
+    {
+      "engine": "ChatterDetectEngine",
+      "leverage_in": [
+        "PPG-MS36"
+      ]
+    },
+    {
+      "engine": "ThermalMachineErrorEngine",
+      "leverage_in": [
+        "PPG-MS36"
+      ]
+    },
+    {
+      "engine": "SensorFuseEngine",
+      "leverage_in": [
+        "PPG-MS36"
+      ]
+    },
+    {
+      "engine": "MaterialCertRegisterEngine",
+      "leverage_in": [
+        "PPG-MS36"
+      ]
+    },
+    {
+      "engine": "RealTimeAdaptiveControllerEngine",
+      "leverage_in": [
+        "PPG-MS36"
+      ]
+    },
+    {
+      "engine": "InventoryEOQEngine",
+      "leverage_in": [
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "SupplierIntegrationEngine",
+      "leverage_in": [
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "CobotAssessSafetyEngine",
+      "leverage_in": [
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "SustainOptimizeEngine",
+      "leverage_in": [
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "ScheduleOptimizeEngine",
+      "leverage_in": [
+        "PPG-MS37"
+      ]
+    },
+    {
+      "engine": "TextToCADGenerationEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "NeuralCADGenerationEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "BlueprintToCADGenerationEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "GDTValidateEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "ProbeWCSSetupGenEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "SequenceConstraintGraphEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "AssemblySequenceEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "AdaptivePipelineGenerateEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "CMMSamplingStrategyEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "DimAnalysisConsistencyEngine",
+      "leverage_in": [
+        "PPG-MS38"
+      ]
+    },
+    {
+      "engine": "ShopConfigurationEngine",
+      "leverage_in": [
+        "PPG-MS4",
+        "PPG-MS6"
+      ]
+    },
+    {
+      "engine": "ControllerKnowledgeEngine",
+      "leverage_in": [
+        "PPG-MS5"
+      ]
+    },
+    {
+      "engine": "ToolMagazineOptimizeEngine",
+      "leverage_in": [
+        "PPG-MS6"
+      ]
+    },
+    {
+      "engine": "MillPrintToProgramEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "FeatureToStrategyEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "GenPlanEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningBlueprintIntakeEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningParseMaterialEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningParseToleranceEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningParseFitEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningCadImportEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningRevProfileEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningFeatureTaxonomyEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningStockSelectEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningResolveAmbiguityEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "TurningApplyISO2768Engine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "WEDMGeometryParseEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "WEDMValidateGeometryEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "WEDMInterpretDrawingEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    },
+    {
+      "engine": "WEDMClassifyFeaturesEngine",
+      "leverage_in": [
+        "PPG-MS7"
+      ]
+    }
+  ]
+}

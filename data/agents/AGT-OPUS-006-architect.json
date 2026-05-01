@@ -1,0 +1,830 @@
+{
+  "agent_id": "AGT-OPUS-006",
+  "name": "architect",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "System Architect - Designs PRISM Architecture with Life-Safety Constraints",
+  
+  "domain_expertise": [
+    "Software architecture patterns",
+    "Manufacturing system design",
+    "Module dependency management",
+    "API contract design",
+    "Safety-critical systems",
+    "Scalability and performance",
+    "Integration architecture",
+    "Database schema design",
+    "Event-driven architectures",
+    "Microservices and modularity"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-ARCH-001",
+      "name": "Module Architecture Design",
+      "description": "Designs modular architecture for PRISM components ensuring proper separation of concerns, dependency management, and life-safety constraints with 4-layer hierarchy (CORE→ENHANCED→USER→LEARNED)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["requirements", "constraints"],
+        "optional": ["existing_modules", "performance_targets", "safety_requirements"]
+      },
+      "outputs": {
+        "primary": "architecture_design",
+        "secondary": ["module_graph", "dependency_map", "interface_contracts", "safety_analysis"]
+      },
+      "skills_used": ["prism-code-master", "prism-api-contracts", "prism-dev-utilities"],
+      "hooks_triggered": ["ARCH-DESIGN-START", "ARCH-DESIGN-COMPLETE"],
+      "synergizes_with": ["coordinator_v2", "schema_designer", "api_designer"],
+      "validation_rules": [
+        "No circular dependencies",
+        "Safety modules always isolated",
+        "Clear layer boundaries",
+        "Each module has defined contracts"
+      ],
+      "success_criteria": "Architecture supports all requirements with S(x)≥0.70"
+    },
+    {
+      "id": "CAP-ARCH-002",
+      "name": "Database Schema Design",
+      "description": "Designs database schemas for materials, machines, tools, alarms ensuring 100% utilization, proper indexing, and cross-reference integrity",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["data_requirements", "query_patterns"],
+        "optional": ["performance_requirements", "existing_schema"]
+      },
+      "outputs": {
+        "primary": "schema_design",
+        "secondary": ["index_strategy", "relationship_map", "migration_plan"]
+      },
+      "skills_used": ["prism-material-schema", "prism-api-contracts", "prism-dev-utilities"],
+      "hooks_triggered": ["db:preValidate", "SCHEMA-DESIGN"],
+      "synergizes_with": ["schema_designer", "data_quality_enforcer", "materials_scientist"],
+      "validation_rules": [
+        "All fields have defined types",
+        "Required fields enforced",
+        "Indexes cover query patterns",
+        "Cross-references bidirectional"
+      ],
+      "success_criteria": "Schema supports all queries efficiently"
+    },
+    {
+      "id": "CAP-ARCH-003",
+      "name": "API Contract Definition",
+      "description": "Defines comprehensive API contracts including request/response schemas, error handling, versioning, and backward compatibility for all 500+ gateway routes",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["endpoints", "functionality"],
+        "optional": ["existing_contracts", "client_requirements"]
+      },
+      "outputs": {
+        "primary": "api_contracts",
+        "secondary": ["openapi_spec", "type_definitions", "example_payloads"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-code-master"],
+      "hooks_triggered": ["CONTRACT-DEFINE", "API-DESIGN"],
+      "synergizes_with": ["api_designer", "validator", "documentation_writer"],
+      "validation_rules": [
+        "All endpoints documented",
+        "Request/response schemas complete",
+        "Error codes defined",
+        "Versioning strategy clear"
+      ],
+      "success_criteria": "Contracts enable type-safe implementation"
+    },
+    {
+      "id": "CAP-ARCH-004",
+      "name": "Safety Architecture Analysis",
+      "description": "Analyzes system architecture for safety implications, identifying failure modes, safety boundaries, and defense-in-depth strategies for CNC control",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["architecture", "safety_requirements"],
+        "optional": ["failure_history", "regulatory_requirements"]
+      },
+      "outputs": {
+        "primary": "safety_analysis_report",
+        "secondary": ["failure_modes", "mitigations", "safety_boundaries", "audit_trail"]
+      },
+      "skills_used": ["prism-quality-master", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "SAFETY-ANALYSIS"],
+      "synergizes_with": ["physics_validator", "data_quality_enforcer"],
+      "validation_rules": [
+        "S(x) ≥ 0.70 for all paths",
+        "Failure modes identified",
+        "Mitigations documented",
+        "No single point of failure"
+      ],
+      "success_criteria": "Architecture passes safety review"
+    },
+    {
+      "id": "CAP-ARCH-005",
+      "name": "Event System Design",
+      "description": "Designs event-driven architecture including 147 hooks, event bus topology, subscription patterns, and async processing for PRISM operations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["operations", "integration_points"],
+        "optional": ["latency_requirements", "ordering_requirements"]
+      },
+      "outputs": {
+        "primary": "event_architecture",
+        "secondary": ["event_catalog", "hook_mappings", "flow_diagrams"]
+      },
+      "skills_used": ["prism-hook-system", "prism-api-contracts"],
+      "hooks_triggered": ["EVENT-DESIGN", "HOOK-INTEGRATE"],
+      "synergizes_with": ["coordinator_v2", "test_orchestrator"],
+      "validation_rules": [
+        "All hooks categorized",
+        "Priority levels assigned",
+        "Blocking vs non-blocking clear",
+        "Error propagation defined"
+      ],
+      "success_criteria": "Event system enables automatic enforcement"
+    },
+    {
+      "id": "CAP-ARCH-006",
+      "name": "Agent Orchestration Design",
+      "description": "Designs multi-agent orchestration architecture including ILP optimization, swarm patterns, delegation rules, and synergy maximization",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["agent_capabilities", "task_patterns"],
+        "optional": ["cost_constraints", "latency_requirements"]
+      },
+      "outputs": {
+        "primary": "orchestration_design",
+        "secondary": ["swarm_patterns", "delegation_matrix", "synergy_map"]
+      },
+      "skills_used": ["prism-swarm-coordinator", "prism-agent-selector", "prism-combination-engine"],
+      "hooks_triggered": ["swarm:preStart", "ORCHESTRATION-DESIGN"],
+      "synergizes_with": ["coordinator_v2", "combination_optimizer", "synergy_analyst"],
+      "validation_rules": [
+        "F-PSI-001 constraints satisfied",
+        "Swarm patterns well-defined",
+        "Fallback strategies exist",
+        "Cost within budget"
+      ],
+      "success_criteria": "Orchestration maximizes quality while minimizing cost"
+    },
+    {
+      "id": "CAP-ARCH-007",
+      "name": "Monolith Extraction Planning",
+      "description": "Plans extraction strategy from v8.89 monolith (986K lines, 831 modules) including dependency analysis, extraction order, and migration path",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["monolith_index", "target_architecture"],
+        "optional": ["priority_modules", "resource_constraints"]
+      },
+      "outputs": {
+        "primary": "extraction_plan",
+        "secondary": ["dependency_graph", "extraction_order", "risk_assessment", "timeline"]
+      },
+      "skills_used": ["prism-monolith-index", "prism-monolith-navigator", "prism-monolith-extractor"],
+      "hooks_triggered": ["EXTRACTION-PLAN", "MIGRATION-START"],
+      "synergizes_with": ["extractor", "dependency_analyzer", "migration_specialist"],
+      "validation_rules": [
+        "Dependencies mapped before extraction",
+        "Critical modules prioritized",
+        "Rollback plan exists",
+        "Anti-regression enforced"
+      ],
+      "success_criteria": "Extraction preserves all functionality"
+    },
+    {
+      "id": "CAP-ARCH-008",
+      "name": "Performance Architecture",
+      "description": "Designs architecture for performance including caching strategies, lazy loading, parallel processing, and <2s load / <500ms calc targets",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["performance_requirements"],
+        "optional": ["current_metrics", "bottleneck_analysis"]
+      },
+      "outputs": {
+        "primary": "performance_architecture",
+        "secondary": ["caching_strategy", "parallelization_plan", "optimization_roadmap"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["cache:init", "PERFORMANCE-DESIGN"],
+      "synergizes_with": ["optimizer", "test_orchestrator"],
+      "validation_rules": [
+        "Load time < 2s",
+        "Calculation time < 500ms",
+        "Cache invalidation correct",
+        "Parallel safety ensured"
+      ],
+      "success_criteria": "Performance targets met"
+    },
+    {
+      "id": "CAP-ARCH-009",
+      "name": "Integration Architecture",
+      "description": "Designs integration architecture for external systems including CAD/CAM packages, machine controllers, ERP systems, and MCP servers",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["external_systems", "integration_requirements"],
+        "optional": ["protocols", "security_requirements"]
+      },
+      "outputs": {
+        "primary": "integration_architecture",
+        "secondary": ["adapter_specifications", "protocol_mappings", "security_model"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-code-master"],
+      "hooks_triggered": ["mcp:preAction", "INTEGRATION-DESIGN"],
+      "synergizes_with": ["api_designer", "security_auditor"],
+      "validation_rules": [
+        "All integrations documented",
+        "Error handling defined",
+        "Security boundaries clear",
+        "Retry strategies exist"
+      ],
+      "success_criteria": "Integrations reliable and secure"
+    },
+    {
+      "id": "CAP-ARCH-010",
+      "name": "Formula System Architecture",
+      "description": "Designs architecture for 22+ formulas including coefficient management, calibration workflows, evolution tracking, and uncertainty propagation",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["formula_requirements"],
+        "optional": ["existing_formulas", "calibration_data"]
+      },
+      "outputs": {
+        "primary": "formula_architecture",
+        "secondary": ["formula_registry_design", "calibration_workflow", "evolution_tracking"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-uncertainty-propagation", "prism-mathematical-planning"],
+      "hooks_triggered": ["formula:calibrationCheck", "FORMULA-ARCH"],
+      "synergizes_with": ["calibration_engineer", "proof_generator", "physics_validator"],
+      "validation_rules": [
+        "All formulas registered",
+        "Coefficients versioned",
+        "Calibration automated",
+        "Uncertainty propagated"
+      ],
+      "success_criteria": "Formula system maintains M(x)≥0.60"
+    },
+    {
+      "id": "CAP-ARCH-011",
+      "name": "Learning System Architecture",
+      "description": "Designs architecture for continuous learning including pattern extraction, knowledge graphs, experience replay, and improvement propagation",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["learning_requirements"],
+        "optional": ["existing_patterns", "data_sources"]
+      },
+      "outputs": {
+        "primary": "learning_architecture",
+        "secondary": ["extraction_pipeline", "knowledge_graph_schema", "propagation_rules"]
+      },
+      "skills_used": ["prism-deep-learning", "prism-knowledge-master"],
+      "hooks_triggered": ["learning:extract", "LEARNING-ARCH"],
+      "synergizes_with": ["learning_extractor_v2", "knowledge_graph_builder", "synergy_analyst"],
+      "validation_rules": [
+        "Learning automatic after tasks",
+        "Patterns validated before apply",
+        "Propagation tracked",
+        "Quality maintained"
+      ],
+      "success_criteria": "System improves automatically"
+    },
+    {
+      "id": "CAP-ARCH-012",
+      "name": "State Management Architecture",
+      "description": "Designs state management including session state, persistent state, checkpoint system, and recovery mechanisms for seamless continuation",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["state_requirements"],
+        "optional": ["failure_scenarios", "recovery_time_objective"]
+      },
+      "outputs": {
+        "primary": "state_architecture",
+        "secondary": ["state_schema", "checkpoint_strategy", "recovery_procedures"]
+      },
+      "skills_used": ["prism-session-master", "prism-sp-handoff"],
+      "hooks_triggered": ["session:preStart", "SYS-LAW6-CONTINUITY"],
+      "synergizes_with": ["session_continuity", "state_manager"],
+      "validation_rules": [
+        "State always loadable",
+        "Checkpoints reliable",
+        "Recovery < 5 seconds",
+        "No data loss"
+      ],
+      "success_criteria": "Session continuity guaranteed"
+    },
+    {
+      "id": "CAP-ARCH-013",
+      "name": "Quality Gate Architecture",
+      "description": "Designs quality gate system including 5-level validation, blocking rules, and quality score aggregation ensuring Ω ≥ 0.90 for release",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["quality_requirements"],
+        "optional": ["existing_gates", "bypass_rules"]
+      },
+      "outputs": {
+        "primary": "quality_gate_architecture",
+        "secondary": ["gate_definitions", "scoring_formulas", "bypass_controls"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-review-quality"],
+      "hooks_triggered": ["quality:gateCheck", "QUALITY-ARCH"],
+      "synergizes_with": ["data_quality_enforcer", "validator", "completeness_auditor"],
+      "validation_rules": [
+        "All gates defined",
+        "Scoring consistent",
+        "Blocking enforced",
+        "Bypass audited"
+      ],
+      "success_criteria": "Quality gates prevent defects"
+    },
+    {
+      "id": "CAP-ARCH-014",
+      "name": "Skill System Architecture",
+      "description": "Designs skill system architecture including 99 skills, progressive loading, trigger detection, and orchestration integration",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["skill_inventory"],
+        "optional": ["loading_requirements", "trigger_patterns"]
+      },
+      "outputs": {
+        "primary": "skill_architecture",
+        "secondary": ["skill_registry", "loading_strategy", "trigger_mapping"]
+      },
+      "skills_used": ["prism-skill-orchestrator", "prism-all-skills"],
+      "hooks_triggered": ["skill:detect", "skill:load"],
+      "synergizes_with": ["resource_optimizer", "combination_optimizer"],
+      "validation_rules": [
+        "All skills registered",
+        "Triggers well-defined",
+        "Loading optimized",
+        "No conflicts"
+      ],
+      "success_criteria": "Skills activate when needed"
+    },
+    {
+      "id": "CAP-ARCH-015",
+      "name": "Product Architecture Design",
+      "description": "Designs architecture for 4 PRISM products (Speed/Feed Calculator, Post Processor, Shop Manager, Auto CNC Programmer) ensuring module reuse and integration",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["product_requirements"],
+        "optional": ["shared_modules", "differentiation_points"]
+      },
+      "outputs": {
+        "primary": "product_architecture",
+        "secondary": ["shared_components", "product_shells", "integration_points"]
+      },
+      "skills_used": ["prism-product-calculators", "prism-api-contracts"],
+      "hooks_triggered": ["PRODUCT-ARCH"],
+      "synergizes_with": ["api_designer", "documentation_writer"],
+      "validation_rules": [
+        "Module reuse maximized",
+        "Products independent deployable",
+        "Shared components isolated",
+        "UX consistent"
+      ],
+      "success_criteria": "Products share 80%+ modules"
+    },
+    {
+      "id": "CAP-ARCH-016",
+      "name": "Controller Integration Architecture",
+      "description": "Designs architecture for CNC controller integration including Fanuc, Siemens, Heidenhain, Haas supporting 824+ machines and 12 controller families",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["controller_families", "machine_database"],
+        "optional": ["alarm_requirements", "post_processor_requirements"]
+      },
+      "outputs": {
+        "primary": "controller_architecture",
+        "secondary": ["controller_adapters", "alarm_mappings", "gcode_generators"]
+      },
+      "skills_used": ["prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming", "prism-gcode-reference"],
+      "hooks_triggered": ["CONTROLLER-ARCH"],
+      "synergizes_with": ["gcode_expert", "alarm_validator", "post_processor"],
+      "validation_rules": [
+        "All controller families supported",
+        "Alarms mapped correctly",
+        "G-code generated safely",
+        "Post processors verified"
+      ],
+      "success_criteria": "Controllers integrated safely"
+    },
+    {
+      "id": "CAP-ARCH-017",
+      "name": "Testing Architecture Design",
+      "description": "Designs testing architecture including unit tests, integration tests, E2E tests, regression tests, and Ralph loop validation",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["test_requirements"],
+        "optional": ["coverage_targets", "ci_cd_requirements"]
+      },
+      "outputs": {
+        "primary": "testing_architecture",
+        "secondary": ["test_strategy", "coverage_plan", "ci_cd_pipeline"]
+      },
+      "skills_used": ["prism-quality-master", "prism-tdd-enhanced"],
+      "hooks_triggered": ["TEST-ARCH"],
+      "synergizes_with": ["test_orchestrator", "test_generator", "regression_checker"],
+      "validation_rules": [
+        "Coverage > 80%",
+        "Critical paths 100%",
+        "Regression automated",
+        "Ralph loops defined"
+      ],
+      "success_criteria": "Testing catches defects early"
+    },
+    {
+      "id": "CAP-ARCH-018",
+      "name": "Data Flow Architecture",
+      "description": "Designs data flow architecture including material→calculation→result pipelines, ensuring proper propagation of uncertainty and validation at each step",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["data_pipelines"],
+        "optional": ["transformation_rules", "validation_points"]
+      },
+      "outputs": {
+        "primary": "data_flow_architecture",
+        "secondary": ["pipeline_definitions", "transformation_specs", "validation_gates"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-dev-utilities"],
+      "hooks_triggered": ["DATA-FLOW-DESIGN"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "validation_rules": [
+        "All flows documented",
+        "Validation at boundaries",
+        "Uncertainty propagated",
+        "Error handling complete"
+      ],
+      "success_criteria": "Data flows reliably validated"
+    },
+    {
+      "id": "CAP-ARCH-019",
+      "name": "Consumer Wiring Architecture",
+      "description": "Designs consumer wiring architecture ensuring 100% database utilization with minimum 6-8 consumers per database per Commandment 1",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["databases", "potential_consumers"],
+        "optional": ["wiring_templates", "utilization_targets"]
+      },
+      "outputs": {
+        "primary": "wiring_architecture",
+        "secondary": ["consumer_matrix", "wiring_plan", "utilization_report"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-dev-utilities"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "WIRING-DESIGN"],
+      "synergizes_with": ["resource_auditor", "dependency_analyzer"],
+      "validation_rules": [
+        "Each database 6+ consumers",
+        "No orphan data",
+        "Wiring documented",
+        "Utilization tracked"
+      ],
+      "success_criteria": "100% database utilization achieved"
+    },
+    {
+      "id": "CAP-ARCH-020",
+      "name": "Error Handling Architecture",
+      "description": "Designs comprehensive error handling architecture including error codes (1000-9999), recovery strategies, user messaging, and audit logging",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["error_categories"],
+        "optional": ["recovery_requirements", "user_experience_requirements"]
+      },
+      "outputs": {
+        "primary": "error_handling_architecture",
+        "secondary": ["error_catalog", "recovery_strategies", "user_messages"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-quality-master"],
+      "hooks_triggered": ["ERROR-ARCH"],
+      "synergizes_with": ["debugger", "documentation_writer"],
+      "validation_rules": [
+        "All error codes defined",
+        "Recovery strategies exist",
+        "User messages helpful",
+        "Errors logged for analysis"
+      ],
+      "success_criteria": "Errors handled gracefully"
+    },
+    {
+      "id": "CAP-ARCH-021",
+      "name": "Security Architecture",
+      "description": "Designs security architecture including authentication, authorization, input validation, audit trails, and data protection for manufacturing data",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["security_requirements"],
+        "optional": ["compliance_requirements", "threat_model"]
+      },
+      "outputs": {
+        "primary": "security_architecture",
+        "secondary": ["auth_design", "access_control", "audit_system"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-quality-master"],
+      "hooks_triggered": ["audit:write", "SECURITY-ARCH"],
+      "synergizes_with": ["security_auditor", "data_quality_enforcer"],
+      "validation_rules": [
+        "Authentication required",
+        "Authorization enforced",
+        "Input validated",
+        "Audit trail complete"
+      ],
+      "success_criteria": "Security protects sensitive data"
+    },
+    {
+      "id": "CAP-ARCH-022",
+      "name": "Documentation Architecture",
+      "description": "Designs documentation architecture including API docs, user guides, developer guides, and knowledge base ensuring self-documenting system",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["documentation_requirements"],
+        "optional": ["audience_types", "delivery_methods"]
+      },
+      "outputs": {
+        "primary": "documentation_architecture",
+        "secondary": ["doc_structure", "generation_strategy", "maintenance_plan"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-api-contracts"],
+      "hooks_triggered": ["DOC-ARCH"],
+      "synergizes_with": ["documentation_writer", "api_designer"],
+      "validation_rules": [
+        "All APIs documented",
+        "User guides complete",
+        "Examples included",
+        "Docs auto-generated where possible"
+      ],
+      "success_criteria": "Documentation enables self-service"
+    },
+    {
+      "id": "CAP-ARCH-023",
+      "name": "Versioning Strategy Design",
+      "description": "Designs versioning strategy for APIs, databases, formulas, and releases ensuring backward compatibility and smooth upgrades",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["components_to_version"],
+        "optional": ["compatibility_requirements", "deprecation_policy"]
+      },
+      "outputs": {
+        "primary": "versioning_strategy",
+        "secondary": ["version_schemes", "migration_paths", "deprecation_timeline"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-formula-evolution"],
+      "hooks_triggered": ["VERSION-DESIGN"],
+      "synergizes_with": ["migration_specialist", "api_designer"],
+      "validation_rules": [
+        "Semantic versioning used",
+        "Breaking changes managed",
+        "Migration paths clear",
+        "Deprecation warnings given"
+      ],
+      "success_criteria": "Upgrades smooth and safe"
+    },
+    {
+      "id": "CAP-ARCH-024",
+      "name": "Resource Constraint Optimization",
+      "description": "Designs architecture to optimize resource usage including memory, CPU, network, and API cost constraints (|skills|≤8, |agents|≤8)",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["resource_constraints"],
+        "optional": ["optimization_targets", "cost_budgets"]
+      },
+      "outputs": {
+        "primary": "resource_optimization_plan",
+        "secondary": ["memory_strategy", "cpu_strategy", "cost_model"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-resource-optimizer"],
+      "hooks_triggered": ["RESOURCE-OPTIMIZE"],
+      "synergizes_with": ["combination_optimizer", "resource_optimizer"],
+      "validation_rules": [
+        "Constraints satisfied",
+        "Resource usage monitored",
+        "Cost within budget",
+        "Performance maintained"
+      ],
+      "success_criteria": "Resources used efficiently"
+    },
+    {
+      "id": "CAP-ARCH-025",
+      "name": "Anti-Regression Architecture",
+      "description": "Designs anti-regression architecture ensuring no data/feature loss during updates per Law 4 (New ≥ Old)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["update_scenarios"],
+        "optional": ["historical_regressions", "critical_data"]
+      },
+      "outputs": {
+        "primary": "anti_regression_architecture",
+        "secondary": ["comparison_mechanisms", "audit_trails", "rollback_procedures"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "REGRESSION-ARCH"],
+      "synergizes_with": ["regression_checker", "data_quality_enforcer"],
+      "validation_rules": [
+        "Size checks automated",
+        "Content comparison done",
+        "Rollback always possible",
+        "Audit trail maintained"
+      ],
+      "success_criteria": "No regressions possible"
+    },
+    {
+      "id": "CAP-ARCH-026",
+      "name": "Architecture Decision Record Generation",
+      "description": "Generates comprehensive Architecture Decision Records (ADRs) documenting decisions, rationale, alternatives considered, and consequences",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["decision", "context"],
+        "optional": ["alternatives", "constraints"]
+      },
+      "outputs": {
+        "primary": "adr_document",
+        "secondary": ["decision_matrix", "trade_off_analysis", "impact_assessment"]
+      },
+      "skills_used": ["prism-sp-brainstorm", "prism-knowledge-master"],
+      "hooks_triggered": ["ADR-CREATE"],
+      "synergizes_with": ["documentation_writer", "proof_generator"],
+      "validation_rules": [
+        "Context documented",
+        "Alternatives considered",
+        "Rationale clear",
+        "Consequences stated"
+      ],
+      "success_criteria": "Decision fully documented"
+    },
+    {
+      "id": "CAP-ARCH-027",
+      "name": "System Decomposition",
+      "description": "Decomposes complex systems into manageable subsystems using domain-driven design principles and bounded contexts",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["system_scope"],
+        "optional": ["domain_experts", "existing_boundaries"]
+      },
+      "outputs": {
+        "primary": "system_decomposition",
+        "secondary": ["bounded_contexts", "context_maps", "aggregate_definitions"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["DECOMPOSE-SYSTEM"],
+      "synergizes_with": ["task_decomposer", "domain_expert"],
+      "validation_rules": [
+        "Contexts well-bounded",
+        "Interfaces minimal",
+        "Aggregates consistent",
+        "Dependencies acyclic"
+      ],
+      "success_criteria": "System cleanly decomposed"
+    },
+    {
+      "id": "CAP-ARCH-028",
+      "name": "Architecture Review",
+      "description": "Reviews existing architecture against requirements, best practices, and PRISM standards providing improvement recommendations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["architecture_to_review"],
+        "optional": ["review_criteria", "comparison_targets"]
+      },
+      "outputs": {
+        "primary": "architecture_review_report",
+        "secondary": ["findings", "recommendations", "priority_improvements"]
+      },
+      "skills_used": ["prism-quality-master", "prism-sp-review-quality"],
+      "hooks_triggered": ["ARCH-REVIEW"],
+      "synergizes_with": ["code_reviewer", "data_quality_enforcer"],
+      "validation_rules": [
+        "All areas reviewed",
+        "Issues prioritized",
+        "Recommendations actionable",
+        "Standards referenced"
+      ],
+      "success_criteria": "Architecture improved"
+    },
+    {
+      "id": "CAP-ARCH-029",
+      "name": "Scalability Planning",
+      "description": "Plans architecture for scalability including horizontal scaling, data partitioning, and performance under load",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["scale_requirements"],
+        "optional": ["current_capacity", "growth_projections"]
+      },
+      "outputs": {
+        "primary": "scalability_plan",
+        "secondary": ["scaling_strategy", "partitioning_scheme", "bottleneck_analysis"]
+      },
+      "skills_used": ["prism-code-master", "prism-dev-utilities"],
+      "hooks_triggered": ["SCALE-PLAN"],
+      "synergizes_with": ["optimizer", "test_orchestrator"],
+      "validation_rules": [
+        "Scale points identified",
+        "Bottlenecks addressed",
+        "Data partitionable",
+        "Stateless where possible"
+      ],
+      "success_criteria": "System scales as needed"
+    },
+    {
+      "id": "CAP-ARCH-030",
+      "name": "Technology Selection",
+      "description": "Selects appropriate technologies for PRISM implementation including languages, frameworks, databases, and tools",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["requirements"],
+        "optional": ["constraints", "team_expertise"]
+      },
+      "outputs": {
+        "primary": "technology_recommendations",
+        "secondary": ["comparison_matrix", "risk_assessment", "learning_curve"]
+      },
+      "skills_used": ["prism-knowledge-master", "prism-code-master"],
+      "hooks_triggered": ["TECH-SELECT"],
+      "synergizes_with": ["researcher", "domain_expert"],
+      "validation_rules": [
+        "Requirements met",
+        "Risks acceptable",
+        "Team capable",
+        "Long-term viable"
+      ],
+      "success_criteria": "Technologies well-suited"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-code-master",
+    "prism-api-contracts",
+    "prism-dev-utilities",
+    "prism-material-schema",
+    "prism-hook-system",
+    "prism-swarm-coordinator",
+    "prism-agent-selector",
+    "prism-combination-engine",
+    "prism-monolith-index",
+    "prism-monolith-navigator",
+    "prism-monolith-extractor",
+    "prism-formula-evolution",
+    "prism-uncertainty-propagation",
+    "prism-deep-learning",
+    "prism-session-master",
+    "prism-quality-master",
+    "prism-sp-review-quality",
+    "prism-wiring-templates",
+    "prism-error-catalog",
+    "prism-fanuc-programming",
+    "prism-siemens-programming",
+    "prism-heidenhain-programming",
+    "prism-gcode-reference",
+    "prism-product-calculators",
+    "prism-anti-regression",
+    "prism-knowledge-master",
+    "prism-skill-orchestrator",
+    "prism-all-skills",
+    "prism-tdd-enhanced",
+    "prism-sp-brainstorm"
+  ],
+
+  "hooks_subscribed": [
+    "session:preStart",
+    "task:prePlan",
+    "task:mathPlanValidate",
+    "db:preValidate",
+    "formula:calibrationCheck",
+    "swarm:preStart",
+    "skill:detect",
+    "skill:load",
+    "mcp:preAction",
+    "quality:gateCheck",
+    "learning:extract",
+    "audit:write",
+    "SYS-LAW1-SAFETY",
+    "SYS-LAW4-REGRESSION",
+    "SYS-LAW6-CONTINUITY",
+    "SYS-CMD1-WIRING"
+  ],
+
+  "can_delegate_to": [
+    "schema_designer",
+    "api_designer",
+    "security_auditor",
+    "documentation_writer",
+    "test_orchestrator",
+    "dependency_analyzer",
+    "extractor",
+    "code_reviewer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "combination_optimizer",
+    "meta_analyst_v2",
+    "domain_expert"
+  ],
+
+  "quality_gates": [
+    "S(x) ≥ 0.70 for all designs",
+    "No circular dependencies",
+    "All contracts defined",
+    "Performance targets met",
+    "Security reviewed"
+  ],
+
+  "performance_metrics": {
+    "design_quality_score": 0.95,
+    "completeness_target": 1.00,
+    "latency_target_ms": 5000,
+    "documentation_coverage": 0.90,
+    "cost_budget_per_call": 0.20
+  }
+}

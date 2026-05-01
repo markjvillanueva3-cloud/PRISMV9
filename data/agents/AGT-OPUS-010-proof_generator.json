@@ -1,0 +1,407 @@
+{
+  "agent_id": "AGT-OPUS-010",
+  "name": "proof_generator",
+  "tier": "OPUS",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Mathematical Proof Generator - Creates Verifiable Proofs and Certificates",
+  
+  "domain_expertise": [
+    "Mathematical proof construction",
+    "LP duality theory",
+    "Optimality certification",
+    "Formal verification",
+    "Correctness proofs",
+    "Invariant analysis",
+    "Completeness proofs",
+    "Physics derivations",
+    "Error bound analysis",
+    "Certificate generation"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-PRF-001",
+      "name": "F-PROOF-001 Optimality Certificate",
+      "description": "Generates optimality certificates for ILP solutions using LP duality, proving solution is optimal or within bounded gap",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["ilp_solution", "primal_formulation", "dual_solution"],
+        "optional": ["certificate_type", "detail_level"]
+      },
+      "outputs": {
+        "primary": "optimality_certificate",
+        "secondary": ["proof_steps", "duality_gap", "verification_data"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-OPTIMALITY"],
+      "synergizes_with": ["combination_optimizer", "coordinator_v2"],
+      "certificates": {
+        "OPTIMAL": "Gap = 0%, proven optimal",
+        "NEAR_OPTIMAL": "Gap ≤ 2%, within tolerance",
+        "GOOD": "Gap ≤ 5%, acceptable",
+        "HEURISTIC": "Timeout, no proof"
+      },
+      "success_criteria": "Valid certificate generated"
+    },
+    {
+      "id": "CAP-PRF-002",
+      "name": "Physics Derivation Proof",
+      "description": "Proves correctness of physics calculations by deriving from first principles (Kienzle, Taylor, Johnson-Cook)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["calculation", "physics_model"],
+        "optional": ["assumptions", "boundary_conditions"]
+      },
+      "outputs": {
+        "primary": "derivation_proof",
+        "secondary": ["derivation_steps", "assumptions_used", "validity_bounds"]
+      },
+      "skills_used": ["prism-material-physics", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["PROOF-PHYSICS"],
+      "synergizes_with": ["physics_validator", "materials_scientist"],
+      "success_criteria": "Derivation mathematically correct"
+    },
+    {
+      "id": "CAP-PRF-003",
+      "name": "Completeness Proof Generation",
+      "description": "Proves completeness of data, coverage, or implementation per Law 3 (C(T) = 1.0)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["artifact", "requirements"],
+        "optional": ["proof_method"]
+      },
+      "outputs": {
+        "primary": "completeness_proof",
+        "secondary": ["coverage_map", "enumeration", "verification_steps"]
+      },
+      "skills_used": ["prism-sp-verification", "prism-mathematical-planning"],
+      "hooks_triggered": ["SYS-LAW3-COMPLETENESS", "PROOF-COMPLETENESS"],
+      "synergizes_with": ["completeness_auditor", "data_quality_enforcer"],
+      "success_criteria": "C(T) = 1.0 proven"
+    },
+    {
+      "id": "CAP-PRF-004",
+      "name": "Safety Bound Proof",
+      "description": "Proves safety constraints are satisfied (S(x) ≥ 0.70) with formal verification",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["system_state", "safety_constraints"],
+        "optional": ["proof_assumptions"]
+      },
+      "outputs": {
+        "primary": "safety_proof",
+        "secondary": ["safety_score_proof", "constraint_satisfaction", "margin_analysis"]
+      },
+      "skills_used": ["prism-quality-master", "prism-mathematical-planning"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "PROOF-SAFETY"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "success_criteria": "S(x) ≥ 0.70 proven"
+    },
+    {
+      "id": "CAP-PRF-005",
+      "name": "Anti-Regression Proof",
+      "description": "Proves that updates preserve all existing content per Law 4 (New ≥ Old)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["old_version", "new_version"],
+        "optional": ["comparison_method", "allowable_changes"]
+      },
+      "outputs": {
+        "primary": "regression_proof",
+        "secondary": ["comparison_report", "preserved_content", "changes_justified"]
+      },
+      "skills_used": ["prism-anti-regression", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW4-REGRESSION", "PROOF-REGRESSION"],
+      "synergizes_with": ["regression_checker", "data_quality_enforcer"],
+      "success_criteria": "New ≥ Old proven or justified"
+    },
+    {
+      "id": "CAP-PRF-006",
+      "name": "Uncertainty Bound Proof",
+      "description": "Proves uncertainty bounds are correctly calculated and propagated through calculations",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["calculation", "input_uncertainties"],
+        "optional": ["propagation_method"]
+      },
+      "outputs": {
+        "primary": "uncertainty_proof",
+        "secondary": ["propagation_steps", "bound_derivation", "confidence_level"]
+      },
+      "skills_used": ["prism-uncertainty-propagation", "prism-mathematical-planning"],
+      "hooks_triggered": ["SYS-CMD5-UNCERTAINTY", "PROOF-UNCERTAINTY"],
+      "synergizes_with": ["physics_validator", "uncertainty_quantifier"],
+      "success_criteria": "Uncertainty correctly propagated"
+    },
+    {
+      "id": "CAP-PRF-007",
+      "name": "Constraint Satisfaction Proof",
+      "description": "Proves that solution satisfies all constraints in ILP/optimization problems",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["solution", "constraints"],
+        "optional": ["tolerance"]
+      },
+      "outputs": {
+        "primary": "constraint_proof",
+        "secondary": ["constraint_values", "slack_values", "binding_constraints"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-CONSTRAINT"],
+      "synergizes_with": ["combination_optimizer"],
+      "success_criteria": "All constraints satisfied"
+    },
+    {
+      "id": "CAP-PRF-008",
+      "name": "Invariant Proof",
+      "description": "Proves system invariants hold across all states and transitions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["invariant", "system_model"],
+        "optional": ["state_space", "transitions"]
+      },
+      "outputs": {
+        "primary": "invariant_proof",
+        "secondary": ["proof_by_induction", "base_case", "inductive_step"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-code-master"],
+      "hooks_triggered": ["PROOF-INVARIANT"],
+      "synergizes_with": ["architect", "code_reviewer"],
+      "success_criteria": "Invariant proven to hold"
+    },
+    {
+      "id": "CAP-PRF-009",
+      "name": "Algorithm Correctness Proof",
+      "description": "Proves algorithm correctness including termination, correctness, and complexity bounds",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["algorithm", "specification"],
+        "optional": ["proof_technique"]
+      },
+      "outputs": {
+        "primary": "correctness_proof",
+        "secondary": ["termination_proof", "partial_correctness", "complexity_analysis"]
+      },
+      "skills_used": ["prism-code-master", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-ALGORITHM"],
+      "synergizes_with": ["architect", "code_reviewer"],
+      "success_criteria": "Algorithm proven correct"
+    },
+    {
+      "id": "CAP-PRF-010",
+      "name": "Coverage Proof Generation",
+      "description": "Proves that resources provide 100% coverage of requirements",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["resources", "requirements"],
+        "optional": ["coverage_definition"]
+      },
+      "outputs": {
+        "primary": "coverage_proof",
+        "secondary": ["coverage_mapping", "enumeration", "completeness_argument"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-sp-verification"],
+      "hooks_triggered": ["PROOF-COVERAGE"],
+      "synergizes_with": ["completeness_auditor", "coordinator_v2"],
+      "success_criteria": "Coverage = 1.0 proven"
+    },
+    {
+      "id": "CAP-PRF-011",
+      "name": "Dual Feasibility Proof",
+      "description": "Proves dual LP solution is feasible, providing valid bound for primal",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["dual_solution", "dual_constraints"],
+        "optional": ["tolerance"]
+      },
+      "outputs": {
+        "primary": "dual_feasibility_proof",
+        "secondary": ["constraint_satisfaction", "bound_validity"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-DUAL"],
+      "synergizes_with": ["combination_optimizer"],
+      "success_criteria": "Dual feasible, bound valid"
+    },
+    {
+      "id": "CAP-PRF-012",
+      "name": "Complementary Slackness Proof",
+      "description": "Proves optimality using complementary slackness conditions",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["primal_solution", "dual_solution"],
+        "optional": ["tolerance"]
+      },
+      "outputs": {
+        "primary": "slackness_proof",
+        "secondary": ["slackness_conditions", "optimality_conclusion"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-SLACKNESS"],
+      "synergizes_with": ["combination_optimizer"],
+      "success_criteria": "Complementary slackness satisfied"
+    },
+    {
+      "id": "CAP-PRF-013",
+      "name": "Convergence Proof",
+      "description": "Proves algorithm/iteration converges to solution (e.g., Ralph loops)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["iteration_data"],
+        "optional": ["convergence_criteria"]
+      },
+      "outputs": {
+        "primary": "convergence_proof",
+        "secondary": ["convergence_rate", "limit_analysis", "stability_proof"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-deep-learning"],
+      "hooks_triggered": ["ralph:completionCheck", "PROOF-CONVERGENCE"],
+      "synergizes_with": ["coordinator_v2", "learning_extractor_v2"],
+      "success_criteria": "Convergence proven"
+    },
+    {
+      "id": "CAP-PRF-014",
+      "name": "Error Bound Derivation",
+      "description": "Derives rigorous error bounds for numerical calculations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["calculation", "input_errors"],
+        "optional": ["error_model"]
+      },
+      "outputs": {
+        "primary": "error_bounds",
+        "secondary": ["derivation", "worst_case_analysis", "typical_case"]
+      },
+      "skills_used": ["prism-uncertainty-propagation", "prism-mathematical-planning"],
+      "hooks_triggered": ["PROOF-ERROR"],
+      "synergizes_with": ["physics_validator", "uncertainty_quantifier"],
+      "success_criteria": "Tight error bounds derived"
+    },
+    {
+      "id": "CAP-PRF-015",
+      "name": "Mathematical Rigor Certification",
+      "description": "Certifies that work meets M(x) ≥ 0.60 mathematical rigor standard",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["work_artifact"],
+        "optional": ["rigor_criteria"]
+      },
+      "outputs": {
+        "primary": "rigor_certificate",
+        "secondary": ["rigor_score", "criteria_evaluation", "improvements_needed"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW8-MATH-EVOLUTION", "PROOF-RIGOR"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "success_criteria": "M(x) ≥ 0.60 certified"
+    },
+    {
+      "id": "CAP-PRF-016",
+      "name": "Verification Chain Proof",
+      "description": "Proves verification chain is complete at required confidence level (95%)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["verification_steps"],
+        "optional": ["confidence_target"]
+      },
+      "outputs": {
+        "primary": "chain_proof",
+        "secondary": ["level_proofs", "cumulative_confidence", "gaps"]
+      },
+      "skills_used": ["prism-sp-verification", "prism-mathematical-planning"],
+      "hooks_triggered": ["SYS-LAW7-VERIFICATION", "verification:chainComplete"],
+      "synergizes_with": ["data_quality_enforcer", "test_orchestrator"],
+      "success_criteria": "95% confidence proven"
+    },
+    {
+      "id": "CAP-PRF-017",
+      "name": "Formula Derivation Proof",
+      "description": "Proves formula derivation from established physics/math principles",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["formula", "source_principles"],
+        "optional": ["derivation_path"]
+      },
+      "outputs": {
+        "primary": "derivation_proof",
+        "secondary": ["step_by_step", "assumptions", "validity_domain"]
+      },
+      "skills_used": ["prism-material-physics", "prism-formula-evolution"],
+      "hooks_triggered": ["PROOF-FORMULA"],
+      "synergizes_with": ["physics_validator", "materials_scientist"],
+      "success_criteria": "Derivation mathematically valid"
+    },
+    {
+      "id": "CAP-PRF-018",
+      "name": "Wiring Completeness Proof",
+      "description": "Proves database/module wiring is complete (6-8 consumers minimum per Commandment 1)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["wiring_map", "requirements"],
+        "optional": ["consumer_minimums"]
+      },
+      "outputs": {
+        "primary": "wiring_proof",
+        "secondary": ["consumer_counts", "coverage_proof", "gaps"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-dev-utilities"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "PROOF-WIRING"],
+      "synergizes_with": ["resource_auditor", "architect"],
+      "success_criteria": "All databases have 6+ consumers"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-mathematical-planning",
+    "prism-combination-engine",
+    "prism-uncertainty-propagation",
+    "prism-sp-verification",
+    "prism-quality-master",
+    "prism-material-physics",
+    "prism-formula-evolution",
+    "prism-anti-regression",
+    "prism-code-master",
+    "prism-wiring-templates",
+    "prism-dev-utilities"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW1-SAFETY",
+    "SYS-LAW3-COMPLETENESS",
+    "SYS-LAW4-REGRESSION",
+    "SYS-LAW7-VERIFICATION",
+    "SYS-LAW8-MATH-EVOLUTION",
+    "SYS-CMD1-WIRING",
+    "SYS-CMD5-UNCERTAINTY",
+    "verification:chainComplete",
+    "ralph:completionCheck",
+    "formula:calibrationCheck"
+  ],
+
+  "can_delegate_to": [
+    "physics_validator",
+    "data_quality_enforcer"
+  ],
+
+  "receives_from": [
+    "combination_optimizer",
+    "coordinator_v2",
+    "architect",
+    "calibration_engineer"
+  ],
+
+  "quality_gates": [
+    "Proofs mathematically valid",
+    "Certificates verifiable",
+    "Derivations complete",
+    "Bounds tight"
+  ],
+
+  "performance_metrics": {
+    "proof_validity_rate": 0.99,
+    "certificate_accuracy": 1.00,
+    "latency_target_ms": 3000,
+    "proof_completeness": 0.95
+  }
+}

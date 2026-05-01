@@ -1,0 +1,127 @@
+{
+  "_meta": {
+    "database": "CollisionDB",
+    "version": "1.0.0",
+    "description": "Collision detection reference data — safety zones, near-miss thresholds, source catalog",
+    "source_engine": "CollisionEngine.ts",
+    "safety_class": "CRITICAL",
+    "extracted": "2026-02-26",
+    "milestone": "L0-P0-MS2"
+  },
+  "default_clearance_mm": 2.0,
+  "near_miss_thresholds_mm": {
+    "HIGH": 1.0,
+    "MEDIUM": 3.0,
+    "LOW": 5.0,
+    "_note": "Minimum distance from collision — HIGH=danger zone, MEDIUM=caution, LOW=advisory"
+  },
+  "collision_check_types": [
+    "TOOL_VS_FIXTURE",
+    "TOOL_VS_STOCK",
+    "HOLDER_VS_FIXTURE",
+    "HOLDER_VS_STOCK",
+    "SPINDLE_VS_FIXTURE",
+    "HEAD_VS_FIXTURE",
+    "RAPID_MOVE_COLLISION",
+    "5AXIS_HEAD_CLEARANCE",
+    "TOOL_CLEARANCE"
+  ],
+  "bounding_box_types": {
+    "AABB": {
+      "name": "Axis-Aligned Bounding Box",
+      "description": "Fast broad-phase check, conservative",
+      "use_case": "Initial screening — rejects obvious non-collisions cheaply"
+    },
+    "OBB": {
+      "name": "Oriented Bounding Box",
+      "description": "Tighter fit for angled geometry",
+      "use_case": "5-axis rotated tool/holder assemblies"
+    },
+    "SWEPT_VOLUME": {
+      "name": "Swept Volume",
+      "description": "Volume traced by rotating/translating tool",
+      "use_case": "Continuous motion collision detection along toolpath segments"
+    }
+  },
+  "collision_algorithms": {
+    "SAT": {
+      "name": "Separating Axis Theorem",
+      "description": "Tests all potential separating axes between convex shapes",
+      "complexity": "O(n×m) for n and m faces",
+      "source": "Real-Time Collision Detection (Ericson)"
+    },
+    "GJK": {
+      "name": "Gilbert-Johnson-Keerthi",
+      "description": "Minkowski difference + simplex iteration for convex intersection",
+      "complexity": "O(n) average case",
+      "source": "MIT 6.838"
+    }
+  },
+  "stock_positions": {
+    "description": "18 canonical stock positions (HyperMILL-compatible) as normalized coordinates",
+    "positions": [
+      "TOP_CENTER", "TOP_LEFT_FRONT", "TOP_RIGHT_FRONT", "TOP_LEFT_BACK", "TOP_RIGHT_BACK",
+      "TOP_LEFT", "TOP_RIGHT", "TOP_FRONT", "TOP_BACK",
+      "BOTTOM_CENTER", "BOTTOM_LEFT_FRONT", "BOTTOM_RIGHT_FRONT", "BOTTOM_LEFT_BACK", "BOTTOM_RIGHT_BACK",
+      "BOTTOM_LEFT", "BOTTOM_RIGHT", "BOTTOM_FRONT", "BOTTOM_BACK"
+    ]
+  },
+  "source_file_catalog": {
+    "PRISM_3D_TOOLPATH_STRATEGY_ENGINE": {
+      "filename": "PRISM_3D_TOOLPATH_STRATEGY_ENGINE.js",
+      "category": "toolpath_strategy",
+      "lines": 102,
+      "safety_class": "HIGH",
+      "description": "3D toolpath strategy definitions for non-prismatic machining (molds, dies, organic shapes)",
+      "consumers": ["CollisionEngine.validateToolpath", "ToolpathPlanner"]
+    },
+    "PRISM_3D_VISUALIZATION_ENGINE": {
+      "filename": "PRISM_3D_VISUALIZATION_ENGINE.js",
+      "category": "visualization",
+      "lines": 235,
+      "safety_class": "MEDIUM",
+      "description": "Three.js-based 3D visualization engine for rendering toolpaths, stock, fixtures, and tools",
+      "consumers": ["CollisionEngine.visualizeResults", "SimulationUI"]
+    },
+    "PRISM_COLLISION_ALGORITHMS": {
+      "filename": "PRISM_COLLISION_ALGORITHMS.js",
+      "category": "collision_detection",
+      "lines": 284,
+      "safety_class": "CRITICAL",
+      "description": "Core collision algorithms including GJK for convex shape intersection via Minkowski difference and simplex iteration",
+      "consumers": ["CollisionEngine.checkCollision", "CollisionEngine.gjkIntersect", "PRISM_COLLISION_MOTION"]
+    },
+    "PRISM_COLLISION_DETECTION_V2": {
+      "filename": "PRISM_COLLISION_DETECTION_V2.js",
+      "category": "collision_detection",
+      "lines": 416,
+      "safety_class": "CRITICAL",
+      "description": "Enhanced collision detection v3.0 with configurable tolerances (head offset 0.5mm, fixture offset 0.5mm, check resolution 0.5mm)",
+      "consumers": ["CollisionEngine.runFullCheck", "CollisionEngine.checkToolAssembly", "SafetyValidator"]
+    },
+    "PRISM_COLLISION_ENGINE": {
+      "filename": "PRISM_COLLISION_ENGINE.js",
+      "category": "collision_detection",
+      "lines": 304,
+      "safety_class": "CRITICAL",
+      "description": "Core AABB collision engine — bounding box construction and fast box-vs-box intersection tests",
+      "consumers": ["CollisionEngine.checkAABBCollision", "CollisionEngine.broadPhase", "PRISM_COLLISION_DETECTION_V2"]
+    },
+    "PRISM_COLLISION_MOTION": {
+      "filename": "PRISM_COLLISION_MOTION.js",
+      "category": "motion_simulation",
+      "lines": 1295,
+      "safety_class": "CRITICAL",
+      "description": "Phase 4 motion planning and collision analysis — GJK algorithm, swept-volume collision checks along motion paths",
+      "consumers": ["CollisionEngine.checkMotionPath", "CollisionEngine.sweepTest", "MotionPlanner"]
+    },
+    "PRISM_STOCK_POSITIONS_DATABASE": {
+      "filename": "PRISM_STOCK_POSITIONS_DATABASE.js",
+      "category": "data",
+      "lines": 39,
+      "safety_class": "HIGH",
+      "description": "Stock position reference database (HyperMILL-compatible) — 18 canonical stock positions as normalized coordinates",
+      "consumers": ["CollisionEngine.getStockBounds", "FixtureManager", "SetupValidator"]
+    }
+  }
+}

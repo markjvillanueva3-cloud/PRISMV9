@@ -1,0 +1,3821 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-01T20:30:20.659935",
+  "description": "PRISM Development Hooks - Focus on development capabilities only",
+  "statistics": {
+    "total_hooks": 120,
+    "domains": {
+      "SKILL": 17,
+      "AGENT": 13,
+      "SWARM": 10,
+      "BATCH": 8,
+      "CONTEXT": 12,
+      "TOKEN": 7,
+      "LOOP": 10,
+      "SUPERPOWER": 17,
+      "RESOURCE": 8,
+      "MANUS": 10,
+      "CHECKPOINT": 8
+    },
+    "blocking_hooks": 18,
+    "disableable_hooks": 30
+  },
+  "hooks": [
+    {
+      "id": "SKILL-DISCOVER-INIT",
+      "name": "Skill Discovery Initialize",
+      "domain": "SKILL",
+      "category": "DISCOVERY",
+      "subcategory": "INIT",
+      "trigger": "skill:discover:init",
+      "description": "Initializes skill discovery process",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "taskContext",
+          "type": "object"
+        }
+      ],
+      "returns": "SkillList",
+      "sideEffects": [
+        "logs_discovery_start"
+      ],
+      "relatedHooks": [
+        "SKILL-DISCOVER-SCAN"
+      ],
+      "relatedSkills": [
+        "prism-skill-orchestrator",
+        "prism-all-skills"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_list",
+        "prism_skill_search"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-DISCOVER-SCAN",
+      "name": "Skill Discovery Scan",
+      "domain": "SKILL",
+      "category": "DISCOVERY",
+      "subcategory": "SCAN",
+      "trigger": "skill:discover:scan",
+      "description": "Scans all available skills for relevance",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "query",
+          "type": "string"
+        },
+        {
+          "name": "context",
+          "type": "object"
+        }
+      ],
+      "returns": "ScoredSkills",
+      "sideEffects": [
+        "computes_relevance_scores"
+      ],
+      "relatedHooks": [
+        "SKILL-DISCOVER-RANK"
+      ],
+      "relatedSkills": [
+        "prism-skill-orchestrator",
+        "prism-combination-engine"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_search",
+        "prism_skill_relevance"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-DISCOVER-RANK",
+      "name": "Skill Discovery Rank",
+      "domain": "SKILL",
+      "category": "DISCOVERY",
+      "subcategory": "RANK",
+      "trigger": "skill:discover:rank",
+      "description": "Ranks skills by relevance and synergy potential",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "scoredSkills",
+          "type": "array"
+        }
+      ],
+      "returns": "RankedSkills",
+      "sideEffects": [
+        "applies_synergy_matrix"
+      ],
+      "relatedHooks": [
+        "SKILL-DISCOVER-SELECT"
+      ],
+      "relatedSkills": [
+        "prism-synergy-calculator",
+        "prism-combination-engine"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_relevance"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-DISCOVER-SELECT",
+      "name": "Skill Discovery Select",
+      "domain": "SKILL",
+      "category": "DISCOVERY",
+      "subcategory": "SELECT",
+      "trigger": "skill:discover:select",
+      "description": "Selects optimal skill combination for task",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "rankedSkills",
+          "type": "array"
+        },
+        {
+          "name": "maxSkills",
+          "type": "int"
+        }
+      ],
+      "returns": "SelectedSkills",
+      "sideEffects": [
+        "applies_ILP_optimization"
+      ],
+      "relatedHooks": [
+        "SKILL-LOAD-QUEUE"
+      ],
+      "relatedSkills": [
+        "prism-combination-engine",
+        "prism-resource-optimizer"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_select"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-LOAD-QUEUE",
+      "name": "Skill Load Queue",
+      "domain": "SKILL",
+      "category": "LOADING",
+      "subcategory": "QUEUE",
+      "trigger": "skill:load:queue",
+      "description": "Queues skills for loading in optimal order",
+      "priority": 50,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "skills",
+          "type": "array"
+        }
+      ],
+      "returns": "LoadQueue",
+      "sideEffects": [
+        "optimizes_load_order"
+      ],
+      "relatedHooks": [
+        "SKILL-LOAD-EXECUTE"
+      ],
+      "relatedSkills": [
+        "prism-kv-cache-optimizer"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_load"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-LOAD-EXECUTE",
+      "name": "Skill Load Execute",
+      "domain": "SKILL",
+      "category": "LOADING",
+      "subcategory": "EXECUTE",
+      "trigger": "skill:load:execute",
+      "description": "Executes skill loading with KV-cache optimization",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "queue",
+          "type": "LoadQueue"
+        }
+      ],
+      "returns": "LoadedSkills",
+      "sideEffects": [
+        "updates_context_budget",
+        "caches_prefix"
+      ],
+      "relatedHooks": [
+        "SKILL-LOAD-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-kv-cache-optimizer",
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_read"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-LOAD-VERIFY",
+      "name": "Skill Load Verify",
+      "domain": "SKILL",
+      "category": "LOADING",
+      "subcategory": "VERIFY",
+      "trigger": "skill:load:verify",
+      "description": "Verifies skills loaded correctly",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "loadedSkills",
+          "type": "array"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_integrity"
+      ],
+      "relatedHooks": [
+        "SKILL-APPLY-INIT"
+      ],
+      "relatedSkills": [
+        "prism-validator"
+      ],
+      "relatedMCPTools": [
+        "prism_cache_validate"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-APPLY-INIT",
+      "name": "Skill Apply Initialize",
+      "domain": "SKILL",
+      "category": "APPLICATION",
+      "subcategory": "INIT",
+      "trigger": "skill:apply:init",
+      "description": "Initializes skill application context",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "skills",
+          "type": "array"
+        },
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "ApplicationContext",
+      "sideEffects": [
+        "creates_execution_plan"
+      ],
+      "relatedHooks": [
+        "SKILL-APPLY-EXECUTE"
+      ],
+      "relatedSkills": [
+        "prism-sp-planning"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-APPLY-EXECUTE",
+      "name": "Skill Apply Execute",
+      "domain": "SKILL",
+      "category": "APPLICATION",
+      "subcategory": "EXECUTE",
+      "trigger": "skill:apply:execute",
+      "description": "Executes skill logic for task",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "ApplicationContext"
+        }
+      ],
+      "returns": "TaskResult",
+      "sideEffects": [
+        "applies_skill_logic",
+        "logs_execution"
+      ],
+      "relatedHooks": [
+        "SKILL-APPLY-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-sp-execution"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-APPLY-VERIFY",
+      "name": "Skill Apply Verify",
+      "domain": "SKILL",
+      "category": "APPLICATION",
+      "subcategory": "VERIFY",
+      "trigger": "skill:apply:verify",
+      "description": "Verifies skill application results",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "result",
+          "type": "TaskResult"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_output_quality"
+      ],
+      "relatedHooks": [
+        "SKILL-APPLY-LEARN"
+      ],
+      "relatedSkills": [
+        "prism-sp-verification",
+        "prism-quality-master"
+      ],
+      "relatedMCPTools": [
+        "prism_quality_omega"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-APPLY-LEARN",
+      "name": "Skill Apply Learn",
+      "domain": "SKILL",
+      "category": "APPLICATION",
+      "subcategory": "LEARN",
+      "trigger": "skill:apply:learn",
+      "description": "Extracts learning patterns from skill application",
+      "priority": 80,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "result",
+          "type": "TaskResult"
+        }
+      ],
+      "returns": "LearningPatterns",
+      "sideEffects": [
+        "extracts_patterns",
+        "updates_calibration"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-learning-engines",
+        "prism-prediction-engine"
+      ],
+      "relatedMCPTools": [
+        "prism_error_learn"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-COMBO-ANALYZE",
+      "name": "Skill Combination Analyze",
+      "domain": "SKILL",
+      "category": "COMBINATION",
+      "subcategory": "ANALYZE",
+      "trigger": "skill:combo:analyze",
+      "description": "Analyzes potential skill combinations",
+      "priority": 30,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "skills",
+          "type": "array"
+        }
+      ],
+      "returns": "CombinationAnalysis",
+      "sideEffects": [
+        "computes_synergy_scores"
+      ],
+      "relatedHooks": [
+        "SKILL-COMBO-OPTIMIZE"
+      ],
+      "relatedSkills": [
+        "prism-synergy-calculator",
+        "prism-combination-engine"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-COMBO-OPTIMIZE",
+      "name": "Skill Combination Optimize",
+      "domain": "SKILL",
+      "category": "COMBINATION",
+      "subcategory": "OPTIMIZE",
+      "trigger": "skill:combo:optimize",
+      "description": "Optimizes skill combination using ILP (F-PSI-001)",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "analysis",
+          "type": "CombinationAnalysis"
+        }
+      ],
+      "returns": "OptimalCombination",
+      "sideEffects": [
+        "applies_ILP_solver",
+        "maximizes_synergy"
+      ],
+      "relatedHooks": [
+        "SKILL-COMBO-VALIDATE"
+      ],
+      "relatedSkills": [
+        "prism-combination-engine",
+        "prism-mathematical-optimization"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-COMBO-VALIDATE",
+      "name": "Skill Combination Validate",
+      "domain": "SKILL",
+      "category": "COMBINATION",
+      "subcategory": "VALIDATE",
+      "trigger": "skill:combo:validate",
+      "description": "Validates skill combination doesn't exceed context budget",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "combination",
+          "type": "OptimalCombination"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "checks_token_budget",
+        "validates_compatibility"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-context-pressure",
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [
+        "prism_context_size"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-UTIL-TRACK",
+      "name": "Skill Utilization Track",
+      "domain": "SKILL",
+      "category": "UTILIZATION",
+      "subcategory": "TRACK",
+      "trigger": "skill:util:track",
+      "description": "Tracks skill utilization across session",
+      "priority": 100,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "skillId",
+          "type": "string"
+        },
+        {
+          "name": "usage",
+          "type": "object"
+        }
+      ],
+      "returns": "void",
+      "sideEffects": [
+        "logs_utilization"
+      ],
+      "relatedHooks": [
+        "SKILL-UTIL-REPORT"
+      ],
+      "relatedSkills": [
+        "prism-utilization"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-UTIL-REPORT",
+      "name": "Skill Utilization Report",
+      "domain": "SKILL",
+      "category": "UTILIZATION",
+      "subcategory": "REPORT",
+      "trigger": "skill:util:report",
+      "description": "Generates skill utilization report",
+      "priority": 100,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [],
+      "returns": "UtilizationReport",
+      "sideEffects": [
+        "aggregates_metrics"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-utilization"
+      ],
+      "relatedMCPTools": [
+        "prism_skill_stats"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SKILL-UTIL-OPTIMIZE",
+      "name": "Skill Utilization Optimize",
+      "domain": "SKILL",
+      "category": "UTILIZATION",
+      "subcategory": "OPTIMIZE",
+      "trigger": "skill:util:optimize",
+      "description": "Suggests skill utilization improvements",
+      "priority": 80,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "report",
+          "type": "UtilizationReport"
+        }
+      ],
+      "returns": "OptimizationSuggestions",
+      "sideEffects": [
+        "analyzes_gaps",
+        "suggests_improvements"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-utilization",
+        "prism-resource-optimizer"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-SELECT-ANALYZE",
+      "name": "Agent Selection Analyze",
+      "domain": "AGENT",
+      "category": "SELECTION",
+      "subcategory": "ANALYZE",
+      "trigger": "agent:select:analyze",
+      "description": "Analyzes task requirements for agent selection",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "TaskAnalysis",
+      "sideEffects": [
+        "determines_complexity",
+        "identifies_skills_needed"
+      ],
+      "relatedHooks": [
+        "AGENT-SELECT-MATCH"
+      ],
+      "relatedSkills": [
+        "prism-agent-selector"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_list"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-SELECT-MATCH",
+      "name": "Agent Selection Match",
+      "domain": "AGENT",
+      "category": "SELECTION",
+      "subcategory": "MATCH",
+      "trigger": "agent:select:match",
+      "description": "Matches task to optimal agent tier",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "analysis",
+          "type": "TaskAnalysis"
+        }
+      ],
+      "returns": "AgentMatch",
+      "sideEffects": [
+        "scores_agents",
+        "considers_cost"
+      ],
+      "relatedHooks": [
+        "AGENT-SELECT-DECIDE"
+      ],
+      "relatedSkills": [
+        "prism-agent-selector"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_select"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-SELECT-DECIDE",
+      "name": "Agent Selection Decide",
+      "domain": "AGENT",
+      "category": "SELECTION",
+      "subcategory": "DECIDE",
+      "trigger": "agent:select:decide",
+      "description": "Decides final agent selection (OPUS/SONNET/HAIKU)",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "match",
+          "type": "AgentMatch"
+        }
+      ],
+      "returns": "SelectedAgent",
+      "sideEffects": [
+        "applies_tier_rules"
+      ],
+      "relatedHooks": [
+        "AGENT-SPAWN-INIT"
+      ],
+      "relatedSkills": [
+        "prism-agent-selector"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_select"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-SPAWN-INIT",
+      "name": "Agent Spawn Initialize",
+      "domain": "AGENT",
+      "category": "SPAWNING",
+      "subcategory": "INIT",
+      "trigger": "agent:spawn:init",
+      "description": "Initializes agent spawn with context injection",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "agent",
+          "type": "SelectedAgent"
+        },
+        {
+          "name": "context",
+          "type": "object"
+        }
+      ],
+      "returns": "SpawnConfig",
+      "sideEffects": [
+        "prepares_context",
+        "sets_personality"
+      ],
+      "relatedHooks": [
+        "AGENT-SPAWN-EXECUTE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_spawn"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-SPAWN-EXECUTE",
+      "name": "Agent Spawn Execute",
+      "domain": "AGENT",
+      "category": "SPAWNING",
+      "subcategory": "EXECUTE",
+      "trigger": "agent:spawn:execute",
+      "description": "Executes agent spawn via API",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "config",
+          "type": "SpawnConfig"
+        }
+      ],
+      "returns": "SpawnedAgent",
+      "sideEffects": [
+        "calls_api",
+        "injects_context"
+      ],
+      "relatedHooks": [
+        "AGENT-SPAWN-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-api-acceleration"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_spawn"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-SPAWN-VERIFY",
+      "name": "Agent Spawn Verify",
+      "domain": "AGENT",
+      "category": "SPAWNING",
+      "subcategory": "VERIFY",
+      "trigger": "agent:spawn:verify",
+      "description": "Verifies agent spawned correctly",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "spawned",
+          "type": "SpawnedAgent"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_response",
+        "checks_context_injection"
+      ],
+      "relatedHooks": [
+        "AGENT-TASK-ASSIGN"
+      ],
+      "relatedSkills": [
+        "prism-validator"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_status"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-TASK-ASSIGN",
+      "name": "Agent Task Assign",
+      "domain": "AGENT",
+      "category": "TASK",
+      "subcategory": "ASSIGN",
+      "trigger": "agent:task:assign",
+      "description": "Assigns task to spawned agent",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "agent",
+          "type": "SpawnedAgent"
+        },
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "AssignedTask",
+      "sideEffects": [
+        "creates_task_prompt",
+        "sets_constraints"
+      ],
+      "relatedHooks": [
+        "AGENT-TASK-MONITOR"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-TASK-MONITOR",
+      "name": "Agent Task Monitor",
+      "domain": "AGENT",
+      "category": "TASK",
+      "subcategory": "MONITOR",
+      "trigger": "agent:task:monitor",
+      "description": "Monitors agent task progress",
+      "priority": 80,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "AssignedTask"
+        }
+      ],
+      "returns": "TaskProgress",
+      "sideEffects": [
+        "tracks_progress",
+        "detects_stuck"
+      ],
+      "relatedHooks": [
+        "AGENT-TASK-INTERVENE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [
+        "prism_agent_status"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-TASK-INTERVENE",
+      "name": "Agent Task Intervene",
+      "domain": "AGENT",
+      "category": "TASK",
+      "subcategory": "INTERVENE",
+      "trigger": "agent:task:intervene",
+      "description": "Intervenes if agent is stuck or off-track",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "progress",
+          "type": "TaskProgress"
+        }
+      ],
+      "returns": "Intervention",
+      "sideEffects": [
+        "corrects_course",
+        "provides_hints"
+      ],
+      "relatedHooks": [
+        "AGENT-TASK-COMPLETE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-TASK-COMPLETE",
+      "name": "Agent Task Complete",
+      "domain": "AGENT",
+      "category": "TASK",
+      "subcategory": "COMPLETE",
+      "trigger": "agent:task:complete",
+      "description": "Handles agent task completion",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "AssignedTask"
+        }
+      ],
+      "returns": "TaskResult",
+      "sideEffects": [
+        "collects_output",
+        "validates_quality"
+      ],
+      "relatedHooks": [
+        "AGENT-RESULT-MERGE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator",
+        "prism-quality-master"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-RESULT-MERGE",
+      "name": "Agent Result Merge",
+      "domain": "AGENT",
+      "category": "RESULT",
+      "subcategory": "MERGE",
+      "trigger": "agent:result:merge",
+      "description": "Merges results from multiple agents",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "results",
+          "type": "array"
+        }
+      ],
+      "returns": "MergedResult",
+      "sideEffects": [
+        "resolves_conflicts",
+        "combines_outputs"
+      ],
+      "relatedHooks": [
+        "AGENT-RESULT-VALIDATE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-RESULT-VALIDATE",
+      "name": "Agent Result Validate",
+      "domain": "AGENT",
+      "category": "RESULT",
+      "subcategory": "VALIDATE",
+      "trigger": "agent:result:validate",
+      "description": "Validates merged agent results",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "merged",
+          "type": "MergedResult"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "checks_completeness",
+        "validates_quality"
+      ],
+      "relatedHooks": [
+        "AGENT-RESULT-LEARN"
+      ],
+      "relatedSkills": [
+        "prism-sp-verification",
+        "prism-quality-master"
+      ],
+      "relatedMCPTools": [
+        "prism_quality_omega"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "AGENT-RESULT-LEARN",
+      "name": "Agent Result Learn",
+      "domain": "AGENT",
+      "category": "RESULT",
+      "subcategory": "LEARN",
+      "trigger": "agent:result:learn",
+      "description": "Extracts learning from agent execution",
+      "priority": 90,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "result",
+          "type": "MergedResult"
+        }
+      ],
+      "returns": "AgentLearning",
+      "sideEffects": [
+        "extracts_patterns",
+        "updates_agent_profiles"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-learning-engines"
+      ],
+      "relatedMCPTools": [
+        "prism_error_learn"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-PLAN-DECOMPOSE",
+      "name": "Swarm Plan Decompose",
+      "domain": "SWARM",
+      "category": "PLANNING",
+      "subcategory": "DECOMPOSE",
+      "trigger": "swarm:plan:decompose",
+      "description": "Decomposes task into parallelizable subtasks",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "TaskDecomposition",
+      "sideEffects": [
+        "identifies_parallel_opportunities",
+        "maps_dependencies"
+      ],
+      "relatedHooks": [
+        "SWARM-PLAN-ALLOCATE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-extraction",
+        "prism-sp-planning"
+      ],
+      "relatedMCPTools": [
+        "prism_master_swarm"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-PLAN-ALLOCATE",
+      "name": "Swarm Plan Allocate",
+      "domain": "SWARM",
+      "category": "PLANNING",
+      "subcategory": "ALLOCATE",
+      "trigger": "swarm:plan:allocate",
+      "description": "Allocates subtasks to agent tiers",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "decomposition",
+          "type": "TaskDecomposition"
+        }
+      ],
+      "returns": "AllocationPlan",
+      "sideEffects": [
+        "matches_complexity_to_tier",
+        "optimizes_cost"
+      ],
+      "relatedHooks": [
+        "SWARM-PLAN-SCHEDULE"
+      ],
+      "relatedSkills": [
+        "prism-agent-selector",
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-PLAN-SCHEDULE",
+      "name": "Swarm Plan Schedule",
+      "domain": "SWARM",
+      "category": "PLANNING",
+      "subcategory": "SCHEDULE",
+      "trigger": "swarm:plan:schedule",
+      "description": "Schedules swarm execution respecting dependencies",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "allocation",
+          "type": "AllocationPlan"
+        }
+      ],
+      "returns": "ExecutionSchedule",
+      "sideEffects": [
+        "topological_sort",
+        "parallel_grouping"
+      ],
+      "relatedHooks": [
+        "SWARM-EXEC-INIT"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-EXEC-INIT",
+      "name": "Swarm Execution Initialize",
+      "domain": "SWARM",
+      "category": "EXECUTION",
+      "subcategory": "INIT",
+      "trigger": "swarm:exec:init",
+      "description": "Initializes swarm execution environment",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "schedule",
+          "type": "ExecutionSchedule"
+        }
+      ],
+      "returns": "SwarmContext",
+      "sideEffects": [
+        "creates_shared_context",
+        "initializes_sync"
+      ],
+      "relatedHooks": [
+        "SWARM-EXEC-WAVE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [
+        "prism_master_swarm"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-EXEC-WAVE",
+      "name": "Swarm Execution Wave",
+      "domain": "SWARM",
+      "category": "EXECUTION",
+      "subcategory": "WAVE",
+      "trigger": "swarm:exec:wave",
+      "description": "Executes parallel wave of agents",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "wave",
+          "type": "array"
+        },
+        {
+          "name": "context",
+          "type": "SwarmContext"
+        }
+      ],
+      "returns": "WaveResult",
+      "sideEffects": [
+        "spawns_parallel_agents",
+        "collects_results"
+      ],
+      "relatedHooks": [
+        "SWARM-EXEC-SYNC"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator",
+        "prism-batch-parallel"
+      ],
+      "relatedMCPTools": [
+        "prism_master_swarm"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-EXEC-SYNC",
+      "name": "Swarm Execution Sync",
+      "domain": "SWARM",
+      "category": "EXECUTION",
+      "subcategory": "SYNC",
+      "trigger": "swarm:exec:sync",
+      "description": "Synchronizes results between waves",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "waveResult",
+          "type": "WaveResult"
+        }
+      ],
+      "returns": "SyncedContext",
+      "sideEffects": [
+        "merges_results",
+        "updates_shared_state"
+      ],
+      "relatedHooks": [
+        "SWARM-EXEC-NEXT"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-EXEC-NEXT",
+      "name": "Swarm Execution Next",
+      "domain": "SWARM",
+      "category": "EXECUTION",
+      "subcategory": "NEXT",
+      "trigger": "swarm:exec:next",
+      "description": "Determines next wave or completion",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "SyncedContext"
+        }
+      ],
+      "returns": "NextAction",
+      "sideEffects": [
+        "checks_remaining_tasks",
+        "validates_dependencies"
+      ],
+      "relatedHooks": [
+        "SWARM-EXEC-WAVE",
+        "SWARM-RESULT-COLLECT"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-RESULT-COLLECT",
+      "name": "Swarm Result Collect",
+      "domain": "SWARM",
+      "category": "RESULT",
+      "subcategory": "COLLECT",
+      "trigger": "swarm:result:collect",
+      "description": "Collects all swarm results",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "SwarmContext"
+        }
+      ],
+      "returns": "SwarmResults",
+      "sideEffects": [
+        "aggregates_all_outputs"
+      ],
+      "relatedHooks": [
+        "SWARM-RESULT-MERGE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-RESULT-MERGE",
+      "name": "Swarm Result Merge",
+      "domain": "SWARM",
+      "category": "RESULT",
+      "subcategory": "MERGE",
+      "trigger": "swarm:result:merge",
+      "description": "Merges swarm results into coherent output",
+      "priority": 80,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "results",
+          "type": "SwarmResults"
+        }
+      ],
+      "returns": "MergedOutput",
+      "sideEffects": [
+        "resolves_conflicts",
+        "combines_components"
+      ],
+      "relatedHooks": [
+        "SWARM-RESULT-VALIDATE"
+      ],
+      "relatedSkills": [
+        "prism-swarm-coordinator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SWARM-RESULT-VALIDATE",
+      "name": "Swarm Result Validate",
+      "domain": "SWARM",
+      "category": "RESULT",
+      "subcategory": "VALIDATE",
+      "trigger": "swarm:result:validate",
+      "description": "Validates complete swarm output",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "output",
+          "type": "MergedOutput"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "checks_completeness",
+        "validates_coherence"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-sp-verification",
+        "prism-quality-master"
+      ],
+      "relatedMCPTools": [
+        "prism_quality_omega"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-DETECT-OPPORTUNITY",
+      "name": "Batch Detect Opportunity",
+      "domain": "BATCH",
+      "category": "DETECTION",
+      "subcategory": "OPPORTUNITY",
+      "trigger": "batch:detect:opportunity",
+      "description": "Detects batch processing opportunities",
+      "priority": 20,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "operations",
+          "type": "array"
+        }
+      ],
+      "returns": "BatchOpportunities",
+      "sideEffects": [
+        "identifies_similar_ops",
+        "computes_batch_benefit"
+      ],
+      "relatedHooks": [
+        "BATCH-PLAN-GROUP"
+      ],
+      "relatedSkills": [
+        "prism-batch-orchestrator"
+      ],
+      "relatedMCPTools": [
+        "prism_master_batch"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-PLAN-GROUP",
+      "name": "Batch Plan Group",
+      "domain": "BATCH",
+      "category": "PLANNING",
+      "subcategory": "GROUP",
+      "trigger": "batch:plan:group",
+      "description": "Groups operations into optimal batches",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "opportunities",
+          "type": "BatchOpportunities"
+        }
+      ],
+      "returns": "BatchGroups",
+      "sideEffects": [
+        "maximizes_parallelism",
+        "respects_dependencies"
+      ],
+      "relatedHooks": [
+        "BATCH-PLAN-SIZE"
+      ],
+      "relatedSkills": [
+        "prism-batch-orchestrator",
+        "prism-batch-parallel"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-PLAN-SIZE",
+      "name": "Batch Plan Size",
+      "domain": "BATCH",
+      "category": "PLANNING",
+      "subcategory": "SIZE",
+      "trigger": "batch:plan:size",
+      "description": "Determines optimal batch sizes",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "groups",
+          "type": "BatchGroups"
+        }
+      ],
+      "returns": "SizedBatches",
+      "sideEffects": [
+        "considers_context_limits",
+        "optimizes_throughput"
+      ],
+      "relatedHooks": [
+        "BATCH-EXEC-INIT"
+      ],
+      "relatedSkills": [
+        "prism-batch-orchestrator",
+        "prism-context-pressure"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-EXEC-INIT",
+      "name": "Batch Execution Initialize",
+      "domain": "BATCH",
+      "category": "EXECUTION",
+      "subcategory": "INIT",
+      "trigger": "batch:exec:init",
+      "description": "Initializes batch execution",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "batches",
+          "type": "SizedBatches"
+        }
+      ],
+      "returns": "BatchContext",
+      "sideEffects": [
+        "prepares_executor",
+        "allocates_workers"
+      ],
+      "relatedHooks": [
+        "BATCH-EXEC-PROCESS"
+      ],
+      "relatedSkills": [
+        "prism-batch-parallel-engine"
+      ],
+      "relatedMCPTools": [
+        "prism_master_batch"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-EXEC-PROCESS",
+      "name": "Batch Execution Process",
+      "domain": "BATCH",
+      "category": "EXECUTION",
+      "subcategory": "PROCESS",
+      "trigger": "batch:exec:process",
+      "description": "Processes batch with parallel execution",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "batch",
+          "type": "object"
+        },
+        {
+          "name": "context",
+          "type": "BatchContext"
+        }
+      ],
+      "returns": "BatchResult",
+      "sideEffects": [
+        "executes_parallel",
+        "tracks_progress"
+      ],
+      "relatedHooks": [
+        "BATCH-EXEC-COLLECT"
+      ],
+      "relatedSkills": [
+        "prism-batch-parallel-engine"
+      ],
+      "relatedMCPTools": [
+        "prism_batch_execute"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-EXEC-COLLECT",
+      "name": "Batch Execution Collect",
+      "domain": "BATCH",
+      "category": "EXECUTION",
+      "subcategory": "COLLECT",
+      "trigger": "batch:exec:collect",
+      "description": "Collects batch execution results",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "results",
+          "type": "array"
+        }
+      ],
+      "returns": "CollectedResults",
+      "sideEffects": [
+        "aggregates_outputs",
+        "handles_errors"
+      ],
+      "relatedHooks": [
+        "BATCH-RESULT-VALIDATE"
+      ],
+      "relatedSkills": [
+        "prism-batch-orchestrator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-RESULT-VALIDATE",
+      "name": "Batch Result Validate",
+      "domain": "BATCH",
+      "category": "RESULT",
+      "subcategory": "VALIDATE",
+      "trigger": "batch:result:validate",
+      "description": "Validates batch results",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "collected",
+          "type": "CollectedResults"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "checks_all_succeeded",
+        "validates_outputs"
+      ],
+      "relatedHooks": [
+        "BATCH-RESULT-METRICS"
+      ],
+      "relatedSkills": [
+        "prism-validator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BATCH-RESULT-METRICS",
+      "name": "Batch Result Metrics",
+      "domain": "BATCH",
+      "category": "RESULT",
+      "subcategory": "METRICS",
+      "trigger": "batch:result:metrics",
+      "description": "Computes batch performance metrics",
+      "priority": 90,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "results",
+          "type": "CollectedResults"
+        }
+      ],
+      "returns": "BatchMetrics",
+      "sideEffects": [
+        "computes_speedup",
+        "tracks_efficiency"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-batch-orchestrator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-MONITOR-SIZE",
+      "name": "Context Monitor Size",
+      "domain": "CONTEXT",
+      "category": "MONITORING",
+      "subcategory": "SIZE",
+      "trigger": "context:monitor:size",
+      "description": "Monitors current context window usage",
+      "priority": 100,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [],
+      "returns": "ContextSize",
+      "sideEffects": [
+        "computes_token_count"
+      ],
+      "relatedHooks": [
+        "CONTEXT-MONITOR-PRESSURE"
+      ],
+      "relatedSkills": [
+        "prism-context-pressure"
+      ],
+      "relatedMCPTools": [
+        "prism_context_size"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-MONITOR-PRESSURE",
+      "name": "Context Monitor Pressure",
+      "domain": "CONTEXT",
+      "category": "MONITORING",
+      "subcategory": "PRESSURE",
+      "trigger": "context:monitor:pressure",
+      "description": "Computes context pressure level",
+      "priority": 100,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "size",
+          "type": "ContextSize"
+        }
+      ],
+      "returns": "PressureLevel",
+      "sideEffects": [
+        "classifies_green_yellow_orange_red"
+      ],
+      "relatedHooks": [
+        "CONTEXT-MONITOR-ALERT"
+      ],
+      "relatedSkills": [
+        "prism-context-pressure"
+      ],
+      "relatedMCPTools": [
+        "prism_context_pressure"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-MONITOR-ALERT",
+      "name": "Context Monitor Alert",
+      "domain": "CONTEXT",
+      "category": "MONITORING",
+      "subcategory": "ALERT",
+      "trigger": "context:monitor:alert",
+      "description": "Alerts on context pressure thresholds",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "pressure",
+          "type": "PressureLevel"
+        }
+      ],
+      "returns": "Alert",
+      "sideEffects": [
+        "triggers_appropriate_action"
+      ],
+      "relatedHooks": [
+        "CONTEXT-COMPRESS-TRIGGER",
+        "CONTEXT-HANDOFF-TRIGGER"
+      ],
+      "relatedSkills": [
+        "prism-context-pressure",
+        "prism-session-buffer"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-COMPRESS-TRIGGER",
+      "name": "Context Compress Trigger",
+      "domain": "CONTEXT",
+      "category": "COMPRESSION",
+      "subcategory": "TRIGGER",
+      "trigger": "context:compress:trigger",
+      "description": "Triggers context compression at ORANGE level (75-85%)",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "pressure",
+          "type": "PressureLevel"
+        }
+      ],
+      "returns": "CompressionDecision",
+      "sideEffects": [
+        "decides_compression_strategy"
+      ],
+      "relatedHooks": [
+        "CONTEXT-COMPRESS-EXECUTE"
+      ],
+      "relatedSkills": [
+        "prism-context-pressure"
+      ],
+      "relatedMCPTools": [
+        "prism_context_compress"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-COMPRESS-EXECUTE",
+      "name": "Context Compress Execute",
+      "domain": "CONTEXT",
+      "category": "COMPRESSION",
+      "subcategory": "EXECUTE",
+      "trigger": "context:compress:execute",
+      "description": "Executes context compression",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "decision",
+          "type": "CompressionDecision"
+        }
+      ],
+      "returns": "CompressedContext",
+      "sideEffects": [
+        "compresses_non_essential",
+        "preserves_critical"
+      ],
+      "relatedHooks": [
+        "CONTEXT-COMPRESS-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-context-dna"
+      ],
+      "relatedMCPTools": [
+        "prism_context_compress"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-COMPRESS-VERIFY",
+      "name": "Context Compress Verify",
+      "domain": "CONTEXT",
+      "category": "COMPRESSION",
+      "subcategory": "VERIFY",
+      "trigger": "context:compress:verify",
+      "description": "Verifies compression preserved critical info",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "compressed",
+          "type": "CompressedContext"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_critical_preserved"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-context-dna"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-HANDOFF-TRIGGER",
+      "name": "Context Handoff Trigger",
+      "domain": "CONTEXT",
+      "category": "HANDOFF",
+      "subcategory": "TRIGGER",
+      "trigger": "context:handoff:trigger",
+      "description": "Triggers handoff at RED level (85-92%)",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "pressure",
+          "type": "PressureLevel"
+        }
+      ],
+      "returns": "HandoffDecision",
+      "sideEffects": [
+        "prepares_handoff"
+      ],
+      "relatedHooks": [
+        "CONTEXT-HANDOFF-PREPARE"
+      ],
+      "relatedSkills": [
+        "prism-session-handoff",
+        "prism-sp-handoff"
+      ],
+      "relatedMCPTools": [
+        "prism_handoff_prepare"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-HANDOFF-PREPARE",
+      "name": "Context Handoff Prepare",
+      "domain": "CONTEXT",
+      "category": "HANDOFF",
+      "subcategory": "PREPARE",
+      "trigger": "context:handoff:prepare",
+      "description": "Prepares context for next session",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "decision",
+          "type": "HandoffDecision"
+        }
+      ],
+      "returns": "HandoffPackage",
+      "sideEffects": [
+        "captures_state",
+        "creates_quick_resume"
+      ],
+      "relatedHooks": [
+        "CONTEXT-HANDOFF-SAVE"
+      ],
+      "relatedSkills": [
+        "prism-sp-handoff",
+        "prism-state-manager"
+      ],
+      "relatedMCPTools": [
+        "prism_handoff_prepare"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CONTEXT-HANDOFF-SAVE",
+      "name": "Context Handoff Save",
+      "domain": "CONTEXT",
+      "category": "HANDOFF",
+      "subcategory": "SAVE",
+      "trigger": "context:handoff:save",
+      "description": "Saves handoff state to persistent storage",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "package",
+          "type": "HandoffPackage"
+        }
+      ],
+      "returns": "SaveResult",
+      "sideEffects": [
+        "writes_state_file",
+        "updates_roadmap"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-state-manager"
+      ],
+      "relatedMCPTools": [
+        "prism_state_checkpoint"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "KVCACHE-OPTIMIZE-ANALYZE",
+      "name": "KV-Cache Optimize Analyze",
+      "domain": "CONTEXT",
+      "category": "KVCACHE",
+      "subcategory": "ANALYZE",
+      "trigger": "kvcache:optimize:analyze",
+      "description": "Analyzes KV-cache optimization opportunities",
+      "priority": 80,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "object"
+        }
+      ],
+      "returns": "CacheAnalysis",
+      "sideEffects": [
+        "identifies_reusable_prefixes"
+      ],
+      "relatedHooks": [
+        "KVCACHE-OPTIMIZE-ORDER"
+      ],
+      "relatedSkills": [
+        "prism-kv-cache-optimizer"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "KVCACHE-OPTIMIZE-ORDER",
+      "name": "KV-Cache Optimize Order",
+      "domain": "CONTEXT",
+      "category": "KVCACHE",
+      "subcategory": "ORDER",
+      "trigger": "kvcache:optimize:order",
+      "description": "Optimizes content order for cache reuse",
+      "priority": 70,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "analysis",
+          "type": "CacheAnalysis"
+        }
+      ],
+      "returns": "OptimizedOrder",
+      "sideEffects": [
+        "reorders_for_cache_hits"
+      ],
+      "relatedHooks": [
+        "KVCACHE-OPTIMIZE-APPLY"
+      ],
+      "relatedSkills": [
+        "prism-kv-cache-optimizer"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "KVCACHE-OPTIMIZE-APPLY",
+      "name": "KV-Cache Optimize Apply",
+      "domain": "CONTEXT",
+      "category": "KVCACHE",
+      "subcategory": "APPLY",
+      "trigger": "kvcache:optimize:apply",
+      "description": "Applies KV-cache optimizations",
+      "priority": 60,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "order",
+          "type": "OptimizedOrder"
+        }
+      ],
+      "returns": "AppliedOptimization",
+      "sideEffects": [
+        "reorders_content",
+        "maximizes_cache_hits"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-kv-cache-optimizer"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "TOKEN-BUDGET-INIT",
+      "name": "Token Budget Initialize",
+      "domain": "TOKEN",
+      "category": "BUDGET",
+      "subcategory": "INIT",
+      "trigger": "token:budget:init",
+      "description": "Initializes token budget for task",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "object"
+        },
+        {
+          "name": "available",
+          "type": "int"
+        }
+      ],
+      "returns": "TokenBudget",
+      "sideEffects": [
+        "allocates_budget"
+      ],
+      "relatedHooks": [
+        "TOKEN-BUDGET-TRACK"
+      ],
+      "relatedSkills": [
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "TOKEN-BUDGET-TRACK",
+      "name": "Token Budget Track",
+      "domain": "TOKEN",
+      "category": "BUDGET",
+      "subcategory": "TRACK",
+      "trigger": "token:budget:track",
+      "description": "Tracks token consumption",
+      "priority": 100,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "consumed",
+          "type": "int"
+        }
+      ],
+      "returns": "BudgetStatus",
+      "sideEffects": [
+        "updates_remaining",
+        "logs_usage"
+      ],
+      "relatedHooks": [
+        "TOKEN-BUDGET-ALERT"
+      ],
+      "relatedSkills": [
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "TOKEN-BUDGET-ALERT",
+      "name": "Token Budget Alert",
+      "domain": "TOKEN",
+      "category": "BUDGET",
+      "subcategory": "ALERT",
+      "trigger": "token:budget:alert",
+      "description": "Alerts on budget thresholds",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "status",
+          "type": "BudgetStatus"
+        }
+      ],
+      "returns": "BudgetAlert",
+      "sideEffects": [
+        "triggers_optimization"
+      ],
+      "relatedHooks": [
+        "TOKEN-OPTIMIZE-DENSITY"
+      ],
+      "relatedSkills": [
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "TOKEN-OPTIMIZE-DENSITY",
+      "name": "Token Optimize Density",
+      "domain": "TOKEN",
+      "category": "OPTIMIZATION",
+      "subcategory": "DENSITY",
+      "trigger": "token:optimize:density",
+      "description": "Optimizes information density per token",
+      "priority": 60,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "content",
+          "type": "string"
+        }
+      ],
+      "returns": "DenseContent",
+      "sideEffects": [
+        "removes_redundancy",
+        "compresses_representation"
+      ],
+      "relatedHooks": [
+        "TOKEN-OPTIMIZE-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-token-density",
+        "prism-comprehensive-output"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "TOKEN-OPTIMIZE-VERIFY",
+      "name": "Token Optimize Verify",
+      "domain": "TOKEN",
+      "category": "OPTIMIZATION",
+      "subcategory": "VERIFY",
+      "trigger": "token:optimize:verify",
+      "description": "Verifies optimization preserved meaning",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "dense",
+          "type": "DenseContent"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_semantic_preservation"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "API-COST-ESTIMATE",
+      "name": "API Cost Estimate",
+      "domain": "TOKEN",
+      "category": "API_COST",
+      "subcategory": "ESTIMATE",
+      "trigger": "api:cost:estimate",
+      "description": "Estimates API cost for operation",
+      "priority": 90,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "tokens",
+          "type": "int"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        }
+      ],
+      "returns": "CostEstimate",
+      "sideEffects": [
+        "computes_cost"
+      ],
+      "relatedHooks": [
+        "API-COST-OPTIMIZE"
+      ],
+      "relatedSkills": [
+        "prism-api-acceleration"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "API-COST-OPTIMIZE",
+      "name": "API Cost Optimize",
+      "domain": "TOKEN",
+      "category": "API_COST",
+      "subcategory": "OPTIMIZE",
+      "trigger": "api:cost:optimize",
+      "description": "Optimizes for API cost reduction",
+      "priority": 70,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "estimate",
+          "type": "CostEstimate"
+        }
+      ],
+      "returns": "OptimizationPlan",
+      "sideEffects": [
+        "suggests_model_selection",
+        "batch_opportunities"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-api-acceleration",
+        "prism-agent-selector"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RALPH-INIT",
+      "name": "Ralph Loop Initialize",
+      "domain": "LOOP",
+      "category": "RALPH",
+      "subcategory": "INIT",
+      "trigger": "ralph:init",
+      "description": "Initializes Ralph iterative refinement loop",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "object"
+        },
+        {
+          "name": "maxIterations",
+          "type": "int"
+        }
+      ],
+      "returns": "RalphContext",
+      "sideEffects": [
+        "sets_convergence_criteria"
+      ],
+      "relatedHooks": [
+        "RALPH-ITERATE"
+      ],
+      "relatedSkills": [
+        "prism-self-reflection"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RALPH-ITERATE",
+      "name": "Ralph Loop Iterate",
+      "domain": "LOOP",
+      "category": "RALPH",
+      "subcategory": "ITERATE",
+      "trigger": "ralph:iterate",
+      "description": "Executes single Ralph iteration",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "RalphContext"
+        },
+        {
+          "name": "iteration",
+          "type": "int"
+        }
+      ],
+      "returns": "IterationResult",
+      "sideEffects": [
+        "generates_output",
+        "self_critiques"
+      ],
+      "relatedHooks": [
+        "RALPH-EVALUATE"
+      ],
+      "relatedSkills": [
+        "prism-self-reflection",
+        "prism-review"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RALPH-EVALUATE",
+      "name": "Ralph Loop Evaluate",
+      "domain": "LOOP",
+      "category": "RALPH",
+      "subcategory": "EVALUATE",
+      "trigger": "ralph:evaluate",
+      "description": "Evaluates iteration against criteria",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "result",
+          "type": "IterationResult"
+        }
+      ],
+      "returns": "EvaluationResult",
+      "sideEffects": [
+        "scores_quality",
+        "checks_convergence"
+      ],
+      "relatedHooks": [
+        "RALPH-DECIDE"
+      ],
+      "relatedSkills": [
+        "prism-quality-master",
+        "prism-master-equation"
+      ],
+      "relatedMCPTools": [
+        "prism_quality_omega"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RALPH-DECIDE",
+      "name": "Ralph Loop Decide",
+      "domain": "LOOP",
+      "category": "RALPH",
+      "subcategory": "DECIDE",
+      "trigger": "ralph:decide",
+      "description": "Decides continue or converge",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "evaluation",
+          "type": "EvaluationResult"
+        }
+      ],
+      "returns": "LoopDecision",
+      "sideEffects": [
+        "applies_convergence_criteria"
+      ],
+      "relatedHooks": [
+        "RALPH-ITERATE",
+        "RALPH-COMPLETE"
+      ],
+      "relatedSkills": [
+        "prism-self-reflection"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RALPH-COMPLETE",
+      "name": "Ralph Loop Complete",
+      "domain": "LOOP",
+      "category": "RALPH",
+      "subcategory": "COMPLETE",
+      "trigger": "ralph:complete",
+      "description": "Completes Ralph loop with final output",
+      "priority": 80,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "RalphContext"
+        }
+      ],
+      "returns": "FinalOutput",
+      "sideEffects": [
+        "selects_best_iteration",
+        "documents_improvements"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-self-reflection",
+        "prism-learning-engines"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "GSV-GENERATE",
+      "name": "GSV Generate",
+      "domain": "LOOP",
+      "category": "GSV",
+      "subcategory": "GENERATE",
+      "trigger": "gsv:generate",
+      "description": "Generates initial output",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "GeneratedOutput",
+      "sideEffects": [
+        "creates_initial_output"
+      ],
+      "relatedHooks": [
+        "GSV-SCRUTINIZE"
+      ],
+      "relatedSkills": [
+        "prism-comprehensive-output"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "GSV-SCRUTINIZE",
+      "name": "GSV Scrutinize",
+      "domain": "LOOP",
+      "category": "GSV",
+      "subcategory": "SCRUTINIZE",
+      "trigger": "gsv:scrutinize",
+      "description": "Scrutinizes generated output",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "output",
+          "type": "GeneratedOutput"
+        }
+      ],
+      "returns": "ScrutinyResult",
+      "sideEffects": [
+        "identifies_issues",
+        "suggests_improvements"
+      ],
+      "relatedHooks": [
+        "GSV-VALIDATE"
+      ],
+      "relatedSkills": [
+        "prism-review",
+        "prism-self-reflection"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "GSV-VALIDATE",
+      "name": "GSV Validate",
+      "domain": "LOOP",
+      "category": "GSV",
+      "subcategory": "VALIDATE",
+      "trigger": "gsv:validate",
+      "description": "Validates scrutinized output",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "scrutiny",
+          "type": "ScrutinyResult"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "applies_quality_gates",
+        "checks_completeness"
+      ],
+      "relatedHooks": [
+        "GSV-ITERATE",
+        "GSV-COMPLETE"
+      ],
+      "relatedSkills": [
+        "prism-sp-verification",
+        "prism-quality-master"
+      ],
+      "relatedMCPTools": [
+        "prism_quality_omega",
+        "prism_quality_safety"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "GSV-ITERATE",
+      "name": "GSV Iterate",
+      "domain": "LOOP",
+      "category": "GSV",
+      "subcategory": "ITERATE",
+      "trigger": "gsv:iterate",
+      "description": "Iterates with improvements",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "validation",
+          "type": "ValidationResult"
+        }
+      ],
+      "returns": "ImprovedOutput",
+      "sideEffects": [
+        "applies_improvements",
+        "regenerates"
+      ],
+      "relatedHooks": [
+        "GSV-SCRUTINIZE"
+      ],
+      "relatedSkills": [
+        "prism-comprehensive-output"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "GSV-COMPLETE",
+      "name": "GSV Complete",
+      "domain": "LOOP",
+      "category": "GSV",
+      "subcategory": "COMPLETE",
+      "trigger": "gsv:complete",
+      "description": "Completes GSV loop",
+      "priority": 80,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "validation",
+          "type": "ValidationResult"
+        }
+      ],
+      "returns": "FinalOutput",
+      "sideEffects": [
+        "finalizes_output"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-comprehensive-output",
+        "prism-maximum-completeness"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "OBRA-OBSERVE",
+      "name": "OBRA Observe",
+      "domain": "SUPERPOWER",
+      "category": "OBRA",
+      "subcategory": "OBSERVE",
+      "trigger": "obra:observe",
+      "description": "Observes and gathers all relevant information",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "object"
+        }
+      ],
+      "returns": "Observations",
+      "sideEffects": [
+        "gathers_facts",
+        "identifies_constraints"
+      ],
+      "relatedHooks": [
+        "OBRA-REASON"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core",
+        "prism-reasoning-engine"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "OBRA-REASON",
+      "name": "OBRA Reason",
+      "domain": "SUPERPOWER",
+      "category": "OBRA",
+      "subcategory": "REASON",
+      "trigger": "obra:reason",
+      "description": "Applies structured reasoning to observations",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "observations",
+          "type": "Observations"
+        }
+      ],
+      "returns": "ReasoningResult",
+      "sideEffects": [
+        "applies_bayesian_inference",
+        "causal_analysis"
+      ],
+      "relatedHooks": [
+        "OBRA-SYNTHESIZE"
+      ],
+      "relatedSkills": [
+        "prism-reasoning-engine",
+        "prism-causal-reasoning",
+        "prism-ai-bayesian"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "OBRA-SYNTHESIZE",
+      "name": "OBRA Synthesize",
+      "domain": "SUPERPOWER",
+      "category": "OBRA",
+      "subcategory": "SYNTHESIZE",
+      "trigger": "obra:synthesize",
+      "description": "Synthesizes reasoning into actionable insights",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "reasoning",
+          "type": "ReasoningResult"
+        }
+      ],
+      "returns": "Synthesis",
+      "sideEffects": [
+        "integrates_insights",
+        "generates_recommendations"
+      ],
+      "relatedHooks": [
+        "OBRA-ACT"
+      ],
+      "relatedSkills": [
+        "prism-reasoning-engine",
+        "prism-predictive-thinking"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "OBRA-ACT",
+      "name": "OBRA Act",
+      "domain": "SUPERPOWER",
+      "category": "OBRA",
+      "subcategory": "ACT",
+      "trigger": "obra:act",
+      "description": "Takes action based on synthesis",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "synthesis",
+          "type": "Synthesis"
+        }
+      ],
+      "returns": "ActionResult",
+      "sideEffects": [
+        "executes_recommendations"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-sp-execution"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BRAINSTORM-INIT",
+      "name": "Brainstorm Initialize",
+      "domain": "SUPERPOWER",
+      "category": "BRAINSTORM",
+      "subcategory": "INIT",
+      "trigger": "brainstorm:init",
+      "description": "Initializes brainstorming session",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "problem",
+          "type": "object"
+        }
+      ],
+      "returns": "BrainstormContext",
+      "sideEffects": [
+        "defines_problem_space",
+        "sets_divergent_mode"
+      ],
+      "relatedHooks": [
+        "BRAINSTORM-DIVERGE"
+      ],
+      "relatedSkills": [
+        "prism-sp-brainstorm"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BRAINSTORM-DIVERGE",
+      "name": "Brainstorm Diverge",
+      "domain": "SUPERPOWER",
+      "category": "BRAINSTORM",
+      "subcategory": "DIVERGE",
+      "trigger": "brainstorm:diverge",
+      "description": "Generates diverse ideas without judgment",
+      "priority": 40,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "context",
+          "type": "BrainstormContext"
+        }
+      ],
+      "returns": "IdeaSet",
+      "sideEffects": [
+        "generates_many_ideas",
+        "suspends_criticism"
+      ],
+      "relatedHooks": [
+        "BRAINSTORM-EXPAND"
+      ],
+      "relatedSkills": [
+        "prism-sp-brainstorm"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BRAINSTORM-EXPAND",
+      "name": "Brainstorm Expand",
+      "domain": "SUPERPOWER",
+      "category": "BRAINSTORM",
+      "subcategory": "EXPAND",
+      "trigger": "brainstorm:expand",
+      "description": "Expands ideas with cross-domain fusion",
+      "priority": 50,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "ideas",
+          "type": "IdeaSet"
+        }
+      ],
+      "returns": "ExpandedIdeas",
+      "sideEffects": [
+        "applies_cross_domain_fusion",
+        "combines_ideas"
+      ],
+      "relatedHooks": [
+        "BRAINSTORM-CONVERGE"
+      ],
+      "relatedSkills": [
+        "prism-sp-brainstorm",
+        "prism-combination-engine"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BRAINSTORM-CONVERGE",
+      "name": "Brainstorm Converge",
+      "domain": "SUPERPOWER",
+      "category": "BRAINSTORM",
+      "subcategory": "CONVERGE",
+      "trigger": "brainstorm:converge",
+      "description": "Converges on best ideas",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "expanded",
+          "type": "ExpandedIdeas"
+        }
+      ],
+      "returns": "SelectedIdeas",
+      "sideEffects": [
+        "evaluates_feasibility",
+        "ranks_by_impact"
+      ],
+      "relatedHooks": [
+        "BRAINSTORM-REFINE"
+      ],
+      "relatedSkills": [
+        "prism-sp-brainstorm",
+        "prism-branch-predictor"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BRAINSTORM-REFINE",
+      "name": "Brainstorm Refine",
+      "domain": "SUPERPOWER",
+      "category": "BRAINSTORM",
+      "subcategory": "REFINE",
+      "trigger": "brainstorm:refine",
+      "description": "Refines selected ideas",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "selected",
+          "type": "SelectedIdeas"
+        }
+      ],
+      "returns": "RefinedIdeas",
+      "sideEffects": [
+        "develops_details",
+        "identifies_risks"
+      ],
+      "relatedHooks": [
+        "BRAINSTORM-DECIDE"
+      ],
+      "relatedSkills": [
+        "prism-sp-brainstorm",
+        "prism-predictive-thinking"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "BRAINSTORM-DECIDE",
+      "name": "Brainstorm Decide",
+      "domain": "SUPERPOWER",
+      "category": "BRAINSTORM",
+      "subcategory": "DECIDE",
+      "trigger": "brainstorm:decide",
+      "description": "Makes final decision with chunked approval",
+      "priority": 80,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "refined",
+          "type": "RefinedIdeas"
+        }
+      ],
+      "returns": "Decision",
+      "sideEffects": [
+        "presents_for_approval",
+        "awaits_confirmation"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-sp-brainstorm"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-CHALLENGE",
+      "name": "Seven Lens Challenge",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "CHALLENGE",
+      "trigger": "sevenlens:challenge",
+      "description": "Challenges assumptions",
+      "priority": 30,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "solution",
+          "type": "object"
+        }
+      ],
+      "returns": "ChallengedAssumptions",
+      "sideEffects": [
+        "questions_every_assumption"
+      ],
+      "relatedHooks": [
+        "SEVENLENS-MULTIPLY"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-MULTIPLY",
+      "name": "Seven Lens Multiply",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "MULTIPLY",
+      "trigger": "sevenlens:multiply",
+      "description": "Multiplies alternatives",
+      "priority": 40,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "challenged",
+          "type": "ChallengedAssumptions"
+        }
+      ],
+      "returns": "Alternatives",
+      "sideEffects": [
+        "generates_3x_alternatives"
+      ],
+      "relatedHooks": [
+        "SEVENLENS-INVERT"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core",
+        "prism-sp-brainstorm"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-INVERT",
+      "name": "Seven Lens Invert",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "INVERT",
+      "trigger": "sevenlens:invert",
+      "description": "Inverts problem perspective",
+      "priority": 50,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "alternatives",
+          "type": "Alternatives"
+        }
+      ],
+      "returns": "InvertedPerspectives",
+      "sideEffects": [
+        "views_from_opposite"
+      ],
+      "relatedHooks": [
+        "SEVENLENS-FUSE"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-FUSE",
+      "name": "Seven Lens Fuse",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "FUSE",
+      "trigger": "sevenlens:fuse",
+      "description": "Fuses cross-domain knowledge",
+      "priority": 60,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "inverted",
+          "type": "InvertedPerspectives"
+        }
+      ],
+      "returns": "FusedSolutions",
+      "sideEffects": [
+        "applies_cross_domain_fusion"
+      ],
+      "relatedHooks": [
+        "SEVENLENS-TENX"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core",
+        "prism-combination-engine"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-TENX",
+      "name": "Seven Lens 10X",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "TENX",
+      "trigger": "sevenlens:tenx",
+      "description": "Asks how to 10X improve",
+      "priority": 70,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "fused",
+          "type": "FusedSolutions"
+        }
+      ],
+      "returns": "TenXSolutions",
+      "sideEffects": [
+        "identifies_10x_opportunities"
+      ],
+      "relatedHooks": [
+        "SEVENLENS-SIMPLIFY"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-SIMPLIFY",
+      "name": "Seven Lens Simplify",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "SIMPLIFY",
+      "trigger": "sevenlens:simplify",
+      "description": "Simplifies to essence",
+      "priority": 80,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "tenx",
+          "type": "TenXSolutions"
+        }
+      ],
+      "returns": "SimplifiedSolutions",
+      "sideEffects": [
+        "removes_complexity"
+      ],
+      "relatedHooks": [
+        "SEVENLENS-FUTUREPROOF"
+      ],
+      "relatedSkills": [
+        "prism-cognitive-core"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "SEVENLENS-FUTUREPROOF",
+      "name": "Seven Lens Future-proof",
+      "domain": "SUPERPOWER",
+      "category": "SEVENLENS",
+      "subcategory": "FUTUREPROOF",
+      "trigger": "sevenlens:futureproof",
+      "description": "Future-proofs solution",
+      "priority": 90,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "simplified",
+          "type": "SimplifiedSolutions"
+        }
+      ],
+      "returns": "FinalSolution",
+      "sideEffects": [
+        "considers_evolution",
+        "plans_extensibility"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-cognitive-core",
+        "prism-predictive-thinking"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-DISCOVER-ALL",
+      "name": "Resource Discover All",
+      "domain": "RESOURCE",
+      "category": "DISCOVERY",
+      "subcategory": "ALL",
+      "trigger": "resource:discover:all",
+      "description": "Discovers all available resources",
+      "priority": 20,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [],
+      "returns": "ResourceInventory",
+      "sideEffects": [
+        "scans_skills_agents_formulas_hooks"
+      ],
+      "relatedHooks": [
+        "RESOURCE-ANALYZE-RELEVANCE"
+      ],
+      "relatedSkills": [
+        "prism-resource-optimizer",
+        "prism-skill-orchestrator"
+      ],
+      "relatedMCPTools": [
+        "prism_resources_summary"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-ANALYZE-RELEVANCE",
+      "name": "Resource Analyze Relevance",
+      "domain": "RESOURCE",
+      "category": "ANALYSIS",
+      "subcategory": "RELEVANCE",
+      "trigger": "resource:analyze:relevance",
+      "description": "Analyzes resource relevance to task",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "inventory",
+          "type": "ResourceInventory"
+        },
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "RelevanceScores",
+      "sideEffects": [
+        "scores_each_resource"
+      ],
+      "relatedHooks": [
+        "RESOURCE-COMPUTE-SYNERGY"
+      ],
+      "relatedSkills": [
+        "prism-resource-optimizer",
+        "prism-synergy-calculator"
+      ],
+      "relatedMCPTools": [
+        "prism_relevance_score"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-COMPUTE-SYNERGY",
+      "name": "Resource Compute Synergy",
+      "domain": "RESOURCE",
+      "category": "SYNERGY",
+      "subcategory": "COMPUTE",
+      "trigger": "resource:compute:synergy",
+      "description": "Computes synergy between resources",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "scores",
+          "type": "RelevanceScores"
+        }
+      ],
+      "returns": "SynergyMatrix",
+      "sideEffects": [
+        "applies_synergy_matrix"
+      ],
+      "relatedHooks": [
+        "RESOURCE-OPTIMIZE-COMBINATION"
+      ],
+      "relatedSkills": [
+        "prism-synergy-calculator",
+        "prism-combination-engine"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-OPTIMIZE-COMBINATION",
+      "name": "Resource Optimize Combination",
+      "domain": "RESOURCE",
+      "category": "OPTIMIZATION",
+      "subcategory": "COMBINATION",
+      "trigger": "resource:optimize:combination",
+      "description": "Optimizes resource combination using ILP",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "synergy",
+          "type": "SynergyMatrix"
+        }
+      ],
+      "returns": "OptimalCombination",
+      "sideEffects": [
+        "applies_F-PSI-001_ILP",
+        "maximizes_value"
+      ],
+      "relatedHooks": [
+        "RESOURCE-VALIDATE-BUDGET"
+      ],
+      "relatedSkills": [
+        "prism-combination-engine",
+        "prism-mathematical-optimization"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-VALIDATE-BUDGET",
+      "name": "Resource Validate Budget",
+      "domain": "RESOURCE",
+      "category": "VALIDATION",
+      "subcategory": "BUDGET",
+      "trigger": "resource:validate:budget",
+      "description": "Validates combination fits context budget",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "combination",
+          "type": "OptimalCombination"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "checks_token_limit",
+        "validates_feasibility"
+      ],
+      "relatedHooks": [
+        "RESOURCE-LOAD-EXECUTE"
+      ],
+      "relatedSkills": [
+        "prism-context-pressure",
+        "prism-token-density"
+      ],
+      "relatedMCPTools": [
+        "prism_context_size"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-LOAD-EXECUTE",
+      "name": "Resource Load Execute",
+      "domain": "RESOURCE",
+      "category": "LOADING",
+      "subcategory": "EXECUTE",
+      "trigger": "resource:load:execute",
+      "description": "Loads optimal resource combination",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "combination",
+          "type": "OptimalCombination"
+        }
+      ],
+      "returns": "LoadedResources",
+      "sideEffects": [
+        "loads_in_optimal_order",
+        "caches_prefixes"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-kv-cache-optimizer",
+        "prism-resource-optimizer"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-UTIL-TRACK",
+      "name": "Resource Utilization Track",
+      "domain": "RESOURCE",
+      "category": "UTILIZATION",
+      "subcategory": "TRACK",
+      "trigger": "resource:util:track",
+      "description": "Tracks resource utilization",
+      "priority": 100,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "resource",
+          "type": "object"
+        },
+        {
+          "name": "usage",
+          "type": "object"
+        }
+      ],
+      "returns": "void",
+      "sideEffects": [
+        "logs_usage",
+        "updates_metrics"
+      ],
+      "relatedHooks": [
+        "RESOURCE-UTIL-ENFORCE"
+      ],
+      "relatedSkills": [
+        "prism-utilization"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "RESOURCE-UTIL-ENFORCE",
+      "name": "Resource Utilization Enforce",
+      "domain": "RESOURCE",
+      "category": "UTILIZATION",
+      "subcategory": "ENFORCE",
+      "trigger": "resource:util:enforce",
+      "description": "Enforces 100% utilization rule",
+      "priority": 0,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "resources",
+          "type": "array"
+        }
+      ],
+      "returns": "EnforcementResult",
+      "sideEffects": [
+        "checks_all_used",
+        "blocks_if_orphaned"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-utilization"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-TASK-ANALYZE",
+      "name": "Manus Task Analyze",
+      "domain": "MANUS",
+      "category": "TASK",
+      "subcategory": "ANALYZE",
+      "trigger": "manus:task:analyze",
+      "description": "Analyzes if task is suitable for Manus delegation",
+      "priority": 20,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "object"
+        }
+      ],
+      "returns": "ManusAnalysis",
+      "sideEffects": [
+        "checks_autonomous_suitability",
+        "estimates_complexity"
+      ],
+      "relatedHooks": [
+        "MANUS-TASK-CREATE"
+      ],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-TASK-CREATE",
+      "name": "Manus Task Create",
+      "domain": "MANUS",
+      "category": "TASK",
+      "subcategory": "CREATE",
+      "trigger": "manus:task:create",
+      "description": "Creates task in Manus",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "analysis",
+          "type": "ManusAnalysis"
+        },
+        {
+          "name": "prompt",
+          "type": "string"
+        }
+      ],
+      "returns": "ManusTask",
+      "sideEffects": [
+        "creates_manus_task",
+        "sets_mode"
+      ],
+      "relatedHooks": [
+        "MANUS-TASK-MONITOR"
+      ],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-TASK-MONITOR",
+      "name": "Manus Task Monitor",
+      "domain": "MANUS",
+      "category": "TASK",
+      "subcategory": "MONITOR",
+      "trigger": "manus:task:monitor",
+      "description": "Monitors Manus task progress",
+      "priority": 80,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "ManusTask"
+        }
+      ],
+      "returns": "TaskProgress",
+      "sideEffects": [
+        "polls_status",
+        "tracks_progress"
+      ],
+      "relatedHooks": [
+        "MANUS-TASK-COMPLETE"
+      ],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-TASK-COMPLETE",
+      "name": "Manus Task Complete",
+      "domain": "MANUS",
+      "category": "TASK",
+      "subcategory": "COMPLETE",
+      "trigger": "manus:task:complete",
+      "description": "Handles Manus task completion",
+      "priority": 70,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "task",
+          "type": "ManusTask"
+        }
+      ],
+      "returns": "ManusResult",
+      "sideEffects": [
+        "retrieves_output",
+        "validates_result"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-WEB-SEARCH",
+      "name": "Manus Web Search",
+      "domain": "MANUS",
+      "category": "WEB",
+      "subcategory": "SEARCH",
+      "trigger": "manus:web:search",
+      "description": "Delegates web search to Manus",
+      "priority": 50,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "query",
+          "type": "string"
+        }
+      ],
+      "returns": "SearchResults",
+      "sideEffects": [
+        "google_search_delegation"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-WEB-BROWSE",
+      "name": "Manus Web Browse",
+      "domain": "MANUS",
+      "category": "WEB",
+      "subcategory": "BROWSE",
+      "trigger": "manus:web:browse",
+      "description": "Delegates web browsing to Manus",
+      "priority": 50,
+      "canDisable": true,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "action",
+          "type": "string"
+        }
+      ],
+      "returns": "BrowseResult",
+      "sideEffects": [
+        "navigates_page",
+        "extracts_content"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-CODE-EXECUTE",
+      "name": "Manus Code Execute",
+      "domain": "MANUS",
+      "category": "CODE",
+      "subcategory": "EXECUTE",
+      "trigger": "manus:code:execute",
+      "description": "Delegates code execution to Manus sandbox",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "language",
+          "type": "string"
+        }
+      ],
+      "returns": "ExecutionResult",
+      "sideEffects": [
+        "runs_in_sandbox",
+        "captures_output"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-BASH-EXECUTE",
+      "name": "Manus Bash Execute",
+      "domain": "MANUS",
+      "category": "BASH",
+      "subcategory": "EXECUTE",
+      "trigger": "manus:bash:execute",
+      "description": "Delegates bash commands to Manus",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "command",
+          "type": "string"
+        }
+      ],
+      "returns": "BashResult",
+      "sideEffects": [
+        "executes_bash",
+        "captures_output"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-WORKFLOW-CREATE",
+      "name": "Manus Workflow Create",
+      "domain": "MANUS",
+      "category": "WORKFLOW",
+      "subcategory": "CREATE",
+      "trigger": "manus:workflow:create",
+      "description": "Creates multi-step workflow in Manus",
+      "priority": 40,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "steps",
+          "type": "array"
+        }
+      ],
+      "returns": "ManusWorkflow",
+      "sideEffects": [
+        "creates_workflow",
+        "sets_connectors"
+      ],
+      "relatedHooks": [
+        "MANUS-WORKFLOW-EXECUTE"
+      ],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "MANUS-WORKFLOW-EXECUTE",
+      "name": "Manus Workflow Execute",
+      "domain": "MANUS",
+      "category": "WORKFLOW",
+      "subcategory": "EXECUTE",
+      "trigger": "manus:workflow:execute",
+      "description": "Executes Manus workflow",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "workflow",
+          "type": "ManusWorkflow"
+        }
+      ],
+      "returns": "WorkflowResult",
+      "sideEffects": [
+        "executes_steps",
+        "handles_errors"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CHECKPOINT-TRIGGER-AUTO",
+      "name": "Checkpoint Trigger Auto",
+      "domain": "CHECKPOINT",
+      "category": "TRIGGER",
+      "subcategory": "AUTO",
+      "trigger": "checkpoint:trigger:auto",
+      "description": "Auto-triggers checkpoint every 5-8 operations",
+      "priority": 80,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "operationCount",
+          "type": "int"
+        }
+      ],
+      "returns": "CheckpointDecision",
+      "sideEffects": [
+        "checks_op_count",
+        "decides_checkpoint"
+      ],
+      "relatedHooks": [
+        "CHECKPOINT-CREATE"
+      ],
+      "relatedSkills": [
+        "prism-session-buffer"
+      ],
+      "relatedMCPTools": [
+        "prism_master_checkpoint"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CHECKPOINT-CREATE",
+      "name": "Checkpoint Create",
+      "domain": "CHECKPOINT",
+      "category": "CREATE",
+      "subcategory": "EXECUTE",
+      "trigger": "checkpoint:create",
+      "description": "Creates checkpoint with full state",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "state",
+          "type": "object"
+        }
+      ],
+      "returns": "Checkpoint",
+      "sideEffects": [
+        "captures_state",
+        "writes_to_file"
+      ],
+      "relatedHooks": [
+        "CHECKPOINT-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-state-manager"
+      ],
+      "relatedMCPTools": [
+        "prism_checkpoint_create",
+        "prism_state_checkpoint"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CHECKPOINT-VERIFY",
+      "name": "Checkpoint Verify",
+      "domain": "CHECKPOINT",
+      "category": "CREATE",
+      "subcategory": "VERIFY",
+      "trigger": "checkpoint:verify",
+      "description": "Verifies checkpoint integrity",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "checkpoint",
+          "type": "Checkpoint"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_completeness",
+        "checks_readability"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-validator"
+      ],
+      "relatedMCPTools": [
+        "prism_cache_validate"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CHECKPOINT-RESTORE-FIND",
+      "name": "Checkpoint Restore Find",
+      "domain": "CHECKPOINT",
+      "category": "RESTORE",
+      "subcategory": "FIND",
+      "trigger": "checkpoint:restore:find",
+      "description": "Finds latest valid checkpoint",
+      "priority": 30,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [],
+      "returns": "FoundCheckpoint",
+      "sideEffects": [
+        "scans_checkpoints",
+        "validates_integrity"
+      ],
+      "relatedHooks": [
+        "CHECKPOINT-RESTORE-LOAD"
+      ],
+      "relatedSkills": [
+        "prism-state-manager"
+      ],
+      "relatedMCPTools": [
+        "prism_checkpoint_restore"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CHECKPOINT-RESTORE-LOAD",
+      "name": "Checkpoint Restore Load",
+      "domain": "CHECKPOINT",
+      "category": "RESTORE",
+      "subcategory": "LOAD",
+      "trigger": "checkpoint:restore:load",
+      "description": "Loads checkpoint state",
+      "priority": 50,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "checkpoint",
+          "type": "FoundCheckpoint"
+        }
+      ],
+      "returns": "RestoredState",
+      "sideEffects": [
+        "loads_state",
+        "rebuilds_context"
+      ],
+      "relatedHooks": [
+        "CHECKPOINT-RESTORE-VERIFY"
+      ],
+      "relatedSkills": [
+        "prism-state-manager"
+      ],
+      "relatedMCPTools": [
+        "prism_state_restore"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CHECKPOINT-RESTORE-VERIFY",
+      "name": "Checkpoint Restore Verify",
+      "domain": "CHECKPOINT",
+      "category": "RESTORE",
+      "subcategory": "VERIFY",
+      "trigger": "checkpoint:restore:verify",
+      "description": "Verifies restoration success",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "restored",
+          "type": "RestoredState"
+        }
+      ],
+      "returns": "VerificationResult",
+      "sideEffects": [
+        "validates_state",
+        "checks_consistency"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-validator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "STATE-UPDATE",
+      "name": "State Update",
+      "domain": "CHECKPOINT",
+      "category": "STATE",
+      "subcategory": "UPDATE",
+      "trigger": "state:update",
+      "description": "Updates CURRENT_STATE.json",
+      "priority": 60,
+      "canDisable": false,
+      "isBlocking": false,
+      "params": [
+        {
+          "name": "updates",
+          "type": "object"
+        }
+      ],
+      "returns": "UpdatedState",
+      "sideEffects": [
+        "merges_updates",
+        "writes_file"
+      ],
+      "relatedHooks": [
+        "STATE-VALIDATE"
+      ],
+      "relatedSkills": [
+        "prism-state-manager"
+      ],
+      "relatedMCPTools": [
+        "prism_state_update"
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "STATE-VALIDATE",
+      "name": "State Validate",
+      "domain": "CHECKPOINT",
+      "category": "STATE",
+      "subcategory": "VALIDATE",
+      "trigger": "state:validate",
+      "description": "Validates state file integrity",
+      "priority": 10,
+      "canDisable": false,
+      "isBlocking": true,
+      "params": [
+        {
+          "name": "state",
+          "type": "UpdatedState"
+        }
+      ],
+      "returns": "ValidationResult",
+      "sideEffects": [
+        "checks_schema",
+        "validates_consistency"
+      ],
+      "relatedHooks": [],
+      "relatedSkills": [
+        "prism-validator"
+      ],
+      "relatedMCPTools": [],
+      "status": "ACTIVE"
+    }
+  ]
+}

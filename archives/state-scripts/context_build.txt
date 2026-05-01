@@ -1,0 +1,52 @@
+CE-L3545: interface NLHookContext {
+CE-L3554: function evaluateNLHookCondition(hook: any, ctx: NLHookContext): boolean {
+CE-L3652: function executeNLHookAction(hook: any, ctx: NLHookContext): string {
+CE-L3752: const ctx: NLHookContext = {
+
+--- autoNLHookEvaluator context build ---
+CE-L3719: export function autoNLHookEvaluator(
+CE-L3720:   callNumber: number,
+CE-L3721:   toolName: string,
+CE-L3722:   action: string
+CE-L3723: ): NLHookEvalResult {
+CE-L3724:   try {
+CE-L3725:     const hooks = getDeployedNLHooks();
+CE-L3726:     // DEBUG NL HOOKS (temporary - remove after verification)
+CE-L3727:     try { fs.appendFileSync(path.join(STATE_DIR, "nl_hook_debug.log"), `[${new Date().toISOString()}] call=${callNumber} hooks=${hooks.length} tool=${toolName}:${action}\n`); } catch {}
+CE-L3728:     if (hooks.length === 0) {
+CE-L3729:       return { success: true, call_number: callNumber, hooks_evaluated: 0, hooks_fired: 0, fired_hooks: [], errors: 0 };
+CE-L3730:     }
+CE-L3731: 
+CE-L3732:     // Build context for evaluation
+CE-L3733:     const pressureFile = path.join(STATE_DIR, "context_pressure.json");
+CE-L3734:     let pressurePct = 0;
+CE-L3735:     try {
+CE-L3736:       if (fs.existsSync(pressureFile)) {
+CE-L3737:         pressurePct = JSON.parse(fs.readFileSync(pressureFile, "utf-8")).pressure_pct || 0;
+CE-L3738:       }
+CE-L3739:     } catch {}
+CE-L3740: 
+CE-L3741:     // Read recent actions from flight recorder
+CE-L3742:     let recentActions: string[] = [];
+CE-L3743:     try {
+CE-L3744:       const recentFile = path.join(STATE_DIR, "RECENT_ACTIONS.json");
+CE-L3745:       if (fs.existsSync(recentFile)) {
+CE-L3746:         const data = JSON.parse(fs.readFileSync(recentFile, "utf-8"));
+CE-L3747:         const actions = Array.isArray(data) ? data : data.actions || [];
+CE-L3748:         recentActions = actions.slice(-10).map((a: any) => `${a.tool || ""}:${a.action || ""}`);
+CE-L3749:       }
+CE-L3750:     } catch {}
+CE-L3751: 
+CE-L3752:     const ctx: NLHookContext = {
+CE-L3753:       call_number: callNumber,
+CE-L3754:       pressure_pct: pressurePct,
+CE-L3755:       current_phase: getCurrentPhase(),
+CE-L3756:       recent_actions: recentActions,
+CE-L3757:       tool_name: toolName,
+CE-L3758:       action,
+CE-L3759:     };
+CE-L3760: 
+CE-L3761:     const fired: Array<{ hook_id: string; name: string; result: string }> = [];
+CE-L3762:     let errors = 0;
+CE-L3763: 
+CE-L3764:     for (const hook of hooks) {

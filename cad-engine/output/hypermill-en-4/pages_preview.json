@@ -1,0 +1,254 @@
+[
+  {
+    "page": 1,
+    "text": "11. 3D Machining\nAvailable machining cycles\nArbitrary Stock Roughing (page 870) : Z constant stock removal for stock models of any shape with the\noption of stock model update. Machining proceeds parallel to the specified contour or parallel to axis.\nOptimised Roughing (page 773) : Roughing and rest roughing of any workpieces. Calculate toolpaths\nfor standard pocket shapes such as rectangular and circular pockets. The model geometry and stock\nmodel geometry will be taken into consideration to cal"
+  },
+  {
+    "page": 2,
+    "text": "1\n2\n3\nA\nB\n4\nStrategy parameters\nDifferent strategy parameters are available, depending on the machining cycle. Explanations are provided\nin the respective machining cycle sections.\nCutting mode\nClimb milling, C onventional milling: In the case of contour-parallel machining with continuous orientation,\nthe following definitions apply: climb milling and conventional milling relate to clockwise rotating tools. To\nperform climb milling with an anticlockwise rotating tool, select conventional milling"
+  },
+  {
+    "page": 3,
+    "text": "X\nY\nZ\n1\n2\n3 1 3\nDefine all surfaces that connect to the milling surfaces tangentially or that continue\nvertically downward from their edge as bounding surfaces.\nMacros\nAdditional movements to vertical infeed and retract movements that define a gentle approach and retract\nbehaviour at the calculated milling paths.\nMacros are only executed if they do not result in a collision with neighbouring surfaces.\nAutomatic\nLength: Defines the length of the approach or retract movement.\nSide clearance/Axial "
+  },
+  {
+    "page": 4,
+    "text": "Stock\nDefine the stock.\nGenerate resulting stock: Create a stock model for subsequent machining tasks. Check the result of the\nmachining and use it for subsequent machining.\nThe entry in the hyperMILL browser is made after calculating the toolpath.\nUndercut trimming: Avoidance of unnecessary empty paths in undercut areas during multi-axis stock\nindexing.\nStock models, which are undercut from frame - Z direction and frame + Z direction are not supported.\nCheck tool\nThe tool check ensures that all"
+  },
+  {
+    "page": 5,
+    "text": "P\nPNY\nNZ\nNX\nT\nZ\nX\nY\nMax. compensation value: The value should be no more than 10% of the cutter diameter. If the parameter\nis set to 0.1, the machining tool must be no more than 0.1 mm larger than the tool programmed in\nhyperMILL.\nThe 3D path compensation function is available only with a specially adjusted postpro-\ncessor. Without this adjustment, the NC program cannot correct this output and, as\na result, both the component and machine may be damaged if the milling geometry\nused differs from t"
+  },
+  {
+    "page": 6,
+    "text": "1\n2\nAdaptive pocket\nStrategy for calculating the toolpaths in which, depending on the shape of the workpiece, the pocket\nshapes Rectangular pocket (1), Rectangular pocket with rounded corners (2), Circular pocket (3) or\nCircular ring pocket (4) are fitted to the existing workpiece geometry.\n1 2 3 4\nUse adaptive pocket: Activate for the optimised complete machining of closed (1) or half-open (2) adaptive\npockets. The adaptive pocket area is machined first (A). This is followed by contour-parallel"
+  },
+  {
+    "page": 7,
+    "text": "If necessary for machining, a switch can be made from the defined horizontal stepover\nto full cut when calculating the toolpath during the 3D Optimised Roughing cycle.\nScallop height part planes: Only available for Adaptive Pocket machining jobs with automatic Plane level\ndetection. Set the maximum permissible scallop height. The parameter depends on the vertical stepdown\nthat has been defined.\nStepover part planes: Only available for Adaptive Pocket machining jobs with automatic Plane level\ndet"
+  },
+  {
+    "page": 8,
+    "text": "Side mill only (2): If this option is enabled, no full cut behaviour is allowed. Narrow, inaccessible areas (A)\nare opened with trochoidal movements.\nReposition\nThe following applies to the two strategies O pening cut and Side mill only:\nSafety (1): axial movement (in the Z direction) away from the plane currently being machined. Default\nvalue: Clearance distance * 0.1.\nFeedrate: Value for the maximum achievable feedrate for all movements to reposition the tool without\nmaterial removal.\n1\nInfeed"
+  },
+  {
+    "page": 9,
+    "text": "The Boundaries rest material areas and Collision boundaries functions are not available\nfor hyperMILL for SOLIDWORKS and hyperMILL for Autodesk \u00ae Inventor\u00ae.\nMacros\nPlunge macro\nThe plunge movement ( m acro) is performed in a spiral shape (1). Specify an a ngle (2) for plunging the\ntool into the material.\nX\nY\nX\nZ\n1 2\nSetup\nModel\nSpecify the model (milling area) required for the current job.\nFor further information, see section Prepare manufacturing geometry (page 60) .\nMultiple allowances: If the"
+  },
+  {
+    "page": 10,
+    "text": "P\nPNY\nNZ\nNX\nT\nZ\nX\nY\nMax. compensation value: The value should be no more than 10% of the cutter diameter. If the parameter\nis set to 0.1, the machining tool must be no more than 0.1 mm larger than the tool programmed in\nhyperMILL.\nThe 3D path compensation function is available only with a specially adjusted postpro-\ncessor. Without this adjustment, the NC program cannot correct this output and, as\na result, both the component and machine may be damaged if the milling geometry\nused differs from t"
+  },
+  {
+    "page": 11,
+    "text": "X\nY\n1 2 3 4\nB\nXY optimisation\nAreas that are not optimally machined with the selected profile direction (X or Y axis) can be optionally\nmachined in a further operation in the opposite profile direction. The XY optimisation can either be carried\nout without considering the surface steepness (option: S tandard) or dependent on the slope (option: S lope\nmode).\nExample: The following options are enabled in the example:\nThe machining area was limited by means of M illing surfaces and an automatic mil"
+  },
+  {
+    "page": 12,
+    "text": "Slope mode: Enable if slope-dependent machining should take place and use F rom to define the lower\nlimit and T o to define the upper limit of the surface slope of the surfaces to be machined.\nSlope-dependent machining is only possible with bullnose end mills and ball mills.\nGrouping toolpaths: Machining areas are combined and the number of fast travel movements is reduced,\nparticularly in the case of nested boundaries or in slope-dependent machining, if several milling areas\nhave been defined.\n"
+  },
+  {
+    "page": 13,
+    "text": "1 2\n3\n21\n4\nGuide curve\nMachining on a guide curve or in a narrow strip parallel to a guide curve. Any 2D or 3D curves and splines\ncan be used as guide curves. More than one guide curve are permitted per cycle. The guide curve is\ntreated as the positive X axis.\nX\nZ\nY\nOffset area\nUse the f rom and t o parameters to define a positive (X+) or negative (X-) distance to the guide curve,\nwithin which machining will take place. If f rom and to are identical, only one path is machined.\n-5 -2+2+6 0 +30\n+5"
+  },
+  {
+    "page": 14,
+    "text": "X\nZ\n7\n1\n2\n3\n4\n5\n6\n8\nVertical infeed mode\nThe vertical infeed mode defines the mode of computation for the vertical distances between the milling\npaths.\nOnly finishing: Only a finishing path is created.\nConstant vertical stepdown: The stepdown takes place with a fixed vertical increment.\nParallel vertical stepdown: The vertical stepdown takes place parallel to the top of the workpiece. Define\nthe Vertical stepdown and the M aterial height.\nHorizontal infeed mode\nThe horizontal infeed mode defines"
+  },
+  {
+    "page": 15,
+    "text": "Offset: Any given offset value can be chosen. A positive value enlarges the boundary, while a negative\nvalue reduces it. With nested boundaries, a positive offset value enlarges the outer boundaries and\nreduces the inner boundaries (vice versa with negative offsets). An offset of 0 corresponds to the O n\nmode.\nThe o ffset option is suitable for pre-machining with rough boundary. Here too, unmachined areas may\nresult.\nPast (3): The tool axis leaves the boundary. The milling path ends as soon as t"
+  },
+  {
+    "page": 16,
+    "text": "X\nY\nX\nZ\n1 2\n3 3\n3 3\nSoft bounding\nOnly available for ball mills.\nWhen the U se all other surfaces option is enabled, machining does not stop when the tool makes contact\nwith the s top surface (1), but when it exceeds the surface by the b lending factor (2). This factor is based on\nthe tool radius (standard = 0.05 x tool radius). Permitted values are between 0.02 and 0.2. In this way, full\nmachining of the m illing surface (3) is ensured.\nUse the M anual selection option to manually select the bo"
+  },
+  {
+    "page": 17,
+    "text": "1 2\n1 2\nDisplay calculated tool length\nIf the same tool is used in several jobs, the tool length calculated by hyperMILL is displayed. In this\ninstance, after creating the toolpath file(s), select the tool in the browser and choose the U sage function on\nthe shortcut menu.\nFor unresolvable collision\nUnresolvable collisions may occur if:\n\u2022 It is not possible to a void a collision in 5X machining as a result of a change to the tool orientation.\n\u2022 In 3D machining, it is not possible to resolve a co"
+  },
+  {
+    "page": 18,
+    "text": "(2) Inside machining in counterclockwise direction.\n1\n2\nMode\nShape offset (A): The shape of the toolpaths follows the defined bottom surfaces (2). Surface (3) and\ndepth (4) must be defined as an offset to the bottom surfaces. Machining below the bottom surfaces is not\npossible. The Bottom parameter must therefore be >= 0.\nZ Level (B): Machining is carried out level by level. Surface (3) and depth (4) are defined automatically by\nhyperMILL based on the defined model. Alternatively, both can also "
+  },
+  {
+    "page": 19,
+    "text": "X\nZ 1\n2\nX\nZ\n3\n 4 X\nZ\nPlane level detection\nOff (1): The defined vertical stepdown is kept for each roughing level irrespective of the workpiece surface.\nAutomatic (2): If the defined vertical stepdown value is greater than the distance between two surfaces\nof the workpiece, the system automatically inserts an intermediate step with a smaller vertical stepdown\nvalue for the planar surfaces of the workpiece over the entire circumference.\nOnly planar faces (3): Only the plane-parallel surfaces insi"
+  },
+  {
+    "page": 20,
+    "text": "Boundary projection\nThe defined boundary can be projected in any desired direction in order to better limit the area to be ma-\nchined. Boundary projections can also be used to delimit areas that are difficult to access. The boundary\ncan only be projected when using b all mills and not for the c ontact tool reference.\nUser defined projection direction: If this option is enabled, the selected boundary can be projected in a\nspecific direction and therefore limit the machining area.\nClick the icon t"
+  },
+  {
+    "page": 21,
+    "text": "1 2\n3 4\nRamp retract macro: Ramp length (1), Ramp angle (2) and Ramp height (3).\nX\nZ\n1\n23\nReturn macro\nIf Return macro is enabled, horizontal stepover is executed between the milling paths via the clearance\nplane or clearance distance. The activated approach or retract macro is executed for each retract or infeed\nmovement.\nMacros normal to surfaces: The approach and retract macros are executed in the direction of the surface\nnormals.\nFeedrate macros\nDefine the feedrate for approach and retract m"
+  },
+  {
+    "page": 22,
+    "text": "Min. G0 distance (1): Distance between two machining areas that can be traversed \u2013 without tool contact \u2013\nclose to the surface with machining feedrate (G1). In the case where gaps are greater than the maximum\ngap distance, and depending on the settings for the retract mode in the Machining parameters menu, the\nsystem executes a retraction movement to the clearance distance or clearance plane, with a subsequent\ninfeed movement to the next surface in rapid.\n1\nStop before execution: A stop marker i"
+  },
+  {
+    "page": 23,
+    "text": "1 2\nParallel (3), D iagonal (4): The direction of all milling paths is the same. The direction is defined by the\ndirection of the ISO line.\n3 4\nIf the P refer spiral option is enabled, machining takes place in a continuous toolpath with a spiral-shaped\nvertical stepdown.\nReverse direction\nThe following graphic illustrates the effect of the changes in direction on the position and direction of the\nfirst milling path in the Z igzag direct mode.\nA) U Parameter, B) V Parameter\n1) Without reversal, 2"
+  },
+  {
+    "page": 24,
+    "text": "Clearance distance (1): all retract and infeed movements are executed via the clearance distance. Starting\nand end positions of an infeed movement in rapid are displaced in Z direction in order to guarantee a\ncollision-free linear infeed movement. The clearance distance is added to these positions.\nClearance plane (2): all retract and infeed movements are executed via the clearance plane.\nX\nZ\n1 2\nSafety\nClearance plane and clearance distance apply in the direction of the Z axis of the current fr"
+  },
+  {
+    "page": 25,
+    "text": "Additional surfaces: temporary safety surfaces to avoid unnecessary rapid travel movements. Surfa-\nces in the machining area that need to be known to perform a correct collision check.\nCheck tool\nThe tool check ensures that all of the components defined for the tool are protected from a possible\ncollision with the CAD model on the basis of existing material. The tool check is only available if you have\ndefined a tool and also a model to be checked.\nCheck on: You must always enable this option if"
+  },
+  {
+    "page": 26,
+    "text": "If the intended machining direction is not achieved for one or more contours when the toolpaths are\ngenerated, reverse the direction afterwards. . If you change the machining direction, you should change\nthe cutter position as well.\nPlease note: In the case of mirrored contours, the contour direction is always automati-\ncally reversed.\nOverlap: applies to closed contours. The toolpath will move the tool past the user-defined Start point until it\nreaches the given End point.\nParameters\nTool posit"
+  },
+  {
+    "page": 27,
+    "text": "Check tool\nThe tool check ensures that all of the components defined for the tool are protected from a possible\ncollision with the CAD model on the basis of existing material. The tool check is only available if you have\ndefined a tool and also a model to be checked.\nCheck on: You must always enable this option if you want the tool to be checked for collisions. If the tool\ncheck is not enabled, the tool used is shown in red in the graphic preview. When this check is enabled,\nthe defined clearanc"
+  },
+  {
+    "page": 28,
+    "text": "Horizontal infeed mode\nInfeed in the machining plane (XY plane) as a length dimension ( H orizontal stepover) or as a factor of the\ntool diameter ( H orizontal stepover factor).\nStock allowance\nAllowance: Remaining material on the workpiece in the direction of the surface normals.\nAdditional allowance XY: Additional horizontal stock allowance. Allows machining to take place with differ-\nent stock allowances for the bottom and side walls of the machining area.\nToolpath fillets\nFillet radius: Abru"
+  },
+  {
+    "page": 29,
+    "text": "4\n3\n1\n2\n3\n4\n5\n6\nLength calculation increment\nAccuracy when extending or reducing the tool (see the Calculate length option).\nCalculate length\nThe R educe and E xtend options are available if a h older, e xtension or s pindle is defined. Only the R educe\noption is available for all 5X cycles.\nExtend (1): if there is a tool extension, holder or spindle collision, hyperMILL will calculate a larger tool\nreach, based on the tool reach defined for the tool. So there is no limit to the maximum tool rea"
+  },
+  {
+    "page": 30,
+    "text": "Machining sequence\nThe tool border behaviour defined on the Boundary dialogue page applies to all strategies.\nPlane (1): Stock removal is carried out plane by plane. If there are several boundaries, these are machined\nin sequence. If a user-defined plunge point has also been specified, machining only takes place within the\nrelated boundary.\nPocket (2): Stock removal with infeed optimisation: Cavities are machined in sequence.\n21\n2\nA B\n1\n21\nA B\n1 2\nA B\nPlanar mode\nInside-out (1): Stock removal ta"
+  },
+  {
+    "page": 31,
+    "text": "Max. step height: Enable if large axial infeeds are possible and, despite this, a continuous allowance is to\nbe achieved. An initial downwards vertical stepdown (1) is executed. The remaining material on inclined\nwalls is then removed from bottom to top according to the defined Max. step height (2). Valid values for\nthe Max. step height parameter must be less than or equal to the Vertical stepdown. The actual step height\nmay differ from the Max. step height.\nExample calculation of the actual ste"
+  },
+  {
+    "page": 32,
+    "text": "Two different strategies are available for High Performance Mode: O pening cut and S ide mill only. The\ntoolpaths created with hyperMILL are optimised for both strategies in terms of the minimum machining time\nat maximum removal rate, taking into account dynamic feedrate values for different machining situations.\nThe Fillet radius parameter must be at least 5% of the tool diameter.\nOpening cut (1): If this option is enabled, narrow, inaccessible areas (A) with several vertical stepdowns\n(full cu"
+  },
+  {
+    "page": 33,
+    "text": "Plunge macro\nVarious plunge strategies for infeed movement to the next machining level are available for all level-by-lev-\nel machining cycles (except Z Level Finishing).\nAxial (A): The infeed is executed as a linear movement in Z direction.\nUse the axial plunge macro for:\n\u2022 Infeed without stock removal (user-defined plunge point is outside of stock or boundary).\n\u2022 Pre-drilling at the existing user-defined plunge point.\n\u2022 Axial plunging with a tool suitable for vertical chip removal.\nHelical (B)"
+  },
+  {
+    "page": 34,
+    "text": "1\n\u2022 Bridging minor surface gaps (gap < tool radius!).\n\u2022 Traversing of small inside boundaries.\n\u2022 Protection of the machine ramps against overstressing by eliminating minor rapid movements.\nhyperMILL\n888\nZ Level Finishing\nZ constant finishing with optional slope-dependent machining. Particularly with steep surfaces, the infeed\ndistances can be adjusted to the surface profile. Machining in one way or zigzag mode with direct or\nrounded infeed movements on the surface.\nTools\nSupported tool types: Ba"
+  },
+  {
+    "page": 35,
+    "text": "Toolpath fillets\nFillet interior corners: Smooth filleting (rounding) of internal milling paths at the corners of contour pockets\nor islands.\nFillet radius: Abrupt changes in direction within the cutting toolpaths are rounded with the specified radius.\nMachining mode\nSlope mode: During Z Level Finishing, the machining of surfaces with a small slope angle only leads to\nunsatisfactory quality (a lot of rest material). To save time, these surfaces can be optionally excluded from\nmachining, in depen"
+  },
+  {
+    "page": 36,
+    "text": "Production mode: Rapid tool movements occur as the shortest link between the infeed planes, while taking\ninto account a possibly defined allowance. This minimises the number of empty paths. If a direct lateral link\nis not possible, a collision-free polygonal movement is made.\nSafety\nClearance plane and clearance distance apply in the direction of the Z axis of the current frame.\nClearance plane (1): Plane for rapid tool movements. Specification in absolute dimensions Define the\nclearance plane b"
+  },
+  {
+    "page": 37,
+    "text": "Max. axial lift: Maximum length of the lifting movement in the axial direction.\nThe following tool movements are available as approach and retract behaviour for the M anual macro\nmode: P erpendicular, C ircular, T angential, R amp (only as an approach macro). These additional tool\nmovements are only ever carried out if they do not result in a collision.\nFeedrate macros\nFeedrate for approach and retract macros. If no feedrate is defined here, the macros are run with the\nFeedrate XY that is define"
+  },
+  {
+    "page": 38,
+    "text": "An area is determined and graphically displayed within the 3 D Automatic Rest Machining cycle. Any further\nmachining occurs within the following cycle only: 3 D Automatic Rest Machining.\nWhen the C ollision avoidance function is used, a m illing area that is not within the stock is also protected\nagainst collisions. If the milling area that is outside of the stock only consists of perpendicular surfaces, no\ncollision avoidance takes place; instead, the milling path output is suppressed.\nNC param"
+  },
+  {
+    "page": 39,
+    "text": "1\n2\nParameters\nMachining area\nThe vertical machining area is defined by the values for Top and Bottom of the component.\nTop (3): maximum Z value in the current job.\nBottom (4): minimum Z value in the current job.\nThe area to be machined is normally recognised automatically. However, if the machining area is to be\nmanually limited in the Z direction, use the M anual top or Manual bottom functions.\nSpecify the values for top and bottom directly on the model by clicking the icon. Manually defined v"
+  },
+  {
+    "page": 40,
+    "text": "Macros\nApproach and retract macros can be defined for Complete Finishing. hyperMILL auto-\nmatically determines the optimal approach or retract movement.\nApproach macro / Retract macro\nSmooth: The approach or retract movement is performed smoothly in a circular motion.\nLength: Defines the length of the approach or retract movement.\nLateral / Axial clearance: Clearance in the axial or X/Y direction that can be travelled without a collision.\nMax. axial lift: Maximum lifting movement in the axial di"
+  },
+  {
+    "page": 41,
+    "text": "Strategy\nInfeed strategy\nEquidistant: Machining with constant infeed.\nProfiles (1): It is possible to select multiple closed profiles (boundaries) that are not nested.\nX\nZ\nX\nY\n1\nOffset: The selected profile curves are offset with the defined value (positive/negative).\nUse as 3D curve: The selected profile curves are not projected onto the machining surfaces.\nMachining always takes place parallel to a contour and the limited area is machined in Axis mode. The\npath ends when the tool axis is locat"
+  },
+  {
+    "page": 42,
+    "text": "Infeed\n3D infeed: Enter the desired dimension of the 3D infeed. Infeed takes place on the surface to be\nmachined. As a result, the surface infeed remains unchanged over the entire path, while infeed in XY\nchanges depending on the surface slope.\nAllowance (2): remaining material on the workpiece. Calculated in direction of the surface normals. Added\nto the Clearance parameter during machining (see section Check tool).\nAdditional allowance XY: Additional horizontal stock allowance enables machinin"
+  },
+  {
+    "page": 43,
+    "text": "Check tool\nThe tool check ensures that all of the components defined for the tool are protected from a possible\ncollision with the CAD model on the basis of existing material. The tool check is only available if you have\ndefined a tool and also a model to be checked.\nCheck on: You must always enable this option if you want the tool to be checked for collisions. If the tool\ncheck is not enabled, the tool used is shown in red in the graphic preview. When this check is enabled,\nthe defined clearanc"
+  },
+  {
+    "page": 44,
+    "text": "1 2\nCavity depth (1): Available for the Cavities and open areas and Only cavities strategies. Defines the depth\nfrom which the machining mode switches to cavity mode.\nCalculation method:\nR5 Radius reference tool\nR1.5 Radius machining tool\n1,45\nR5\nR1,5 3,36\nR1,5\nR5\n4\n4\nExample of use\nIf the value for the cavity depth (1.45 and 3.36) is larger than the value defined under machining mode (1.4\nfor (1) and 3.3 for (2)), machining will take place in cavity mode.\nhyperMILL\n928\n1 2\nIf the value for the "
+  },
+  {
+    "page": 45,
+    "text": "Steep areas\nZ-Level / Normal (1): Machining is performed in Z-levels corresponding to the vertical infeed defined on the\nParameters input page.\nParallel (2): Machining is performed parallel to the flow direction of the rest material corresponding to the\nhorizontal offset defined on the Parameters input page.\n1\n2\n2\nNormal (1): Machining is performed parallel to the surface normals.\nZ-Level (2): Machining is performed parallel to the Z-level.\n21\n 21\n1 2\nTwo different machining strategies are avail"
+  },
+  {
+    "page": 46,
+    "text": "Limitations: If the sum of the allowances is negative, the total amount must be less than the tool radius -\nmachining tolerance.\nExample: tool radius = 5.00 mm, machining tolerance = 0.01 mm, allowance = -3.0 mm.\nAdditional allowance XY must be greater than -1.99 mm, e.g. - 1.98, for |-3.00mm +(-1.98mm)| < 5.00mm\n-0.01mm.\nThe polyhedron offset is also taken into account as the stock allowance (see dialogue Milling area >\nDefinition). If several values are defined here, only the smallest value is"
+  },
+  {
+    "page": 47,
+    "text": "Multiple allowances: example of use\n(1) Manual limitation of the machining area (1).\n(2) Multiple allowances: Group 0: allowance = 0 (A), Group 1: allowance = -1.5 (B).\n(3) A dditional surfaces: Hub surface defined as additional surface. This prevents the tool being generated\nbelow the bottom plane (3).\n1 2 3\nA\nB\nFor general information on the model, see section Model (page 939)\nCheck tool\nThe tool check ensures that all of the components defined for the tool are protected from a possible\ncollis"
+  },
+  {
+    "page": 48,
+    "text": "1\n2\n3\n4\n5\nA\nB\nC\nTools\nThe Ball mill and Bullnose end mill tool types are supported for machining.\nReference\nThe B all mill and B ullnose end mill tool types are the supported reference tools. A reference tool is used to\ncalculate rest material areas.\nDiameter: A requirement is: Reference tool > machining tool.\nStrategy\nDefine the machining strategy.\nSelection mode\nSpecify the method for selecting the areas to be machined.\nVertical corner surface (1): Choose this option if the corners to be machi"
+  },
+  {
+    "page": 49,
+    "text": "1\n2\n3\nCutting mode\nClimb milling, C onventional milling: In the case of contour-parallel machining with continuous orientation,\nthe following definitions apply: climb milling and conventional milling relate to clockwise rotating tools. For\nclimb milling with tools rotating clockwise, the following machining directions apply:\n(1) Clockwise, (2) Anticlockwise.\n1\n2\nBlending\nSmooth overlap: Smooth overlapping of the toolpaths between different machining areas ensures a very\nhigh surface quality in t"
+  },
+  {
+    "page": 50,
+    "text": "1\n2\nA\nB\nSetup\nModel\nSpecify the model (milling area) required for the current job.\nFor further information, see section Prepare manufacturing geometry (page 60) .\nAdditional surfaces: temporary safety surfaces to avoid unnecessary rapid travel movements. Surfa-\nces in the machining area that need to be known to perform a correct collision check.\nCheck tool\nThe tool check ensures that all of the components defined for the tool are protected from a possible\ncollision with the CAD model on the basi"
+  },
+  {
+    "page": 51,
+    "text": "1 1\nSet an end point (2) if the contour is to be machined only partially or if there should be an overlap.\n1\n2\n1\n2\nReverse: In the default setting the machining direction follows the direction of the selected contour. This\ncan be seen in the graphic preview. If the generated toolpaths do not result in the intended machining\ndirection, select the relevant contours and select the R everse option.\nOverlap: An overlap is only permissible for closed contours. After milling the contour, the tool moves"
+  },
+  {
+    "page": 52,
+    "text": "Fit step: The value defined under Lateral infeed area for the lateral infeed is automatically adjusted in such\na way that all infeeds are the same. This is done while taking account of the total infeed.\nLateral infeed area\nTotal infeed (1): Total infeed in the XY plane.\nLateral infeed (2): Infeed in the XY plane.\nFinish path: Available for the Fit step horizontal infeed mode. Additional final finish path in the XY plane.\nThe lateral infeed will be adjusted accordingly.\nX\nY\n1\n2\nAdditional options"
+  },
+  {
+    "page": 53,
+    "text": "X\nZ\n1 2\nSafety\nClearance plane and clearance distance apply in the direction of the Z axis of the current frame.\nClearance plane (1): Plane for rapid tool movements. Specification in absolute dimensions Define the\nclearance plane by right-clicking on the icon. Select a point and confirm the selection.\nTraversing movements on the clearance plane are not checked with regard to collisions.\nTherefore this plane must be placed at a sufficient distance above the surface of the\nworkpiece.\nClearance dis"
+  },
+  {
+    "page": 54,
+    "text": "1\nStop before execution: A stop marker in the toolpath causes the tool to stop.\nRework Machining\nMilling of pre-calculated toolpaths that were generated in an earlier reference job using the Clip option but\nwere not machined to avoid collisions. A different tool is used for the Rework Machining to avoid collisions\nat the respective areas.\nThe reference job must be selected from the jobs already defined. The reference can be changed subse-\nquently on the S etup dialogue page.\nTools\nThe following "
+  },
+  {
+    "page": 55,
+    "text": "Approach macro / Retract macro\nRetract macros are additional movements during infeed on the first milling path of a job, infeeds between\nthe milling paths via the clearance plane or clearance distance. The following approach macros are\navailable depending on the machining cycle: A xial, P erpendicular, C ircular, T angential as well as the\nRamp macro for level-by-level material removal.\nDuring roughing, the approach macros only apply to the Finish pass during machining\nparallel to the axis.\nRetr"
+  },
+  {
+    "page": 56,
+    "text": "1\nStop before execution: A stop marker in the toolpath causes the tool to stop.\n3D path compensation: Available for the ball mill tool type. Allows different NC programs to machine the\nmodel using a smaller or larger tool than is actually programmed in hyperMILL. A defined allowance is\nretained. In addition to the X, Y and Z coordinates, the I, J and K orientation vectors for the surface contact\npoint must be known. The following options cannot be used in combination with the 3D path compensatio"
+  },
+  {
+    "page": 57,
+    "text": "The area to be machined is normally recognised automatically. However, if the machining area is to be\nmanually limited in the Z direction, use the M anual top or Manual bottom functions.\nSpecify the values for top and bottom directly on the model by clicking the icon. Manually defined values\nare not associative. If changes are made to the model geometry, the values will not automatically change\nas well.\n(1) Clearance plane, (2) C learance distance\n1\n2\n3\nA\nB\n4\nInfeed / allowance\nVertical stepdown"
+  },
+  {
+    "page": 58,
+    "text": "A B\n1\n 1\nTool reference\nDuring some machining cycle a definition of the traverse area in dependence on the boundary curve is\npossible. The following options are available, depending on the cycle:\nTo (1): The milling path ends as soon as there is contact between the tool shank and the boundary. This\nensures that already machined surfaces lying outside the boundary are not touched. Machining with exact\nboundary. This may result in unmachined areas.\nOn (2): Machining of the defined area until the t"
+  },
+  {
+    "page": 59,
+    "text": "An area is determined and graphically displayed within the 3 D Automatic Rest Machining cycle. Any further\nmachining occurs within the following cycle only: 3 D Automatic Rest Machining.\nWhen the C ollision avoidance function is used, a m illing area that is not within the stock is also protected\nagainst collisions. If the milling area that is outside of the stock only consists of perpendicular surfaces, no\ncollision avoidance takes place; instead, the milling path output is suppressed.\nNC param"
+  },
+  {
+    "page": 60,
+    "text": "Example: tool radius (5 mm) - corner radius (4 mm) = 1 mm.\nThe stock allowance only applies for surfaces. For areas where there are no surfaces present there will be\nno stock allowance calculated.\nZ constant machining: In the last machining level, the allowance only applies in X and Y direction, not in Z\ndirection. The specification of negative stock allowances is possible as long as the sum of (negative) stock\nallowance and tool corner radius does not become negative. When specifying negative s"
+  },
+  {
+    "page": 61,
+    "text": "Check on: You must always enable this option if you want the tool to be checked for collisions. If the tool\ncheck is not enabled, the tool used is shown in red in the graphic preview. When this check is enabled,\nthe defined clearance is used to check all of the components defined for the tool. We recommend that you\ndefine the clearance so that it gets continuously larger, starting with the thick shank in the direction of the\nspindle.\nTool check setup: the tool check settings are specified in thi"
+  },
+  {
+    "page": 62,
+    "text": "Top (3): maximum Z value in the current job.\nBottom (4): minimum Z value in the current job.\nThe area to be machined is normally recognised automatically. However, if the machining area is to be\nmanually limited in the Z direction, use the M anual top or Manual bottom functions.\nSpecify the values for top and bottom directly on the model by clicking the icon. Manually defined values\nare not associative. If changes are made to the model geometry, the values will not automatically change\nas well.\n"
+  },
+  {
+    "page": 63,
+    "text": "12. 5X Machining\nGeneral information\nThe basic settings in the cycles shown in this chapter apply to all 5X cycles. Information that applies to\nall cycles of a package is summarised at the beginning of the respective chapter. Special parameters and\nsettings that only apply to a specific cycle are dealt with in subsequent chapters.\nTerms\n1. Rotary axis: Rotation around Z corresponds to the C axis.\n2. Rotary axis: Inclination to Z normally corresponds to the A or B axis.\nSetup\nCheck tool\nIn additi"
+  }
+]

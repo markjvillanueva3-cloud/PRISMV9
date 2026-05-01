@@ -26,7 +26,8 @@
 - "quote" or "estimate" or "cost" mentioned → suggest /quote-to-ship
 
 ## What This Is
-Safety-critical CNC manufacturing MCP server. 82 dispatchers, 4,296 actions, 1,660+ engines.
+Safety-critical CNC manufacturing MCP server.
+**Live counts** — see `H:/prism/PRISM-INVENTORY-LATEST.md` (auto-regenerated). Do not hardcode counts here — they drift within days.
 Mathematical errors cause tool breakage, part scrap, and machine crashes.
 Physics constants MUST come from src/physics/constants.ts — never inline.
 
@@ -34,7 +35,7 @@ Physics constants MUST come from src/physics/constants.ts — never inline.
 ```typescript
 import { prismSelfAwarenessEngine } from "./engines/PRISMSelfAwarenessEngine.js";
 
-// JM DIE direct access (24,545 programs, 100+ customers)
+// JM DIE direct access (counts: see jm-die-profile.ts)
 engine.getJMDieCustomerPath("ALCOA")     // → "H:/PRISM/JM DIE/CNC LATHE/ALCOA"
 engine.getJMDieProgramPaths("lathe")     // → all lathe folder paths
 engine.searchJMDieCustomer("fast")       // → [{ name: "FASTENAL", path, machineTypes }]
@@ -45,15 +46,17 @@ engine.searchTribalKnowledge("thin wall milling")
 // Playbook rules (296 experiential rules)
 engine.searchPlaybookRules("roughing depth")
 
-// Web search with trusted sources (Sandvik, Kennametal, Machinery's Handbook)
-engine.generateWebSearch("carbide insert selection")
-
-// Full drive awareness for context injection
-engine.getFullDriveAwareness()
-
-// AI FEATURES (150+ engines)
+// AI FEATURES (live count via PRISM-INVENTORY-LATEST.md)
 engine.recommendAIFeatures("build a new engine")
-// → { primaryFeature, supportingFeatures, multiAgentStrategy, advisorApproach }
+// → AIFeatureRecommendation[]  (iterate the array; each has {feature, reason, priority, engines, actions, fullAction})
+
+// Capability fuzzy-match across engines + dispatchers + actions
+engine.findCapabilities("predict tool wear")     // → CapabilityMatch[] with .fullAction ready to invoke
+engine.findEngines("force prediction")            // → ranked engine matches with reason + confidence
+
+// Live manifest (5-min cache; never inline counts)
+engine.getManifest()           // → { stats, counts, ... }
+engine.refreshManifest()       // force regen
 
 engine.searchAIFeatures("reasoning")
 // → [ManufacturingReasoningEngine, MultiPathReasoningEngine, ...]
@@ -68,34 +71,29 @@ Full directive: `H:/prism/state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md`
 ## Test Shop: JM Die Company
 JM Die is the canonical test shop for ALL PRISM development. Every feature, quote,
 machine selection, and costing calculation must work against JM Die's real data.
-- **Industry**: Cold heading die & tooling (fastener industry)
-- **Machines**: 21 machines — 7 Okuma lathes, 5 mills (Hurco/Okuma/Haas/Roku-Roku), 2 Mitsubishi sinker EDMs, 1 Mitsubishi wire EDM, 6 support
-- **Programs**: 20,157 files — 5,297 lathe .MIN, 3,713 Mastercam .mcx-8, 1,825 legacy .MCX
-- **Programs root**: `H:/PRISM/JM DIE/`
-- **Profile data**: `src/data/jm-die-profile.ts` (company metadata, controller map, customers)
-- **Shop config engine**: `src/engines/ShopConfigurationEngine.ts` (rates, machines, profile)
-- **Default profile ID**: `"jm-die"` (ShopConfigurationEngine.DEFAULT_PROFILE_ID)
-- **Primary materials**: M2, D2, S7, A2 tool steels; tungsten/cobalt carbide; H13; graphite (EDM electrodes)
-- **Customers**: 100+ fastener manufacturers (ITW, Alcoa, Optimas, SFS, Holo-Krome, etc.)
-- **Upcoming data**: Employee database, tool holders, tooling inventory, material stock, prints
+- **Programs root**: `H:/PRISM/JM DIE/` — counts (machines/programs/customers/materials) live in `src/data/jm-die-profile.ts`; do not duplicate here.
+- **Profile data**: `src/data/jm-die-profile.ts`
+- **Shop config engine**: `src/engines/ShopConfigurationEngine.ts`
+- **Default profile ID**: `"jm-die"` (`ShopConfigurationEngine.DEFAULT_PROFILE_ID`)
 
 ## Structure
 ```
-src/engines/           — 1,559 engines. CHECK ENGINE_DIGEST.md BEFORE creating new ones.
-src/tools/dispatchers/ — 82 dispatchers routing to engines. Each has z.enum action list.
-src/registries/        — 24 registries (materials, tools, machines, strategies, formulas)
+src/engines/           — engines. CHECK ENGINE_DIGEST.md BEFORE creating new ones.
+src/tools/dispatchers/ — dispatchers, each with z.enum action list.
+src/registries/        — registries (materials, tools, machines, strategies, formulas)
 src/physics/           — constants.ts = canonical Kienzle/Taylor/material DB. IMPORT from here.
-src/algorithms/        — 52 algorithms (Kienzle, SLD, MonteCarlo, Bayesian, etc.)
+src/algorithms/        — algorithms (Kienzle, SLD, MonteCarlo, Bayesian, etc.)
 src/mcp/               — MCP protocol (auth, elicitation, health probes, sampling, tasks)
 src/schemas/           — Zod schemas per dispatcher action
 src/hooks/             — Safety hooks (crossFieldPhysics, materialSanity, machineLimitGuard)
 src/middleware/        — Auth middleware, rate limiting, validation
-src/db/                — PostgreSQL schema + connection pooling (20 connections)
-src/routes/            — Express API routes (51 files including /learning/*)
+src/db/                — PostgreSQL schema + connection pooling
+src/routes/            — Express API routes
 src/utils/             — Logger (Winston), atomicWrite, pipelineCheckpoint
-src/__tests__/         — 808 test files (vitest 4.0)
-web/src/               — React/Vite frontend (45 pages, 8 learning components)
-dist/                  — 61MB esbuild bundle
+src/__tests__/         — vitest test files
+web/src/               — React/Vite frontend
+dist/                  — esbuild bundle
+(All counts: see PRISM-INVENTORY-LATEST.md)
 ```
 
 ## Key Engine Categories (don't rebuild — USE these)
@@ -155,7 +153,7 @@ For multi-agent orchestration, use distributed locks:
 - NEVER create stub engines — enforcement hook blocks placeholder returns
 - ALWAYS run tests after modifying engines — hook suggests affected test files
 - ALWAYS check ENGINE_DIGEST.md before creating new engines — prevent duplicates
-- Canonical constants: kc1.1 per ISO group (P=1800, M=2100, K=1100, N=700, S=2800, H=3200)
+- Canonical kc1.1/Taylor/material values live ONLY in `src/physics/constants.ts` — never duplicate in docs or code.
 
 ## Duplication Guard Protocol (MANDATORY)
 Before creating ANY new engine, algorithm, formula, hook, or MCP action:
@@ -175,7 +173,7 @@ if (check.shouldProceed === false) {
   // DO NOT create duplicate
 }
 ```
-**Current inventory**: 1,559 engines, 499 formulas, 60+ algorithms, 4,296 actions
+**Current inventory**: see `H:/prism/PRISM-INVENTORY-LATEST.md` (auto-regenerated; live counts only)
 **Fuzzy matching**: catches renamed/similar assets (85% threshold)
 **Cross-session sync**: registered assets visible to ALL Claude/Codex sessions
 
@@ -196,6 +194,5 @@ const exploration = prismCreativeReasoningEngine.explore({
 // Returns: solutions[], hybridCombinations[], novelInsights[], recommendedSolution
 ```
 
-**Cross-domain synthesis**: 15 scientific disciplines (control theory, materials science, robotics, ML, precision)
-**120+ formulas/algorithms**: PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, K-means, etc.
-**Think outside the box**: Don't fall into norms — hybrid approaches and novel solutions are encouraged
+**Cross-domain synthesis**: domain catalog in `ENGINE_DIGEST.md` and `mcp-server/data/docs/algorithms/`.
+**Think outside the box**: hybrid approaches and novel solutions encouraged.

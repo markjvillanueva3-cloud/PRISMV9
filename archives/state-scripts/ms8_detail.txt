@@ -1,0 +1,15 @@
+MS8 at lines: 1584 to 219
+
+
+
+ALARM REFS:
+L114: Machines 824+, Tools 1944+, Alarms 9200+. Formula definitions parsed and validated.
+L141: 4. Alarm registry: >95% loaded across 12 controller families âœ… (10,033 = 100%)
+L179: P0 finding fixes applied: alarm_decode param order, safety validator flat params, compliance
+L193: ### R1-MS2: Machine/Tool/Alarm Loading âœ… COMPLETE (2026-02-15)
+L194: Tools: 1,944/1,944 (100%). Alarms: 10,033 (100%). Machines: 402â†’469â†’639.
+L211: Alarms: 10,033 (100%) | Formulas: 500 (100%) | Build: clean 3.9MB
+L1330: function detectQueryType(query: string): 'material' | 'tool' | 'alarm' | 'strategy' | 'formula' | 'machine' {
+L1333: // Alarm patterns: number + controller name, or "alarm" keyword
+L1334: if (/alarm|fault|error/i.test(q) || /^\d{1,5}\s*(fanuc|haas|siemens|mazak|okuma)/i.test(q))
+L1335: return 'alarm';

@@ -1,0 +1,530 @@
+{
+  "metadata": {
+    "created": "2026-03-27",
+    "source": "YouTube transcripts — Mitsubishi Wire EDM training, operation, and maintenance videos",
+    "videoCount": 8,
+    "totalDuration_minutes": 116,
+    "purpose": "Comprehensive Wire EDM knowledge for PRISM EDMProgramAssemblerEngine and EDMCuttingParamFlushEngine"
+  },
+  "videos": [
+    {
+      "id": "98UWB1kDRYY",
+      "title": "Mitsubishi wire EDM Control walk through with HK Technology",
+      "duration": "5:05",
+      "presenter": "Scott Ellesmere, Applications & Technology Team Manager, HK Technologies",
+      "status": "transcript_downloaded",
+      "topics": ["M800_control", "Advanced_Plus_3_control", "setup_workflow", "programming", "monitor_screen", "maintenance_timers", "threading_management"]
+    },
+    {
+      "id": "iEpTKJBoQlA",
+      "title": "Mitsubishi MV1200R Maintenance",
+      "duration": "41:39",
+      "presenter": "Shop operator (experienced MV1200R user)",
+      "status": "transcript_downloaded",
+      "topics": ["MV1200R_teardown", "lower_head_rebuild", "upper_head_rebuild", "roller_bearings", "diamond_guides", "power_feeders", "ceramic_isolators", "ultrasonic_cleaning", "threading_issues"]
+    },
+    {
+      "id": "0eLsnSGN-_U",
+      "title": "Mitsubishi MV1200S EDM review from HK Technology",
+      "duration": "6:45",
+      "presenter": "Scott Ellesmere, HK Technologies",
+      "status": "transcript_downloaded",
+      "topics": ["MV1200S_specs", "tubular_drive", "digital_anti_electrolysis", "wire_consumption", "fiber_optics", "positional_warranty", "surface_finish_specs"]
+    },
+    {
+      "id": "2vP73mA2yQo",
+      "title": "Which Type of Wire Should I Use for My EDM?",
+      "duration": "14:28",
+      "presenter": "EDM shop operator running MV2400R",
+      "status": "transcript_downloaded",
+      "topics": ["wire_types_comparison", "brass_vs_zinc_coated", "premium_wire", "cutting_speed_test", "wire_cost_analysis", "flushing_conditions", "power_master", "e_adjust"]
+    },
+    {
+      "id": "aZJLvByys7g",
+      "title": "Mitsubishi wire edm MV maintenance part 1",
+      "duration": "10:47",
+      "presenter": "Experienced EDM operator",
+      "status": "transcript_downloaded",
+      "topics": ["guide_maintenance", "power_feeder_cleaning", "flush_cup_removal", "jet_nozzle", "diamond_guides", "maintenance_intervals"]
+    },
+    {
+      "id": "UQu0EcDqizQ",
+      "title": "NEXT Generation Mitsubishi MV Series Wire EDM",
+      "duration": "5:28",
+      "presenter": "Mitsubishi EDM official",
+      "status": "transcript_downloaded",
+      "topics": ["MV_series_overview", "T_casting_construction", "cylindrical_drive_technology", "fiber_optic_servo", "V350_generator", "digital_matrix_sensor", "wire_consumption_reduction"]
+    },
+    {
+      "id": "d3aqP6YV1h8",
+      "title": "Mitsubishi Wire EDM basics & maintenance",
+      "duration": "20:45",
+      "status": "unavailable",
+      "notes": "Video removed or region-restricted"
+    },
+    {
+      "id": "ROVXHOG3SHs",
+      "title": "M800 Controller with D-CUBES software",
+      "duration": "5:35",
+      "status": "unavailable",
+      "notes": "Video removed or region-restricted"
+    }
+  ],
+  "machineModels": {
+    "MV1200S": {
+      "type": "Wire EDM — entry model",
+      "manufacturer": "Mitsubishi Electric",
+      "control": "Advanced Plus 3 (M800 series)",
+      "driveSystem": {
+        "XY": "Tubular (cylindrical) linear shaft motor",
+        "UV": "Ball screw (standard on S model)",
+        "type": "Magnetic propulsion, 360-degree flux, no-contact design",
+        "advantages": ["No cogging", "No heat transfer to casting", "No backlash", "No pitch error", "No lubrication needed", "12-year positional warranty"]
+      },
+      "wireRange_mm": { "min": 0.1, "max": 0.3 },
+      "travelXY_mm": "400 x 300",
+      "features": [
+        "Fiber optic drive communication (4x faster than previous generation)",
+        "Digital anti-electrolysis (DAE)",
+        "Dry automatic wire threading (14-inch annealed wire, threads through slots/counterbores)",
+        "Power Master (adaptive power for variable flush conditions)",
+        "Hardened stainless steel table"
+      ],
+      "surfaceFinish_Ra_um": {
+        "steel": { "min": 0.35, "max": 0.4, "notes": "Ra with 0.3mm wire, 3+ skim cuts" },
+        "carbide": { "min": 0.3, "notes": "Ra on carbide, 3+ skim cuts" }
+      },
+      "targetMarket": "Small job shops, mold makers, toolrooms",
+      "notes": "Best-selling Mitsubishi wire EDM in UK market. Same control/casting platform as R-series."
+    },
+    "MV1200R": {
+      "type": "Wire EDM — production model",
+      "manufacturer": "Mitsubishi Electric",
+      "control": "Advanced Plus 3 (M800 series)",
+      "driveSystem": {
+        "XY": "Tubular (cylindrical) linear shaft motor",
+        "UV": "Tubular (cylindrical) linear shaft motor",
+        "type": "Full linear motor on all 4 axes"
+      },
+      "wireRange_mm": { "min": 0.1, "max": 0.3 },
+      "features": [
+        "All features of MV1200S",
+        "Tubular drive on U and V axes (vs ball screw on S model)",
+        "Higher taper cutting precision",
+        "V350 Type V pulse generator"
+      ],
+      "maintenance": {
+        "lowerRollerBearings": {
+          "interval_hours": 500,
+          "parts": ["Bearings (2x)", "Wave spring washer", "Axle shaft seal"],
+          "procedure": "Full disassembly, ultrasonic clean, rebuild with new bearings. Left-hand threads on roller unit to prevent wire-induced loosening."
+        },
+        "diamondGuides": {
+          "interval_hours": "80-100 (or every 2 weeks)",
+          "parts": ["Upper diamond guide", "Lower diamond guide", "Ceramic isolator plate"],
+          "procedure": "Use guide wrench (U for upper, D for lower). Clean with ultrasonic. Be careful with ceramic isolator — shatters if dropped."
+        },
+        "powerFeeders": {
+          "interval_hours": "80-100 (or every 2 weeks)",
+          "notes": "Check for groove wear. Upper and lower power feeders transfer electrical current to wire."
+        },
+        "fullTeardown": {
+          "interval_hours": "200-250 (or monthly)",
+          "procedure": "Complete upper and lower head disassembly. Run all internals through ultrasonic tank. Replace worn bearings, seals, springs. Check roller play — wobble or thrust indicates bad bearings."
+        },
+        "threadingDiagnostics": {
+          "symptoms": "Wire jumps at lower roller, machine stops during threading",
+          "rootCause": "Lower roller bearing wear — shaft play/wobble",
+          "fix": "Replace lower roller bearings and wave spring washer"
+        }
+      }
+    },
+    "MV2400S": {
+      "type": "Wire EDM — large format",
+      "manufacturer": "Mitsubishi Electric",
+      "travelXY_mm": "600 x 400",
+      "submergedHeight_mm": { "option1": 310, "option2": 425, "notes": "Fully submerged cutting" },
+      "notes": "Same platform as MV1200S with larger work envelope"
+    },
+    "MV2400R": {
+      "type": "Wire EDM — large format production",
+      "manufacturer": "Mitsubishi Electric",
+      "features": ["Full tubular drive on all axes", "Large work envelope"],
+      "notes": "Used in wire type comparison test (video 2vP73mA2yQo)"
+    },
+    "MV4800": {
+      "type": "Wire EDM — extra-large format",
+      "manufacturer": "Mitsubishi Electric",
+      "travelXYZ_mm": "800 x 600 x 510",
+      "tableLoad_kg": 3000,
+      "notes": "Largest in MV series"
+    }
+  },
+  "controlSystem": {
+    "name": "Advanced Plus 3 Control (M800 series)",
+    "manufacturer": "Mitsubishi Electric (2nd largest control producer worldwide)",
+    "mainAreas": ["Setup", "Program", "Monitor"],
+    "setupFeatures": {
+      "workpiecePickup": [
+        "Work slope detection (auto-alignment to machine axes, eliminates manual clocking)",
+        "Three-point center (outside/inside)",
+        "Single-axis pickup (X or Y datum)",
+        "Corner pickup (for plate/block workpieces)"
+      ],
+      "programInput": [
+        "DXF file import (via network or USB)",
+        "IGES file import",
+        "On-control 2D CAM (outline sampling, shape extraction)",
+        "Manual G-code programming"
+      ]
+    },
+    "programmingWorkflow": {
+      "steps": [
+        "1. Import geometry (DXF/IGES via USB or network)",
+        "2. Sample outline from solid model (outside contour extraction)",
+        "3. Transfer to 2D CAM system on control",
+        "4. Select thread point location",
+        "5. Move to CAM — specify thread location and workpiece height",
+        "6. Set conditions: answer guided prompts for material, thickness, wire type, desired surface finish",
+        "7. Technology search: control finds optimal generator settings, offsets, stepping increments",
+        "8. Configure strategy: die/punch shape, single/multiple parts, cutting strategy",
+        "9. Apply process and generate NC program",
+        "10. Optional: open editor for program modifications",
+        "11. Move to Monitor screen and start cutting"
+      ]
+    },
+    "technologyFeatures": {
+      "cornerControl": {
+        "roughCut": "Automatic corner management — adjusts power at sharp corners to prevent wire lag",
+        "skimCut": "Wire can be forced deeper into corners for improved accuracy",
+        "punchMode": "Takes more of the radius for punch tooling applications, reduces bench work"
+      },
+      "masterShapeControl": "Handles differences between straight and curved surfaces automatically",
+      "powerMaster": {
+        "purpose": "Adaptive power control for variable flushing conditions",
+        "use": "Enable when: poor flushing, changing Z depths, variable workpiece thickness",
+        "disable": "For best speed comparison testing with good flush conditions"
+      },
+      "eAdjust": {
+        "purpose": "Fine-tune cutting energy level",
+        "notes": "Can be moved up 3 notches with premium wire to increase cutting speed"
+      }
+    },
+    "maintenanceFeatures": {
+      "maintenanceTimers": "On-screen alerts for lubrication oil, filter changes, and wire remaining",
+      "wireRemaining": "Estimates wire left on spool for overnight/unattended runs",
+      "threadingManagement": "Real-time wire thread tracking with PDF troubleshooting guides built into control",
+      "guideDiagnostics": "PDF-based visual guide system for fault resolution"
+    }
+  },
+  "dCubesSoftware": {
+    "name": "D-CUBES",
+    "platform": "M800 Controller",
+    "status": "Video ROVXHOG3SHs unavailable — limited data from other sources",
+    "knownFeatures": [
+      "Integrated 2D CAM on the control",
+      "DXF/IGES geometry import and outline sampling",
+      "Automatic technology selection based on material/thickness/wire",
+      "NC program generation with multi-pass strategy",
+      "Simple Figures feature for basic shape programming"
+    ]
+  },
+  "wireTypes": {
+    "straightBrass": {
+      "composition": "65/35 brass (copper/zinc alloy)",
+      "diameter_mm": 0.25,
+      "diameter_inches": 0.010,
+      "cost_per_spool_22lb_USD": 165,
+      "characteristics": [
+        "Lowest cost option",
+        "Standard wire for general cutting",
+        "Slowest cutting speed",
+        "Adequate surface finish for most applications"
+      ],
+      "testResult_quarterInch_hole_1875thick": {
+        "time_minutes": 46.9,
+        "time_seconds": 2814,
+        "notes": "Rough + finish + 3 skim passes, good flush condition, MV2400R"
+      }
+    },
+    "zincCoated": {
+      "composition": "Brass core with zinc coating",
+      "diameter_mm": 0.25,
+      "cost_per_spool_22lb_USD": 185,
+      "characteristics": [
+        "Medium cost option",
+        "Zinc coating provides better spark characteristics",
+        "Faster cutting speed than straight brass",
+        "Better surface finish than straight brass",
+        "Reduced wire wear"
+      ],
+      "testResult_quarterInch_hole_1875thick": {
+        "time_minutes": 43.37,
+        "time_seconds": 2602,
+        "speedImprovement_vs_brass_percent": 7.5,
+        "notes": "Same conditions as brass test"
+      }
+    },
+    "premiumZincCoated": {
+      "composition": "Brass core with premium/stratified zinc coating",
+      "diameter_mm": 0.25,
+      "cost_per_spool_22lb_USD": 258,
+      "characteristics": [
+        "Highest cost option (56% more than brass)",
+        "Allows lower wire feed rate (from 8 to 6 on MV control)",
+        "Up to 30% wire consumption reduction on rough cut",
+        "Fastest cutting speed",
+        "Best surface finish",
+        "E-condition can be increased 3 notches for more speed"
+      ],
+      "testResult_quarterInch_hole_1875thick": {
+        "time_minutes": 42.55,
+        "time_seconds": 2553,
+        "speedImprovement_vs_brass_percent": 9.3,
+        "notes": "Same standard settings as other wires. Additional speed possible with wire-specific E-adjust optimization."
+      }
+    },
+    "selectionGuidance": {
+      "factorsToConsider": [
+        "Wire cost vs machine time cost (hourly rate)",
+        "Number of machines (single machine = maximize throughput)",
+        "Production volume (high volume with good flush = premium wire payback is faster)",
+        "Flushing conditions (good flush = premium wire benefits shine)",
+        "Part complexity and number of start holes"
+      ],
+      "keyInsight": "Wire is the biggest running cost on a wire EDM. The wire cost difference ($165 vs $258 per spool) is often offset by faster cutting and reduced wire consumption, especially with consistent good flushing.",
+      "testConclusion": "On a 3/8\" diameter hole through 1.875\" D2 tool steel: Premium zinc coated = 42:33, Zinc coated = 43:22, Straight brass = 46:54. All produced acceptable fit on ejector pins."
+    }
+  },
+  "cuttingParameters": {
+    "roughCut": {
+      "wireSpeed": {
+        "standard_setting": 8,
+        "premium_wire_setting": 6,
+        "reduction_percent": 25,
+        "notes": "Digital anti-electrolysis enables lower wire speed without quality loss"
+      },
+      "wireConsumption": {
+        "reduction_with_DAE_percent": 30,
+        "reduction_with_V350_percent": 60,
+        "notes": "V350 generator pulse shaping + fiber optic servo response reduces electrode wear dramatically"
+      },
+      "cornerManagement": "Automatic power reduction at sharp corners to prevent wire lag and breakage"
+    },
+    "skimPasses": {
+      "typicalCount": "3 skim passes after rough cut for precision work",
+      "strategy": "Rough cut + finish + 3 skims for ejector pin holes",
+      "surfaceFinishProgression": {
+        "afterRough_Ra_um": "3.0-5.0",
+        "after1stSkim_Ra_um": "1.5-2.0",
+        "after2ndSkim_Ra_um": "0.5-1.0",
+        "after3rdSkim_Ra_um": "0.3-0.4"
+      },
+      "offsetStepping": "Control automatically calculates offset reductions per skim pass"
+    },
+    "flushingPressure": {
+      "goodCondition": "Both upper and lower flush cups sealed against workpiece, submerged cutting",
+      "poorCondition": "Open top, slots, variable thickness — use Power Master",
+      "impact": "Good flushing = faster cutting, fewer wire breaks, better surface finish",
+      "notes": "When comparing wires, turn Power Master OFF for apples-to-apples comparison under good flush"
+    },
+    "materialThickness": {
+      "parameterSelection": "Parameters stored in quarter-inch (6.35mm) increments",
+      "interpolation": "For workpiece between standard thicknesses, select next larger setting",
+      "tallParts": "Mitsubishi technology excels with tall workpieces, multiple holes, step changes",
+      "typicalRange_mm": "20-30mm is 'quite a nice situation' for standard cutting"
+    }
+  },
+  "driveAndServoTechnology": {
+    "tubularDrive": {
+      "fullName": "Cylindrical Linear Shaft Motor (Tubular Drive)",
+      "principle": "Permanent magnets arranged as buttons inside stainless steel tube, 360-degree magnetic flux",
+      "advantages": [
+        "No contact — zero wear, zero backlash",
+        "No cogging (smooth motion at all speeds)",
+        "No heat transfer to machine casting",
+        "No lubrication required",
+        "No pitch error compensation needed",
+        "Immune to metallic shop dust interference",
+        "Higher speed and precision than ball screws",
+        "Reduced noise",
+        "12-year positional warranty (vs 10-year for ball screw models)"
+      ],
+      "comparison": "Replaces both ball screws AND flat-plate linear motors. Flat plate systems had: large magnets, special casting requirements, heat trapped behind iron backplate, susceptible to dust."
+    },
+    "servoControl": {
+      "communicationType": "Fiber optic (optical drive system)",
+      "speedAdvantage": "4x communication speed vs previous generation",
+      "purpose": "EDM process happens in microseconds — fiber optics enable real-time gap feedback and adjustment",
+      "notes": "Information transmitted from drive system to servo and back at optical speed"
+    },
+    "generator": {
+      "model": "V350 Type V",
+      "features": [
+        "Digitally shaped spark pulse",
+        "Minimizes electrode (wire) wear",
+        "Reduces wire vibration",
+        "Digital Matrix Sensor for gap monitoring"
+      ],
+      "wireConsumptionReduction": "Up to 60% reduction vs previous generation"
+    }
+  },
+  "digitalAntiElectrolysis": {
+    "acronym": "DAE",
+    "principle": "Moves spark position in real time to distribute erosion evenly around wire circumference",
+    "benefits": [
+      "Even cut quality",
+      "Eliminates uneven power contactor wear (normally one wears faster than the other)",
+      "Enables 30% wire speed reduction without loss of cutting speed",
+      "Reduces overall wire consumption — biggest running cost on wire EDM"
+    ],
+    "impact_on_cost": "Wire is the biggest running cost. 30% reduction = significant annual savings."
+  },
+  "autoThreading": {
+    "type": "Dry automatic wire threading",
+    "wireLength_inches": 14,
+    "method": "Kink-anneal: wire is kinked and annealed straight for insertion",
+    "capabilities": [
+      "Thread through standard start holes",
+      "Thread through slots (not possible with wet/water jet threading)",
+      "Thread through tapered surfaces",
+      "Thread through counterbored holes",
+      "Re-thread after wire break in closed path"
+    ],
+    "comparisonToWetThreading": "Wet threading (water jet) deflects the wire — cannot thread through slots, tapered surfaces, or counterbores. Dry threading overcomes all these limitations."
+  },
+  "machineConstruction": {
+    "casting": {
+      "type": "T-casting design",
+      "material": "Cast iron",
+      "features": [
+        "X and Y axes mounted directly on separate sets of ways on base casting",
+        "Table moves left-right on one set of ways (X)",
+        "Column moves in-out on separate center ways (Y)",
+        "Direct axis mounting eliminates squareness and repeatability issues from stacked table designs"
+      ]
+    },
+    "table": {
+      "material": "Hardened stainless steel",
+      "notes": "MV1200 machines are twice as heavy as previous generation models"
+    },
+    "travelIncrease": "Larger travel size without significant increase in machine footprint"
+  },
+  "maintenanceProcedures": {
+    "daily": [
+      "Check wire tension",
+      "Check deionized water level and conductivity",
+      "Clean flush cups",
+      "Visual inspection of wire path"
+    ],
+    "weekly_80_100_hours": [
+      "Clean diamond guides (upper and lower)",
+      "Clean power feeders (upper and lower) — check for groove wear",
+      "Clean jet nozzles",
+      "Check and clean flush cups and O-rings"
+    ],
+    "monthly_200_250_hours": [
+      "Full upper and lower head teardown",
+      "Run all internal components through ultrasonic cleaner",
+      "Inspect and replace lower roller bearings if needed",
+      "Check wave spring washer condition",
+      "Inspect axle shaft seals",
+      "Clean ceramic isolator plates (handle carefully — shatters if dropped)",
+      "Inspect and clean wire path (rollers, guides, nozzles)"
+    ],
+    "as_needed_500_hours": [
+      "Replace lower roller bearing kit",
+      "Replace power feeders when grooves appear",
+      "Replace diamond guides when wear is visible",
+      "Replace deionizer resin"
+    ],
+    "criticalTips": [
+      "Keep spare lower roller bearing kits on hand — when they fail, the machine stops",
+      "Use the wrenches that came with the machine for guide removal — prevents over-torque",
+      "Left-hand threads on lower roller assembly — turn clockwise to remove",
+      "Apply thin film of lubricant to shaft seal area during reassembly to prevent tearing",
+      "Check control maintenance timer screens regularly for upcoming service alerts",
+      "Ultrasonic cleaning is recommended for all disassembled parts"
+    ]
+  },
+  "applicationKnowledge": {
+    "moldMaking": {
+      "commonParts": ["Ejector pin holes", "Pocket inserts", "Logo inserts", "Core/cavity splits"],
+      "typicalWorkflow": "Fast hole (start hole) machine → Wire EDM → Bench work",
+      "surfaceRequirements": "Ra 0.3-0.4 um on steel, Ra 0.3 um on carbide"
+    },
+    "toolAndDie": {
+      "commonParts": ["Punch and die profiles", "Clearance holes", "Blanking dies", "Progressive die components"],
+      "punchVsDie": "Control has punch mode that takes more radius to reduce bench work",
+      "cornerControl": "Skim cuts can force wire deeper into corners for tighter radii"
+    },
+    "generalJobShop": {
+      "wireSelection": "0.1 to 0.3mm wire covers wide range of scope",
+      "standardApproach": "Zinc coated wire at medium price point for best cost/performance balance",
+      "productivity": "Focus on maximizing machine throughput if only one wire EDM in shop"
+    },
+    "taperCutting": {
+      "capability": "4-axis synchronized cutting (X,Y + U,V)",
+      "prerequisite": "MV1200R has tubular drive on U,V for best taper precision",
+      "maxAngleCheck": "Control has built-in max angle verification feature"
+    }
+  },
+  "costAnalysis": {
+    "wireConsumption": {
+      "biggestRunningCost": true,
+      "savings_with_DAE_percent": 30,
+      "savings_with_V350_generator_percent": 60,
+      "annualImpact": "Significant — wire consumption is the #1 operating expense"
+    },
+    "wirePricing_2023_USD": {
+      "straightBrass_22lb": 165,
+      "zincCoated_22lb": 185,
+      "premiumZincCoated_22lb": 258
+    },
+    "machineROI": {
+      "positionWarranty_years": 12,
+      "driveWarranty": "No ball screw replacement needed — ever",
+      "powerConsumption": "Reduced vs previous generation",
+      "maintenanceCost": "Lower due to fewer wear items (no ball screws, no lubrication for drives)"
+    }
+  },
+  "prismEngineRelevance": {
+    "EDMProgramAssemblerEngine": {
+      "parameters_to_encode": [
+        "Wire type selection (brass/zinc/premium) based on material and requirements",
+        "Wire speed settings (standard 8 vs premium 6)",
+        "E-condition levels per wire type",
+        "Skim pass count (typically 3 for precision work)",
+        "Power Master on/off based on flushing conditions",
+        "Corner control modes (punch vs die vs standard)",
+        "Material thickness bracketing (quarter-inch increments)"
+      ]
+    },
+    "EDMCuttingParamFlushEngine": {
+      "parameters_to_encode": [
+        "Flushing condition classification (good/poor/variable)",
+        "Submerged vs non-submerged cutting decision",
+        "Flush cup seal conditions",
+        "Power Master activation logic",
+        "Wire consumption rate per wire type and material"
+      ]
+    },
+    "EDMSurfaceIntegrityEngine": {
+      "parameters_to_encode": [
+        "Surface finish progression per skim pass (Ra 3-5 → 1.5-2 → 0.5-1 → 0.3-0.4 um)",
+        "Steel vs carbide finish targets",
+        "Wire type influence on surface finish",
+        "Digital anti-electrolysis impact on surface uniformity"
+      ]
+    },
+    "machineRegistry": {
+      "machines_to_add": [
+        "Mitsubishi MV1200S (entry, tubular XY, ball screw UV)",
+        "Mitsubishi MV1200R (production, full tubular XYUV)",
+        "Mitsubishi MV2400S (large format entry)",
+        "Mitsubishi MV2400R (large format production)",
+        "Mitsubishi MV4800 (extra large, 800x600x510, 3-ton table)"
+      ]
+    }
+  }
+}

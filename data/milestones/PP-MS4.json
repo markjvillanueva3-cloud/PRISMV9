@@ -1,0 +1,130 @@
+{
+  "id": "PP-MS4",
+  "version": "6.2.0",
+  "title": "Stochastic Verification + Safety + Knowledge Stages",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Wire Phase 4 (stochastic verification) and Phase 5 (safety + knowledge) into the pipeline. Phase 4 runs Monte Carlo simulations to produce confidence intervals on all predictions — force, temperature, surface finish, dimensional accuracy, and process robustness. Phase 5 applies 24 safety rules, 296 playbook rules, 2,800+ tribal knowledge tips, reliability checks, energy optimization, and acoustic analysis. Together these phases ensure the output is not just fast but SAFE and PROVEN.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Stochastic Verification Stages (Phase 4 of Pipeline)",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Stage 4.1-4.2 — Monte Carlo process simulation + Uncertainty propagation",
+          "status": "complete",
+          "steps": [
+            "Wire StochasticCuttingForceEngine: MC simulation of force distribution per block",
+            "Input uncertainty sources: material property spread (±5-15%), tool geometry tolerance, machine positioning error, runout TIR",
+            "Use MaterialBatchVariabilityEngine: Cholesky-correlated material properties (UTS/hardness/thermal_cond are correlated, not independent)",
+            "Wire UncertaintyPropagationPipelineEngine: propagate distributions through Force→Deflection→Dimension→Cpk chain",
+            "Output: 95% confidence intervals on all key outputs (force, temperature, deflection, surface finish, dimensional accuracy)",
+            "Use LHS (Latin Hypercube Sampling) for efficiency — 500 samples gives good convergence",
+            "Store CI bounds in PipelineContext for each block"
+          ],
+          "exit_conditions": [
+            "Every cutting block has force CI (5th/95th percentile)",
+            "CI width increases with uncertainty in input parameters",
+            "Correlated inputs produce tighter CIs than independent assumption",
+            "500 LHS samples converge within 2% of 10,000-sample reference"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Stage 4.3-4.5 — Dimensional + Surface finish + Environmental verification",
+          "status": "complete",
+          "steps": [
+            "Wire StochasticDimensionalEngine: predict dimensional distribution from force/deflection/thermal/machine error sources",
+            "Calculate P(dimension within tolerance) for each critical feature",
+            "Wire StochasticSurfaceFinishEngine: predict Ra/Rz distribution from fz, corner radius, BUE probability, vibration",
+            "Verify Ra target achievable with predicted S/F — if P(Ra > target) > 5%, reduce feed",
+            "Wire EnvironmentalVariationEngine: shop temperature (±3°C diurnal) + humidity impact on dimensions",
+            "CTE mismatch: workpiece expands differently than machine at non-20°C temperatures",
+            "For precision work (Cpk target > 1.67): environmental variation can be the dominant error source"
+          ],
+          "exit_conditions": [
+            "Dimensional probability calculated for user-specified tolerances",
+            "Surface finish target verified against predicted Ra distribution",
+            "Environmental variation measurably affects Cpk for tight tolerances",
+            "Warning generated when P(out_of_spec) > 5%"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Stage 4.6-4.7 — Material batch variability + Process robustness score",
+          "status": "complete",
+          "steps": [
+            "Wire MaterialBatchVariabilityEngine: heat-to-heat property variation for 9+ material families",
+            "Bayesian certification: if user has material cert data, use actual values; else use distribution from material grade spec",
+            "Wire ProcessRobustnessEngine: Taguchi signal-to-noise ratio for the entire parameter set",
+            "Identify most sensitive parameters (Sobol Si from StochasticWrapperEngine)",
+            "Report: 'Feed rate is responsible for 45% of dimensional variation — tighten feed control'",
+            "Overall robustness score: 0-100 (100 = insensitive to all variation sources)",
+            "If robustness < 60, suggest parameter adjustments to improve (reduce speed to more robust zone)"
+          ],
+          "exit_conditions": [
+            "Material batch variation produces realistic property spreads",
+            "Sobol sensitivity indices identify top 3 variation drivers",
+            "Robustness score correlates with CI width (wider CIs = lower robustness)",
+            "Actionable recommendations generated for low-robustness setups",
+            "25+ tests across Phase 4 stages"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Safety + Knowledge Stages (Phase 5 of Pipeline)",
+      "units": [
+        {
+          "id": "U04",
+          "title": "Stage 5.1-5.2 — G-code safety analysis + Playbook rules application",
+          "status": "complete",
+          "steps": [
+            "Wire GCodeSafetyAnalyzerEngine: 24 safety rules applied to generated G-code",
+            "Machine envelope check: verify all moves within machine work volume",
+            "Feed/speed limit check: verify S/F within machine and tool maximums",
+            "Tool number/offset validation: verify tool numbers exist in machine magazine",
+            "Rapid move safety: verify rapids don't intersect stock/fixtures (when geometry available)",
+            "Wire MachiningPlaybookEngine: 296 rules across 42 categories",
+            "Material-specific rules: e.g., MAT-001 (stainless: avoid dwelling), MAT-002 (titanium: keep chip moving)",
+            "Operation-specific rules: e.g., threading rules, deep hole rules, HSM rules",
+            "Anti-pattern detection: flood coolant + carbide at low speed (ANTI-004), interrupted cut + CBN, etc.",
+            "Apply rule overrides to S/F where rules conflict with physics stage output"
+          ],
+          "exit_conditions": [
+            "All 24 safety rules evaluated on output G-code",
+            "Playbook rules fire for material-specific conditions",
+            "Anti-pattern warnings generated with remediation",
+            "Safety violations block output with CRITICAL severity"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Stage 5.3-5.6 — Tribal knowledge + Reliability + Energy + Acoustics",
+          "status": "complete",
+          "steps": [
+            "Wire tribal knowledge lookup: query 2,800+ tips filtered by CAM system + material + operation",
+            "Include CAM-system-specific warnings (e.g., Fusion 360 arc tolerance issues, hyperMILL TCPM settings)",
+            "Include controller-specific tips (e.g., Haas G187 mode selection, Fanuc macro variable limits)",
+            "Wire MinerCumulativeDamageEngine: check cumulative fatigue on tool across program (Palmgren-Miner)",
+            "If cumulative damage > 0.8, recommend tool change or reduced parameters",
+            "Wire GCodeEnergyOptimizerEngine: optimize idle time, coolant pump cycling, spindle on/off",
+            "Idle spindle detection: if spindle runs during rapid traverse > 3 seconds, suggest M5/M3 bracketing",
+            "Wire MachiningAcousticsEngine: predict noise level from cutting parameters",
+            "If predicted dB > 85 (OSHA limit), include hearing protection advisory in setup sheet",
+            "All knowledge-stage outputs are advisory (warnings), not blocking"
+          ],
+          "exit_conditions": [
+            "Tribal knowledge tips contextually relevant to the job (not generic)",
+            "Tool fatigue damage accumulated across all operations with same tool",
+            "Energy optimization reduces estimated power consumption by measurable amount",
+            "Noise advisory generated for high-speed/high-engagement operations",
+            "20+ tests across Phase 5 stages"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

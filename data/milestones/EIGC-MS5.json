@@ -1,0 +1,18 @@
+{
+  "id": "EIGC-MS5",
+  "version": "1.0.0",
+  "title": "Reconcile Roadmap Truth After Code Truth",
+  "brief": "Compare CAMX-MS10, L0-P2-MS1, L1-P2-MS1, SYS-MS4 milestone states to the repaired codebase. Update milestone JSONs to reflect actual state: complete, partial, implemented-not-hardened, or planned-only.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Roadmap Reconciliation", "sessions": "1", "units": [
+    {"id": "P0-U01", "title": "Compare 4 milestone files to repaired code", "effort": 50, "dependencies": []},
+    {"id": "P0-U02", "title": "Update milestone states and wording", "effort": 40, "dependencies": ["P0-U01"]},
+    {"id": "P0-U03", "title": "Save drift evidence to state/EIGC-MS5/", "effort": 30, "dependencies": ["P0-U02"]}
+  ]}],
+  "dependencies": ["EIGC-MS4"],
+  "exit_conditions": ["No scoped milestone file overstates or understates actual implementation state"]
+}

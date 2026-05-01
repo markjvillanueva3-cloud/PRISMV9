@@ -1,0 +1,134 @@
+[
+  {
+    "page": 1,
+    "text": "7. Turning\nTurning is a production process for manufacturing rotationally symmetrical internal and external surfaces\nby removing material from turning stock of any shape. The external shape of a workpiece is created by\nusing the Outside option, and the internal shape by using the Inside option.\nThe millTURN module allows for the combination of milling and turning tasks in a job list.\nStockmodel for subsequent machining tasks: As with milling jobs, a stockmodel can also be generated for\nsubsequen"
+  },
+  {
+    "page": 2,
+    "text": "3\n1 2 3\nInfeed direction\nTo left (1) / T o right (2): Machining is performed from right to left or from left to right in the direction of the\naxis of the turning surface.\nOutside-in (3) / I nside-out (4): Machining is performed perpendicularly to the axis of the turning surface (in\nthe X direction) from the outside inwards or from the inside outwards.\n3\n 3\n1 2\n3 4\nOptions\nFalling contours allowed: Contours in X direction can be machined (1). Function disabled (2).\nhyperMILL\n306\nX\nZ\nX\nZ\n1 2\nRadia"
+  },
+  {
+    "page": 3,
+    "text": "Z\nX\nY\n1\n2\nTurning model\nModel allowance (1): Global allowance on the model.\nAdditional allowance Z (2): Allowance in Z direction .\nAdditional allowance X (3): Allowance in X direction.\n1\n2\n3 1\nApproach and retract\nDefine the approach movement from the clearance radius (X) to the macro and the departure movement\nfrom the macro to the clearance radius (X).\nAngle\nUse A ngle \u2192A utomatic to automatically adapt the approach and retract movement to the defined ap-\nproach/retract macro.\nUse A ngle \u2192R ap"
+  },
+  {
+    "page": 4,
+    "text": "1 2\n3 4\nMachining angle: If this option is activated, the material is not removed parallel to the turning axis but at\nthe defined machining angle. Available for the L inear and R amp strategy options. (1) option activated, (2)\noption not activated.\n1 2\nInfeed\nInfeed: Depth of the material removal.\nInfeed factor: Area of the insert that is engaged in the material removal during machining.\nhyperMILL\n314\nIf the infeed is specified, the infeed factor is calculated automatically via the corner\nradius"
+  },
+  {
+    "page": 5,
+    "text": "Highlight the corresponding turning stock model in the browser and select the C reate milling stock function\nfrom the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock\nmodel appears as an entry in the hyperMILL model browser.\nFrame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the\nturning area (turning model) and the turning stock must lie in the X-Z plane.\nZ\nX\nFor further information on frames, see secti"
+  },
+  {
+    "page": 6,
+    "text": "1\nClearance radius (X): Radius for rapid tool movements in the X direction (1).\nClearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside\nmachining and Plane options.\nZ\nX\nY\n1\n2\nRetract plane (Z): Activating the R adial limit / A xial limit option (Strategy dialogue page) in combination\nwith the R etract plane (Z) parameter makes it possible to drive out the tool from the undercutting areas.\nThe Retract plane (Z) is displayed as graphical feedback (1)."
+  },
+  {
+    "page": 7,
+    "text": "Tangential (2): Define tangential length.\nCircular (3): Define radius and arc angle.\nRamp (4): Define ramp length and ramp angle.\n1 2 3 4\nThe ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed\ndirection to the left, (4) Infeed direction to the right, (5) Ramp length.\nTrim stock RIGHT / Trim stock LEFT\nStock trimming can be defined separately for the right and left sides.\nAxial (1): Trimming from the end point of the contour parallel to the axis of"
+  },
+  {
+    "page": 8,
+    "text": "Change on the basis of factors\n1. Select the segment, click the link icon and enter the required factor directly.\n2.\n Click the link icon.\n3. Enter the required factor directly.\nCutting speed and F eedrate apply to the Usage that is set on the T ool dialogue page under C utting profile.\nThe values are displayed for each contour segment.\nZY\nX\nVc = 240 f = 0.36\nVc = 120 f = 0.18\nVc = 100 f = 0.3\nBehaviour in sharp corners\nAngle (1): angle between two contour elements to allow chamfering or roundin"
+  },
+  {
+    "page": 9,
+    "text": "1\n2\nParameters\nClearance\nMacro clearance: Minimum distance of the tool to the turning area during approach and retract move-\nments. If the tool is closer to the t urning area, a macro is generated automatically, which ensures that the\ntool does not touch the t urning area for approach and retract movements in G0.\nClearance distance (1): clearance movement at feedrate before the rapid movement begins.\n1\nClearance radius (X): Radius for rapid tool movements in the X direction (1).\nClearance plane "
+  },
+  {
+    "page": 10,
+    "text": "Tangential (2): Define tangential length, arc angle, arc radius and tangential extension.\nCircular (3): Define radius and arc angle.\nRamp (4): Define ramp length and ramp angle.\n1 2 3 4\nThe ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed\ndirection to the left, (4) Infeed direction to the right, (5) Ramp length.\nFor a more smooth connection of partially finished areas, the tangential approach (A) and retract macros\n(B) for the finishing can be d"
+  },
+  {
+    "page": 11,
+    "text": "Rollfeed Turning\nMachining of workpieces by rolling the tool insert on the component contour, ensuring a very high surface\nquality.\nX\nZ\nX\nZ\nTool\nPermitted tool type: Roll turn tool\nFor information on selecting a tool and defining tool parameters, see section Components for NC\ntool (page 1433) .\nContours\nContour selection\nContours: Define contours for turning operations. These may correspond to the contour of the turning\nmodel.\nContour attributes\nStart point / e ndpoint: define the start and end "
+  },
+  {
+    "page": 12,
+    "text": "1 2 3 4\nThe ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed\ndirection to the left, (4) Infeed direction to the right. (5) Ramp length.\nTrim to stock: Trim the stock according to the contour selected.\nTrim stock RIGHT / Trim stock LEFT\nStock trimming can be defined separately for the right and left sides.\nAxial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength\n(3).\nTangential (2): Trimming is c"
+  },
+  {
+    "page": 13,
+    "text": "Strategy\nStrategy\nAxial roughing (1): Machining is performed parallel to the axis of the turning surface.\nRadial roughing (2): Machining is performed perpendicular to the axis of the turning surface.\n1 2\nCutting side\nOutside (1) / I nside (2): The external shape of a workpiece is created by using the Outside option and the\ninternal shape by using the Inside option.\nPlane (3): Machining of the top face of the workpiece perpendicular to the axis of the turning surface.\n1 2 3\nInfeed direction\nTo le"
+  },
+  {
+    "page": 14,
+    "text": "B -30\nB 210\nB 0 B 180\nB 45 \nB 135\n \nB 90\nX\nZ\nMin. = 0\u00b0, Max. = 180\u00b0\nTransition mode: Define a R apid angle for the rapid movement, either for the approach, retract or for the\napproach and retract.\nRapid angle using the example of O utside (1)/ Inside machining (2).\nTurning model\nModel allowance (1): Global allowance on the model.\nAdditional allowance Z (2): Allowance in Z direction .\nAdditional allowance X (3): Allowance in X direction.\nhyperMILL\n354\n1\n2\n3 1\nApproach and retract\nDefine the appro"
+  },
+  {
+    "page": 15,
+    "text": "\u2022 High degree of process reliability and material removal plus a high level of quality at the same time.\n\u2022 Constant, low load on the tool and machine during the entire machining.\n\u2022 Support for round inserts.\n\u2022 Feedrate for fast positioning movements.\nHigh Performance Mode: To use the function, select the H igh Performance Mode checkbox.\nStrategy\nLinear: (1), (2) Material is removed parallel to the turning axis in accordance with the specified I nfeed\ndirection (see Strategy dialogue page).\nRampi"
+  },
+  {
+    "page": 16,
+    "text": "Collision check: If this option is selected, the holder of the tool used is permanently checked for potential\ncollisions against the current stock model (tracked stock model) and the current turning model.\nOpen the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.\nGenerate a turning area by selecting a closed contour.\nOpen the C reate turning area from model dialogue to create a turning area from surfaces or solids.\nDefine the frame, colour and layer of "
+  },
+  {
+    "page": 17,
+    "text": "1 2 3 4\nOptions\nFalling contours allowed: Contours in the X direction are machined (1). Function disabled (2).\n+X\n-X +Z\n-Z\n1 2\nRadial / axial limit: Limits the machining area of the tool used in the radial or axial direction.\nMachining mode\nLimit machining to selected areas.\nFlat and steep areas are separated from each other by a slope angle. 0\u00b0 corresponds to parallel to the\nturning axis and 90\u00b0 is perpendicular to the turning axis.\nOff: Steep and flat areas of the defined contour are machined "
+  },
+  {
+    "page": 18,
+    "text": "Approach and retract\nDefine the approach movement from the clearance radius (X) to the macro and the departure movement\nfrom the macro to the clearance radius (X).\nAngle\nUse A ngle \u2192A utomatic to automatically adapt the approach and retract movement to the defined ap-\nproach/retract macro.\nUse A ngle \u2192R apid angle approach or A ngle \u2192R apid angle retract to define an angle for the approach or\nretract movement to the macro.\nExample A) Roughing, A ngle \u2192A utomatic\nB) Roughing, A ngle \u2192R apid angle"
+  },
+  {
+    "page": 19,
+    "text": "Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning\narea. An entry is created in the hyperMILL browser and a Contour feature is created in the feature\nbrowser.\nTurning stock\nTurning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and\nthe associated turning axis in the X-Z plane.\nOpen the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.\nEnable a mode that i"
+  },
+  {
+    "page": 20,
+    "text": "1 2\nCutting mode\nOneway: Machining in constant orientation.\nZigzag: Machining with alternating orientation.\nOptions\nRadial / axial limit: Limits the machining area of the tool used in the radial or axial direction.\nRadial compensation\nPre-plunge: During finishing, the tool is plunged at the transition of the defined contour from the axial to\nthe radial direction. Removing material here prevents the tool from engaging with two sides of the insert\nat the same time in the following machining step. "
+  },
+  {
+    "page": 21,
+    "text": "Turning model\nA turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the\nturning frame.\nCollision check: If this option is selected, the holder of the tool used is permanently checked for potential\ncollisions against the current stock model (tracked stock model) and the current turning model.\nOpen the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.\nGenerate a turning area by selecting a closed contour.\nO"
+  },
+  {
+    "page": 22,
+    "text": "Turning model\nModel allowance (1): Global allowance on the model.\nAdditional allowance Z (2): Allowance in Z direction .\nAdditional allowance X (3): Allowance in X direction.\nBoth the model allowance and additional allowance can have either positive or negative values.\n1\n2\n3 1\nDwell time\nSpecify the dwell time of the tool and the unit either using revolutions of the model ( r ev) or time units\n( sec).\nPecking\nIn order to avoid damaging the tool or the workpiece and to remove chips more efficient"
+  },
+  {
+    "page": 23,
+    "text": "For further information on frames, see section NC system and frames (page 42) .\nhyperMILL\n390\nGroove Finishing\nRadial finishing of turning workpieces with grooves or shoulders.\nTool\nFor information on selecting a tool and defining tool parameters, see section Components for NC\ntool (page 1433) .\nThe retraction feedrate can be increased for all machining strategies for which retraction occurs without a\nramp movement (see the S trategy dialogue page).\nContours\nContour selection\nContours: Define co"
+  },
+  {
+    "page": 24,
+    "text": "Options\nRadial / axial limit: Limits the machining area of the tool used in the radial or axial direction.\nEnable path compensation: When this option is activated, path compensation is handled by the controller,\nthat is, the cutting radius is calculated by the controller (G41 and G42). If this option is not enabled, the\ncutting radius is calculated beforehand in hyperMILL.\nChange reference side: The reference side of the recessing tool changes (left/right) during machining.\nOnly available if pat"
+  },
+  {
+    "page": 25,
+    "text": "1\n2\n3 4\nA B\n1\n2\n3\n4\nTrim to stock: Trim the stock according to the contour selected.\nTrim stock RIGHT / Trim stock LEFT\nStock trimming can be defined separately for the right and left sides.\nAxial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength\n(3).\nTangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).\n1 2\n3\n3\n3\n3\nSetup\nModels and stock models for turning cycles are always shown in a 2D view for the sake\nof "
+  },
+  {
+    "page": 26,
+    "text": "Z\nX\n1\nType\nDefines how the tool should proceed after parting off.\nParting off and rapid (1): A retraction movement is performed at feedrate in Z direction to clearance\ndistance, then rapid retract to the clearance radius.\nParting off and rapid (2): a retraction movement is performed at feedrate in Z direction to clearance\ndistance, then rapid retract at feedrate up to the clearance radius.\n2\n11 2\nMachining mode\nNormal (1): Parting off is performed in one pass without interruption over the entire"
+  },
+  {
+    "page": 27,
+    "text": "The F rom existing mill stock option should only be used if the following conditions are\nfulfilled:\n1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.\n2. The milling job begins when the turning job is complete.\nIf these conditions are not fulfilled, computing times may increase as a result of different\nresolutions during stock tracking.\nGenerate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-\nperMILL model browser can b"
+  },
+  {
+    "page": 28,
+    "text": "Parameters\nInfeed\nRadial infeed (Cutting depth) (1): Infeed in radial direction (parallel to the axis of the turning surface).\nMax. infeed depth (2): Maximum depth of the material removal in radial direction.\n1\n2\nDwell time\nDwell time: Specify the dwell time of the tool and the unit either using revolutions of the model (rev) or time\nunits (sec).\nTurning model\nModel allowance (1): Global allowance on the model.\nAdditional allowance Z (2) Allowance in Z direction.\nAdditional allowance X (3): Allo"
+  },
+  {
+    "page": 29,
+    "text": "Z\nX\nFor further information on frames, see section NC system and frames (page 42) .\nhyperMILL\n414\nFace Groove Plunging\nAxial roughing of workpieces with axial oriented grooves or shoulders. The tools used normally have three\ncutting edges.\nTool\nFor information on selecting a tool and defining tool parameters, see section Components for NC\ntool (page 1433) .\nThe retraction feedrate can be increased for all machining strategies for which retraction occurs without a\nramp movement (see the S trategy"
+  },
+  {
+    "page": 30,
+    "text": "Clearance\nMacro clearance: Minimum distance of the tool to the turning area during approach and retract move-\nments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the\ntool does not touch the turning area for approach and retract movements in G0.\nClearance distance (1): clearance movement at feedrate before the rapid movement begins.\nClearance distance: clearance movement at feedrate before the rapid movement begins.\nClearance radius (X): Radius"
+  },
+  {
+    "page": 31,
+    "text": "Face Groove Finishing\nFinishing of workpieces with axial oriented grooves or shoulders.\nTool\nFor information on selecting a tool and defining tool parameters, see section Components for NC\ntool (page 1433) .\nContours\nContour selection\nContours: Define contours for turning operations. These may correspond to the contour of the turning\nmodel.\nContour attributes\nStart point / e ndpoint: define the start and end points for machining, either by selecting a point or by\nentering coordinates.\nStrategy\nF"
+  },
+  {
+    "page": 32,
+    "text": "Z\nX\nY\n1\n2\nTurning model\nModel allowance (1): Global allowance on the model.\nAdditional allowance X (2): Allowance in X direction.\nAdditional allowance Z (3): Allowance in Z direction.\n1\n2\n3\n1\nMacros\nApproach macro / Retract macro\nAdditional movement during infeed to the first path or during retraction after the last path.\nAxial (1): Define length.\nTangential (2): Define tangential length, arc angle, arc radius and tangential extension.\nCircular (3): Define radius and arc angle.\nRamp (4): Define "
+  },
+  {
+    "page": 33,
+    "text": "Thread Cutting\nCreation of single or multiple start, cylindrical or conical, external and internal threads with constant pitch.\nInfeed can be performed either with constant chip section or with constant X value.\nTool\nFor information on selecting a tool and defining tool parameters, see section Components for NC\ntool (page 1433) .\nContours\nSelection thread outer edge\nSelect the contour that is to be used as the T hread outer edge (1). Specify whether the selected contour\nis to be used as the C or"
+  }
+]

@@ -1,0 +1,1 @@
+cd 'C:\PRISM.claude\worktrees\brave-gauss' && claude --resume e2d67d0b-b8b3-41b7-b638-d0583362803a   

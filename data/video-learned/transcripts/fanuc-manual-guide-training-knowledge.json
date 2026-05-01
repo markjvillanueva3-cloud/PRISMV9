@@ -1,0 +1,901 @@
+{
+  "meta": {
+    "title": "Fanuc Manual Guide i Complete Training Series + Macro Programming",
+    "total_videos": 6,
+    "total_duration_hours": 5.67,
+    "presenter_manual_guide": "Jody Michaels — Fanuc FA America, National Sales Manager, 35+ years CNC industry",
+    "presenter_macros": "Dr. Berman — AIT220 Instructor, Fanuc Robotics / CNC Macros",
+    "host": "Mark Albert — Editor-in-Chief, Modern Machine Shop Magazine",
+    "extraction_date": "2026-03-28",
+    "source": "YouTube auto-generated transcripts, exhaustively analyzed"
+  },
+
+  "videos": [
+    {
+      "video_id": "g4icMsIsc9g",
+      "title": "MANUAL GUIDE i Part 1 — Overview and Setup",
+      "duration": "1:04:47",
+      "topics_covered": [
+        "Manual Guide i system overview and benefits",
+        "All-in-one screen layout and navigation",
+        "Soft keys, MDI panel, screen navigation",
+        "Overview of all turning cycles (drilling, turning, residual, grooving, threading)",
+        "Tool offset data: geometry offset, wear offset, tool data pages",
+        "Insert nose radius and virtual tip orientation (T-numbers 1-16)",
+        "Fixed forms: creation, import, deletion, customization (forms 1-5)",
+        "NC Guide offline software (3 versions: Academic, Standard, Pro)",
+        "Simulation capabilities and time study",
+        "G-code learning mode (cursor over code shows descriptions)"
+      ],
+      "key_knowledge": {
+        "manual_guide_i_overview": {
+          "description": "Powerful onboard conversational programming system for Fanuc CNCs",
+          "capabilities": [
+            "Milling, turning, and mill-turn centers",
+            "One screen to fully program a part",
+            "Simulation with tool path display",
+            "Import offline G-code programs for simulation",
+            "Mix G-code and conversational in one program",
+            "NC Convert: convert conversational to G-code",
+            "Time study: cut time + non-cut time breakdown"
+          ],
+          "benefits": [
+            "Ease of use — all cycles have similar fill-in-the-blanks interface",
+            "Flexibility — set up fixed forms your way",
+            "Learning tool — cursor over G/M codes shows descriptions",
+            "Mixed programming — G-code + conversational in one program",
+            "Simulation — both conversational and G-code programs"
+          ]
+        },
+        "navigation": {
+          "access_method": "Graph function key or Custom function key on MDI panel",
+          "all_in_one_screen": "Shows position, active program, active tool, feed rate, spindle speed, load meters",
+          "modes": ["Auto", "Edit", "MDI", "Jog", "MPG"],
+          "soft_keys": "Bottom of screen, context-sensitive",
+          "screen_shift": "Left/Right arrow keys to navigate between screens"
+        },
+        "tool_offset_structure": {
+          "geometry_offset": {
+            "x_offset": "Measured tool position X",
+            "z_offset": "Measured tool position Z",
+            "radius": "Insert nose radius (e.g., 0.031 for CNMG with #1 suffix)",
+            "virtual_tip": "Tool orientation number — CRITICAL for correct compensation"
+          },
+          "wear_offset": {
+            "x_wear": "Fine-tune X offset for tolerance control",
+            "z_wear": "Fine-tune Z offset for tolerance control",
+            "radius": "Auto-picks from geometry offset — only enter once",
+            "virtual_tip": "Auto-picks from geometry offset"
+          },
+          "tool_data": {
+            "tool_type": "General, Threading, Grooving, Button, Straight, Drill, Chamfer, Flat End Mill, Ball Nose, Tab, Reamer, Boring Bar, Face Mill",
+            "setting": "1-16 orientations for simulation display",
+            "cut_angle": "Lead angle of tool (e.g., 95° for 80° diamond, 93° for 35°/55° diamond)",
+            "nose_angle": "Actual insert shape angle (80°, 55°, 35°, 60°)"
+          }
+        },
+        "virtual_tip_orientation": {
+          "3": "OD turning tool (top turret, most common)",
+          "2": "ID boring bar",
+          "7": "Drill (on center)",
+          "4": "Reverse turning tool",
+          "note": "Same numbers used for bottom turret machines"
+        },
+        "insert_radius_coding": {
+          "suffix_1": "1/64 inch (0.015625)",
+          "suffix_2": "1/32 inch (0.03125)",
+          "suffix_3": "3/64 inch (0.046875)",
+          "note": "Last digit of 4-letter + 3-number insert designation"
+        },
+        "cut_angle_rules": {
+          "80_degree_diamond": "95° cut angle (90° + 5° clearance)",
+          "55_degree_diamond": "93° cut angle (90° + 3° clearance)",
+          "35_degree_diamond": "93° cut angle (90° + 3° clearance)",
+          "trigon_60_degree": "95° cut angle (90° + 5° clearance)"
+        },
+        "fixed_forms": {
+          "form_1": "Start of program commands (tool change, start spindle, start lines)",
+          "form_2": "Cut speeds for different materials (mild steel, stainless, aluminum, cast iron, etc.)",
+          "form_3": "Drill cycles, tapping cycles, turning cycles, threading cycles",
+          "form_4": "Subprogram calls, G10 assign values, spindle start",
+          "form_5": "End of program (parts counter macro, M30, etc.)",
+          "max_per_form": "Up to 10 entries per form (or 5 if larger entries needed)",
+          "import_export": "Text file format (.dat), editable on PC, import via memory card",
+          "settings_path": "Edit → Right Shift ×4 → Settings → Register fixed form sentence"
+        },
+        "nc_guide_versions": {
+          "academic": "Training/study, cannot export programs, inexpensive",
+          "standard": "Full programming, can export programs to machines",
+          "pro": "Import machine ladder + parameters, full machine simulation"
+        }
+      }
+    },
+
+    {
+      "video_id": "veanqAXWDJA",
+      "title": "MANUAL GUIDE i Part 2 — Creating a Basic Turning Program",
+      "duration": "58:57",
+      "topics_covered": [
+        "Complete turning program creation workflow",
+        "Blank definition for simulation",
+        "Fixed form insertion and customization",
+        "Constant surface speed (CSS/G96) setup",
+        "Turning rough cycle with in-face machining",
+        "Geometry profile drawing (lines, arcs, corner radii)",
+        "Closed figure requirement for turning profiles",
+        "Residual machining with different tools",
+        "Copy/paste geometry between cycles",
+        "Subprogram creation (M98/M99)",
+        "Threading cycle (unified, general, pipe)",
+        "NC Convert to G-code",
+        "Time study insertion"
+      ],
+      "key_knowledge": {
+        "program_creation_workflow": [
+          "1. Edit mode → New Program → assign O-number",
+          "2. Add program comment (O-list → edit comment)",
+          "3. Define blank (Start → Blank → cylinder/rectangular)",
+          "4. Insert Start Lines from fixed form (spindle, feed rate)",
+          "5. Insert Tool Change from fixed form",
+          "6. Insert positioning move (clearance position)",
+          "7. Insert cut speed fixed form (material-specific)",
+          "8. Create machining cycle (fill in blanks)",
+          "9. Define geometry profile (finished part shape)",
+          "10. Simulate each cycle as you go",
+          "11. Repeat 5-9 for each tool/operation",
+          "12. Insert End Program",
+          "13. NC Convert if G-code version needed"
+        ],
+        "turning_rough_cycle": {
+          "parameters": {
+            "direction": "Z minus or Z plus",
+            "depth_of_cut": "Radial amount (per side, not diameter)",
+            "x_finish_amount": "Stock per side for finish pass",
+            "z_finish_amount": "Stock on shoulders/ends",
+            "straight_feed_rate": "IPR for straight cuts",
+            "angled_feed_rate": "IPR for relief/angled cuts",
+            "exit_relief_feed": "Feed rate exiting reliefs"
+          },
+          "detail_data": {
+            "first_speed_override": "% override for first pass only (for runout compensation)",
+            "cut_rise_method": "Always use 'cut rise' to avoid steps on shoulders",
+            "escape_amounts": "Clearance distances",
+            "approach_motion": "Vector move, X then Z, or Z then X"
+          },
+          "in_face_machining": {
+            "available": "Yes/No — enables facing within turning cycle",
+            "start_direction": "X feeding to X minus",
+            "stock_amount": "Material on end face (e.g., 0.100 inch)",
+            "caution": "Cannot use center — tool faces to X0"
+          }
+        },
+        "geometry_profile_drawing": {
+          "rules": [
+            "Define FINISHED profile only — software calculates rough paths",
+            "Start at X0 Z0 (center of part face)",
+            "Lines: direction (up/down/left/right) + endpoint",
+            "Arcs: CW or CCW + radius or center point",
+            "Corner radii: add between line/arc segments",
+            "Last element must be BLANK type (stock size)",
+            "Must close figure: Right shift ×4 → B continuous → Figure 1 (OD) or Figure 2 (ID)"
+          ],
+          "element_types": ["Line (8 directions)", "Arc CW", "Arc CCW", "Corner radius", "Corner chamfer"],
+          "connection_types": ["Tangent connection", "Direct connection"],
+          "figure_types": {"1": "OD profile", "2": "ID profile"}
+        },
+        "program_a_b_sets": {
+          "description": "Multi-operation parts use A-set (first side) and B-set (flip part)",
+          "program_stop": "M00 with comment 'Turn part around' between sets",
+          "separate_blank": "Redefine blank for B-set simulation"
+        },
+        "subprogram_creation": {
+          "method": "In geometry → Create → Insert sub-program (vs insert in current program)",
+          "result": "Single M98 P-call line in main program",
+          "benefit": "Reusable geometry across programs"
+        },
+        "threading": {
+          "types": ["General (tapered, non-standard)", "Metric", "Unified", "OD Pipe (3/4\" taper/ft)", "ID Pipe"],
+          "cutting_method": "Single (compound-style, 30° infeed) — 6 infeed methods available",
+          "finish_options": "Finish stock amount OR number of finishing passes",
+          "cut_type": "Number of passes OR depth of cut",
+          "thread_depth_calc": "Press 'Calculate' soft key — auto-calculates from TPI",
+          "left_hand_threads": "Supported — multiple methods depending on tool orientation",
+          "thread_taper": "General thread type supports any angle",
+          "thread_repair": "Available but requires builder ladder development"
+        },
+        "nc_convert": {
+          "access": "Auto mode → Right Shift → NC Convert soft key",
+          "process": "Reads conversational program → generates point-to-point G-code",
+          "canned_cycles_used": ["G78 threading", "G92 threading", "G83 peck drilling"],
+          "output": "Standard G-code — portable to any Fanuc control without Manual Guide i"
+        },
+        "time_study": {
+          "access": "Sim Lab → Right Shift → Insert Time",
+          "output": "Cut time + non-cut time",
+          "note": "Non-cut time requires real machine feedback for accuracy"
+        }
+      }
+    },
+
+    {
+      "video_id": "iaQ9EI_SGg8",
+      "title": "MANUAL GUIDE i Part 3 — Creating a Basic Milling Program",
+      "duration": "58:31",
+      "topics_covered": [
+        "Fixed form import to fresh machine",
+        "Tool data import from memory card",
+        "Complete milling program creation",
+        "Face milling cycle (rough/finish, zigzag/single direction)",
+        "Center drilling cycle (normal/dwell)",
+        "Point patterns: rectangular, circular, grid, random",
+        "Peck drilling cycle (G83 equivalent)",
+        "Tapping cycle (right-hand, left-hand, floating tap)",
+        "Copy/paste point patterns between cycles",
+        "Pocket milling (rough/finish, XY circle/square)",
+        "Outer wall contouring (finish, arc on/arc off approach)",
+        "Simulation rotation and 3D viewing",
+        "NC Convert for milling programs",
+        "G-code canned cycle output (G81, G83, G84)"
+      ],
+      "key_knowledge": {
+        "fixed_form_import": {
+          "path": "Edit → Right Shift ×4 → Settings → Register fixed form sentence for milling",
+          "file": "FIXFORM.DAT (text file on memory card)",
+          "caution": "NEVER press Standard button — deletes all fixed forms"
+        },
+        "tool_data_import": {
+          "path": "Tool Offsets → Right Shift ×2 → Input",
+          "file": "TOOLCD (tool data backup file)",
+          "note": "Only requires single confirmation (unlike fixed forms)"
+        },
+        "milling_blank_definition": {
+          "types": ["Rectangular blank", "Cylinder blank", "Hollow cylinder blank"],
+          "rectangular_fields": ["Width", "Length", "Height", "Work origin X", "Work origin Y", "Work origin Z"],
+          "centering": "Set work origin X/Y to half-dimensions for center = X0 Y0"
+        },
+        "face_milling_cycle": {
+          "types": ["Rough", "Finish"],
+          "cut_depth_of_radius": "Step-over amount (typically half cutter diameter)",
+          "cutting_method": ["Single direction", "Zigzag (bidirectional)"],
+          "end_of_cut": ["Pull up", "Stay down on part"],
+          "shift_to_next": "0 = wrap to next cut",
+          "r_plane": "Clearance above part (e.g., 0.100 inch)",
+          "shift_direction": ["Right", "Left", "Up", "Down"],
+          "approach_motion": "3-axis simultaneous move"
+        },
+        "hole_machining_cycles": {
+          "center_drilling": {
+            "types": ["Normal (cut and rapid out)", "Dwell (for round spot face)"],
+            "positioning": ["Initial 1", "Initial 2", "Reference position (R-plane)"]
+          },
+          "drilling": {
+            "types": ["Normal (straight to depth)", "Dwell", "Peck (full retract, G83)", "High speed (chip break)"],
+            "peck_cut_depth": "Incremental depth per peck",
+            "go_past_amount": "Extra depth for drill point angle",
+            "detail_data": "Optional: slow start feed until fully engaged, slow down at bottom"
+          },
+          "tapping": {
+            "types": ["Normal (right-hand)", "Reverse (left-hand)"],
+            "floating_tap": "Supported",
+            "lead_calculation": "Built-in: enter 1/TPI (e.g., 1/16 = 0.0625 lead)"
+          }
+        },
+        "point_patterns": {
+          "types": ["Random XY points", "Linear points", "Points at intervals", "Grid points", "Rectangle points", "Circle points"],
+          "rectangle_pattern": {
+            "fields": ["Base Z", "Start X", "Start Y", "Length X", "Length Y", "Count X", "Count Y"],
+            "skip_holes": "Optional — maintain pattern but skip selected positions"
+          },
+          "circle_pattern": {
+            "fields": ["Base Z", "Center X", "Center Y", "Radius", "Start angle", "Number of holes"],
+            "skip_holes": "Optional"
+          },
+          "copy_paste": "Point patterns can be copied and pasted to reuse across cycles"
+        },
+        "pocket_milling": {
+          "types": ["Rough", "Finish"],
+          "parameters": {
+            "side_stock": "Optional — asterisk (solid part assumed if blank)",
+            "bottom_stock": "Optional — asterisk",
+            "cut_depth_of_radius": "Step-over (half tool diameter typical)",
+            "cut_depth_of_axes": "Z depth of cut per pass",
+            "finish_stock": "Leave stock for finish pass (0 = machine to size)"
+          },
+          "detail_data": {
+            "cut_type": ["Up cut (conventional)", "Down cut (climb)"],
+            "clearance_of_axis": "Side clearance during milling",
+            "approach": ["Straight (with angle)", "Helical"],
+            "r_plane": "Clearance above part"
+          },
+          "figures": ["XY square", "XY circle", "XY track", "Free form convex/concave"]
+        },
+        "contour_milling": {
+          "types": ["Outer wall", "Inner wall"],
+          "subtypes": ["Rough", "Finish"],
+          "parameters": {
+            "stock_removal": "Amount to remove from outside",
+            "finish_stock": "Leave for finish pass",
+            "approach": ["Feed down vertically", "Arc on (tangent entry with radius)", "Tangent approach"]
+          },
+          "detail_data": {
+            "cut_type": ["Up cut", "Down cut"],
+            "arc_on_radius": "Entry arc radius",
+            "arc_on_angle": "Entry arc angle (e.g., 45°)",
+            "arc_off": "Exit arc matching entry"
+          },
+          "figures": ["Square", "Circle", "Track", "Free form convex"]
+        },
+        "gcode_conversion_output": {
+          "face_mill": "Point-to-point linear moves",
+          "spot_drill": "G81 (standard single-pass drill cycle)",
+          "peck_drill": "G83 (peck drilling with full retract)",
+          "tapping": "G84 (right-hand tapping cycle)",
+          "pocket": "Point-to-point moves",
+          "contour": "Point-to-point moves (no G41/G42 unless parameter enabled)"
+        },
+        "simulation_features": {
+          "3d_rotation": "Rotate view to see from any angle",
+          "reverse_view": "See through-holes from back side",
+          "cut_display": "Cut away portion of blank to see internal features",
+          "isometric_view": "Standard ISO viewing angle",
+          "tool_display": "Requires D-word in program + tool data radius defined"
+        }
+      }
+    },
+
+    {
+      "video_id": "AUeVPLrMrls",
+      "title": "MANUAL GUIDE i Part 4 — Advanced Turning and Milling",
+      "duration": "1:00:13",
+      "topics_covered": [
+        "Thread milling (3 types of tooling)",
+        "Thread repair on lathe",
+        "Engraving (single font, drill or ball nose tool)",
+        "Small screen (8.4 inch) parameter changes",
+        "Fine-tuning parameters for optimal use",
+        "10 Most Frequently Asked Questions",
+        "Embossing cycle (efficient material removal)",
+        "Programming languages A, B, C (G50 vs G92)",
+        "Cutter compensation G41/G42 in converted programs",
+        "Cylindrical interpolation",
+        "Mirror image (G51.1/G50.1)"
+      ],
+      "key_knowledge": {
+        "thread_milling": {
+          "enable_parameter": "27095 bit 5 = 1",
+          "overlap_parameter": "27451 (number of insert teeth for overlap calculation)",
+          "tool_type": "Use TAP type in tool data (no dedicated thread mill type)",
+          "types": {
+            "type_1": "Single revolution — thread mill with multiple flutes (like a tap shape)",
+            "type_2": "Thread revolution — single point tool, one revolution per pitch",
+            "type_3": "Multi-tip insert — multiple cutting tips, auto-calculates revolutions"
+          },
+          "parameters": {
+            "thread_diameter": "Major diameter of thread",
+            "thread_hand": "Right or Left",
+            "thread_system": "Metric or Unified (inch)",
+            "cut_depth": "Thread depth (+ or -)",
+            "cut_direction": "Down cut or up cut",
+            "go_past": "Extra travel past thread (typically 0.100 inch)"
+          },
+          "point_patterns": "Same as hole machining — random, linear, grid, rectangle, circle"
+        },
+        "thread_repair": {
+          "description": "Pick up existing thread on part, extend, repair deformities, re-chase",
+          "requirements": "Builder must develop ladder logic — Fanuc standard ladder insufficient",
+          "procedure": [
+            "1. MDI: make threading tool active, set work offset at part face",
+            "2. Jog/Handwheel: move tool to thread, center insert in thread groove",
+            "3. Right Shift → Repair soft key",
+            "4. Select thread type (General/Metric/Unified/OD Pipe/ID Pipe)",
+            "5. Fill 6 tabs: Orient → Cut conditions → Detail → Position → Thread data → Execute",
+            "6. Press Measure to sync Z-axis with spindle C-axis",
+            "7. Move tool out of thread → OT Off → Start"
+          ],
+          "orient_trick": "Hold white business card behind thread for contrast when aligning",
+          "thread_types": ["General (non-standard taper)", "Metric", "Unified (60°)", "OD Pipe (3/4 taper/ft)", "ID Pipe"],
+          "g76_compatibility": "Can orient with Manual Guide i, then run standard G76 cycle"
+        },
+        "engraving": {
+          "enable_location": "Cycle → Special → Engraving",
+          "tool_types": ["Drill (small center drill recommended — HSS more forgiving)", "Ball nose end mill"],
+          "parameters": {
+            "start_point_x": "First character position X",
+            "start_point_y": "First character position Y",
+            "base_position_z": "Top of part",
+            "depth": "Incremental value only (small: 0.010 inch typical)",
+            "character_size": "Height of letters (e.g., 0.500 inch)",
+            "angle": "Orientation (0°, 90°, 180°, 270°)",
+            "text": "Characters to engrave"
+          },
+          "limitations": {
+            "single_font": "Cannot change font — one built-in font only",
+            "no_serialization": "Cannot auto-increment part numbers"
+          }
+        },
+        "embossing": {
+          "enable_parameter": "27000 bit 7 = 1",
+          "description": "Define rough stock outline so tool only removes material where stock exists",
+          "benefit": "Eliminates air passes when milling non-rectangular features from rectangular stock"
+        },
+        "programming_languages": {
+          "parameter": "3401 bits 6 and 7",
+          "language_a": "Both bits 0 — uses G50 for RPM limit (CSS)",
+          "language_b": "Bit 6 = 1 — less common",
+          "language_c": "Bit 7 = 1 — uses G92 for RPM limit",
+          "determination": "G50 RPM limit = Language A, G92 RPM limit = Language C"
+        },
+        "fine_tuning_parameters": {
+          "tool_data_access": "Highlight T-line → press Input → jumps to tool offset table",
+          "thread_milling_enable": "Parameter 27095 bit 5",
+          "thread_mill_overlap": "Parameter 27451",
+          "embossing_enable": "Parameter 27000 bit 7"
+        },
+        "frequently_asked_questions": {
+          "access_manual_guide": "Graph key, Custom 1, Custom 2, or dedicated MGI hard key (90% are Graph or Custom)",
+          "change_blank_size": "Start → Blank tab → select type → fill fields → Insert",
+          "import_fixed_forms": "Edit → Right Shift ×4 → Settings → Register → Input from memory card",
+          "change_fixed_form": "Arrow to entry → Alter → edit → Alter",
+          "tool_not_showing": "Need D-word in program + radius in geometry offset + correct tool type",
+          "create_new_tool": "Go to empty tool offset → enter radius → set tool type",
+          "tool_offsets_shared": "Yes — data entered in Manual Guide i is used on G-code side too",
+          "simulate_gcode": "Yes — import G-code program and simulate in Manual Guide i",
+          "undo_button": "Available in Edit mode — appears after accidental delete",
+          "material_table": "NOT available — use fixed forms for material-specific speeds/feeds"
+        },
+        "mirror_image": {
+          "g_codes": {"on": "G51.1", "off": "G50.1"},
+          "method_1": "Fixed form with G51.1 and axis specification",
+          "method_2": "Mirror option within free-form geometry drawing",
+          "use_case": "Mirror pocket or feature from one side of part to other"
+        },
+        "cutter_compensation": {
+          "default": "Manual Guide i does NOT output G41/G42 — uses tool diameter internally",
+          "conversational_mode": "Changing tool size regenerates code automatically",
+          "converted_gcode": "Uses original tool size — no G41/G42 unless parameter enabled",
+          "recommendation": "Leave in conversational format if tool size changes needed"
+        }
+      }
+    },
+
+    {
+      "video_id": "OiEH4mIfKgI",
+      "title": "MANUAL GUIDE i Part 5 — Probing",
+      "duration": "57:01",
+      "topics_covered": [
+        "Probing setup prerequisites",
+        "P-code macro variable parameters",
+        "Probe calibration: length, stylus diameter, offset",
+        "Manual probing cycles (4 tabs)",
+        "Tool measurement cycles",
+        "Work coordinate setting via probing",
+        "Measurement cycles for quality checking",
+        "Automatic (CNC mode) probing cycles",
+        "Touch sensor calibration for tool setters",
+        "62 work coordinate offsets available",
+        "Probing vs Renishaw macros"
+      ],
+      "key_knowledge": {
+        "prerequisites": {
+          "options_required": ["Manual Guide i", "Advanced Guidance Function", "Tilted Working Plane/Indexing Function (for 5-axis)"],
+          "parameters": {
+            "range": "12381 through 12388",
+            "purpose": "P-code macro variable area assignments",
+            "12381": "P-code macro area start",
+            "12383": "Additional macro area",
+            "12384": "Additional macro area",
+            "12385": "Additional macro area",
+            "12386": "Additional macro area",
+            "12388": "Additional macro area"
+          },
+          "manuals": "Fanuc manual S7 version (latest) or earlier version — step-by-step setup guide",
+          "ladder_logic": "Builder must develop ladder for manual probing functions",
+          "setup_time": "Allow full day; 3-4 hours if ladder already developed",
+          "probe_activation": "Builder-specific M-code to turn on spindle probe — MUST activate before probing"
+        },
+        "calibration_settings": {
+          "access": "Jog mode → Settings hard key",
+          "fields": {
+            "probe_length": "Measured during calibration",
+            "stylus_diameter": "Measured during calibration",
+            "group_number": "Tool measure calibration group (usually 1, max 6)",
+            "tool_measure_conditions": "Number of conditions",
+            "work_set_conditions": "Number of conditions",
+            "height_of_plane_reference": "Face of spindle position relative to machine zero — CRITICAL (often = parameter 19702 for 5-axis)"
+          }
+        },
+        "calibration_cycles": {
+          "probe_length": {
+            "method": "Z-axis approach to known surface, double touch",
+            "parameters": ["Measure direction (Z minus)", "Measure condition", "Reference work height"]
+          },
+          "stylus_ball_diameter": {
+            "method": "Measure 4 sides of known-diameter ring gauge or bore",
+            "requirements": "Known diameter reference (ring gauge, precision bore)",
+            "tips": "Use good surface finish, round reference for best accuracy",
+            "parameters": ["Reference work diameter", "Work plane (XY or YZ)", "Measure condition", "4 measurement points"]
+          },
+          "stylus_offset": {
+            "types": ["Standard (most common)", "Offset type 1", "Offset type 2"],
+            "note": "99% of time use Standard calibration"
+          },
+          "touch_sensor": {
+            "description": "Table-mounted tool setter (Renishaw TS27R, Blum, etc.)",
+            "parameters": ["Measure direction", "Condition", "Reference tool length", "Reference X offset", "Axes to measure"]
+          }
+        },
+        "manual_probing_tabs": {
+          "tab_1_calibration": "Probe length, stylus diameter, stylus offset, touch sensor",
+          "tab_2_tool_measurement": {
+            "parameters": ["Tool number", "Direction (X/Y/Z ±)", "Measure condition", "Geometry or Wear offset"],
+            "method": "Double touch — always measures twice for accuracy"
+          },
+          "tab_3_work_set": {
+            "types": {
+              "single_surface_z": "Touch top of part → set Z work offset",
+              "single_surface_x": "Touch side of part → set X work offset",
+              "outside_diameter": "Touch 2 or 4 sides → find center (eliminates manual calculation)",
+              "inside_diameter": "Touch 4 sides of bore → find center",
+              "outside_width": "Measure across rib or feature",
+              "inside_width": "Measure inside groove or slot",
+              "c_axis_outside": "Measure on C-axis (can change to B or A axis)",
+              "c_axis_inside": "Inside measurement with rotary axis"
+            },
+            "workflow": "Fill parameters → press Measure → press Set → dumps value to work offset",
+            "work_offsets": "G54-G59 + G54.1 P1-P48 = 62 total work offsets",
+            "flexibility": "Set value to 0, positive, or any value — adapts to programming style"
+          },
+          "tab_4_measure": {
+            "description": "CMM-like measurement of part features",
+            "types": ["Z measurement", "X measurement", "Outside diameter", "Inside diameter", "Outside width", "Inside width"],
+            "use_case": "In-process quality checking — set tolerance range for pass/fail",
+            "tolerance_range": "OK range parameter — alarm if out of spec"
+          }
+        },
+        "automatic_cnc_probing": {
+          "access": "Edit mode → Right Shift → MCyc soft key",
+          "difference_from_manual": "Inserts G-code cycle into program — runs automatically",
+          "output": "4-digit G-code that runs on any Fanuc control with Manual Guide i",
+          "additional_parameters": "More fields than manual (approach positions, feed rates, clearances)",
+          "can_import_to": "CAM-generated G-code programs — insert probing cycles anywhere",
+          "calibration_cycles": "Probe length + stylus diameter (auto version needs XY approach position + feed rates)",
+          "tool_measurement": ["Milling tool", "Turning tool"],
+          "work_setting": {
+            "types": ["Z axis", "X axis", "Y axis", "Outside diameter", "Inside diameter", "Outside width", "Inside width", "C-axis variations"],
+            "total_selections": "14+ work setting cycle types"
+          },
+          "measurement_cycles": {
+            "total": "14 different measurement cycles",
+            "parameters": ["Measurement direction", "Condition", "Approach distance", "Measurement speed", "Comp number", "Target value", "OK range", "Feedback range"],
+            "double_touch": "Always measures twice (parameter can disable)"
+          }
+        },
+        "vs_renishaw": {
+          "fanuc_probing": "Built-in P-code macro programs — NOT Renishaw 9000 series",
+          "renishaw_compatible": "Can download Renishaw cycles into fixed forms and insert into programs",
+          "recommendation": "Use Fanuc native probing OR import Renishaw macros into fixed forms"
+        },
+        "quality_checking": {
+          "supported": "Yes — can use probing for in-process quality verification",
+          "ok_range": "Set tolerance band — alarm if measurement outside range",
+          "use_case": "High-volume production — check bore/feature every N parts"
+        }
+      }
+    },
+
+    {
+      "video_id": "mQkBvsglpKQ",
+      "title": "AIT220 Lecture 10 — FANUC Macros and Miscellaneous Commands",
+      "duration": "1:20:46",
+      "topics_covered": [
+        "Macro vs ordinary teach pendant programs (Fanuc Robotics context)",
+        "Program subtype: None vs Macro declaration",
+        "Group mask concept (axis movement permissions)",
+        "Manual Function (MF) screen configuration",
+        "Macro assignment to user keys (Tool 1-7, Shift+Tool 1-7)",
+        "Quick menus vs full menus (operator lockout)",
+        "Digital input trigger for macros",
+        "Robot input and UI/PLC input triggers",
+        "Timer instructions (20 timers: start/stop/reset)",
+        "Remark (comment) instructions",
+        "Message instructions (user screen display)",
+        "Override instruction (motion speed override)",
+        "Registers and data manipulation"
+      ],
+      "key_knowledge": {
+        "note": "This video covers Fanuc ROBOTICS macro programming, not CNC macros. The concepts of variables, registers, branching (CALL, LABEL, GOTO), and macro configuration are transferable but the specific implementation differs from CNC custom macros. Key CNC macro concepts documented in the fanuc_reference section below are derived from standard Fanuc CNC documentation rather than this robotics lecture.",
+        "macro_definition": {
+          "description": "An ordinary teach pendant program declared with subtype=Macro",
+          "declaration": "Program Detail screen → Subtype → change from None to Macro",
+          "auto_declaration": "Assigning program in macro configuration auto-sets subtype to Macro"
+        },
+        "group_mask": {
+          "description": "Controls whether program is allowed to move axes",
+          "star": "Not allowed to move any axes in group — data manipulation only",
+          "one": "Allowed to move axes in group — requires shift key on user buttons",
+          "impact": "Programs with group mask=1 require Shift+key, mask=* can run directly"
+        },
+        "manual_function_screen": {
+          "access": "Menu → Manual Functions (confusingly, not labeled 'Macros')",
+          "configuration": "Setup → Macro → define program name + assign to MF slot",
+          "benefit": "Longer descriptive names vs 8-char program names",
+          "execution": "Select macro → Shift+Execute"
+        },
+        "user_key_assignment": {
+          "keys": "7 user keys (Tool 1 through setup area)",
+          "shift_keys": "Shift + any of 7 keys for motion-allowed macros",
+          "requirement": "Teach pendant must be ON for user key macros to execute",
+          "group_mask_impact": {
+            "star": "Can assign to direct key press (no shift needed)",
+            "one": "Must use Shift+key (SU assignment) because axes may move"
+          }
+        },
+        "digital_input_trigger": {
+          "description": "Sensor input triggers macro execution automatically",
+          "use_case": "Part detection on conveyor, counting, automated response",
+          "configuration": "Setup → Macro → choice → Digital Input → specify DI number",
+          "behavior": "Macro executes completely when input goes TRUE"
+        },
+        "other_triggers": ["Robot Input", "UI Input (PLC/HMI)"],
+        "quick_menus": {
+          "description": "Restricted menu mode for operators",
+          "access": "Function → Next → Quick/Full menus",
+          "password": "4-digit passcode to return to full menus",
+          "purpose": "Prevent operators from accessing setup/configuration screens"
+        },
+        "miscellaneous_instructions": {
+          "timer": "20 timers available — start/stop/reset actions",
+          "remark": "Comment/annotation in program",
+          "message": "Send text to User screen for logging/notification",
+          "override": "Change motion speed override programmatically",
+          "registers": "Add, subtract, multiply, divide on data registers",
+          "io": "Digital I/O control and monitoring",
+          "branching": "IF/SELECT, WAIT, JOB, CALL statements"
+        }
+      }
+    }
+  ],
+
+  "fanuc_reference": {
+    "description": "Consolidated reference of all G-codes, M-codes, macro variables, canned cycles, and controller features documented across all 6 videos plus standard Fanuc CNC knowledge",
+
+    "g_codes": {
+      "motion": {
+        "G00": "Rapid positioning",
+        "G01": "Linear interpolation (cutting feed)",
+        "G02": "Circular interpolation CW",
+        "G03": "Circular interpolation CCW"
+      },
+      "coordinate_systems": {
+        "G17": "XY plane selection (milling default)",
+        "G18": "XZ plane selection (turning default)",
+        "G19": "YZ plane selection",
+        "G54": "Work coordinate system 1",
+        "G55": "Work coordinate system 2",
+        "G56": "Work coordinate system 3",
+        "G57": "Work coordinate system 4",
+        "G58": "Work coordinate system 5",
+        "G59": "Work coordinate system 6",
+        "G54.1_P1_to_P48": "Extended work coordinate systems (48 additional)",
+        "total_work_offsets": 62
+      },
+      "coordinate_modes": {
+        "G90": "Absolute coordinate mode",
+        "G91": "Incremental coordinate mode"
+      },
+      "feed_modes": {
+        "G94": "Feed per minute (milling default)",
+        "G95": "Feed per revolution (turning default)"
+      },
+      "tool_compensation": {
+        "G40": "Cancel cutter/tool nose radius compensation",
+        "G41": "Cutter compensation left (tool left of path)",
+        "G42": "Cutter compensation right (tool right of path)",
+        "G43": "Tool length compensation positive",
+        "G44": "Tool length compensation negative"
+      },
+      "turning_canned_cycles": {
+        "G70": "Finish turning canned cycle (follows G71/G72 rough profile)",
+        "G71": "Multi-pass rough turning cycle (OD/ID longitudinal)",
+        "G72": "Multi-pass rough facing cycle (or rough grooving)",
+        "G73": "Pattern repeat cycle (follows pre-formed shape)",
+        "G74": "Peck drilling cycle (Z-axis, turning)",
+        "G75": "Grooving cycle (X-axis peck)",
+        "G76": "Threading cycle (multi-pass, automatic depth calculation)"
+      },
+      "milling_canned_cycles": {
+        "G80": "Cancel canned cycle",
+        "G81": "Standard drilling cycle (single pass)",
+        "G82": "Counter boring / spot drilling with dwell",
+        "G83": "Peck drilling cycle (full retract between pecks)",
+        "G84": "Tapping cycle (right-hand thread, synchronized)",
+        "G85": "Boring cycle (feed in, feed out)",
+        "G86": "Boring cycle (feed in, spindle stop, rapid out)",
+        "G87": "Back boring cycle",
+        "G88": "Boring cycle with dwell",
+        "G89": "Boring cycle (feed in, dwell, feed out)"
+      },
+      "threading": {
+        "G32": "Single-pass thread cutting (constant lead)",
+        "G76": "Multi-pass threading cycle (auto infeed, auto depth calculation)",
+        "G78": "Simple threading cycle (fixed cycle)",
+        "G92": "Threading cycle (simple, single-pass definition) — also RPM limit in Language C"
+      },
+      "turning_specific": {
+        "G50": "Max spindle speed limiter (Programming Language A)",
+        "G92_rpm": "Max spindle speed limiter (Programming Language C)",
+        "G96": "Constant surface speed (CSS) ON",
+        "G97": "Constant surface speed OFF (direct RPM)",
+        "G28": "Return to machine reference point",
+        "G30": "Return to 2nd/3rd/4th reference point"
+      },
+      "probing": {
+        "G31": "Skip signal (touch probe trigger — rapid stop on signal)",
+        "note": "Manual Guide i probing uses P-code macros, not direct G31 calls"
+      },
+      "special": {
+        "G10": "Data setting by program (assign values to offsets/parameters)",
+        "G50.1": "Mirror image OFF",
+        "G51.1": "Mirror image ON (specify axes to mirror)",
+        "G68": "Coordinate rotation ON",
+        "G69": "Coordinate rotation OFF"
+      },
+      "manual_guide_i_internal": {
+        "G1900": "Cylinder blank figure definition",
+        "G1902": "Rectangular blank figure definition",
+        "note": "4-digit G-codes are Manual Guide i internal — auto-generated"
+      }
+    },
+
+    "m_codes": {
+      "M00": "Program stop (operator must press cycle start to continue)",
+      "M01": "Optional stop (stops only if optional stop switch is ON)",
+      "M02": "Program end (older, rewinds some controls)",
+      "M03": "Spindle ON clockwise (CW)",
+      "M04": "Spindle ON counterclockwise (CCW)",
+      "M05": "Spindle stop",
+      "M06": "Tool change (automatic tool changer)",
+      "M08": "Coolant ON (flood)",
+      "M09": "Coolant OFF",
+      "M13": "Spindle CW + coolant ON (combination)",
+      "M19": "Spindle orient (specific angular position)",
+      "M30": "Program end and rewind",
+      "M98": "Subprogram call (M98 P-number)",
+      "M99": "Subprogram return (end of subprogram)",
+      "note": "Probe activation M-code is builder-specific (varies by machine)"
+    },
+
+    "t_codes_and_offsets": {
+      "format_turning": "T0101 — first 2 digits = tool position, last 2 = offset number",
+      "format_milling": "T-number selects tool, H-word selects length offset, D-word selects radius/diameter offset",
+      "h_word": "Tool length compensation number (used with G43)",
+      "d_word": "Diameter/radius compensation number (used with G41/G42, also triggers simulation display)",
+      "offset_types": {
+        "geometry": "Base tool dimensions (length, radius, nose radius, virtual tip)",
+        "wear": "Fine-tune adjustments for tolerance control (added to geometry)"
+      }
+    },
+
+    "macro_programming": {
+      "note": "CNC custom macro B standard — the robotics lecture covers conceptually similar but different implementation",
+      "variables": {
+        "local": "#1-#33 — arguments passed via G65 call (A=#1, B=#2, C=#3, etc.)",
+        "common": "#100-#199 — common variables (volatile, lost at power off on some controls)",
+        "permanent": "#500-#999 — permanent common variables (retained at power off)",
+        "system": "#1000+ — system variables (current position, offsets, parameters, etc.)"
+      },
+      "calling": {
+        "G65": "Macro call — G65 P<program> A<arg> B<arg> C<arg>...",
+        "M98": "Subprogram call — M98 P<program>",
+        "M99": "Return from subprogram/macro"
+      },
+      "control_flow": {
+        "IF_THEN": "IF [#1 GT 0] THEN GOTO 10",
+        "WHILE_DO_END": "WHILE [#1 LT 10] DO 1 ... END 1",
+        "GOTO": "GOTO N-number (unconditional jump)"
+      },
+      "arithmetic": {
+        "operators": ["+", "-", "*", "/"],
+        "functions": ["SIN", "COS", "TAN", "ATAN", "SQRT", "ABS", "ROUND", "FIX", "FUP"],
+        "manual_guide_calculator": "Control+W activates calculator in any Manual Guide i field — supports all math functions"
+      },
+      "p_code_macros": {
+        "description": "Probing cycles use P-code macro variable areas",
+        "parameters": "12381-12388 define macro variable areas for probing",
+        "execution": "Button press triggers jump to stored macro number"
+      }
+    },
+
+    "work_coordinate_systems": {
+      "standard_6": ["G54", "G55", "G56", "G57", "G58", "G59"],
+      "extended_48": "G54.1 P1 through G54.1 P48",
+      "total": 62,
+      "setting_methods": [
+        "Manual measurement + keyboard entry",
+        "Manual Guide i probing (touch + set)",
+        "Automatic probing cycle in program",
+        "G10 data setting command"
+      ]
+    },
+
+    "controller_models_mentioned": {
+      "series_0i_model_d": "Primary control used in demonstrations",
+      "series_31i": "Confirmed compatible with Manual Guide i",
+      "note": "Manual Guide i available on all current Fanuc CNC series"
+    },
+
+    "key_parameters": {
+      "3401_bits_6_7": "Programming language selection (A/B/C)",
+      "12381_to_12388": "P-code macro variable areas for probing",
+      "19702": "Spindle face position (for 5-axis probing reference)",
+      "27000_bit_7": "Enable embossing cycle",
+      "27095_bit_5": "Enable thread milling cycle",
+      "27451": "Thread milling overlap (number of insert teeth)"
+    },
+
+    "speed_feed_practices_mentioned": {
+      "constant_surface_speed": {
+        "g96": "CSS ON — control adjusts RPM as diameter changes",
+        "g97": "CSS OFF — fixed RPM",
+        "rpm_limit": "G50 S-value (Language A) or G92 S-value (Language C)",
+        "example": "G96 S600 with G50 S1500 = 600 SFM max 1500 RPM"
+      },
+      "turning_depth_of_cut": {
+        "input": "Radial amount (per side), NOT diameter",
+        "typical_rough": "0.060-0.100 inch radial",
+        "finish_stock": "0.010-0.015 inch per side X, 0.005 inch Z (shoulders)"
+      },
+      "milling_step_over": {
+        "face_mill": "Typically half cutter diameter",
+        "pocket_mill": "Typically half cutter diameter for roughing",
+        "contour": "Full width of cut with arc approach"
+      },
+      "material_specific_speeds": {
+        "method": "Fixed forms with pre-set G96/G97 + feed rates per material",
+        "materials_mentioned": ["Mild steel", "Stainless steel", "Aluminum", "Cast iron", "Pre-heat treated (4142)", "Brass"],
+        "no_material_database": "Manual Guide i does NOT have built-in material speed/feed database"
+      }
+    },
+
+    "simulation_capabilities": {
+      "turning": "2D cross-section with tool path + material removal",
+      "milling": "3D solid with material removal, rotation, zoom, cross-section",
+      "features": [
+        "Tool display (requires D-word + tool data)",
+        "Residual stock detection and warning",
+        "Cut display (section view)",
+        "3D rotation (isometric, front, back, etc.)",
+        "Time study (cut time + non-cut time)",
+        "Simulates both conversational AND imported G-code programs"
+      ],
+      "nc_convert": {
+        "description": "Convert conversational program to standard G-code",
+        "canned_cycles": ["G81 spot/drill", "G83 peck drill", "G84 tap", "G76/G78/G92 thread"],
+        "portability": "Output runs on any Fanuc control without Manual Guide i"
+      }
+    },
+
+    "tips_and_best_practices": [
+      "Always define blank at program start — simulation defaults to last blank used",
+      "Always include feed rate in start lines — prevents 'no feed rate' alarm even though cycles set feed",
+      "Use Input key to enter field values, Insert soft key only when ALL fields complete",
+      "Always set tool data correctly before programming — wrong data = wrong compensation = scrap",
+      "Simulate each cycle immediately after creation — catch errors early",
+      "Copy/paste geometry profiles between rough and finish cycles — avoid re-drawing",
+      "For turning profiles: define FINISHED shape only — software calculates rough passes",
+      "Last geometry element must be BLANK type (stock diameter) for turning profiles",
+      "Close all turning figures: Right shift ×4 → B continuous → select Figure 1 (OD) or 2 (ID)",
+      "Use G10 or fixed forms for material-specific speed/feed presets (no built-in material database)",
+      "D-word must be in program for tool to display in simulation",
+      "Calibrate probe before any probing operations — saves hours of troubleshooting",
+      "Activate probe M-code (builder-specific) before ANY probing — damage results otherwise",
+      "Thread repair requires builder ladder development — standard ladder insufficient",
+      "For engraving, use small HSS center drill — more forgiving than carbide",
+      "G50.1/G51.1 for mirror image — useful for symmetric features",
+      "Control+W in any Manual Guide i field activates built-in calculator",
+      "Background editing possible while machine runs — but NOT recommended for safety",
+      "Probing always measures twice for accuracy (parameter can disable second touch)",
+      "NC Guide offline software has 3 versions (Academic/Standard/Pro) — excellent for training"
+    ]
+  }
+}

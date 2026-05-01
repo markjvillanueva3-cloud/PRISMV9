@@ -1,0 +1,65 @@
+{
+  "document_id": "haas-g-m-codes",
+  "title": "Haas CNC G-Code and M-Code Programming",
+  "source": "CNCCookbook Haas Programming Guide + Autodesk Haas Post",
+  "domain": "controller",
+  "extracted_at": "2026-04-15",
+  "tips": [
+    {
+      "title": "G12/G13 Haas circular pocket milling",
+      "body": "Haas-specific G12 (CW) and G13 (CCW) circular pocket milling cycles. Parameters: D=tool offset, I=first circle radius, K=finish radius, Q=stepover increment, L=loop count for depth. Position tool above center before calling. Faster than CAM-generated helical moves for simple circular pockets.",
+      "category": "programming",
+      "tags": ["haas", "g12", "g13", "circular-pocket", "canned-cycle"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "G53 vs G28 for machine home moves",
+      "body": "Prefer G53 over G28 G91 Z0 for machine coordinate moves on Haas. G53 is cleaner because G90 stays active (G28 implicitly uses incremental). Syntax: G53 Y0 moves table to machine zero Y; G53 G49 Z0 moves to machine zero Z with TLO cancel. G53 is non-modal (one block only).",
+      "category": "programming",
+      "tags": ["haas", "g53", "g28", "machine-coordinates", "best-practice"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "G150 Haas general purpose pocket milling",
+      "body": "G150 is Haas's 'mini-CAM in G-code' for arbitrary pocket shapes. Define pocket outline in a SUBPROGRAM (not subroutine). Parameters: P=subprogram number, Q=Z stepdown, R=retract plane. Requires pre-drilled entry hole to full depth. Maximum 40 moves in pocket definition. No Z finish pass (walls only).",
+      "category": "programming",
+      "tags": ["haas", "g150", "pocket-milling", "subprogram"],
+      "operation_types": ["milling"],
+      "confidence": 85
+    },
+    {
+      "title": "Haas tapping with G95 feed-per-rev",
+      "body": "For reliable rigid tapping on Haas, use G95 feed-per-rev mode instead of calculating F=pitch×RPM. Set useG95forTapping option in post processor. G95 mode automatically synchronizes feed with spindle speed. For manual programming: G95 G84 Z-depth R-retract F[pitch].",
+      "category": "programming",
+      "tags": ["haas", "tapping", "g95", "rigid-tap", "g84"],
+      "operation_types": ["tapping"],
+      "confidence": 90
+    },
+    {
+      "title": "Haas SSV spindle speed variation for chatter",
+      "body": "M138 enables Spindle Speed Variation (SSV), M139 disables. SSV continuously varies spindle RPM within a range to break up chatter harmonics. Use on long cuts or when chatter develops. NGC feature. Combine with G187 smoothing control (P1=rough, P2=medium, P3=finish) for optimal surface finish.",
+      "category": "troubleshooting",
+      "tags": ["haas", "ssv", "chatter", "m138", "m139", "vibration"],
+      "operation_types": ["milling", "turning"],
+      "confidence": 85
+    },
+    {
+      "title": "G154 P1-P99 extended work offsets on Haas",
+      "body": "Haas NGC provides 99 additional work coordinate systems via G154 P1 through G154 P99, beyond standard G54-G59. Useful for tombstone setups, pallet systems, or multi-part fixtures. Each G154 Pn is a complete 6-axis offset like G54.",
+      "category": "programming",
+      "tags": ["haas", "g154", "work-offset", "wcs", "multi-part"],
+      "operation_types": ["milling"],
+      "confidence": 90
+    },
+    {
+      "title": "Cancel G68/G54.4 before Haas probing",
+      "body": "Critical: Cannot probe while G68 coordinate rotation or G54.4 workpiece setting error compensation is active on Haas. Always issue G69 (cancel rotation) and/or cancel G54.4 before probing cycles. Resume rotation/compensation after probing complete.",
+      "category": "programming",
+      "tags": ["haas", "probing", "g68", "g54.4", "renishaw"],
+      "operation_types": ["probing"],
+      "confidence": 95
+    }
+  ]
+}

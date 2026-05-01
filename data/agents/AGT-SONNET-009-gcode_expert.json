@@ -1,0 +1,408 @@
+{
+  "agent_id": "AGT-SONNET-009",
+  "name": "gcode_expert",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "G-Code Expert - CNC Programming Across All Controller Families",
+  
+  "domain_expertise": [
+    "G-code programming",
+    "M-code functions",
+    "FANUC programming",
+    "SIEMENS 840D programming",
+    "HEIDENHAIN TNC programming",
+    "HAAS programming",
+    "MAZATROL conversational",
+    "OKUMA OSP programming",
+    "Macro programming",
+    "Canned cycles",
+    "Tool compensation",
+    "Coordinate systems"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-GCODE-001",
+      "name": "G-Code Syntax Validation",
+      "description": "Validates G-code syntax for specific controller family",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["gcode_program", "controller_family"],
+        "optional": ["strict_mode", "custom_macros"]
+      },
+      "outputs": {
+        "primary": "syntax_valid",
+        "secondary": ["syntax_errors", "warnings", "line_numbers"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-validator"],
+      "hooks_triggered": ["GCODE-VALIDATE"],
+      "synergizes_with": ["validator", "alarm_validator"],
+      "success_criteria": "Valid syntax for target controller"
+    },
+    {
+      "id": "CAP-GCODE-002",
+      "name": "Controller Code Translation",
+      "description": "Translates G-code between controller families (FANUC↔SIEMENS↔HEIDENHAIN)",
+      "category": "TRANSFORMATION",
+      "inputs": {
+        "required": ["source_code", "source_controller", "target_controller"],
+        "optional": ["preserve_comments", "optimize"]
+      },
+      "outputs": {
+        "primary": "translated_code",
+        "secondary": ["translation_notes", "unsupported_features", "manual_review_needed"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+      "hooks_triggered": ["CODE-TRANSLATE"],
+      "synergizes_with": ["architect"],
+      "translation_matrix": {
+        "FANUC_to_SIEMENS": "G-codes map, M-codes differ",
+        "FANUC_to_HEIDENHAIN": "Conversational vs ISO",
+        "SIEMENS_to_FANUC": "CYCLE to canned cycle",
+        "HEIDENHAIN_to_FANUC": "FK to standard G-codes"
+      },
+      "success_criteria": "Functionally equivalent code"
+    },
+    {
+      "id": "CAP-GCODE-003",
+      "name": "Canned Cycle Generation",
+      "description": "Generates appropriate canned cycles for machining operations",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["operation_type", "parameters", "controller_family"],
+        "optional": ["optimization_level"]
+      },
+      "outputs": {
+        "primary": "cycle_code",
+        "secondary": ["cycle_documentation", "parameter_explanation"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-fanuc-programming", "prism-siemens-programming"],
+      "hooks_triggered": ["CYCLE-GENERATE"],
+      "synergizes_with": ["machinist"],
+      "supported_cycles": {
+        "drilling": "G81-G89, CYCLE81-89, CYCLE drilling",
+        "boring": "G85-G89, CYCLE85-89, CYCLE boring",
+        "tapping": "G84, G74, CYCLE84, CYCLE tapping",
+        "peck_drilling": "G83, CYCLE83, deep hole",
+        "reaming": "G85, CYCLE85",
+        "thread_milling": "G33, CYCLE thread"
+      },
+      "success_criteria": "Valid canned cycle for controller"
+    },
+    {
+      "id": "CAP-GCODE-004",
+      "name": "Tool Compensation Analysis",
+      "description": "Analyzes and validates tool compensation (length, radius, wear)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["gcode_program"],
+        "optional": ["tool_table", "controller_family"]
+      },
+      "outputs": {
+        "primary": "compensation_analysis",
+        "secondary": ["G41_G42_usage", "G43_G44_usage", "potential_issues"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-fanuc-programming"],
+      "hooks_triggered": ["COMP-ANALYZE"],
+      "synergizes_with": ["machinist"],
+      "compensation_types": {
+        "length": "G43, G44, G49",
+        "radius": "G41, G42, G40",
+        "wear": "Offset registers",
+        "3D": "TCPM, RTCP"
+      },
+      "success_criteria": "Compensation correctly applied"
+    },
+    {
+      "id": "CAP-GCODE-005",
+      "name": "Coordinate System Validation",
+      "description": "Validates work coordinate systems and transformations",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["gcode_program"],
+        "optional": ["machine_config", "controller_family"]
+      },
+      "outputs": {
+        "primary": "coordinate_valid",
+        "secondary": ["work_offsets_used", "coordinate_issues", "recommendations"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-validator"],
+      "hooks_triggered": ["COORD-VALIDATE"],
+      "synergizes_with": ["machinist", "validator"],
+      "coordinate_systems": {
+        "work_offsets": "G54-G59, G54.1 Pn",
+        "local": "G52, TRANS, ATRANS",
+        "rotation": "G68, ROT, AROT",
+        "scaling": "G51, SCALE"
+      },
+      "success_criteria": "Coordinate systems valid"
+    },
+    {
+      "id": "CAP-GCODE-006",
+      "name": "Macro Programming Support",
+      "description": "Supports parametric and macro programming (FANUC macro B, SIEMENS cycles)",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["macro_requirement", "controller_family"],
+        "optional": ["input_parameters", "loop_structure"]
+      },
+      "outputs": {
+        "primary": "macro_code",
+        "secondary": ["variable_documentation", "usage_example"]
+      },
+      "skills_used": ["prism-fanuc-programming", "prism-siemens-programming", "prism-code-master"],
+      "hooks_triggered": ["MACRO-GENERATE"],
+      "synergizes_with": ["coder"],
+      "macro_features": {
+        "FANUC": "#variables, WHILE, IF-GOTO, arithmetic",
+        "SIEMENS": "R-parameters, LOOP, IF-ELSE, functions",
+        "HEIDENHAIN": "Q-parameters, LBL, CALL LBL"
+      },
+      "success_criteria": "Working macro program"
+    },
+    {
+      "id": "CAP-GCODE-007",
+      "name": "Feed and Speed Code Generation",
+      "description": "Generates appropriate F and S codes with spindle control",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["cutting_parameters", "operation_type"],
+        "optional": ["controller_family", "units"]
+      },
+      "outputs": {
+        "primary": "feed_speed_code",
+        "secondary": ["G94_G95_selection", "spindle_commands", "CSS_commands"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-product-calculators"],
+      "hooks_triggered": ["FEED-SPEED-GEN"],
+      "synergizes_with": ["force_calculator", "machinist"],
+      "modes": {
+        "feed_per_minute": "G94 (mill default)",
+        "feed_per_rev": "G95 (lathe default)",
+        "constant_surface_speed": "G96, G97 cancel",
+        "inverse_time": "G93"
+      },
+      "success_criteria": "Correct feed/speed commands"
+    },
+    {
+      "id": "CAP-GCODE-008",
+      "name": "Safety Code Verification",
+      "description": "Verifies safety-critical G-codes (rapid moves, spindle, coolant)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["gcode_program"],
+        "optional": ["safety_rules"]
+      },
+      "outputs": {
+        "primary": "safety_valid",
+        "secondary": ["safety_issues", "missing_safety_codes", "recommendations"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-validator"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "SAFETY-VERIFY"],
+      "synergizes_with": ["validator", "machinist"],
+      "safety_checks": [
+        "Spindle on before cutting (M03/M04)",
+        "Coolant on when needed (M08)",
+        "Safe retract before rapid (G28, G30)",
+        "Tool change at safe position",
+        "Program end codes (M30, M02)"
+      ],
+      "success_criteria": "All safety codes present"
+    },
+    {
+      "id": "CAP-GCODE-009",
+      "name": "Multi-Axis Code Support",
+      "description": "Supports 4th and 5th axis programming (A, B, C axes)",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["motion_type", "axis_values"],
+        "optional": ["controller_family", "TCPM_mode"]
+      },
+      "outputs": {
+        "primary": "multiaxis_code",
+        "secondary": ["axis_commands", "RTCP_settings", "limitations"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-heidenhain-programming"],
+      "hooks_triggered": ["MULTIAXIS-GEN"],
+      "synergizes_with": ["machinist", "architect"],
+      "multiaxis_features": {
+        "rotary_positioning": "A, B, C axis moves",
+        "simultaneous": "5-axis simultaneous",
+        "TCPM": "Tool center point management",
+        "tilted_plane": "G68.2, PLANE SPATIAL"
+      },
+      "success_criteria": "Valid multi-axis code"
+    },
+    {
+      "id": "CAP-GCODE-010",
+      "name": "Code Optimization",
+      "description": "Optimizes G-code for efficiency and machine performance",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["gcode_program"],
+        "optional": ["optimization_goals", "constraints"]
+      },
+      "outputs": {
+        "primary": "optimized_code",
+        "secondary": ["changes_made", "estimated_improvement", "trade_offs"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-code-master"],
+      "hooks_triggered": ["CODE-OPTIMIZE"],
+      "synergizes_with": ["optimizer"],
+      "optimizations": [
+        "Rapid traverse optimization",
+        "Feed rate smoothing",
+        "Block merging",
+        "Comment cleanup",
+        "Redundant code removal"
+      ],
+      "success_criteria": "Functionally equivalent, more efficient"
+    },
+    {
+      "id": "CAP-GCODE-011",
+      "name": "Alarm Code Lookup",
+      "description": "Looks up alarm codes and provides troubleshooting guidance",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["alarm_code", "controller_family"],
+        "optional": ["context"]
+      },
+      "outputs": {
+        "primary": "alarm_info",
+        "secondary": ["description", "causes", "solutions", "related_codes"]
+      },
+      "skills_used": ["prism-error-catalog", "prism-fanuc-programming", "prism-siemens-programming"],
+      "hooks_triggered": ["ALARM-LOOKUP"],
+      "synergizes_with": ["alarm_validator", "machinist"],
+      "success_criteria": "Alarm info with solutions"
+    },
+    {
+      "id": "CAP-GCODE-012",
+      "name": "Program Structure Analysis",
+      "description": "Analyzes G-code program structure and flow",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["gcode_program"],
+        "optional": ["analysis_depth"]
+      },
+      "outputs": {
+        "primary": "structure_analysis",
+        "secondary": ["subprogram_calls", "loops", "flow_diagram"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-code-master"],
+      "hooks_triggered": ["STRUCTURE-ANALYZE"],
+      "synergizes_with": ["code_reviewer"],
+      "success_criteria": "Program structure mapped"
+    },
+    {
+      "id": "CAP-GCODE-013",
+      "name": "Documentation Generation",
+      "description": "Generates documentation for G-code programs",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["gcode_program"],
+        "optional": ["doc_level", "include_comments"]
+      },
+      "outputs": {
+        "primary": "program_documentation",
+        "secondary": ["operation_summary", "tool_list", "setup_notes"]
+      },
+      "skills_used": ["prism-gcode-reference"],
+      "hooks_triggered": ["DOC-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete program documentation"
+    },
+    {
+      "id": "CAP-GCODE-014",
+      "name": "Probing Code Generation",
+      "description": "Generates probing and measurement cycles",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["probing_operation", "controller_family"],
+        "optional": ["probe_type", "parameters"]
+      },
+      "outputs": {
+        "primary": "probing_code",
+        "secondary": ["cycle_type", "result_variables", "error_handling"]
+      },
+      "skills_used": ["prism-fanuc-programming", "prism-siemens-programming", "prism-heidenhain-programming"],
+      "hooks_triggered": ["PROBE-GENERATE"],
+      "synergizes_with": ["machinist"],
+      "probing_operations": {
+        "tool_length": "Tool setter probing",
+        "work_offset": "Part probing for WCS",
+        "feature_measurement": "Bore, boss, surface",
+        "in_process": "Real-time measurement"
+      },
+      "success_criteria": "Working probing cycle"
+    },
+    {
+      "id": "CAP-GCODE-015",
+      "name": "Thread Programming",
+      "description": "Generates thread cutting and thread milling code",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["thread_spec", "operation_type", "controller_family"],
+        "optional": ["start_angle", "multi_start"]
+      },
+      "outputs": {
+        "primary": "thread_code",
+        "secondary": ["threading_parameters", "synchronization_codes"]
+      },
+      "skills_used": ["prism-gcode-reference", "prism-manufacturing-tables"],
+      "hooks_triggered": ["THREAD-GENERATE"],
+      "synergizes_with": ["machinist"],
+      "thread_types": {
+        "single_point": "G32, G33 (lathe)",
+        "canned_cycle": "G76, CYCLE97",
+        "rigid_tap": "G84, CYCLE84",
+        "thread_mill": "Helical interpolation"
+      },
+      "success_criteria": "Correct thread code for spec"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-gcode-reference",
+    "prism-fanuc-programming",
+    "prism-siemens-programming",
+    "prism-heidenhain-programming",
+    "prism-error-catalog",
+    "prism-validator",
+    "prism-manufacturing-tables",
+    "prism-code-master",
+    "prism-product-calculators"
+  ],
+
+  "hooks_subscribed": [
+    "gcode:prePost",
+    "SYS-LAW1-SAFETY",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "machinist",
+    "alarm_validator"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "machinist",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "Syntax valid for controller",
+    "Safety codes present",
+    "Compensation correct",
+    "Coordinates valid"
+  ],
+
+  "performance_metrics": {
+    "syntax_accuracy": 0.99,
+    "translation_accuracy": 0.95,
+    "latency_target_ms": 200,
+    "programs_per_second": 10
+  }
+}

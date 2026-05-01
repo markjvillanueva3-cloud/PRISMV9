@@ -1,0 +1,97 @@
+{
+  "id": "CAMX-MS17",
+  "version": "7.0.0",
+  "title": "Comprehensive Slash Commands + MCP Integration",
+  "brief": "Per-CAM setup commands, strategy guides, strategy selection, comparison, bridge, export, pipeline optimization, MCP prompts.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Commands + MCP",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Per-CAM setup commands",
+          "description": "/mastercam-setup, /solidcam-setup, /nx-cam-setup, /powermill-setup, /catia-cam-setup.",
+          "exit_conditions": [
+            "5 setup commands",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Per-CAM strategy guides",
+          "description": "/mastercam-strategy-guide, /solidcam-imachining-guide, /nx-strategy-guide, etc.",
+          "exit_conditions": [
+            "5 strategy guides",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "/cam-strategy-select",
+          "description": "Interactive strategy selection using OptimalStrategySelectionEngine.",
+          "exit_conditions": [
+            "Command works",
+            "Physics-ranked output"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "/cam-strategy-compare",
+          "description": "Side-by-side comparison for a feature.",
+          "exit_conditions": [
+            "Command works",
+            "Radar chart data"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "/cam-bridge",
+          "description": "Connect to running CAM system via live bridge.",
+          "exit_conditions": [
+            "Command works",
+            "HTTP bridge"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "/cam-export-tools",
+          "description": "Export tools to any CAM native format.",
+          "exit_conditions": [
+            "Command works",
+            "All formats"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "/pipeline-optimize",
+          "description": "Full pipeline with cost/safety optimization, decision breakdown.",
+          "exit_conditions": [
+            "Command works",
+            "Full breakdown"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "MCP prompts + completions",
+          "description": "Strategy selection prompts, CAM-specific ops, completions for all CAM/strategy names.",
+          "exit_conditions": [
+            "MCP prompts added",
+            "Completions added"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

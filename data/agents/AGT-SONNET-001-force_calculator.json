@@ -1,0 +1,657 @@
+{
+  "agent_id": "AGT-SONNET-001",
+  "name": "force_calculator",
+  "tier": "SONNET",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Cutting Force Calculator - Physics-Based Machining Force Computation",
+  
+  "mission": "Computes accurate cutting forces using Kienzle, Merchant, and Oxley models with full uncertainty quantification to ensure safe CNC operations",
+
+  "domain_expertise": [
+    "Kienzle cutting force model (F-PHYS-001)",
+    "Merchant circle force analysis",
+    "Oxley machining theory",
+    "Specific cutting force (kc1.1, mc)",
+    "Force components (Fc, Ff, Fp)",
+    "Power consumption calculation",
+    "Torque computation",
+    "Tool geometry effects",
+    "Chip thickness variation",
+    "Material-specific coefficients"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-FORCE-001",
+      "name": "Kienzle Cutting Force Calculation",
+      "description": "Computes main cutting force using Kienzle model: Fc = kc1.1 × b × h^(1-mc) where kc1.1 is specific cutting force and mc is chip thickness exponent",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material_id", "chip_width_b", "chip_thickness_h"],
+        "optional": ["rake_angle", "cutting_speed", "temperature_correction"]
+      },
+      "outputs": {
+        "primary": "cutting_force_Fc",
+        "secondary": ["uncertainty", "kc_used", "mc_used", "correction_factors"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["calc:dimensionalCheck", "calc:uncertaintyInject"],
+      "synergizes_with": ["physics_validator", "materials_scientist", "machinist"],
+      "validation_rules": [
+        "Fc > 0",
+        "h > 0, b > 0",
+        "kc1.1 in valid range (500-5000 N/mm²)",
+        "mc in valid range (0.15-0.35)"
+      ],
+      "success_criteria": "Fc ± uncertainty computed with 95% CI"
+    },
+    {
+      "id": "CAP-FORCE-002",
+      "name": "Feed Force Calculation",
+      "description": "Computes feed force (thrust force) Ff typically 0.3-0.5 × Fc depending on tool geometry and material",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_force_Fc", "material_id"],
+        "optional": ["rake_angle", "cutting_edge_angle", "nose_radius"]
+      },
+      "outputs": {
+        "primary": "feed_force_Ff",
+        "secondary": ["uncertainty", "ratio_to_Fc"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:dimensionalCheck"],
+      "synergizes_with": ["physics_validator", "tool_engineer"],
+      "validation_rules": [
+        "Ff > 0",
+        "Ff/Fc in reasonable range (0.2-0.8)"
+      ],
+      "success_criteria": "Ff ± uncertainty computed"
+    },
+    {
+      "id": "CAP-FORCE-003",
+      "name": "Passive Force Calculation",
+      "description": "Computes passive (radial) force Fp affecting tool deflection and surface finish",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_force_Fc", "material_id"],
+        "optional": ["approach_angle", "nose_radius", "depth_of_cut"]
+      },
+      "outputs": {
+        "primary": "passive_force_Fp",
+        "secondary": ["uncertainty", "deflection_impact"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": ["calc:dimensionalCheck"],
+      "synergizes_with": ["physics_validator", "mechanical_engineer"],
+      "validation_rules": [
+        "Fp > 0",
+        "Fp/Fc in reasonable range"
+      ],
+      "success_criteria": "Fp ± uncertainty computed"
+    },
+    {
+      "id": "CAP-FORCE-004",
+      "name": "Resultant Force Calculation",
+      "description": "Computes resultant force vector FR = √(Fc² + Ff² + Fp²) and force direction angles",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["Fc", "Ff", "Fp"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "resultant_force_FR",
+        "secondary": ["force_direction_angles", "uncertainty"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-uncertainty-propagation"],
+      "hooks_triggered": ["calc:dimensionalCheck"],
+      "synergizes_with": ["physics_validator"],
+      "validation_rules": [
+        "FR > 0",
+        "FR > max(Fc, Ff, Fp)"
+      ],
+      "success_criteria": "FR ± uncertainty computed"
+    },
+    {
+      "id": "CAP-FORCE-005",
+      "name": "Cutting Power Calculation",
+      "description": "Computes cutting power P = Fc × Vc / 60000 (kW) for spindle load verification",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_force_Fc", "cutting_speed_Vc"],
+        "optional": ["efficiency_factor"]
+      },
+      "outputs": {
+        "primary": "cutting_power_kW",
+        "secondary": ["uncertainty", "spindle_load_percent"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:safetyBoundsCheck"],
+      "synergizes_with": ["physics_validator", "machine_specialist"],
+      "validation_rules": [
+        "P > 0",
+        "P < spindle_rated_power",
+        "Load < 80% for safety"
+      ],
+      "success_criteria": "Power within machine limits"
+    },
+    {
+      "id": "CAP-FORCE-006",
+      "name": "Spindle Torque Calculation",
+      "description": "Computes spindle torque T = Fc × D/2000 (Nm) for torque limit verification",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_force_Fc", "tool_diameter_D"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "spindle_torque_Nm",
+        "secondary": ["uncertainty", "torque_load_percent"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:safetyBoundsCheck"],
+      "synergizes_with": ["machine_specialist"],
+      "validation_rules": [
+        "T > 0",
+        "T < spindle_rated_torque",
+        "Load < 80% for safety"
+      ],
+      "success_criteria": "Torque within machine limits"
+    },
+    {
+      "id": "CAP-FORCE-007",
+      "name": "Specific Cutting Force Lookup",
+      "description": "Looks up kc1.1 and mc coefficients from material database with temperature and speed corrections",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["material_id"],
+        "optional": ["cutting_speed", "temperature", "tool_coating"]
+      },
+      "outputs": {
+        "primary": "kc1_1",
+        "secondary": ["mc", "source", "confidence", "correction_factors"]
+      },
+      "formulas_used": ["F-MAT-001"],
+      "skills_used": ["prism-material-lookup", "prism-material-physics"],
+      "hooks_triggered": ["LOOKUP-KC"],
+      "synergizes_with": ["materials_scientist", "material_lookup"],
+      "validation_rules": [
+        "kc1.1 in valid range",
+        "mc in valid range",
+        "Source documented"
+      ],
+      "success_criteria": "Valid coefficients retrieved"
+    },
+    {
+      "id": "CAP-FORCE-008",
+      "name": "Merchant Circle Analysis",
+      "description": "Performs Merchant circle force analysis for shear angle and force component relationships",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["rake_angle", "friction_angle"],
+        "optional": ["shear_strength"]
+      },
+      "outputs": {
+        "primary": "shear_angle",
+        "secondary": ["force_ratio", "chip_compression_ratio"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": [],
+      "synergizes_with": ["physics_validator", "materials_scientist"],
+      "validation_rules": [
+        "Shear angle positive",
+        "Force balance satisfied"
+      ],
+      "success_criteria": "Consistent Merchant analysis"
+    },
+    {
+      "id": "CAP-FORCE-009",
+      "name": "Chip Thickness Calculation",
+      "description": "Computes uncut chip thickness h = f × sin(κ) for turning or h_max = ae × f / D for milling",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["feed_rate_f", "operation_type"],
+        "optional": ["approach_angle_kappa", "axial_depth_ae", "tool_diameter_D"]
+      },
+      "outputs": {
+        "primary": "chip_thickness_h",
+        "secondary": ["chip_width_b", "calculation_method"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": [],
+      "synergizes_with": ["cam_specialist"],
+      "validation_rules": [
+        "h > 0",
+        "h < max reasonable value"
+      ],
+      "success_criteria": "Valid chip geometry computed"
+    },
+    {
+      "id": "CAP-FORCE-010",
+      "name": "Force Correction Factors",
+      "description": "Applies correction factors for rake angle, wear, coating, coolant, and temperature effects",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["base_force"],
+        "optional": ["rake_angle", "tool_wear", "coating", "coolant", "temperature"]
+      },
+      "outputs": {
+        "primary": "corrected_force",
+        "secondary": ["individual_corrections", "total_correction_factor"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": [],
+      "synergizes_with": ["physics_validator", "tool_engineer"],
+      "validation_rules": [
+        "Corrections reasonable (0.7-1.5)",
+        "Combined effect documented"
+      ],
+      "success_criteria": "Corrections applied correctly"
+    },
+    {
+      "id": "CAP-FORCE-011",
+      "name": "Milling Force Calculation",
+      "description": "Computes time-varying forces in milling including entry/exit angles and engagement factors",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material_id", "tool_diameter", "radial_depth", "axial_depth", "feed_per_tooth"],
+        "optional": ["helix_angle", "number_of_flutes", "cutting_type"]
+      },
+      "outputs": {
+        "primary": "average_cutting_force",
+        "secondary": ["peak_force", "force_variation", "engagement_angle"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:dimensionalCheck"],
+      "synergizes_with": ["cam_specialist", "physics_validator"],
+      "validation_rules": [
+        "Peak < 2 × average typical",
+        "Engagement calculated correctly"
+      ],
+      "success_criteria": "Milling forces with temporal variation"
+    },
+    {
+      "id": "CAP-FORCE-012",
+      "name": "Drilling Force Calculation",
+      "description": "Computes thrust force and torque for drilling operations considering point geometry",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material_id", "drill_diameter", "feed_rate"],
+        "optional": ["point_angle", "web_thickness", "helix_angle"]
+      },
+      "outputs": {
+        "primary": "thrust_force",
+        "secondary": ["drilling_torque", "power_required"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:dimensionalCheck"],
+      "synergizes_with": ["tool_engineer", "machinist"],
+      "validation_rules": [
+        "Thrust reasonable for drill size",
+        "Torque within capability"
+      ],
+      "success_criteria": "Drilling forces computed"
+    },
+    {
+      "id": "CAP-FORCE-013",
+      "name": "Tool Deflection from Force",
+      "description": "Computes tool deflection δ = FL³/3EI from calculated forces for surface finish impact",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["force", "tool_overhang", "tool_diameter"],
+        "optional": ["tool_material_E"]
+      },
+      "outputs": {
+        "primary": "deflection_mm",
+        "secondary": ["deflection_at_tip", "surface_finish_impact"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:safetyBoundsCheck"],
+      "synergizes_with": ["mechanical_engineer", "quality_engineer"],
+      "validation_rules": [
+        "Deflection < tolerance",
+        "Safety factor adequate"
+      ],
+      "success_criteria": "Deflection within limits"
+    },
+    {
+      "id": "CAP-FORCE-014",
+      "name": "Force-Based Feed Rate Optimization",
+      "description": "Optimizes feed rate to achieve target force/power while staying within machine limits",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["material_id", "target_power_utilization", "machine_limits"],
+        "optional": ["surface_finish_requirement"]
+      },
+      "outputs": {
+        "primary": "optimized_feed_rate",
+        "secondary": ["resulting_force", "resulting_power", "safety_margin"]
+      },
+      "formulas_used": ["F-PHYS-001"],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["FEED-OPTIMIZE"],
+      "synergizes_with": ["machinist", "optimizer"],
+      "validation_rules": [
+        "Feed achievable",
+        "Limits respected",
+        "Safety margin adequate"
+      ],
+      "success_criteria": "Optimal feed within all constraints"
+    },
+    {
+      "id": "CAP-FORCE-015",
+      "name": "Workholding Force Requirements",
+      "description": "Computes minimum clamping force required based on cutting forces and friction",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_forces", "friction_coefficient"],
+        "optional": ["safety_factor", "clamping_arrangement"]
+      },
+      "outputs": {
+        "primary": "minimum_clamping_force",
+        "secondary": ["recommended_force", "clamp_positions"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:safetyBoundsCheck"],
+      "synergizes_with": ["machinist", "quality_engineer"],
+      "validation_rules": [
+        "Clamping force adequate",
+        "Safety factor ≥ 2",
+        "No part deformation"
+      ],
+      "success_criteria": "Adequate clamping determined"
+    },
+    {
+      "id": "CAP-FORCE-016",
+      "name": "Force Uncertainty Propagation",
+      "description": "Propagates uncertainties through force calculations using Monte Carlo or analytical methods",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["input_values", "input_uncertainties"],
+        "optional": ["correlation_matrix", "confidence_level"]
+      },
+      "outputs": {
+        "primary": "force_with_uncertainty",
+        "secondary": ["confidence_interval", "sensitivity_analysis"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-uncertainty-propagation"],
+      "hooks_triggered": ["SYS-CMD5-UNCERTAINTY"],
+      "synergizes_with": ["uncertainty_quantifier", "physics_validator"],
+      "validation_rules": [
+        "Uncertainty propagated correctly",
+        "95% CI reported",
+        "Sensitivities ranked"
+      ],
+      "success_criteria": "Uncertainty quantified"
+    },
+    {
+      "id": "CAP-FORCE-017",
+      "name": "Material Removal Rate from Force",
+      "description": "Computes MRR achievable given force/power constraints: MRR = P × efficiency / specific_energy",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["available_power", "material_id"],
+        "optional": ["efficiency", "specific_cutting_energy"]
+      },
+      "outputs": {
+        "primary": "maximum_MRR",
+        "secondary": ["limiting_factor", "efficiency_used"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": [],
+      "synergizes_with": ["machinist", "optimizer"],
+      "validation_rules": [
+        "MRR achievable",
+        "Power not exceeded"
+      ],
+      "success_criteria": "MRR limit determined"
+    },
+    {
+      "id": "CAP-FORCE-018",
+      "name": "Cutting Force Validation",
+      "description": "Validates calculated forces against physical limits and historical data for sanity checking",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["calculated_forces", "operation_context"],
+        "optional": ["historical_data", "machine_limits"]
+      },
+      "outputs": {
+        "primary": "validation_result",
+        "secondary": ["warnings", "comparisons", "anomalies"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-quality-master", "prism-material-physics"],
+      "hooks_triggered": ["calc:safetyBoundsCheck"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "validation_rules": [
+        "Forces physically reasonable",
+        "Within machine capability",
+        "Consistent with similar operations"
+      ],
+      "success_criteria": "Forces validated"
+    },
+    {
+      "id": "CAP-FORCE-019",
+      "name": "Multi-Tooth Force Summation",
+      "description": "Computes total force when multiple cutting teeth engaged simultaneously",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["single_tooth_force", "teeth_engaged", "phase_angles"],
+        "optional": ["runout"]
+      },
+      "outputs": {
+        "primary": "total_force",
+        "secondary": ["force_variation", "maximum_force"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": [],
+      "synergizes_with": ["cam_specialist"],
+      "validation_rules": [
+        "Tooth forces properly summed",
+        "Phase angles correct",
+        "Variation reasonable"
+      ],
+      "success_criteria": "Multi-tooth forces computed"
+    },
+    {
+      "id": "CAP-FORCE-020",
+      "name": "Force Report Generation",
+      "description": "Generates comprehensive force calculation report with all inputs, outputs, uncertainties, and validations",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["calculation_results"],
+        "optional": ["report_format", "detail_level"]
+      },
+      "outputs": {
+        "primary": "force_report",
+        "secondary": ["summary", "recommendations"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-manufacturing-tables"],
+      "hooks_triggered": [],
+      "synergizes_with": ["documentation_writer", "quality_engineer"],
+      "validation_rules": [
+        "All results included",
+        "Uncertainties documented",
+        "Recommendations actionable"
+      ],
+      "success_criteria": "Complete report generated"
+    },
+    {
+      "id": "CAP-FORCE-021",
+      "name": "Oxley Machining Model",
+      "description": "Implements Oxley's predictive machining theory for more accurate force prediction using Johnson-Cook parameters",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material_JC_params", "cutting_conditions"],
+        "optional": ["strain_rate_sensitivity"]
+      },
+      "outputs": {
+        "primary": "oxley_predicted_forces",
+        "secondary": ["shear_plane_temperature", "flow_stress"]
+      },
+      "formulas_used": ["F-PHYS-001", "F-PHYS-003"],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": [],
+      "synergizes_with": ["physics_validator", "materials_scientist"],
+      "validation_rules": [
+        "JC parameters valid",
+        "Temperature reasonable",
+        "Forces physical"
+      ],
+      "success_criteria": "Oxley model converged"
+    },
+    {
+      "id": "CAP-FORCE-022",
+      "name": "Interrupted Cut Force Analysis",
+      "description": "Analyzes force transients during interrupted cutting (entry/exit, holes, slots)",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["steady_state_forces", "interruption_geometry"],
+        "optional": ["engagement_profile"]
+      },
+      "outputs": {
+        "primary": "peak_transient_forces",
+        "secondary": ["entry_shock", "exit_conditions"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": [],
+      "synergizes_with": ["cam_specialist", "machinist"],
+      "validation_rules": [
+        "Transients reasonable",
+        "Peak identified correctly"
+      ],
+      "success_criteria": "Transient forces quantified"
+    },
+    {
+      "id": "CAP-FORCE-023",
+      "name": "High-Speed Machining Force Adjustment",
+      "description": "Adjusts force calculations for high-speed machining conditions including thermal softening effects",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["base_forces", "cutting_speed"],
+        "optional": ["HSM_threshold", "material_thermal_properties"]
+      },
+      "outputs": {
+        "primary": "hsm_adjusted_forces",
+        "secondary": ["thermal_softening_factor", "speed_effect"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": [],
+      "synergizes_with": ["thermal_calculator", "physics_validator"],
+      "validation_rules": [
+        "HSM effects appropriate",
+        "Thermal softening reasonable"
+      ],
+      "success_criteria": "HSM forces adjusted"
+    },
+    {
+      "id": "CAP-FORCE-024",
+      "name": "Force-Based Chatter Prediction",
+      "description": "Uses calculated forces to assess chatter risk via stability lobe analysis",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["cutting_forces", "system_dynamics"],
+        "optional": ["frequency_response"]
+      },
+      "outputs": {
+        "primary": "chatter_risk",
+        "secondary": ["stability_margin", "recommendations"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": ["calc:safetyBoundsCheck"],
+      "synergizes_with": ["mechanical_engineer", "machinist"],
+      "validation_rules": [
+        "Stability analyzed",
+        "Margin quantified",
+        "Risk assessed"
+      ],
+      "success_criteria": "Chatter risk assessed"
+    },
+    {
+      "id": "CAP-FORCE-025",
+      "name": "Specific Energy Calculation",
+      "description": "Computes specific cutting energy u = P/MRR for efficiency assessment and tool wear correlation",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["power", "material_removal_rate"],
+        "optional": []
+      },
+      "outputs": {
+        "primary": "specific_energy",
+        "secondary": ["efficiency_assessment", "wear_indicator"]
+      },
+      "formulas_used": [],
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": [],
+      "synergizes_with": ["tool_engineer", "physics_validator"],
+      "validation_rules": [
+        "Specific energy reasonable",
+        "Consistent with material"
+      ],
+      "success_criteria": "Specific energy computed"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-material-physics",
+    "prism-material-lookup",
+    "prism-manufacturing-tables",
+    "prism-uncertainty-propagation",
+    "prism-quality-master"
+  ],
+
+  "hooks_subscribed": [
+    "calc:dimensionalCheck",
+    "calc:safetyBoundsCheck",
+    "calc:uncertaintyInject",
+    "SYS-CMD5-UNCERTAINTY",
+    "SYS-LAW1-SAFETY"
+  ],
+
+  "can_delegate_to": [
+    "material_lookup",
+    "thermal_calculator",
+    "cutting_calculator"
+  ],
+
+  "receives_from": [
+    "machinist",
+    "cam_specialist",
+    "optimizer",
+    "coordinator_v2"
+  ],
+
+  "quality_gates": [
+    "All forces positive",
+    "Uncertainty quantified",
+    "Machine limits respected",
+    "Physics validated"
+  ],
+
+  "performance_metrics": {
+    "calculation_accuracy": 0.90,
+    "uncertainty_coverage": 0.95,
+    "latency_target_ms": 500,
+    "throughput_per_second": 10
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRISM Controller Database Schema v1.0",
+  "description": "120-parameter controller specification for CNC controllers",
+  "type": "object",
+  "required": ["controller_id", "manufacturer", "model", "family"],
+  "properties": {
+    "controller_id": {"type": "string", "pattern": "^CTRL-[A-Z]{2,4}-[0-9]{3}$"},
+    "manufacturer": {"type": "string", "enum": ["FANUC", "SIEMENS", "HAAS", "HEIDENHAIN", "MAZAK", "OKUMA", "BROTHER", "HURCO", "MITSUBISHI", "FAGOR", "NUM", "CENTROID", "MACH", "OTHER"]},
+    "model": {"type": "string"},
+    "family": {"type": "string"},
+    "generation": {"type": "string"},
+    "release_year": {"type": "integer", "minimum": 1970, "maximum": 2030},
+    "current_production": {"type": "boolean"},
+    "identification": {
+      "type": "object",
+      "properties": {
+        "full_name": {"type": "string"},
+        "short_name": {"type": "string"},
+        "aliases": {"type": "array", "items": {"type": "string"}},
+        "oem_variants": {"type": "array", "items": {"type": "string"}},
+        "supersedes": {"type": "array", "items": {"type": "string"}},
+        "superseded_by": {"type": "array", "items": {"type": "string"}},
+        "compatible_machines": {"type": "array", "items": {"type": "string"}},
+        "firmware_versions": {"type": "array", "items": {"type": "string"}},
+        "option_packages": {"type": "array", "items": {"type": "string"}},
+        "documentation_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "gcode_dialect": {
+      "type": "object",
+      "properties": {
+        "base_standard": {"type": "string", "enum": ["ISO6983", "EIA-274-D", "PROPRIETARY", "HYBRID"]},
+        "modal_groups": {"type": "object"},
+        "supported_gcodes": {"type": "array", "items": {"type": "string"}},
+        "custom_gcodes": {"type": "array", "items": {"type": "object"}},
+        "gcode_format": {"type": "string"},
+        "decimal_point_required": {"type": "boolean"},
+        "leading_zeros_required": {"type": "boolean"},
+        "block_numbering": {"type": "string"},
+        "comment_style": {"type": "string"},
+        "program_structure": {"type": "object"}
+      }
+    },
+    "mcode_support": {
+      "type": "object",
+      "properties": {
+        "standard_mcodes": {"type": "array", "items": {"type": "string"}},
+        "custom_mcodes": {"type": "array", "items": {"type": "object"}},
+        "mcode_range": {"type": "object"},
+        "simultaneous_mcodes": {"type": "integer"},
+        "mcode_execution": {"type": "string"}
+      }
+    },
+    "canned_cycles": {
+      "type": "object",
+      "properties": {
+        "drilling": {"type": "array", "items": {"type": "string"}},
+        "tapping": {"type": "array", "items": {"type": "string"}},
+        "boring": {"type": "array", "items": {"type": "string"}},
+        "turning": {"type": "array", "items": {"type": "string"}},
+        "milling": {"type": "array", "items": {"type": "string"}},
+        "probing": {"type": "array", "items": {"type": "string"}},
+        "custom_cycles": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "macro_support": {
+      "type": "object",
+      "properties": {
+        "macro_language": {"type": "string"},
+        "macro_version": {"type": "string"},
+        "variable_ranges": {"type": "object"},
+        "system_variables": {"type": "object"},
+        "arithmetic_ops": {"type": "array", "items": {"type": "string"}},
+        "logic_ops": {"type": "array", "items": {"type": "string"}},
+        "control_structures": {"type": "array", "items": {"type": "string"}},
+        "custom_gcode_creation": {"type": "boolean"},
+        "external_data_interface": {"type": "boolean"}
+      }
+    },
+    "axis_capability": {
+      "type": "object",
+      "properties": {
+        "max_axes": {"type": "integer"},
+        "max_simultaneous": {"type": "integer"},
+        "linear_axes": {"type": "array", "items": {"type": "string"}},
+        "rotary_axes": {"type": "array", "items": {"type": "string"}},
+        "spindle_axes": {"type": "integer"},
+        "path_control": {"type": "array", "items": {"type": "string"}},
+        "interpolation_types": {"type": "array", "items": {"type": "string"}},
+        "rtcp_tcpm": {"type": "boolean"},
+        "tilted_plane": {"type": "boolean"},
+        "coordinate_rotation": {"type": "boolean"}
+      }
+    },
+    "memory_limits": {
+      "type": "object",
+      "properties": {
+        "program_memory_kb": {"type": "integer"},
+        "max_program_size": {"type": "integer"},
+        "max_programs": {"type": "integer"},
+        "tool_offsets": {"type": "integer"},
+        "work_offsets": {"type": "integer"},
+        "common_variables": {"type": "integer"},
+        "permanent_variables": {"type": "integer"}
+      }
+    },
+    "special_features": {
+      "type": "object",
+      "properties": {
+        "high_speed_machining": {"type": "boolean"},
+        "look_ahead_blocks": {"type": "integer"},
+        "nano_smoothing": {"type": "boolean"},
+        "aicc": {"type": "boolean"},
+        "collision_detection": {"type": "boolean"},
+        "thermal_compensation": {"type": "boolean"},
+        "adaptive_control": {"type": "boolean"},
+        "conversational": {"type": "boolean"},
+        "cad_import": {"type": "array", "items": {"type": "string"}},
+        "simulation": {"type": "boolean"},
+        "tool_management": {"type": "boolean"},
+        "pallet_management": {"type": "boolean"}
+      }
+    },
+    "connectivity": {
+      "type": "object",
+      "properties": {
+        "ethernet": {"type": "boolean"},
+        "usb": {"type": "boolean"},
+        "rs232": {"type": "boolean"},
+        "memory_card": {"type": "array", "items": {"type": "string"}},
+        "dnc": {"type": "boolean"},
+        "focas": {"type": "boolean"},
+        "mtconnect": {"type": "boolean"},
+        "opc_ua": {"type": "boolean"}
+      }
+    },
+    "probing": {
+      "type": "object",
+      "properties": {
+        "supported": {"type": "boolean"},
+        "probe_types": {"type": "array", "items": {"type": "string"}},
+        "skip_functions": {"type": "array", "items": {"type": "string"}},
+        "auto_calibration": {"type": "boolean"},
+        "in_process_measurement": {"type": "boolean"},
+        "tool_setting": {"type": "boolean"},
+        "broken_tool_detection": {"type": "boolean"}
+      }
+    },
+    "alarm_info": {
+      "type": "object",
+      "properties": {
+        "alarm_count": {"type": "integer"},
+        "alarm_categories": {"type": "array", "items": {"type": "string"}},
+        "alarm_database_ref": {"type": "string"}
+      }
+    },
+    "post_processor_hints": {
+      "type": "object",
+      "properties": {
+        "line_ending": {"type": "string"},
+        "max_line_length": {"type": "integer"},
+        "safe_start_block": {"type": "string"},
+        "program_end": {"type": "string"},
+        "tool_change_sequence": {"type": "string"},
+        "coolant_codes": {"type": "object"},
+        "spindle_codes": {"type": "object"}
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": {"type": "string", "format": "date-time"},
+        "updated": {"type": "string", "format": "date-time"},
+        "source": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "verified": {"type": "boolean"}
+      }
+    }
+  }
+}

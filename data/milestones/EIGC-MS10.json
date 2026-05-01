@@ -1,0 +1,22 @@
+{
+  "id": "EIGC-MS10",
+  "version": "1.0.0",
+  "title": "Golden-Path E2E Proof + Calibration",
+  "brief": "Prove each flagship pillar end-to-end: speed/feed, post, print-to-program, ERP/quote. Plus one cross-pillar chain (quote->calculate->plan->post->ERP). Calibrate against field reality with benchmark corpus. Performance targets: Tier 2 convergence <200ms, Tier 4 Jacobian <2s, post generation <5s.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "E2E + Calibration", "sessions": "3-4", "units": [
+    {"id": "P0-U01", "title": "Golden-path: physics-based speed/feed calculator", "effort": 80, "dependencies": []},
+    {"id": "P0-U02", "title": "Golden-path: ultimate post processor generator", "effort": 80, "dependencies": []},
+    {"id": "P0-U03", "title": "Golden-path: print to CNC program", "effort": 80, "dependencies": []},
+    {"id": "P0-U04", "title": "Golden-path: ERP/business/quoting", "effort": 70, "dependencies": []},
+    {"id": "P0-U05", "title": "Cross-pillar chain: quote->calculate->plan->post->ERP", "effort": 90, "dependencies": ["P0-U01", "P0-U02", "P0-U03", "P0-U04"]},
+    {"id": "P0-U06", "title": "Calibration benchmark corpus + performance baselines", "effort": 70, "dependencies": ["P0-U05"]}
+  ]}],
+  "dependencies": ["EIGC-MS9"],
+  "exit_conditions": ["Each pillar + cross-pillar chain have evidence-backed acceptance coverage", "Performance targets met"],
+  "notes": "Gap fix: Performance benchmarks added during scrutiny"
+}

@@ -105,14 +105,22 @@ const worktreePath = extractWorktreePath(cmd);
 const LOCK_FILE = getLockFile(sub, worktreePath);
 
 // ── Instance identity (must match PreToolUse exactly) ─────────────────────
+// Must derive identity identically to PreToolUse, otherwise the release won't
+// match the acquired holder and the lock will leak until TTL expiry.
 
 function getInstanceId() {
+  const pid =
+    payload?.session_id ||
+    payload?.sessionId;
+  if (typeof pid === "string" && pid) return `claude-${pid}`;
+
   const sid =
     process.env.CLAUDE_SESSION_ID ||
     process.env.CLAUDE_CODE_SESSION_ID ||
     process.env.INSTANCE_ID ||
     process.env.CLAUDE_INSTANCE;
   if (sid) return `${sid}`;
+
   const ppid = process.env.CLAUDE_PPID || process.ppid || process.pid;
   return `session-${ppid}-${hostname()}`;
 }

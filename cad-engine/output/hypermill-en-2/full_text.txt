@@ -1,0 +1,2965 @@
+7. Turning
+Turning is a production process for manufacturing rotationally symmetrical internal and external surfaces
+by removing material from turning stock of any shape. The external shape of a workpiece is created by
+using the Outside option, and the internal shape by using the Inside option.
+The millTURN module allows for the combination of milling and turning tasks in a job list.
+Stockmodel for subsequent machining tasks: As with milling jobs, a stockmodel can also be generated for
+subsequent turning operations (resulting stock).
+NC files: The NC files created with the millTURN module can be used for both milling and turning tasks.
+Available machining cycles
+Roughing: Roughing of turning stock of any shape in axial or radial machining direction.
+Contour parallel Turning: Roughing of turning stock of any shape parallel to contour.
+Finishing: Contour parallel finishing of workpieces of any shape based on a preceding roughing operation.
+Rollfeed Turning: Machining of workpieces by rolling the tool insert on the component contour, ensuring a
+very high surface quality.
+3X simultaneous Roughing: Roughing of workpieces with a simultaneous swivel axis.
+3X simultaneous Finishing: Finishing of workpieces with a simultaneous swivel axis.
+Groove Turning: Axial roughing of workpieces with grooves or shoulders.
+Groove Plunging: Radial roughing of workpieces with grooves and shoulders.
+Groove Finishing: Radial finishing of turning workpieces with grooves or shoulders.
+Face Groove Turning: Radial roughing of workpieces with axial oriented grooves or shoulders. The tools
+used normally have three cutting edges.
+Face Groove Plunging: Axial roughing of workpieces with axial oriented grooves or shoulders. The tools
+used normally have three cutting edges.
+Face Groove Finishing: Finishing of workpieces with axial oriented grooves or shoulders.
+Parting: Radial machining to separate the component from the bar stock, optionally with chamfer. Parting
+off can be done on the front or at the back of the workpiece.
+Thread Cutting: Creation of single or multiple start, cylindrical or conical, external and internal threads with
+constant pitch. Infeed can be performed either with constant chip section or with constant X value.
+hyperMILL
+302
+Roughing
+Roughing of turning stock of any shape in axial or radial machining direction.
+Tool
+Free angle: Defines the minimum angle to be maintained between the tool insert and the calculated
+toolpath (1). Defining a free angle automatically calculates the tool plunge angle. (2) Turning contour, (3)
+turning model.
+1
+2
+3
+Only turning tools with a round insert are permitted in H igh Performance Mode.
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+hyperMILL
+303
+Auto-creating a contour
+Use F eature →2 D Contour to automatically derive the appropriate contour for a machining operation
+(roughing, grooving, etc.) from the contour of the turning model.
+Procedure:
+1. Create the contour for the turning model as F eature →2 D contour.
+2. Create a turning job for the desired machining operation (such as g rooving) and navigate to the
+Feature dialog page.
+3. Select the F eature 2D Contour created in the first step and double-click to move it to the window
+on the right.
+4. The part of the contour of the turning model used for machining is automatically set to A ctive and
+displayed to provide graphical feedback.
+Example (1) Turning stock contour, (2) Turning model contour
+(A) Roughing, (3) Turn contour outside, (4) Turn contour plane
+(B) Groove Plunging, (5) Groove contour outside
+(C) Face Groove Turning, (6) Groove contour front plane
+(D) Parting, (7) Parting back face
+hyperMILL
+304
+Z
+X
+7
+1
+2
+3
+4
+5
+6
+A
+B
+C
+D
+A
+The function for the automatic creation of a machining contour using F eature →2 D Contour is availa-
+ble for all turning cycles except 3 X simultaneous Roughing and 3X simultaneous Finishing.
+Strategy
+The following figures show toolpaths that were generated in H igh Performance Mode. A
+separate licence is required to use this ( hyperMILL MAXX Machining for turning jobs).
+Please contact your OPEN MIND partner.
+Cutting side
+Outside (1) / I nside (2): The external shape of a workpiece is created by using the Outside option and the
+internal shape by using the Inside option.
+Plane (3): Machining of the top face of the workpiece perpendicular to the axis of the turning surface.
+hyperMILL
+305
+
+3
+1 2 3
+Infeed direction
+To left (1) / T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+Outside-in (3) / I nside-out (4): Machining is performed perpendicularly to the axis of the turning surface (in
+the X direction) from the outside inwards or from the inside outwards.
+3
+ 3
+1 2
+3 4
+Options
+Falling contours allowed: Contours in X direction can be machined (1). Function disabled (2).
+hyperMILL
+306
+X
+Z
+X
+Z
+1 2
+Radial limit / A xial limit: Limits the machining area of the tool used in the radial or axial direction. Enable
+the option and use the R etract plane (Z) to make it possible to drive out the tool from undercutting areas.
+(1) Retract plane (Z)
+(2) Clearance plane (Z)
+Z
+X
+1
+21
+Parameters
+Infeed
+Radial / axial infeed to the next machining plane.
+Constant (1): Constant infeed depth over the entire machining area.
+Ascending (2): Based on a s tarting infeed (a) the infeed value is increased by one value per cut. The
+Maximal cutting depth (b) prevents infeed depths that can cause tool breakage.
+Descending (3): Based on a s tarting infeed (a) the infeed value is increased by one value per cut. The
+Minimal cutting depth (b) prevents infeed depths that are too small.
+Ramp (4): The infeed alternates between tapered and horizontal. By defining the i nfeed (a) and the
+minimal cutting depth (b), the r amp angle is calculated automatically in relation to the contour.
+hyperMILL
+307
+a
+b
+a
+b
+a
+b
+1 2
+3 4
+Using the options O neway up, O neway down and R amp, the wear of the tool on the
+cutting edge can be reduced as a result of an ever changing intervention point of the
+insert cut into the material. This is particularly important when using ceramic inserts.
+The options are available for all roughing strategies of the T urning cycle in combination
+with all C utting side options.
+Chipbreak Z: Enable this option to control the chip break and chip removal in combination with the D well
+time or Rotations parameters.
+Specify the length of the infeed movement in the Z direction (1) after which the tool stops and define the
+Unit for the tool stop using Dwell time or Rotations.
+Available for: outside, inside and plane machining.
+Advantage: flexible adjustment to materials of different hardness.
+Prerequisite: the F alling contours allowed option is disabled.
+Use sections: Enable if machining should be done in sections (2).
+Infeed in Z direction = Chipbreak Z * number of sections.
+Advantage: greater stability for long workpieces.
+Example:
+a) Chipbreak Z = 20, Use sections = disabled
+b) Chipbreak Z = 20, Use sections = 1
+b) Chipbreak Z = 20, Use sections = 2
+hyperMILL
+308
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the t urning area, a macro is generated automatically, which ensures that the
+tool does not touch the t urning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+1
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+hyperMILL
+309
+
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+1
+2
+3 1
+Approach and retract
+Define the approach movement from the clearance radius (X) to the macro and the departure movement
+from the macro to the clearance radius (X).
+Angle
+Use A ngle →A utomatic to automatically adapt the approach and retract movement to the defined ap-
+proach/retract macro.
+Use A ngle →R apid angle approach or A ngle →R apid angle retract to define an angle for the approach or
+retract movement to the macro.
+hyperMILL
+310
+Example A) Roughing, A ngle →A utomatic
+B) Roughing, A ngle →R apid angle approach/retract: -20
+1) Approach/Retract movement, 2) Clearance radius (X)
++ -
+Z
+X
+Z
+X
+1
+2
+A B
+2
+Manual curves
+Use M anual curves →A pproach curve / Retract curve to define an individual approach or retract move-
+ment.
+Select the A pproach curve / Retract curve. The number of selected curves is displayed.
+Connection to macro
+Select Direct if you want the approach or retract movement to take the most direct path.
+Select Z X if you want the approach or retract movement to start along the Z axis and then continue along
+the X axis of the defined frame.
+Select X Z if you want the approach or retract movement to start along the X axis and then continue along
+the Z axis of the defined frame.
+Select the F eedrate for the A pproach curve / Retract curve. Default = 5 mm/revolution.
+Example A) Finishing, M anual curves, C onnection to macro →D irect. The retract movement
+from the macro takes the most direct path.
+A) Finishing, M anual curves, C onnection to macro →Z X. The retract movement starts
+along the Z axis and then continues along the X axis of the defined frame.
+1) Contour to be machined, 2) Retract curve, 3) Clearance plane (Z), 4) Clearance
+radius (X)
+hyperMILL
+311
+Z
+X
+Z
+X
+1
+2 3
+4
+A B
+1
+2 3
+4
+High Performance
+High Performance Roughing
+Use if material that is difficult to cut is to be machined or a reliable chip break cannot be achieved with
+conventional strategies.
+hyperMILL MAXX Machining for turning jobs is characterised by:
+• High degree of process reliability and material removal plus a high level of quality at the same time.
+• Constant, low load on the tool and machine during the entire machining.
+• Support for round inserts.
+• Feedrate for fast positioning movements.
+High Performance Mode: To use the function, select the H igh Performance Mode checkbox.
+hyperMILL
+312
+Strategy
+Linear: (1), (2) Material is removed parallel to the turning axis in accordance with the specified I nfeed
+direction (see Strategy dialogue page).
+Ramping: (3), (4) Ramp-shaped material removal. Here, a ramp-shaped first cut is always made on a
+plane and the remaining material is cleared on the same plane in a second cut parallel to the turning axis.
+Zigzag: (2), (4) Machining with alternating cutting mode.
+hyperMILL
+313
+
+1 2
+3 4
+Machining angle: If this option is activated, the material is not removed parallel to the turning axis but at
+the defined machining angle. Available for the L inear and R amp strategy options. (1) option activated, (2)
+option not activated.
+1 2
+Infeed
+Infeed: Depth of the material removal.
+Infeed factor: Area of the insert that is engaged in the material removal during machining.
+hyperMILL
+314
+If the infeed is specified, the infeed factor is calculated automatically via the corner
+radius. If the infeed factor is specified, the infeed is calculated automatically via the
+corner radius.
+Corner radius * Infeed factor = Infeed.
+Example: corner radius = 5 mm, infeed factor = 0.2, infeed = 1.
+(1) Infeed factor = 1.0, (2) Infeed factor = 0.3.
+r
+1.0
+0.3
+1 2
+Fillet radius: Additional toolpath filleting in the corners. Default: corner radius * 0.1.
+Feedrate
+Feedrate reposition: Feedrate for the repositioning between the infeed planes.
+Unit: mm or inch/revolution of the workpiece.
+Tool life control
+Activate the function if the material to be machined requires the time the tool is engaged to be controlled.
+Use the D istance option and the M ax. Distance parameter to define the maximum permissible length of the
+toolpath for which the tool is engaged. Select the T ime option in order to define the maximum permissible
+time for which the tool should be engaged using the M ax. time parameter. N umber of paths limits the
+time the tool is engaged with the M ax. number of paths parameter. When the defined condition has been
+achieved, the machining ends and the tool retracts to the clearance plane.
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+Tangential (2): Define tangential length.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+hyperMILL
+315
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right. (5) Ramp length.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+hyperMILL
+316
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the component. .
+When machining is carried out in H igh Performance Mode, collision checking only takes
+place against the component.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+hyperMILL
+317
+
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+318
+Contour parallel Turning
+Roughing of turning stock of any shape parallel to contour.
+Tool
+Free angle: Defines the minimum angle to be maintained between the tool insert and the calculated
+toolpath (1). Defining a free angle automatically calculates the tool plunge angle. (2) Turning contour, (3)
+turning model.
+1
+2
+3
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+Strategy
+Machining is performed parallel to the defined machining contour.
+Cutting side
+Inside (1)/ O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+Plane (3): Machining of the top face of the workpiece perpendicular to the axis of the turning surface.
+hyperMILL
+319
+1 2 3
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+Outside-in (3)/ I nside-out (4): Machining is performed perpendicularly to the axis of the turning surface (in
+the X direction) from the outside inwards or from the inside outwards.
+1 2 3 4
+Options
+Falling contours allowed: Contours in the X direction can be machined (1). Function disabled (2).
+X
+Z
+X
+Z
+1 2
+hyperMILL
+320
+Radial limit/ Axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Parameters
+Infeed
+Constant (1): Constant infeed depth over the entire machining area.
+Ascending (2): Based on a s tarting infeed (a) the infeed value is increased by one value per cut. The
+Maximal cutting depth (b) prevents infeed depths that can cause tool breakage.
+Descending (3): Based on a s tarting infeed (a) the infeed value is increased by one value per cut. The
+Minimal cutting depth (b) prevents infeed depths that are too small.
+Ramp (4): The infeed alternates between tapered and horizontal. By defining the i nfeed (a) and the
+minimal cutting depth (b), the r amp angle is calculated automatically in relation to the contour.
+a
+b
+a
+b
+a
+b
+1 2
+3 4
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+hyperMILL
+321
+
+1
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+Z
+X
+Y
+1
+2
+Retract plane (Z): Activating the R adial limit / A xial limit option (Strategy dialogue page) in combination
+with the R etract plane (Z) parameter makes it possible to drive out the tool from the undercutting areas.
+The Retract plane (Z) is displayed as graphical feedback (1).
+hyperMILL
+322
+Z
+X
+Y
+1
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction.
+Additional allowance X (3): Allowance in X direction.
+1
+2
+3 1
+Transition mode: Define a R apid angle for the rapid movement, either for the approach, retract or for the
+approach and retract.
+Rapid angle using the example of Outside(1) / Inside (2) machining.
+hyperMILL
+323
++ -
++-
+1 2
+Approach and retract
+Define the approach movement from the clearance radius (X) to the macro and the departure movement
+from the macro to the clearance radius (X).
+Angle
+Use A ngle →A utomatic to automatically adapt the approach and retract movement to the defined ap-
+proach/retract macro.
+Use A ngle →R apid angle approach or A ngle →R apid angle retract to define an angle for the approach or
+retract movement to the macro.
+Example A) Roughing, A ngle →A utomatic
+B) Roughing, A ngle →R apid angle approach/retract: -20
+1) Approach/Retract movement, 2) Clearance radius (X)
++ -
+Z
+X
+Z
+X
+1
+2
+A B
+2
+hyperMILL
+324
+Manual curves
+Use M anual curves →A pproach curve / Retract curve to define an individual approach or retract move-
+ment.
+Select the A pproach curve / Retract curve. The number of selected curves is displayed.
+Connection to macro
+Select Direct if you want the approach or retract movement to take the most direct path.
+Select Z X if you want the approach or retract movement to start along the Z axis and then continue along
+the X axis of the defined frame.
+Select X Z if you want the approach or retract movement to start along the X axis and then continue along
+the Z axis of the defined frame.
+Select the F eedrate for the A pproach curve / Retract curve. Default = 5 mm/revolution.
+Example A) Finishing, M anual curves, C onnection to macro →D irect. The retract movement
+from the macro takes the most direct path.
+A) Finishing, M anual curves, C onnection to macro →Z X. The retract movement starts
+along the Z axis and then continues along the X axis of the defined frame.
+1) Contour to be machined, 2) Retract curve, 3) Clearance plane (Z), 4) Clearance
+radius (X)
+Z
+X
+Z
+X
+1
+2 3
+4
+A B
+1
+2 3
+4
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+hyperMILL
+325
+
+Tangential (2): Define tangential length.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right, (5) Ramp length.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+hyperMILL
+326
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+hyperMILL
+327
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+328
+Finishing
+Contour parallel finishing of workpieces of any shape based on a preceding roughing operation.
+Tool
+Free angle: Defines the minimum angle to be maintained between the tool insert and the calculated
+toolpath (1). Defining a free angle automatically calculates the tool plunge angle. (2) Turning contour, (3)
+turning model.
+1
+2
+3
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+Segments
+Assign segments of a contour a c utting speed and f eedrate to reduce tool wear and improve surface
+quality.
+Select the desired contour and use E dit segments to open the S egments dialogue.
+Add through three points: Select start point, end point and a further point on the contour.
+Add through curves: Select a curve. The starting point and end point are calculated automatically.
+The C utting speed and F eedrate technology values depend on the usage and can be modified either
+manually or on the basis of factors.
+Change manually
+1. Select segment.
+2.
+ Click the icon for cutting speed or feedrate. The icon changes.
+.
+3. Enter the required value.
+hyperMILL
+329
+
+Change on the basis of factors
+1. Select the segment, click the link icon and enter the required factor directly.
+2.
+ Click the link icon.
+3. Enter the required factor directly.
+Cutting speed and F eedrate apply to the Usage that is set on the T ool dialogue page under C utting profile.
+The values are displayed for each contour segment.
+ZY
+X
+Vc = 240 f = 0.36
+Vc = 120 f = 0.18
+Vc = 100 f = 0.3
+Behaviour in sharp corners
+Angle (1): angle between two contour elements to allow chamfering or rounding.
+Automatic corner brake: enable when sharp corners of a contour should be automatically rounded or
+chamfered. Define the c hamfer length (2) and the c hamfer angle (3) for c hamfering (A); for the r ounding
+(b), define the r ounding radius (4).
+hyperMILL
+330
+1
+2
+3
+4
+A
+B
+A contour can be either chamfered or rounded in a single step. If both chamfering and rounding should
+take place, define the step twice and combine both steps in a linking job.
+The A utomatic corner brake function is available for outer edges of the turning contour. Fillets or chamfers
+of inner edges should already be included in the rotation model.
+Strategy
+Fine machining, in which the material left by the preceding roughing operations is removed.
+Cutting side
+Inside (1)/ O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+Plane (3): Machining of the top face of the workpiece perpendicular to the axis of the turning surface.
+hyperMILL
+331
+1
+1
+1 2 3
+Infeed direction
+To left (1) / T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+Outside-in (3) / I nside-out (4): Machining is performed perpendicularly to the axis of the turning surface (in
+the X direction) from the outside inwards or from the inside outwards.
+1 2 3 4
+Options
+Falling contours allowed: Contours in the X direction are machined (1). Function disabled (2).
+hyperMILL
+332
++X
+-X +Z
+-Z
+1 2
+Radial / axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Enable path compensation: When this option is activated, path compensation is handled by the controller,
+that is, the cutting radius is calculated by the controller (G41 and G42). If this option is not enabled, the
+cutting radius is calculated beforehand in hyperMILL.
+Machining mode
+Limit machining to selected areas.
+Flat and steep areas are separated from each other by a slope angle. 0° corresponds to parallel to the
+turning axis and 90° is perpendicular to the turning axis.
+Off: Steep and flat areas of the defined contour are machined (1).
+Steep areas: Only the steep areas of the defined contour are machined (2).
+Flat areas: Only the flat areas of the defined contour are machined (3).
+1 2 3
+Edge behaviour
+The edge behaviour of the tool can be controlled.
+Select the R oll (standard) option if you want edge rolling. This produces rounded corners (1). Select the
+Extend option if you want to tool to move around edges with tangential extension. This produces corners
+with sharp edges (2).
+hyperMILL
+333
+
+1
+2
+Parameters
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the t urning area, a macro is generated automatically, which ensures that the
+tool does not touch the t urning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+1
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+hyperMILL
+334
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+1
+2
+3 1
+Transition mode: Define a R apid angle for the rapid movement, either for the approach, retract or for the
+approach and retract.
+Rapid angle using the example of O utside (1)/ Inside machining (2).
+hyperMILL
+335
++ -
++-
+1 2
+Approach and retract
+Define the approach movement from the clearance radius (X) to the macro and the departure movement
+from the macro to the clearance radius (X).
+Angle
+Use A ngle →A utomatic to automatically adapt the approach and retract movement to the defined ap-
+proach/retract macro.
+Use A ngle →R apid angle approach or A ngle →R apid angle retract to define an angle for the approach or
+retract movement to the macro.
+Example A) Roughing, A ngle →A utomatic
+B) Roughing, A ngle →R apid angle approach/retract: -20
+1) Approach/Retract movement, 2) Clearance radius (X)
++ -
+Z
+X
+Z
+X
+1
+2
+A B
+2
+hyperMILL
+336
+Manual curves
+Use M anual curves →A pproach curve / Retract curve to define an individual approach or retract move-
+ment.
+Select the A pproach curve / Retract curve. The number of selected curves is displayed.
+Connection to macro
+Select Direct if you want the approach or retract movement to take the most direct path.
+Select Z X if you want the approach or retract movement to start along the Z axis and then continue along
+the X axis of the defined frame.
+Select X Z if you want the approach or retract movement to start along the X axis and then continue along
+the Z axis of the defined frame.
+Select the F eedrate for the A pproach curve / Retract curve. Default = 5 mm/revolution.
+Example A) Finishing, M anual curves, C onnection to macro →D irect. The retract movement
+from the macro takes the most direct path.
+A) Finishing, M anual curves, C onnection to macro →Z X. The retract movement starts
+along the Z axis and then continues along the X axis of the defined frame.
+1) Contour to be machined, 2) Retract curve, 3) Clearance plane (Z), 4) Clearance
+radius (X)
+Z
+X
+Z
+X
+1
+2 3
+4
+A B
+1
+2 3
+4
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+hyperMILL
+337
+
+Tangential (2): Define tangential length, arc angle, arc radius and tangential extension.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right, (5) Ramp length.
+For a more smooth connection of partially finished areas, the tangential approach (A) and retract macros
+(B) for the finishing can be defined with additional options. Tangential length (1), arc angle (2), arc radius
+(3), tangential extension (4).
+1
+2
+3 4
+A B
+1
+2
+3
+4
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+hyperMILL
+338
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+hyperMILL
+339
+Turning stock
+It is not necessary to create a turning stock for the calculation!
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+hyperMILL
+340
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+341
+
+Rollfeed Turning
+Machining of workpieces by rolling the tool insert on the component contour, ensuring a very high surface
+quality.
+X
+Z
+X
+Z
+Tool
+Permitted tool type: Roll turn tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+Segments
+Assign segments of a contour a c utting speed and f eedrate to reduce tool wear and improve surface
+quality.
+Select the desired contour and use E dit segments to open the S egments dialogue.
+Add through three points: Select start point, end point and a further point on the contour.
+Add through curves: Select a curve. The starting point and end point are calculated automatically.
+Profile type: To mark the contour elements, use the T urning (1) Side Roll (2) or B ottom Roll (3) options.
+Suitable inserts for the profile types are:
+hyperMILL
+342
+Profile type: Side Roll (2): T Full Roll Turn (A), T Short Roll Turn (B)
+Profile type: Bottom Roll (3): X Full Roll Turn (C), X Short Roll Turn (D)
+X
+Z
+X
+Z
+A B C D
+1
+2
+3
+3
+Strategy
+Cutting side
+Inside (1)/ O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+1 2
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+hyperMILL
+343
+1 2
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Edge behaviour
+The edge behaviour of the tool can be controlled.
+Select the R oll (standard) option if you want edge rolling. This produces rounded corners.
+Parameters
+Contact parameters
+Define the permissible contact area of the insert with the model.
+For roll turn tools with the X Full Roll Turn (1) and X Short Roll Turn (2) inserts, define the contact area of
+the insert using the R oll start contact (0) and R oll end contact (1) parameters.
+For roll turn tools with the T Full Roll Turn (3) and T Short Roll Turn (4) inserts, define the contact area of
+the insert using the S ide roll start contact (0) and S ide roll end contact (1) parameters.
+0
+1
+0
+1
+0 1 0 1
+1 2 3 4
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2).
+hyperMILL
+344
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+Both the model allowance and additional allowance can have either positive or negative values.
+1
+2
+3 1
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+Tangential (2): Define tangential length.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+hyperMILL
+345
+
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right. (5) Ramp length.
+Trim to stock: Trim the stock according to the contour selected.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+hyperMILL
+346
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+hyperMILL
+347
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+348
+3X simultaneous Roughing
+• Roughing with a simultaneous swivel axis.
+• Tilt strategy can be defined using tilt point (1) or synchronisation lines (2)
+• Machine complex contours with a single tool.
+• High surface quality.
+• Reduced tool wear.
+• Machining of piston heads, turbine blades, machine discs and so on.
+X
+Z
+B -30
+B 210
+B 0 B 180
+B 45 
+B 135
+ 
+B 90
+X
+Z
+X
+Z
+1
+2 2
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Tools with the following inserts are permissible: Rhombic, triangular, round and W-shape insert. You must
+set the tool reference to M iddle point.
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+hyperMILL
+349
+
+Strategy
+Strategy
+Axial roughing (1): Machining is performed parallel to the axis of the turning surface.
+Radial roughing (2): Machining is performed perpendicular to the axis of the turning surface.
+1 2
+Cutting side
+Outside (1) / I nside (2): The external shape of a workpiece is created by using the Outside option and the
+internal shape by using the Inside option.
+Plane (3): Machining of the top face of the workpiece perpendicular to the axis of the turning surface.
+1 2 3
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+Outside-in (3) / I nside-out (4): Machining is performed perpendicularly to the axis of the turning surface (in
+the X direction) from the outside inwards or from the inside outwards.
+hyperMILL
+350
+1 2 3 4
+NC output
+Use the S mooth option to define a smoother movement sequence for the B axis. More synchronisation
+lines are necessary.
+Select the D irect option if you want the B axis to directly follow the course of the synchronisation lines.
+Fewer synchronisation lines are necessary.
+Options
+Finish path: Removes machining marks during A xial Roughing.
+Falling contours allowed: Contours in the X direction can be machined (1). Function disabled (2).
+X
+Z
+X
+Z
+1 2
+Radial limit / Axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Parameters
+Infeed
+Radial / axial infeed to the next machining plane.
+Constant: Constant infeed depth (1) over the entire machining area.
+hyperMILL
+351
+X
+Z
+1
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the t urning area, a macro is generated automatically, which ensures that the
+tool does not touch the t urning area for approach and retract movements in G0.
+Clearance distance (1): Clearance movement at feedrate before the rapid movement begins.
+1
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for the options
+Inside and Plane.
+hyperMILL
+352
+Z
+X
+Y
+1
+2
+Retract plane (Z): Activating the R adial / A xial limit option (tab: S trategy) in combination with the R etract
+plane (Z) parameter makes it possible to drive out the tool from the undercutting areas. The R etract plane
+(Z) is displayed as graphical feedback (1).
+Z
+X
+Y
+1
+Use M in. B angle and M ax. B angle to define the permissible angle range for the tilting of the B axis.
+Synchronisation lines that exceed the permissible angle range are automatically adjusted. Default: Min. B
+angle = 0°, Max. B angle = 180°.
+hyperMILL
+353
+
+B -30
+B 210
+B 0 B 180
+B 45 
+B 135
+ 
+B 90
+X
+Z
+Min. = 0°, Max. = 180°
+Transition mode: Define a R apid angle for the rapid movement, either for the approach, retract or for the
+approach and retract.
+Rapid angle using the example of O utside (1)/ Inside machining (2).
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+hyperMILL
+354
+1
+2
+3 1
+Approach and retract
+Define the approach movement from the clearance radius (X) to the macro and the departure movement
+from the macro to the clearance radius (X).
+Angle
+Use A ngle →A utomatic to automatically adapt the approach and retract movement to the defined ap-
+proach/retract macro.
+Use A ngle →R apid angle approach or A ngle →R apid angle retract to define an angle for the approach or
+retract movement to the macro.
+Example A) Roughing, A ngle →A utomatic
+B) Roughing, A ngle →R apid angle approach/retract: -20
+1) Approach/Retract movement, 2) Clearance radius (X)
++ -
+Z
+X
+Z
+X
+1
+2
+A B
+2
+Manual curves
+Use M anual curves →A pproach curve / Retract curve to define an individual approach or retract move-
+ment.
+Select the A pproach curve / Retract curve. The number of selected curves is displayed.
+hyperMILL
+355
+Connection to macro
+Select Direct if you want the approach or retract movement to take the most direct path.
+Select Z X if you want the approach or retract movement to start along the Z axis and then continue along
+the X axis of the defined frame.
+Select X Z if you want the approach or retract movement to start along the X axis and then continue along
+the Z axis of the defined frame.
+Select the F eedrate for the A pproach curve / Retract curve. Default = 5 mm/revolution.
+Example A) Finishing, M anual curves, C onnection to macro →D irect. The retract movement
+from the macro takes the most direct path.
+A) Finishing, M anual curves, C onnection to macro →Z X. The retract movement starts
+along the Z axis and then continues along the X axis of the defined frame.
+1) Contour to be machined, 2) Retract curve, 3) Clearance plane (Z), 4) Clearance
+radius (X)
+Z
+X
+Z
+X
+1
+2 3
+4
+A B
+1
+2 3
+4
+3Axes
+Tilt strategy
+Select Tilt point (1) to specify the orientation of the tilting axis with the help of a tilt point.
+Alternatively, use S ynchronization lines (2) to specify the movement profile of the tilting axis.
+hyperMILL
+356
+Synchronise toolpaths
+Select Synchronization lines. The number of selected lines is displayed.
+Define T ilt point. The coordinate values (X / Z ) of the selected tilt point are displayed and can be
+changed manually.
+Offset angle
+Offset angle: Define the angle for the tool holder. This allows the orientation of the insert be adapted to
+the axis of the tool holder. This ensures that the synchronisation lines always refer to the axis of the tool
+holder.
+High Performance
+High Performance Roughing
+Use if material that is difficult to cut is to be machined or a reliable chip break cannot be achieved with
+conventional strategies.
+hyperMILL MAXX Machining for turning jobs is characterised by:
+hyperMILL
+357
+
+• High degree of process reliability and material removal plus a high level of quality at the same time.
+• Constant, low load on the tool and machine during the entire machining.
+• Support for round inserts.
+• Feedrate for fast positioning movements.
+High Performance Mode: To use the function, select the H igh Performance Mode checkbox.
+Strategy
+Linear: (1), (2) Material is removed parallel to the turning axis in accordance with the specified I nfeed
+direction (see Strategy dialogue page).
+Ramping: (3), (4) Ramp-shaped material removal. Here, a ramp-shaped first cut is always made on a
+plane and the remaining material is cleared on the same plane in a second cut parallel to the turning axis.
+Zigzag: (2), (4) Machining with alternating cutting mode.
+hyperMILL
+358
+1 2
+3 4
+Machining angle: If this option is activated, the material is not removed parallel to the turning axis but at
+the defined machining angle. Available for the L inear and R amp strategy options. (1) option activated, (2)
+option not activated.
+1 2
+Infeed
+Infeed: Depth of the material removal.
+Infeed factor: Area of the insert that is engaged in the material removal during machining.
+hyperMILL
+359
+If the infeed is specified, the infeed factor is calculated automatically via the corner
+radius. If the infeed factor is specified, the infeed is calculated automatically via the
+corner radius.
+Corner radius * Infeed factor = Infeed.
+Example: corner radius = 5 mm, infeed factor = 0.2, infeed = 1.
+(1) Infeed factor = 1.0, (2) Infeed factor = 0.3.
+r
+1.0
+0.3
+1 2
+Fillet radius: Additional toolpath filleting in the corners. Default: corner radius * 0.1.
+Feedrate
+Feedrate reposition: Feedrate for the repositioning between the infeed planes.
+Unit: mm or inch/revolution of the workpiece.
+Tool life control
+Activate the function if the material to be machined requires the time the tool is engaged to be controlled.
+Use the D istance option and the M ax. Distance parameter to define the maximum permissible length of the
+toolpath for which the tool is engaged. Select the T ime option in order to define the maximum permissible
+time for which the tool should be engaged using the M ax. time parameter. N umber of paths limits the
+time the tool is engaged with the M ax. number of paths parameter. When the defined condition has been
+achieved, the machining ends and the tool retracts to the clearance plane.
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+Tangential (2): Define tangential length.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+hyperMILL
+360
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right. (5) Ramp length.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+hyperMILL
+361
+
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+hyperMILL
+362
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+NC parameters
+Point density factor: Define the point density for the number of vectors (precision of the turning contour).
+Default = 1. A value of 0.5 doubles the number of points. To be used for machines with no continuous
+RTCPsupport!
+hyperMILL
+363
+3X simultaneous Finishing
+• Finishing with a simultaneous swivel axis.
+• Tilt strategy can be defined using tilt point (1) or synchronisation lines (2)
+• Machine complex contours with a single tool.
+• High surface quality.
+• Reduced tool wear.
+• Machining of piston heads, turbine blades, machine discs and so on.
+B -30
+B 210
+B 0 B 180
+B 45 
+B 135
+ 
+B 90
+X
+Z
+X
+Z
+1
+22
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Tools with the following inserts are permissible: Rhombic, triangular, round and W-shape insert. You must
+set the tool reference to M iddle point.
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+hyperMILL
+364
+Strategy
+Fine machining, in which the material left by the preceding roughing operations is removed.
+Cutting side
+Inside (1) / O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+Plane (3): Machining of the top face of the workpiece perpendicular to the axis of the turning surface.
+1
+1
+1 2 3
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+Outside-in (3) / I nside-out (4): Machining is performed perpendicularly to the axis of the turning surface (in
+the X direction) from the outside inwards or from the inside outwards.
+hyperMILL
+365
+
+1 2 3 4
+Options
+Falling contours allowed: Contours in the X direction are machined (1). Function disabled (2).
++X
+-X +Z
+-Z
+1 2
+Radial / axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Machining mode
+Limit machining to selected areas.
+Flat and steep areas are separated from each other by a slope angle. 0° corresponds to parallel to the
+turning axis and 90° is perpendicular to the turning axis.
+Off: Steep and flat areas of the defined contour are machined (1).
+Steep areas: Only the steep areas of the defined contour are machined (2).
+Flat areas: Only the flat areas of the defined contour are machined (3).
+hyperMILL
+366
+1 2 3
+Edge behaviour
+The edge behaviour of the tool can be controlled.
+Select the R oll (standard) option if you want edge rolling. This produces rounded corners (1). Select the
+Extend option if you want to tool to move around edges with tangential extension. This produces corners
+with sharp edges (2).
+1
+2
+Parameters
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the t urning area, a macro is generated automatically, which ensures that the
+tool does not touch the t urning area for approach and retract movements in G0.
+Clearance distance (1): Clearance movement at feedrate before the rapid movement begins.
+hyperMILL
+367
+1
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+hyperMILL
+368
+1
+2
+3 1
+Use M in. B angle and M ax. B angle to define the permissible angle range for the tilting of the B axis.
+Synchronisation lines that exceed the permissible angle range are automatically adjusted. Default: Min. B
+angle = 0°, Max. B angle = 180°.
+B -30
+B 210
+B 0 B 180
+B 45 
+B 135
+ 
+B 90
+X
+Z
+Min. = 0°, Max. = 180°
+Transition mode: Define a R apid angle for the rapid movement, either for the approach, retract or for the
+approach and retract.
+Rapid angle using the example of O utside (1) / I nside machining (2).
+hyperMILL
+369
+
+Approach and retract
+Define the approach movement from the clearance radius (X) to the macro and the departure movement
+from the macro to the clearance radius (X).
+Angle
+Use A ngle →A utomatic to automatically adapt the approach and retract movement to the defined ap-
+proach/retract macro.
+Use A ngle →R apid angle approach or A ngle →R apid angle retract to define an angle for the approach or
+retract movement to the macro.
+Example A) Roughing, A ngle →A utomatic
+B) Roughing, A ngle →R apid angle approach/retract: -20
+1) Approach/Retract movement, 2) Clearance radius (X)
++ -
+Z
+X
+Z
+X
+1
+2
+A B
+2
+Manual curves
+Use M anual curves →A pproach curve / Retract curve to define an individual approach or retract move-
+ment.
+Select the A pproach curve / Retract curve. The number of selected curves is displayed.
+Connection to macro
+Select Direct if you want the approach or retract movement to take the most direct path.
+Select Z X if you want the approach or retract movement to start along the Z axis and then continue along
+the X axis of the defined frame.
+Select X Z if you want the approach or retract movement to start along the X axis and then continue along
+the Z axis of the defined frame.
+Select the F eedrate for the A pproach curve / Retract curve. Default = 5 mm/revolution.
+hyperMILL
+370
+Example A) Finishing, M anual curves, C onnection to macro →D irect. The retract movement
+from the macro takes the most direct path.
+A) Finishing, M anual curves, C onnection to macro →Z X. The retract movement starts
+along the Z axis and then continues along the X axis of the defined frame.
+1) Contour to be machined, 2) Retract curve, 3) Clearance plane (Z), 4) Clearance
+radius (X)
+Z
+X
+Z
+X
+1
+2 3
+4
+A B
+1
+2 3
+4
+3Axes
+Tilt strategy
+Select Tilt point (1) to specify the orientation of the tilting axis with the help of a tilt point.
+Alternatively, use S ynchronization lines (2) to specify the movement profile of the tilting axis.
+X
+Z
+1
+2 2
+hyperMILL
+371
+Synchronise toolpaths
+Select Synchronization lines. The number of selected lines is displayed.
+Define T ilt point. The coordinate values (X / Z ) of the selected tilt point are displayed and can be
+changed manually.
+Offset angle
+Offset angle: Define the angle for the tool holder. This allows the orientation of the insert be adapted to
+the axis of the tool holder. This ensures that the synchronisation lines always refer to the axis of the tool
+holder.
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+Tangential (2): Define tangential length.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right. (5) Ramp length.
+hyperMILL
+372
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+hyperMILL
+373
+
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+hyperMILL
+374
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+375
+Groove Turning
+Axial roughing of workpieces with grooves or shoulders.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+The retraction feedrate can be increased for all machining strategies for which retraction occurs without a
+ramp movement (see the S trategy dialogue page).
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+Strategy
+Strategy
+Axial roughing (1): Machining is performed parallel to the axis of the turning surface.
+Axial roughing with ramp (2): Axial roughing with ramped plunging of the tool into the stock model (only
+available for Constant orientation).
+1 2
+Ramp angle (1): Angle of the ramp when plunging into the stock model or at the transition between infeed
+planes (only available for Axial roughing with ramp).
+hyperMILL
+376
+1
+Cutting side
+Inside (1)/ O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+1 2
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+hyperMILL
+377
+
+1 2
+Cutting mode
+Oneway: Machining in constant orientation.
+Zigzag: Machining with alternating orientation.
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Radial compensation
+Pre-plunge: During finishing, the tool is plunged at the transition of the defined contour from the axial to
+the radial direction. Removing material here prevents the tool from engaging with two sides of the insert
+at the same time in the following machining step. The P re-plunge option also supports smaller retraction
+movements.
+Radial compensation value (1): Radial deviation from the model contour in final finishing. The radial
+compensation value is necessary due to the deflection of the tool, which is affected by the following
+factors: feedrate (f), cutting depth (ap), geometry of the tool, cutting speed (Vc), and workpiece material.
+hyperMILL
+378
+1
+Parameters
+Radial infeed (1): Infeed in radial direction (cutting depth).
+Max. infeed depth (2): Maximum depth of the material removal in radial direction.
+The combination of the parameters enables level-by-level machining, meaning that slots exceeding the
+length of the used tool can also be machined.
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+Both the model allowance and additional allowance can have either positive or negative values.
+hyperMILL
+379
+1
+2
+3 1
+Wall distance (1): Distance of the tool to vertically aligned contours. The distance is increased by the
+defined offset with each infeed.
+1
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance: clearance movement at feedrate before the rapid movement begins.
+Macros
+Retract macro
+Define the R amp angle (1) and the R amp length (5) for the R amp retract macro. The ramp angle refers
+to the t urning axis (2), taking the infeed direction into account. (3) Infeed direction t o the left, (4) infeed
+direction to the right.
+hyperMILL
+380
+1
+2
+3 4
+5
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+hyperMILL
+381
+
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+hyperMILL
+382
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+383
+Grooving
+Radial Roughing of workpieces with grooves and shoulders.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+The retraction feedrate can be increased for all machining strategies for which retraction occurs without a
+ramp movement (see the S trategy dialogue page).
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+Strategy
+Machining is performed perpendicular to the axis of the turning surface.
+Cutting side
+Inside (1)/ O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+1 2
+hyperMILL
+384
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+Central (3): Machining (in Z direction) begins at the defined p lunge point (4), which is indicated by the red
+arrow (feedback).
+1 2 3
+4
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Parameters
+Infeed
+Axial infeed (1): Infeed in axial direction (cutting depth).
+Max. infeed depth (2): Maximum depth of the material removal in axial direction.
+Radial depth (3): Maximum depth of the material removal in radial direction.
+Plane level detection (4): An intermediate step with a smaller, axial infeed value is inserted for the planar
+surfaces if the defined axial infeed is greater than the distance between two workpiece surfaces.
+1
+2
+3
+4
+hyperMILL
+385
+
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+Both the model allowance and additional allowance can have either positive or negative values.
+1
+2
+3 1
+Dwell time
+Specify the dwell time of the tool and the unit either using revolutions of the model ( r ev) or time units
+( sec).
+Pecking
+In order to avoid damaging the tool or the workpiece and to remove chips more efficiently, the tool is
+plunged by the defined plunge depth and retracted by the defined retract value in alternating manner until
+the total radial infeed is reached.
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+1
+1
+1
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+hyperMILL
+386
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+Z
+X
+Y
+1
+2
+Macros
+Approach macro / Retract macro
+Additional movement during each infeed. Define the Ramp angle and the Ramp length for the Approach
+macro/Retract macro. The ramp angle (1) refers to the turning axis (2), taking the infeed direction into
+account. (3) Infeed direction to the left, (4) Infeed direction to the right. (5) Ramp length.
+1
+2
+3 4
+5
+hyperMILL
+387
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+hyperMILL
+388
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+hyperMILL
+389
+
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+390
+Groove Finishing
+Radial finishing of turning workpieces with grooves or shoulders.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+The retraction feedrate can be increased for all machining strategies for which retraction occurs without a
+ramp movement (see the S trategy dialogue page).
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Reverse: Invert the machining direction of the selected contour.
+Segments
+Assign segments of a contour a c utting speed and f eedrate to reduce tool wear and improve surface
+quality.
+Select the desired contour and use E dit segments to open the S egments dialogue.
+Add through three points: Select start point, end point and a further point on the contour.
+Add through curves: Select a curve. The starting point and end point are calculated automatically.
+The C utting speed and F eedrate technology values depend on the usage and can be modified either
+manually or on the basis of factors.
+Change manually
+1. Select segment.
+2.
+ Click the icon for cutting speed or feedrate. The icon changes.
+.
+3. Enter the required value.
+Change on the basis of factors
+1. Select the segment, click the link icon and enter the required factor directly.
+2.
+ Click the link icon.
+3. Enter the required factor directly.
+Cutting speed and F eedrate apply to the Usage that is set on the T ool dialogue page under C utting profile.
+The values are displayed for each contour segment.
+hyperMILL
+391
+ZY
+X
+Vc = 240 f = 0.36
+Vc = 120 f = 0.18
+Vc = 100 f = 0.3
+Behaviour in sharp corners
+Angle (1): angle between two contour elements to allow chamfering or rounding.
+Automatic corner brake: enable when sharp corners of a contour should be automatically rounded or
+chamfered. Define the c hamfer length (2) and the c hamfer angle (3) for c hamfering (A); for the r ounding
+(b), define the r ounding radius (4).
+1
+2
+3
+4
+A
+B
+A contour can be either chamfered or rounded in a single step. If both chamfering and rounding should
+take place, define the step twice and combine both steps in a linking job.
+The A utomatic corner brake function is available for outer edges of the turning contour. Fillets or chamfers
+of inner edges should already be included in the rotation model.
+Strategy
+Finishing: Fine machining, in which the material left by the preceding roughing operations is removed.
+hyperMILL
+392
+Cutting side
+Inside (1) / O utside (2): The external shape of a workpiece is created by using the Outside option and the
+internal shape by using the Inside option.
+1 2
+Infeed direction
+To left (1)/ T o right (2): Machining is performed from right to left or from left to right in the direction of the
+axis of the turning surface.
+1 2
+hyperMILL
+393
+
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial or axial direction.
+Enable path compensation: When this option is activated, path compensation is handled by the controller,
+that is, the cutting radius is calculated by the controller (G41 and G42). If this option is not enabled, the
+cutting radius is calculated beforehand in hyperMILL.
+Change reference side: The reference side of the recessing tool changes (left/right) during machining.
+Only available if path compensation is enabled.
+Machining mode
+Limit machining to selected areas.
+Flat and steep areas are separated from each other by a slope angle. 0° corresponds to parallel to the
+turning axis and 90° is perpendicular to the turning axis.
+Off: Steep and flat areas of the defined contour are machined (1).
+Steep areas: Only the steep areas of the defined contour are machined (2).
+Flat areas: Only the flat areas of the defined contour are machined (3).
+1 2 3
+Radial compensation
+Pre-plunge: During finishing, the tool is plunged at the transition of the defined contour from the axial to
+the radial direction. Removing material here prevents the tool from engaging with two sides of the insert
+at the same time in the following machining step. The P re-plunge option also supports smaller retraction
+movements.
+hyperMILL
+394
+Type of cut
+Finishing one direction: Material is removed with up and down movements. Since upward movements on
+vertical walls can lead to a risk of collision between the tool holder and the stockmodel geometry, not all
+geometries can be machined.
+Downward: Material is removed with downward movements only.
+Side allowance (1): Allowance in Z direction.
+Overlap (2): A path overlap to avoid collision with perpendicular walls (residual stock). The value should
+always be slightly larger than the radius of the tool.
+1
+2
+534
+1 2
+Parameters
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): Clearance movement at feedrate before the rapid movement begins.
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+hyperMILL
+395
+Z
+X
+Y
+1
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2): Allowance in Z direction .
+Additional allowance X (3): Allowance in X direction.
+Both the model allowance and additional allowance can have either positive or negative values.
+1
+2
+3 1
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Radial (1): Define length.
+Tangential (2): Define tangential length, arc angle, arc radius and tangential extension.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+hyperMILL
+396
+1 2 3 4
+The ramp angle (1) refers to the turning axis (2), taking the infeed direction into account. (3) Infeed
+direction to the left, (4) Infeed direction to the right. (5) Ramp length.
+1
+2
+3 4
+5
+For a more smooth connection of partially finished areas, the tangential approach (A) and retract macros
+(B) for the finishing can be defined with additional options. Tangential length (1), arc angle (2), arc radius
+(3), tangential extension (4).
+hyperMILL
+397
+
+1
+2
+3 4
+A B
+1
+2
+3
+4
+Trim to stock: Trim the stock according to the contour selected.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+hyperMILL
+398
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+hyperMILL
+399
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+400
+Parting
+Radial machining to separate the component from the bar stock, optionally with chamfer. Parting off can be
+done on the front or at the back of the workpiece.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Correction list: Inputs for correction list are only possible for the selected reference side.
+Reference side: The insert side that is used as a reference to calculate the toolpath can either be l eft or
+right. The insert side is only freely selectable when the position of the insert on the tool holder is neutral.
+Contours
+The front (1) or rear (2) model boundary must be selected as a contour.
+Z
+X
+1 2
+Strategy
+Strategy
+The machining strategy is determined by the parting tool definition. If the parting insert position on the tool
+is left, F ront face is automatically enabled as a strategy (1); if the position is right, B ack face is activated as
+a strategy (2). If the parting insert position on the tool is neutral, the strategy can be chosen freely (3). In
+this case, the parameter f ront angle of the insert is not available.
+Z
+X
+1 2 3
+Options
+With chamfer:enable when a chamfer is to be created at the trailing edge of the model and define the
+desired chamfer dimension (1). The chamfer angle is fixed at 45°.
+hyperMILL
+401
+
+Z
+X
+1
+Type
+Defines how the tool should proceed after parting off.
+Parting off and rapid (1): A retraction movement is performed at feedrate in Z direction to clearance
+distance, then rapid retract to the clearance radius.
+Parting off and rapid (2): a retraction movement is performed at feedrate in Z direction to clearance
+distance, then rapid retract at feedrate up to the clearance radius.
+2
+11 2
+Machining mode
+Normal (1): Parting off is performed in one pass without interruption over the entire contour length in
+feedrate.
+Retract clearance distance (2): Parting off is performed in multiple passes, each with the defined P lunge
+depth (4). Between each parting, there is a retraction to the clearance distance
+Retract to clearance radius (3): parting off is done in multiple passes, each with the defined p lunge depth
+(4). Between each run, a retracting movement is performed at feedrate in Z direction to clearance distance,
+then rapid retract to the clearance radius.
+hyperMILL
+402
+Z
+X
+4
+1 2 3
+4
+Reduce speed/feedrate
+Reduction: Enable when a reduction in the speed and feedrate is required from a certain workpiece
+diameter and define the diameter with F rom diameter.
+Z
+X
+1
+Use part catcher: Enable when a part catcher should be swung in. If the r eduction option is enabled as
+well, the part catcher is swung in on reaching the reduction diameter. If the r eduction option is not enabled,
+the part catcher is swung in for parting off after the positioning.
+The pivoting back of the part catcher takes place between parting off and retraction movement in the Z
+direction. With the d well time parameter ( p arameter tab) specify the time between the parting off and the
+retraction movement.
+Parameters
+Pecking
+Plunge depth (1): tool infeed per parting movement. Only available for the machining modes R etract to
+clearance radius and Retract clearance distance.
+Overrun in X (2): value that the tool must move beyond the defined contour length in the X direction to
+cleanly separate the workpiece.
+Turning model
+Additional allowance Z (3): Additional allowance in Z direction on the parting side of the tool.
+hyperMILL
+403
+1
+2
+ Z
+X
+3
+1
+2
+3
+Macros
+Additional movements during infeed (approach macro) or retraction (retract macro).
+Approach macro / Retract macro
+Define the R amp length (1) and R amp angle (2) for the R amp approach macro (A) / R amp retract macro
+(B).
+2A B1
+1
+2
+Trim to Stock: Enable to automatically extend the defined turning contour (1) up to the stock section
+contour (2). Use T rim stock top (3) to extend the turning contour up to the top stock section contour and
+use Trim stock bottom (4) to extend the stock section contour up to the bottom stock section contour.
+X
+Y
+2
+3
+4
+1
+hyperMILL
+404
+The functions T rim to Stock and W ith chamfer (see S trategy dialogue page) can only
+be used in combination if the stock is horizontally aligned (parallel to the X axis of
+the frame). If this is not the case, the W ith chamfer option is disabled and a warning
+message is output.
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+hyperMILL
+405
+
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+406
+Face Groove Turning
+Radial roughing of workpieces with axial oriented grooves or shoulders. The tools used normally have
+three cutting edges.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Correction list: List number of the controller/machine register containing the tool compensation values. The
+system differentiates between the left and right side (left/right) for R ecessing tool.
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Strategy
+Strategy
+Radial roughing (1): Machining is performed perpendicularly to the axis of the turning surface.
+Radial roughing with ramp (2): Radial roughing with ramped plunging of the tool into the stock model.
+Define Ramp angle (3).
+1 2
+3
+Infeed direction
+Bottom (1): Infeed takes place from top to bottom in the direction to the axis of the turning stock. T op (2):
+Infeed takes place in an upward direction from the axis of the turning stock.
+hyperMILL
+407
+1 2
+Cutting mode
+Oneway (1): Machining in constant orientation.
+Zigzag (2): Machining with alternating orientation.
+1 2
+Left side / right side
+To left: Machining of the right side of the turning stock.
+To right: Machining of the left side of the turning stock.
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial and axial direction.
+Retract plane (Z): Activating the R adial / A xial limit option (dialogue page S trategy) in combination with
+the R etract plane (Z) parameter makes it possible to drive out the tool from the undercutting areas. The
+Retract plane (Z) is displayed as graphical feedback (1).
+hyperMILL
+408
+Z
+X
+Y
+1
+Axial offset
+Pre-plunge: The tool is plunged at the transition of the defined contour from the axial to the radial direction.
+Removing material here prevents the tool from engaging with two sides of the insert at the same time in
+the following machining step. The P re-plunge option also supports smaller retraction movements.
+Axial compensation value (1): Axial deviation from the model contour. The axial compensation value is
+necessary due to the deflection of the tool, which is affected by the following factors: feedrate (f), cut depth
+(ap), geometry of the tool, cutting speed (Vc), and workpiece material.
+1
+hyperMILL
+409
+
+Parameters
+Infeed
+Radial infeed (Cutting depth) (1): Infeed in radial direction (parallel to the axis of the turning surface).
+Max. infeed depth (2): Maximum depth of the material removal in radial direction.
+1
+2
+Dwell time
+Dwell time: Specify the dwell time of the tool and the unit either using revolutions of the model (rev) or time
+units (sec).
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance Z (2) Allowance in Z direction.
+Additional allowance X (3): Allowance in X direction.
+Both the model allowance and additional allowance can have either positive or negative values.
+1
+2
+3 1
+Wall distance (1): Distance of the tool to horizontally aligned contours. The distance is increased by the
+defined offset with each infeed.
+hyperMILL
+410
+1
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance X (2): Allowance in X direction.
+Additional allowance Z (3): Allowance in Z direction.
+hyperMILL
+411
+1
+2
+3
+1
+Macros
+Retract macro
+Ramp: If required, use a ramp to modify the retract behaviour. Define R amp angle and Ramp length.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+hyperMILL
+412
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+From existing mill stock: Should only be used if the following conditions are fulfilled: Pre-
+requisite: mill/drill machining with non-rotationally symmetrical removal. The milling job
+begins when the turning job is complete. If these conditions are not fulfilled, computing
+times may increase as a result of different resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+hyperMILL
+413
+
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+414
+Face Groove Plunging
+Axial roughing of workpieces with axial oriented grooves or shoulders. The tools used normally have three
+cutting edges.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+The retraction feedrate can be increased for all machining strategies for which retraction occurs without a
+ramp movement (see the S trategy dialogue page).
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Strategy
+Strategy
+Grooving is performed parallel to the axis of the turning stock.
+Cutting side
+Inside/ Outside: The external shape of a workpiece is created by using the Outside option, and the internal
+shape by using the Inside option.
+Infeed direction
+Bottom (1): Infeed takes place from top to bottom in the direction to the axis of the turning stock.
+Top (2): Infeed takes place from bottom to top.
+Central (3): Machining begins at the defined p lunge point (4), which is indicated by the red arrow (feed-
+back).
+hyperMILL
+415
+1 2 3
+4
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial and axial direction.
+Retract plane (Z): Activating the R adial / A xial limit option (dialogue page S trategy) in combination with
+the R etract plane (Z) parameter makes it possible to drive out the tool from the undercutting areas. The
+Retract plane (Z) is displayed as graphical feedback (1).
+Z
+X
+Y
+1
+Left side/right side
+To left (1): Machining of the right side of the turning stock.
+To right (2): Machining of the left side of the turning stock.
+hyperMILL
+416
+1 2
+Parameters
+Infeed
+Radial infeed (1): Infeed in radial direction (cutting depth).
+Max. infeed depth (2): Maximum depth of the material removal in radial direction.
+Axial depth (3): Maximum depth of the material removal in axial direction.
+Plane level detection (4): An intermediate step with a smaller, radial infeed value is inserted for the planar
+surfaces if the defined radial infeed is greater than the distance between two workpiece surfaces.
+1 2
+3
+4
+Dwell time
+Specify the dwell time of the tool and the unit either using revolutions of the model ( r ev) or time units
+( sec).
+Pecking
+In order to avoid damaging the tool or the workpiece and to remove chips more efficiently, the tool is
+plunged by the defined plunge depth and retracted by the defined retract value in alternating manner until
+the total radial infeed is reached.
+hyperMILL
+417
+
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+Clearance distance: clearance movement at feedrate before the rapid movement begins.
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance X (2): Allowance in X direction.
+Additional allowance Z (3): Allowance in Z direction.
+1
+2
+3
+1
+hyperMILL
+418
+Macros
+Approach macro / Retract macro
+Additional movement during each infeed to the next plane. Define the R amp length (1) and the R amp
+angle (2) for the R amp approach/retract macro.
+1 2
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+hyperMILL
+419
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+hyperMILL
+420
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+421
+
+Face Groove Finishing
+Finishing of workpieces with axial oriented grooves or shoulders.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Contours
+Contour selection
+Contours: Define contours for turning operations. These may correspond to the contour of the turning
+model.
+Contour attributes
+Start point / e ndpoint: define the start and end points for machining, either by selecting a point or by
+entering coordinates.
+Strategy
+Finishing: Fine machining, in which the material left by the preceding roughing operations is removed.
+Cutting side
+Inside (1)/ O utside (2): The external shape of a workpiece is created by using the Outside option, and the
+internal shape by using the Inside option.
+Infeed direction
+Bottom (1): Infeed takes place from top to bottom in the direction to the axis of the turning stock.
+Top (2): Infeed takes place from bottom to top.
+hyperMILL
+422
+1 2
+Options
+Radial / axial limit: Limits the machining area of the tool used in the radial and axial direction.
+Retract plane (Z): Activating the R adial / A xial limit option (dialogue page S trategy) in combination with
+the R etract plane (Z) parameter makes it possible to drive out the tool from the undercutting areas. The
+Retract plane (Z) is displayed as graphical feedback (1).
+Z
+X
+Y
+1
+Enable path compensation: When this option is activated, path compensation is handled by the controller,
+that is, the cutting radius is calculated by the controller (G41 and G42). If this option is not enabled, the
+cutting radius is calculated beforehand in hyperMILL.
+Change reference side: The reference side of the recessing tool changes (left/right) during machining.
+Only available if path compensation is enabled.
+Left side/right side
+To left: Machining of the right side of the turning stock.
+To right: Machining of the left side of the turning stock.
+hyperMILL
+423
+Machining mode
+Limit machining to selected areas.
+Flat and steep areas are separated from each other by a slope angle. 0° corresponds to parallel to the
+turning axis and 90° is perpendicular to the turning axis.
+Off: Steep and flat areas of the defined contour are machined (1).
+Steep areas: Only the steep areas of the defined contour are machined (2).
+Flat areas: Only the flat areas of the defined contour are machined (3).
+0°
+90°
+1 2 3
+Axial offset
+Pre-plunge: The tool is plunged at the transition of the defined contour from the axial to the radial direction.
+Removing material here prevents the tool from engaging with two sides of the insert at the same time in
+the following machining step. The P re-plunge option also supports smaller retraction movements.
+Axial compensation value (1): Axial deviation from the model contour. The axial compensation value is
+necessary due to the deflection of the tool, which is affected by the following factors: feedrate (f), cut depth
+(ap), geometry of the tool, cutting speed (Vc), and workpiece material.
+hyperMILL
+424
+1
+Type of cut
+Up and down: Material is removed with up and down movements. Since upward movements on vertical
+walls can lead to a risk of collision between the tool holder and the stockmodel geometry, not all geome-
+tries can be machined.
+Downward: Material is removed with downward movements only.
+Side allowance (1): Allowance in Z direction.
+Overlap (2): A path overlap to avoid collision with perpendicular walls (residual stock). The value should
+always be slightly larger than the radius of the tool.
+1
+3
+4
+2
+1
+2
+Parameters
+Dwell time
+Specify the dwell time of the tool and the unit either using revolutions of the model ( r ev) or time units
+( sec).
+Clearance
+Macro clearance: Minimum distance of the tool to the turning area during approach and retract move-
+ments. If the tool is closer to the turning area, a macro is generated automatically, which ensures that the
+tool does not touch the turning area for approach and retract movements in G0.
+Clearance distance (1): clearance movement at feedrate before the rapid movement begins.
+Clearance radius (X): Radius for rapid tool movements in the X direction (1).
+Clearance plane (Z): Plane for rapid tool movements in the Z direction (2). Only available for I nside
+machining and Plane options.
+hyperMILL
+425
+
+Z
+X
+Y
+1
+2
+Turning model
+Model allowance (1): Global allowance on the model.
+Additional allowance X (2): Allowance in X direction.
+Additional allowance Z (3): Allowance in Z direction.
+1
+2
+3
+1
+Macros
+Approach macro / Retract macro
+Additional movement during infeed to the first path or during retraction after the last path.
+Axial (1): Define length.
+Tangential (2): Define tangential length, arc angle, arc radius and tangential extension.
+Circular (3): Define radius and arc angle.
+Ramp (4): Define ramp length and ramp angle.
+hyperMILL
+426
+1 2 3 4
+For a more smooth connection of already finished areas, the tangential approach (A) and retract macros
+(B) for the finishing can be defined with additional options. Tangential length (1), arc angle (2), arc radius,
+tangential extension (4).
+1
+2
+3 4
+A B
+1
+2
+3
+4
+Trim to stock: Trim the stock according to the contour selected.
+Trim stock RIGHT / Trim stock LEFT
+Stock trimming can be defined separately for the right and left sides.
+Axial (1): Trimming from the end point of the contour parallel to the axis of the workpiece. Define L ength
+(3).
+Tangential (2): Trimming is carried out at a tangent to the contour. Define L ength (3).
+hyperMILL
+427
+1 2
+3
+3
+3
+3
+Setup
+Models and stock models for turning cycles are always shown in a 2D view for the sake
+of clarity.
+Turning model
+A turning model is defined on the basis of a closed, planar contour that is located in the X-Z plane of the
+turning frame.
+Collision check: If this option is selected, the holder of the tool used is permanently checked for potential
+collisions against the current stock model (tracked stock model) and the current turning model.
+Open the T urning area dialogue. Specify a n ame and, if necessary, a c omment for the turning area.
+Generate a turning area by selecting a closed contour.
+Open the C reate turning area from model dialogue to create a turning area from surfaces or solids.
+Define the frame, colour and layer of the turning contour.
+Frame for turning axis
+Select a frame for the turning axis from the list.
+Define the C olour and L ayer of the turning contour. Select U se model colours to adopt the current colours
+from the model.
+Surfaces
+Resolution: Define the resolution (fineness) of the turning area.
+Select surfaces or a solid. hyperMILL automatically creates a turning contour that defines the turning
+area. An entry is created in the hyperMILL browser and a Contour feature is created in the feature
+browser.
+Turning stock
+Turning stock is defined on the basis of a closed, planar contour in the X-Z plane of the turning frame and
+the associated turning axis in the X-Z plane.
+hyperMILL
+428
+Open the S tock model dialogue. Specify a n ame and, if necessary, a c omment for the turning stock.
+Enable a mode that is to be used to create the turning stock.
+Generate turn resulting stock: Create a stock model for subsequent turning jobs based on the current
+turning job. The stock model is named after the job that was used to create it.
+Generate mill resulting stock: Create a stock model for subsequent milling jobs based on the current
+turning job or a combination of milling and turning jobs.
+From existing mill stock: Select base stock from which a mill resulting stock is to be created.
+The F rom existing mill stock option should only be used if the following conditions are
+fulfilled:
+1. Prerequisite: mill/drill machining with non-rotationally symmetrical removal.
+2. The milling job begins when the turning job is complete.
+If these conditions are not fulfilled, computing times may increase as a result of different
+resolutions during stock tracking.
+Generate milling stock from turning stock: Any turning stock that is represented by an entry in the hy-
+perMILL model browser can be used to create a milling stock model.
+Highlight the corresponding turning stock model in the browser and select the C reate milling stock function
+from the shortcut menu. Specify the required resolution and click O K to confirm. The created milling stock
+model appears as an entry in the hyperMILL model browser.
+Frame: The Z axis of the machining frame must be the same as the rotary axis of the tool. Both the
+turning area (turning model) and the turning stock must lie in the X-Z plane.
+Z
+X
+For further information on frames, see section NC system and frames (page 42) .
+hyperMILL
+429
+
+Thread Cutting
+Creation of single or multiple start, cylindrical or conical, external and internal threads with constant pitch.
+Infeed can be performed either with constant chip section or with constant X value.
+Tool
+For information on selecting a tool and defining tool parameters, see section Components for NC
+tool (page 1433) .
+Contours
+Selection thread outer edge
+Select the contour that is to be used as the T hread outer edge (1). Specify whether the selected contour
+is to be used as the C ore diameter (2) or N ominal diameter (3). The following parameters are pre-defined
+automatically when the thread outer edge is defined:
+Diameter 1 (3) and D iameter 2 (only for conical threads: 4), Z position 1 (5) and Z position 2 (6) start
+point/end point for the first/last thread turn, calculated within the cycle.
+Offset factor 1 / O ffset factor 2: Length of the leading and trailing movement to the first/from the last thread
+turn.
+The following applies: Length = start factor/end factor x pitch.
+Pitch (7): Distance between two thread crests (only positive values are permitted).
+Thread depth (8): Is equal to the machining depth. Difference between nominal diameter (4) and core
+diameter (2).
+Machining direction (9)
+7
+1
+2 34
+56
+8
+9
+Left thread: Enable to machine a left hand thread. By default, right hand threads are produced with the
+Tapping cycle.
+Internal thread: Enable to machine an internal thread. By default, external threads are produced with the
+Tapping cycle.
+Strategy
+Roughing infeed
+One cut (1): The entire roughing infeed is achieved in one infeed movement in the X direction.
+hyperMILL
+430
+Constant chip section (2): The same quantity of material (chip section) is removed with each infeed
+movement to the next level.
+Constant X infeed (3): Infeed is performed with constant X value.
+1 2 3
+Infeed strategy
+Right to left (1): Infeed along the right flank until thread depth is reached.
+Left to right (2): Infeed along the left flank until thread depth is reached.
+Alternate (3): Infeed alternating along the left and right flank until thread depth is reached.
+Perpendicular (4): Infeed perpendicular until thread depth is reached.
+Infeed angle: Angle for infeed strategy over flanks. The infeed angle must be smaller than the flank angle.
+Parameters
+Machining area
+Finish allowance: Remaining offset on the thread turn after machining.
+Clearance
+Clearance radius (X): Radius for rapid tool movements in the X direction.
+hyperMILL
+431
+Clearance plane (Z): Plane for rapid tool movements in the Z direction.
+For information on the clearance distance, see the next section.
+Safety
+Clearance plane and clearance distance apply in the direction of the Z axis of the current frame.
+Clearance plane (1): Plane for rapid tool movements. Specification in absolute dimensions Define the
+clearance plane by right-clicking on the icon. Select a point and confirm the selection.
+Traversing movements on the clearance plane are not checked with regard to collisions.
+Therefore this plane must be placed at a sufficient distance above the surface of the
+workpiece.
+Clearance distance (2): Distance to the current toolpath to be milled. Above the clearance distance, infeed
+takes place as rapid in the Z direction (A); below the clearance distance infeed takes place at the Z
+feedrate (B).
+(3) Top, (4) B ottom
+1
+2
+3
+A
+B
+4
+Thread definition
+Roughing turns: Number of roughing turns required to reach the thread depth.
+Finishing turns: Number of finishing turns.
+Nr. of thread starts: Number of thread starts between the startpoint and endpoint of machining.
+hyperMILL
+432
+8. Drilling
+Available machining cycles
+Centring (page 447) : Centring with various parameters.
+Simple Drilling (page 460) : Machining of Simple Holes in one infeed.
+Drilling with Chip Beak (page 472) : Machining of Simple Holes in several drilling strokes.
+Drilling with Pecking (page 484) : Machining of Simple Holes with retract to clearance distance between
+each drilling stroke.
+Optimised deep Hole Drilling (page 499) : Machining of holes with feedrate optimisation for cross holes or
+breakthroughs.
+Reaming (page 516) : Reboring to improve the quality of the surface when chip thickness is reduced.
+Tapping (page 528) : Drilling of threads with various parameters.
+Boring (page 540) : Drilling with a boring bar for large drilling diameters. Input parameters similar to Simple
+Hole.
+Helical Drilling (page 554) : Machining of circular pockets with helical stepdown and horizontal grooving on
+the pocket floor. Roughing, grooving on pocket floor, finishing and chamfering can be carried out in one
+job.
+Thread Milling (page 567) : Using a helical stepdown, this cycle produces single and multiple inside and
+outside threads with a definable chamfer. A hole must have been predrilled for internal threads.
+Circular Pocket (page 586) : Machining of circular pockets parallel to the contour, with specifiable machin-
+ing direction using climb milling or conventional milling.
+Gun Drilling (page 597) : Drilling of very deep holes with a long tool with small diameter. This requires a
+previously drilled hole of the same diameter as the hole to be created by Gun Drilling.
+5X Helical Drilling (MAXX Machining) (page 598) : This cycle produces circular holes through helical
+toolpaths. The tool is executed in a 5-axis manner with a given lead and tilt angle.
+Tool
+The following applies to all drilling cycles that support the parameter T ip angle compensation:
+When using stepped tools with multiple reference points (for example, reference point 1 = 0 and reference
+point 2 = 25), this option should not be enabled.
+Contours
+Define the drilling strategy, contour selection for the holes and the vertical machining area (top and depth)
+of the holes.
+Drilling mode
+2D Drilling: The direction of the drill holes is always aligned with the Z axis of the defined frame system.
+When using features, the frame system is part of the feature definition. All drill holes can be collision
+checked using the Milling area.
+2D multi index drilling: the direction of any number of drillings can be aligned with the different frames/
+planes. For infeed movements in XY direction, a relative clearance (automatically calculated for each
+frame) can be defined. All drill holes can be collision checked using the Milling area.
+5X Drilling: The direction of the drill holes is aligned with the normals of the selected surfaces or with the
+selected lines. When using features, the frame system is part of the feature definition. All drill holes can be
+collision checked using the milling area.
+The following applies to multi-axis indexing:
+hyperMILL
+433

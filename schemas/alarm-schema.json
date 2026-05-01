@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "prism-alarm-schema-v1",
+  "title": "PRISM Controller Alarm Schema",
+  "description": "CNC controller alarm code definition",
+  "type": "object",
+  "required": ["alarm_id", "code", "name", "category", "severity", "controller_family"],
+  "properties": {
+    "alarm_id": { "type": "string", "pattern": "^ALM-[A-Z]+-[A-Z0-9]+$" },
+    "code": { "type": "string", "description": "Original alarm code from controller" },
+    "name": { "type": "string", "maxLength": 200 },
+    "controller_family": {
+      "type": "string",
+      "enum": ["FANUC", "HAAS", "SIEMENS", "MAZAK", "OKUMA", "HEIDENHAIN", "MITSUBISHI", "BROTHER", "HURCO", "FAGOR", "DMG_MORI", "DOOSAN"]
+    },
+    "controller_models": { "type": "array", "items": { "type": "string" } },
+    "category": {
+      "type": "string",
+      "enum": ["SERVO", "SPINDLE", "ATC", "PROGRAM", "SAFETY", "SYSTEM", "COMMUNICATION", "OVERTRAVEL", "OVERLOAD", "TEMPERATURE", "HYDRAULIC", "PNEUMATIC", "LUBRICATION", "PARAMETER", "PMC", "MACRO"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]
+    },
+    "description": { "type": "string" },
+    "causes": { "type": "array", "items": { "type": "string" } },
+    "symptoms": { "type": "array", "items": { "type": "string" } },
+    "quick_fix": { "type": "string", "description": "Immediate action to take" },
+    "detailed_fix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": "integer" },
+          "action": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "requires_power_cycle": { "type": "boolean" },
+    "requires_service": { "type": "boolean" },
+    "safety_critical": { "type": "boolean" },
+    "related_alarms": { "type": "array", "items": { "type": "string" } },
+    "parameters_to_check": { "type": "array", "items": { "type": "string" } },
+    "diagnostic_codes": { "type": "array", "items": { "type": "string" } },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "last_updated": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

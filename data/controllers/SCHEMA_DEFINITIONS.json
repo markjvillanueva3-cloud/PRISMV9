@@ -1,0 +1,156 @@
+{
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "schemas": {
+    "controller": {
+      "description": "CNC Controller specification - 120 parameters",
+      "fields": {
+        "identification": {
+          "controller_id": "string - unique identifier",
+          "manufacturer": "string - FANUC|SIEMENS|HAAS|HEIDENHAIN|OKUMA|MAZAK|BROTHER|HURCO|MITSUBISHI|FAGOR|OTHER",
+          "family": "string - control family name",
+          "model": "string - specific model",
+          "version": "string - firmware version range",
+          "release_year": "number - year introduced",
+          "current_production": "boolean - still manufactured",
+          "successor_model": "string|null - replacement model",
+          "predecessor_model": "string|null - previous model",
+          "target_machines": "array - mill|lathe|mill-turn|grinder|edm|laser"
+        },
+        "gcodeCore": {
+          "dialect": "string - ISO|FANUC|SIEMENS|MAZATROL|CONVERSATIONAL",
+          "g_codes_supported": "array - list of G codes",
+          "m_codes_supported": "array - list of M codes",
+          "max_program_size": "number - bytes",
+          "max_program_number": "number - highest O number",
+          "subprogram_nesting": "number - max depth",
+          "macro_support": "boolean",
+          "macro_language": "string - MACRO_B|CYCLES|FK|NONE",
+          "custom_gcode_range": "object - {start, end}",
+          "custom_mcode_range": "object - {start, end}",
+          "block_skip_levels": "number - /1 through /n",
+          "optional_stop": "boolean - M01 support",
+          "canned_cycles": "array - drilling, boring, tapping cycles",
+          "high_speed_modes": "array - AICC, AIAPC, etc",
+          "look_ahead_blocks": "number",
+          "interpolation_types": "array - linear, circular, helical, NURBS, spline",
+          "coordinate_systems": "number - G54-G59 + extended",
+          "tool_radius_comp": "array - G40, G41, G42, G41.1, etc",
+          "tool_length_comp": "array - G43, G44, G43.4, etc",
+          "scaling_support": "boolean - G50, G51"
+        },
+        "axisCapability": {
+          "max_axes": "number - maximum controlled axes",
+          "max_simultaneous": "number - max simultaneous interpolation",
+          "spindle_count": "number",
+          "rotary_axes": "array - A, B, C support",
+          "linear_axes": "array - X, Y, Z, U, V, W",
+          "axis_naming": "object - custom axis letter mapping",
+          "rtcp_tcpm": "boolean - 5-axis tool center point",
+          "tilted_plane": "boolean - G68.2 or equivalent"
+        },
+        "memoryLimits": {
+          "program_memory_mb": "number",
+          "tool_offset_count": "number",
+          "work_offset_count": "number",
+          "common_variables": "object - {start, end, volatile}",
+          "permanent_variables": "object - {start, end}",
+          "system_variables": "object - {start, end}"
+        },
+        "specialFeatures": {
+          "conversational": "boolean",
+          "cad_cam_link": "array - supported formats",
+          "ethernet": "boolean",
+          "usb": "boolean",
+          "dprnt": "boolean - data output",
+          "probing_cycles": "array - supported probe cycles",
+          "tool_management": "boolean",
+          "tool_breakage_detection": "boolean",
+          "adaptive_control": "boolean",
+          "ai_features": "array - any AI/ML features",
+          "remote_monitoring": "boolean",
+          "collision_avoidance": "boolean"
+        },
+        "compatibility": {
+          "machines_supported": "array - machine IDs from machine database",
+          "post_processor_base": "string - recommended post template",
+          "retrofit_from": "array - controls this can replace",
+          "communication_protocols": "array - RS232, Ethernet, FOCAS, OPC-UA, MTConnect"
+        }
+      }
+    },
+    "alarm": {
+      "description": "CNC Alarm definition - 15 parameters",
+      "fields": {
+        "alarm_id": "string - unique identifier (CTRL-FAMILY-CODE)",
+        "controller_family": "string - FANUC|SIEMENS|HAAS|etc",
+        "controller_models": "array - specific models this applies to",
+        "alarm_code": "string - original alarm code as displayed",
+        "alarm_name": "string - short name",
+        "category": "enum - SERVO|SPINDLE|OVERTRAVEL|OVERHEAT|SYSTEM|PLC|COMMUNICATION|PROGRAM|ATC|PROBE|SAFETY|MACRO|PARAMETER|IO|ENCODER|POWER",
+        "severity": "enum - CRITICAL|HIGH|MEDIUM|LOW|INFO",
+        "message_text": "string - exact message displayed on screen",
+        "description": "string - detailed explanation",
+        "causes": "array - list of possible causes",
+        "fix_procedure_id": "string - reference to fix procedure",
+        "related_parameters": "array - system parameters involved",
+        "requires_power_cycle": "boolean",
+        "requires_service": "boolean",
+        "common_parts": "array - commonly replaced parts for this alarm"
+      }
+    },
+    "fix_procedure": {
+      "description": "Alarm fix procedure - 12 parameters",
+      "fields": {
+        "fix_id": "string - unique identifier",
+        "alarm_ids": "array - alarms this procedure fixes",
+        "title": "string - procedure title",
+        "difficulty": "enum - OPERATOR|MAINTENANCE|SERVICE|FACTORY",
+        "estimated_time_min": "number - estimated repair time",
+        "tools_required": "array - tools needed",
+        "safety_warnings": "array - safety precautions",
+        "steps": "array of objects - {step_number, instruction, expected_result, if_fails}",
+        "verification_steps": "array - how to verify fix worked",
+        "prevention_tips": "array - how to prevent recurrence",
+        "related_fixes": "array - other related fix_ids",
+        "source": "string - documentation reference"
+      }
+    },
+    "gcode_mcode": {
+      "description": "G-code/M-code definition - 10 parameters",
+      "fields": {
+        "code_id": "string - unique identifier",
+        "code": "string - G## or M##",
+        "type": "enum - G|M",
+        "name": "string - descriptive name",
+        "description": "string - what it does",
+        "modal_group": "number|null - modal group number",
+        "syntax": "string - usage syntax",
+        "parameters": "array - required/optional parameters",
+        "controllers": "object - {controller_id: variations}",
+        "examples": "array - usage examples"
+      }
+    },
+    "machine_controller_link": {
+      "description": "Machine to controller mapping - 25 parameters",
+      "fields": {
+        "link_id": "string - unique identifier",
+        "machine_id": "string - from machine database",
+        "controller_id": "string - from controller database",
+        "is_standard": "boolean - factory standard controller",
+        "is_optional": "boolean - optional controller choice",
+        "is_retrofit": "boolean - aftermarket retrofit",
+        "compatibility_score": "number - 0-1 how well suited",
+        "post_processor_id": "string - recommended post",
+        "special_configuration": "object - machine-specific settings",
+        "axis_mapping": "object - controller axis to machine axis",
+        "spindle_configuration": "object - spindle settings",
+        "tool_changer_config": "object - ATC configuration",
+        "probing_config": "object - probe setup",
+        "coolant_codes": "object - M-code mapping for coolant",
+        "work_holding_codes": "object - M-codes for fixtures",
+        "notes": "string - special considerations"
+      }
+    }
+  }
+}

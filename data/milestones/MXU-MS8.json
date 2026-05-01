@@ -1,0 +1,48 @@
+{
+  "id": "MXU-MS8",
+  "version": "1.0.0",
+  "title": "Web Surface Activation",
+  "brief": "Concrete frontend activation for product pillar bundles in web/src/. Wire UI components, pages, and interactions so pillar capabilities are accessible through the web surface — not just API/MCP.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Frontend Pillar Wiring",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Activate speed/feed pillar in web/src/: UI for tier selection, parameter input, result display",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Activate post-processing pillar in web/src/: G-code viewer, verification status, optimization controls",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Activate print-to-program and ERP/quote pillars in web/src/",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U04",
+          "title": "Integration test: verify all 4 pillar UIs connect to backend bundles end-to-end",
+          "effort": 50,
+          "dependencies": ["P0-U01", "P0-U02", "P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS7"],
+  "exit_conditions": ["All 4 product pillars have functional web UI entry points", "UI connects to backend activation bundles", "Integration tests pass for each pillar"],
+  "notes": "Gap fix added during scrutiny — original roadmap lacked concrete frontend activation milestone",
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

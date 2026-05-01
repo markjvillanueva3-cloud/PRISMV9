@@ -1,0 +1,296 @@
+{
+  "id": "HM-REV-MS8",
+  "version": "8.3.0",
+  "title": "Data Extraction Pipeline (5 databases)",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Extract 5 unprocessed hyperMILL databases into PRISM-consumable formats: demo.db (547 tools + 2,706 cutting techs), IM_Macro_DB (drilling macros), AC_Standard_ToolDB, IM_Tool_DB (v1), and Metric.cfg directory (138+ config files). Addresses Agent 17 finding (29/100 data extraction average — demo.db 547 tools + 2,706 cutting techs NEVER extracted, holders=8/100) and Agent 3 finding (5 databases unextracted).",
+  "dependencies": [
+    "HM-REV-MS1"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillToolExportEngine.ts (1,136 LOC — SQLite tool export, 29 geometry classes)",
+      "HyperMillCycleDefaultsEngine.ts (636 LOC — reads Metric.cfg)"
+    ],
+    "registries": [
+      "ToolRegistry (95,608 tools — target for demo.db extraction)",
+      "FormulaRegistry (499 formulas — target for macro formula extraction)"
+    ],
+    "services": [],
+    "physics": [],
+    "reference": [
+      "extract-hypermill-materials.py (existing extraction script pattern)",
+      "extract-hypermill-speedfeed.py (existing extraction script pattern)",
+      "Agent 17 report (data extraction gaps — demo.db, IM_Macro_DB, holders)",
+      "Agent 3 report (5 databases unextracted, 14 formulas not registered)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-data-freshness — DECLARED+BUILT here (warns if extracted data is > 30 days old)",
+    "action": "cam:hypermill_extract_tools — DECLARED+BUILT here",
+    "skill": "/hypermill-data-status — DECLARED here, BUILT in HM-REV-MS12"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read existing extraction scripts + ToolExportEngine)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS8-S1",
+      "title": "demo.db + IM_Macro_DB Extraction",
+      "smart_config": {
+        "role": "Data Engineer + CNC Tool Database Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillToolExportEngine.ts (1,136 LOC — SQLite schema)",
+        "extract-hypermill-materials.py (extraction pattern)",
+        "ToolRegistry (target for tool data)",
+        "FormulaRegistry (target for macro formulas)"
+      ],
+      "intent": "Extract the two largest unprocessed databases: demo.db (547 tools + 2,706 cutting technology entries) and IM_Macro_DB (drilling macros with formulas). demo.db alone contains more cutting technology data than all currently extracted hyperMILL data combined.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR44",
+          "title": "Build demo.db extraction script — 547 tools + 2,706 cutting techs",
+          "description": "Create extract-hypermill-demo-db.py script that reads demo.db (SQLite) and extracts: 547 tool definitions (29 geometry classes from ToolExportEngine schema), 2,706 cutting technology entries (speed, feed, depth per material-tool combination), holder geometry catalog. Output: hypermill-demo-tools.json and hypermill-demo-cutting-tech.json in PRISM-consumable format. Use HyperMillToolExportEngine's SQLite schema (29 geometry classes) as the extraction template.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "extract-hypermill-demo-db.py reads demo.db SQLite successfully",
+            "547 tools extracted with all 29 geometry class fields",
+            "2,706 cutting tech entries extracted with speed/feed/depth",
+            "Output JSON files validate against ToolRegistry schema",
+            "cam:hypermill_extract_tools action registered to trigger extraction",
+            "3 unit tests: tool extraction count, cutting tech count, geometry class coverage"
+          ],
+          "rollback": {
+            "files_created": [
+              "scripts/extract-hypermill-demo-db.py",
+              "data/hypermill-demo-tools.json",
+              "data/hypermill-demo-cutting-tech.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "extraction fails on demo.db",
+              "tool count < 500",
+              "cutting tech count < 2500"
+            ],
+            "rollback_procedure": "rm scripts/extract-hypermill-demo-db.py data/hypermill-demo-*.json"
+          }
+        },
+        {
+          "id": "U-HMR45",
+          "title": "Build IM_Macro_DB extraction — drilling macros + formula registration",
+          "description": "Create extract-hypermill-macro-db.py script that reads IM_Macro_DB and extracts: drilling macro definitions (peck depth formulas, pilot hole sizing, countersink angles), feature-to-job macros (omFeature2JobCatalog XMLs). Register discovered formulas in FormulaRegistry as F-HM-EXT-001 through F-HM-EXT-NNN. Agent 20 found 0/14 hyperMILL formulas in FormulaRegistry — this starts filling that gap.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "extract-hypermill-macro-db.py reads IM_Macro_DB successfully",
+            "Drilling macro formulas extracted and validated",
+            "Feature-to-job macros parsed from XML",
+            "Formulas registered in FormulaRegistry as F-HM-EXT series",
+            "3 unit tests: macro extraction, formula registration, XML parsing"
+          ],
+          "rollback": {
+            "files_created": [
+              "scripts/extract-hypermill-macro-db.py",
+              "data/hypermill-macros.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "extraction fails",
+              "formula registration fails"
+            ],
+            "rollback_procedure": "rm scripts/extract-hypermill-macro-db.py data/hypermill-macros.json"
+          }
+        }
+      ],
+      "exit_gate": "✓ demo.db extracted (547 tools + 2,706 cutting techs) | ✓ IM_Macro_DB extracted | ✓ Formulas registered in FormulaRegistry | ✓ cam:hypermill_extract_tools action active | ✓ tsc 0 errors | ✓ 6+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_extract_tools"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS9",
+          "HM-REV-MS11",
+          "HM-REV-MS12"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS8-S2",
+      "title": "AC_Standard_ToolDB + IM_Tool_DB + Metric.cfg Extraction + Data Freshness Hook",
+      "smart_config": {
+        "role": "Data Engineer + Configuration Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillCycleDefaultsEngine.ts (636 LOC — reads Metric.cfg)",
+        "extract-hypermill-speedfeed.py (existing extraction pattern)",
+        "Agent 17 report (remaining databases)"
+      ],
+      "intent": "Extract the remaining 3 databases and build the data freshness hook. Metric.cfg directory (138+ files) contains factory defaults that HyperMillCycleDefaultsEngine already reads — but this extraction makes them available to the broader PRISM pipeline.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR46",
+          "title": "Build AC_Standard_ToolDB + IM_Tool_DB extraction scripts",
+          "description": "Create extraction scripts for AC_Standard_ToolDB (standard Automation Center tool database) and IM_Tool_DB v1 (legacy tool database). Both contain tool geometry and holder assembly data that supplements demo.db. Output: hypermill-ac-tools.json and hypermill-im-tools.json. Merge with demo.db data to create unified hypermill-tools-complete.json with deduplication.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "AC_Standard_ToolDB extraction script works",
+            "IM_Tool_DB v1 extraction script works",
+            "Unified hypermill-tools-complete.json created with deduplication",
+            "Holder geometry data extracted (Agent 17: holders=8/100)",
+            "3 unit tests: AC extraction, IM extraction, deduplication logic"
+          ],
+          "rollback": {
+            "files_created": [
+              "scripts/extract-hypermill-ac-tools.py",
+              "scripts/extract-hypermill-im-tools.py",
+              "data/hypermill-tools-complete.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "extraction fails",
+              "deduplication produces data loss"
+            ],
+            "rollback_procedure": "rm scripts/extract-hypermill-ac-tools.py scripts/extract-hypermill-im-tools.py data/hypermill-tools-complete.json"
+          }
+        },
+        {
+          "id": "U-HMR47",
+          "title": "Build Metric.cfg directory extraction — 138+ config files → structured defaults",
+          "description": "Create extract-hypermill-metric-cfg.py that reads the entire Metric.cfg directory (138+ configuration files for cycle defaults per controller) and outputs structured JSON. Currently HyperMillCycleDefaultsEngine reads these files at runtime — this extraction creates a static snapshot for offline use and cross-referencing. Output: hypermill-cycle-defaults-complete.json with per-controller, per-cycle-type parameter defaults.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "extract-hypermill-metric-cfg.py reads 138+ config files",
+            "Output JSON has per-controller, per-cycle-type structure",
+            "All parameter types preserved (numeric, string, boolean, enum)",
+            "Data matches what HyperMillCycleDefaultsEngine reads at runtime",
+            "3 unit tests: file count, parameter type preservation, runtime match"
+          ],
+          "rollback": {
+            "files_created": [
+              "scripts/extract-hypermill-metric-cfg.py",
+              "data/hypermill-cycle-defaults-complete.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "extraction fails",
+              "file count < 130"
+            ],
+            "rollback_procedure": "rm scripts/extract-hypermill-metric-cfg.py data/hypermill-cycle-defaults-complete.json"
+          }
+        },
+        {
+          "id": "U-HMR48",
+          "title": "Build hypermill-data-freshness hook + extraction orchestrator",
+          "description": "Build hypermill-data-freshness hook that checks extraction timestamps and warns if any extracted data is > 30 days old (hyperMILL installations may be updated). Build HyperMillDataExtractionOrchestrator that runs all 5 extraction scripts in sequence, validates outputs, and reports extraction status (counts, freshness, errors).",
+          "depends_on": [
+            "U-HMR44",
+            "U-HMR45",
+            "U-HMR46",
+            "U-HMR47"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "hypermill-data-freshness hook warns on stale data (> 30 days)",
+            "Orchestrator runs all 5 extraction scripts sequentially",
+            "Status report shows per-database: record count, extraction date, errors",
+            "cam:hypermill_data_extract_all action registered",
+            "3 unit tests: freshness check, orchestrator sequence, status report"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillDataExtractionOrchestrator.ts"
+            ],
+            "files_modified": [
+              "src/hooks/registry.ts",
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillDataExtractionOrchestrator.ts src/hooks/registry.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ All 5 databases extracted | ✓ Unified tools file deduplicated | ✓ 138+ Metric.cfg files parsed | ✓ Data freshness hook active | ✓ Extraction orchestrator works | ✓ tsc 0 errors | ✓ 9+ tests pass | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-data-freshness"
+        ],
+        "new_actions": [
+          "cam:hypermill_data_extract_all"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS9",
+          "HM-REV-MS11",
+          "HM-REV-MS12"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

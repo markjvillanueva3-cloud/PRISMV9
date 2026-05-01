@@ -1,0 +1,100 @@
+L1770:                   return JSON.parse(l);
+L1771:                 } catch {
+L1772:                   return null;
+L1773:                 }
+L1774:               }).filter(Boolean);
+L1775:             }
+L1776:           } catch {
+L1777:           }
+L1778:           const notesEntries = reasoningTrail.filter((e) => e.notes);
+L1779:           const hijacked = {
+L1780:             _COMPACTION_DETECTED: true,
+L1781:             _MANDATORY_RECOVERY: {
+L1782:               status: "\u26A0\uFE0F CONTEXT LOST \u2014 COMPACTION DETECTED. You MUST recover before doing anything else.",
+L1783:               step_1: recoveryManifest ? "READ recovery_manifest below \u2014 it has EVERYTHING you need in one place." : "READ reasoning_trail below FIRST \u2014 these are YOUR OWN NOTES from before compaction happened.",
+L1784:               step_2: "READ workflow_recovery \u2014 it tells you exactly which step you're on.",
+L1785:               step_3: "DO NOT ask the user what to do. DO NOT re-audit. DO NOT re-investigate. Continue seamlessly.",
+L1786:               step_4: "If reasoning_trail has notes, those are YOUR analysis/findings. Trust them. Build on them. Don't redo them.",
+L1787:               step_5: "If still unclear, read /mnt/transcripts/ latest file + C:\\PRISM\\state\\WIP_NOTES.md"
+L1788:             },
+L1789:             // F2.2: Single-file recovery — everything in one place
+L1790:             recovery_manifest: recoveryManifest ? {
+L1791:               _priority: "\u26A1 THIS IS YOUR PRIMARY RECOVERY SOURCE. Read this first, skip other sections if this is sufficient.",
+L1792:               next_action: recoveryManifest.next_action,
+L1793:               current_task: recoveryManifest.current_task,
+L1794:               phase: recoveryManifest.phase,
+L1795:               workflow_step: recoveryManifest.workflow_step,
+L1796:               active_files: recoveryManifest.active_files,
+L1797:               pending_todos: recoveryManifest.pending_todos,
+L1798:               reasoning_notes: recoveryManifest.reasoning_notes,
+L1799:               recent_calls: recoveryManifest.recent_calls,
+L1800:               recent_decisions: recoveryManifest.recent_decisions,
+L1801:               atcs: recoveryManifest.atcs_active ? { task_id: recoveryManifest.atcs_task_id, current_unit: recoveryManifest.atcs_current_unit } : null,
+L1802:               age_seconds: Math.round((Date.now() - new Date(recoveryManifest.captured_at).getTime()) / 1000)
+L1803:             } : null,
+L1804:             reasoning_trail: {
+L1805:               total_entries: reasoningTrail.length,
+L1806:               entries_with_notes: notesEntries.length,
+L1807:               your_notes: notesEntries.map((e) => `[call ${e.call}] ${e.tool}:${e.action} \u2014 ${e.notes}`),
+L1808:               recent_calls: reasoningTrail.slice(-8).map((e) => `[${e.call}] ${e.tool}:${e.action}${e.notes ? " \u{1F4DD} " + e.notes : ""}`),
+L1809:               _hint: notesEntries.length > 0 ? "\u26A1 You left notes for yourself. READ THEM. They contain your reasoning from before compaction." : "No notes found. Check WIP_NOTES.md and /mnt/transcripts/ for context."
+L1810:             },
+L1811:             workflow_recovery: (() => {
+L1812:               try {
+L1813:                 const wfPath = path.join(STATE_DIR12, "WORKFLOW_STATE.json");
+L1814:                 if (fs.existsSync(wfPath)) {
+L1815:                   const wf = JSON.parse(fs.readFileSync(wfPath, "utf-8"));
+L1816:                   if (wf.status === "active") {
+L1817:                     const cur = wf.steps[wf.current_step - 1];
+L1818:                     const done = wf.steps.filter((s) => s.status === "done").map((s) => `${s.name} \u2705`);
+L1819:                     const remaining = wf.steps.filter((s) => s.status !== "done").map((s) => `Step ${s.id}: ${s.name} \u2014 ${s.intent}`);
+L1820:                     return {
+L1821:                       active: true,
+L1822:                       type: wf.workflow_type,
+L1823:                       name: wf.name,
+L1824:                       progress: `Step ${wf.current_step} of ${wf.total_steps}`,
+L1825:                       current_step: cur ? { name: cur.name, intent: cur.intent } : null,
+L1826:                       instruction: `RESUME step ${wf.current_step}/${wf.total_steps} (${cur?.name}): ${cur?.intent}. Steps done: ${done.join(", ")}. Do NOT redo.`,
+L1827:                       remaining,
+L1828:                       files_touched: [...new Set(wf.steps.flatMap((s) => s.files_touched || []))]
+L1829:                     };
+L1830:                   }
+L1831:                 }
+L1832:               } catch {
+L1833:               }
+L1834:               return { active: false, instruction: "No active workflow. Use recovery_context below." };
+L1835:             })(),
+L1836:             recovery_context: {
+L1837:               quick_resume: survivalInfo.quick_resume || parsed._context?.resume || "Unknown",
+L1838:               current_task: survivalInfo.current_task || parsed._context?.task || "Unknown",
+L1839:               next_action: survivalInfo.next_action || "Read ACTION_TRACKER.md and WORKFLOW_STATE.json",
+L1840:               phase: (() => {
+L1841:                 if (survivalInfo.phase) return survivalInfo.phase;
+L1842:                 try {
+L1843:                   const cs = JSON.parse(fs.readFileSync(path.join(STATE_DIR12, "CURRENT_STATE.json"), "utf-8"));
+L1844:                   return cs.phase || "unknown";
+L1845:                 } catch {
+L1846:                   return "unknown";
+L1847:                 }
+L1848:               })(),
+L1849:               call_at_capture: survivalInfo.call_number || 0,
+L1850:               pressure_at_capture: survivalInfo.pressure_pct || 0,
+L1851:               active_files: survivalInfo.active_files || [],
+L1852:               recent_decisions: (survivalInfo.recent_decisions || []).slice(-5)
+L1853:             },
+L1854:             action_tracker_next: trackerNext,
+L1855:             recent_tool_calls: (recentActionsInfo.actions || []).slice(-5).map(
+L1856:               (a) => `${a.tool}:${a.action} (${a.success ? "OK" : "FAIL"}) ${(a.params_summary || "").slice(0, 60)}`
+L1857:             ),
+L1858:             transcripts: transcriptHint,
+L1859:             original_response: parsed,
+L1860:             // Include the actual tool response too
+L1861:             protocol: "6 LAWS: S(x)\u22650.70|No placeholders|New\u2265Old|MCP First|No dupes|100% util."
+L1862:           };
+L1863:           result.content[0].text = JSON.stringify(hijacked);
+L1864:           compactionDetectedThisCall = false;
+L1865:         } else {
+L1866:           result.content[0].text = JSON.stringify(parsed);
+L1867:         }
+L1868:       } catch {
+L1869:       }

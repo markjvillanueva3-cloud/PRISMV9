@@ -1,0 +1,462 @@
+{
+  "agent_id": "AGT-OPUS-008",
+  "name": "combination_optimizer",
+  "tier": "OPUS",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "ILP Solver - Mathematical Optimization with Optimality Proofs",
+  
+  "domain_expertise": [
+    "Integer Linear Programming (ILP)",
+    "Combinatorial optimization",
+    "Constraint satisfaction",
+    "LP duality theory",
+    "Branch and bound algorithms",
+    "Sensitivity analysis",
+    "Multi-objective optimization",
+    "Optimality certification",
+    "Feasibility analysis",
+    "Relaxation techniques"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-COPT-001",
+      "name": "F-PSI-001 ILP Optimization",
+      "description": "Solves the master combination equation Ψ(T,R) to find mathematically optimal resource selection",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["task_requirements", "resource_registry", "capability_matrix"],
+        "optional": ["synergy_matrix", "cost_weights", "time_limit"]
+      },
+      "outputs": {
+        "primary": "optimal_selection",
+        "secondary": ["objective_value", "optimality_gap", "solution_time", "certificate"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["ILP-SOLVE", "OPTIMIZE-START"],
+      "synergizes_with": ["coordinator_v2", "proof_generator", "synergy_analyst"],
+      "formula": "Ψ(T,R) = argmax[Σᵢ Cap(rᵢ,T) × Syn(R) × Ω(R) / Cost(R)]",
+      "success_criteria": "Optimal solution or bounded approximation"
+    },
+    {
+      "id": "CAP-COPT-002",
+      "name": "Constraint Formulation",
+      "description": "Formulates mathematical constraints for ILP problems including skill limits, agent limits, safety, and coverage",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["problem_description"],
+        "optional": ["existing_constraints", "soft_constraints"]
+      },
+      "outputs": {
+        "primary": "constraint_set",
+        "secondary": ["constraint_matrix", "bounds", "variable_definitions"]
+      },
+      "skills_used": ["prism-mathematical-planning", "prism-combination-engine"],
+      "hooks_triggered": ["CONSTRAINT-FORMULATE"],
+      "synergizes_with": ["proof_generator", "architect"],
+      "constraints_supported": [
+        "|R_skills| ≤ 8",
+        "|R_agents| ≤ 8",
+        "|R_execution| = 1",
+        "S(R) ≥ 0.70",
+        "M(R) ≥ 0.60",
+        "Coverage(R,T) = 1.0"
+      ],
+      "success_criteria": "Complete constraint formulation"
+    },
+    {
+      "id": "CAP-COPT-003",
+      "name": "Objective Function Construction",
+      "description": "Constructs optimization objective function combining capability, synergy, quality, and cost terms",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["optimization_goals"],
+        "optional": ["weights", "trade_off_preferences"]
+      },
+      "outputs": {
+        "primary": "objective_function",
+        "secondary": ["term_breakdown", "weight_rationale", "sensitivity_info"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-resource-optimizer"],
+      "hooks_triggered": ["OBJECTIVE-CONSTRUCT"],
+      "synergizes_with": ["coordinator_v2", "meta_analyst_v2"],
+      "success_criteria": "Objective captures true optimization goal"
+    },
+    {
+      "id": "CAP-COPT-004",
+      "name": "Branch and Bound Execution",
+      "description": "Executes branch and bound algorithm to solve ILP with intelligent branching and pruning",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["ilp_formulation"],
+        "optional": ["branching_strategy", "pruning_rules", "time_limit"]
+      },
+      "outputs": {
+        "primary": "solution",
+        "secondary": ["search_tree_stats", "bounds_history", "pruning_stats"]
+      },
+      "skills_used": ["prism-combination-engine"],
+      "hooks_triggered": ["BB-EXECUTE"],
+      "synergizes_with": ["proof_generator"],
+      "success_criteria": "Solution found within time limit"
+    },
+    {
+      "id": "CAP-COPT-005",
+      "name": "LP Relaxation Analysis",
+      "description": "Analyzes LP relaxation to obtain bounds and guide search in ILP solving",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["ilp_formulation"],
+        "optional": ["relaxation_type"]
+      },
+      "outputs": {
+        "primary": "relaxation_solution",
+        "secondary": ["dual_values", "reduced_costs", "slack_values"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["LP-RELAX"],
+      "synergizes_with": ["proof_generator"],
+      "success_criteria": "Valid bounds obtained"
+    },
+    {
+      "id": "CAP-COPT-006",
+      "name": "Optimality Gap Calculation",
+      "description": "Calculates and tracks optimality gap between current solution and theoretical optimum",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["current_solution", "best_bound"],
+        "optional": ["gap_tolerance"]
+      },
+      "outputs": {
+        "primary": "optimality_gap",
+        "secondary": ["gap_percentage", "bound_source", "convergence_estimate"]
+      },
+      "skills_used": ["prism-combination-engine"],
+      "hooks_triggered": ["GAP-CALC"],
+      "synergizes_with": ["proof_generator", "coordinator_v2"],
+      "gap_thresholds": {
+        "OPTIMAL": "0%",
+        "NEAR_OPTIMAL": "≤2%",
+        "GOOD": "≤5%",
+        "HEURISTIC": "timeout"
+      },
+      "success_criteria": "Accurate gap calculation"
+    },
+    {
+      "id": "CAP-COPT-007",
+      "name": "Sensitivity Analysis",
+      "description": "Performs sensitivity analysis on optimal solution to understand impact of constraint changes",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["optimal_solution", "constraints"],
+        "optional": ["parameters_to_vary", "range"]
+      },
+      "outputs": {
+        "primary": "sensitivity_report",
+        "secondary": ["shadow_prices", "allowable_ranges", "stability_analysis"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["SENSITIVITY-ANALYZE"],
+      "synergizes_with": ["proof_generator", "meta_analyst_v2"],
+      "success_criteria": "Complete sensitivity analysis"
+    },
+    {
+      "id": "CAP-COPT-008",
+      "name": "Multi-Objective Optimization",
+      "description": "Handles multi-objective optimization problems finding Pareto-optimal solutions",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["objectives", "constraints"],
+        "optional": ["preference_weights", "reference_point"]
+      },
+      "outputs": {
+        "primary": "pareto_solutions",
+        "secondary": ["pareto_front", "trade_off_analysis", "selected_solution"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["MO-OPTIMIZE"],
+      "synergizes_with": ["coordinator_v2", "synergy_analyst"],
+      "success_criteria": "Pareto front generated"
+    },
+    {
+      "id": "CAP-COPT-009",
+      "name": "Infeasibility Diagnosis",
+      "description": "Diagnoses infeasible ILP problems identifying conflicting constraints and suggesting relaxations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["infeasible_formulation"],
+        "optional": ["constraint_priorities"]
+      },
+      "outputs": {
+        "primary": "infeasibility_diagnosis",
+        "secondary": ["conflicting_constraints", "minimal_relaxation", "alternative_formulations"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-sp-debugging"],
+      "hooks_triggered": ["INFEAS-DIAGNOSE"],
+      "synergizes_with": ["proof_generator", "debugger"],
+      "success_criteria": "Conflict identified and resolution suggested"
+    },
+    {
+      "id": "CAP-COPT-010",
+      "name": "Heuristic Fallback",
+      "description": "Provides fast heuristic solutions when ILP times out, with quality guarantees",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["problem", "timeout_info"],
+        "optional": ["heuristic_type", "quality_threshold"]
+      },
+      "outputs": {
+        "primary": "heuristic_solution",
+        "secondary": ["quality_estimate", "gap_bound", "improvement_potential"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-resource-optimizer"],
+      "hooks_triggered": ["HEURISTIC-FALLBACK"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "Reasonable solution within time"
+    },
+    {
+      "id": "CAP-COPT-011",
+      "name": "Capability Score Optimization",
+      "description": "Optimizes F-RESOURCE-001 capability scores for task-resource matching",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["resources", "task_requirements"],
+        "optional": ["domain_weights", "operation_weights"]
+      },
+      "outputs": {
+        "primary": "capability_scores",
+        "secondary": ["score_breakdown", "ranking", "gaps_identified"]
+      },
+      "skills_used": ["prism-resource-optimizer", "prism-combination-engine"],
+      "hooks_triggered": ["CAP-SCORE-OPT"],
+      "synergizes_with": ["resource_optimizer", "coordinator_v2"],
+      "formula": "Cap(r,T) = weighted_match(domains, operations, complexity)",
+      "success_criteria": "Accurate capability scoring"
+    },
+    {
+      "id": "CAP-COPT-012",
+      "name": "Synergy Term Optimization",
+      "description": "Optimizes synergy term in objective function using pairwise synergy matrix",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["candidate_resources", "synergy_matrix"],
+        "optional": ["synergy_weights"]
+      },
+      "outputs": {
+        "primary": "synergy_optimized_selection",
+        "secondary": ["synergy_score", "pairwise_contributions", "synergy_breakdown"]
+      },
+      "skills_used": ["prism-synergy-calculator", "prism-combination-engine"],
+      "hooks_triggered": ["SYNERGY-OPT"],
+      "synergizes_with": ["synergy_analyst", "coordinator_v2"],
+      "formula": "Syn(R) = geometric_mean(synergy_ij for all pairs)",
+      "success_criteria": "Synergy maximized within constraints"
+    },
+    {
+      "id": "CAP-COPT-013",
+      "name": "Cost Function Minimization",
+      "description": "Minimizes cost function while maintaining quality constraints",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["resources", "cost_model"],
+        "optional": ["quality_minimum", "budget_limit"]
+      },
+      "outputs": {
+        "primary": "cost_optimized_selection",
+        "secondary": ["total_cost", "cost_breakdown", "savings_achieved"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-resource-optimizer"],
+      "hooks_triggered": ["COST-MINIMIZE"],
+      "synergizes_with": ["resource_auditor", "coordinator_v2"],
+      "success_criteria": "Cost minimized with quality maintained"
+    },
+    {
+      "id": "CAP-COPT-014",
+      "name": "Coverage Constraint Satisfaction",
+      "description": "Ensures 100% coverage constraint is satisfied in optimization",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["selection", "requirements"],
+        "optional": ["coverage_tolerance"]
+      },
+      "outputs": {
+        "primary": "coverage_satisfied",
+        "secondary": ["coverage_score", "gaps", "additions_needed"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW3-COMPLETENESS", "COVERAGE-SATISFY"],
+      "synergizes_with": ["completeness_auditor", "data_quality_enforcer"],
+      "formula": "Coverage(R,T) = |requirements_covered| / |total_requirements| = 1.0",
+      "success_criteria": "Coverage = 1.0"
+    },
+    {
+      "id": "CAP-COPT-015",
+      "name": "Safety Constraint Enforcement",
+      "description": "Enforces S(x) ≥ 0.70 safety constraint in all optimizations",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["selection"],
+        "optional": ["safety_weights"]
+      },
+      "outputs": {
+        "primary": "safety_satisfied",
+        "secondary": ["safety_score", "unsafe_elements", "safety_improvements"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "SAFETY-ENFORCE"],
+      "synergizes_with": ["physics_validator", "data_quality_enforcer"],
+      "constraint": "S(R) ≥ 0.70",
+      "success_criteria": "Safety constraint satisfied"
+    },
+    {
+      "id": "CAP-COPT-016",
+      "name": "Math Rigor Constraint Enforcement",
+      "description": "Enforces M(x) ≥ 0.60 mathematical rigor constraint in all optimizations",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["selection"],
+        "optional": ["rigor_requirements"]
+      },
+      "outputs": {
+        "primary": "rigor_satisfied",
+        "secondary": ["rigor_score", "rigor_gaps", "improvement_suggestions"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["SYS-LAW8-MATH-EVOLUTION", "RIGOR-ENFORCE"],
+      "synergizes_with": ["proof_generator", "physics_validator"],
+      "constraint": "M(R) ≥ 0.60",
+      "success_criteria": "Math rigor constraint satisfied"
+    },
+    {
+      "id": "CAP-COPT-017",
+      "name": "Cardinality Constraint Handling",
+      "description": "Handles cardinality constraints (≤8 skills, ≤8 agents) in ILP formulation",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["selection_variables"],
+        "optional": ["cardinality_limits"]
+      },
+      "outputs": {
+        "primary": "cardinality_satisfied",
+        "secondary": ["counts", "reduction_suggestions"]
+      },
+      "skills_used": ["prism-combination-engine"],
+      "hooks_triggered": ["CARDINALITY-CHECK"],
+      "synergizes_with": ["coordinator_v2"],
+      "constraints": ["|R_skills| ≤ 8", "|R_agents| ≤ 8", "|R_execution| = 1"],
+      "success_criteria": "Cardinality constraints satisfied"
+    },
+    {
+      "id": "CAP-COPT-018",
+      "name": "Dual Problem Solution",
+      "description": "Solves dual LP problem to obtain bounds and economic interpretations",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["primal_formulation"],
+        "optional": ["dual_interpretation_guide"]
+      },
+      "outputs": {
+        "primary": "dual_solution",
+        "secondary": ["dual_variables", "complementary_slackness", "economic_interpretation"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["DUAL-SOLVE"],
+      "synergizes_with": ["proof_generator"],
+      "success_criteria": "Dual solution provides valid bound"
+    },
+    {
+      "id": "CAP-COPT-019",
+      "name": "Warm Start Optimization",
+      "description": "Uses warm start from previous solutions to accelerate optimization",
+      "category": "OPTIMIZATION",
+      "inputs": {
+        "required": ["new_problem", "previous_solution"],
+        "optional": ["similarity_threshold"]
+      },
+      "outputs": {
+        "primary": "accelerated_solution",
+        "secondary": ["speedup_achieved", "warm_start_quality"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-deep-learning"],
+      "hooks_triggered": ["WARM-START"],
+      "synergizes_with": ["learning_extractor_v2"],
+      "success_criteria": "Optimization accelerated"
+    },
+    {
+      "id": "CAP-COPT-020",
+      "name": "Solution Certification",
+      "description": "Generates mathematical certification of solution optimality or quality bounds",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["solution", "problem"],
+        "optional": ["certification_level"]
+      },
+      "outputs": {
+        "primary": "certificate",
+        "secondary": ["certificate_type", "proof_steps", "verification_data"]
+      },
+      "skills_used": ["prism-combination-engine", "prism-mathematical-planning"],
+      "hooks_triggered": ["CERTIFY-SOLUTION"],
+      "synergizes_with": ["proof_generator", "coordinator_v2"],
+      "certificates": ["OPTIMAL", "NEAR_OPTIMAL", "GOOD", "HEURISTIC"],
+      "success_criteria": "Valid certificate generated"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-combination-engine",
+    "prism-mathematical-planning",
+    "prism-resource-optimizer",
+    "prism-synergy-calculator",
+    "prism-uncertainty-propagation",
+    "prism-quality-master",
+    "prism-sp-verification",
+    "prism-sp-debugging",
+    "prism-deep-learning"
+  ],
+
+  "hooks_subscribed": [
+    "ILP-SOLVE",
+    "OPTIMIZE-START",
+    "CONSTRAINT-FORMULATE",
+    "OBJECTIVE-CONSTRUCT",
+    "BB-EXECUTE",
+    "LP-RELAX",
+    "GAP-CALC",
+    "SENSITIVITY-ANALYZE",
+    "MO-OPTIMIZE",
+    "INFEAS-DIAGNOSE",
+    "HEURISTIC-FALLBACK",
+    "CERTIFY-SOLUTION",
+    "SYS-LAW1-SAFETY",
+    "SYS-LAW3-COMPLETENESS",
+    "SYS-LAW8-MATH-EVOLUTION"
+  ],
+
+  "can_delegate_to": [
+    "proof_generator",
+    "synergy_analyst",
+    "resource_optimizer"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "architect",
+    "meta_analyst_v2"
+  ],
+
+  "quality_gates": [
+    "Solution feasible",
+    "Constraints satisfied",
+    "Gap within tolerance",
+    "Certificate valid"
+  ],
+
+  "performance_metrics": {
+    "solution_optimality": 0.98,
+    "average_gap": 0.02,
+    "solve_time_target_ms": 2000,
+    "feasibility_rate": 0.99
+  }
+}

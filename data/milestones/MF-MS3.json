@@ -1,0 +1,77 @@
+{
+  "id": "MF-MS3",
+  "version": "6.2.0",
+  "title": "Setup Transitions + Predictive Failure + Force Capability",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "Build SetupTransitionEngine (flip/re-fixture verification, datum chain tolerance stack, pallet layout collision), PredictiveFailureEngine (Monte Carlo success probability, sensitivity analysis, risk maps), and ForceCapabilityEngine (machine power/torque limits, cumulative thermal growth, tool wear force impact).",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Setup Transitions",
+      "units": [
+        {
+          "id": "U01",
+          "title": "SetupTransitionEngine: flip feasibility, datum chain, pallet collision, fixture changeover",
+          "status": "pending",
+          "steps": [
+            "Verify parallel datum surfaces exist for each flip orientation",
+            "Tolerance stack through datum chain: RSS + Monte Carlo (reuse MultiSetupPlanner logic)",
+            "Pallet/tombstone layout: check for part-to-part and part-to-fixture collision",
+            "Fixture changeover compatibility: vise→chuck→plate→collet transitions",
+            "Clamping strategy suggestion per setup based on available surfaces",
+            "Wire WorkholdingViabilityEngine for per-setup clamping verification"
+          ],
+          "exit_conditions": [
+            "Flip feasibility correctly verified",
+            "Tolerance stack matches analytical RSS",
+            "Pallet collision detected for overlapping layouts",
+            "10+ tests"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Predictive Failure + Force Capability",
+      "units": [
+        {
+          "id": "U02",
+          "title": "PredictiveFailureEngine: Monte Carlo risk assessment, sensitivity analysis, risk maps",
+          "status": "pending",
+          "steps": [
+            "Material property variation (±8%) → force distribution → deflection → tolerance compliance",
+            "Tool wear uncertainty → remaining life probability (Weibull distribution)",
+            "Thermal drift → dimensional accuracy probability",
+            "Combined P(success) = product of per-operation probabilities",
+            "Sensitivity: which parameter variation kills feasibility first?",
+            "Risk map: color-code operations by failure probability"
+          ],
+          "exit_conditions": [
+            "P(success) produces realistic probabilities",
+            "Sensitivity identifies dominant risk factors",
+            "Risk map correctly ranks operations by danger",
+            "15+ tests"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "ForceCapabilityEngine: machine limits, thermal growth, tool wear force impact",
+          "status": "pending",
+          "steps": [
+            "Machine force/power/torque check: Fc vs F_max, P vs P_max, T vs T_max from machine catalog",
+            "Cumulative thermal growth: α × ΔT × L accumulates through program",
+            "Tool wear → force increase: worn tool requires more force (Taylor + Takeyama-Murata)",
+            "Flag operations where force exceeds 80% of machine capacity (warning) or 100% (critical)"
+          ],
+          "exit_conditions": [
+            "Machine capacity exceeded correctly flagged",
+            "Thermal growth accumulation tracked",
+            "Worn tool force increase modeled",
+            "10+ tests"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

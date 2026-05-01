@@ -1,0 +1,93 @@
+
+============================================================
+Task: test-1
+Agent: coder-test-1 (coder)
+Status: success
+============================================================
+
+```python
+def cutting_speed(diameter_mm: float, rpm: float) -> float:
+    """
+    Calculate cutting speed in meters per minute.
+    
+    Args:
+        diameter_mm: Diameter in millimeters
+        rpm: Revolutions per minute
+        
+    Returns:
+        Cutting speed in meters per minute
+        
+    Raises:
+        ValueError: If diameter_mm or rpm is negative
+    """
+    if diameter_mm < 0:
+        raise ValueError("Diameter cannot be negative")
+    if rpm < 0:
+        raise ValueError("RPM cannot be negative")
+    
+    # Formula: Cutting Speed (m/min) = π × diameter (mm) × RPM / 1000
+    return 3.14159 * diameter_mm * rpm / 1000
+```
+
+
+============================================================
+Task: test-2
+Agent: coder-test-2 (coder)
+Status: success
+============================================================
+
+```python
+def feed_rate(fpt: float, teeth: int, rpm: float) -> float:
+    """
+    Calculate the feed rate in mm/min based on feed per tooth, number of teeth, and spindle speed.
+    
+    Args:
+        fpt: Feed per tooth in mm/tooth
+        teeth: Number of cutting teeth on the tool
+        rpm: Spindle speed in revolutions per minute
+    
+    Returns:
+        Feed rate in mm/min
+    
+    Raises:
+        ValueError: If any parameter is negative or if teeth is zero
+    """
+    if fpt < 0:
+        raise ValueError("Feed per tooth must be non-negative")
+    if teeth <= 0:
+        raise ValueError("Number of teeth must be positive")
+    if rpm < 0:
+        raise ValueError("RPM must be non-negative")
+    
+    return fpt * teeth * rpm
+```
+
+
+============================================================
+Task: test-3
+Agent: coder-test-3 (coder)
+Status: success
+============================================================
+
+```python
+def mrr(width_mm: float, depth_mm: float, feed_mm_min: float) -> float:
+    """
+    Calculate material removal rate (MRR) for machining operations.
+    
+    Args:
+        width_mm: Width of cut in millimeters
+        depth_mm: Depth of cut in millimeters  
+        feed_mm_min: Feed rate in millimeters per minute
+        
+    Returns:
+        Material removal rate in cubic millimeters per minute (mm³/min)
+        
+    Raises:
+        ValueError: If any input parameter is negative
+    """
+    if width_mm < 0 or depth_mm < 0 or feed_mm_min < 0:
+        raise ValueError("All parameters must be non-negative")
+    
+    return width_mm * depth_mm * feed_mm_min
+```
+

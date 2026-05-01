@@ -1,0 +1,39 @@
+{
+  "agent_id": "AGT-SONNET-030-quality_gate",
+  "name": "quality_gate",
+  "category": "task_agent",
+  "description": "PRISM SONNET agent: Quality Gate",
+  "version": "1.0.0",
+  "tier": "SONNET",
+  "capabilities": [
+    {
+      "name": "quality_gate",
+      "description": "Primary: quality_gate",
+      "input_types": [
+        "data"
+      ],
+      "output_types": [
+        "result"
+      ],
+      "confidence": 0.85
+    }
+  ],
+  "domains": [
+    "manufacturing"
+  ],
+  "config": {
+    "model": "claude-sonnet-4-5-20250929",
+    "temperature": 0.3,
+    "max_tokens": 4096
+  },
+  "dependencies": [],
+  "consumers": [],
+  "status": "active",
+  "enabled": true,
+  "created": "2026-02-02T10:27:26.772020",
+  "updated": "2026-02-02T10:27:26.772020",
+  "tags": [
+    "sonnet",
+    "quality_gate"
+  ]
+}

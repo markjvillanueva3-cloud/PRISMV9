@@ -1,0 +1,605 @@
+{
+  "agent_id": "AGT-OPUS-004",
+  "name": "materials_scientist",
+  "tier": "OPUS",
+  "version": "2.0.0",
+  "created": "2026-01-28",
+  "role": "Materials Science Expert - Complete Material Property Knowledge",
+  
+  "domain_expertise": [
+    "Metallurgy and alloy systems",
+    "Material mechanical properties",
+    "Machining behavior prediction",
+    "Heat treatment effects",
+    "Cutting force coefficient determination",
+    "Tool life prediction models",
+    "Thermal properties and deformation",
+    "Material selection for manufacturing"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-MSC-001",
+      "name": "Kienzle Coefficient Determination",
+      "description": "Determines kc1.1 (specific cutting force) and mc (Kienzle exponent) for materials based on composition, hardness, and microstructure using literature data and empirical correlations",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material_category", "hardness"],
+        "optional": ["composition", "heat_treatment", "microstructure"]
+      },
+      "outputs": {
+        "primary": "kienzle_coefficients",
+        "secondary": ["kc1_1", "mc", "confidence_interval", "source_reference"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-KIENZLE-CALC", "COEFFICIENT-DETERMINE"],
+      "synergizes_with": ["force_calculator", "physics_validator", "data_quality_enforcer"],
+      "validation_rules": [
+        "kc1_1: 100-10000 N/mm² depending on material",
+        "mc: 0.14-0.40 typical range",
+        "Harder materials = higher kc1_1",
+        "Must cite data source"
+      ],
+      "success_criteria": "Coefficients accurate within ±15%"
+    },
+    {
+      "id": "CAP-MSC-002",
+      "name": "Taylor Tool Life Coefficient Determination",
+      "description": "Determines Taylor equation coefficients (C and n) for specific material-tool combinations based on cutting data and material properties",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material", "tool_material", "tool_coating"],
+        "optional": ["cutting_conditions", "experimental_data"]
+      },
+      "outputs": {
+        "primary": "taylor_coefficients",
+        "secondary": ["taylor_C", "taylor_n", "valid_speed_range", "confidence"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-TAYLOR-CALC", "TOOL-LIFE-PREDICT"],
+      "synergizes_with": ["physics_validator", "machinist", "force_calculator"],
+      "validation_rules": [
+        "n typically 0.1-0.5",
+        "C depends on material/tool combination",
+        "Valid within specified speed range",
+        "Must account for coatings"
+      ],
+      "success_criteria": "Tool life prediction within ±25%"
+    },
+    {
+      "id": "CAP-MSC-003",
+      "name": "Johnson-Cook Parameter Determination",
+      "description": "Determines Johnson-Cook constitutive model parameters (A, B, n, C, m) for material deformation behavior at high strain rates and temperatures",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material", "category"],
+        "optional": ["experimental_data", "similar_materials"]
+      },
+      "outputs": {
+        "primary": "johnson_cook_parameters",
+        "secondary": ["A", "B", "n", "C", "m", "T_melt", "T_ref", "confidence"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-JC-CALC", "CONSTITUTIVE-MODEL"],
+      "synergizes_with": ["physics_validator", "force_calculator"],
+      "validation_rules": [
+        "A = initial yield stress",
+        "B = hardening modulus (positive)",
+        "n = strain hardening exponent (0.1-0.5)",
+        "C = strain rate sensitivity (0.01-0.1)",
+        "m = thermal softening (0.5-1.5)"
+      ],
+      "success_criteria": "J-C model fits experimental data within 10%"
+    },
+    {
+      "id": "CAP-MSC-004",
+      "name": "Machinability Rating Calculation",
+      "description": "Calculates machinability rating relative to AISI 1212 (=100%) based on material properties, composition, and cutting behavior",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material_properties"],
+        "optional": ["cutting_data", "tool_wear_data"]
+      },
+      "outputs": {
+        "primary": "machinability_rating",
+        "secondary": ["rating_factors", "comparison_to_baseline", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-MACHINABILITY-CALC"],
+      "synergizes_with": ["machinist", "force_calculator"],
+      "validation_rules": [
+        "Rating relative to 1212 steel = 100%",
+        "Consider tool life, surface finish, cutting forces",
+        "Account for chip formation behavior",
+        "Typical range 20%-200%"
+      ],
+      "success_criteria": "Rating consistent with machining experience"
+    },
+    {
+      "id": "CAP-MSC-005",
+      "name": "Heat Treatment Effect Analysis",
+      "description": "Analyzes how heat treatment affects material properties relevant to machining including hardness, strength, and cutting coefficients",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["base_material", "heat_treatment"],
+        "optional": ["target_hardness", "microstructure"]
+      },
+      "outputs": {
+        "primary": "heat_treatment_analysis",
+        "secondary": ["property_changes", "machinability_impact", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-HEAT-TREAT-ANALYZE"],
+      "synergizes_with": ["machinist", "physics_validator"],
+      "validation_rules": [
+        "Hardness change consistent with treatment",
+        "Strength-hardness correlation maintained",
+        "Microstructure affects machinability",
+        "Residual stress considered"
+      ],
+      "success_criteria": "Accurate prediction of property changes"
+    },
+    {
+      "id": "CAP-MSC-006",
+      "name": "Thermal Property Determination",
+      "description": "Determines thermal properties (conductivity, specific heat, diffusivity, melting point) for materials based on composition and structure",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material", "category"],
+        "optional": ["composition", "temperature_range"]
+      },
+      "outputs": {
+        "primary": "thermal_properties",
+        "secondary": ["thermal_conductivity", "specific_heat", "diffusivity", "melting_point"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-THERMAL-CALC"],
+      "synergizes_with": ["thermal_calculator", "physics_validator"],
+      "validation_rules": [
+        "thermal_conductivity: 0.1-500 W/m·K",
+        "specific_heat: 100-2000 J/kg·K",
+        "Properties consistent with material class",
+        "Temperature dependence considered"
+      ],
+      "success_criteria": "Thermal properties accurate within ±10%"
+    },
+    {
+      "id": "CAP-MSC-007",
+      "name": "Material Property Lookup",
+      "description": "Retrieves comprehensive material properties from databases including ASM Handbooks, Machining Data Handbook, and peer-reviewed literature",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["material_identifier"],
+        "optional": ["property_list", "condition"]
+      },
+      "outputs": {
+        "primary": "material_properties",
+        "secondary": ["sources", "confidence", "data_quality"]
+      },
+      "skills_used": ["prism-material-lookup", "prism-material-schema", "prism-knowledge-master"],
+      "hooks_triggered": ["MATERIAL-LOOKUP"],
+      "synergizes_with": ["data_quality_enforcer", "material_validator"],
+      "validation_rules": [
+        "Use authoritative sources",
+        "Note data uncertainty",
+        "Cross-reference multiple sources",
+        "Validate against physical limits"
+      ],
+      "success_criteria": "Properties retrieved with source citations"
+    },
+    {
+      "id": "CAP-MSC-008",
+      "name": "Alloy Composition Analysis",
+      "description": "Analyzes alloy composition effects on machining behavior including effects of alloying elements on cutting forces, chip formation, and tool wear",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["composition"],
+        "optional": ["base_material", "target_properties"]
+      },
+      "outputs": {
+        "primary": "composition_analysis",
+        "secondary": ["element_effects", "machinability_impact", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-COMPOSITION-ANALYZE"],
+      "synergizes_with": ["machinist", "physics_validator"],
+      "validation_rules": [
+        "Carbon: increases hardness, reduces machinability",
+        "Sulfur/lead: improves machinability",
+        "Chromium: increases wear resistance",
+        "Effects quantified where possible"
+      ],
+      "success_criteria": "Accurate composition-property correlation"
+    },
+    {
+      "id": "CAP-MSC-009",
+      "name": "Material Selection Recommendation",
+      "description": "Recommends optimal material selection based on mechanical requirements, machinability needs, cost, and availability",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["mechanical_requirements"],
+        "optional": ["machinability_priority", "cost_constraints", "availability"]
+      },
+      "outputs": {
+        "primary": "material_recommendations",
+        "secondary": ["ranked_options", "trade_off_analysis", "alternatives"]
+      },
+      "skills_used": ["prism-material-lookup", "prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-SELECT-RECOMMEND"],
+      "synergizes_with": ["machinist", "data_quality_enforcer"],
+      "validation_rules": [
+        "Meet mechanical requirements",
+        "Consider machinability",
+        "Balance cost and performance",
+        "Account for availability"
+      ],
+      "success_criteria": "Optimal material selected for application"
+    },
+    {
+      "id": "CAP-MSC-010",
+      "name": "Material Equivalent Finder",
+      "description": "Finds equivalent materials across different standards (AISI, DIN, JIS, ISO, etc.) and identifies suitable substitutes",
+      "category": "LOOKUP",
+      "inputs": {
+        "required": ["source_material", "source_standard"],
+        "optional": ["target_standard", "property_priority"]
+      },
+      "outputs": {
+        "primary": "equivalent_materials",
+        "secondary": ["standard_mappings", "property_comparison", "substitution_notes"]
+      },
+      "skills_used": ["prism-material-lookup", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-EQUIVALENT-FIND"],
+      "synergizes_with": ["material_validator", "data_quality_enforcer"],
+      "validation_rules": [
+        "Chemical composition similarity",
+        "Mechanical property match",
+        "Standard cross-references verified",
+        "Substitution limitations noted"
+      ],
+      "success_criteria": "Accurate equivalents with property comparison"
+    },
+    {
+      "id": "CAP-MSC-011",
+      "name": "Chip Formation Behavior Prediction",
+      "description": "Predicts chip formation behavior (type, curl, breaking) based on material properties and cutting conditions",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material_properties", "cutting_conditions"],
+        "optional": ["tool_geometry", "chip_breaker"]
+      },
+      "outputs": {
+        "primary": "chip_formation_prediction",
+        "secondary": ["chip_type", "curl_tendency", "breaking_behavior", "control_recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-CHIP-PREDICT"],
+      "synergizes_with": ["machinist", "physics_validator"],
+      "validation_rules": [
+        "Ductile materials = continuous chips",
+        "Brittle materials = discontinuous",
+        "Free-machining = good chip control",
+        "Stainless = work hardening, stringy chips"
+      ],
+      "success_criteria": "Chip behavior accurately predicted"
+    },
+    {
+      "id": "CAP-MSC-012",
+      "name": "Built-Up Edge Tendency Analysis",
+      "description": "Analyzes material tendency to form built-up edge (BUE) during cutting and recommends mitigation strategies",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material", "cutting_speed"],
+        "optional": ["tool_coating", "coolant"]
+      },
+      "outputs": {
+        "primary": "bue_analysis",
+        "secondary": ["bue_tendency", "speed_range", "mitigation_strategies"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-BUE-ANALYZE"],
+      "synergizes_with": ["machinist", "physics_validator"],
+      "validation_rules": [
+        "Soft, ductile materials prone to BUE",
+        "BUE worst at certain speed range",
+        "Coatings reduce adhesion",
+        "Higher speeds reduce BUE"
+      ],
+      "success_criteria": "BUE tendency correctly predicted"
+    },
+    {
+      "id": "CAP-MSC-013",
+      "name": "Work Hardening Analysis",
+      "description": "Analyzes material work hardening behavior and its impact on machining including depth of hardened layer and tool wear",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material"],
+        "optional": ["cutting_conditions", "previous_passes"]
+      },
+      "outputs": {
+        "primary": "work_hardening_analysis",
+        "secondary": ["hardening_rate", "depth_affected", "machining_impact"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-WORK-HARDEN-ANALYZE"],
+      "synergizes_with": ["machinist", "physics_validator"],
+      "validation_rules": [
+        "Austenitic stainless: high work hardening",
+        "Nickel alloys: severe work hardening",
+        "Depth proportional to deformation",
+        "Sharp tools minimize hardening"
+      ],
+      "success_criteria": "Work hardening correctly characterized"
+    },
+    {
+      "id": "CAP-MSC-014",
+      "name": "Material Database Enhancement",
+      "description": "Enhances material database entries with missing parameters using literature, correlations, and scientific estimation",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["incomplete_material"],
+        "optional": ["priority_fields", "confidence_threshold"]
+      },
+      "outputs": {
+        "primary": "enhanced_material",
+        "secondary": ["added_fields", "estimation_methods", "confidence_levels"]
+      },
+      "skills_used": ["prism-material-enhancer", "prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["MATERIAL-ENHANCE", "DATABASE-UPDATE"],
+      "synergizes_with": ["data_quality_enforcer", "material_validator"],
+      "validation_rules": [
+        "Use 7-tier source hierarchy",
+        "Cite estimation method",
+        "Assign confidence level",
+        "Validate against physics"
+      ],
+      "success_criteria": "Material completeness improved"
+    },
+    {
+      "id": "CAP-MSC-015",
+      "name": "Hardness-Strength Correlation",
+      "description": "Correlates hardness measurements to strength properties and vice versa for different material classes",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["known_property", "material_class"],
+        "optional": ["condition", "accuracy_required"]
+      },
+      "outputs": {
+        "primary": "correlated_properties",
+        "secondary": ["correlation_formula", "accuracy_estimate", "limitations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-HARDNESS-STRENGTH-CALC"],
+      "synergizes_with": ["physics_validator", "material_validator"],
+      "validation_rules": [
+        "HB ≈ tensile/3.45 for steels",
+        "Different correlations by material class",
+        "Account for heat treatment",
+        "State correlation accuracy"
+      ],
+      "success_criteria": "Correlation accurate within stated limits"
+    },
+    {
+      "id": "CAP-MSC-016",
+      "name": "Specific Cutting Force Estimation",
+      "description": "Estimates specific cutting force from basic material properties when direct kc1.1 data is unavailable",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["tensile_strength OR hardness"],
+        "optional": ["material_class", "ductility"]
+      },
+      "outputs": {
+        "primary": "estimated_kc1_1",
+        "secondary": ["estimation_method", "confidence_interval", "validation_suggestion"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-KC-ESTIMATE"],
+      "synergizes_with": ["force_calculator", "physics_validator"],
+      "validation_rules": [
+        "kc1.1 ≈ 0.83 × tensile_strength for steels",
+        "Different correlations by material",
+        "Account for ductility effects",
+        "State estimation uncertainty"
+      ],
+      "success_criteria": "Estimate within ±20% of actual"
+    },
+    {
+      "id": "CAP-MSC-017",
+      "name": "Material Category Classification",
+      "description": "Classifies materials into ISO 513 categories (P, M, K, N, S, H) and subcategories for cutting tool selection",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material_properties OR composition"],
+        "optional": ["trade_name", "standard_designation"]
+      },
+      "outputs": {
+        "primary": "iso_classification",
+        "secondary": ["category", "subcategory", "tool_recommendations", "cutting_conditions"]
+      },
+      "skills_used": ["prism-material-schema", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-CLASSIFY"],
+      "synergizes_with": ["machinist", "material_validator"],
+      "validation_rules": [
+        "P: Steels (long-chipping)",
+        "M: Stainless (work hardening)",
+        "K: Cast iron (abrasive)",
+        "N: Non-ferrous (soft)",
+        "S: Superalloys (heat resistant)",
+        "H: Hardened (>45 HRC)"
+      ],
+      "success_criteria": "Correct ISO classification assigned"
+    },
+    {
+      "id": "CAP-MSC-018",
+      "name": "Abrasiveness Assessment",
+      "description": "Assesses material abrasiveness and its impact on tool wear rates for different tool materials and coatings",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material"],
+        "optional": ["tool_material", "cutting_conditions"]
+      },
+      "outputs": {
+        "primary": "abrasiveness_assessment",
+        "secondary": ["wear_rate_factor", "tool_recommendations", "coating_suggestions"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-ABRASIVE-ASSESS"],
+      "synergizes_with": ["machinist", "physics_validator"],
+      "validation_rules": [
+        "Hard phases increase abrasion",
+        "Cast iron: graphite + carbides",
+        "Composites: fiber abrasion",
+        "Quantify relative to baseline"
+      ],
+      "success_criteria": "Abrasiveness correctly characterized"
+    },
+    {
+      "id": "CAP-MSC-019",
+      "name": "Chemical Compatibility Analysis",
+      "description": "Analyzes chemical compatibility between workpiece material, tool material, coating, and coolant",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["workpiece_material", "tool_material"],
+        "optional": ["coating", "coolant"]
+      },
+      "outputs": {
+        "primary": "compatibility_analysis",
+        "secondary": ["diffusion_risk", "chemical_reactions", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": ["MATERIAL-COMPAT-ANALYZE"],
+      "synergizes_with": ["physics_validator", "machinist"],
+      "validation_rules": [
+        "Ti attacks uncoated carbide",
+        "Ni diffuses into carbide",
+        "Al adhesion to steel tools",
+        "Coolant chemistry effects"
+      ],
+      "success_criteria": "Compatibility issues identified"
+    },
+    {
+      "id": "CAP-MSC-020",
+      "name": "Material Data Validation",
+      "description": "Validates material data entries for internal consistency, physical validity, and completeness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["material_entry"],
+        "optional": ["validation_level", "strict_mode"]
+      },
+      "outputs": {
+        "primary": "validation_report",
+        "secondary": ["issues_found", "corrections_suggested", "quality_score"]
+      },
+      "skills_used": ["prism-material-validator", "prism-material-schema", "prism-quality-master"],
+      "hooks_triggered": ["MATERIAL-VALIDATE"],
+      "synergizes_with": ["data_quality_enforcer", "physics_validator"],
+      "validation_rules": [
+        "All required fields present",
+        "Values within physical ranges",
+        "Internal consistency (yield < tensile)",
+        "No placeholders"
+      ],
+      "success_criteria": "Material data validated and quality-scored"
+    },
+    {
+      "id": "CAP-MSC-021",
+      "name": "Cutting Speed Recommendation",
+      "description": "Recommends optimal cutting speed range for material-tool combinations based on material properties and tool life targets",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["material", "tool"],
+        "optional": ["target_tool_life", "surface_finish_requirement"]
+      },
+      "outputs": {
+        "primary": "cutting_speed_recommendation",
+        "secondary": ["speed_range", "reasoning", "trade_offs"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MATERIAL-SPEED-RECOMMEND"],
+      "synergizes_with": ["machinist", "force_calculator"],
+      "validation_rules": [
+        "Based on Taylor tool life",
+        "Account for BUE avoidance",
+        "Consider surface finish",
+        "Respect machine limits"
+      ],
+      "success_criteria": "Recommended speed achieves target tool life"
+    },
+    {
+      "id": "CAP-MSC-022",
+      "name": "Material Report Generation",
+      "description": "Generates comprehensive material reports including all properties, cutting recommendations, and application notes",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["material"],
+        "optional": ["report_format", "audience", "detail_level"]
+      },
+      "outputs": {
+        "primary": "material_report",
+        "secondary": ["property_summary", "cutting_data", "application_notes"]
+      },
+      "skills_used": ["prism-material-schema", "prism-material-physics", "prism-sp-verification"],
+      "hooks_triggered": ["MATERIAL-REPORT-GEN"],
+      "synergizes_with": ["documentation_writer", "machinist"],
+      "validation_rules": [
+        "Complete coverage of properties",
+        "Practical recommendations",
+        "Source citations",
+        "Clear formatting"
+      ],
+      "success_criteria": "Report comprehensive and useful"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-material-physics",
+    "prism-material-schema",
+    "prism-material-lookup",
+    "prism-material-validator",
+    "prism-material-enhancer",
+    "prism-manufacturing-tables",
+    "prism-knowledge-master",
+    "prism-quality-master"
+  ],
+
+  "hooks_subscribed": [
+    "MATERIAL-KIENZLE-CALC",
+    "MATERIAL-TAYLOR-CALC",
+    "MATERIAL-JC-CALC",
+    "MATERIAL-MACHINABILITY-CALC",
+    "MATERIAL-THERMAL-CALC",
+    "MATERIAL-LOOKUP",
+    "MATERIAL-ENHANCE",
+    "MATERIAL-VALIDATE",
+    "MATERIAL-CLASSIFY",
+    "MATERIAL-SPEED-RECOMMEND"
+  ],
+
+  "can_delegate_to": [
+    "material_validator",
+    "material_lookup",
+    "physics_validator"
+  ],
+
+  "receives_from": [
+    "data_quality_enforcer",
+    "force_calculator",
+    "machinist",
+    "extractor"
+  ],
+
+  "quality_gates": [
+    "All property values have sources",
+    "Estimation confidence stated",
+    "Physics validation passed",
+    "Internal consistency verified"
+  ],
+
+  "performance_metrics": {
+    "accuracy_target": 0.95,
+    "estimation_accuracy": 0.85,
+    "latency_target_ms": 4000,
+    "lookup_speed_ms": 500,
+    "cost_budget_per_call": 0.15
+  }
+}

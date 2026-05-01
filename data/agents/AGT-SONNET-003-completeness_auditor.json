@@ -1,0 +1,390 @@
+{
+  "agent_id": "AGT-SONNET-003",
+  "name": "completeness_auditor",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-28",
+  "role": "Completeness Auditor - Enforces Law 3: C(T) = 1.0 (100% Completeness)",
+  
+  "domain_expertise": [
+    "Completeness verification",
+    "Coverage analysis",
+    "Gap identification",
+    "Parameter completeness",
+    "Feature completeness",
+    "Documentation completeness",
+    "Test coverage",
+    "Consumer wiring completeness",
+    "Schema completeness",
+    "Database completeness"
+  ],
+
+  "capabilities": [
+    {
+      "id": "CAP-COMP-001",
+      "name": "Material Parameter Completeness",
+      "description": "Audits material data for 127-parameter completeness per prism-material-schema",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["material_data"],
+        "optional": ["required_parameters", "tolerance"]
+      },
+      "outputs": {
+        "primary": "completeness_score",
+        "secondary": ["missing_parameters", "empty_parameters", "parameter_coverage"]
+      },
+      "skills_used": ["prism-material-schema", "prism-sp-verification"],
+      "hooks_triggered": ["SYS-LAW3-COMPLETENESS", "MATERIAL-COMPLETE"],
+      "synergizes_with": ["materials_scientist", "data_quality_enforcer"],
+      "parameter_groups": {
+        "identification": 8,
+        "composition": "varies",
+        "physicalProperties": 12,
+        "mechanicalProperties": 15,
+        "kienzle": 9,
+        "johnsonCook": 13,
+        "taylorToolLife": 12,
+        "chipFormation": 12,
+        "friction": 10,
+        "thermalMachining": 14,
+        "surfaceIntegrity": 12,
+        "machinability": 8,
+        "recommendedParameters": 20,
+        "statisticalData": 8
+      },
+      "success_criteria": "C(T) = 1.0 for material parameters"
+    },
+    {
+      "id": "CAP-COMP-002",
+      "name": "Database Consumer Completeness",
+      "description": "Audits database consumer wiring for Commandment 1 (6-8 consumers minimum)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["database", "consumer_map"],
+        "optional": ["minimum_consumers"]
+      },
+      "outputs": {
+        "primary": "consumer_completeness",
+        "secondary": ["consumer_count", "underwired", "wiring_suggestions"]
+      },
+      "skills_used": ["prism-wiring-templates", "prism-dev-utilities"],
+      "hooks_triggered": ["SYS-CMD1-WIRING", "CONSUMER-COMPLETE"],
+      "synergizes_with": ["resource_auditor", "architect"],
+      "minimum_consumers": {
+        "PRISM_MATERIALS_MASTER": 15,
+        "PRISM_MACHINES_DATABASE": 12,
+        "PRISM_TOOLS_DATABASE": 10,
+        "PRISM_WORKHOLDING_DATABASE": 8,
+        "PRISM_CONTROLLER_DATABASE": 8,
+        "PRISM_ALARM_DATABASE": 6
+      },
+      "success_criteria": "All databases have minimum consumers"
+    },
+    {
+      "id": "CAP-COMP-003",
+      "name": "Section Completeness Audit",
+      "description": "Audits data structures for required section completeness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data", "section_requirements"],
+        "optional": ["optional_sections"]
+      },
+      "outputs": {
+        "primary": "section_completeness",
+        "secondary": ["missing_sections", "empty_sections", "section_quality"]
+      },
+      "skills_used": ["prism-validator", "prism-sp-verification"],
+      "hooks_triggered": ["SECTION-COMPLETE"],
+      "synergizes_with": ["validator", "schema_designer"],
+      "success_criteria": "All required sections present"
+    },
+    {
+      "id": "CAP-COMP-004",
+      "name": "Feature Completeness Audit",
+      "description": "Audits product/module for feature completeness against specification",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["implementation", "specification"],
+        "optional": ["feature_priorities"]
+      },
+      "outputs": {
+        "primary": "feature_completeness",
+        "secondary": ["missing_features", "partial_features", "feature_coverage"]
+      },
+      "skills_used": ["prism-sp-verification", "prism-sp-review-spec"],
+      "hooks_triggered": ["FEATURE-COMPLETE"],
+      "synergizes_with": ["test_orchestrator", "architect"],
+      "success_criteria": "All specified features implemented"
+    },
+    {
+      "id": "CAP-COMP-005",
+      "name": "Test Coverage Audit",
+      "description": "Audits test coverage completeness for code and features",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["test_suite", "coverage_requirements"],
+        "optional": ["coverage_threshold"]
+      },
+      "outputs": {
+        "primary": "test_completeness",
+        "secondary": ["uncovered_code", "uncovered_features", "coverage_percentage"]
+      },
+      "skills_used": ["prism-tdd-enhanced", "prism-sp-verification"],
+      "hooks_triggered": ["TEST-COMPLETE"],
+      "synergizes_with": ["test_orchestrator"],
+      "success_criteria": "Test coverage ≥ 90%"
+    },
+    {
+      "id": "CAP-COMP-006",
+      "name": "Documentation Completeness Audit",
+      "description": "Audits documentation completeness for APIs, modules, and features",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["documentation", "documentation_requirements"],
+        "optional": ["doc_standards"]
+      },
+      "outputs": {
+        "primary": "doc_completeness",
+        "secondary": ["undocumented_items", "incomplete_docs", "doc_quality"]
+      },
+      "skills_used": ["prism-api-contracts", "prism-sp-verification"],
+      "hooks_triggered": ["DOC-COMPLETE"],
+      "synergizes_with": ["documentation_writer", "api_designer"],
+      "success_criteria": "All public APIs documented"
+    },
+    {
+      "id": "CAP-COMP-007",
+      "name": "Schema Field Completeness",
+      "description": "Audits data against schema for field completeness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["data", "schema"],
+        "optional": ["required_fields_only"]
+      },
+      "outputs": {
+        "primary": "field_completeness",
+        "secondary": ["missing_fields", "null_fields", "empty_fields"]
+      },
+      "skills_used": ["prism-validator", "prism-material-schema"],
+      "hooks_triggered": ["FIELD-COMPLETE"],
+      "synergizes_with": ["validator", "schema_designer"],
+      "success_criteria": "All required fields populated"
+    },
+    {
+      "id": "CAP-COMP-008",
+      "name": "Alarm Database Completeness",
+      "description": "Audits controller alarm database for coverage completeness (target: 9,200 alarms)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["alarm_database"],
+        "optional": ["coverage_targets"]
+      },
+      "outputs": {
+        "primary": "alarm_completeness",
+        "secondary": ["per_family_coverage", "gaps", "progress_percentage"]
+      },
+      "skills_used": ["prism-validator", "prism-error-catalog"],
+      "hooks_triggered": ["ALARM-COMPLETE"],
+      "synergizes_with": ["alarm_validator"],
+      "family_targets": {
+        "FANUC": 1500,
+        "SIEMENS": 1200,
+        "HAAS": 1000,
+        "MAZAK": 1000,
+        "OKUMA": 800,
+        "HEIDENHAIN": 800,
+        "MITSUBISHI": 800,
+        "BROTHER": 400,
+        "HURCO": 400,
+        "FAGOR": 400,
+        "DMG_MORI": 300,
+        "DOOSAN": 300
+      },
+      "success_criteria": "≥8,000 total alarms with 12 families"
+    },
+    {
+      "id": "CAP-COMP-009",
+      "name": "Machine Database Completeness",
+      "description": "Audits machine database for specification completeness (target: 1,030 machines)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["machine_database"],
+        "optional": ["level_requirements"]
+      },
+      "outputs": {
+        "primary": "machine_completeness",
+        "secondary": ["per_manufacturer_coverage", "level_distribution", "gaps"]
+      },
+      "skills_used": ["prism-validator", "prism-manufacturing-tables"],
+      "hooks_triggered": ["MACHINE-COMPLETE"],
+      "synergizes_with": ["machine_validator"],
+      "success_criteria": "1,030+ machines at ENHANCED level"
+    },
+    {
+      "id": "CAP-COMP-010",
+      "name": "Agent Capability Completeness",
+      "description": "Audits agent definitions for capability completeness",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["agent_definition"],
+        "optional": ["minimum_capabilities"]
+      },
+      "outputs": {
+        "primary": "capability_completeness",
+        "secondary": ["capability_count", "missing_categories", "suggestions"]
+      },
+      "skills_used": ["prism-all-skills", "prism-sp-verification"],
+      "hooks_triggered": ["AGENT-COMPLETE"],
+      "synergizes_with": ["architect", "coordinator_v2"],
+      "required_elements": [
+        "capabilities (≥10)",
+        "skills_mastered (≥5)",
+        "hooks_subscribed (≥3)",
+        "can_delegate_to",
+        "receives_from",
+        "quality_gates",
+        "performance_metrics"
+      ],
+      "success_criteria": "Agent definition complete"
+    },
+    {
+      "id": "CAP-COMP-011",
+      "name": "Skill Coverage Completeness",
+      "description": "Audits skill coverage for task domains",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["task_domain", "available_skills"],
+        "optional": ["coverage_requirements"]
+      },
+      "outputs": {
+        "primary": "skill_coverage",
+        "secondary": ["covered_capabilities", "gaps", "recommendations"]
+      },
+      "skills_used": ["prism-skill-orchestrator", "prism-all-skills"],
+      "hooks_triggered": ["SKILL-COVERAGE"],
+      "synergizes_with": ["resource_optimizer", "coordinator_v2"],
+      "success_criteria": "Skills cover task requirements"
+    },
+    {
+      "id": "CAP-COMP-012",
+      "name": "Formula Coverage Completeness",
+      "description": "Audits formula coverage for calculation domains",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["calculation_domain", "formula_registry"],
+        "optional": ["minimum_formulas"]
+      },
+      "outputs": {
+        "primary": "formula_coverage",
+        "secondary": ["covered_calculations", "gaps", "recommendations"]
+      },
+      "skills_used": ["prism-formula-evolution", "prism-mathematical-planning"],
+      "hooks_triggered": ["FORMULA-COVERAGE"],
+      "synergizes_with": ["proof_generator", "force_calculator"],
+      "success_criteria": "Formulas cover calculation needs"
+    },
+    {
+      "id": "CAP-COMP-013",
+      "name": "Hook Coverage Completeness",
+      "description": "Audits hook coverage for event handling",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["event_types", "hook_registry"],
+        "optional": ["minimum_handlers"]
+      },
+      "outputs": {
+        "primary": "hook_coverage",
+        "secondary": ["covered_events", "unhandled_events", "recommendations"]
+      },
+      "skills_used": ["prism-hook-system"],
+      "hooks_triggered": ["HOOK-COVERAGE"],
+      "synergizes_with": ["architect"],
+      "success_criteria": "All critical events have handlers"
+    },
+    {
+      "id": "CAP-COMP-014",
+      "name": "Completeness Score Calculation",
+      "description": "Calculates overall completeness score C(T) for any artifact",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["artifact", "completeness_requirements"],
+        "optional": ["weights"]
+      },
+      "outputs": {
+        "primary": "completeness_score",
+        "secondary": ["score_breakdown", "gaps_by_category", "improvement_priorities"]
+      },
+      "skills_used": ["prism-sp-verification", "prism-quality-master"],
+      "hooks_triggered": ["SYS-LAW3-COMPLETENESS", "SCORE-COMPLETE"],
+      "synergizes_with": ["proof_generator", "data_quality_enforcer"],
+      "formula": "C(T) = |completed_items| / |required_items|",
+      "success_criteria": "C(T) = 1.0"
+    },
+    {
+      "id": "CAP-COMP-015",
+      "name": "Completeness Report Generation",
+      "description": "Generates comprehensive completeness audit report",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["audit_results"],
+        "optional": ["report_format", "audience"]
+      },
+      "outputs": {
+        "primary": "completeness_report",
+        "secondary": ["executive_summary", "detailed_gaps", "remediation_plan"]
+      },
+      "skills_used": ["prism-sp-verification", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-COMPLETE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Actionable completeness report"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-sp-verification",
+    "prism-material-schema",
+    "prism-validator",
+    "prism-wiring-templates",
+    "prism-dev-utilities",
+    "prism-quality-master",
+    "prism-tdd-enhanced",
+    "prism-api-contracts",
+    "prism-error-catalog",
+    "prism-hook-system",
+    "prism-formula-evolution",
+    "prism-all-skills",
+    "prism-skill-orchestrator"
+  ],
+
+  "hooks_subscribed": [
+    "SYS-LAW3-COMPLETENESS",
+    "SYS-CMD1-WIRING",
+    "db:preValidate",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "validator",
+    "field_validator"
+  ],
+
+  "receives_from": [
+    "data_quality_enforcer",
+    "coordinator_v2",
+    "proof_generator"
+  ],
+
+  "quality_gates": [
+    "C(T) = 1.0 verified",
+    "All gaps identified",
+    "No false positives",
+    "Report actionable"
+  ],
+
+  "performance_metrics": {
+    "completeness_accuracy": 0.99,
+    "gap_detection_rate": 0.98,
+    "latency_target_ms": 1000,
+    "audit_throughput": 50
+  }
+}

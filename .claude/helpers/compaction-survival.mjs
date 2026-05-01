@@ -204,14 +204,44 @@ async function getRoadmapProgress() {
   }
 }
 
+/**
+ * Get compact inventory summary from BASELINE_INVENTORY.json
+ */
+async function getInventorySummary() {
+  try {
+    const raw = await readText("H:\\prism\\mcp-server\\data\\state\\BASELINE_INVENTORY.json");
+    if (!raw) return "inventory unavailable";
+    const inv = JSON.parse(raw);
+    const i = inv.inventory || {};
+    return [
+      `Engines: ${i.engines?.files || 0}`,
+      `Dispatchers: ${i.dispatchers || 0}`,
+      `Actions: ${i.actions || 0}`,
+      `Formulas: ${i.formulas?.registered || 0}`,
+      `Algorithms: ${i.algorithms || 0}`,
+      `Tribal Tips: ${i.tribal_tips || 0}`,
+      `Materials: ${i.materials || 0}`,
+      `Tools: ${i.tools || 0}`,
+      `Machines: ${i.machines || 0}`,
+      `Skills: ${i.skills || 0}`,
+      `Hooks: ${i.hooks?.registry || 0}`,
+      `Tests: ${i.test_count || 0} pass`,
+      `Ω: ${inv.omega || 1}`,
+    ].join(" | ");
+  } catch {
+    return "inventory unavailable";
+  }
+}
+
 async function main() {
   const positionFile = (await exists(PATHS.positionFile)) ? PATHS.positionFile : PATHS.fallbackPositionFile;
-  const [positionRaw, buildSize, roadmap, activeWork, contextChart] = await Promise.all([
+  const [positionRaw, buildSize, roadmap, activeWork, contextChart, inventorySummary] = await Promise.all([
     readText(positionFile),
     getBuildSize(),
     getRoadmapProgress(),
     getActiveWork(),
     buildContextChart(),
+    getInventorySummary(),
   ]);
   const phase = extractPhase(positionRaw);
   const recent = runGit(["log", "--oneline", "-10", "--since=8 hours ago"]) || "none";
@@ -224,18 +254,60 @@ async function main() {
 
   // Generate RESUME with claim awareness
   const resumeParts = [];
-  if (phase && phase !== "unknown") resumeParts.push(`Phase: ${phase}`);
 
-  // Check if this terminal has a claim (match by PID in claimed_by)
-  const myPid = String(process.ppid || process.pid);
-  const hostname = os.hostname();
-  const myClaim = roadmap.claims.find(c =>
-    c.by?.includes(hostname) && c.by?.includes(`pid-${myPid}`)
-  );
+  // Check explicit track claims (SESSION_TRACK_CLAIMS.json keyed by REAL session identity)
+  // FIX: Never use THIS_SESSION placeholder — match by actual sessionKey/PID
+  let explicitClaim = null;
+  try {
+    const claimsRaw = await readText("H:\\prism\\state\\shared\\SESSION_TRACK_CLAIMS.json");
+    if (claimsRaw) {
+      const claimsData = JSON.parse(claimsRaw);
+      const claims = claimsData.claims || {};
 
-  if (myClaim) {
-    resumeParts.push(`YOUR CLAIMED MILESTONE: ${myClaim.id} (${myClaim.title}) — continue this work`);
+      // Match by our ACTUAL session identity (sessionKey = pid-XXXXX or explicit ID)
+      // Priority: exact sessionKey match > PID match > instance substring match
+      const matchKeys = [
+        identity.sessionKey,                    // e.g., "pid-12345"
+        identity.instance,                      // e.g., "Agent@DESKTOP/pid-12345"
+        `${identity.family}@${identity.machine}/${identity.sessionKey}`,
+      ];
+
+      for (const key of matchKeys) {
+        if (claims[key]) {
+          explicitClaim = claims[key];
+          break;
+        }
+      }
+
+      // Fallback: check if any claim key contains our sessionKey (partial match)
+      if (!explicitClaim) {
+        for (const [claimKey, claimData] of Object.entries(claims)) {
+          if (claimKey.includes(identity.sessionKey) || identity.sessionKey.includes(claimKey)) {
+            explicitClaim = claimData;
+            break;
+          }
+        }
+      }
+
+      // NEVER use THIS_SESSION — that was a bug causing cross-session context bleed
+      // Explicitly skip it even if present for backward compat
+    }
+  } catch { /* no claims file */ }
+
+  if (explicitClaim) {
+    // Explicit track claim takes priority over all other inference
+    resumeParts.push(`ASSIGNED TRACK: ${explicitClaim.track}`);
+    if (explicitClaim.milestone) {
+      resumeParts.push(`MILESTONE: ${explicitClaim.milestone}`);
+    }
+    if (explicitClaim.notes) {
+      resumeParts.push(explicitClaim.notes);
+    }
+    // DO NOT add phase from position - it would confuse the session
   } else {
+    // Fall back to phase from CURRENT_POSITION.md
+    if (phase && phase !== "unknown") resumeParts.push(`Phase: ${phase}`);
+
     // Extract in-progress milestones from position
     const inProgressMatches = positionRaw.match(/\b([A-Z][\w-]+-MS\w+)\b.*?in.progress/gi) || [];
     if (inProgressMatches.length > 0) {
@@ -248,14 +320,16 @@ async function main() {
     resumeParts.push(`Last work: ${recent.split("\n")[0]}`);
   }
 
-  // Warn about other terminals' claims
-  const otherClaims = roadmap.claims.filter(c => !myClaim || c.id !== myClaim.id);
-  const collisionWarning = otherClaims.length > 0
-    ? `\nDO NOT work on these (claimed by other terminals): ${otherClaims.map(c => `${c.id}→${c.by}`).join(", ")}`
+  // Get active work from registry for collision warnings
+  const otherWork = activeWork.filter(w =>
+    !explicitClaim || w.track !== explicitClaim.track
+  );
+  const collisionWarning = otherWork.length > 0
+    ? `\nDO NOT work on: ${otherWork.map(w => w.track).join(", ")} (claimed by other sessions)`
     : "";
 
   const resumeDirective = resumeParts.length > 0
-    ? resumeParts.join(". ") + ". Check roadmap-index.json for next unblocked task." + collisionWarning
+    ? resumeParts.join(". ") + (explicitClaim ? "" : ". Check roadmap-index.json for next unblocked task.") + collisionWarning
     : "Read roadmap-index.json and claim an available milestone." + collisionWarning;
 
   // Check milestone ownership for this agent
@@ -307,31 +381,61 @@ async function main() {
     contextChart.chart,
     "```",
     "",
-    "## Key Instruction",
-    "- Roadmap: PRISM-UNIFIED-ROADMAP-v2.md (supreme authority)",
-    "- Task queue: data/roadmap-index.json (525 milestones)",
-    "- 84 dispatchers, 4,296 actions, 1,660+ engines",
-    "- Read MEMORY.md for cross-session knowledge",
-    "- Claim milestones before working: prism_orchestrate:roadmap_claim",
-    "- Omega target: 1.0",
-    "- Shared directives:",
-    directiveLines,
+    "## Live Inventory (BASELINE_INVENTORY.json)",
+    inventorySummary,
     "",
-    "## CRITICAL COMMANDS (AUTO-SUGGEST!)",
-    "- /pdf-learn — PDFs/documents/manuals",
-    "- /video-learn — Videos/YouTube/tutorials",
-    "- /forge-triple — New engines (run /dedup FIRST!)",
-    "- /wire-edm-studio — Wire EDM programming",
-    "- /lathe-studio — Lathe/turning",
-    "- /auto-speed-feed — Speed/feed calcs",
-    "- /quote-to-ship — Quotes/estimates",
-    "- /dedup — MANDATORY before creating new assets!",
+    "## PRISM MISSION",
+    "Manufacturing intelligence platform → all-in-one shop management system.",
+    "Goal: Replace fragmented shop software with unified AI-powered system.",
+    "Test shop: JM Die Company (21 machines, 100+ customers, cold heading dies).",
+    "",
+    "## MCP POWER UTILIZATION",
+    "- 89 dispatchers × 5,051 actions = massive capability surface",
+    "- Use prism_* MCP tools for domain operations, not raw code",
+    "- Key dispatchers: prism_calc, prism_cam, prism_orchestrate, prism_knowledge",
+    "- Orchestration: prism_orchestrate:roadmap_claim, roadmap_status, task_spawn",
+    "- Knowledge: prism_knowledge:search_tribal, search_formulas, search_algorithms",
+    "- Self-awareness: PRISMSelfAwarenessEngine.searchAIFeatures(), recommendAIFeatures()",
+    "",
+    "## TOKEN EFFICIENCY",
+    "- Context economy hooks compress outputs automatically",
+    "- Use /slim for concise responses",
+    "- Use /context-map to visualize token usage",
+    "- Prefer MCP calls over reading large files",
+    "- Delegate to subagents for parallel work",
+    "- Roadmap-index is 3MB — use prism_orchestrate:roadmap_status, not raw read",
+    "",
+    "## INTERNAL AI SYSTEM",
+    "- OllamaClientEngine: local LLM inference (qwen, llama, codellama)",
+    "- LLMEngine: unified interface for local/remote models",
+    "- AIIntelligenceMaximizerEngine: auto-utilization of AI capabilities",
+    "- Docker volumes: H:/prism/data/docker-volumes (postgres, redis, models)",
+    "- Activate: prism_ai:activate_local, model_status, inference_run",
+    "",
+    "## SELF-AWARENESS SYSTEM (USE THIS!)",
+    "```typescript",
+    "import { prismSelfAwarenessEngine } from './engines/PRISMSelfAwarenessEngine.js';",
+    "engine.searchAIFeatures('reasoning');  // Find AI capabilities",
+    "engine.recommendAIFeatures('optimize cutting params');  // Get recommendations",
+    "engine.getJMDieCustomerPath('ALCOA');  // Direct file access",
+    "engine.searchTribalKnowledge('thin wall');  // Shop floor wisdom",
+    "engine.getFullDriveAwareness();  // Complete H: drive map",
+    "```",
+    "",
+    "## CRITICAL COMMANDS",
+    "/dedup — MANDATORY before creating | /forge-triple — engines+skills+hooks",
+    "/pdf-learn — PDFs | /video-learn — videos | /shop-knowledge — tribal tips",
+    "/wire-edm-studio | /lathe-studio | /mill-studio | /quote-to-ship",
+    "/deep-think — exhaustive analysis | /enforce-role — expert mode",
     "",
     "## CROSS-SESSION AWARENESS",
     activeWork.length > 0
-      ? `Other sessions working on: ${activeWork.slice(0, 5).map(w => `${w.type}:${w.name}`).join(", ")}`
-      : "No active work tracked in other sessions",
-    "CHECK ACTIVE_WORK_REGISTRY.json before creating similar engines!",
+      ? `Other sessions: ${activeWork.slice(0, 5).map(w => `${w.type}:${w.name}`).join(", ")}`
+      : "No active work in other sessions",
+    "CHECK ACTIVE_WORK_REGISTRY.json + duplicationGuardEngine before creating!",
+    "",
+    "## Shared Directives",
+    directiveLines,
     "",
   ].join("\n");
 

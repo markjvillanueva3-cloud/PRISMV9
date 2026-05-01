@@ -1,0 +1,1132 @@
+{
+  "schema_version": "1.0.0",
+  "title": "MAZATROL Conversational Programming — Comprehensive Training Knowledge",
+  "description": "Exhaustive knowledge extraction from 8 Mazak MAZATROL programming tutorial videos covering lathe programming, Integrex tool setup, Smooth G basics, turning, drilling, milling, threading, grooving, and multi-process planning.",
+  "extraction_date": "2026-03-28",
+  "source_videos": [
+    {
+      "video_id": "EPkvGVNoV98",
+      "title": "Mazak CNC Lathe Mazatrol Programming Tutorial",
+      "duration": "1:10:51",
+      "channel": "Mazatrol Tips and Tricks (Phil)",
+      "transcript_available": true,
+      "topics_covered": [
+        "Complete MAZATROL program creation from scratch",
+        "BAR OUT unit programming (open and closed geometry)",
+        "EDGE process for facing",
+        "Linear, taper, convex, concave radius shapes",
+        "Figure check and scale zoom",
+        "Work shift (Z offset) teaching",
+        "Simulation and cycle time estimation",
+        "Drilling (peck cycle types 0-3)",
+        "Boring (BAR IN)",
+        "Layout screen and rough priority",
+        "Process reordering for tool change optimization",
+        "Single process re-run for dialing in dimensions",
+        "Wear offset adjustment",
+        "Separating rough and finish tools for steep geometry",
+        "Process copy for splitting rough/finish operations",
+        "Milling operations on lathe (drill, bore)"
+      ]
+    },
+    {
+      "video_id": "39vELy_RKVI",
+      "title": "Setting Up Tools On The Mazak Integrex",
+      "duration": "51:00",
+      "channel": "Machine shop (Integrex operator)",
+      "transcript_available": true,
+      "topics_covered": [
+        "Integrex E650H mill-turn machine overview",
+        "Curvic coupling mechanism for tool clamping",
+        "Flex tool option (15-degree indexing)",
+        "Normal vs reverse tool orientation",
+        "Capto taper tool interface",
+        "A dimension (Z length) and B dimension (X offset) for turning tools",
+        "Milling tool offsets (length only)",
+        "B-axis indexing and clamping (45-degree increments)",
+        "Tool setup page navigation",
+        "Multiple offsets per tool (A through J letter designations)",
+        "G-code tool call format (T6.01, T6.02 for offset A, B)",
+        "Shaping tool setup and 4-corner rotation",
+        "MDI tool change for demonstration",
+        "Turning tool tip comp direction (9 directions)",
+        "MAZATROL vs EIA (G-code) offset requirements",
+        "MAZATROL automatic tip compensation all around tool",
+        "Manual 4-jaw chuck vs hydraulic chuck considerations",
+        "Hobbing function (synchronized milling spindle + C-axis)",
+        "45-degree turning tool for chuck clearance"
+      ]
+    },
+    {
+      "video_id": "xUvwDh8bVu0",
+      "title": "Basic Mazak Lathe Programming on Nexus Controller",
+      "duration": "29:42",
+      "channel": "Nexus lathe operator",
+      "transcript_available": true,
+      "topics_covered": [
+        "Complete face and turn program on Nexus controller",
+        "BAR FACE unit for facing operations",
+        "Rough vs finish pass separation (erase rough, keep finish only)",
+        "Feed rate override and safety warnings",
+        "BAR OUT pattern 0 vs pattern 1 (retraction behavior)",
+        "Taper programming with angle and interpolation",
+        "Question mark interpolation for unknown dimensions",
+        "Calculate function for taper angles",
+        "Tool data validation (general edge vs general out)",
+        "Toolpath simulation with step and continue modes",
+        "TPC (tool change position) automatic calculation",
+        "Depth of cut as radial (not diameter) value",
+        "Shape check and scale/zoom features"
+      ]
+    },
+    {
+      "video_id": "iOKXWYykMr8",
+      "title": "Mazak Smooth G Mazatrol Basics of Programming",
+      "duration": "28:46",
+      "channel": "Everything CNC",
+      "transcript_available": true,
+      "topics_covered": [
+        "Smooth G controller interface and navigation",
+        "Program creation (work number, MAZATROL vs ISO)",
+        "Material selection and auto speed/feed presets",
+        "OD Max and clearance implications for rapid moves",
+        "Work piece length for bar stock (cumulative for multiple parts)",
+        "Work face stock removal setting",
+        "Max turning spindle RPM limit",
+        "END unit configuration (continue, parts counter, return position)",
+        "Tool change position vs zero position return",
+        "Setup info page and jaw data",
+        "Z offset TEACH function",
+        "EDGE FACE unit programming",
+        "BAR OUT with finish allowance in X and Z",
+        "Pattern zero vs pattern one retraction",
+        "Max depth of cut setting",
+        "Line vs taper vs convex vs concave shape patterns",
+        "Start corner (always 45-degree chamfer)",
+        "Corner R button for radius corners",
+        "Taper with angle and calculate function",
+        "Question mark interpolation for unknown points",
+        "Scale change and trace/toolpath visualization",
+        "Store button for preserving display",
+        "Coordinates display toggle (machine vs part)"
+      ]
+    },
+    {
+      "video_id": "30MLoVzOfv8",
+      "title": "Mazatrol Programming Tutorial CNC Turning Part 4",
+      "duration": "27:32",
+      "channel": "Mazatrol Tips and Tricks (Phil)",
+      "transcript_available": true,
+      "topics_covered": [
+        "Programming a roller with complex compound curves",
+        "Four different programming methods compared",
+        "Method 1: Every intersection point from CAD (8 lines of code)",
+        "Method 2: Tangent radius between features (6 lines of code)",
+        "Method 3: Minimum data points with tangent radii (fewer CAD points)",
+        "Method 4: No CAD data — programming from print only",
+        "Tangent radius insertion (radius button on taper lines)",
+        "Continue button for auto-populating start points",
+        "Convex and concave radius programming",
+        "Visual fine-tuning using figure check zoom",
+        "Construction geometry for tangent verification",
+        "T3 vs T-Plus controller differences (radius with angle calculation)",
+        "Surface roughness number selection (6-7 for finish)",
+        "Single tool roughing and finishing (35-degree diamond)"
+      ]
+    },
+    {
+      "video_id": "uMosPzTI7aU",
+      "title": "Mazatrol Programming Tutorial CNC Part 3",
+      "duration": "26:04",
+      "channel": "Mazatrol Tips and Tricks (Phil)",
+      "transcript_available": true,
+      "topics_covered": [
+        "Complete turning + drilling + boring program",
+        "EDGE process for facing with auto feeds/speeds",
+        "BAR OUT for OD turning with chamfers and radii",
+        "Radius button to convert chamfer entry to radius",
+        "Drilling with peck cycle (type 1)",
+        "BAR IN for boring operations",
+        "Layout screen rough priority reordering",
+        "Move process for custom operation sequencing",
+        "Single process re-run for dimension adjustment",
+        "Wear offset adjustment (negative X for diameter reduction)",
+        "Wear offset visible in geometry during MAZATROL run",
+        "Work shift Z offset teach procedure",
+        "Auto vs manual coolant control"
+      ]
+    },
+    {
+      "video_id": "z1O1HXQ0Rcw",
+      "title": "How to Program a Needle Valve with Mazatrol Part 2",
+      "duration": "24:09",
+      "channel": "Derek Hogan (North Georgia Technical College)",
+      "transcript_available": true,
+      "topics_covered": [
+        "Complex needle valve geometry programming",
+        "Multiple chamfer corners on small precision part",
+        "Threading unit (external thread)",
+        "Thread lead calculation (1/pitch for single-start thread)",
+        "Thread parameters: lead, angle (60 deg), entrances, height",
+        "Standard vs constant depth vs constant area threading",
+        "Auto thread depth calculation (number of passes)",
+        "Parts catcher M-code integration (M48 activate, M49 retract)",
+        "Sub-program for parts catcher (manual program unit)",
+        "T-GROOVE unit for parting/cutoff",
+        "Grooving tool offset designations (A, B, C for different sides)",
+        "Tool data Z values to identify offset side positions",
+        "END unit with return to zero position",
+        "G28 U W for safe home position in manual program"
+      ]
+    },
+    {
+      "video_id": "xYD-WGvU3VM",
+      "title": "Grooving with Mazatrol",
+      "duration": "22:19",
+      "channel": "Everything CNC",
+      "transcript_available": true,
+      "topics_covered": [
+        "All four MAZATROL groove types (0, 1, 2, 3)",
+        "Groove type 0: roughing only, no finish pass",
+        "Groove type 1: start from Z0 toward spindle, width extends toward spindle",
+        "Groove type 2: start from Z0 toward spindle, standard finishing",
+        "Groove type 3: symmetric groove from center, finishes both halves",
+        "Help menu for groove type visualization",
+        "Groove dimensions: width, depth (X start to X finish)",
+        "Angled/tapered grooves with Z offset",
+        "Question mark + angle for auto Z calculation",
+        "Groove tool data setup (thickness, corner radius)",
+        "OD vs ID groove (same programming, reversed direction)",
+        "Combining groove types for complex profiles",
+        "Multiple grooves with pitch spacing",
+        "Tool path visualization and scale change"
+      ]
+    }
+  ],
+  "unavailable_videos": [
+    {
+      "video_id": "TMN5xVkuBMY",
+      "title": "How to program a turned diameter on Mazak with Mazatrol",
+      "duration": "22:25",
+      "reason": "Video unavailable on YouTube at time of download"
+    }
+  ],
+
+  "mazatrol_reference": {
+    "overview": {
+      "description": "MAZATROL is Mazak's proprietary conversational programming system. Instead of writing G-code line by line, the operator describes the part geometry and operations using units and sequences. MAZATROL auto-generates toolpaths, calculates cutter compensation, and manages tool changes.",
+      "key_advantage": "Programs directly from a print at the machine without CAD/CAM software. The machine calculates all toolpaths, cutter compensation, and approach/retract moves automatically.",
+      "programming_flow": [
+        "1. Create new program (work number)",
+        "2. Select MAZATROL or EIA (G-code) mode",
+        "3. Define workpiece material, dimensions, spindle limit",
+        "4. Set finish allowances (X and Z) and work face stock",
+        "5. Program units sequentially (coolant, face, turn, drill, bore, thread, groove, mill)",
+        "6. Define shape geometry within each unit (linear, taper, convex, concave)",
+        "7. Verify with figure check and toolpath simulation",
+        "8. Set work shift (Z offset) by touching off",
+        "9. Run program (auto mode)"
+      ],
+      "mazatrol_vs_eia": {
+        "mazatrol": "Conversational, auto tip compensation all around tool, auto toolpath generation, shape-based programming",
+        "eia_gcode": "Traditional G-code, requires manual tip comp direction, more flexible for complex operations, needed for some advanced features",
+        "switching": "When creating a new program, machine asks 'MAZATROL or EIA' — cannot mix in same program but can call sub-programs"
+      }
+    },
+
+    "controller_versions": {
+      "T3": {
+        "description": "Older MAZATROL controller (Fusion 640T era)",
+        "limitations": [
+          "Cannot calculate radius with angle directly",
+          "Does not compensate for drill point angle",
+          "Lower zoom scale (0.1 minimum)",
+          "No protection against finish before rough in layout"
+        ]
+      },
+      "T_Plus": {
+        "description": "Updated MAZATROL controller with improved calculation",
+        "improvements": [
+          "Can calculate radius center position with angle input",
+          "Compensates for drill point angle automatically",
+          "Better layout protection against crash-causing reordering"
+        ]
+      },
+      "SMART": {
+        "description": "MAZATROL SMART controller generation"
+      },
+      "Smooth_C": {
+        "description": "Smooth C controller for lathes"
+      },
+      "Smooth_G": {
+        "description": "Latest generation Smooth G controller",
+        "features": [
+          "Touch screen interface",
+          "Material presets with auto speed/feed suggestions",
+          "ISO (G-code) and MAZATROL modes",
+          "Enhanced toolpath visualization",
+          "Position page shows part coordinates vs machine coordinates (toggle)",
+          "Store button preserves trace display through edits",
+          "Cannot edit running program (can create new program while running)"
+        ]
+      },
+      "Nexus": {
+        "description": "Nexus controller for Mazak lathes",
+        "features": [
+          "Work number limited to 4 digits without dash",
+          "General edge vs general out tool type distinction",
+          "TPC (tool change position) auto-calculation"
+        ]
+      }
+    },
+
+    "program_structure": {
+      "work_number": {
+        "description": "Program identifier number, also called workpiece number",
+        "creation": "Enter unused work number → machine asks if new → select MAZATROL or EIA",
+        "limit": "4 digits max without dash on some controllers"
+      },
+      "header_parameters": {
+        "workpiece_material": {
+          "description": "Material selection that drives auto speed/feed calculations",
+          "options": ["Carbon Steel", "Cast Iron", "Stainless Steel", "Aluminum", "and others"],
+          "note": "Material selection primarily affects auto-populated speeds and feeds. Can be overridden."
+        },
+        "od_max": {
+          "description": "Maximum outside diameter of workpiece stock",
+          "purpose": "Determines rapid clearance height and tool approach distance",
+          "rule": "Must be >= actual stock diameter or machine will crash",
+          "tip": "Larger values cause more rapid travel time but safer clearance"
+        },
+        "id_min": {
+          "description": "Minimum inside diameter (0 if solid stock, drill diameter if pre-drilled)"
+        },
+        "workpiece_length": {
+          "description": "Total length of raw stock",
+          "bar_stock_note": "For multiple parts from bar, add all part lengths together plus cutoff kerf allowances"
+        },
+        "max_spindle_rpm": {
+          "description": "G50 equivalent — maximum spindle RPM for entire program",
+          "typical_values": {
+            "large_chuck": "1500-2000 RPM",
+            "collet": "3000-4000+ RPM"
+          },
+          "note": "Only applies to turning spindle. Live tooling RPM is set in tool data."
+        },
+        "finish_allowance_x": {
+          "description": "Stock left by roughing tools for finish pass on diameter (radial)",
+          "typical": "0.005-0.015 inch (5-15 thou on diameter)"
+        },
+        "finish_allowance_z": {
+          "description": "Stock left by roughing tools for finish pass on Z axis",
+          "typical": "0.003-0.005 inch"
+        },
+        "stock_removal_workface": {
+          "description": "How much stock to face off the end of the part",
+          "note": "Set to 0 if part is already faced and Z zero is set to finished surface",
+          "typical": "0.050-0.100 inch"
+        }
+      }
+    },
+
+    "unit_types": {
+      "END": {
+        "description": "End of program unit — always last in program",
+        "parameters": {
+          "continue": "0 = stop, or specify next work number to chain programs",
+          "parts_counter": "Enable/disable part counting",
+          "return_position": {
+            "tool_change_position": "Retracts to safe position based on longest tool in magazine",
+            "zero_position": "Returns to machine zero"
+          },
+          "next_workpiece_number": "For program chaining (e.g., flip operations)"
+        }
+      },
+      "M_CODE": {
+        "description": "Miscellaneous function unit for coolant, stops, etc.",
+        "common_codes": {
+          "M8": "Coolant ON",
+          "M9": "Coolant OFF",
+          "M0": "Program stop",
+          "M1": "Optional stop",
+          "M48": "Parts catcher activate",
+          "M49": "Parts catcher retract"
+        },
+        "note": "Coolant ON (M8) is typically first unit in 99% of programs"
+      },
+      "EDGE": {
+        "description": "Facing operation — removes stock from end face of part",
+        "parameters": {
+          "starting_point_x": "Stock outer diameter",
+          "starting_point_z": "Distance from Z0 (positive = stock allowance before face)",
+          "final_point_x": "Usually 0 (face to center) or ID if tube stock",
+          "final_point_z": "Usually 0 (face to Z zero)",
+          "surface_speed_rough": "CSS for roughing pass",
+          "surface_speed_finish": "CSS for finishing pass",
+          "depth_of_cut": "Step-down per pass",
+          "roughing_tool": "Tool number + offset",
+          "finishing_tool": "Tool number + offset (can be same as rough)"
+        },
+        "auto_function": "Push AUTO button to auto-populate speeds, feeds, and depth from material selection"
+      },
+      "BAR_OUT": {
+        "description": "OD turning — programs external turning from bar stock",
+        "geometry_types": {
+          "open_geometry": "Tool rapids down and feeds across (for stock removal where tool clears at end)",
+          "closed_geometry": "Tool feeds down into material and feeds across (highlighted icon)"
+        },
+        "parameters": {
+          "cutting_point_x": "Stock outer diameter",
+          "cutting_point_z": "Z start position (usually 0 = face of part)",
+          "surface_speed_rough": "CSS for roughing",
+          "surface_speed_finish": "CSS for finishing",
+          "feed_rate_rough": "IPR for roughing (typical 0.008-0.015)",
+          "feed_rate_finish": "IPR for finishing (typical 0.003-0.005)",
+          "depth_of_cut": "Radial depth per pass (NOT diameter — diameter changes by 2x this value)",
+          "gear_number": "Machine transmission gear (0 = auto-select)",
+          "roughing_tool": "Tool number + offset",
+          "finishing_tool": "Tool number + offset",
+          "pattern": {
+            "0": "Tool comes up to shoulder then turns up — leaves insert angle relief at shoulder",
+            "1": "Tool wraps back to front after reaching shoulder — cleaner shoulders"
+          }
+        },
+        "tip": "Depth of cut is RADIAL, not diameter. A 0.150 depth changes diameter by 0.300."
+      },
+      "BAR_IN": {
+        "description": "ID turning / boring — programs internal turning from pre-drilled hole",
+        "note": "Same as BAR OUT but cutting point X is the drill/bore starting diameter",
+        "cutting_point_x": "Drill diameter or existing bore diameter"
+      },
+      "BAR_FACE": {
+        "description": "Alternative facing unit on some controllers",
+        "note": "Similar to EDGE but may have different parameter layout"
+      },
+      "DRL": {
+        "description": "Drilling unit",
+        "drill_types": {
+          "0": "Feed in, feed out at same rate (rarely used)",
+          "1": "Peck drilling — feed in, rapid out to start, rapid back, feed more, repeat (chip clearing)",
+          "2": "Peck drilling — feed in, rapid out slightly, break chip (minimal retract)",
+          "3": "Reamer cycle — feed in, feed out at double feed rate"
+        },
+        "parameters": {
+          "drill_diameter": "Diameter of drill",
+          "depth_first_cut": "Initial peck depth",
+          "decremental_depth": "Amount subtracted from depth each subsequent peck",
+          "minimum_depth": "Minimum peck depth for deep holes (default ~3mm / 0.118 inch)",
+          "surface_speed": "Cutting speed for drill",
+          "feed_rate": "IPR for drilling",
+          "tool_number": "Drill tool number + offset",
+          "starting_point_z": "Z position to start (usually 0 = face)",
+          "final_point_z": "Hole depth"
+        },
+        "controller_notes": {
+          "older_T3": "Does NOT compensate for drill point angle — programs to full depth",
+          "newer_TPlus": "Compensates for drill point angle — drills to major diameter past point"
+        }
+      },
+      "TPC": {
+        "description": "Thread cutting unit",
+        "parameters": {
+          "type": "External, internal, face, or back thread",
+          "chamfer": "0 = no chamfer at thread start",
+          "lead": "Thread lead (= pitch for single-start threads). Calculate as 1/TPI.",
+          "angle": "Thread angle (60 degrees for standard threads)",
+          "number_of_entrances": "Number of thread starts (1 for single-start)",
+          "height": "Thread depth (auto-calculate available)",
+          "thread_tool": "Thread tool number + offset",
+          "threading_pattern": {
+            "standard": "Default threading method",
+            "constant_depth": "Equal depth per pass",
+            "constant_area": "Equal area removed per pass"
+          },
+          "number_of_passes": "Auto-calculated based on thread depth",
+          "cutting_speed": "Surface speed for threading",
+          "start_point_x": "Thread major diameter",
+          "start_point_z": "Thread start position (slightly before actual thread)",
+          "final_point_x": "Thread major diameter (same as start for straight thread)",
+          "final_point_z": "Thread end position (into relief groove)"
+        },
+        "lead_calculation": "For single-start thread: lead = 1 / TPI. Example: 1/4-28 thread → lead = 1/28 = 0.0357"
+      },
+      "GRV": {
+        "description": "Grooving unit — OD, ID, or face grooves",
+        "groove_types": {
+          "type_0": {
+            "description": "Roughing only — no finish pass",
+            "z_reference": "Measures from back side (toward spindle)",
+            "use_case": "When finish quality on groove walls not critical"
+          },
+          "type_1": {
+            "description": "Standard groove with finish pass",
+            "z_reference": "Measures from Z0 toward spindle. Width extends toward spindle.",
+            "use_case": "General purpose grooves"
+          },
+          "type_2": {
+            "description": "Standard groove with finish and taper capability",
+            "z_reference": "Measures from back side (toward spindle)",
+            "taper": "Can create angled groove by offsetting start/finish Z points",
+            "note": "Does NOT finish the back wall — only bottom and front. May need additional operation for back wall finish."
+          },
+          "type_3": {
+            "description": "Symmetric groove — machines from center outward, finishes both halves",
+            "z_reference": "Measures from Z0 to front face",
+            "taper": "Supports angled sides with question mark + angle calculation",
+            "advantage": "Most versatile — finishes both halves symmetrically"
+          }
+        },
+        "parameters": {
+          "number_of_grooves": "How many evenly-spaced grooves (use pitch for spacing)",
+          "groove_pitch": "Spacing between multiple grooves",
+          "groove_width": "Width of groove (top-to-top, not bottom)",
+          "finish_allowance": "Stock left for finish pass",
+          "surface_speed_rough": "CSS for roughing",
+          "surface_speed_finish": "CSS for finishing",
+          "feed_rate_rough": "IPR for roughing",
+          "max_depth_of_cut": "Radial depth per roughing pass",
+          "roughing_tool": "Grooving tool number + offset",
+          "finishing_tool": "Grooving tool number + offset",
+          "starting_point_x": "OD where groove begins",
+          "starting_point_z": "Z position (reference varies by type)",
+          "final_point_x": "ID at bottom of groove (measured as diameter)",
+          "final_point_z": "Z end position (same as start for straight, different for angled)",
+          "chamfer_or_radius": "Corner break at top of groove",
+          "taper_angle": "Angle for tapered grooves"
+        },
+        "tool_data": {
+          "thickness": "Width of grooving insert",
+          "corner_radius": "Radius on each side of grooving insert",
+          "offsets_a_b_c": "Different offsets for left, right, and center of grooving tool"
+        },
+        "help_menu": "Press arrow-over then HELP to see groove type diagrams showing start/finish/width direction",
+        "id_grooves": "Same programming as OD but start from inside diameter going outward"
+      },
+      "T_GRV": {
+        "description": "Thread relief / part-off grooving unit",
+        "use_case": "Parting off, thread relief grooves",
+        "parameters": {
+          "number_of_grooves": 1,
+          "width": "Same as tool width for parting",
+          "grooving_tool_offsets": "A=left edge, B=right edge, C=center — check Z values in tool data to determine which is which"
+        }
+      },
+      "SUB_PROGRAM": {
+        "description": "Calls a sub-program by work number",
+        "parameters": {
+          "work_number": "Sub-program number to call",
+          "repeat_count": "How many times to execute"
+        },
+        "use_case": "Parts catcher activation, complex repeated operations"
+      },
+      "MANUAL_PROGRAM": {
+        "description": "Allows inserting raw G-code within a MAZATROL program",
+        "use_case": "Parts catcher M-codes, special machine functions not available in MAZATROL units",
+        "example": "G28 U0 W0 (safe home), M48 (parts catcher activate), M49 (parts catcher retract)"
+      },
+      "MSS": {
+        "description": "Milling on lathe (C-axis milling unit)",
+        "note": "Available on machines with live tooling and C-axis"
+      },
+      "POINT": {
+        "description": "Point machining (face milling spots)",
+        "note": "Part of milling operations menu"
+      },
+      "LINE": {
+        "description": "Line milling operation",
+        "note": "Part of milling operations menu"
+      },
+      "FACE": {
+        "description": "Face milling operation (for milling flat on face or OD)",
+        "note": "Part of milling operations menu"
+      }
+    },
+
+    "shape_patterns": {
+      "description": "Within BAR OUT, BAR IN, and EDGE units, geometry is described using shape patterns",
+      "types": {
+        "LINEAR": {
+          "description": "Horizontal or vertical straight line",
+          "note": "Vertical lines (shoulders) are created automatically between horizontal features — only program horizontal lines",
+          "parameters": {
+            "start_corner": "Chamfer or radius at start of line (always 45 degrees for chamfer)",
+            "final_point_x": "Ending diameter",
+            "final_point_z": "Ending Z position",
+            "final_corner": "Chamfer or radius at end of line",
+            "surface_roughness": "Finish quality (1=roughest, 9=finest, 7≈32 Ra microinch)"
+          }
+        },
+        "TAPER": {
+          "description": "Angled line between two points",
+          "parameters": {
+            "start_corner": "Chamfer or radius at start",
+            "start_point_x": "Starting diameter (or use CONTINUE to auto-fill from previous shape)",
+            "start_point_z": "Starting Z position",
+            "final_point_x": "Ending diameter",
+            "final_point_z": "Ending Z position",
+            "taper_angle": "Angle of taper (alternative to specifying both endpoints)",
+            "surface_roughness": "Finish quality number"
+          },
+          "interpolation": {
+            "question_mark": "Enter ? for unknown X or Z value, fill in angle, then press CALCULATE to auto-compute",
+            "example": "Known: start Z=3.0, finish X=2.5, angle=45° → machine calculates finish Z"
+          }
+        },
+        "CONVEX_RADIUS": {
+          "description": "Outward-bulging radius (like a sphere)",
+          "parameters": {
+            "start_point_x": "Starting diameter",
+            "start_point_z": "Starting Z position",
+            "final_point_x": "Ending diameter",
+            "final_point_z": "Ending Z position (can use ? for unknown)",
+            "radius": "Radius value",
+            "arc_center_x": "X position of radius center",
+            "arc_center_z": "Z position of radius center"
+          },
+          "intersect_position": "When using ?, specify Up/Down/Left/Right from center to select correct intersection"
+        },
+        "CONCAVE_RADIUS": {
+          "description": "Inward-curving radius (like a bowl)",
+          "parameters": "Same as convex radius",
+          "note": "Used for fillets, internal curves, relief features"
+        }
+      },
+      "special_features": {
+        "continue_button": "Auto-populates start point X and Z from previous shape's end point",
+        "corner_r_button": "Converts any dimension entry from chamfer to radius (toggles R indicator)",
+        "tangent_radius": "Place radius value on a TAPER line to create tangent radius between current and next feature — reduces code lines",
+        "shape_end": "Signals end of geometry definition for current unit",
+        "figure_check": "Graphical preview of programmed geometry (right button → figure check)",
+        "store_button": "Preserves current display scale and position through program edits"
+      },
+      "chamfer_rules": {
+        "start_corner_always_45": "Start corner chamfers are ALWAYS 45 degrees",
+        "radius_alternative": "Press CORNER R button before entering dimension to make it a radius instead",
+        "chamfer_dimension": "Measured in linear Z (or X), NOT across the hypotenuse",
+        "insert_rollover_trick": "Add 0.002 inch to final Z beyond chamfer to ensure insert rolls over cleanly — prevents burr"
+      }
+    },
+
+    "tool_setup": {
+      "tool_data_page": {
+        "description": "Defines all tool characteristics for MAZATROL auto-compensation",
+        "access": "Left button → Tool Set → Tool Data",
+        "fields": {
+          "tool_type": {
+            "general_out": "External turning tool",
+            "general_in": "Internal turning / boring tool",
+            "general_edge": "Facing tool",
+            "groove_out": "External grooving tool",
+            "groove_in": "Internal grooving tool",
+            "thread": "Threading tool",
+            "drill": "Drilling tool",
+            "endmill": "Milling tool (live tooling)",
+            "tap": "Tapping tool"
+          },
+          "insert_angle": "Angle of cutting insert (55°, 80°, 35°, etc.)",
+          "holder_angle": "Angle insert sits in holder",
+          "nose_radius": "Insert tip radius (critical for surface finish calculation and tip comp)",
+          "hand": "Right-hand or left-hand tool"
+        }
+      },
+      "offset_system": {
+        "geometry_offset": "Base position of tool (A dimension = Z length, B dimension = X offset from centerline)",
+        "wear_offset": {
+          "description": "Fine adjustment for dimension control",
+          "access": "Tool Set → Wear offset column",
+          "adjustment": "Negative X value reduces diameter (e.g., -0.002 takes 2 thou off diameter)",
+          "visibility": "Wear offset values are visible in geometry display during MAZATROL program run"
+        },
+        "offset_column": "Must specify offset column (1 or 2) — leaving at 0 skips wear offset",
+        "multiple_offsets": {
+          "description": "Single tool can have offsets A through J (up to 10 orientations)",
+          "mazatrol_call": "Referenced by letter in MAZATROL unit",
+          "gcode_call": "T6.01=A, T6.02=B, T6.03=C, etc.",
+          "use_case": "Different orientations of same tool, different edges of grooving tool"
+        }
+      },
+      "integrex_specifics": {
+        "a_dimension": "Length from spindle gauge face to tool tip (always positive Z direction)",
+        "b_dimension": "Distance from spindle centerline to tool tip (negative for standard OD turning, positive for some orientations)",
+        "milling_tools": "Only length matters (no A/B — tool is on centerline)",
+        "orientation": {
+          "normal": "Standard turning orientation, capto key faces back of machine",
+          "reverse": "Rotated 180 degrees from normal",
+          "flex_tool": "Optional — index and clamp every 15 degrees"
+        },
+        "curvic_coupling": "Mechanical coupling that clamps spindle for turning operations — transmits force through coupling, not spindle bearings",
+        "b_axis_clamping": "B-axis clamps at every 45-degree increment via its own curvic coupling"
+      },
+      "tip_compensation": {
+        "mazatrol_mode": "Automatically compensates all around tool based on insert angle, holder angle, and nose radius — no direction needed",
+        "eia_gcode_mode": "Requires explicit tip comp direction (1-9) in offset page",
+        "direction_reference": "9 possible directions — relates to which quadrant of insert is cutting",
+        "tip_radius_trick": "Increase tip radius value in offset to push tool deeper into radius cuts (opposite of milling cutter comp logic)"
+      }
+    },
+
+    "speeds_feeds_and_cutting_parameters": {
+      "auto_function": {
+        "description": "Push AUTO button in any unit to auto-populate speeds, feeds, and depths based on material selection",
+        "basis": "Internal database keyed to material type and operation",
+        "override": "Any auto-populated value can be manually overridden"
+      },
+      "surface_roughness_numbers": {
+        "description": "MAZATROL uses roughness numbers 1-9 to control finish feed rate",
+        "scale": {
+          "1": "Roughest (fastest feed, worst finish)",
+          "5-6": "Medium finish",
+          "7": "Approximately 32 Ra microinch (good general finish)",
+          "9": "Finest (slowest feed, best finish)"
+        },
+        "calculation": "Based on insert nose radius, the machine calculates required feed rate to achieve specified surface finish",
+        "note": "Works better on mills than lathes according to some operators"
+      },
+      "typical_aluminum_parameters": {
+        "surface_speed_rough": "495-800 SFM",
+        "surface_speed_finish": "500-1200 SFM",
+        "feed_rough": "0.008-0.015 IPR",
+        "feed_finish": "0.003-0.008 IPR",
+        "depth_of_cut": "0.020-0.150 inch radial (0.040-0.300 on diameter)",
+        "max_rpm": "2000 RPM typical for 10-12 inch chuck"
+      },
+      "typical_steel_parameters": {
+        "surface_speed_rough": "280-400 SFM",
+        "surface_speed_finish": "320-500 SFM",
+        "feed_rough": "0.008-0.012 IPR",
+        "feed_finish": "0.003-0.005 IPR",
+        "depth_of_cut": "0.020-0.100 inch radial"
+      },
+      "feed_rate_safety_warning": "Be careful not to type 0.120 instead of 0.012 — the machine will NOT catch this mistake and will crash the insert into the part. Double-check decimal placement.",
+      "spindle_rpm_limit": {
+        "description": "G50 equivalent set in program header",
+        "hydraulic_chuck_warning": "Centrifugal force reduces hydraulic chuck grip at high RPM — manual chuck does not have this problem",
+        "live_tooling_rpm": "Set in tool data, NOT in program header spindle limit"
+      }
+    },
+
+    "layout_and_process_optimization": {
+      "layout_screen": {
+        "description": "Shows sequence of all operations with tool assignments",
+        "notation": "R1=roughing process 1, F1=finishing process 1, etc.",
+        "rough_priority": "Press ROUGH PRIORITY then INPUT to reorder: all rough operations first, then all finish operations",
+        "move_process": "Manually reorder operations by inserting/moving process numbers",
+        "warning": "Can accidentally put finish tools before roughing tools and crash — newer controllers protect against this"
+      },
+      "single_process_rerun": {
+        "description": "Run only one specific process (e.g., finish pass) without running entire program",
+        "access": "Layout screen → Single Process → select process (e.g., 'Finish 3')",
+        "use_case": "Dialing in dimensions after wear offset adjustment — rerun only the finish pass"
+      },
+      "process_copy": {
+        "description": "Copy a process to create separate rough and finish operations",
+        "access": "Right menu → Process Copy → specify source and destination",
+        "use_case": "Splitting rough and finish tools when rough tool can't reach all geometry (e.g., steep angles on sphere)"
+      }
+    },
+
+    "simulation_and_verification": {
+      "figure_check": {
+        "description": "Graphical display of programmed geometry shapes",
+        "access": "Right button → Figure Check",
+        "scale": "Scale button → enter value (smaller number = more zoom, 0.1 = max zoom on T3)",
+        "cursor": "Arrow keys move white cursor box — becomes screen center on scale change",
+        "store": "Store button saves current scale/position through edits"
+      },
+      "toolpath_check": {
+        "description": "Full toolpath simulation showing tool motion",
+        "access": "Program → Check → Check Continue (full run) or Half Step (step through)",
+        "features": {
+          "continue": "Runs complete simulation",
+          "half_step": "Step through move by move",
+          "speed": "Adjustable simulation speed (up to 500%)"
+        },
+        "colors": {
+          "green": "Roughing toolpath",
+          "purple": "Finished part geometry / finish toolpath",
+          "white": "Tool nose radius path (offset from part geometry by nose radius)"
+        }
+      },
+      "simulation_screen": {
+        "description": "Full machine simulation with cycle time prediction",
+        "access": "Program → Simulation → Simulation Ready → Simulation Start",
+        "accuracy": "Predicted time within 3-6 seconds of actual machining time"
+      },
+      "trace_screen": {
+        "description": "Live display showing tool position during actual machining",
+        "features": [
+          "Workpiece figure display (SHAPE button)",
+          "Simulated stock removal visualization",
+          "Real-time tool position tracking",
+          "RPM display in corner"
+        ]
+      }
+    },
+
+    "work_shift_and_zero_setting": {
+      "procedure": [
+        "1. Index to desired tool (usually facing/turning tool)",
+        "2. Skim face of part in manual/hand mode",
+        "3. Leave Z position where it touched (back X off but keep Z)",
+        "4. Go to Program → Program File → select work number",
+        "5. Press Z OFFSET → TEACH → enter amount removed (e.g., 0.100 if 100 thou faced off)",
+        "6. Press INPUT to set work shift",
+        "7. Go to Position → Auto → Work Number → enter program number to verify Z reads correctly"
+      ],
+      "verification": "Z should read the stock removal amount (e.g., 0.100) at the touched-off position",
+      "common_issue": "Position display stays on previous program until you manually switch work number in auto mode"
+    },
+
+    "integrex_mill_turn_specifics": {
+      "machine_type": "Mazak Integrex — classified as mill-turn machine",
+      "key_insight": "More of a milling machine than turning machine — many users under-utilize milling capability",
+      "tool_mounting": {
+        "capto_taper": "Capto tool interface with draw bar clamping",
+        "key_orientation": "Key faces back of machine in 'normal' orientation",
+        "manual_clamp": "Manual clamp/unclamp available on machine setup page"
+      },
+      "b_axis": {
+        "description": "Tilting spindle axis for multi-angle operations",
+        "clamping": "Curvic coupling clamps every 45 degrees",
+        "turning_at_angle": "Can turn at 0, 45, 90, 135, 180 degree orientations",
+        "clearance_benefit": "45-degree orientation provides better chuck jaw clearance for close-to-chuck turning"
+      },
+      "tool_change": {
+        "b_axis_must_be_horizontal": "B-axis must be at 0 degrees (horizontal) to change tools",
+        "automatic_orientation": "Tool changes automatically orient and clamp for defined setup",
+        "door_safety": "Slower indexing with doors open (safety feature)"
+      },
+      "hobbing": {
+        "description": "Synchronized milling spindle with C-axis for gear cutting",
+        "setup": "Hob tool in spindle, B-axis at appropriate angle, synchronize rotation"
+      },
+      "shaping_tools": {
+        "description": "Turning tools used for shaping operations (e.g., square holes)",
+        "method": "Define same tool with multiple offsets at different angles (0°, 90°, 180°, 270°)",
+        "execution": "Tool change to each offset rotates and clamps at defined angle"
+      }
+    },
+
+    "programming_tips_and_tribal_knowledge": [
+      {
+        "id": "mzt-tip-001",
+        "category": "chamfer",
+        "tip": "Always add 0.002 inch beyond the chamfer dimension in Z to ensure the insert nose radius rolls completely over the chamfer. Without this, a tiny burr/sharp edge remains.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-002",
+        "category": "safety",
+        "tip": "When manually overriding feed rates, be extremely careful with decimal placement. Typing 0.120 instead of 0.012 IPR will crash the insert — the machine does NOT catch this mistake.",
+        "source": "xUvwDh8bVu0",
+        "confidence": 0.98
+      },
+      {
+        "id": "mzt-tip-003",
+        "category": "geometry",
+        "tip": "MAZATROL always programs from the face of the part working toward the chuck. Vertical lines (shoulders) are created automatically — only program horizontal features.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-004",
+        "category": "process_planning",
+        "tip": "Use the ROUGH PRIORITY button on the layout screen to automatically reorder all roughing operations before finishing operations, reducing tool changes.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-005",
+        "category": "geometry",
+        "tip": "When programming a sphere or steep convex radius with a 55-degree diamond rougher, the rougher cannot reach areas steeper than ~30 degrees. Split into separate rough and finish processes — rough with 55-degree, finish with 35-degree diamond using process copy.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.92
+      },
+      {
+        "id": "mzt-tip-006",
+        "category": "wear_offset",
+        "tip": "On MAZATROL, wear offsets are visible in the geometry display during program run. Some find this annoying but it confirms the wear compensation is active. A negative X wear value reduces the turned diameter.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-007",
+        "category": "efficiency",
+        "tip": "Using tangent radii (radius button on taper lines) can reduce code from 8 lines to 5-6 lines for complex compound profiles. Method 4 (no CAD) using tangent radii and visual verification is often the fastest approach.",
+        "source": "30MLoVzOfv8",
+        "confidence": 0.93
+      },
+      {
+        "id": "mzt-tip-008",
+        "category": "simulation",
+        "tip": "MAZATROL simulation time prediction is remarkably accurate — typically within 3-6 seconds of actual machining time. Use layout screen total time for quoting and scheduling.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.90
+      },
+      {
+        "id": "mzt-tip-009",
+        "category": "offset",
+        "tip": "Always set offset column to 1 (not 0). Leaving offset at 0 causes the machine to skip wear offset and go by geometry only.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-010",
+        "category": "integrex",
+        "tip": "On Integrex machines, MAZATROL always follows the tip of the turning tool — position display automatically updates as B-axis rotates, showing the imaginary sharp corner point of the insert.",
+        "source": "39vELy_RKVI",
+        "confidence": 0.90
+      },
+      {
+        "id": "mzt-tip-011",
+        "category": "integrex",
+        "tip": "The 45-degree B-axis turning orientation on Integrex provides significantly better chuck jaw clearance for close-to-chuck operations, but trades clearance on the tailstock side.",
+        "source": "39vELy_RKVI",
+        "confidence": 0.92
+      },
+      {
+        "id": "mzt-tip-012",
+        "category": "tip_compensation",
+        "tip": "In MAZATROL mode, tip compensation is automatic for all directions. In EIA/G-code mode, you must explicitly set tip comp direction (1-9) in the offset page. MAZATROL defines insert angle, holder angle, and nose radius for full compensation.",
+        "source": "39vELy_RKVI",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-013",
+        "category": "grooving",
+        "tip": "Groove types 0 and 2 measure Z from the back side (toward spindle). Type 1 and 3 measure from Z0 outward. Type 3 (symmetric) is the most versatile — it finishes both halves. Types 2 doesn't finish the back wall.",
+        "source": "xYD-WGvU3VM",
+        "confidence": 0.93
+      },
+      {
+        "id": "mzt-tip-014",
+        "category": "grooving",
+        "tip": "For grooving tools, define offsets A/B/C for left edge, right edge, and center of the tool. Check the Z offset values in tool data to determine which side each offset represents (more negative Z = further from spindle).",
+        "source": "z1O1HXQ0Rcw",
+        "confidence": 0.90
+      },
+      {
+        "id": "mzt-tip-015",
+        "category": "threading",
+        "tip": "For single-start threads, lead equals pitch. Calculate lead as 1/TPI (e.g., 1/4-28 thread: lead = 1/28 = 0.0357). Enter to 4 decimal places. Auto function calculates thread depth and number of passes.",
+        "source": "z1O1HXQ0Rcw",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-016",
+        "category": "parts_catcher",
+        "tip": "Parts catcher requires a sub-program with manual G-code: M48 to activate, M49 to retract. G28 U0 W0 for safe home position. These M-codes are not in the standard MAZATROL menu — look up in machine manual.",
+        "source": "z1O1HXQ0Rcw",
+        "confidence": 0.92
+      },
+      {
+        "id": "mzt-tip-017",
+        "category": "depth_of_cut",
+        "tip": "MAZATROL depth of cut is ALWAYS radial (not diameter). A 0.150-inch depth of cut changes the diameter by 0.300 inches. This applies to both turning and milling operations.",
+        "source": "xUvwDh8bVu0",
+        "confidence": 0.98
+      },
+      {
+        "id": "mzt-tip-018",
+        "category": "process_planning",
+        "tip": "Surface roughness number 7 in MAZATROL produces approximately 32 Ra microinch finish, slightly finer. This is the go-to setting for general-purpose finishing with a 0.031-inch nose radius insert.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.90
+      },
+      {
+        "id": "mzt-tip-019",
+        "category": "od_max",
+        "tip": "Setting OD Max larger than necessary causes excessive rapid travel time as the turret retracts to that clearance height on every tool change and approach. Keep it close to actual stock diameter for efficiency.",
+        "source": "iOKXWYykMr8",
+        "confidence": 0.92
+      },
+      {
+        "id": "mzt-tip-020",
+        "category": "bar_stock",
+        "tip": "For bar stock with multiple parts, workpiece length must be the total bar length (all parts plus cutoff kerfs), not individual part length. Otherwise machine will alarm with insufficient material.",
+        "source": "iOKXWYykMr8",
+        "confidence": 0.93
+      },
+      {
+        "id": "mzt-tip-021",
+        "category": "tool_selection",
+        "tip": "When selecting tools in MAZATROL, the tool data window only shows tools capable of the current operation. If a tool doesn't appear, verify its type definition in tool data matches the operation (e.g., general_out for OD turning).",
+        "source": "iOKXWYykMr8",
+        "confidence": 0.90
+      },
+      {
+        "id": "mzt-tip-022",
+        "category": "geometry",
+        "tip": "Use the question mark (?) for unknown dimensions in taper programming. Fill in the known dimensions and angle, then press CALCULATE. The machine computes the missing value. This is the fastest way to program chamfers at non-45-degree angles.",
+        "source": "iOKXWYykMr8",
+        "confidence": 0.95
+      },
+      {
+        "id": "mzt-tip-023",
+        "category": "integrex",
+        "tip": "On Integrex, tool numbers with letter offsets (T6.01, T6.02, T6.03) correspond to offsets A, B, C. Changing between these in G-code automatically rotates, orients, and clamps the spindle for the defined setup.",
+        "source": "39vELy_RKVI",
+        "confidence": 0.93
+      },
+      {
+        "id": "mzt-tip-024",
+        "category": "tip_compensation",
+        "tip": "To increase groove corner radius cut depth in EIA mode, increase the tip radius value in the offset page (opposite of milling cutter comp where you decrease diameter). Larger tip radius value pushes tool deeper into the corner.",
+        "source": "39vELy_RKVI",
+        "confidence": 0.88
+      },
+      {
+        "id": "mzt-tip-025",
+        "category": "process_planning",
+        "tip": "The finish tool will only cut finish allowance amount beyond what the roughing tool left. If the rougher can't reach an area (e.g., steep sphere), the finisher won't clean it up either — must split into separate processes.",
+        "source": "EPkvGVNoV98",
+        "confidence": 0.95
+      }
+    ],
+
+    "common_tool_configurations": {
+      "turning_tools": {
+        "80_degree_diamond_CNMG": {
+          "typical_tool_number": 4,
+          "insert": "CNMG (80-degree diamond)",
+          "holder_angle": "95 degrees",
+          "use": "General roughing and finishing OD/face",
+          "nose_radius": "0.031 inch typical"
+        },
+        "55_degree_diamond_DNMG": {
+          "typical_tool_number": 1,
+          "insert": "DNMG (55-degree diamond)",
+          "use": "Roughing with better angle access than 80-degree",
+          "limitation": "Cannot reach areas steeper than ~30 degrees from horizontal"
+        },
+        "35_degree_diamond_VNMG": {
+          "typical_tool_number": 2,
+          "insert": "VNMG (35-degree diamond)",
+          "use": "Finishing and profiling steep angles, ball shapes",
+          "advantage": "Can reach steep angles that 55-degree cannot",
+          "note": "Sharper point tool (#8 at ~8 degrees) for even tighter access"
+        }
+      },
+      "boring_tools": {
+        "boring_bar": {
+          "typical_tool_number": 12,
+          "use": "ID roughing and finishing",
+          "note": "Can be used as OD turning tool on Integrex by rotating B-axis"
+        }
+      },
+      "drilling_tools": {
+        "drill": {
+          "typical_tool_number": 13,
+          "use": "Center drilling and through-hole drilling"
+        }
+      },
+      "grooving_tools": {
+        "groove_insert": {
+          "typical_tool_number": 2,
+          "typical_width": "0.093 inch (93 thou)",
+          "corner_radius": "0.004 inch per side",
+          "offsets": "A=left edge, B=right edge, C=center"
+        }
+      },
+      "threading_tools": {
+        "thread_tool": {
+          "description": "60-degree thread insert",
+          "auto_populated": true
+        }
+      }
+    },
+
+    "keyboard_and_navigation": {
+      "left_button": "Main menu access (Program, Position, Tool Set)",
+      "right_button": "Context menu (Figure Check, Scale, Erase, Calculate)",
+      "down_arrow": "Advance to next field/unit",
+      "three_arrows_button": "Access additional options menu (M-code, Drill, etc.)",
+      "auto_button": "Auto-populate speeds, feeds, depths from material database",
+      "input_button": "Confirm/enter value",
+      "teach_button": "Store measured position as offset reference",
+      "store_button": "Preserve display scale and view through edits",
+      "continue_button": "Auto-fill start point from previous shape endpoint",
+      "corner_r_button": "Toggle between chamfer and radius for dimension entry",
+      "shape_end": "End geometry definition for current unit",
+      "figure_check": "Display graphical preview of geometry",
+      "calculate_button": "Compute unknown dimension from angle and known points",
+      "help_button": "Display context-sensitive help diagrams (groove types, etc.)"
+    },
+
+    "error_avoidance": [
+      {
+        "issue": "Feed rate decimal error",
+        "description": "Typing 0.120 IPR instead of 0.012 IPR — machine accepts it and crashes tool into part",
+        "prevention": "Always double-check decimal placement on feed rate entries"
+      },
+      {
+        "issue": "OD Max too small",
+        "description": "Setting OD Max smaller than actual stock causes tool to crash into stock during rapid approach",
+        "prevention": "Always set OD Max >= actual stock diameter"
+      },
+      {
+        "issue": "Offset column left at zero",
+        "description": "Tool ignores wear offset and uses only geometry offset — dimensions won't adjust with wear",
+        "prevention": "Always set offset column to 1 (minimum)"
+      },
+      {
+        "issue": "Finish before rough in layout",
+        "description": "Manually reordering layout can place finish operations before roughing — crashes tool into stock",
+        "prevention": "Verify rough operations precede finish for each feature when editing layout"
+      },
+      {
+        "issue": "Steep angle roughing",
+        "description": "55-degree or wider insert cannot rough geometry steeper than its clearance angle — leaves uncut material",
+        "prevention": "Use process copy to split rough/finish; rough with wider angle, finish with sharper tool"
+      },
+      {
+        "issue": "Missing chamfer rollover",
+        "description": "Not adding 0.002 inch past chamfer endpoint leaves tiny burr at chamfer edge",
+        "prevention": "Always add 0.002 to Z dimension past chamfer for nose radius rollover"
+      },
+      {
+        "issue": "Bar stock length error",
+        "description": "Setting workpiece length to single part length instead of total bar length causes alarm",
+        "prevention": "Sum all part lengths plus cutoff kerfs for total bar length"
+      },
+      {
+        "issue": "Wrong tool type in tool data",
+        "description": "Tool defined as 'general edge' but operation expects 'general out' — tool doesn't appear in selection or simulation fails",
+        "prevention": "Verify tool type in tool data matches intended operation"
+      }
+    ]
+  },
+
+  "prism_integration_notes": {
+    "mazak_controller_dialect": {
+      "target_controllers": ["MAZATROL T3", "MAZATROL T-Plus", "MAZATROL SMART", "Smooth C", "Smooth G", "Nexus"],
+      "programming_modes": ["MAZATROL (conversational)", "EIA/ISO (G-code)"],
+      "post_processor_implications": [
+        "MAZATROL programs are NOT G-code — they are stored in proprietary format",
+        "EIA/ISO mode on Mazak uses standard G-code with Mazak-specific M-codes",
+        "Post processor for Mazak EIA mode should include: G50 spindle limit, CSS/constant RPM modes",
+        "Parts catcher M-codes (M48/M49) are machine-specific — include in post processor M-code table",
+        "Tool call format for Integrex: T[tool].[offset] (e.g., T6.02 for tool 6 offset B)"
+      ]
+    },
+    "relevant_prism_engines": {
+      "PostProcessorPipelineEngine": "Mazak EIA/ISO dialect support — ensure G50, M48/M49, T-code format",
+      "LathePostProcessorEngine": "Mazak lathe-specific post processing",
+      "TurningPrintToProgramEngine": "MAZATROL-equivalent process planning logic — unit-based decomposition",
+      "MillTurnSwissPipelineEngine": "Integrex-type mill-turn operations, B-axis, multi-spindle",
+      "SpeedFeedOrchestratorEngine": "Auto speed/feed calculation matching MAZATROL's AUTO function",
+      "ToolSelectionEngine": "Tool type matching (general_out, general_in, groove, thread, drill)",
+      "ShopToolLibraryEngine": "Tool data page equivalent — insert angles, nose radii, holder angles",
+      "ThreadTurningEngine": "Threading unit parameters — lead, angle, depth, number of passes",
+      "DrillCycleOptimizationEngine": "Peck drilling cycle types matching MAZATROL drill types 0-3"
+    },
+    "knowledge_gaps_identified": [
+      "MAZATROL live tooling (C-axis milling) programming details not covered in depth",
+      "Y-axis programming on MAZATROL not demonstrated",
+      "Sub-spindle operations and TRANSFER unit not covered",
+      "Bar feeder integration details not covered",
+      "MAZATROL copy/pattern functions for multiple identical features not demonstrated"
+    ]
+  }
+}

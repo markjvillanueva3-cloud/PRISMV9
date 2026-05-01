@@ -1,0 +1,304 @@
+# PRISM MCP Server — Kubernetes Manifests
+# INFRA-8-1 U-DEP2
+#
+# Deployment: PRISM server (3 replicas, HPA)
+# StatefulSet: PostgreSQL with PVC
+# Deployment: Redis with persistence
+# ConfigMap, Secret, Ingress
+#
+# Usage:
+#   kubectl apply -f deploy/k8s/
+#   kubectl get pods -l app=prism
+---
+# ── Namespace ──
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prism
+  labels:
+    app: prism
+
+---
+# ── Secret (base64-encoded passwords) ──
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prism-secrets
+  namespace: prism
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "change-me-in-production"
+  REDIS_PASSWORD: "change-me-in-production"
+  PRISM_AUTH_SECRET: "change-me-minimum-32-characters-long"
+
+---
+# ── ConfigMap ──
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prism-config
+  namespace: prism
+data:
+  NODE_ENV: "production"
+  PRISM_AUTH_ENABLED: "true"
+  PRISM_MCP_PATH: "/app"
+  DATABASE_URL: "postgres://prism:$(POSTGRES_PASSWORD)@postgres:5432/prism"
+  REDIS_URL: "redis://:$(REDIS_PASSWORD)@redis:6379"
+
+---
+# ── PostgreSQL StatefulSet with PVC ──
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: prism
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: prism
+            - name: POSTGRES_USER
+              value: prism
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prism-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "prism"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: pgdata
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+
+---
+# ── PostgreSQL Service ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: prism
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  clusterIP: None
+
+---
+# ── Redis Deployment ──
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: prism
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)", "--appendonly", "yes"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prism-secrets
+                  key: REDIS_PASSWORD
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+---
+# ── Redis Service ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: prism
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+
+---
+# ── PRISM Server Deployment ──
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prism-server
+  namespace: prism
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: prism-server
+  template:
+    metadata:
+      labels:
+        app: prism-server
+    spec:
+      containers:
+        - name: prism
+          image: prism-mcp:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PRISM_AUTH_ENABLED
+              value: "true"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prism-secrets
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prism-secrets
+                  key: REDIS_PASSWORD
+            - name: DATABASE_URL
+              value: "postgres://prism:$(POSTGRES_PASSWORD)@postgres:5432/prism"
+            - name: REDIS_URL
+              value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+            - name: PRISM_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: prism-secrets
+                  key: PRISM_AUTH_SECRET
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+
+---
+# ── PRISM Service ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: prism-server
+  namespace: prism
+spec:
+  selector:
+    app: prism-server
+  ports:
+    - port: 80
+      targetPort: 3000
+
+---
+# ── Ingress ──
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prism-ingress
+  namespace: prism
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+    - host: prism.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prism-server
+                port:
+                  number: 80
+
+---
+# ── HorizontalPodAutoscaler ──
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: prism-server-hpa
+  namespace: prism
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prism-server
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

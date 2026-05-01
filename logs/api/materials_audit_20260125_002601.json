@@ -1,0 +1,2015 @@
+{
+  "timestamp": "2026-01-25T00:25:56.629188",
+  "total_materials": 2991,
+  "total_target": 990,
+  "overall_completeness": 44.9719236449506,
+  "critical_gaps": [
+    "P (Steels): Only 43.0% complete",
+    "M (Stainless Steels): Only 53.9% complete",
+    "N (Non-Ferrous): Only 38.0% complete",
+    "S (Superalloys): Need 64 more materials",
+    "S (Superalloys): Only 37.7% complete",
+    "H (Hardened Materials): Need 50 more materials",
+    "H (Hardened Materials): Only 0.0% complete",
+    "X (Specialty): Need 30 more materials",
+    "X (Specialty): Only 0.0% complete"
+  ],
+  "recommendations": [
+    "[X] CRITICAL: Add 64 superalloys (aerospace/high-temp coverage)",
+    "[!] Fill identification section across 2978 materials",
+    "[!] Fill recommendedParameters section across 1412 materials",
+    "[!] Fill machinability section across 802 materials",
+    "[+] Enhance friction section across 2988 materials",
+    "[+] Enhance thermalMachining section across 2988 materials",
+    "[+] Enhance statisticalData section across 2988 materials",
+    "[U] Add uncertainty bounds to 2106 materials"
+  ],
+  "enhancement_plan": {
+    "phases": [
+      {
+        "name": "EXPANSION",
+        "description": "Add missing materials",
+        "tasks": [
+          {
+            "iso_group": "S",
+            "name": "Superalloys",
+            "materials_needed": 64,
+            "priority": 1,
+            "agents": [
+              "materials_scientist",
+              "physics_validator",
+              "uncertainty_quantifier"
+            ]
+          },
+          {
+            "iso_group": "H",
+            "name": "Hardened Materials",
+            "materials_needed": 50,
+            "priority": 2,
+            "agents": [
+              "materials_scientist",
+              "physics_validator",
+              "uncertainty_quantifier"
+            ]
+          },
+          {
+            "iso_group": "X",
+            "name": "Specialty",
+            "materials_needed": 30,
+            "priority": 5,
+            "agents": [
+              "materials_scientist",
+              "physics_validator",
+              "uncertainty_quantifier"
+            ]
+          }
+        ],
+        "estimated_calls": 432
+      },
+      {
+        "name": "ENHANCEMENT",
+        "description": "Fill missing sections in existing materials",
+        "tasks": [
+          {
+            "section": "identification",
+            "materials_affected": 2978,
+            "params_per_material": 8,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "recommendedParameters",
+            "materials_affected": 1412,
+            "params_per_material": 20,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "machinability",
+            "materials_affected": 802,
+            "params_per_material": 8,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "johnsonCook",
+            "materials_affected": 440,
+            "params_per_material": 13,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "composition",
+            "materials_affected": 96,
+            "params_per_material": 15,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "physicalProperties",
+            "materials_affected": 96,
+            "params_per_material": 12,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "mechanicalProperties",
+            "materials_affected": 96,
+            "params_per_material": 15,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "kienzle",
+            "materials_affected": 96,
+            "params_per_material": 9,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "taylorToolLife",
+            "materials_affected": 96,
+            "params_per_material": 12,
+            "critical": true,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "friction",
+            "materials_affected": 2988,
+            "params_per_material": 10,
+            "critical": false,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "thermalMachining",
+            "materials_affected": 2988,
+            "params_per_material": 14,
+            "critical": false,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "statisticalData",
+            "materials_affected": 2988,
+            "params_per_material": 8,
+            "critical": false,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "chipFormation",
+            "materials_affected": 2978,
+            "params_per_material": 12,
+            "critical": false,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          },
+          {
+            "section": "surfaceIntegrity",
+            "materials_affected": 2978,
+            "params_per_material": 12,
+            "critical": false,
+            "agents": [
+              "materials_scientist",
+              "cross_referencer",
+              "quality_gate"
+            ]
+          }
+        ],
+        "estimated_calls": 21032
+      },
+      {
+        "name": "QUALITY",
+        "description": "Add uncertainty bounds and source tracking",
+        "tasks": [
+          {
+            "task": "Add uncertainty bounds",
+            "agents": [
+              "uncertainty_quantifier"
+            ]
+          },
+          {
+            "task": "Add source tracking",
+            "agents": [
+              "cross_referencer"
+            ]
+          },
+          {
+            "task": "Validate physics models",
+            "agents": [
+              "physics_validator"
+            ]
+          },
+          {
+            "task": "Gateway-ready formatting",
+            "agents": [
+              "schema_designer"
+            ]
+          }
+        ],
+        "estimated_calls": 5982
+      }
+    ],
+    "estimated_api_calls": 27446,
+    "estimated_cost": 411.69,
+    "priority_order": [
+      "S",
+      "H",
+      "P",
+      "M",
+      "K",
+      "N",
+      "X"
+    ]
+  },
+  "categories": {
+    "P": {
+      "name": "Steels",
+      "material_count": 1695,
+      "target_count": 400,
+      "gap": 0,
+      "avg_completeness": 42.95728520660581,
+      "files_scanned": [
+        "alloy_steels_065_100.js",
+        "carbon_alloy_steel_conditions.js",
+        "carbon_steels_001_010.js",
+        "carbon_steels_011_020.js",
+        "carbon_steels_021_030.js",
+        "carbon_steels_031_040.js",
+        "carbon_steels_041_050.js",
+        "free_machining_steels_051_064.js",
+        "steels_151_200.js",
+        "steels_201_250.js",
+        "steels_251_300.js",
+        "steels_301_350.js",
+        "steels_351_400.js",
+        "tool_steels_101_150.js",
+        "tool_steels_hardness_conditions.js"
+      ],
+      "common_missing_sections": {
+        "identification": 1692,
+        "chipFormation": 1692,
+        "friction": 1692,
+        "thermalMachining": 1692,
+        "surfaceIntegrity": 1692,
+        "recommendedParameters": 1116,
+        "statisticalData": 1692,
+        "machinability": 524
+      },
+      "materials_summary": [
+        {
+          "id": "P-CS-065",
+          "name": "AISI 4130 Chromoly",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-066",
+          "name": "AISI 4140 Chromoly",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-067",
+          "name": "AISI 4140 Quenched & Tempered 28 HRC",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-068",
+          "name": "AISI 4140 Quenched & Tempered 40 HRC",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-069",
+          "name": "AISI 4145 Chromoly",
+          "completeness": 87.4015748031496,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-070",
+          "name": "AISI 4150 Chromoly",
+          "completeness": 87.4015748031496,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-071",
+          "name": "AISI 4320 NiCrMo Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-072",
+          "name": "AISI 4340 NiCrMo High Strength",
+          "completeness": 87.4015748031496,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-073",
+          "name": "AISI 4340 Q&T 35 HRC",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-074",
+          "name": "AISI 4340 Q&T 45 HRC",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-075",
+          "name": "AISI 4620 NiMo Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-076",
+          "name": "AISI 4815 NiMo Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-077",
+          "name": "AISI 4820 NiMo Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-078",
+          "name": "AISI 5120 Chromium Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-079",
+          "name": "AISI 5140 Chromium",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-080",
+          "name": "AISI 5160 Spring Steel",
+          "completeness": 87.4015748031496,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-081",
+          "name": "AISI 52100 Bearing Steel Annealed",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-082",
+          "name": "AISI 52100 Bearing Steel Hardened 60 HRC",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-083",
+          "name": "AISI 8615 NiCrMo Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "P-CS-084",
+          "name": "AISI 8620 NiCrMo Carburizing",
+          "completeness": 86.61417322834646,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        }
+      ],
+      "total_materials_in_category": 1695
+    },
+    "M": {
+      "name": "Stainless Steels",
+      "material_count": 382,
+      "target_count": 100,
+      "gap": 0,
+      "avg_completeness": 53.873108793338005,
+      "files_scanned": [
+        "stainless_conditions_generated.js",
+        "stainless_steels_001_050.js",
+        "stainless_steels_051_100.js"
+      ],
+      "common_missing_sections": {
+        "identification": 382,
+        "chipFormation": 382,
+        "friction": 382,
+        "thermalMachining": 382,
+        "surfaceIntegrity": 382,
+        "machinability": 182,
+        "statisticalData": 382,
+        "recommendedParameters": 200
+      },
+      "materials_summary": [
+        {
+          "id": "M-SS-201",
+          "name": "304 Annealed",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-202",
+          "name": "304 1/4 Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-203",
+          "name": "304 1/2 Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-204",
+          "name": "304 3/4 Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-205",
+          "name": "304 Full Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-206",
+          "name": "304L Annealed",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-207",
+          "name": "304L 1/4 Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-208",
+          "name": "304L 1/2 Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-209",
+          "name": "304L 3/4 Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-210",
+          "name": "304L Full Hard",
+          "completeness": 19.68503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-211",
+          "name": "316 Annealed",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-212",
+          "name": "316 1/4 Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-213",
+          "name": "316 1/2 Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-214",
+          "name": "316 3/4 Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-215",
+          "name": "316 Full Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-216",
+          "name": "316L Annealed",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-217",
+          "name": "316L 1/4 Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-218",
+          "name": "316L 1/2 Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-219",
+          "name": "316L 3/4 Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "M-SS-220",
+          "name": "316L Full Hard",
+          "completeness": 20.47244094488189,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        }
+      ],
+      "total_materials_in_category": 382
+    },
+    "K": {
+      "name": "Cast Iron",
+      "material_count": 96,
+      "target_count": 60,
+      "gap": 0,
+      "avg_completeness": 104.74081364829397,
+      "files_scanned": [
+        "ductile_cast_irons_016_035.js",
+        "gray_cast_irons_001_015.js",
+        "special_cast_irons_036_060.js"
+      ],
+      "common_missing_sections": {
+        "identification": 96,
+        "chipFormation": 96,
+        "friction": 96,
+        "thermalMachining": 96,
+        "surfaceIntegrity": 96,
+        "statisticalData": 96,
+        "composition": 4,
+        "physicalProperties": 4,
+        "mechanicalProperties": 4,
+        "kienzle": 4,
+        "johnsonCook": 4,
+        "taylorToolLife": 4,
+        "machinability": 4,
+        "recommendedParameters": 4
+      },
+      "materials_summary": [
+        {
+          "id": "K-CI-028",
+          "name": "ADI Grade 4 (1400/1)",
+          "completeness": 102.36220472440945,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-029",
+          "name": "ADI Grade 5 (1600/0)",
+          "completeness": 88.18897637795276,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-030",
+          "name": "Ni-Resist Type D-2 (Austenitic)",
+          "completeness": 105.51181102362204,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-031",
+          "name": "Ni-Resist Type D-5S (High Silicon)",
+          "completeness": 103.93700787401573,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-032",
+          "name": "Silicon-Molybdenum Ductile Iron (SiMo)",
+          "completeness": 115.74803149606299,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-033",
+          "name": "Solid Solution Strengthened Ferritic Ductile Iron",
+          "completeness": 122.83464566929135,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-034",
+          "name": "Ductile Iron Induction Hardened Surface",
+          "completeness": 96.8503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-035",
+          "name": "Ductile Iron Nitrided Surface",
+          "completeness": 92.1259842519685,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-028",
+          "name": "ADI Grade 4 (1400/1)",
+          "completeness": 102.36220472440945,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-029",
+          "name": "ADI Grade 5 (1600/0)",
+          "completeness": 88.18897637795276,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-030",
+          "name": "Ni-Resist Type D-2 (Austenitic)",
+          "completeness": 105.51181102362204,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-031",
+          "name": "Ni-Resist Type D-5S (High Silicon)",
+          "completeness": 103.93700787401573,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-032",
+          "name": "Silicon-Molybdenum Ductile Iron (SiMo)",
+          "completeness": 115.74803149606299,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-033",
+          "name": "Solid Solution Strengthened Ferritic Ductile Iron",
+          "completeness": 122.83464566929135,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-034",
+          "name": "Ductile Iron Induction Hardened Surface",
+          "completeness": 96.8503937007874,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-035",
+          "name": "Ductile Iron Nitrided Surface",
+          "completeness": 92.1259842519685,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-001",
+          "name": "Gray Iron Class 20 As-Cast",
+          "completeness": 127.55905511811024,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-002",
+          "name": "Gray Iron Class 25 As-Cast",
+          "completeness": 120.4724409448819,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-003",
+          "name": "Gray Iron Class 30 As-Cast",
+          "completeness": 120.4724409448819,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "K-CI-004",
+          "name": "Gray Iron Class 35 As-Cast",
+          "completeness": 120.4724409448819,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        }
+      ],
+      "total_materials_in_category": 96
+    },
+    "N": {
+      "name": "Non-Ferrous",
+      "material_count": 782,
+      "target_count": 250,
+      "gap": 0,
+      "avg_completeness": 37.98960871579032,
+      "files_scanned": [
+        "aluminum_2xxx_011_030.js",
+        "aluminum_2xxx_021_030.js",
+        "aluminum_6xxx_031_050.js",
+        "aluminum_6xxx_045_050.js",
+        "aluminum_6xxx_generated.js",
+        "aluminum_7xxx_051_070.js",
+        "aluminum_7xxx_generated.js",
+        "aluminum_alloys_001_010.js",
+        "aluminum_cast_071_090.js",
+        "aluminum_cast_generated.js",
+        "aluminum_temper_conditions.js",
+        "aluminum_wrought_011_050.js",
+        "aluminum_wrought_generated.js",
+        "copper_alloys_generated.js",
+        "copper_temper_conditions.js",
+        "magnesium_alloys_generated.js",
+        "titanium_alloys_generated.js",
+        "zinc_alloys_generated.js"
+      ],
+      "common_missing_sections": {
+        "identification": 772,
+        "chipFormation": 772,
+        "friction": 782,
+        "thermalMachining": 782,
+        "surfaceIntegrity": 772,
+        "statisticalData": 782,
+        "composition": 92,
+        "physicalProperties": 92,
+        "mechanicalProperties": 92,
+        "kienzle": 92,
+        "johnsonCook": 436,
+        "taylorToolLife": 92,
+        "machinability": 92,
+        "recommendedParameters": 92
+      },
+      "materials_summary": [
+        {
+          "id": "N-AL-011",
+          "name": "2011-T3 Free Machining",
+          "completeness": 117.32283464566929,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-012",
+          "name": "2011-T8 Free Machining (Aged)",
+          "completeness": 104.72440944881889,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-013",
+          "name": "2014-O Annealed",
+          "completeness": 104.72440944881889,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-014",
+          "name": "2014-T4 Solution Treated",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-015",
+          "name": "2014-T6 Peak Aged",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-016",
+          "name": "UNKNOWN",
+          "completeness": 0.0,
+          "sections_missing": [
+            "identification",
+            "composition",
+            "physicalProperties",
+            "mechanicalProperties",
+            "kienzle",
+            "johnsonCook",
+            "taylorToolLife",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-017",
+          "name": "2024-O Annealed",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-018",
+          "name": "2024-T3 Solution Treated + Cold Worked",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-019",
+          "name": "2024-T351 Stress Relieved",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-020",
+          "name": "2024-T4 Solution Treated",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-011",
+          "name": "2011-T3 Free Machining",
+          "completeness": 117.32283464566929,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-012",
+          "name": "2011-T8 Free Machining (Aged)",
+          "completeness": 104.72440944881889,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-013",
+          "name": "2014-O Annealed",
+          "completeness": 104.72440944881889,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-014",
+          "name": "2014-T4 Solution Treated",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-015",
+          "name": "2014-T6 Peak Aged",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-016",
+          "name": "UNKNOWN",
+          "completeness": 0.0,
+          "sections_missing": [
+            "identification",
+            "composition",
+            "physicalProperties",
+            "mechanicalProperties",
+            "kienzle",
+            "johnsonCook",
+            "taylorToolLife",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "machinability",
+            "recommendedParameters",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-017",
+          "name": "2024-O Annealed",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-018",
+          "name": "2024-T3 Solution Treated + Cold Worked",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-019",
+          "name": "2024-T351 Stress Relieved",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "N-AL-020",
+          "name": "2024-T4 Solution Treated",
+          "completeness": 100.0,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": true,
+          "schema_version": "v1.0 (legacy)"
+        }
+      ],
+      "total_materials_in_category": 782
+    },
+    "S": {
+      "name": "Superalloys",
+      "material_count": 36,
+      "target_count": 100,
+      "gap": 64,
+      "avg_completeness": 37.664041994750654,
+      "files_scanned": [
+        "cobalt_superalloys_generated.js",
+        "nickel_superalloys_generated.js"
+      ],
+      "common_missing_sections": {
+        "identification": 36,
+        "chipFormation": 36,
+        "friction": 36,
+        "thermalMachining": 36,
+        "surfaceIntegrity": 36,
+        "statisticalData": 36
+      },
+      "materials_summary": [
+        {
+          "id": "S-CO-001",
+          "name": "Stellite 6 (Co-Cr-W)",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-002",
+          "name": "Stellite 21 (Co-Cr-Mo)",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-003",
+          "name": "Haynes 25 (L-605)",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-004",
+          "name": "Haynes 188",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-005",
+          "name": "MP35N",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-006",
+          "name": "Elgiloy",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-007",
+          "name": "Tribaloy T-800",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-008",
+          "name": "MAR-M 509",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-001",
+          "name": "Stellite 6 (Co-Cr-W)",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-002",
+          "name": "Stellite 21 (Co-Cr-Mo)",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-003",
+          "name": "Haynes 25 (L-605)",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-004",
+          "name": "Haynes 188",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-005",
+          "name": "MP35N",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-006",
+          "name": "Elgiloy",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-007",
+          "name": "Tribaloy T-800",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-CO-008",
+          "name": "MAR-M 509",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-NI-001",
+          "name": "Inconel 600",
+          "completeness": 34.645669291338585,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-NI-002",
+          "name": "Inconel 625",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-NI-003",
+          "name": "Inconel 718 Annealed",
+          "completeness": 39.37007874015748,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        },
+        {
+          "id": "S-NI-004",
+          "name": "Inconel 718 Age Hardened",
+          "completeness": 37.00787401574803,
+          "sections_missing": [
+            "identification",
+            "chipFormation",
+            "friction",
+            "thermalMachining",
+            "surfaceIntegrity",
+            "statisticalData"
+          ],
+          "has_uncertainty": false,
+          "schema_version": "v1.0 (legacy)"
+        }
+      ],
+      "total_materials_in_category": 36
+    },
+    "H": {
+      "name": "Hardened Materials",
+      "material_count": 0,
+      "target_count": 50,
+      "gap": 50,
+      "avg_completeness": 0.0,
+      "files_scanned": [],
+      "common_missing_sections": {},
+      "materials_summary": [],
+      "total_materials_in_category": 0
+    },
+    "X": {
+      "name": "Specialty",
+      "material_count": 0,
+      "target_count": 30,
+      "gap": 30,
+      "avg_completeness": 0.0,
+      "files_scanned": [],
+      "common_missing_sections": {},
+      "materials_summary": [],
+      "total_materials_in_category": 0
+    }
+  }
+}

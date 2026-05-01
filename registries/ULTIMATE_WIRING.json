@@ -1,0 +1,186 @@
+{
+  "version": "16.0.0",
+  "type": "ULTIMATE_EXHAUSTIVE_WIRING",
+  "generatedAt": "2026-01-31T19:18:48.134060",
+  "goldenRule": "IF IT CAN BE USED, USE IT!",
+  "resource_counts": {
+    "databases": 69,
+    "formulas": 490,
+    "engines": 447,
+    "skills": 1227,
+    "agents": 64,
+    "hooks": 6632,
+    "scripts": 1257,
+    "algorithms": 200,
+    "knowledge_bases": 6,
+    "products": 4,
+    "total_resources": 10396
+  },
+  "connection_counts": {
+    "db_to_formula": 16905,
+    "formula_to_engine": 2711,
+    "engine_to_skill": 3478,
+    "db_to_engine": 22620,
+    "db_to_skill": 8466,
+    "db_to_product": 276,
+    "formula_to_skill": 7350,
+    "formula_to_agent": 2450,
+    "formula_to_hook": 4900,
+    "engine_to_agent": 3576,
+    "engine_to_hook": 5364,
+    "engine_to_script": 2235,
+    "skill_to_agent": 3681,
+    "skill_to_hook": 6135,
+    "skill_to_script": 2454,
+    "skill_to_product": 1227,
+    "agent_to_hook": 3200,
+    "agent_to_script": 640,
+    "agent_to_product": 128,
+    "hook_to_script": 13264,
+    "hook_to_product": 1658,
+    "script_to_product": 2514,
+    "algorithm_to_engine": 2000,
+    "algorithm_to_formula": 1600,
+    "algorithm_to_skill": 1000,
+    "kb_to_formula": 480,
+    "kb_to_engine": 420,
+    "kb_to_skill": 1200,
+    "kb_to_agent": 60
+  },
+  "total_connections": 121992,
+  "wiring_matrix": {
+    "DATABASES": {
+      "feeds": [
+        "FORMULAS",
+        "ENGINES",
+        "SKILLS",
+        "AGENTS",
+        "PRODUCTS"
+      ],
+      "avg_connections_per_item": 245.0
+    },
+    "FORMULAS": {
+      "feeds": [
+        "ENGINES",
+        "SKILLS",
+        "AGENTS",
+        "HOOKS",
+        "PRODUCTS"
+      ],
+      "fed_by": [
+        "DATABASES",
+        "KNOWLEDGE_BASES",
+        "ALGORITHMS"
+      ],
+      "avg_connections_per_item": 5.5
+    },
+    "ENGINES": {
+      "feeds": [
+        "SKILLS",
+        "AGENTS",
+        "HOOKS",
+        "SCRIPTS",
+        "PRODUCTS"
+      ],
+      "fed_by": [
+        "DATABASES",
+        "FORMULAS",
+        "ALGORITHMS"
+      ],
+      "avg_connections_per_item": 7.8
+    },
+    "SKILLS": {
+      "feeds": [
+        "AGENTS",
+        "HOOKS",
+        "SCRIPTS",
+        "PRODUCTS"
+      ],
+      "fed_by": [
+        "DATABASES",
+        "FORMULAS",
+        "ENGINES",
+        "KNOWLEDGE_BASES"
+      ],
+      "avg_connections_per_item": 1.0
+    },
+    "AGENTS": {
+      "feeds": [
+        "HOOKS",
+        "SCRIPTS",
+        "PRODUCTS"
+      ],
+      "fed_by": [
+        "FORMULAS",
+        "ENGINES",
+        "SKILLS"
+      ],
+      "avg_connections_per_item": 50.0
+    },
+    "HOOKS": {
+      "feeds": [
+        "SCRIPTS",
+        "PRODUCTS"
+      ],
+      "fed_by": [
+        "FORMULAS",
+        "ENGINES",
+        "SKILLS",
+        "AGENTS"
+      ],
+      "avg_connections_per_item": 2.0
+    },
+    "SCRIPTS": {
+      "feeds": [
+        "PRODUCTS"
+      ],
+      "fed_by": [
+        "ENGINES",
+        "SKILLS",
+        "AGENTS",
+        "HOOKS"
+      ],
+      "avg_connections_per_item": 2.0
+    },
+    "ALGORITHMS": {
+      "feeds": [
+        "FORMULAS",
+        "ENGINES",
+        "SKILLS"
+      ],
+      "avg_connections_per_item": 18.0
+    },
+    "KNOWLEDGE_BASES": {
+      "feeds": [
+        "FORMULAS",
+        "ENGINES",
+        "SKILLS",
+        "AGENTS"
+      ],
+      "avg_connections_per_item": 150.0
+    },
+    "PRODUCTS": {
+      "fed_by": [
+        "DATABASES",
+        "FORMULAS",
+        "ENGINES",
+        "SKILLS",
+        "AGENTS",
+        "HOOKS",
+        "SCRIPTS"
+      ],
+      "consumes_all": true
+    }
+  },
+  "hierarchy_depth": 5,
+  "cross_layer_connections": 40886,
+  "metrics": {
+    "total_resources": 10396,
+    "total_connections": 121992,
+    "avg_connections_per_resource": 11.7,
+    "connection_density": 0.1129,
+    "largest_layer": "HOOKS (6,632)",
+    "most_connected_type": "ENGINES (feeds 5 types, fed by 3 types)",
+    "deepest_path": "DATABASE -> FORMULA -> ENGINE -> SKILL -> AGENT -> HOOK -> SCRIPT -> PRODUCT"
+  }
+}

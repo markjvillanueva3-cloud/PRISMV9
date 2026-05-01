@@ -1,0 +1,366 @@
+{
+  "agent_id": "AGT-SONNET-008",
+  "name": "thermal_calculator",
+  "tier": "SONNET",
+  "version": "1.0.0",
+  "created": "2026-01-29",
+  "role": "Thermal Calculator - Cutting Temperature and Heat Transfer Calculations (LIFE SAFETY)",
+  
+  "domain_expertise": [
+    "Cutting temperature prediction",
+    "Heat partition analysis",
+    "Tool-chip interface temperature",
+    "Workpiece temperature rise",
+    "Thermal conductivity effects",
+    "Heat generation models",
+    "Coolant effectiveness",
+    "Thermal expansion prediction",
+    "Tool thermal limits",
+    "Fire prevention calculations"
+  ],
+
+  "life_safety_warning": "THERMAL CALCULATIONS ARE LIFE-SAFETY CRITICAL. Incorrect temperature predictions can lead to tool failure, fire, workpiece damage, or operator injury. Always include safety margins and uncertainty bounds.",
+
+  "capabilities": [
+    {
+      "id": "CAP-THERM-001",
+      "name": "Cutting Temperature Calculation",
+      "description": "Calculates cutting zone temperature using empirical and analytical models (LIFE SAFETY CRITICAL)",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_speed", "feed_rate", "depth_of_cut", "material_properties"],
+        "optional": ["tool_geometry", "coolant_type", "ambient_temperature"]
+      },
+      "outputs": {
+        "primary": "cutting_temperature",
+        "secondary": ["temperature_uncertainty", "safety_margin", "max_allowable"]
+      },
+      "skills_used": ["prism-material-physics", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["calc:safetyBoundsCheck", "THERMAL-CALC"],
+      "synergizes_with": ["force_calculator", "materials_scientist"],
+      "formula": "T = T_ambient + ΔT_cutting",
+      "models": {
+        "empirical": "T = C × v^a × f^b × d^c (Boothroyd)",
+        "analytical": "T = (1-R) × P / (ρ × c × V) (energy balance)",
+        "FEA_simplified": "Johnson-Cook thermal softening"
+      },
+      "safety_limits": {
+        "HSS_max": "600°C",
+        "carbide_max": "1000°C",
+        "ceramic_max": "1200°C",
+        "workpiece_flash_point": "Material dependent"
+      },
+      "success_criteria": "Temperature with ±uncertainty and safety check"
+    },
+    {
+      "id": "CAP-THERM-002",
+      "name": "Heat Partition Analysis",
+      "description": "Calculates heat distribution between chip, tool, and workpiece",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_power", "material_properties", "tool_properties"],
+        "optional": ["cutting_speed", "coolant"]
+      },
+      "outputs": {
+        "primary": "heat_partition",
+        "secondary": ["chip_heat_fraction", "tool_heat_fraction", "workpiece_heat_fraction"]
+      },
+      "skills_used": ["prism-material-physics", "prism-uncertainty-propagation"],
+      "hooks_triggered": ["HEAT-PARTITION"],
+      "synergizes_with": ["force_calculator"],
+      "typical_partition": {
+        "chip": "70-80%",
+        "tool": "10-20%",
+        "workpiece": "5-15%"
+      },
+      "success_criteria": "Partition fractions sum to 100%"
+    },
+    {
+      "id": "CAP-THERM-003",
+      "name": "Tool-Chip Interface Temperature",
+      "description": "Calculates maximum temperature at tool-chip interface",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_speed", "chip_thickness", "material_thermal_props"],
+        "optional": ["tool_thermal_props", "coating"]
+      },
+      "outputs": {
+        "primary": "interface_temperature",
+        "secondary": ["temperature_gradient", "thermal_shock_risk"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:safetyBoundsCheck", "INTERFACE-TEMP"],
+      "synergizes_with": ["materials_scientist", "force_calculator"],
+      "success_criteria": "Interface temperature below tool limit"
+    },
+    {
+      "id": "CAP-THERM-004",
+      "name": "Workpiece Temperature Rise",
+      "description": "Calculates temperature rise in workpiece during machining",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["heat_input", "workpiece_mass", "specific_heat"],
+        "optional": ["coolant_effectiveness", "machining_time"]
+      },
+      "outputs": {
+        "primary": "temperature_rise",
+        "secondary": ["final_temperature", "thermal_distortion_risk"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["WORKPIECE-TEMP"],
+      "synergizes_with": ["materials_scientist"],
+      "success_criteria": "Temperature rise quantified with uncertainty"
+    },
+    {
+      "id": "CAP-THERM-005",
+      "name": "Thermal Conductivity Effects",
+      "description": "Analyzes impact of material thermal conductivity on machining",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["material_thermal_conductivity", "cutting_conditions"],
+        "optional": ["comparison_material"]
+      },
+      "outputs": {
+        "primary": "conductivity_impact",
+        "secondary": ["heat_buildup_tendency", "recommended_adjustments"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["CONDUCTIVITY-ANALYZE"],
+      "synergizes_with": ["materials_scientist"],
+      "conductivity_categories": {
+        "high": ">100 W/m·K (aluminum, copper)",
+        "medium": "20-100 W/m·K (steel)",
+        "low": "<20 W/m·K (titanium, stainless, nickel)"
+      },
+      "success_criteria": "Conductivity impact quantified"
+    },
+    {
+      "id": "CAP-THERM-006",
+      "name": "Heat Generation Rate",
+      "description": "Calculates heat generation rate from cutting power",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["cutting_force", "cutting_speed"],
+        "optional": ["friction_coefficient"]
+      },
+      "outputs": {
+        "primary": "heat_generation_rate",
+        "secondary": ["power_to_heat_conversion", "efficiency_loss"]
+      },
+      "skills_used": ["prism-material-physics"],
+      "hooks_triggered": ["HEAT-GEN"],
+      "synergizes_with": ["force_calculator"],
+      "formula": "Q = Fc × Vc / 60 (watts)",
+      "success_criteria": "Heat rate in watts with uncertainty"
+    },
+    {
+      "id": "CAP-THERM-007",
+      "name": "Coolant Effectiveness Analysis",
+      "description": "Analyzes coolant effectiveness for heat removal",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["coolant_type", "flow_rate", "heat_load"],
+        "optional": ["nozzle_configuration", "pressure"]
+      },
+      "outputs": {
+        "primary": "cooling_effectiveness",
+        "secondary": ["heat_removal_rate", "temperature_reduction", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["COOLANT-ANALYZE"],
+      "synergizes_with": ["machinist"],
+      "coolant_types": {
+        "flood": "High volume, moderate pressure",
+        "high_pressure": "Through-tool, 70+ bar",
+        "mist": "Minimal quantity lubrication",
+        "cryogenic": "CO2 or LN2"
+      },
+      "success_criteria": "Cooling effectiveness quantified"
+    },
+    {
+      "id": "CAP-THERM-008",
+      "name": "Thermal Expansion Prediction",
+      "description": "Predicts dimensional changes due to thermal expansion",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["temperature_change", "material_CTE", "dimension"],
+        "optional": ["constraint_conditions"]
+      },
+      "outputs": {
+        "primary": "dimensional_change",
+        "secondary": ["expansion_uncertainty", "tolerance_impact"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["EXPANSION-CALC"],
+      "synergizes_with": ["materials_scientist"],
+      "formula": "ΔL = L × α × ΔT",
+      "success_criteria": "Expansion with uncertainty vs tolerance"
+    },
+    {
+      "id": "CAP-THERM-009",
+      "name": "Tool Thermal Limit Check",
+      "description": "Validates cutting conditions against tool material thermal limits (LIFE SAFETY)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["predicted_temperature", "tool_material"],
+        "optional": ["coating_type"]
+      },
+      "outputs": {
+        "primary": "within_limits",
+        "secondary": ["safety_margin", "max_allowable_speed", "warnings"]
+      },
+      "skills_used": ["prism-material-physics", "prism-manufacturing-tables"],
+      "hooks_triggered": ["calc:safetyBoundsCheck", "TOOL-LIMIT-CHECK"],
+      "synergizes_with": ["machinist", "force_calculator"],
+      "tool_limits": {
+        "HSS": "550-650°C",
+        "carbide_uncoated": "800-1000°C",
+        "carbide_TiN": "600°C (coating limit)",
+        "carbide_TiAlN": "800°C (coating limit)",
+        "carbide_AlTiN": "900°C (coating limit)",
+        "ceramic": "1200°C",
+        "CBN": "1400°C",
+        "PCD": "700°C (graphitization)"
+      },
+      "success_criteria": "Temperature < limit with safety margin"
+    },
+    {
+      "id": "CAP-THERM-010",
+      "name": "Fire Risk Assessment",
+      "description": "Assesses fire risk for combustible materials (Mg, Ti chips) (LIFE SAFETY CRITICAL)",
+      "category": "VALIDATION",
+      "inputs": {
+        "required": ["material", "chip_form", "coolant_type"],
+        "optional": ["chip_accumulation_rate"]
+      },
+      "outputs": {
+        "primary": "fire_risk_level",
+        "secondary": ["risk_factors", "mitigation_required", "emergency_procedures"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["SYS-LAW1-SAFETY", "FIRE-RISK"],
+      "synergizes_with": ["machinist", "materials_scientist"],
+      "high_risk_materials": ["Magnesium", "Titanium fine chips", "Aluminum with oil"],
+      "success_criteria": "Fire risk assessed and mitigated"
+    },
+    {
+      "id": "CAP-THERM-011",
+      "name": "Thermal Damage Prediction",
+      "description": "Predicts risk of thermal damage to workpiece (white layer, burn marks)",
+      "category": "ANALYSIS",
+      "inputs": {
+        "required": ["surface_temperature", "exposure_time", "material"],
+        "optional": ["cooling_rate"]
+      },
+      "outputs": {
+        "primary": "damage_risk",
+        "secondary": ["white_layer_risk", "burn_risk", "metallurgical_changes"]
+      },
+      "skills_used": ["prism-material-physics", "prism-material-schema"],
+      "hooks_triggered": ["DAMAGE-PREDICT"],
+      "synergizes_with": ["materials_scientist"],
+      "success_criteria": "Thermal damage risk quantified"
+    },
+    {
+      "id": "CAP-THERM-012",
+      "name": "Thermal Model Selection",
+      "description": "Selects appropriate thermal model for given conditions",
+      "category": "SELECTION",
+      "inputs": {
+        "required": ["operation_type", "accuracy_requirement"],
+        "optional": ["available_data", "computation_budget"]
+      },
+      "outputs": {
+        "primary": "recommended_model",
+        "secondary": ["model_accuracy", "data_requirements", "alternatives"]
+      },
+      "skills_used": ["prism-material-physics", "prism-knowledge-master"],
+      "hooks_triggered": ["MODEL-SELECT"],
+      "synergizes_with": ["architect"],
+      "available_models": {
+        "empirical": "Fast, requires calibration data",
+        "analytical": "Good balance of speed/accuracy",
+        "FEA": "Highest accuracy, slow",
+        "hybrid": "Combines approaches"
+      },
+      "success_criteria": "Appropriate model selected"
+    },
+    {
+      "id": "CAP-THERM-013",
+      "name": "Batch Thermal Calculation",
+      "description": "Calculates thermal data for multiple conditions in batch",
+      "category": "CALCULATION",
+      "inputs": {
+        "required": ["conditions_array"],
+        "optional": ["parallel", "stop_on_error"]
+      },
+      "outputs": {
+        "primary": "batch_results",
+        "secondary": ["statistics", "outliers", "safety_violations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-quality-master"],
+      "hooks_triggered": ["BATCH-THERMAL"],
+      "synergizes_with": ["coordinator_v2"],
+      "success_criteria": "All conditions calculated with validation"
+    },
+    {
+      "id": "CAP-THERM-014",
+      "name": "Thermal Report Generation",
+      "description": "Generates comprehensive thermal analysis report",
+      "category": "GENERATION",
+      "inputs": {
+        "required": ["thermal_results"],
+        "optional": ["report_format", "include_recommendations"]
+      },
+      "outputs": {
+        "primary": "thermal_report",
+        "secondary": ["summary", "safety_warnings", "recommendations"]
+      },
+      "skills_used": ["prism-material-physics", "prism-quality-master"],
+      "hooks_triggered": ["REPORT-GENERATE"],
+      "synergizes_with": ["documentation_writer"],
+      "success_criteria": "Complete thermal report with safety notes"
+    }
+  ],
+
+  "skills_mastered": [
+    "prism-material-physics",
+    "prism-uncertainty-propagation",
+    "prism-material-schema",
+    "prism-manufacturing-tables",
+    "prism-quality-master",
+    "prism-validator",
+    "prism-knowledge-master"
+  ],
+
+  "hooks_subscribed": [
+    "calc:safetyBoundsCheck",
+    "SYS-LAW1-SAFETY",
+    "quality:gateCheck"
+  ],
+
+  "can_delegate_to": [
+    "force_calculator",
+    "materials_scientist"
+  ],
+
+  "receives_from": [
+    "coordinator_v2",
+    "force_calculator",
+    "machinist"
+  ],
+
+  "quality_gates": [
+    "Temperature within physical range",
+    "Uncertainty bounds provided",
+    "Safety limits checked",
+    "Heat partition sums to 100%"
+  ],
+
+  "performance_metrics": {
+    "calculation_accuracy": 0.90,
+    "safety_detection_rate": 0.999,
+    "latency_target_ms": 100,
+    "batch_throughput": 1000
+  }
+}

@@ -1,0 +1,2257 @@
+
+===== PAGE 3 =====
+3 
+  
+Haas Lathe Programming  Training Manual  
+Table of Contents  
+ 
+HAAS LATHE PROGRAMMING TRAINING MANUAL TABLE OF CONTENTS  ................................ ............. 3 
+INTRODUCTION  ................................ ................................ ................................ ................................ .5 
+THE COORDINATE SYSTEM  ................................ ................................ ................................ ................. 6 
+MACHINE HOME  ................................ ................................ ................................ ................................ 7 
+ABSOLUTE AND INCREMENTAL POSITIONING  ................................ ................................ ..................... 9 
+CARTESIAN COORDINATE X, Z GRID ................................ ................................ ................................ ................  10 
+TYPICAL  LATHE PART ................................ ................................ ................................ ................................ .... 10 
+LATHE PART PROJECTED ON LATHE X Z GRID ................................ ................................ ................................ .... 11 
+TYPICAL LATHE PART ................................ ................................ ................................ ................................ .... 12 
+PROGRAMMING  ................................ ................................ ................................ ..............................  16 
+PROGRAM FORMAT  ................................ ................................ ................................ ................................ ...... 17 
+DEFINITIONS WITHIN THE FORMAT  ................................ ................................ ................................ .................  18 
+ALPHABETICAL ADDRESS CODES  ................................ ................................ ................................ .......  19 
+PREPARATORY FUNCTIONS (G CODES)  ................................ ................................ ..............................  23 
+MISCELLANEOUS FUNCTIONS (M CODES)  ................................ ................................ ..........................  25 
+MACHINE DEFAULTS ................................ ................................ ................................ ................................ ..... 26 
+LATHE PROGRAMMING  ................................ ................................ ................................ ....................  27 
+MACHINING CYCLES FOR THE LATHE  ................................ ................................ ................................ . 30 
+DRILLING , TAPPING AND BORING CANNED CYCLES  ................................ ................................ ............................  30 
+MACHINE CYCLES FOR TURNING AND GROOVING  ................................ ................................ ..............................  31 
+LINEAR/CIRCULAR MOVEMENT -CREATING TOOL PATHS  ................................ ................................ ... 32 
+INTERPOLATION COMMANDS  ................................ ................................ ................................ ..........  34 
+LINEAR INTERPOLATION EXERCI SE ................................ ................................ ................................ ...................  35 
+CIRCUL AR INTERPOLATION COMMANDS  ................................ ................................ ................................ ...........  36 
+CIRCULAR INTERPOLATION MOTION EXERCISES  ................................ ................................ ................................ . 41 
+CIRCULAR INTERPOLATION EXERCISE  ................................ ................................ ................................ ...............  43 
+ 
+ 
+
+===== PAGE 4 =====
+4 
+  
+ 
+ 
+MANUALLY PROGRAMMING TOOL NOSE COMPENSATION  ................................ ...............................  44 
+CALCULATING COMPENSA TION FOR A  RADIUS ON YOUR PART ................................ ................................ .............  44 
+RADIUS CALCULATION  ................................ ................................ ................................ ................................ .. 45 
+EXTERNAL RADIUS CALCULATION  ................................ ................................ ................................ ....................  46 
+INTERNAL RADIUS CALCULATION  ................................ ................................ ................................ ....................  46 
+CALCULATING COMPENSATION FOR “AN ANGLE ” ON YOUR PART ................................ ................................ .......  50 
+TOOL NOSE RADIUS C ALCULATION  DIAGRAM  ................................ ................................ ...................  51 
+TOOL NOSE COMPENSATION – TAPER CALCULATION  ................................ ................................ .........................  52 
+MISCELLANEOUS G CODES  ................................ ................................ ................................ ...............  61 
+REFERENCE POINT DEFINITION AND RETURN  ................................ ................................ ................................ .... 61 
+SPINDLE SPEED COMMANDS  ................................ ................................ ................................ ..........................  62 
+WORK COORDINATE SYSTEM SELECTION  ................................ ................................ ..........................  63 
+FEED COMMAND FUNCTIONS ................................ ................................ ................................ .........................  63 
+TOOL NOSE COMPENSATION G CODES  ................................ ................................ ................................ ............  64 
+TOOL NOSE COMPENSATION PROGRAMMING  ................................ ................................ ..................  66 
+TOOL NOSE COMPENSATION CONCEPTS  ................................ ................................ ................................ ..........  68 
+IMAGINARY TOOL TIP AND DIRECTION  ................................ ................................ ................................ .............  69 
+USING TOOL NOSE COMPENSATION  ................................ ................................ ................................ ................  70 
+CANNED CYCLES AND ADDITIONAL G CODES  ................................ ................................ .....................  78 
+TOOL NOSE C OMPENSATIO N IN CANNED CYCLES  ................................ ................................ ..............  81 
+TYPE 1 DETAILS  ................................ ................................ ................................ ................................  90 
+TYPE II DETAILS  ................................ ................................ ................................ ................................  90 
+FACE, TURN AND CUT-OFF EXERCISE  ................................ ................................ ................................ ...............  96 
+TYPE I DETAILS  ................................ ................................ ................................ ................................ ............  99 
+G76 THREAD CUTTING CYCLE, MULTIPLE PASS  ................................ ................................ .............  113 
+THREAD PROGRAMMING EXERCISE  ................................ ................................ ................................ ...............  117 
+DRILLING, BORING AND TAPPING CANNED CYCLES  ................................ ................................ .........  119 
+EXERCISE  ................................ ................................ ................................ ................................ ..................  120 
+CYLINDER  ROD THREAD LATHE PROGRAM EXERCISE  ................................ ................................ ........................  121 
+CANNED CYCLES FOR DRILLING AND TAPPING  ................................ ................................ ................................ . 122 
+M CODE DETAILED DESCRIPTION  ................................ ................................ ................................ .... 137 
+ 
+
+===== PAGE 16 =====
+16 
+  
+ 
+Programming  
+ 
+ 
+The de finition of a part program for any CNC consists of movements of the tool and speed changes to 
+the spindle RPM.  It also contains auxiliary command functions such as tool changes, c oolant on or off 
+commands, or external M codes commands.  
+ 
+Tool movements con sist of rapid positioning commands, straight line movement of the tool at a 
+controlled speed, and movement along an arc.  
+ 
+The Haas lathe  has two (2) linear axes named X and Z.  the  X-axis mo ves the tool turret toward and away 
+from the spindle center line, while the Z axis moves the tool turret along the spindle axis.  The machine 
+zero position is where the tool is at the right corner of the work cell farthest away from the spindle a xis.  
+Moti on in the X -axis will move the table toward the spindle centerline  for negative numbers and away 
+from spindle center for positive numbers.  Motion in the z -axis will move the tool toward the spindle 
+chuck for negative numbers and away from the ch uck for po sitive numbers.  
+ 
+A program is written as a set of instructions giv en in the order they are to be performed.  The 
+instructions, if given in English, might look like this:  
+ 
+LINE #1 =  SELECT CUTTING TOOL.  
+LINE #2 =  TURN THE SPINDLE ON AND SELECT THE  RPM.  
+LINE  #3 = TURN THE COOLANT ON.  
+LINE #4 =  RAPID TO THE STARTING POSITIO N OF THE PART.  
+LINE #5 =  CHOOSE THE PROPER FEED RATE AND MAKE THE CUT(S)  
+LINE #6 =  TURN OFF THE SPINDLE AND THE COOLANT.  
+LINE #7 =  RETURN TOOL TO HOLDING POSITION AND SELECT NEXT TOOL  
+ 
+and s o on.  But our machine control understands only these messages whe n given in machine code.    
+ 
+ 
+
+===== PAGE 19 =====
+19 
+  
+ 
+Alphabetical Address Codes  
+ 
+The followin g is a lis t of the Address Code s used in programming the lathe:  
+ 
+A FOURTH AX IS ROTARY MOTION  
+ 
+The A address character is normally used to specify  motion for the optional fourth  A, axis.  It specifies an 
+angle in degrees for the rotary axis.  It is always f ollowed by  a signed number and up to three fractional 
+decimal positions.  If  no decimal point is entered, the last digit is assumed to be 1/1000 degrees.  The 
+smallest magnitude is 0.001 degrees, the most negative value is -8380.000, and the largest value is 
+8380.00 0 degrees.  
+ 
+The A axis  on the Haas lathe  is currently reserved  for the tool turret  and is hidden to the programmer.  
+The units of rotation indicate tool positions such that 1.000 represents tool #1.  
+ 
+B LINEAR B -AXIS MOTION  
+ 
+The B address characte r is used to specify absolute motion for the B axis.  It specifies a positio n or 
+distance along the B axis.  It is either in inches with four fractional positions or millimeters with three 
+fractional positions.  It is followed by a signed number between -8380.00 and  8380.00.  If no decimal 
+point is entered, the last digit is assum ed to be 1/10000 inches or 1/1000 millimeters.   
+On the Haas lathes the B axis is either travel of the tail stock or sub -spindle.  
+ 
+C FIFTH AXIS ROTARY MOTION  
+ 
+The C address characte r is used to specify motion for the optional external fifth, C, axis.  It sp ecifies an 
+angle in degrees for the rotary axis.  It is always followed by a signed number and up to three fractional 
+decimal positions.  If no decimal point is entered, the last d igit is as sumed to  be 1/1000 degrees.  The 
+smallest magnitude is 0.001 degr ees, the most negative value is -8380.00, and the largest value is 
+8380.00 degrees.  
+ 
+D CANNED CYCLE DATA  
+ 
+The D address  character is used within several canned macro cycles:  
+ In G7 1 and G72 stock removal cycles D prescribes the depth of cut used for each p ass. 
+ In G73 D indicates the number of passes to remove a set amount of stock.  
+ In G76 multiple pass threading cycle D sets the depth of cut on the first pass.  
+ 
+E FEED RATE, 6 PLAC E PRECISIO N (SAME AS F)  
+ 
+The E address character is used to select feed rate  applied to any interpolating G codes or canned cycles.  
+The unit is in inches per revolution or mm per revolution.  Up to six fractional positions can be specified.  
+The default o f units/re volution (G99) can be changed to units/minute with G98.  For YASNA C and FANUC 
+control compatibility, use the E code when 5 or 6 place precision is desired.  
+ 
+
+===== PAGE 20 =====
+20 
+  
+F FEED RATE  
+ 
+The F address character is used to select feed rate applied to any interpo lating G c odes or canned cycles.  
+The unit is in inches per revolution or mm  per revolution.  The default of units/revolution (G99) can be 
+changed to units/minute with G98.  Traditionally, the F code was capable of only 4 -fractional position 
+accuracy; but on this co ntrol you can specify F to six place accuracy.  Code E and F are e quivalent.  
+ 
+G  PREPARATORY FUNCTIONS (G CODES)  
+ 
+The G address character is used to specify the type of operation to occur in the block conta ining the G 
+code.  The G is followed by a two or three digit number between 0 and 255.  Each G code defined in this 
+control is part of a group of G codes.  The Group 0 codes are non -modal; that is, they specify a function 
+applicable to this block only and do not affect other blocks.  The other groups are modal and the 
+specificatio n of one code in the group cancels the previous code applicable from that group.  A modal G 
+code applies to all subsequent blocks so those blocks do not need to re -specify the same  G code.  More 
+than one G code can be placed in a block in order to specify all of the setup conditions for an operation.  
+See the following section (Preparatory Functions (G Codes)) for a detailed list of G codes.  The G codes 
+are specified in an A/B/C fo rmat to sh ow the three different G coding systems.  Each system uses a 
+diffe rent G code for the same function.  In this manual, programming is described based on the A 
+system, however, Setting 34 (G CODE SYSTEM) can be used to select another system.  
+ 
+H NOT  USED, OPT IONAL MACRO PARAMETER  
+ 
+I CANNED CYCLE AND CIRCULAR OPTIONAL DATA   
+ 
+The I address character is used to specify data used for some canned cycles and circular motions.  It is 
+either in inches with four fractional positions or mm with three fractiona l position s.  It is followed by a 
+signed number in inches between -8380.00 a nd 8380.00 for inches or between -8380.00 and 8380.00 for 
+metric.  
+ 
+J CANNED CYCLE AND CIRCULAR OPTIONAL DATA  
+ 
+The J address character is used to specify data used for some canned c ycles and circular motions.  It is 
+formatted just like the I data.  
+ 
+K CANNED  CYCLE AND CIRCULAR OPTIONAL DATA  
+ 
+The K address character is used to specify data used for some canned cycles and circular motions.  It is 
+formatted just like the I data.  
+ 
+L LOOP COUNT FOR REPEATED CYCLES  
+ 
+The L address character is used to specify a repe tition count for some canned cycles and auxiliary 
+functions.  It is followed by an unsigned number between 0 and 32767.  
+ 
+
+===== PAGE 21 =====
+21 
+  
+M M CODE MISCELLANEOUS FUNCTIONS  
+ 
+The M address character  is used t o specify an M code for a block.  These codes are used to control 
+miscellaneous machine functions.  Not that only one M code is allowed per block of the CNC program 
+and all M codes are performed at the end of the block.  
+ 
+N NUMBER OF BLOCK  
+ 
+The N address ch aracter is entirely optional.  It can be used to identify or numbe r each block of a 
+program.  It is followed by a number between 0 and 99999.  The M97, M98 and M99 functions may 
+reference an N line number.  
+ 
+O PROGRAM NUMBER  PROGRAM NAME  PARENTHES IS 
+ 
+The O address character is used to identify a program.  It is followed b y a number between 0 and 99999.  
+A program saved in memory always has a O nnnnn identification in the first block; it cannot be deleted.  
+Altering the O in the first block causes th e program to be renamed.  A program may have only one 
+Onnnnn command  a colo n (:) may be used in the place of O, but is always displayed as “O”.   “O” 
+Programs may be deleted  by highlighting i n the List Program page by using the DEL key or ERASE PROG 
+key.  Up to 500 p rograms may be stored in the List Program page.    
+ 
+P DELAY TIME OR  PROGRAM NUMBER  
+ 
+The P address character is used to enter either a time in seconds or a program number for a subroutine 
+call.  If it is used as a time (for a G04 dwell) or a progra m name (fo r a M97), the value may be either a 
+positive number without decima l point up to 9999.  If it is used as a time, it may be a positive decimal 
+with fraction between 0.001 and 1000.00.  
+ 
+Q CANNED CYCLE OPTIONAL DATA  
+ 
+The Q address character is used i n canned c ycles and is always a positive number in inches/mm between 
+0 and 1 00.0.  
+ 
+R CANNED CYCLE AND CIRCULAR OPTIONAL DATA  
+ 
+The R address character is used in canned cycles and circular interpolation.  It is either in inches with 
+four fractional position s or mm wi th three fractional positions.  It is followed by a signed number in 
+inches between -8380.00 and 8380.00 for inches or between -8380.00 and 8380.00 for metric.  It is 
+usually used to define the reference plane for canned cycles.  
+ 
+S SPINDLE SPEED COMMAND  
+ 
+The S address character is used to specify the spindle speed.  The S is followed by an unsigned number 
+between 1 - 99999.  The S command does not turn the spindle on or off; it only sets the desired speed.  
+If a gear change is required in order to  set the c ommanded speed, this command will cause a gear 
+change to occur eve n if the spindle is stopped.  If the spindle is running, a gear change operation will 
+occur and the spindle will continue running at the new speed.   A decimal is not allowed with a  S 
+command . 
+ 
+
+===== PAGE 24 =====
+24 
+  
+ 
+ 
+ 
+G54  12*  Select Work Coordinate System 1  
+G55  12  Select Work Coordinate System 2  
+G56  12  Select  Work Coordinate System 3  
+G57  12  Select Work Coordinate System 4  
+G58  12  Select  Work Coo rdinate Sys tem 5 
+G59  12  Select Work Coordinate System 6  
+G61  13  Exact Sto p Modal  
+G64  13*  G61 Cancel  
+G65  00  Macro Subroutine Call  
+G70  00  Finishing Cycle  
+G71  00  O.D./I.D. Stock Removal Cycle  
+G72  00  End Face Stock Removal Cycle  
+G73  00  Irregular  Path Stock  Removal Cycle  
+G74  00  End Face Grooving Cycle, Peck Drilling  
+G75  00  O.D./I.D. Grooving cycle, Peck Drilling  
+G76  00  Thread Cutting Cycle, Multiple Pass  
+G80  09*  Canned Cycle Cancel  
+G81  09  Drill Canned Cycle  
+G82  09  Spot Drill Canned Cyc le 
+G83  09  Peck Drill Canned Cycle  
+G84  09  Tapping Canned Cycle  
+G85  09  Boring Canned Cycle  
+G86  09  Bore/Stop Canned Cycle  
+G87  09  Bore/Manual Retract Canned Cycle  
+G88  09  Bore/Dwell Canned Cycle  
+G89  09  Bore Canned Cycle  
+G90  01  O.D.I.D. Turning c ycle, Modal  
+G92  01  Thread Cutting Cycle, Modal  
+G94  01  End Face Cutting c ycle, Modal  
+G96  12  Constant Surface Speed On  
+G97  12*  Constant Surface Speed Cancel  
+G98  05  Feed per Minute  
+G99  05*  Feed per Revolution  
+             G102   00  Programmable Ou tput to RS -232 
+G103   00  Block Look Ahead Limit  (P0-P15)  
+ G110 -G129  12  Extra Work Coordinate System 7 through 26  older  
+                                             Machines  
+ G154P1 to  12  Extra Work offsets newer machines  
+ G154P99  
+G184   09  Reverse Tap Ca nned Cycle  
+G187  00  Accuracy Control for machining corners.  G187 Ennnn wil l  
+    modify setting 85 – maximum corner rounding  
+
+===== PAGE 25 =====
+25 
+  
+ 
+ 
+Miscellaneous Functions (M Codes)  
+ 
+ 
+M-codes are non -axes moving comman ds; a lso called machine functions .  
+ 
+The format for M -codes is the letter “M” followed by two numbers, for example M01.     
+ 
+Only on e M-code is allowed on a single block of code.    
+ 
+M-codes are the last thing to take effect on a line of code .   
+ 
+M-codes are usually place at the end of a block of code.  
+  
+ M00  Program Stop    
+   Stops spindle, axe s movement, turns off coolant  
+   On p ressing CYCLE START button program will continue on from where it stopped  
+ 
+ M01  Optional program stop  
+   Works exactly the same as a M00     
+   Is only active when  optional stop k ey activates it on control panel  
+ 
+ M02  End of program  – cannot  continue   
+   Most co mmon way is using M30  
+ 
+ M03  Start spindle forward (Clockwise)   
+   Must be  accompanied by a spindle speed  
+ 
+ M04  Start spindle reverse (Counterclockwise)   
+   Must have a spindle sp eed (S valu e) 
+ 
+ M05  Spindle Stop  
+ 
+ M08  Coolant on Command  
+  
+ M09  Coolant off Command  
+ 
+ M10  Clamp Spindle Chuck  
+ 
+ M11  Unclamp Spindle Chuck  
+ 
+ M21  Tailstock Forward  
+ 
+ M22  Tailstock Reverse  
+ 
+ M23  Thread Chamfer O n during a G76 or G92 cycle  
+ 
+  
+
+===== PAGE 26 =====
+26 
+  
+ 
+ 
+ 
+M24  Thread  Chamfer Of f 
+ 
+ M30  Program end and  rewind to beginning of program  
+   
+M41  Low Gear  
+ 
+ M42  High Gear  
+ 
+ M85  Automatic Door Open  
+ 
+ M86  Automatic Door Close  
+ 
+ M88  High Pressure Coolant On  
+ 
+ M89  High Pressure Coolant Off  
+ 
+ M97  Local Sub -Program Call (P, L)  
+ 
+ M98  Sub Program  Call (P, L)  
+ 
+ M99  Sub Program Return or Loop  
+  
+NOTE:  Only one "M" code can be used per line .  The "M" code will be the last item of code to  
+be performed, regardless of where it is located in the line.  
+ 
+ 
+Machine Defaults  
+ 
+ 
+A default is an automa tic functio n of the machine tool control.  After powering up the machine, th e 
+control will recognize the default G code values.  The machine will go to the part zero entered for G54 if 
+no other work coordinate code was specified in the actual program.  The  machine au tomatically 
+recognizes the G54 column upon start -up.  This is kno wn as a default.   
+ 
+The control automatically recognizes these G codes when your HAAS lathe is powered up:  
+G00 Rapid Traverse  
+G18 X, Z Circular Plane Selection  
+G40 Cutter Compensat ion Cancel  
+G54 Work Coordinate Zero #1 (1 of 26 available)  
+G64 Exact Stop Ca ncel 
+G80 Canned Cycle Cancel  
+G97 Constant Surface Speed Cancel  
+G99 Feed Per Revolution  
+ 
+There is no default FEEDRATE (F code), but once an F code is programmed, it will apply until  another 
+feed rate is entered or the machine is turned off.  
+
+===== PAGE 28 =====
+28 
+  
+ 
+ 
+ 
+G97:  Constant spindle speed.  A G97 should be programmed at the beginning and end of every tool in a 
+program with a spindle speed.  
+ 
+G99:  Feed per revolution:  This is the  default.  Normally lathes are always in G99 mode, they are never 
+changed to  G98 (Feed per minute).  The only time G98 would be used if live tooling is being used.  If you 
+are in G98 mode when G99 is required the feed rates are so small (.009) the machine would just move 
+very slow taking forever to complete the command.  If you ar e in G99 mode and a typical Feed/Minute 
+say 10 inches/minute the machine at a speed of 200 RPM the machine would interpret this as 2000 inch 
+per minute way above the feed limit on the machine  and alarm out.   
+ 
+So it is up to the individual programmer to de cide is a safety line is used.  
+ 
+The second line  of code indexes the turret to the appropriate tool giving proper  geometry or tool shifts.  
+ 
+The third line  may contain a spindle spee d maximum , G50, for the lathe during any operation. . 
+ 
+The fourth line  or blo ck should cancel any constant surface speed mode (G97) and specify a spindle 
+speed command (S____) along with a spindle ON clockwise command (M03).   This speed should 
+correspond to  a constant  surface speed (G96) in line N6 at the diameter indicated in N5.  If not the lathe 
+will hesitate until it gets to the proper speed and sound strange.  
+ 
+The fifth line  should contain a preparatory code (G00) for a rapid movement to a start X and Z  position .  
+It should specify the work coordinate being used, and to turn on  the coolant (M08).  
+ 
+The sixth line  may optionally specify a Constant Surface Speed (G96) and a surface feet per minute 
+(SFM) defined with an (S____) command.  
+ 
+An example of the fi rst five li nes of a program might look like this:  
+ 
+N1 G28;  
+N2 T101;  
+N3 G50 S 2000;  
+N4 G97 S 1146  M03;  
+N5 G54 G00 X1.5 Z.02 M08;  
+N6 G96 S450;  
+ 
+This format is a good example and defines a commonly used program style.  
+ 
+The format defines the “language of the ma chine tool. ”  A description of the particular words a machine 
+may accept, th e order in which they must appear, the number of numeric digits associated with each 
+word, the location of a decimal point, and the presence or absence of signs is explained in the  following 
+pages. 
+ 
+
+===== PAGE 30 =====
+30 
+  
+ 
+Machining  Cycles  for the Lathe  
+ 
+ 
+A machining cycle is u sed to simplify the programming of a part.  Machine cycles are defined for the 
+most common machining operations.  There are two types: machining cycles for turning and grooving 
+and canned cyc les for drilling, tapping, and boring.  
+ 
+ 
+ 
+Drilling, Tapping and B oring Canned Cycles  
+ 
+ 
+These cycles are used to define and simplify programming for the most common Z -axis, repetitive 
+operations such as drilling, tapping, and boring.  Once select ed, a canne d cycle is active until canceled 
+with a G80 code.  There are six operations involved in every canned cycle:  
+ 
+1) Positioning of X and Z -axes.  
+2) Rapid traverse to the reference R -plane.  
+3) Drilling, boring, or tapping action.  
+4) Operation at the bottom of th e hole.  
+5) Retraction to the reference R -plane.  
+6) Rapid traverse to the initial s tarting point.  
+ 
+These cycles are modal, which remain in effect after they are defined and executed in the Z -axis for each 
+positioning of X axes in a program.  Some of the cycle com mand values  can be changed after these 
+cycles have been defined.  The comman d values most often changed during a cycle are the R plane value 
+and the Z depth value.  These modal cycles will be canceled with the G80, G01 or G00 commands.  The 
+X-axis moves in  these moda l machine cycles are performed as rapid moves.  
+The operation of a  canned cycle will vary according to whether incremental (U, W) or absolute (X, Z) is 
+specified.  Incremental motion is often useful in a canned cycle.  If a loop count (Lnn code n umber) is 
+defined within the block, the canned cycle will repeat that many t imes with an incremental U (X -axis 
+move) move between each cycle.  
+ 
+The following is a list of the canned cycles tha t can be used on the HAAS lathe:  
+ 
+G80  Canned Cycle Cancel  
+G81  Drill Canned  Cycle 
+G82  Spot Drill Canned Cycle  
+G83  Peck Drill Canned Cycle  
+G84  Tapping Canned Cycle  
+G85  Bore in Bore out Canned Cycle  
+G86  Bore in Rapid out Canned Cycle  
+G87  Bore with Manual Retract Canned Cycle  
+G88  Bore in Dwell with Manual Retract C anned Cycle  
+G89  Bore in Dwell Bore out Canned Cycle  
+ 
+ 
+ 
+
+===== PAGE 31 =====
+31 
+  
+ 
+ 
+ 
+Machine Cycles f or Turning and Grooving  
+ 
+ 
+The following is a list of the canned cycles that can be used for turning and grooving for the 
+HAAS lathe controls.  
+ 
+G70  Finishing Cycle  
+G71  O.D./I.D. S tock Remova l cycle  
+G72  End Face Stock Removal Cycle  
+G73  Irregular Path Sto ck Removal Cycle  
+G74  End Face Grooving or Turning with Chip Break Cycle  
+G75  O.D./I.D. Grooving or Turning with Chip Break cycle  
+G76  Thread Cutting Cycle, Multiple Pass  
+G90  O.D. /I.D. Turni ng Cycle Modal  
+G92  Thread Cutting Cycle Modal  
+G94  End Face Cutt ing Cycle Modal  
+ 
+A machine cycle is used to simplify programming of a part.  Machine cycles are defined for the 
+most common, repetitive operations such as turning, facing, threadin g and groov ing.  There are 
+both modal and non -modal machine cycles.  Modal c ycles, such as turning cycle G90, remain in 
+effect after they are defined.  After any subsequent X or Z -axis positioning, the canned cycle is 
+executed again.  Modal canned cycles r emain in ef fect until canceled by a G80, G00, end of 
+program, or RESET.  Non -modal machine cycles are effective only for the block that contains 
+them, but will perform a series of machining moves to perform that command.  
+ 
+
+===== PAGE 32 =====
+32 
+  
+ 
+ 
+Linear/Circular Movement -Creat ing Tool Pa ths 
+ 
+ 
+CNC programs consist of lines and arcs. This unit will disc uss the proper methods to create tool paths 
+applied to CNC programs to create the desired results in addition to creating tool paths with and 
+without cutter compensation.  
+ 
+Objectiv es:   
+ 
+Upon  completion of this unit, the student will:  
+ 
+1) Understand the major  differences in G01 and G00.  
+ 
+2) Understand and apply the five criteria needed to produce an arc.  
+ 
+3) Understand the principles of programming and applications with and without cutter 
+compensation in addition to the advantages and disadvantages of each.  
+ 
+4) Be capa ble of producing a tool path program, containing lines and arcs, with and without 
+cutter compensation.  
+ 
+5) Be capable of determining feeds and speeds given an SFM and cutting tool, an d be capabl e 
+of determining a feed rate given an RPM and chip load.  
+ 
+6) Be able  to integrate a tool path into a part program.  
+ 
+7) Understand the rules governing the use of cutter compensation.  
+ 
+8) Have a basic understanding of the concept of arc in/arc out and some  of its app lications.   
+ 
+ 
+
+===== PAGE 62 =====
+62 
+  
+ 
+Spindle  Speed  Command s 
+ 
+ 
+G50  SPI NDLE SPEED CLAMP  
+ 
+G50 can be used to clamp maximum spindle speed.  The control wi ll not allo w the spindle to exceed the 
+S address value specified in the most  recent G50 command.  This is most often used in constant surface 
+feed mode G96.  
+ 
+N1 G50  S2500;    (Spindle RPM will not exceed 2500 RPM)  
+N2 G96  S650  M03;   (Enter constant surfac e speed mod e, spindle on)  
+ 
+The effect of centrifugal force on its gripping f orce, unbalanced condition of the work  piece, etc., can be 
+constrained by programming a  G50 code.  
+ 
+The MAXIMUM spindle speed is designated by the “S” word along with the G50 prepar atory comma nd 
+and must be in the same block.  
+ 
+Once the MAXIMUM spindle speed  is established, any direct RPM programmed in G97 (direct revolution 
+per minute) or con trol-calcula ted RPM from the G96 (constant surface footage mode) exceeding the 
+RPM establishe d by the G5 0 block is ignored and the G50 “S” word spindle speed is used.  
+ 
+The second use of G50 is for older equipment not having work zero and geometry offset ca pabilities.  
+This will not be covered because it is not desirable or as easy to use.  
+ 
+G96  CONSTANT SURF ACE SPEED ON  
+ 
+G96 commands the control to maintain a constant sur face speed of the part relative to the tool tip.  
+Surface speed is based on the distanc e of the too l tip to the spindle center (radius of the cut).  Constant 
+surface speed is maint ained by ad justing the spindle speed based on the radius of the cut.  The cu rrent S 
+code is used to determine the surface speed.  G96 is modal.  
+ 
+G97 CONSTANT SURFA CE SPEED OFF  
+ 
+G97 commands the control to NOT adjust the spindle speed based on the radius of  cut.  It i s used to 
+cancel any current G96 command.  When G97 is in effect,  any S command is in revolution per minute 
+(RPM).  G97 is modal.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 63 =====
+63 
+  
+ 
+Work Coord inate  System  Selection  
+ 
+ 
+The HAAS CNC lathe control supports both YASNAC and FANUC coordinate  systems.  Work coordinates, 
+together with tool offsets, can be used to posi tion a part program anywhere within the work cell with 
+great flexibility.  
+ 
+G52 CHILD OR  LOCAL COORD INATE SYSTEM  
+ 
+G52 selects the child  coordinate system. It is non -modal and FANUC compatible.   M30, Reset or power 
+down will remove any values in G52  
+ 
+G53 NON -MODAL MACHINE COORDINATE SELECTION  
+ 
+G53 temporarily cancels work coordinates offset an d uses the m achine coordinate system.  It is non -
+modal, therefore, the next block will revert  to the wor k coordinate that was active.  
+ 
+G54-59   SELECT  COORDINATE  SYSTEM #1 T HRU   #6 
+ 
+These codes select one of the six user coordinate systems stored within th e offset mem ory.  All 
+subsequent references to positions of axes will be interpreted in the n ew coordina te system.  Work 
+coordinate system offsets are entered from the O ffsets display page.  
+ 
+G110 -G129  COORDINATE SYSTEM  #7 T HRU  #26 OR 
+G154P1 to G154 P99  
+ 
+ 
+ 
+Feed Command  Functions  
+ 
+ 
+G98 FEED PER MINUTE   
+ 
+G98 affects how the F address code is interpre ted.  The v alue of F indicates inches per minute when 
+Setting 9 is set to IN CH and millimeters -per-minute when Setting 9 is set to METRIC.  This code is modal.  
+ 
+ IPM = Current  RPM X IPR  
+ 
+G99 FEED PER REVOLUTION  
+ 
+G99 affects how the F address is interpreted .  The valu e of F indicates inches -per-revolution of the 
+spindle when Settin g 9 is set to INCH and millimeters -per-revolution of the spindle when Setting 9 is set 
+to METRIC.  This code is modal and is the default feed mode.  
+ 
+ IPR = IPM / Current RPM  
+ 
+
+===== PAGE 78 =====
+78 
+  
+ 
+Canned Cycles and additiona l G Codes  
+ 
+ 
+One of the most common types of codes in CNC programming are “ca nned cycles.”   This unit will define 
+and discuss canned cycles and state some uses and  application s. 
+ 
+Objectives:  
+ 
+Upon completion of this unit, the student will:  
+ 
+1) Be able to defi ne “canned cycle.”  
+ 
+2) Be familiar with common canned cycles, their variables, the proper applications, and the 
+correct use of them.  
+ 
+3) Complete final exercise.  
+ 
+Machi ning Cycles  for the Lathe  
+ 
+A machining cycle is used to simplify the programming of a part.  Machine cyc les are defined for the 
+most common machining operations.  They c an be divided into two types.  There are machine cycles for 
+turning and grooving.  Ther e are cycles  for drilling and tapping and can be either single block canned 
+cycles or modal c anned cycle s. 
+The following is a list of the canned cycles that can be used for turning and groov ing for the HAAS lathe 
+controls:    
+ 
+G70 Finishing Cycles  
+G71 O.D./ I.D. Stock R emoval Cycle  
+G72 End Face Stock Removal Cycle  
+G73 Irregular Path Stock Removal Cy cle 
+G74 End Face Grooving or Turning with Chip Break Cycle  
+G75 O.D./I.D. Gro oving or Turning with Chip Break Cycle  
+G76 Thread Cutting Cycle, Multiple Pass  
+G90 O.D. /I.D. Turnin g Cycle Modal  
+G92 Thread Cutting Cycle Modal  
+G94 End Face Cutting Cycle Modal  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 79 =====
+79 
+  
+ 
+ 
+ 
+ 
+ 
+G71 O.D./I.D. S TOCK REMOVAL  CYCLE  
+ 
+  P Starting Block number of pa th to rough  
+  Q  Ending Block number of path to rough  
+  U X-axis value and direction of  G71 rough s tock allowance, diameter  
+  W Z-axis value and direction of G71 rough stock allowa nce 
+  D Depth of cut for each pass of stock removal, positive radius  
+*I X-axis stock value and direction for a G71 finish pass, radius  
+*K Z-axis stock value and di rection for a G71 finish pass  
+*S Spindle speed to use throughout G71 PQ bock  
+*T Tool and offs et to use t hroughout G71 PQ block  
+*F Feedrate to use throughout G71 PQ block  
+*R1 YASNAC select Type II roughing  
+* Indicate optional  
+ 
+ 
+This canned cycle will rough  out materia l on a part given the finished part shape.  All a programmer 
+needs to do is to de fine the sh ape of a part by programming the finished tool path  and then subm itting 
+the path definition to the G71 call by means of a PQ block designation.   Any fee ds, spindle speeds or 
+tools within the block defining the path are ignored by the G71 call.  Any F, S or  T commands on the G71 
+line or in effect at the time of the G71, are used throughout the G71 roughing cycle.  Usually, a G70 call 
+to the same PQ block d efinition is  used to finish the shape using the programmed feeds, speeds, tools 
+and offsets d efined with in the PQ block definition.  
+ 
+Two types of machining paths are add ressed with a G71 command.  The first type of path, a Type  I, is 
+when the X -axis of the  programmed path does not change direction. This type of path is called a 
+
+===== PAGE 80 =====
+80 
+ monotonic path.  Th e second ty pe of path, a Type II, allows the X -axis to change direction.  Fo r both the 
+first and second type of programmed path, the Z -axis must be monotonous; it cannot chang e direction.   
+ 
+For FANUC, Type I  is selected by having only an X-axis motion  in the block  specified by the P block  in the 
+G71 call.  For FANUC, Type II  is selected by having both an X-axis and Z-axis motion in the P block .  
+When in YASNAC mode , Type II ro ughing is selected by including R1 on the G71 command block.  
+ 
+G71 consists of a  roughing p hase and a finishing phase.  The roughing and finishing phase are  handled 
+slightly differently for types I and types II.  Generally, the roughing phase co nsists of re peated passes 
+along the Z -axis at the specified G71 command line feed rate.  Th e finishing  phase consists of a G70 
+block using the programmed feeds, speeds , tools and offsets defined within the PQ block definition. The 
+final motion  in either ty pes is a return to the starting position S . 
+ 
+The start position S  is the position of the to ol at the t ime of the G71 call.  The Z clearance plane is 
+derived from the Z -axis start position and the sum of W and optional K finish.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+     
+   
+ 
+
+===== PAGE 81 =====
+81 
+  
+ 
+ 
+ 
+Tool Nose Compensation  in Canned  Cycles  
+ 
+ 
+This section describes how tool nose compensation works when a canned cycle is used.  R efer to  the 
+“Canned Cycles” section of this manual for a detailed  description of canned cycles.  Some canned cycles 
+igno re tool nose  compensation; some canned cycles expect a specific coding structure, while other 
+canned cycl es perform their own  specific c anned c ycle activity.  
+ 
+The following canned cycles will ignore to ol nose radius compensation.  It is recommended that to ol 
+nose comp ensation be cancelled prior to executing any of these canned cycles.  
+ 
+G74 End face grooving c ycle, peck drilling  
+G75 O.D./I. D. groo ving cycle, peck drilling  
+G76 Thread cutting cycle, multip le pass  
+G92 Thread cutting cycle, modal  
+ 
+The following canned cycle s work well when a specific programming sequence is used.  This 
+programming sequence is calle d a TEMPLATE.  By us ing the sug gested template, the programmer should 
+have no problem using thes e canned cycles with tool nose compensation.  These can ned cycles m ake 
+use of P and Q to identify a path the canned cycle is to work with.  
+ 
+ 
+G70 FINISHING  CYCLE  
+ 
+Usually, G70 is us ed followin g the u se of a G71, G72 or G73, but it can be used alone.  Below is the 
+template for using tool nose compensation with G 70 alone.  N ote that TNC approach is part of the PQ 
+path definition sequence, whereas TNC departure is af ter the execution of  G70.  
+ 
+G71 and G72  are similar canned cycles with regard to tool nose compen sation.  The finishing and rough 
+finishing passes of G7 1 and G72 re cognize tool nose compensation; however, the roughing pass of these 
+two G codes does not.  Th e template below can  be applied  to eit her G71 or G72.  
+ 
+G73 is similar to G71 and G72.  G73 recog nizes TNC on all passes.  
+ 
+ P Starting Block number of r outine to ex ecute  
+ Q Ending Block number of routine to execute  
+ 
+The G70 Finishing cycle can be used to fi nish cut paths that are defined  and ro ughed out with stock 
+removal cycles G71, G72 and G73.  
+ 
+The G70 requires a beginning block number (P code) and an ending block  number (Q code) be specified 
+for the machine code defining the part geometry to be machined.  
+ 
+
+===== PAGE 82 =====
+82 
+  
+ 
+The G70 cycle i s usually u sed aft er a G71, G72 or G73 has been performed using the blocks s pecified by 
+P and Q.  All codes in the block defined by  P and Q are  executed.  Any F, S or T codes between the P and 
+Q block are effective.  The PQ sequence is searched for in the current pro gram st arting from the 
+beginning of the program. The current mach ine position is saved and remembered as the start posit ion.  
+Then t he block starting at P is executed.  Processing continues in a normal fashion with blocks fol lowing 
+P until a blo ck containi ng an N  code matching the Q code in the G70 calling  block is foun d and 
+executed.    
+ 
+After execution of the Q block, a r apid (G00) i s executed returning the machine to the start position 
+saved earlier during G70 initializatio n.  The program then  returns to  the bl ock following the G70 call.  
+ 
+EXAMPLE  G70 WITH TNC  
+ 
+A tradi tional calling sequence using G70 appears below.  
+ 
+Rough  cycle feedr ate to rough out part between N10 and N50 for the G71 roughing cycle will be F.012, 
+which is defined in the G71 b lock.  
+ 
+Finish Feed rate for the G70 finishing cycle will be whatever is defin ed between N10 and N50.  
+ 
+G71  P10  Q70  U.01  W.005  D. 08  F.012   (Roughing cycle feedrate will be F.012 which is defined 
+this block)  
+N10  G00      (machine cod e that defines part path geomet ry) 
+….      “ “ “ “ F.005  
+….      “       “ “ “  
+….      “       “ “ “  
+….      “       “ “ “ F.003  
+….      “       “ “ “ F.008  
+N70      “ “ “ “ 
+G70  P10  Q70     (Finish cycle feedrate is defined between N10 to N50).  
+ 
+This ex ample demonstrates t he use of a  G70 fi nishing canned cycle.  The basic shape should be roughed 
+out using a G71, G72, or G73 roughing cycle.  
+ 
+Part prog ram using a G70 with TNC  
+
+===== PAGE 83 =====
+83 
+ This example demonstrates tool nose compensation with the G70 finishing cycle.  The basic 
+shape has  been rough ed out using a G71 roughing cycle.  
+ 
+ 
+Part drawing for TNC with G70 example  Type 1  
+ 
+Program Examp le    Description  
+%        
+O0106         
+G28        
+T0202      (Select Tool 2)  
+G50  S1750        
+G97  S320  M03       
+G54  G00  X3.  Z0 .1  M08      
+G96  S300        
+G71  P 10  Q20  U.02  W.01 D.1  F.012  (G71 Define part path lines P thru Q)  
+N10  G42  G00  X0.5                                   (P Block )(Approach move, turn  on tool nose compensation)  
+G01  Z0.  F.012       
+X.6        
+X0.8  Z-0.1  F.008       
+Z-0.5        
+G02  X1.0  Z -0.6  I0.1       
+G01  X1.5        
+X2.0  Z -0.85        
+Z-1.6        
+X2.3         
+G03  X2.8  Z-1.85  K -0.25      
+G01  Z -2.1       
+N20  G00  G40  X3.0    (Q)(Departure move turning off too l nose compensation)  
+G70  P10  Q20     (G70 Finishing Cycle)  
+G28     (Return to machine zero for  tool change clearance)  
+M30         
+%        
+
+===== PAGE 84 =====
+84 
+ Note that the suggeste d template of the previous section for G70 is used.  Also note  
+ that compensation  is enabled in the PQ sequence, but is canc elled a fter G70 is completed.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+O0107 (O.D. Roughi ng and Finishing)   (FANUC G71 – TYPE I example)  
+G28      (Rapid to Home Position)  
+T101 (CNMG 432)     (Tool change & apply offsets)  
+G50  S2000      (Set Max RPM 2 000) 
+G97  S400  M03      (Spindl e On)  
+G54  G00  X6.6  Z0.1  M08    (Rapid to Start Position, Coola nt On)  
+G96  S630      (Constant surface speed on)  
+G71  P 10  Q20  U0. 01  W0.005  D0.15  F0.012  (G71 Roughing Cycle)  
+N10  G00  X0.6634     (P Block )(Begin definitio n) 
+G01  X1.  Z -0.168 3  F0.004  
+Z-1. 
+X1.9376 
+G03  X2.5  Z -1.2812  R0.2812  
+G01  Z -40312  
+G02  X2.937 6  Z-4.25  R0.2188  
+G01  X3.9634  
+X4.5  Z -4.5183  
+Z-10.75  
+N20  X6.5      (Q Block )(End definition)  
+G97  S400  M09  
+G28      (Rapid to tool change position)  
+T202       (Finish tool)  
+G50  S2500  
+G97  S400  M 03 
+G54  G00  X6. 6  Z0.1  M08  
+G96  S730  
+G70  P10  Q20      (G70 Finishing Cycle)  
+G97  S400  M09  
+G28 
+M30  
+% 
+ 
+ 
+
+===== PAGE 86 =====
+86 
+  
+G71 and G70  Exercise  with T ool Nose Compensation  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Fill in the blank line for tool #1 using a  G71 roughi ng cyc le com mand to def ine roughing passes for the 
+part geometry defined between N 10 and N20.  Then, defin e a finish pass using a G70 finishing cycle 
+command, with tool #2, to define a finish pass for the part geometry defined between N10 and N2 0.  On 
+the G71 co mmand line,  leave  .010 stock on diameters and .005 on the faces.  Take .120 depth of cut at 
+.012 fee d. 
+ 
+ 
+ 
+
+===== PAGE 87 =====
+87 
+  
+ 
+ 
+O0030        (Program number)  
+N1       (First Operation)  
+T101 (O.D. Tool X.031 TNR)     (Tool #1 and Offset #1)  
+G50  S2500       (Spindle speed clamp a t 250 0 RPM)  
+G97  S____   M03      (Cancel CCS, define a 400 RPM, spindle  
+     ON forward)  
+G54  G____   X____  Z____  M08     (Rapid X and Z to starting location, 
+coolant ON)  
+G96  S_____       (Turn on CSS to 375)  
+G71  P____ Q____ U____ W____ D____ F____   (Roug hing O.D. G 71 cy cle command)  
+N____ G____ G____ X______ Z_______   (Pnn starti ng number, Rapid X and Z axis,  
+     cutter comp ON)  
+G____ Z____ F.006      (G71 Part Geometry)  
+X______       (G71 Part Geometry)  
+G____ X______ Z______ R_____    (G71 Part Geom etry)  
+G_____  Z____ __     (G71 Part Geometry)  
+G____ X______ Z______ R_____    (G71 Pa rt Geometry)  
+G_____ X__ ____      (G71 Part Geometry)  
+G____ X______ Z______ R_____    (G71 Part Geometry)   
+G____ Z______ F.003      (G71 Part Geometry)  
+X______ F.015       (G71 P art Geo metry ) 
+N___ _ G__ __ X____      (Qnnnn ending number, Cancel Cutter  
+     Comp. ) 
+G____ S_____ M____      (Cancel CSS, define 400 RPM,  Coolant Off)  
+G____  _____  _____       (Return to reference point)  
+M_____       (Optional stop command)  
+ 
+N2       (Secon d operation)  
+T_____        (Tool #2 an d Offset #2)  
+G____ S_____       (Spindle speed clamp at 2500 RPM)  
+G___ _ S_____ M____      (Cancel CSS, turn on spindle 1200 RPM)  
+ 
+G____ X______ Z______ M08     (Rapid to start position above part)  
+G____ S_____       (Turn on  CSS to 650)  
+ 
+G____ P _____ Q____ _     (Define finish pass using part 
+geometry)  
+G____ S____ M____      (Canc el CSS, define 400 RPM, Coolant Off)  
+G____  ____   ____       (Return to reference point)  
+M____        (End of program rewind)  
+ 
+
+===== PAGE 89 =====
+89 
+ 
+ 
+O00088 (ID G71 EXTRA)  
+N1 G53 G00 X0 Z0 T0  
+N2 T404  
+N3 G50 S300 0  
+N4 G97 S____ M03  
+N5 G54 G00 X_____ Z0.1 M08 (ST PT BELOW STK  OF ID)  
+N6 G96 S420  
+N7 G71 P8 Q18  U-_____ W_____ D0.08 F0.010 (G71  is MINUS for G71ID)  
+N8 G41 G00 X_____ _ (N8 start position o f part pa th geometry)  
+N9 G01 Z0 F0.008  
+N10 X____ _ F0.005  
+N11 G02 X2.63 Z -____ __R0.05  
+N12 G01 Z -_____ _  
+N13 G0__ __ X____ Z -0.825 R0.1  
+N14 G0__ __ X2.25  
+N15 G 0_____ X1.25 Z -1.__ __ R0.5   
+N16 G01 Z -3.25  
+N17 G03 X0.____ Z -____ R0.25  
+N18 G01 G40 X____  
+N19 G0  Z.1 
+N20 G70 P8 Q18  
+N21 G97 S1780 M09  
+N22 G53 G00 X0 Z0 T0  
+N23 M30 
+ 
+G71 and  G70 may be used on ID work.  With G71 and G70 ID work the U valu e must be neg ative  
+reflecting the stock left on will be smaller than with OD work.  The part needs a hole drilled before using 
+G71.  G71 a lso works good for boring jaws.  The above  exercise h as a 1” hole drilled 3.5” deep.  
+
+===== PAGE 90 =====
+90 
+  
+Type 1 Details  
+ 
+ 
+When Type I i s specified b y the prog rammer, it is assumed that the tool path is monotonic in the X -axis.  
+Prior to any roughing motion, the to ol path d esignated by PQ is checked for monotonicit y and G cod e 
+com pliance.  An alarm is generated if a problem is found.  
+ 
+Roug hing begins b y advancin g from the start position S and moving to the first roughing pass.  All 
+roughing passes start and end at t he Z clea rance plane.  Each roughing pass X -axis lo cation is d eterm ined 
+by applying the value specified in D to the current X l ocation.  The  direction  that D is applied is 
+determined by the signs of U and W.  The nature of the movement along the Z clearanc e plane f or each 
+roughing pass is determined by the  G code in block  P.  If block P contains a G00 code, then movement 
+along the  Z clearance plane is a  rapid mode.  If block P contains a G01, then movement will be at the 
+G71 feed rate.   Roughing continues until the  X-axis position in block P is exceeded.  
+ 
+Each roughi ng pa ss is stopped before it intersects the programmed tool path allowing for both rough ing 
+and finishing allowances.  The tool is then retracted from the material at a 45 -degree angle by the 
+distance sp ecified in  setting 73 .  The tool then move s in rapid mode to the Z -axis clearance plane.  
+ 
+When roughing is completed, the tool is m oved along  the tool path to clean up the rough cut.  If I and K 
+are specified, an additional rough finish cut parall el to the  tool path is performed.  
+ 
+ 
+Type II Details  
+ 
+ 
+When Typ e II is specified by the programmer the X -axis PQ path is allowed  to vary non -monotonica lly.  
+In other words, the X -axis can change direction throughout the PQ path.  Z must continue along in th e 
+same di rection as the initial Z direction.  The P Q path is c hecke d prior to the start of any cutting and an 
+alarm is generate d if a proble m exists.  
+ 
+When Setting 33 is set to FANUC, placing a reference to both the X and Z -axis in the block specified by P  
+specifie s Type II.  
+ 
+Roughing is similar to Type I except that  after each pass along the Z -axis, the tool will follow the path 
+defined by PQ .  The too l will then retract parallel to the X -axis by a distance defined in Setting 73 (CAN 
+CYCLE RETRACTION).  Th e Type II  roughing method does not leave steps in t he part pri or to  finish cutting 
+and typically results in a better finish.  
+ 
+There is virtu ally no li mit to the number of blocks used to define a Type II PQ path.  There is a limit to the 
+number of troughs i ncluded i n a PQ path definition.  A trough can be d efined as a  chan ge in direction 
+creating a concave surface in the material b eing cut.  If  successiv e troughs are on the same level, there 
+can be an unlimited number of troughs.  When troughs are within tro ughs (nes ted), there can be no 
+more than 10 levels of trough n estin g.  An alarm is generated when this limit is exceeded.  
+ 
+
+===== PAGE 91 =====
+91 
+  
+ 
+ 
+Example G71 T ype II Rou ghing  
+ 
+ 
+% 
+O0135      (Fanuc G71 Type II roughing)  
+G28 
+T101       (Roughing Tool)  
+G97 S1200  M03       
+G00  G54 X2.  Z0.05      (Start position)  
+G71  P1  Q 6  D.035  U.03  W.01   F.01  
+N1  G1  X1.5  Z -.5 F.004     (PQ path defnition)  
+N2  X1.0  Z-1. 
+N3 X1.5  Z -1.5 
+N4 Z-2. 
+N5 G02  X.5  Z-2.5  R.5  
+N6 G1 X2.  
+G28 
+T202       (Finishing tool)  
+G97 S1500  M03       
+G70  P1  Q 6     (Finish pass)  
+G28 
+M30  
+% 
+
+===== PAGE 92 =====
+92 
+  
+G71 & G72 Type II R oughing Exe rcise  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Fill in the blank line for tool #1 u sing a G71 Ro ughing Typ e II cycle command, to define Roughing passes 
+for the part geometry defined between N10 and N20.  Then def ine a fin ish pass using a G70 Finishing 
+cycle comma nd, with to ol #2 .  Define a finish pass for the part geometry defined betwee n N10 and N20 .  
+On the G71 command line leave .010 stock on diameters and .005 on the faces.  Take a .120 depth of cut 
+at .012 fe ed. 
+ 
+ 
+
+===== PAGE 93 =====
+93 
+  
+ 
+ 
+O0040       (Program number)  
+N1      (First  operation)  
+T101  (O.D. Tool X .031 TNR)    (Tool #1 and Offset)  
+G50  S2500      (Spindle sp eed clamp at 2500 RPM)  
+G97  S400  M03      (Cancel CSS, define a 400 RPM, spindle ON forward)  
+G54  G____ X_____ Z____ _ M08   (Rapid X & Z to starting location, coolant O N) 
+G____ S_ _____      (Turn on CSS to 375)  
+Z______      (Position .005 from en d of part)  
+G_____ X____ __ F.005     (Feed down to rough face end of part)  
+G_____ X______ Z______    (Rapid to start position above part)  
+G71 P____ Q____ U____ W____ D____ F____  (Roug hing O.D. G 71 cy cle command)  
+N____ G____ X______  Z_______   (Pnn starting number, Rapid  X axis, Cutter  comp ON)  
+G____ Z_____ F.006     (G71 part geometry)  
+X______      (G71 part geometry)  
+G____ X_____ Z___ __ R_____    (G71 part geometry)  
+G_____ Z_____      (G71 part ge ometr y) 
+X_____ Z_____ F.012     (G71 Type II part geometry)  
+Z_____       (G71 Ty pe II part  geometry)  
+X_____ Z_____     (G71 Type II part geometry)  
+Z_____       (G71 part geometry)  
+G_____ X______ Z__ ____ R___ ___  (G71 part geometry)  
+G_____ X______     (G71 part geome try) 
+G_____ X______ Z______ R______   (G71 part geometry)  
+G_____ Z______ F .003     (G71 part geometry)  
+X_____ F.015      (G71 part geometry)  
+N_____ G_____ X_____     (Qnnnn ending number, Cance l Cutter Comp)  
+G_____ S_____ M_____                                         (Cancel CSS, define 400 RPM, Coolant Off)  
+G_____    _____    _____ _  _____    (Return to reference point)  
+M_____      (Optional stop command)  
+ 
+N2      (Second operation)  
+T_____       (Tool # 2 and Offset #2)  
+G_____ S _____      (Spindle speed clamp at 2500 RPM ) 
+G_____ S_ ____ M____    (Cancel CSS, turn on spindle 1200  
+G_____ X ______ Z ______  M08   (Rapid to start position above part)  
+G_____ S______     (Turn on CSS to 650)      
+G_____ P______ Q____ __   (Define finish pass using part geometry)  
+G_____ S______ M_____ _   (Cancel  CSS,  define 400 RPM, Coolant off)  
+ 
+G_____    ______   ___ ____   ______  (Retur n to refere nce point)  
+M_____      (End of program rewind)  
+ 
+ 
+
+===== PAGE 95 =====
+95 
+ BALL JOINT EXERCISE  
+ 
+   
+ 
+PROGRAM THE SECOND SIDE OF  BALL JOINT FOR ABOV E PART OUT 2 ¼ ” ROUND STOCK.  THE FIRST SIDE 
+1.040 Ø AND  1.314 Ø HA VE BE EN TURNED.  ROUGH TURN .05 D EPTH O F CUT, LEAVE .005 ON FACE .01 
+ON DIAMETER FOR G70.                       
+ 
+O00175 (BALL JOINT)  
+N1 (35 DEG TURN)  
+T101 (OD TOOL .031 2R)  
+N2 G_ ____  S__ _____ (CLAMP SPINDL E SPEED AT 2500)   
+N3 G97 S___ ____ M03  
+N4 G 54 G00 X         __   Z0.1 M08 (START POSITION FOR G7 1) 
+N5 G96 S375  
+N6 G71  P10 Q20 U ______ W_______ D______  F0.012  
+N10 G00 G ____  X-0.07 Z0.1 (TURN ON TOOL COMP)  
+N11 G01 Z __ F0.006  
+N12 X0  
+N13 G03 X ______  Z-_____  R____   
+N14 G0 ____ X_____  Z-______  R0.125  
+N15 G01  Z-______   
+N16 G 01 X_______   
+N18 G01 X ______  Z-______  
+N20 G00 G40 X2. 50 
+N21 G97 S400 M09  
+N22 G28  
+M01  
+N2  
+T202 ( 35 DEG  TURN )  
+N23 G50 S2500  
+N24 G97 S _______  M03   
+N25 G00 X _____  Z______  M08 
+N26 G96  S650  
+N27 G70 P____ Q____ _  
+N28 G97 S400 M09  
+N29 G28  
+M30  
+ 
+ 
+
+===== PAGE 96 =====
+96 
+  
+Face , Turn an d Cut-Off Exercise  
+ 
+Use Following  Tools to create part below . 
+T101 55° Turn Tool R.0312  
+T202 35° Turn Tool for Undercut R.0312  
+T303 .125 Wide Cut  Off Tool  
+1in Diameter Stock, 1080 Ste el   550 ft/min  turn, 300 ft/min cut off  
+ 
+ 
+ 
+ 
+% 
+O01111 (F ACE TURN CU T OFF )  
+G28  
+G50 S2200  
+G0 G53X0 Z -10. 
+T101 ( 55 DEG TURN)  
+G97 S_____ M03      
+G00 G54 Z0.5  
+G50 S2200  
+X1.1 M08  
+G___ S550 (TURN ON CONSTANT SURFACE S PEED)  
+Z0  
+G01 X -____ F0.007 (FACE END OF PART OFF)  
+G00 X____ Z____ (START POSI TION FOR G71  
+G71 P10 Q20 U___ ___ W_ _____ D_ _____ F0.011  
+N10 G00  G42 X__ ____ Z__ ____   _______ 
+G01 Z__F0.006  
+X______  
+X___ ____ Z-_______  
+Z-______  
+X___ ____   _______ 
+X_______ 
+
+===== PAGE 98 =====
+98 
+  
+G72 E nd Face Stock  Removal  Cycle  
+ 
+  P Starting block number of p ath t o rough  
+  Q Ending block number of path to rough  
+  U X-axis size and directi on of G72 rough allowance, diameter  
+  W Z-axis size and direction of G72 rough allowance  
+  D Depth of cut for each pass of  stock removal, positive num ber 
+*I X-axis size and di recti on of G72 finish pass allowance, radius  
+*K Z-axis size and d irection of G72 finish pass allowance  
+*S Spindle speed to use throughout G72 PQ block  
+*T Tool and offset to use throughout G72 PQ block  
+*F Feed rate to use throughout  G72 PQ block  
+ 
+* Indicate s opt ional 
+ 
+This canned cycle will rough out material on a part g iven the finishe d part shape.  It is similar to G71 but 
+roughs out material along the fac e of a part. All a programmer needs to do is defi ne the shape of a part 
+by pr ogramming the finished to ol pa th and submitting the path definition to the G72 call by mea ns of a 
+PQ block  designation.  Any feeds, spindle speeds or tools within the block defini ng the path are ignored 
+by the G72 call.  Any F, S or T commands on the G72 a re used throug hout the G7 2 rou ghing cycle.  
+Usually, a G70 call to the same PQ block defin ition is used to  finish the shape using the programmed 
+feeds, speeds, tools and offsets.  
+ 
+Two types of machining paths are addressed with a G72 command.  The first ty pe of path (TY PE I) is 
+when th e Z-axis of the programmed path does not change direction.  This is depicted  in Figure 3 -12.  
+This type of path is called a monotonic path.  The seco nd type of path (TYPE II) allows the Z -axis to 
+change direction.  For both th e first and se cond type o f pro grammed path, the X -axis must be 
+monotonic; it cannot change  direction.  Typ e I is selected by having only an X -axis motion in the block 
+specified by  P in the G71 call.  When both an X -axis and Z -axis motion are in the P block , TYPE II roug hing 
+is ass umed.  
+ 
+The G72 consists of a roughing phase and a finishing phase .  The roughing and finishing phase are 
+handled slightly differently for types I and type s II.  Generally, the roughing phase consists of repeated 
+passes along the X -axis at the sp ecified fee d rat e.  The finishing phase consists of a pass along the 
+program med tool path to  remove excess material left by the roughing phase but to leave finish ma terial 
+for a G70 block with perhaps a finishing t ool.  The final motion in ei ther types is a return to  the starting 
+position S.  
+ 
+In the following, the start position S  is the position  of the tool at the time of the G72 call.  The X 
+clearance plane is deriv ed from the X -axis start position and the sum of U and optional I finish 
+allowances.  
+ 
+
+===== PAGE 99 =====
+99 
+  
+ 
+Type I Detail s 
+ 
+When Type I is specified by the programmer, it is assumed that  the tool path i s monotonic in the X -axis.  
+Prior to any roughing motion, the tool path i s checked for monotonicity and G code compliance.   An 
+alarm is generated if a  problem is fo und.  
+ 
+Rough ing b egins by advancing from the start position S and moving to t he first roughin g pass.  All 
+roughing passes start and end at the X clearance plane.  Eac h roughing pass Z -axis location is determined 
+by applying the value specified  in D to the c urrent loca tion.   The direction that D is applied, is 
+determined by the sign s of U and W.  
+ The nature of the movement along the X clearance plane for each roughing pass is determined by the G 
+code in block P.  If block P contains a G00 code,  then movement  along the X cle arance plane is a rapid 
+mode.  If block P contains a G01, th en movement will  be at the G72 feed rate.  Roughing continues until 
+the Z -axis position i n block P is exceeded.  
+ 
+Each roughing pass is sto pped before it intersects th e programmed t ool path al lowin g for both roughing 
+and finishing allowances.  The tool is t hen retracted fr om the material at a 45 -degree angle by the 
+distance specified in Setting  73.  The tool then moves in rapid mode to the X -axis clearance plane.  
+ 
+When roughing is co mpleted, th e too l is moved parallel to the tool path to clean up the rough c ut.  If I 
+and K are specified, an additional rough finish cut parallel to the tool path i s performed.  
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 100 =====
+100 
+  
+ 
+Example:  TNC with G72  
+ 
+This example uses tool nose com pensation with  a G72 roug hing canned cycle.  
+ 
+ 
+Part Drawing for TNC with G72 example  
+ 
+ 
+ 
+Program Example      Description  
+ 
+% 
+O0814      
+G50  S1000         
+T0101        (Select Tool 1)  
+G0  X3.5  Z.1       (Move to point S)  
+G96  S100  M 03 
+ 
+G72  P80  Q180  U.005  W .01  D.05  F.0 10     (Rou gh P to Q with T1 using G72 and TNC)  
+   (Define part path PQ sequ ence)  
+N80  G41  G0  Z -1.6    (P)(G72 Type I, TNC Approach)  
+G1  X2.0  F0.005  
+X1.4  Z -0.9 
+X1.0 
+Z-.60 
+G3  X0.8  Z -0.5  K0.1  
+ 
+Machining a cham fer, when cutter compensatio n is NOT used on the cont rol, requires that calculations 
+must be made for the tool tip dim ensions.  
+ 
+
+===== PAGE 101 =====
+101 
+  
+ 
+ 
+ 
+G1  Z-0.1 
+X0.6  Z0.0  
+N180 X0.0  
+G40  G0  X3.1  Z0.1  M5      (TNC departure)  
+(*****OPTIONAL FINISHING SEQUENCE*****)  
+G28       (Zero for tool change clea rance)  
+M01  
+N2  G50  S1000  
+T020 2       (Select tool 2)  
+G0  X3.5  Z.1       (Move to point S)  
+G96  S100  M03  
+(Finish P to Q with T2 using G70 and TNC)  
+G70  P80  Q180  
+G0  G40  Z.5  M5      (TNC departure)  
+G28       (Zero for tool cha nge clearance)  
+M30  
+% 
+ 
+G72 is  used instead of G71 beca use t he roughing strokes in X are longer than the Z roughing stro kes of a 
+G71.  I t is therefore more efficient to use G72.   Caution should be used however  because of the 
+direction of the force used in ma chining with face cutting.  This is especi ally true w ith large parts held on 
+with small jaw engagement and low jaw pre ssures because o f part deformation.  These parts may be 
+thrown out of the chuck using fac e cutting  canned cycle . 
+
+===== PAGE 102 =====
+102 
+  
+ 
+TYPE I – G72 AND G70 E xercise with Tool Nose Compe nsation  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Fill in the blank lines for Tool #1 using a G72 roughin g cycle command to define multiple rough 
+facing passes for the part geometry defined betw een N10 and N20.  Define tool #2 to do a 
+finish p ass using a G70 finishing cy cle command.  On the G7 2 comma nd line, leave .010 stock on 
+diameters and .005 on the faces .   Take .12 dep th of cut at .012 feed.  
+ 
+ 
+
+===== PAGE 103 =====
+103 
+  
+ 
+ 
+ 
+O0050       (Program number)  
+G28 
+T101 (O.D. Turning Tool .031R)   (Tool #1 and Offset #1)  
+G50  S2500      (Spindle speed cl amp at 2500 RP M) 
+G97  S40 0  M0 3    (Cancel CSS, turn on spindle 700 RPM)  
+G54  G00  X_____ Z_____ M08   (Rap id, X, Z location, Coolant ON)  
+G____ S_____      (Turn on CSS to 375)  
+Z___ __      (Start position .050 from face of part)  
+G72  P___ Q___ U____ W____ D_ __ F___  (G72 F acing cycle  comm and) 
+N___ G____ G____ Z______    (Pnn starting number, Rapid to start,  cutter   
+comp ON)  
+G____ X____ __ F.006     (G72 part geometry)  
+X______ Z______     (G72 part geometry)  
+X______      (G72 part geometr y) 
+X______ Z______     (G72 p art geometry)  
+X______      (G72  part geometry)  
+N____ G____ Z_____     (G72 Qnnnn ending numb er, Cancel cutte r  
+comp.)  
+G____ S_____      (Cancel constant surface speed)  
+G____       (Return to reference point)  
+M____       (Optional sto p command)  
+ 
+T_____      (Tool  #2 and Offset  #2) 
+G____ S____ _     (Spindle speed clamp at 2500 RPM)  
+G____ S_____ M____     (Cancel CSS, t urn on spindle 1200 RPM)  
+G____ G____ X_____ Z_____ M____  (Rapid, X, Z loc ation, Coolant ON)  
+G____ S_____      (Turn on CSS to 650)  
+Z______      (Positio n to .050 from  end of par t) 
+G____ P_____ Q_____    (Define finish pass using part geometry)  
+G____ S_____      (Cancel constant surface speed)  
+G____ Z______ M____    (Rapid 1.0 away f rom part in the Z-axis)  
+G____       (Return to ref erence point)  
+M____       (End of program r ewind)  
+ 
+
+===== PAGE 105 =====
+105 
+  
+ 
+EXAMPLE  TNC WITH G73  
+ 
+This example uses tool nose comp ensation with a G73 roughing canned cycle.  
+ 
+Preparation : Setting 33 FANUC  
+ 
+Tools:             T1 Insert with .064 radius, roughing  
+T2 Insert with .016 radius, finish ing 
+Offsets    Tool   Radiu s  Tip 
+   1   T1     .064   3 
+   2   T2     .016   3 
+ 
+Program Examp le     Descripti on 
+ 
+% 
+O00815  
+G50  S1000       (Example section 8.10 example 5)  
+T101         (Select Tool 1)  
+G00  X3.5  Z.1       (Move to po int S)  
+G96  S250  M03  
+(Rough  P to Q with T 1 using G73  and TNC) 
+G73  P80  Q180  U.01  W.005  I0.3  K0.15  D4  F.012  
+(Define part path P Q sequence)  
+N80  G42  G00  X0.6      (P)(G72 Type I, TNC Approach)  
+G01  Z0 .  F0.1  
+X0.8  Z -0.1  F.005  
+Z-0.5 
+G02  X1.0  Z -0.6  I0.1 
+G01  X1.4  
+X2.0  Z -0.9 
+Z-1.6 
+X2.3  G 03  X2.8  Z -1.85   K-0.25  
+N180  G40  G01  Z -2.1     (Q) 
+G00  X3.0  Z0.1  M05      (TNC departu re) 
+ 
+(*****OPTIONAL FINISHING SEQUENCE*****)  
+G28       (Zero for tool cha nge clearance)  
+M01  
+N2  G50  S1000  
+T0202        (Select tool 2)  
+G00  X3.0  Z.1       (Move to point S)  
+G96  S2 50  M03  
+(Finish P to Q with T2 using G70 and TNC)  
+G70  P80  Q180  
+G00  G40  Z .5  M05      (TNC departure)  
+G28       (Zero for tool change clearance)  
+M30 
+% 
+
+===== PAGE 107 =====
+107 
+  
+ 
+ 
+O0060        (Program number)  
+N1       (First operation)  
+T101  (O.D. Tool X .031 TN R)    (Tool #1 and Offset #1 ) 
+G50  S2500       (Spindl e spe ed clamp at 2500 RPM)  
+G97  S400  M03  (Cancel CSS, define a 4 00 RPM, spindle ON   
+forward)  
+G54  G___ X_____ Z____ M08     (Rapid X & Z to starting loca tion, coolant ON)  
+G____ S______       (Turn on CSS  to 375)  
+Z______       (Posit ion .005 from end of part ) 
+G____ X_____ F.005      (Feed down to rough face End of part)  
+G____ X______ Z___ ___    (Rapid to start position above  Part) 
+G73  P___ Q___ U____ W____ D_ ___ F____ I_____ K_____  (Roughing O.D.  G73 cycle command)  
+N___ G____ G____ X_ _____     (Pnn starting nu mber,  Rapid X -axis,  
+   cutter comp ON)  
+G____ Z_____ F.006      (G73 part geometry ) 
+X______       (G71 part geometry)  
+G____ X______ Z______ R_____    (G71 p art geometry)  
+G_____ Z_______      (G71 part geome try) 
+ G____ X______ Z______ R_____    (G71 part geomet ry) 
+G____ X______      (G71 part geometry)  
+G____ X______ Z______ R ______    (G71 pa rt geometry)  
+G____ Z_____ F.003      (G71 part geometry)  
+X______ F.015      (G71 part geometry)  
+N____ G____ X_____      (Qnnn n ending number, cancel   
+  Cutter comp)  
+G____ S_____ M____  (Cancel CSS, define 400 RPM, spindle ON    
+   forward, Cool ant Off)  
+G____        (Return to reference point)  
+M____        (Optional stop command)  
+ 
+N2       (Second operation)  
+T_____       (Tool #2 and  offset #2)  
+G____ S_____       (Spindle spe ed clamp at  2500  rpm) 
+G____ S_____ M____      (Cancel CSS, turn on spindle 1200 RPM)  
+G54 G___ _ X_____ Z_____ M____    (Rapid, X, Z location,  Turn coolant on)   
+G____ S _____       (Turn on CSS to 650)  
+G____ P_____ Q___ __    (Define finish pass us ing part geome try) 
+G____ S____ _ M____  (Cancel CSS, define 400 RPM,  spindle ON 
+forward, Coo lant Off)  
+G____        (Return to reference point)  
+M____        (End of program rewind)  
+ 
+
+===== PAGE 108 =====
+108 
+  
+G74  End Face Grooving  Cycle , Peck Drilling  
+ 
+  Z Z-axis absolute location tota l pecking dept h, signed  
+  W Z-axis incremental distance to total pecking depth, signed  
+*X X-axis absolute location of furthest peck cycle, signed diameter  
+*U X-axis incremental di stance to furthest peck, signed diameter  
+*I X-axis size of increment between peck cycles, p ositive rad ius 
+*K Z-axis size of increment between pecks in a cycle  
+*D Tool clearance when r eturning to starting plane, positive  
+*F Feedrate  
+ 
+* Indicates Optional  
+ 
+The G74 canned cycle can be used for grooving on t he face of a part for peck d rilling or for  turning wi th a 
+chip break.  With this canned cycle, either a single pecking  cycle can be ex ecuted, as for drilling on the 
+spindle centerline, or a series of pecking  cycles can be performed.  
+ 
+When an X or U code is  added to a G74 block and X is not the cur rent positi on, t hen a minimum of two 
+pecking cycles will occur: one at the c urrent location and another at the X location. The I code is the 
+incremental distance bet ween X -axis pecking cycles.  Adding an I will per form multiple, evenly spaced , 
+pecking cycl es between the s tarting position S and X.  If the distance between S and X i s not evenly 
+divisible by I, then the last interval along X will be less than I.  
+ 
+When K is added to a G74 block, then pecking will be per formed at each interval spec ified by K.  T he 
+peck is a rap id move opposite the direction of feed and the peck distance  is obtained fro m Setting 22.  
+The D code can be used for grooving and turning to provide  material clearance when returning to 
+starting pl ane S.  
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 109 =====
+109 
+  
+ 
+ 
+ 
+Program Ex ample       Description  
+ 
+% 
+O007 4 
+T101  M03  S750  
+G00  X3.  Z0.05       (Rapid to start posit ion) 
+G74  I0.2  K0.1  X1.75  Z -0.5  F0.01    (Face grooving cycle multiple pass)  
+G28 
+M30  
+% 
+ 
+ 
+ 
+
+
+===== PAGE 110 =====
+110 
+  
+G75  O.D./I.D. G rooving Cycle , Peck Drillin g 
+ 
+  Z Z-axis absolute locat ion to furthes t peck cycl e, signed 
+  W Z-axis incremental distance to furthest peck cycle,  signed  
+*X X-axis absolute location total pecking depth, signed diameter  
+*U X-axis increm ental distance to total pecking depth  
+*D Tool cle arance when returning to sta rting plane, p ositive  
+*I X-axis size of increment b  
+*K  
+*F Feed Rate  
+* Indicates optional  
+  
+ 
+ 
+ 
+The G75 ca nned cycle can be used for grooving an outside diameter with a chip break .  With this canned 
+cycle, either a single peckin g cycle can be executed (as for a single g roove), or a ser ies of pecking cycles 
+can be performed (as for multiple groo ves).  
+ 
+When addi ng a Z or W code to a G75 block and Z is not the current position, then a  minimum of two 
+pecking cycles will occur: one at  the current location and an other at the Z  location.  The K code is the 
+incremental distance between Z -axis pecking cy cles.  Adding a K will perform multiple, evenly spaced, 
+pecking cycles between the starti ng position S and Z .  If the distance between S a nd Z is not evenly 
+divisible  by K, then th e last inte rval along Z will be less than K.  
+ 
+When I is added to a G75 block , then pecking w ill be performed at each interval specified by I.  The peck 
+is a rapid mo ve opposite the direction of feed and the peck di stance is obtained from Setting 22 . 
+ 
+The D  code can b e use d for grooving to provide material clearance when returning to starting plan e S. 
+ 
+ 
+
+===== PAGE 111 =====
+111 
+  
+ 
+G75 Single Pass  
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGE 112 =====
+112 
+  
+G75 Multiple Pass  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 113 =====
+113 
+  
+G76  Thread Cutting Cycle, Multiple Pass  
+        
+G00 X1. 1 Z0.3  
+G76 X0.913 Z -.85 K.04 51 D.0136 A58 F0.0714 (1 -14 TH READ Minor .9132)  
+ 
+  D First pass cutting depth  
+  K Thread h eight, defines l imit of multiple passes, radius measure  
+*X X-axis absolute location, maxi mum thread I.D.  
+*Z Z-axis absolute location, maxi mum thread length  
+*U X-axis incremental di stance, sta rt to  maximum thread I.D.  
+*W Z-axis incremental distance, start t o maximum thread  length  
+*I Thread taper amount, radius measure  
+*P Subsequent pass positio ning algorithm, cutting method  
+*F(E)  Feedrate (sp ecifies feedrate for threadi ng – also indi cates the p itch or lead)  
+*A Tool nose angle (from 0 to 120 degrees – if not used, then defau lts to 0)  
+* Indicates Optional  
+ 
+ 
+ 
+ 
+The G76 canned cycle can be used for  threading both straight or tapered (pipe) thread s.  With G76, a 
+programmer c an easily comm and multipl e cut ting passes along the length of the thread.  The nature of 
+tool load and wea r can be controlled by using the P code.  The P code can specify which si de the tool 
+cuts on and it can specify how much m aterial will be cut.  Radial  or flanking c uts may be made.  
+ 
+The height of the thread  is specified in K.  The height of  the thread is d efined as the distance from the 
+crest to the root of the thread.  K must agree with the direction that the X -axis is being  cut.  The actual 
+depth of c ut will be K l ess the fin ish a llowance.  Setting 86  (THREAD FINISH ALLOWANCE) is this amou nt 
+and is defaul ted to 0.  Some programmers like to use .0005 for this setting.  
+The threa d taper  amount is specified in I.  It is measured  from the target position X,  Z at point T  to the 
+begi nning  position C .  A conventional O.D. taper thread  will have a negative I value .  
+ 
+ 
+ 
+
+===== PAGE 114 =====
+114 
+  
+ 
+ 
+ 
+ 
+The depth of the first cut  through the thread is specified in D, which also determines the number of 
+passes over th e thread based on the value of K and the c utting meth od us ed.  Tool makers provide 
+tables on their recommended D value s and subsequent  depth of cuts.  If the K and D values on the tool 
+makers tables are used  G76 will approximate the number of passes recomm ended.  
+ 
+The depth of the la st cut through  the thread  can be controlled with Setting 99  (THREAD MINIMUM 
+CUT).  For any  of the methods specified in P, the last cut will never be less than this value.  The def ault 
+value is .003 inches/.01 mm.  On most carbon  and alloy steels the value of minimum pas s of .003 w ill 
+produce acceptable finishes. For some materials .001 minimum pass will improv e the surface finish of 
+the thread.  For work hardening materials thread,  like some stainless steels, minimum cuts are not  
+recommended under .003.                                                                                                                                                                  
+ 
+At the end of the th read, an optional chamfer is performed.  The size  and angle of the chamfer is  
+controlled wi th Setting 95 (T HREAD CHAMFER SIZE)  and Setting 96 (THREAD CHAMFER  ANGLE) .  The 
+chamfer size  is designated in number of threads, so that if 1.000 is recorded in Sett ing 95 and the feed 
+rate is .05, then the chamfer  will be .05.  A chamfer can  improve the a ppearance a nd fu nctionality of 
+threads that must be machined up to a shoulde r.  If relief is  provided for at the end of the thread, then 
+the chamfer can be eliminate d with a M24 command.  The default value for Sett ing 95 is 1.000 and the 
+defa ult angle for the thread (Sett ing 96) is 45 degrees.  M23 commands chamfer on and is the d efault. 
+M24 comm ands chamfer off.   
+ 
+ 
+ 
+ 
+
+===== PAGE 116 =====
+116 
+  
+ 
+ 
+ 
+In plastics the number of prescribed p asses are not needed.  Option P 3 is used where ea ch depth is the 
+same.  For e xample if a 12  lead is ne eded the number of passes recommended is 12.  The thread depth 
+for 12 lead is .05 26.  If D of .0132 is used and P1 indicated then only 4 passes will be ma de to produce 
+the thread.  
+ 
+Example of G76 code fo r a 1 -8 Thread:  
+ 
+T404  
+G50 S2 000 
+G97 S1200 M03  
+G00 X1. 2 Z.3  M08 
+G76 X.8492 Z -1.50 K.0676 D.0169 A58 P2 F.125  
+G00 G28 U0  
+G28 W0.  
+M30  
+ 
+ 
+Some programmers like to use spring passes when they thread.  In Fanuc cod e these may be easily 
+called out.  With one line G76, which is used in Haas m achines this i s not possi ble. For a spring pass add 
+a G92 call using the same values as G7 6.  Below the ab ove program is altered by adding a spring pass 
+with a G92 line.  
+  
+ 
+T404  
+G50 S2000  
+G97 S1200 M03  
+G00 X1.2 Z.3 M08  
+G76 X.849 2 Z-1.50 K.0676 D.0169 A58 P 2 F.125  
+G92 X. 8492 Z -1.50  F.12 5 
+G00 G28 U0  
+G28 W0.  
+M30  
+ 
+ 
+When threads are cut sharp burrs are created espe cially in the first and last thread.  Some 
+machinists will use wire brush es in grinding wheels to take them off.  The best  way to get rid of 
+burrs is to use topping  or full pr ofile  inserts.  With these inserts the major diameter is cut by t he 
+insert.   Ano ther technique involves repeating the finish turn after the threads are c ut. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 117 =====
+117 
+  
+ 
+Thread Programming Exercise   
+ 
+ 
+ 
+ 
+2 ¾-12UN 3A Thread  
+Major Diam eter 2.7500/2. 7386 Minor Diame ter 2.6478   
+O0010  
+N1 G28  
+N2 T101 (Thread Tool)  
+N3 G97 S590 M 03 
+N4 G54 G00 X_ _______Z________M08 (Rapid X and Z above part)  
+N5 Z_________ M____ (Z -.25  is  start of thread, M code for no chamfer)  
+N6 G76 X_______ Z_______ K_____ D_____  A____ P__ F____(1 2 pas ses,                     
+                                                           alternating flank, in feed cut 29 degrees)  
+N7M_____                                         (Turn Coolant off)  
+N8 G_____  U______                        (Take Home in X) 
+N9 G_____  W______                       ( Take Home in Z)  
+N10 M____                                         (End of Program)                                         
+   
+ 
+ 
+
+===== PAGE 121 =====
+121 
+  
+Cylinder Rod  Thread Lathe Program  Exercise  
+ 
+ 
+% 
+O00103  
+G28  
+T202 (55 DEG OD TOOL)  
+G50 S ______   
+G97 S _____ M03  
+G54 G 00 X 1.6 Z0.1 M08  
+G96 S650  
+G01 Z _____  F0.01  
+G01 X-0.1 F0. 007  
+G00 X1.6 Z ____  
+G71 P ___ Q___ U___ W___ D0.___ F____   
+N10 G0 1 G42 X ____  Z_____  F0.____  
+G01 Z0 F0.004  
+X_____ ,R.03  
+G01 X_____  Z-0_____   
+G01 Z -0.______  
+G01 X0.7 Z ____   
+G01 Z -____   
+G02 X0. ____  Z-____    R0.09  
+G01 X _____  ,R0.0 __ 
+X___ Z-____ _  
+N20 G00 G40 X____  
+Z.1 
+G70 P ___ Q___  
+G97 S320  
+G28  
+(OD THREAD)  
+G50 S2000  
+G28  
+T404 (OD THREAD) 7/8-12 
+M24  
+G97 S800 M03  
+G54 G00 X ____ Z____  M___  
+G76 X0. ____  Z-____  K0.0526 D0.0152 A ___ F0.0 ____   
+M09  
+G28  
+M___ 
+% 
+
+===== PAGE 122 =====
+122 
+  
+ 
+Canned Cycles for Drilling and Tappin g 
+ 
+ 
+The fol lowing is a list  of the canned cycles that can be used for drilli ng and tapping for the HAAS lathe 
+controls.  
+ 
+Canned Cycle s 
+ 
+G80 Canned Cycle Cancel  
+G81 Drill Canned Cycle  
+G82 Spot Drill Canned C ycle 
+G83 Peck Drill Canned Cycle  
+G84 Tapping Canne d Cycle  
+G85 Bore in Bore ou t Canned Cycle  
+G86 Bore in Rapid out Canned Cycle  
+G87 Bore with Manual Retract Canned Cycle  
+G88 Bore in Dw ell with Manual Retract  Canned Cycle  
+G89 Bore in Dwell Bore out Canned C ycle 
+ 
+ 
+ 
+G 
+Code  Z Drilling  
+Direction  Operation at  
+Bottom of Ho le Retr action  
+Z Direction   
+Application  
+  G81 Feed  None  Rapid  Spot drilling  
+G82 Feed  Dwell  Rapid  Counter boring  
+G83 Intermittent feed  None  Rapid  Peck drilling  
+G84 Feed  Spindle CCW  Feed  Tapping  cycle  
+G85 Feed  None  Feed  Boring cycle  
+G86 Feed  Spindle sto p Rapid  Boring c ycle 
+G87 Feed  Spindle stop  Manual/rapid  Back cyc le 
+G88 Feed  Dwell, then spindle stop  Manual/rapid  Boring  cycle  
+G89 Feed  dwell  feed  Boring cycle  
+ 
+A canned cycle is presently li mited to operations in the Z -axis.  That is, only the G18 pla ne is allowed.  
+This means that the canned cycle will be executed  in the Z -axis whenever a new position is selected in 
+the X-axis.  The following is a summary of the canned cycles used on HAAS la the co ntrols.  
+ 
+G80 CANNED CYCLE CANCEL  
+ 
+The G code  is modal; deactivating all  canned cycles until a new one is selected.  Note  that use of G00 or 
+G01 will also cancel a canned cycle.  
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 123 =====
+123 
+  
+ 
+G81  DRILL CANNED CYCLE  
+ 
+X  Optional X -axis motion command  
+Z Posit ion of  bottom of hole  
+R Position of the R plane  
+F Feed Rate  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 124 =====
+124 
+  
+ 
+G82 SPOT DRILL COUNTER  BORE CANNED CYCLE  
+ 
+X  Optio nal X -axis motion command  
+Z Position of bottom of hole  
+P The dwell time at the bottom of the hole  
+R Position of the R plane  
+F Feed  Rate  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 125 =====
+125 
+ G83 DEEP HOLE PECK DRILLING CAN NED CYCLE  
+ 
+X Optional X -axis motion command  
+Z Position of bottom of hole  
+I Optional size of first cutting depth  
+J Optional amount to reduce cutting depth each pass  
+K Optional minimum depth of cut  
+Q The cut -in val ue, always incremental  
+R Position of the R p lane  
+F Feed rate 
+ 
+If I, J, a nd K are specified, a different operating mode is  selected.  The first pass will cut in by I.  J will 
+redu ce each succeeding cut and K is the minimum cutting depth.  
+ 
+Setting 52 al so cha nges the way G83 works when it returns to th e R plane.  Most programmer s set the R 
+plane well above the cut to ensure th at the chip clear motion actually allows the chips to get  out of the 
+hole.  This causes a wasted motion when first drilling throug h this  “empty” space.  If Setting 52 is set to 
+the distance r equired to clear  chips, the R plane can be put much closer to the  part being drilled.  When 
+the clear move to R occurs, th e Z will be moved above R by this setting.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+The operation of this  cycle  is different if the rigid tapping option is  installed . When rigid tapp ing is used, 
+the ration between the feed rate and  spindle speed must be precisely the thread pitch being c ut. 
+ 
+You do not need to start the spindle CW before this canned cycle.  T he con trol does this automatically.  
+
+===== PAGE 128 =====
+128 
+  
+ 
+Turn Threads , Drill  and Tap Exercise  
+ 
+ 
+T0101  Rough Turn G71 S700 ft/min F .011 in/rev  
+T0202 Finish  Turn G70 S700 ft/min F .007 in/rev  
+T0303  .125” Groove   (Use G75)  S200ft/mi n, F.002/rev  
+T0404 Thread G76 1 -3/4 -16 UN 2 A 1.0” bac k from f ace at a 300 ft/min  
+Major diameter 1.748, Minor diameter 1 .6739  
+T1111 5/16 Drill  G83 1.3” deep S 80 ft/min F.006”/rev peck diameter of drill  
+T1010 Tap 3/8 -16 x 1.0” deep, 200 rev/min  
+ 
+O0096  
+G28 (80 DEG TURN)  
+T101 (OD TOOL .0312R)  
+G__ S _____          Clamp spindle speed 2000 rpm  
+G__ S____ M_____         Turn o n Spind le  
+G54 G00 X____ Z_____ M08     Rapid to start position  
+G___ S_____       Turn on constant surface feed at 700 ft/min  
+G01 Z0 F.0 11  
+G01 X____ F0.007      Face off front of p art  
+G00 X 3.6 Z0.1   
+G54 G00 X3.6 Z0.1 M08     Start Position  
+G71 P___ Q____ U____ W ____ D____ F_____    G71 Line    
+N__ G00 G42 X____ Z___     P line  
+G01 Z__ F0. 006      Part geometry  
+X____  
+X____ Z -____  
+G01 Z -_____  
+G02 X___ Z_____R_____  
+G01 X____  
+
+===== PAGE 129 =====
+129 
+  
+ 
+G03 X____ Z ____ R0____  
+G01 Z -4.125 F0.003  
+X_____ F0.0___  
+X____ Z -______  
+N___ G40  X____  
+G97 S400 M09  
+G28  
+M01  
+T202 ( 55 DEG FIN)  
+G50 S2500  
+G97 S1200 M03  
+G00 X____ Z____      G70 start Position, should be sam e as the G71  
+G96 S650  
+G70 P___ Q____  
+G97 S400 M09  
+G28  
+M01   
+T303 (.125 GR)  
+G97 S_____ M03      Use 200 ft/min  
+G54 G 00 X___ __ Z____ M08  
+Z-_____  
+G75 X_____ Z -____  I____ K____ F0.002    Peck at .01  
+M09  
+G28  
+M01  
+T404  (OD THREAD)  
+G___ S_____ M___      Start Spindle  
+G___ G___ X_____ Z___ M___     Start P osition, Turn on coolant  
+G___ X______ Z -_____ K______ D_____ A___ F_____   Thread cycle  
+M09  
+G28  
+M01  
+T1111 (5/16 DRILL)  
+G___ S____ M___      Start spindle  
+G___ G___ X___ Z___ M___     Rapid to start position, Turn on coolant  
+G___ X___ Z____R__ __ Q_____ F____    Drill Peck cycle  
+G___        Cancel Canned cycle  
+G00 Z0.2   
+G28  
+M09  
+M01  
+T1010 (3/8 -16 TAP)  
+G97 S____ M___      Stop spindle give RPM  
+G54 G ____ X__ Z____ M08     Rapid to start position, turn  on coolant  
+G____ X__ Z -____ R0.__ F0.0____    Tap cyc le 
+G80  
+G28  
+M30  
+
+===== PAGE 137 =====
+137 
+  
+ 
+M Code Detaile d Description  
+ 
+ 
+M00  STOP PROGRAM  
+The M00 code is used to stop a program.  It also stops the spindle, turns  off the coolant, and stops 
+interpretation look  ahead processing.  The pr ogram pointer will advance to the next  block and stop.  A 
+cycle start will co ntinue program operation from the nex t block.  
+ 
+M01  OPTIONAL PROGRAM STOP    
+The M01 code is identical to M0 0 except that it only stops if OPTIONAL STOP is turned on from the front 
+panel.  A cycle start will continue pr ogram opera tion from the next block.  
+ 
+M02 PROGRAM END    
+The M02 code will st op program operation the same as the M00, but does not advance the pr ogram 
+pointer to the next block.  It will not reset the program poi nter t o the beginning of the program as an 
+M30 does.  
+ 
+M03 SPIN DLE FORWARD    
+The M03  code will start the spindle moving i n a clockwise direction at whatever speed was previously 
+set.  The bl ock will delay until the spindle reaches about 90% of commanded spe ed.  I f bit 31 of 
+parameter 209 (CNCR SPINDL E) is set t o 1, then this command is ex ecuted at the beginning of block 
+exec ution rather than the end as most M codes are.  
+ 
+M04  SPINDLE REVERSE   
+The M04 code will start the spindle moving in a counterclockwise di rectio n at whatever speed was 
+previously set .  The bloc k will delay until the spind le reaches about 90% of commanded spe ed.  If bit 31 
+of a parameter 209 9CNCR SPINDLE) is set to 1, then th is command is executed at the beginning of block 
+execution rather t han th e end as most M codes are.  
+ 
+M05  SPIND LE STOP    
+The M05 code stops the spindl e.  The block is delayed until the sp indle slows below 10 RPM.  
+ 
+M08  COOLANT ON    
+The M08 code will turn on  the coolant.  Note that the M code is performed at the end of a bl ock, s o that 
+if a motion is commanded in the  same block , the coolant is turned on a fter the motion.  
+ 
+M09  COOLANT OFF    
+The M09 code will turn off the coolant.  

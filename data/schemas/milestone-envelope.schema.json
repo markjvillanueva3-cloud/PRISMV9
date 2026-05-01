@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRISM Milestone Envelope",
+  "description": "Schema for milestone envelope files in data/milestones/. Supports both compact (v6) and detailed (v3.1) formats.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["id", "title"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]+-[A-Z0-9]+(-[A-Z0-9]+)?$",
+      "description": "Milestone ID following TRACK-MSn or TRACK-PHASE-MSn convention"
+    },
+    "milestone_id": {
+      "type": "string",
+      "description": "Alternative ID field (older envelopes)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Roadmap version this milestone belongs to"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 200
+    },
+    "brief": {
+      "type": "string",
+      "description": "One-line summary of the milestone"
+    },
+    "description": {
+      "type": "string",
+      "description": "Longer description (used in some older formats)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "active", "complete", "blocked", "COMPLETE", "IN_PROGRESS", "NOT_STARTED"]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "phases": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/phase" },
+      "description": "Execution phases containing units"
+    },
+    "units": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/unit_compact" },
+      "description": "Flat unit list (older format, no phase grouping)"
+    },
+    "total_units": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_sessions": {
+      "type": ["string", "integer"],
+      "description": "Estimated sessions (e.g. '2-3' or 3)"
+    },
+    "role_matrix": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/role" }
+    },
+    "tool_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool"],
+        "properties": {
+          "tool": { "type": "string" },
+          "phases": { "type": "array", "items": { "type": "string" } },
+          "purpose": { "type": "string" }
+        }
+      }
+    },
+    "deliverables_index": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/deliverable" }
+    },
+    "existing_leverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "asset": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "scrutiny_config": { "$ref": "#/definitions/scrutiny_config" }
+  },
+  "definitions": {
+    "phase": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "sessions": { "type": ["string", "integer"] },
+        "primary_role": { "type": "string" },
+        "primary_model": { "type": "string" },
+        "execution_split": { "type": "string" },
+        "safety_critical": { "type": "boolean" },
+        "phase_gate": { "type": "boolean" },
+        "units": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/unit_detailed" }
+        },
+        "gate": { "$ref": "#/definitions/gate" },
+        "scrutiny_checkpoint": { "type": "boolean" },
+        "scrutiny_focus": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "unit_detailed": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "phase": { "type": "string" },
+        "sequence": { "type": "integer", "minimum": 0 },
+        "role": { "type": "string" },
+        "role_name": { "type": "string" },
+        "model": { "type": "string" },
+        "effort": { "type": "integer", "minimum": 0 },
+        "description": { "type": "string" },
+        "status": { "type": "string" },
+        "tools": { "type": "array" },
+        "skills": { "type": "array" },
+        "scripts": { "type": "array" },
+        "hooks": { "type": "array" },
+        "features": { "type": "array" },
+        "dependencies": { "type": "array", "items": { "type": "string" } },
+        "entry_conditions": { "type": "array", "items": { "type": "string" } },
+        "exit_conditions": { "type": "array", "items": { "type": "string" } },
+        "rollback": { "type": "string" },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["number", "instruction"],
+            "properties": {
+              "number": { "type": "integer" },
+              "instruction": { "type": "string" }
+            }
+          }
+        },
+        "deliverables": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/deliverable" }
+        },
+        "index_in_master": { "type": "boolean" },
+        "creates_skill": { "type": "boolean" },
+        "creates_script": { "type": "boolean" },
+        "creates_hook": { "type": "boolean" },
+        "creates_command": { "type": "boolean" }
+      }
+    },
+    "unit_compact": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "status": { "type": "string" },
+        "description": { "type": "string" },
+        "exit_conditions": { "type": "array", "items": { "type": "string" } },
+        "steps": { "type": "array" }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "properties": {
+        "omega_floor": { "type": "number", "minimum": 0, "maximum": 1 },
+        "safety_floor": { "type": "number", "minimum": 0, "maximum": 1 },
+        "ralph_required": { "type": "boolean" },
+        "ralph_grade_floor": { "type": "string", "enum": ["A", "B", "C", "D", "F"] },
+        "anti_regression": { "type": "boolean" },
+        "test_required": { "type": "boolean" },
+        "build_required": { "type": "boolean" },
+        "checkpoint": { "type": "boolean" },
+        "learning_save": { "type": "boolean" },
+        "custom_checks": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "role": {
+      "type": "object",
+      "required": ["code", "name"],
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "model": { "type": "string" },
+        "effort": { "type": "integer" }
+      }
+    },
+    "deliverable": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "type": { "type": "string", "enum": ["source", "config", "test", "data", "doc"] },
+        "description": { "type": "string" }
+      }
+    },
+    "scrutiny_config": {
+      "type": "object",
+      "properties": {
+        "pass_mode": { "type": "string" },
+        "min_passes": { "type": "integer" },
+        "max_passes": { "type": "integer" },
+        "convergence_rule": { "type": "string" },
+        "escalation_rule": { "type": "string" },
+        "scrutinizer_model": { "type": "string" },
+        "scrutinizer_effort": { "type": "integer" },
+        "gap_categories": { "type": "array", "items": { "type": "string" } },
+        "improvement_threshold": { "type": "number" }
+      }
+    }
+  }
+}

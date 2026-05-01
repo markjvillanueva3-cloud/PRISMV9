@@ -1,0 +1,339 @@
+{
+  "id": "HM-REV-MS1",
+  "version": "8.3.0",
+  "title": "Engine Wiring + Safety Hook Invocation Fix",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire all 11 existing hyperMILL engines to MCP dispatchers with proper actions, fix the critical index.ts export bug for HyperMillCodeGeneratorEngine, and fix firePhase() invocation in camDispatcher/calcDispatcher so that existing safety hooks actually fire. Addresses Agent 19 defect #1 (hooks registered but dispatchers never call firePhase) and the 4 completely UNWIRED engines (MaterialMap, MaterialBridge, ThreadStandard, SafetyHooks).",
+  "dependencies": [],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCodeGeneratorEngine.ts (982 LOC — 2 actions, NOT exported from index.ts)",
+      "HyperMillToolExportEngine.ts (1,136 LOC — 2 actions)",
+      "HyperMillMultiAxisEngine.ts (657 LOC — 0 actions)",
+      "HyperMillCycleDefaultsEngine.ts (636 LOC — 0 actions)",
+      "HyperMillMaterialMapEngine.ts (562 LOC — UNWIRED)",
+      "HyperMillMaterialBridgeEngine.ts (521 LOC — UNWIRED)",
+      "HyperMillStrategyEngine.ts (492 LOC — 0 actions)",
+      "HyperMillControllerCatalogEngine.ts (430 LOC — 0 actions)",
+      "HyperMillThreadStandardEngine.ts (295 LOC — UNWIRED)",
+      "HyperMillSafetyHooks.ts (264 LOC — UNWIRED, 6 validators never fire)",
+      "HyperMillCycleCatalogEngine.ts (232 LOC — 0 actions)"
+    ],
+    "registries": [
+      "hookRegistry (220 hooks registered, but firePhase never called from hyperMILL dispatchers)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (safety thresholds for hook validators)"
+    ],
+    "reference": [
+      "src/tools/dispatchers/camDispatcher.ts (missing firePhase calls)",
+      "src/tools/dispatchers/calcDispatcher.ts (missing firePhase calls)",
+      "src/engines/index.ts (missing HyperMillCodeGeneratorEngine export)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-safety-hooks-active — DECLARED here, BUILT in HM-REV-MS1-S1 U-HMR08",
+    "action": "cam:hypermill_material_map + cam:hypermill_thread_standard — DECLARED+BUILT here",
+    "skill": "/hypermill-engine-status — DECLARED here, BUILT in HM-REV-MS3 (Skills Phase 1)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read all 11 engine files + both dispatchers before coding)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS1-S1",
+      "title": "Fix index.ts Export + Wire 4 UNWIRED Engines + Fix firePhase()",
+      "smart_config": {
+        "role": "MCP Integration Engineer + Safety Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "src/engines/index.ts",
+        "camDispatcher.ts",
+        "calcDispatcher.ts",
+        "HyperMillSafetyHooks.ts (264 LOC)",
+        "HyperMillMaterialMapEngine.ts (562 LOC)",
+        "HyperMillMaterialBridgeEngine.ts (521 LOC)",
+        "HyperMillThreadStandardEngine.ts (295 LOC)"
+      ],
+      "intent": "Fix the three critical bugs: (1) export HyperMillCodeGeneratorEngine from index.ts, (2) wire 4 UNWIRED engines with MCP actions in camDispatcher/calcDispatcher, (3) add firePhase() calls to dispatchers so safety hooks actually fire. The firePhase fix is a 3-line change per dispatcher but has the highest trust impact of the entire HM-REV track.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR06",
+          "title": "Fix HyperMillCodeGeneratorEngine index.ts export + verify 2 existing actions work",
+          "description": "Add HyperMillCodeGeneratorEngine to src/engines/index.ts exports. Verify that the 2 existing actions (generate_ac_script, validate_ac_script) are reachable through camDispatcher after export fix. This is a 1-line fix with massive impact — the engine exists and works but is invisible to the MCP layer.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillCodeGeneratorEngine exported from src/engines/index.ts",
+            "camDispatcher routes to both existing actions successfully",
+            "tsc --noEmit passes with 0 errors",
+            "Integration test confirms action reachability"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "existing test regressions"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/index.ts"
+          }
+        },
+        {
+          "id": "U-HMR07",
+          "title": "Wire MaterialMap + MaterialBridge + ThreadStandard with MCP actions",
+          "description": "Add MCP actions for the 3 UNWIRED data engines: HyperMillMaterialMapEngine (actions: hypermill_material_map, hypermill_iso_group_lookup), HyperMillMaterialBridgeEngine (actions: hypermill_material_search, hypermill_machinability_factors), HyperMillThreadStandardEngine (actions: hypermill_thread_lookup, hypermill_tap_drill_size). Add Zod schemas for each action. Register in camDispatcher or calcDispatcher as appropriate.",
+          "depends_on": [
+            "U-HMR06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "6 new MCP actions registered across dispatchers",
+            "Zod schemas validate all action inputs",
+            "Each action returns structured data (not raw engine internals)",
+            "6 unit tests verify action routing and response shape",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillMaterialMapSchema.ts",
+              "src/schemas/hypermillThreadStandardSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts",
+              "src/tools/dispatchers/calcDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill*.ts src/tools/dispatchers/camDispatcher.ts src/tools/dispatchers/calcDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR08",
+          "title": "Fix firePhase() invocation in dispatchers + register HyperMillSafetyHooks",
+          "description": "Add hookExecutor.firePhase('pre-operation') and firePhase('post-operation') calls to camDispatcher and calcDispatcher for all hyperMILL actions. Register all 6 validators from HyperMillSafetyHooks.ts in the hook pipeline. This is a 3-line fix per dispatcher but is the highest-trust-impact change: safety hooks exist (264 LOC, 45 tests) but NEVER FIRE because dispatchers don't call firePhase(). After this fix, clearancePlane, negativeAllowance, measurementSystem, and restMaterialToolChange validators will actively block unsafe operations.",
+          "depends_on": [
+            "U-HMR06"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "firePhase('pre-operation') called before every hyperMILL action in camDispatcher",
+            "firePhase('post-operation') called after every hyperMILL action in camDispatcher",
+            "All 6 HyperMillSafetyHooks validators registered in hook pipeline",
+            "45 existing safety hook tests still pass",
+            "New integration test confirms hooks fire on dispatcher calls",
+            "A machinist would trust that safety gates are active"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts",
+              "src/tools/dispatchers/calcDispatcher.ts",
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "safety hooks don't fire in integration test"
+            ],
+            "rollback_procedure": "git checkout -- src/tools/dispatchers/camDispatcher.ts src/tools/dispatchers/calcDispatcher.ts src/hooks/registry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ CodeGeneratorEngine exported from index.ts | ✓ 3 UNWIRED engines now have 6 MCP actions | ✓ firePhase() calls in both dispatchers | ✓ 6 safety validators registered and firing | ✓ 45 existing hook tests pass | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-safety-hooks-active"
+        ],
+        "new_actions": [
+          "cam:hypermill_material_map",
+          "cam:hypermill_iso_group_lookup",
+          "cam:hypermill_material_search",
+          "cam:hypermill_machinability_factors",
+          "cam:hypermill_thread_lookup",
+          "cam:hypermill_tap_drill_size"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS2",
+          "HM-REV-MS3",
+          "HM-REV-MS4",
+          "HM-REV-MS5"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS1-S2",
+      "title": "Wire Remaining 5 PARTIAL Engines with MCP Actions",
+      "smart_config": {
+        "role": "MCP Integration Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillMultiAxisEngine.ts (657 LOC)",
+        "HyperMillCycleDefaultsEngine.ts (636 LOC)",
+        "HyperMillStrategyEngine.ts (492 LOC)",
+        "HyperMillControllerCatalogEngine.ts (430 LOC)",
+        "HyperMillCycleCatalogEngine.ts (232 LOC)"
+      ],
+      "intent": "Wire the 5 PARTIAL engines (have code but no MCP actions) with proper dispatcher actions and Zod schemas. After this session, all 11 hyperMILL engines will have MCP actions.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR09",
+          "title": "Wire MultiAxis + Strategy + CycleCatalog engines with MCP actions",
+          "description": "Add MCP actions for: HyperMillMultiAxisEngine (actions: hypermill_multiaxis_recommend, hypermill_blade_strategy, hypermill_impeller_strategy), HyperMillStrategyEngine (actions: hypermill_strategy_select, hypermill_strategy_compare), HyperMillCycleCatalogEngine (actions: hypermill_cycle_lookup, hypermill_cycle_params). 7 new actions total with Zod schemas.",
+          "depends_on": [
+            "U-HMR08"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "7 new MCP actions registered in camDispatcher",
+            "Zod schemas for all 7 actions",
+            "16 existing MultiAxis tests still pass",
+            "16 existing Strategy tests still pass",
+            "New tests verify action routing",
+            "tsc passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillMultiAxisSchema.ts",
+              "src/schemas/hypermillStrategySchema.ts",
+              "src/schemas/hypermillCycleCatalogSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill*.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR10",
+          "title": "Wire CycleDefaults + ControllerCatalog engines with MCP actions",
+          "description": "Add MCP actions for: HyperMillCycleDefaultsEngine (actions: hypermill_cycle_defaults, hypermill_defaults_by_controller), HyperMillControllerCatalogEngine (actions: hypermill_controller_lookup, hypermill_post_variant_select, hypermill_controller_capabilities). 5 new actions total. After this unit, all 11 hyperMILL engines have MCP actions (total: 4 existing + 6 from U-HMR07 + 7 from U-HMR09 + 5 here = 22 actions).",
+          "depends_on": [
+            "U-HMR08"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "5 new MCP actions registered",
+            "All 11 hyperMILL engines now have at least 2 MCP actions each",
+            "Total hyperMILL action count >= 22",
+            "Zod schemas for all 5 actions",
+            "5 unit tests for new actions",
+            "tsc passes",
+            "vitest passes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillCycleDefaultsSchema.ts",
+              "src/schemas/hypermillControllerCatalogSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermill*.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ All 11 hyperMILL engines have MCP actions | ✓ 22+ total hyperMILL actions | ✓ 32+ existing tests still pass | ✓ 11+ new tests pass | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:hypermill_multiaxis_recommend",
+          "cam:hypermill_blade_strategy",
+          "cam:hypermill_impeller_strategy",
+          "cam:hypermill_strategy_select",
+          "cam:hypermill_strategy_compare",
+          "cam:hypermill_cycle_lookup",
+          "cam:hypermill_cycle_params",
+          "cam:hypermill_cycle_defaults",
+          "cam:hypermill_defaults_by_controller",
+          "cam:hypermill_controller_lookup",
+          "cam:hypermill_post_variant_select",
+          "cam:hypermill_controller_capabilities"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS2",
+          "HM-REV-MS3",
+          "HM-REV-MS4",
+          "HM-REV-MS5"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

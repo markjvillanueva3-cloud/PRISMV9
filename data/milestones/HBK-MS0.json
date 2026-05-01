@@ -1,0 +1,51 @@
+{
+  "id": "HBK-MS0",
+  "version": "1.0.0",
+  "title": "Handbook Data Model + Registry Schema",
+  "brief": "Design MachineHandbook interfaces, create MachineHandbookRegistry with CRUD, implement Zod schemas for 10 handbook section types (specs, spindle, axes, tooling, coolant, alarms, maintenance, parts, controller, safety).",
+  "created_at": "2026-03-28T19:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "HBK",
+  "track_name": "Machine Handbook Intelligence",
+  "status": "complete",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Foundation",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Design MachineHandbook TypeScript interface with 10 section types (specs, spindle, axes, tooling, coolant, alarms, maintenance, parts, controller, safety)",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Create MachineHandbookRegistry with CRUD + search + persistence + versioning",
+          "effort": 80,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Create HandbookSectionSchema Zod schemas for all 10 section types with unit validation and cross-field constraints",
+          "effort": 65,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Build sample handbook entry loader and validation test suite against all 10 schemas",
+          "effort": 55,
+          "dependencies": ["P0-U02", "P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": [],
+  "exit_conditions": [
+    "All 10 handbook section schemas compile with 0 TS errors",
+    "MachineHandbookRegistry CRUD operations pass unit tests",
+    "Sample handbook entry loads and validates against all 10 schemas",
+    "Registry persists to disk and survives restart round-trip"
+  ]
+}

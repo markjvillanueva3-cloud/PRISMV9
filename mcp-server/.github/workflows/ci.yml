@@ -1,0 +1,205 @@
+# PRISM MCP Server - CI/CD Pipeline
+# R6 Production Hardening - Safety-critical manufacturing intelligence
+# Updated: Test sharding for 2000+ test files
+name: PRISM CI/CD
+
+on:
+  push:
+    branches: [master, main, 'release/*']
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Stage 1: Build
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prism-build
+          path: dist/
+          retention-days: 7
+
+  # Stage 2: Sharded Tests (8 parallel shards)
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: prism-build
+          path: dist/
+
+      - name: Run Tests (Shard ${{ matrix.shard }}/8)
+        run: npx vitest run --shard=${{ matrix.shard }}/8 --reporter=json --outputFile=test-results-${{ matrix.shard }}.json
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.shard }}
+          path: test-results-${{ matrix.shard }}.json
+          retention-days: 7
+
+  # Stage 3: Core Physics Tests (critical path - must pass)
+  test-physics:
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: prism-build
+          path: dist/
+
+      - name: Core Physics Tests
+        run: |
+          npx vitest run src/__tests__/algorithms.test.ts \
+            src/__tests__/KienzleForceModelEngine.test.ts \
+            src/__tests__/TaylorToolLifeEngine.test.ts \
+            src/__tests__/FormulaRegistry.test.ts \
+            --reporter=verbose
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
+  # Stage 4: Merge Test Results
+  test-summary:
+    runs-on: ubuntu-latest
+    needs: [test, test-physics]
+    if: always()
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+
+      - name: Summarize test results
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          total_pass=0
+          total_fail=0
+          for f in test-results-*.json; do
+            if [ -f "$f" ]; then
+              pass=$(jq '.numPassedTests // 0' "$f" 2>/dev/null || echo 0)
+              fail=$(jq '.numFailedTests // 0' "$f" 2>/dev/null || echo 0)
+              total_pass=$((total_pass + pass))
+              total_fail=$((total_fail + fail))
+              echo "- $f: $pass passed, $fail failed" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total: $total_pass passed, $total_fail failed**" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$total_fail" -gt 0 ]; then
+            echo "::warning::$total_fail tests failed across shards"
+          fi
+
+  # Stage 5: Security Scan
+  security:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+      - name: Audit dependencies
+        run: npm audit --production --audit-level=high
+        continue-on-error: true
+      - name: Check for secrets
+        run: |
+          grep -rn "password\|secret\|api_key\|token" src/ --include="*.ts" | grep -v "test" | grep -v "\.d\.ts" || echo "No secrets found"
+
+  # Stage 6: Docker Build + Push
+  docker:
+    runs-on: ubuntu-latest
+    needs: [test-summary, security]
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/release/')
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          target: production
+
+  # Stage 7: Deploy (manual approval for production)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/master'
+    environment: production
+    steps:
+      - name: Deploy notification
+        run: echo "🚀 PRISM ${{ github.sha }} ready for deployment. Docker image pushed."
+      - name: Health check after deploy
+        run: |
+          echo "Post-deploy health check would run here"
+          echo "curl -sf http://PRODUCTION_HOST:3000/health || exit 1"

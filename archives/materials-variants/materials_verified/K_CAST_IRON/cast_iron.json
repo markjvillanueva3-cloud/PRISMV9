@@ -1,0 +1,359 @@
+{
+  "_metadata": {
+    "generated": "2026-02-07T20:18:15.138Z",
+    "generator": "PRISM Materials Rebuild v1.0",
+    "model": "claude-sonnet-4-5-20250929",
+    "count": 2,
+    "iso_group": "K_CAST_IRON"
+  },
+  "materials": [
+    {
+      "name": "White Iron Ni-Hard 4",
+      "material_id": "K-NIHARD4-001",
+      "iso_group": "K",
+      "material_type": "cast_iron",
+      "data_quality": "reference",
+      "physical": {
+        "density": 7400,
+        "melting_point": 1260,
+        "boiling_point": null,
+        "liquidus_temperature": 1290,
+        "solidus_temperature": 1150,
+        "latent_heat_fusion": 247,
+        "specific_heat": 460,
+        "thermal_conductivity": 26,
+        "thermal_expansion": 11.5,
+        "electrical_resistivity": 85,
+        "magnetic_permeability": 1.2,
+        "poisson_ratio": 0.26,
+        "elastic_modulus": 200,
+        "shear_modulus": 79,
+        "bulk_modulus": 145
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 550,
+          "vickers": 575,
+          "rockwell_c": 54,
+          "rockwell_b": null
+        },
+        "tensile_strength": {
+          "typical": 550,
+          "min": 480,
+          "max": 620
+        },
+        "yield_strength": {
+          "typical": 420,
+          "min": 380,
+          "max": 460
+        },
+        "elongation": 0.5,
+        "reduction_of_area": 0.3,
+        "impact_strength": 3,
+        "fatigue_strength": 240,
+        "fracture_toughness": 12,
+        "compressive_strength": 2200,
+        "true_fracture_stress": 680,
+        "true_fracture_strain": 0.006,
+        "strain_rate_sensitivity": 0.008
+      },
+      "kienzle": {
+        "kc1_1": 2450,
+        "mc": 0.19,
+        "kc1_1_milling": 2580,
+        "mc_milling": 0.21,
+        "kc1_1_drilling": 2720,
+        "mc_drilling": 0.23
+      },
+      "johnson_cook": {
+        "A": 420,
+        "B": 380,
+        "n": 0.14,
+        "C": 0.009,
+        "m": 0.85,
+        "T_melt": 1260,
+        "T_ref": 20,
+        "epsilon_dot_ref": 1
+      },
+      "taylor": {
+        "C": 18,
+        "n": 0.18,
+        "C_carbide": 42,
+        "n_carbide": 0.22,
+        "C_ceramic": 85,
+        "n_ceramic": 0.25,
+        "C_cbn": 160,
+        "n_cbn": 0.28
+      },
+      "chip_formation": {
+        "chip_type": "discontinuous",
+        "chip_breaking": "easy",
+        "shear_angle": 18,
+        "chip_compression_ratio": 1.2,
+        "built_up_edge_tendency": "low",
+        "segmentation_frequency": null,
+        "min_chip_thickness": 0.008,
+        "edge_radius_sensitivity": "low"
+      },
+      "tribology": {
+        "friction_coefficient": 0.68,
+        "friction_coefficient_dry": 0.68,
+        "friction_coefficient_flood": 0.52,
+        "friction_coefficient_mql": 0.58,
+        "wear_coefficient": 0.00045,
+        "adhesion_tendency": "low",
+        "abrasiveness": "very_high",
+        "galling_tendency": "low",
+        "crater_wear_coefficient": 0.45,
+        "flank_wear_coefficient": 1.35
+      },
+      "thermal_machining": {
+        "thermal_diffusivity": 7.6,
+        "heat_partition_coefficient": 0.45,
+        "critical_temperature": 650,
+        "recrystallization_temperature": 0,
+        "phase_transformation_temperature": null,
+        "maximum_cutting_temperature": 780,
+        "emissivity": 0.72,
+        "heat_transfer_coefficient": 2800
+      },
+      "surface_integrity": {
+        "residual_stress_tendency": "compressive",
+        "work_hardening_depth": 0.02,
+        "white_layer_risk": "low",
+        "surface_roughness_achievable": 1.2,
+        "burr_formation_tendency": "low",
+        "microstructure_sensitivity": "moderate",
+        "minimum_uncut_chip_thickness": 0.007,
+        "ploughing_force_coefficient": 0.85
+      },
+      "machinability": {
+        "aisi_rating": 15,
+        "relative_to_1212": 0.15,
+        "machinability_index": 18,
+        "power_constant": 2.8,
+        "unit_power": 4.2
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 45,
+          "speed_finishing": 65,
+          "feed_roughing": 0.12,
+          "feed_finishing": 0.06,
+          "doc_roughing": 1.5,
+          "doc_finishing": 0.3
+        },
+        "milling": {
+          "speed_roughing": 38,
+          "speed_finishing": 55,
+          "feed_per_tooth_roughing": 0.08,
+          "feed_per_tooth_finishing": 0.04,
+          "doc_roughing": 2,
+          "doc_finishing": 0.4,
+          "woc_roughing": "40%",
+          "woc_finishing": "15%"
+        },
+        "drilling": {
+          "speed": 25,
+          "feed_per_rev": 0.08,
+          "peck_depth_ratio": 2
+        },
+        "tool_material": {
+          "recommended_grade": "CBN grade BN7000 or ceramic grade CC650",
+          "coating_recommendation": "Uncoated CBN or Al2O3 ceramic",
+          "geometry_recommendation": "Negative rake -5°, large nose radius, high edge strength"
+        },
+        "coolant": {
+          "type": "flood",
+          "pressure": 20,
+          "flow_rate": 30
+        }
+      },
+      "process_specific": {
+        "grinding_ratio": 12,
+        "edm_machinability": "good",
+        "laser_absorptivity": 0.68,
+        "weldability_rating": "poor"
+      },
+      "_quality": {
+        "validated": true,
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "High Chrome White Iron",
+      "material_id": "K-HCWI-002",
+      "iso_group": "K",
+      "material_type": "cast_iron",
+      "data_quality": "reference",
+      "physical": {
+        "density": 7600,
+        "melting_point": 1280,
+        "boiling_point": null,
+        "liquidus_temperature": 1310,
+        "solidus_temperature": 1170,
+        "latent_heat_fusion": 252,
+        "specific_heat": 450,
+        "thermal_conductivity": 24,
+        "thermal_expansion": 11,
+        "electrical_resistivity": 92,
+        "magnetic_permeability": 1.15,
+        "poisson_ratio": 0.25,
+        "elastic_modulus": 210,
+        "shear_modulus": 84,
+        "bulk_modulus": 155
+      },
+      "mechanical": {
+        "hardness": {
+          "brinell": 630,
+          "vickers": 660,
+          "rockwell_c": 58,
+          "rockwell_b": null
+        },
+        "tensile_strength": {
+          "typical": 620,
+          "min": 550,
+          "max": 690
+        },
+        "yield_strength": {
+          "typical": 480,
+          "min": 430,
+          "max": 530
+        },
+        "elongation": 0.3,
+        "reduction_of_area": 0.2,
+        "impact_strength": 2,
+        "fatigue_strength": 270,
+        "fracture_toughness": 10.5,
+        "compressive_strength": 2500,
+        "true_fracture_stress": 750,
+        "true_fracture_strain": 0.004,
+        "strain_rate_sensitivity": 0.007
+      },
+      "kienzle": {
+        "kc1_1": 2720,
+        "mc": 0.17,
+        "kc1_1_milling": 2880,
+        "mc_milling": 0.19,
+        "kc1_1_drilling": 3040,
+        "mc_drilling": 0.21
+      },
+      "johnson_cook": {
+        "A": 480,
+        "B": 420,
+        "n": 0.12,
+        "C": 0.008,
+        "m": 0.88,
+        "T_melt": 1280,
+        "T_ref": 20,
+        "epsilon_dot_ref": 1
+      },
+      "taylor": {
+        "C": 15,
+        "n": 0.16,
+        "C_carbide": 38,
+        "n_carbide": 0.2,
+        "C_ceramic": 78,
+        "n_ceramic": 0.23,
+        "C_cbn": 145,
+        "n_cbn": 0.26
+      },
+      "chip_formation": {
+        "chip_type": "discontinuous",
+        "chip_breaking": "easy",
+        "shear_angle": 16,
+        "chip_compression_ratio": 1.15,
+        "built_up_edge_tendency": "none",
+        "segmentation_frequency": null,
+        "min_chip_thickness": 0.009,
+        "edge_radius_sensitivity": "low"
+      },
+      "tribology": {
+        "friction_coefficient": 0.72,
+        "friction_coefficient_dry": 0.72,
+        "friction_coefficient_flood": 0.55,
+        "friction_coefficient_mql": 0.62,
+        "wear_coefficient": 0.00038,
+        "adhesion_tendency": "low",
+        "abrasiveness": "very_high",
+        "galling_tendency": "none",
+        "crater_wear_coefficient": 0.4,
+        "flank_wear_coefficient": 1.5
+      },
+      "thermal_machining": {
+        "thermal_diffusivity": 7,
+        "heat_partition_coefficient": 0.42,
+        "critical_temperature": 680,
+        "recrystallization_temperature": 0,
+        "phase_transformation_temperature": null,
+        "maximum_cutting_temperature": 820,
+        "emissivity": 0.74,
+        "heat_transfer_coefficient": 2650
+      },
+      "surface_integrity": {
+        "residual_stress_tendency": "compressive",
+        "work_hardening_depth": 0.015,
+        "white_layer_risk": "low",
+        "surface_roughness_achievable": 1.4,
+        "burr_formation_tendency": "low",
+        "microstructure_sensitivity": "moderate",
+        "minimum_uncut_chip_thickness": 0.008,
+        "ploughing_force_coefficient": 0.9
+      },
+      "machinability": {
+        "aisi_rating": 12,
+        "relative_to_1212": 0.12,
+        "machinability_index": 15,
+        "power_constant": 3.1,
+        "unit_power": 4.6
+      },
+      "cutting_recommendations": {
+        "turning": {
+          "speed_roughing": 38,
+          "speed_finishing": 55,
+          "feed_roughing": 0.1,
+          "feed_finishing": 0.05,
+          "doc_roughing": 1.2,
+          "doc_finishing": 0.25
+        },
+        "milling": {
+          "speed_roughing": 32,
+          "speed_finishing": 48,
+          "feed_per_tooth_roughing": 0.07,
+          "feed_per_tooth_finishing": 0.035,
+          "doc_roughing": 1.5,
+          "doc_finishing": 0.35,
+          "woc_roughing": "35%",
+          "woc_finishing": "12%"
+        },
+        "drilling": {
+          "speed": 22,
+          "feed_per_rev": 0.07,
+          "peck_depth_ratio": 1.8
+        },
+        "tool_material": {
+          "recommended_grade": "CBN grade BN8000 or ceramic grade CC670 with SiC whiskers",
+          "coating_recommendation": "Uncoated CBN preferred, TiN for ceramic if available",
+          "geometry_recommendation": "Negative rake -6°, chamfered edge, maximum rigidity"
+        },
+        "coolant": {
+          "type": "flood",
+          "pressure": 25,
+          "flow_rate": 35
+        }
+      },
+      "process_specific": {
+        "grinding_ratio": 10,
+        "edm_machinability": "good",
+        "laser_absorptivity": 0.7,
+        "weldability_rating": "poor"
+      },
+      "_quality": {
+        "validated": true,
+        "errors": [],
+        "warnings": []
+      }
+    }
+  ]
+}

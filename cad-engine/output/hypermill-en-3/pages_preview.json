@@ -1,0 +1,126 @@
+[
+  {
+    "page": 1,
+    "text": "10. 2D Machining\nAvailable machining cycles\nPocket Milling (page 639) : Machining perpendicular pocket walls and adaptive pockets with automatic\nisland recognition and options to calculate rest material areas.\nContour Milling (page 654) : Milling open and closed 2D contours with optional path compensation and\ndifferent approach and retract strategies. Rest material areas can be calculated.\nContour Milling on 3D Model (page 667) : Milling open and closed contours with collision check, optional\nst"
+  },
+  {
+    "page": 2,
+    "text": "X\nZ 1\n2\nClearance\nSelect the c learance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-\nsions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.\nFor a 3D model, the clearance plane value can be taken from the drawing.\nThe clearance plane is always situated above the workpiece boundaries in the Z direc-\ntion.\nDefine a c learance distance (2) as a distance from the current surface (3), for fast travel Z-stepdo"
+  },
+  {
+    "page": 3,
+    "text": "20\n10\n0\n-10\n20\n10\n0\n-10\n1 2\nContour attributes\nTo define contour attributes (top, bottom), select the machining contour in the contour list. By making\nmultiple selections in this contour list, you can quickly define the same top and bottom values for several\ncontours.\nUse the following buttons to change the order of selected contours or delete a contour. (1) To the top, (2)\nUp, (3) Delete, (4) Down, (5) To the bottom.\nMachining of open pockets\nTo machine an open pocket, link the job with a Pocke"
+  },
+  {
+    "page": 4,
+    "text": "The following applies for machining rectangular pockets: hyperMILL automatically calculates the most\neffective removal movement depending on the proportion of the tool to the pocket.\nSpiral, tool D10.0 (1), contour-parallel, tool D20.0 (2).\n1 2\nAdaptive pocket parameters: options for adjusting feedrates and infeed under full cut behaviour conditions.\nParameters\nDefine machining parameters.\nFor information on the machining parameters, see section Parameters (page 636) :\nInfeed\nVertical stepdown ("
+  },
+  {
+    "page": 5,
+    "text": "Infeed\nDense area stepover (factor) (1): The value is multiplied by the S tepover (factor of diameter) (see P arame-\nters dialogue page) and defines the lateral infeed for trochoidal movements in narrow, inaccessible areas.\nA reduction in the horizontal stepover in narrow areas may be particularly useful for hard materials.\n1\nPlunge feedrate: Feedrate for plunge movement ( m acros) in pockets that cannot be accessed from\noutside (closed pockets). M in. Enable f eedrate to specify a minimum value"
+  },
+  {
+    "page": 6,
+    "text": "Additional surfaces\nAdditional surfaces: Temporary safety surfaces to avoid unnecessary rapid travel movements.\nCheck tool\nThe tool check ensures that all of the components defined for the tool are protected from a possible\ncollision with the CAD model on the basis of existing material. The tool check is only available if you have\ndefined a tool and also a model to be checked.\nCheck on: You must always enable this option if you want the tool to be checked for collisions. If the tool\ncheck is not"
+  },
+  {
+    "page": 7,
+    "text": "Align closed contours: The machining direction can be reversed for all selected closed (!) contours simulta-\nneously. To do so, select the contours and specify the direction of the contours using the A lign closed\ncontours \u2192C lockwise / Counterclockwise function from the shortcut menu. The start point and end point\nare interchanged automatically.\nIf you change the machining direction, you should change the cutter position as well.\nGlobal depth\nAssign a top and bottom value globally to several co"
+  },
+  {
+    "page": 8,
+    "text": "Comp. finish pass only: Only available for compensated centre path. The radius compensation occurs for\nthe final finish pass only. The output of all other paths is centred, i.e., the tool actually used must not be\nlarger than the programmed tool.\nInfeed\nVertical stepdown: Z infeed to the next machining pass.\nOneway: Machining always in the same orientation.\nZigzag: Machining with alternating orientation.\nAllowance\nFor information on A llowance XY and Allowance Z see section Allowance (page 757) "
+  },
+  {
+    "page": 9,
+    "text": "3\n1\n2\n4\nMacros\nDefine the tool approach at the start point and the tool retraction from the end point of the contour.\nPerpendicular (1): Perpendicular to contour tangent, enter length.\nTangential (2): On contour tangent, enter length.\nQuarter circle (3), Half circle (4): In quarter or half circle, enter radius.\nMacro extension: Only available for quarter circle. The macro is extended by the specified value. This\nguarantees that the tool can fully retract from the groove without leaving behind an"
+  },
+  {
+    "page": 10,
+    "text": "1\n2\n1\n2\nPlunge point: The plunge point (1) applies for the infeed to the first workplane. The cutter moves directly\nfrom the plunge point to the starting point or to the approach macro position. The plunge point is not\ncollision checked.\nRetract point: After completion of the retract macro, the tool moves to the retract point (2) and then to the\nclearance plane/clearance distance.\nAdditional allowance: You can define a horizontal (X, Y) and vertical (Z) allowance for each individual\ncontour.\nThe"
+  },
+  {
+    "page": 11,
+    "text": "Change manually\n1. Select segment.\n2.\n Click the icon for cutting speed or feedrate. The icon changes.\n.\n3. Enter the required value.\nChange on the basis of factors\n1. Select the segment, click the link icon and enter the required factor directly.\n2.\n Click the link icon.\n3. Enter the required factor directly.\nThe feedrate applies to the usage that is set on the Tool dialogue page under Cutting profile.\nThe following information applies to the S urfaces mode.\nSurface selection\nSelect surfaces. T"
+  },
+  {
+    "page": 12,
+    "text": "1 2\nEdge behaviour\nDefines the behaviour of the tool at the outer edges of a model (not available for the O n contour tool\nposition).\nRoll (standard) (1): Edge rolling (standard behaviour also for 2D Contour Milling).\nExtend (2): Tangential extension on the edges.\nLoop (3): Loop-like extension and threading at edges. Define the C orner radius.\n1 2 3\nBreak edge: Use the C hamfer option (1) to chamfer the edges or the R ounding option (2) to round the\nedge.\nLength: Length of the chamfer or fillet."
+  },
+  {
+    "page": 13,
+    "text": "X\nY\nAdditional options\nFinish only last level: a finish pass is performed on the lowest level.\nSpring path: for closed contours, an additional finish pass is performed for each Z level, which removes\nfine machining cavities, thus increasing the surface quality. Define the number of empty cuts to be\nperformed using P ass number.\nPrefer spiral: Wherever possible, there is a spiral infeed to the next machining pass. Only available when\nthe Adjust vertical stepdown option is used as the vertical inf"
+  },
+  {
+    "page": 14,
+    "text": "Example: (A) Approach macro = tangential, (B) Approach macro = quarter circle, (1) Height, (2) Length, (3)\nRadius.\nY\nZ X\nY\nX\nZ\nX\n1\n2\n3\nA B\nA\nB\nB\n1\nMacro extension: Only available for quarter circle. The macro is extended by the specified value. This\nguarantees that the tool can fully retract from the groove without leaving behind any material (such as\nchippings/shavings).This is particularly important for Bottom to top milling (see Parameters section).\nContour extension (open contours only)\nClic"
+  },
+  {
+    "page": 15,
+    "text": "1\n2\n1\nPlunge point: The plunge point (1) applies for the infeed to the first workplane. The cutter moves directly\nfrom the plunge point to the starting point or to the approach macro position. The plunge point is not\ncollision checked.\nRetract point: After completion of the retract macro, the tool moves to the retract point (2) and then to the\nclearance plane/clearance distance.\nReverse: In the default setting the machining direction follows the direction of the selected contour. This\ncan be see"
+  },
+  {
+    "page": 16,
+    "text": "1\n2\n3\nAxial infeed / Lateral infeed area\nMax. axial step (1): Enter a maximum permissible distance between the machining planes. The value may\nnot be greater than disc height of the tool. The value for the infeed is automatically adjusted to the total\ninfeed (top, bottom), no finishing cut is executed.\nThe max. axial infeed may not be greater than disc height of the tool. Standard = 0.75 * disc height\nDefine the width of the infeed area (2) using the W idth parameter on the C ontours dialogue pa"
+  },
+  {
+    "page": 17,
+    "text": "Check tool\nIf the C ompensated centre path option is enabled, the offset contour for the collision check is used. For\ninformation on the tool check settings, see section Check tool (page 272) .\nNC parameters\nFor further information, see section NC parameters (page 770) .\nhyperMILL\n697\nChamfer Milling on 3D Model\nThe cycle facilitates the safe and rapid machining of prismatic components. It is possible to differentiate\nbetween the M odelled chamfer and Deburr/ chamfer sharp edges machining strate"
+  },
+  {
+    "page": 18,
+    "text": "3\n1\n2\nSelect the P referred start point, End point or Plunge point checkbox and select a point.\nFreely select the start point (1) for each contour.\n1 1\nSet an end point (2) if the contour is to be machined only partially or if there should be an overlap.\n1\n2\n1\n2\nPlunge point: The plunge point (1) applies for the infeed to the first workplane. The cutter moves directly\nfrom the plunge point to the starting point or to the approach macro position. The plunge point is not\ncollision checked.\nhyperMI"
+  },
+  {
+    "page": 19,
+    "text": "1\n2\n3\nExample 5\nChamfer mode: Deburr / chamfer sharp edges.\n(1) Stop surfaces: model areas that may not be violated, (2) Contour.\n1\n2\nTo avoid \u2018unnecessary\u2019 error messages when machining with the D eburr / chamfer sharp edges strategy,\nthe collision check has been changed, based on the geometry of the C hamfered cutter tool type. The\nchamfer of the tool may now violate the component when deburring with the chamfer without an error\nmessage being generated.\nToolpath fillets\nFillet interior corners"
+  },
+  {
+    "page": 20,
+    "text": "1\nA\nB\nA\nA\nB\n1\nClearance\nSelect the c learance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-\nsions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.\nFor a 3D model, the clearance plane value can be taken from the drawing.\nThe clearance plane is always situated above the workpiece boundaries in the Z direc-\ntion.\nDefine a c learance distance (2) as a distance from the current surface (3), for fast travel Z-"
+  },
+  {
+    "page": 21,
+    "text": "Inclined Contouring\nMachining Inclined Walls\nContours\nDefine machining contours, the vertical machining area and cycle-specific contour parameters.\nContour selection\nThe following can be selected as 2D machining contours: points (drilling only), arcs, circles, reference\nlines, curves and edge curves of surfaces. Several contours or holes can be machined in one job. The\nnumber of selected contours is displayed.\nContour attributes\nTo define contour attributes (top, bottom), select the machining co"
+  },
+  {
+    "page": 22,
+    "text": "1\nReverse: In the default setting the machining direction follows the direction of the selected contour. This\ncan be seen in the graphic preview. If the generated toolpaths do not result in the intended machining\ndirection, select the relevant contours and select the R everse option.\nAlign closed contours: The machining direction can be reversed for all selected closed (!) contours simulta-\nneously. To do so, select the contours and specify the direction of the contours using the A lign closed\nc"
+  },
+  {
+    "page": 23,
+    "text": "Inclined Pocketing\nMilling of pockets with inclined pocket wall.\nContours\nDefine machining contours, the vertical machining area and cycle-specific contour parameters.\nContour selection\nThe following can be selected as 2D machining contours: points (drilling only), arcs, circles, reference\nlines, curves and edge curves of surfaces. Several contours or holes can be machined in one job. The\nnumber of selected contours is displayed.\nContour attributes\nTo define contour attributes (top, bottom), sel"
+  },
+  {
+    "page": 24,
+    "text": "1 2\nClearance\nSelect the c learance plane (1) as plane for rapid travel movements along all three axes (absolute dimen-\nsions). Below this plane, only the infeed in Z direction is in fast travel mode up to the clearance distance.\nFor a 3D model, the clearance plane value can be taken from the drawing.\nThe clearance plane is always situated above the workpiece boundaries in the Z direc-\ntion.\nDefine a c learance distance (2) as a distance from the current surface (3), for fast travel Z-stepdown i"
+  },
+  {
+    "page": 25,
+    "text": "1 1\nTop: Start of machining in Z direction (1).\nBottom: End depth of machining in Z direction (2).\nBoth parameters are relative to the current frame.\nIt is possible to have various vertical machining areas for the different machining contours in a job. By\nmaking multiple selections, the same top and bottom definitions can be applied simultaneously to different\ncontours.\nY\nZ\n1\n2\nBoth parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom\ndefinitions can b"
+  },
+  {
+    "page": 26,
+    "text": "Rest Machining\nRest machining of rest material areas from a previous contour or pocket machining job. Requirements: The\ntop and bottom have been defined in the previous job in absolute mode. If the Contour Milling cycle is used\nas the reference, only one contour may be included. The possible reference cycles are listed when you call\nup a rest material cycle.\nTool\nThe tool parameters window shows, for your information, the tool used in the reference job set as default.\nTo machine all rest materia"
+  },
+  {
+    "page": 27,
+    "text": "Y\nZ\n1\n2\nBoth parameters can be defined as absolute and relative values, and as Thickness. Thus top and bottom\ndefinitions can be made with various measurements.\nAbsolute (jobframe) (A): The values you set are relative to the current frame. Use the absolute dimensions\nwhen a drawing has no defined Z coordinates (2D drawing). In these cases, define the top (1) as absolute\nand the bottom as relative or as absolute depending on the dimensions in the drawing (3). Selected\ncontour (2)\nSpecifying relat"
+  },
+  {
+    "page": 28,
+    "text": "1\n2\n3\nSetup\nMake basic settings that are valid for all subsequent actions and definitions in hyperMILL.\nNC parameters\nMachining tolerance: Specify the calculation accuracy for the generation of toolpaths.\nStop before execution: A stop marker in the toolpath causes the tool to stop if a corresponding command\nhas been defined in hyperVIEW.\nRest material recognition applies to machining which only contains one contour and\nwas created in A bsolute (jobframe) mode. If the tool diameter is changed in "
+  },
+  {
+    "page": 29,
+    "text": "Align closed contours: The machining direction can be reversed for all selected closed (!) contours simulta-\nneously. To do so, select the contours and specify the direction of the contours using the A lign closed\ncontours \u2192C lockwise / Counterclockwise function from the shortcut menu. The start point and end point\nare interchanged automatically.\nIf you change the machining direction, you should change the cutter position as well.\nStrategy\nInfeed\nVertical stepdown: Z infeed to the next machining"
+  },
+  {
+    "page": 30,
+    "text": "Plunge Milling\nContouring with plunge strategy.\nTool\nThe following tool types can be used for plunge milling: Ball Mill, End Mill, Bullnose End Mill and Drill Tool.\nContours\nContour selection\nThe following can be selected as 2D machining contours: points (drilling only), arcs, circles, reference\nlines, curves and edge curves of surfaces. Several contours or holes can be machined in one job. The\nnumber of selected contours is displayed.\nContour attributes\nTo define contour attributes (top, bottom"
+  },
+  {
+    "page": 31,
+    "text": "With the P lane retract angle (6), specify the angle for the retract movement in the XY plane (only available\nfor the Roughing infeed strategy). Permissible values for the plane retract angle are between 0 and 90\u00b0.\nZ\n2\n0\u00b0\n5\n \n0\u00b0\n90\u00b0\n5\n \n0\u00b0180\u00b0\nX\nY\n0\u00b0\n90\u00b0\nZ Z\n90\u00b0\n1 4\n6\n2 2\n4 4 4\n5\n5\n5\nZigzag: The machining direction changes per section. The infeed movement follows the shortest path. The\nhorizontal stepover between two adjacent sections takes place with the machining feedrate (G1) (1).\nZ\n1\nIncline"
+  }
+]

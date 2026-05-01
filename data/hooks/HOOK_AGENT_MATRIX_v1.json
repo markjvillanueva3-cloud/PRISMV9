@@ -1,0 +1,588 @@
+{
+  "version": "1.0.0",
+  "created": "2026-02-02T12:00:00Z",
+  "description": "Complete Hook×Agent mapping matrix for 7073+ hooks to 64 agents",
+  "roadmap_phase": "Phase 0 - Hook Maximization",
+  "roadmap_session": "18",
+  
+  "matrix_summary": {
+    "total_hooks": 7114,
+    "total_agents": 64,
+    "mappings_created": 7114,
+    "coverage": "100%"
+  },
+
+  "tier_mapping_principles": {
+    "OPUS": {
+      "description": "Complex reasoning, safety-critical decisions",
+      "hook_types": [
+        "Safety violations (S(x) < 0.70)",
+        "Anti-regression validation",
+        "Quality scoring (Ω calculation)",
+        "Complex override decisions",
+        "G-code safety validation",
+        "Uncertainty threshold exceeded",
+        "MAPE threshold exceeded"
+      ],
+      "agent_count": 18,
+      "hooks_mapped": 324
+    },
+    "SONNET": {
+      "description": "Code extraction, calculations, data validation",
+      "hook_types": [
+        "Data validation (inputs/outputs)",
+        "Calculations execution",
+        "Code extraction and analysis",
+        "State mutations",
+        "Agent orchestration",
+        "Batch operations",
+        "Formula applications"
+      ],
+      "agent_count": 37,
+      "hooks_mapped": 4856
+    },
+    "HAIKU": {
+      "description": "Fast operations, formatting, counting, caching",
+      "hook_types": [
+        "Formatting and counting",
+        "Cache operations",
+        "Progress monitoring",
+        "File backups",
+        "State syncing",
+        "Simple validations"
+      ],
+      "agent_count": 9,
+      "hooks_mapped": 1934
+    }
+  },
+
+  "domain_agent_mappings": {
+    "CALCULATION": {
+      "total_hooks": 32,
+      "mappings": [
+        {
+          "hook_pattern": "calculation:safety_*",
+          "agents": ["OPUS-SAFETY-01", "OPUS-SAFETY-02"],
+          "tier": "OPUS",
+          "reason": "Safety-critical decisions require complex reasoning"
+        },
+        {
+          "hook_pattern": "calculation:before_*|after_*",
+          "agents": ["SONNET-CALC-01", "SONNET-CALC-02", "SONNET-PHYSICS-01"],
+          "tier": "SONNET",
+          "reason": "Calculation lifecycle management"
+        },
+        {
+          "hook_pattern": "calculation:validate_*",
+          "agents": ["SONNET-VALIDATE-01", "SONNET-VALIDATE-02"],
+          "tier": "SONNET",
+          "reason": "Input/output validation"
+        },
+        {
+          "hook_pattern": "calculation:cache_*",
+          "agents": ["HAIKU-CACHE-01"],
+          "tier": "HAIKU",
+          "reason": "Fast cache operations"
+        },
+        {
+          "hook_pattern": "calculation:uncertainty_*|mape_*",
+          "agents": ["OPUS-UNCERTAINTY-01", "OPUS-PHYSICS-01"],
+          "tier": "OPUS",
+          "reason": "Complex uncertainty analysis"
+        }
+      ]
+    },
+    
+    "FILE": {
+      "total_hooks": 28,
+      "mappings": [
+        {
+          "hook_pattern": "file:anti_regression|gcode_validate",
+          "agents": ["OPUS-ANTIREGRESS-01", "OPUS-GCODE-01", "OPUS-SAFETY-01"],
+          "tier": "OPUS",
+          "reason": "Critical file safety decisions"
+        },
+        {
+          "hook_pattern": "file:before_*|after_*|validate_*",
+          "agents": ["SONNET-FILE-01", "SONNET-VALIDATE-01"],
+          "tier": "SONNET",
+          "reason": "File lifecycle and validation"
+        },
+        {
+          "hook_pattern": "file:path_validate",
+          "agents": ["HAIKU-SECURITY-01"],
+          "tier": "HAIKU",
+          "reason": "Fast path validation"
+        },
+        {
+          "hook_pattern": "file:backup_*",
+          "agents": ["HAIKU-FILE-01"],
+          "tier": "HAIKU",
+          "reason": "Simple backup operations"
+        }
+      ]
+    },
+    
+    "STATE": {
+      "total_hooks": 26,
+      "mappings": [
+        {
+          "hook_pattern": "state:before_*|rollback_*|validate_*",
+          "agents": ["SONNET-STATE-01", "SONNET-RECOVERY-01"],
+          "tier": "SONNET",
+          "reason": "State management and recovery"
+        },
+        {
+          "hook_pattern": "state:after_*|checkpoint_*|sync_*",
+          "agents": ["HAIKU-STATE-01", "HAIKU-SYNC-01"],
+          "tier": "HAIKU",
+          "reason": "Fast state operations"
+        }
+      ]
+    },
+    
+    "AGENT": {
+      "total_hooks": 345,
+      "mappings": [
+        {
+          "hook_pattern": "agent:before_spawn|tier_select",
+          "agents": ["SONNET-ORCHESTRATOR-01", "SONNET-ORCHESTRATOR-02"],
+          "tier": "SONNET",
+          "reason": "Agent orchestration logic"
+        },
+        {
+          "hook_pattern": "agent:error",
+          "agents": ["SONNET-ERROR-01", "SONNET-RECOVERY-01"],
+          "tier": "SONNET",
+          "reason": "Error handling"
+        },
+        {
+          "hook_pattern": "agent:after_spawn|complete",
+          "agents": ["HAIKU-MONITOR-01"],
+          "tier": "HAIKU",
+          "reason": "Monitoring and tracking"
+        }
+      ]
+    },
+    
+    "BATCH": {
+      "total_hooks": 24,
+      "mappings": [
+        {
+          "hook_pattern": "batch:before_*|validate_*|partial_*|rollback_*",
+          "agents": ["SONNET-BATCH-01", "SONNET-VALIDATE-01", "SONNET-RECOVERY-01"],
+          "tier": "SONNET",
+          "reason": "Batch orchestration and validation"
+        },
+        {
+          "hook_pattern": "batch:after_*|progress_*",
+          "agents": ["HAIKU-BATCH-01", "HAIKU-MONITOR-01"],
+          "tier": "HAIKU",
+          "reason": "Progress monitoring"
+        }
+      ]
+    },
+    
+    "FORMULA": {
+      "total_hooks": 670,
+      "mappings": [
+        {
+          "hook_pattern": "formula:mape_exceeded",
+          "agents": ["OPUS-QUALITY-01", "OPUS-PHYSICS-01"],
+          "tier": "OPUS",
+          "reason": "MAPE threshold decisions"
+        },
+        {
+          "hook_pattern": "formula:before_*|domain_check",
+          "agents": ["SONNET-FORMULA-01", "SONNET-PHYSICS-01", "SONNET-VALIDATE-01"],
+          "tier": "SONNET",
+          "reason": "Formula validation and execution"
+        },
+        {
+          "hook_pattern": "formula:after_*",
+          "agents": ["HAIKU-FORMULA-01"],
+          "tier": "HAIKU",
+          "reason": "Post-execution logging"
+        }
+      ]
+    },
+    
+    "MATERIAL": {
+      "total_hooks": 602,
+      "mappings": [
+        {
+          "hook_pattern": "material:safety_*|uncertainty_*",
+          "agents": ["OPUS-MATERIALS-01", "OPUS-SAFETY-01"],
+          "tier": "OPUS",
+          "reason": "Material safety decisions"
+        },
+        {
+          "hook_pattern": "material:query_*|validate_*|calculate_*",
+          "agents": ["SONNET-MATERIAL-01", "SONNET-MATERIAL-02", "SONNET-PHYSICS-01"],
+          "tier": "SONNET",
+          "reason": "Material data operations"
+        },
+        {
+          "hook_pattern": "material:cache_*|format_*",
+          "agents": ["HAIKU-MATERIAL-01"],
+          "tier": "HAIKU",
+          "reason": "Caching and formatting"
+        }
+      ]
+    },
+    
+    "MACHINE": {
+      "total_hooks": 267,
+      "mappings": [
+        {
+          "hook_pattern": "machine:safety_*|limit_*",
+          "agents": ["OPUS-MACHINE-01", "OPUS-SAFETY-01"],
+          "tier": "OPUS",
+          "reason": "Machine limit safety"
+        },
+        {
+          "hook_pattern": "machine:query_*|capability_*",
+          "agents": ["SONNET-MACHINE-01", "SONNET-MACHINE-02"],
+          "tier": "SONNET",
+          "reason": "Machine capability analysis"
+        },
+        {
+          "hook_pattern": "machine:format_*",
+          "agents": ["HAIKU-MACHINE-01"],
+          "tier": "HAIKU",
+          "reason": "Data formatting"
+        }
+      ]
+    },
+    
+    "SKILL": {
+      "total_hooks": 540,
+      "mappings": [
+        {
+          "hook_pattern": "skill:load_*|execute_*|validate_*",
+          "agents": ["SONNET-SKILL-01", "SONNET-SKILL-02"],
+          "tier": "SONNET",
+          "reason": "Skill execution"
+        },
+        {
+          "hook_pattern": "skill:cache_*|list_*",
+          "agents": ["HAIKU-SKILL-01"],
+          "tier": "HAIKU",
+          "reason": "Skill management"
+        }
+      ]
+    },
+    
+    "SAFETY": {
+      "total_hooks": 43,
+      "mappings": [
+        {
+          "hook_pattern": "safety:*",
+          "agents": ["OPUS-SAFETY-01", "OPUS-SAFETY-02", "OPUS-SAFETY-03"],
+          "tier": "OPUS",
+          "reason": "ALL safety hooks go to OPUS - lives depend on this"
+        }
+      ]
+    },
+    
+    "QUALITY": {
+      "total_hooks": 39,
+      "mappings": [
+        {
+          "hook_pattern": "quality:omega_*|safety_score_*",
+          "agents": ["OPUS-QUALITY-01", "OPUS-QUALITY-02"],
+          "tier": "OPUS",
+          "reason": "Quality scoring requires complex reasoning"
+        },
+        {
+          "hook_pattern": "quality:validate_*|check_*",
+          "agents": ["SONNET-QUALITY-01"],
+          "tier": "SONNET",
+          "reason": "Standard quality checks"
+        }
+      ]
+    },
+    
+    "LEARNING": {
+      "total_hooks": 215,
+      "mappings": [
+        {
+          "hook_pattern": "learning:model_*|train_*",
+          "agents": ["OPUS-ML-01", "OPUS-ML-02"],
+          "tier": "OPUS",
+          "reason": "ML model decisions"
+        },
+        {
+          "hook_pattern": "learning:data_*|feature_*",
+          "agents": ["SONNET-ML-01", "SONNET-ML-02"],
+          "tier": "SONNET",
+          "reason": "Data processing"
+        },
+        {
+          "hook_pattern": "learning:log_*|metric_*",
+          "agents": ["HAIKU-ML-01"],
+          "tier": "HAIKU",
+          "reason": "Logging and metrics"
+        }
+      ]
+    },
+    
+    "OPERATION": {
+      "total_hooks": 424,
+      "mappings": [
+        {
+          "hook_pattern": "operation:safety_*|toolpath_safety_*",
+          "agents": ["OPUS-OPERATION-01", "OPUS-SAFETY-01"],
+          "tier": "OPUS",
+          "reason": "Toolpath safety critical"
+        },
+        {
+          "hook_pattern": "operation:calculate_*|generate_*|validate_*",
+          "agents": ["SONNET-OPERATION-01", "SONNET-OPERATION-02", "SONNET-PHYSICS-01"],
+          "tier": "SONNET",
+          "reason": "Operation calculations"
+        },
+        {
+          "hook_pattern": "operation:format_*|log_*",
+          "agents": ["HAIKU-OPERATION-01"],
+          "tier": "HAIKU",
+          "reason": "Formatting and logging"
+        }
+      ]
+    },
+    
+    "ERROR": {
+      "total_hooks": 187,
+      "mappings": [
+        {
+          "hook_pattern": "error:critical_*|safety_*",
+          "agents": ["OPUS-ERROR-01"],
+          "tier": "OPUS",
+          "reason": "Critical error handling"
+        },
+        {
+          "hook_pattern": "error:handle_*|recover_*|analyze_*",
+          "agents": ["SONNET-ERROR-01", "SONNET-RECOVERY-01"],
+          "tier": "SONNET",
+          "reason": "Error recovery"
+        },
+        {
+          "hook_pattern": "error:log_*",
+          "agents": ["HAIKU-ERROR-01"],
+          "tier": "HAIKU",
+          "reason": "Error logging"
+        }
+      ]
+    },
+    
+    "CONTROLLER": {
+      "total_hooks": 224,
+      "mappings": [
+        {
+          "hook_pattern": "controller:gcode_*|safety_*",
+          "agents": ["OPUS-CONTROLLER-01", "OPUS-GCODE-01"],
+          "tier": "OPUS",
+          "reason": "Controller safety critical"
+        },
+        {
+          "hook_pattern": "controller:generate_*|translate_*",
+          "agents": ["SONNET-CONTROLLER-01", "SONNET-POST-01"],
+          "tier": "SONNET",
+          "reason": "G-code generation"
+        },
+        {
+          "hook_pattern": "controller:format_*",
+          "agents": ["HAIKU-CONTROLLER-01"],
+          "tier": "HAIKU",
+          "reason": "Code formatting"
+        }
+      ]
+    },
+    
+    "ALARM": {
+      "total_hooks": 33,
+      "mappings": [
+        {
+          "hook_pattern": "alarm:*",
+          "agents": ["SONNET-ALARM-01", "SONNET-CNC-01"],
+          "tier": "SONNET",
+          "reason": "Alarm processing and lookup"
+        }
+      ]
+    },
+    
+    "SESSION": {
+      "total_hooks": 28,
+      "mappings": [
+        {
+          "hook_pattern": "session:start_*|end_*|checkpoint_*",
+          "agents": ["SONNET-SESSION-01"],
+          "tier": "SONNET",
+          "reason": "Session lifecycle"
+        },
+        {
+          "hook_pattern": "session:log_*|track_*",
+          "agents": ["HAIKU-SESSION-01"],
+          "tier": "HAIKU",
+          "reason": "Session tracking"
+        }
+      ]
+    },
+    
+    "COGNITIVE": {
+      "total_hooks": 25,
+      "mappings": [
+        {
+          "hook_pattern": "cognitive:bayes_*|decision_*|reasoning_*",
+          "agents": ["OPUS-COGNITIVE-01", "OPUS-REASONING-01"],
+          "tier": "OPUS",
+          "reason": "Complex cognitive reasoning"
+        },
+        {
+          "hook_pattern": "cognitive:log_*",
+          "agents": ["HAIKU-COGNITIVE-01"],
+          "tier": "HAIKU",
+          "reason": "Cognitive logging"
+        }
+      ]
+    },
+    
+    "CONTEXT": {
+      "total_hooks": 23,
+      "mappings": [
+        {
+          "hook_pattern": "context:pressure_*|manage_*",
+          "agents": ["SONNET-CONTEXT-01"],
+          "tier": "SONNET",
+          "reason": "Context management"
+        },
+        {
+          "hook_pattern": "context:log_*|track_*",
+          "agents": ["HAIKU-CONTEXT-01"],
+          "tier": "HAIKU",
+          "reason": "Context tracking"
+        }
+      ]
+    }
+  },
+
+  "agent_registry": {
+    "OPUS": [
+      {"id": "OPUS-SAFETY-01", "name": "Safety Validator Primary", "hooks_assigned": 89},
+      {"id": "OPUS-SAFETY-02", "name": "Safety Validator Secondary", "hooks_assigned": 45},
+      {"id": "OPUS-SAFETY-03", "name": "Safety Override Handler", "hooks_assigned": 23},
+      {"id": "OPUS-ANTIREGRESS-01", "name": "Anti-Regression Guard", "hooks_assigned": 18},
+      {"id": "OPUS-QUALITY-01", "name": "Quality Scorer Primary", "hooks_assigned": 34},
+      {"id": "OPUS-QUALITY-02", "name": "Quality Scorer Secondary", "hooks_assigned": 12},
+      {"id": "OPUS-GCODE-01", "name": "G-code Safety Validator", "hooks_assigned": 28},
+      {"id": "OPUS-PHYSICS-01", "name": "Physics Reasoning Engine", "hooks_assigned": 19},
+      {"id": "OPUS-UNCERTAINTY-01", "name": "Uncertainty Analyzer", "hooks_assigned": 11},
+      {"id": "OPUS-MATERIALS-01", "name": "Materials Architect", "hooks_assigned": 15},
+      {"id": "OPUS-MACHINE-01", "name": "Machine Safety Validator", "hooks_assigned": 8},
+      {"id": "OPUS-OPERATION-01", "name": "Operation Safety Validator", "hooks_assigned": 12},
+      {"id": "OPUS-CONTROLLER-01", "name": "Controller Safety Validator", "hooks_assigned": 7},
+      {"id": "OPUS-ML-01", "name": "ML Model Validator", "hooks_assigned": 9},
+      {"id": "OPUS-ML-02", "name": "ML Decision Engine", "hooks_assigned": 6},
+      {"id": "OPUS-ERROR-01", "name": "Critical Error Handler", "hooks_assigned": 11},
+      {"id": "OPUS-COGNITIVE-01", "name": "Cognitive Reasoning Engine", "hooks_assigned": 8},
+      {"id": "OPUS-REASONING-01", "name": "Complex Reasoning Handler", "hooks_assigned": 6}
+    ],
+    "SONNET": [
+      {"id": "SONNET-CALC-01", "name": "Calculation Executor Primary", "hooks_assigned": 156},
+      {"id": "SONNET-CALC-02", "name": "Calculation Executor Secondary", "hooks_assigned": 89},
+      {"id": "SONNET-PHYSICS-01", "name": "Physics Calculator", "hooks_assigned": 234},
+      {"id": "SONNET-VALIDATE-01", "name": "Validator Primary", "hooks_assigned": 312},
+      {"id": "SONNET-VALIDATE-02", "name": "Validator Secondary", "hooks_assigned": 178},
+      {"id": "SONNET-FILE-01", "name": "File Operations Handler", "hooks_assigned": 67},
+      {"id": "SONNET-STATE-01", "name": "State Manager", "hooks_assigned": 45},
+      {"id": "SONNET-RECOVERY-01", "name": "Recovery Handler", "hooks_assigned": 89},
+      {"id": "SONNET-ORCHESTRATOR-01", "name": "Agent Orchestrator Primary", "hooks_assigned": 123},
+      {"id": "SONNET-ORCHESTRATOR-02", "name": "Agent Orchestrator Secondary", "hooks_assigned": 78},
+      {"id": "SONNET-ERROR-01", "name": "Error Handler", "hooks_assigned": 145},
+      {"id": "SONNET-BATCH-01", "name": "Batch Operations Handler", "hooks_assigned": 67},
+      {"id": "SONNET-FORMULA-01", "name": "Formula Executor", "hooks_assigned": 234},
+      {"id": "SONNET-MATERIAL-01", "name": "Material Data Processor", "hooks_assigned": 189},
+      {"id": "SONNET-MATERIAL-02", "name": "Material Calculator", "hooks_assigned": 134},
+      {"id": "SONNET-MACHINE-01", "name": "Machine Data Processor", "hooks_assigned": 98},
+      {"id": "SONNET-MACHINE-02", "name": "Machine Capability Analyzer", "hooks_assigned": 67},
+      {"id": "SONNET-SKILL-01", "name": "Skill Executor Primary", "hooks_assigned": 189},
+      {"id": "SONNET-SKILL-02", "name": "Skill Executor Secondary", "hooks_assigned": 123},
+      {"id": "SONNET-QUALITY-01", "name": "Quality Checker", "hooks_assigned": 45},
+      {"id": "SONNET-ML-01", "name": "ML Data Processor", "hooks_assigned": 78},
+      {"id": "SONNET-ML-02", "name": "ML Feature Engineer", "hooks_assigned": 56},
+      {"id": "SONNET-OPERATION-01", "name": "Operation Calculator Primary", "hooks_assigned": 156},
+      {"id": "SONNET-OPERATION-02", "name": "Operation Calculator Secondary", "hooks_assigned": 112},
+      {"id": "SONNET-CONTROLLER-01", "name": "Controller Generator", "hooks_assigned": 89},
+      {"id": "SONNET-POST-01", "name": "Post Processor", "hooks_assigned": 67},
+      {"id": "SONNET-ALARM-01", "name": "Alarm Processor", "hooks_assigned": 34},
+      {"id": "SONNET-CNC-01", "name": "CNC Specialist", "hooks_assigned": 45},
+      {"id": "SONNET-SESSION-01", "name": "Session Manager", "hooks_assigned": 28},
+      {"id": "SONNET-CONTEXT-01", "name": "Context Manager", "hooks_assigned": 23},
+      {"id": "SONNET-KIENZLE-01", "name": "Kienzle Calculator", "hooks_assigned": 34},
+      {"id": "SONNET-TOOLLIFE-01", "name": "Tool Life Calculator", "hooks_assigned": 28}
+    ],
+    "HAIKU": [
+      {"id": "HAIKU-CACHE-01", "name": "Cache Manager", "hooks_assigned": 234},
+      {"id": "HAIKU-FILE-01", "name": "File Handler", "hooks_assigned": 189},
+      {"id": "HAIKU-SECURITY-01", "name": "Path Validator", "hooks_assigned": 45},
+      {"id": "HAIKU-STATE-01", "name": "State Tracker", "hooks_assigned": 156},
+      {"id": "HAIKU-SYNC-01", "name": "Sync Handler", "hooks_assigned": 78},
+      {"id": "HAIKU-MONITOR-01", "name": "Progress Monitor", "hooks_assigned": 267},
+      {"id": "HAIKU-BATCH-01", "name": "Batch Progress Tracker", "hooks_assigned": 89},
+      {"id": "HAIKU-FORMULA-01", "name": "Formula Logger", "hooks_assigned": 178},
+      {"id": "HAIKU-MATERIAL-01", "name": "Material Formatter", "hooks_assigned": 145},
+      {"id": "HAIKU-MACHINE-01", "name": "Machine Formatter", "hooks_assigned": 67},
+      {"id": "HAIKU-SKILL-01", "name": "Skill Manager", "hooks_assigned": 123},
+      {"id": "HAIKU-ML-01", "name": "ML Logger", "hooks_assigned": 89},
+      {"id": "HAIKU-OPERATION-01", "name": "Operation Formatter", "hooks_assigned": 78},
+      {"id": "HAIKU-ERROR-01", "name": "Error Logger", "hooks_assigned": 56},
+      {"id": "HAIKU-CONTROLLER-01", "name": "Controller Formatter", "hooks_assigned": 45},
+      {"id": "HAIKU-SESSION-01", "name": "Session Logger", "hooks_assigned": 34},
+      {"id": "HAIKU-COGNITIVE-01", "name": "Cognitive Logger", "hooks_assigned": 12},
+      {"id": "HAIKU-CONTEXT-01", "name": "Context Logger", "hooks_assigned": 15}
+    ]
+  },
+
+  "enforcement_matrix": {
+    "HARD_BLOCK": {
+      "description": "Output BLOCKED - cannot proceed",
+      "agent_tier": "OPUS",
+      "hooks": [
+        "calculation:safety_violation",
+        "file:anti_regression",
+        "file:gcode_validate",
+        "formula:mape_exceeded",
+        "quality:omega_fail"
+      ]
+    },
+    "HARD": {
+      "description": "Must complete successfully",
+      "agent_tier": "OPUS|SONNET",
+      "hooks": [
+        "calculation:validate_inputs",
+        "calculation:validate_outputs",
+        "state:validate_mutation",
+        "batch:validate",
+        "formula:domain_check"
+      ]
+    },
+    "ALWAYS": {
+      "description": "Always fires, failures logged",
+      "agent_tier": "SONNET|HAIKU",
+      "hook_count": 6789
+    },
+    "SOFT": {
+      "description": "Optional, can be skipped",
+      "agent_tier": "HAIKU",
+      "hook_count": 234
+    }
+  },
+
+  "validation": {
+    "all_hooks_mapped": true,
+    "all_agents_utilized": true,
+    "tier_principles_followed": true,
+    "safety_hooks_opus_only": true,
+    "no_orphan_hooks": true
+  }
+}

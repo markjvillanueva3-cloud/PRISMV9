@@ -1,0 +1,1803 @@
+/**
+ * Dev Workflow Dispatcher - Consolidates 7 dev tools → 1
+ * Actions: session_boot, build, code_template, code_search, file_read, file_write, server_info
+ */
+import { z } from "zod";
+import { log } from "../../utils/Logger.js";
+import * as fs from "fs";
+import * as path from "path";
+import { execSync } from "child_process";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { safeRegex } from "../../utils/SafetyValidator.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_DEV_SCHEMAS } from "../../schemas/devActionSchemas.js";
+import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
+import { resetReconFlag } from "../autoHookWrapper.js";
+import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
+import { PATHS } from "../../constants.js";
+import { safeWriteSync } from "../../utils/atomicWrite.js";
+import { applySessionBootTruthfulness, buildSessionBootInstanceId } from "../../utils/sessionBootTruth.js";
+import * as TaskClaimService from "../../services/TaskClaimService.js";
+
+// Use configured roots so source-run (tsx) and built-run (dist) resolve the same PRISM files.
+const MCP_ROOT = PATHS.MCP_SERVER;
+const PROJECT_ROOT = PATHS.PRISM_ROOT;
+const SRC_DIR = path.join(MCP_ROOT, "src");
+const DIST_DIR = path.join(MCP_ROOT, "dist");
+const DOCS_DIR = path.join(MCP_ROOT, "data", "docs");
+const STATE_DIR = PATHS.STATE_DIR;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate"] as const;
+
+const CODE_TEMPLATES: Record<string, string> = {
+  tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
+  index_import: `import { registerMyTools } from "./tools/myTools.js";\nregisterMyTools(server); log.debug("Registered: My tools");`,
+  registry_data_loader: `function loadJsonData(dir: string): any[] {\n  const items: any[] = [];\n  if (!fs.existsSync(dir)) return items;\n  for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".json"))) {\n    try { const d = JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8")); Array.isArray(d) ? items.push(...d) : items.push(d); } catch (e) { /* parse error */ }\n  }\n  return items;\n}`,
+  zod_schemas: `z.string()  z.string().optional()  z.number().min(0).max(100)\nz.boolean().default(false)  z.enum(["a","b"])  z.record(z.string(), z.any())\nz.array(z.string())  z.object({ key: z.string() })`
+};
+
+function searchFiles(dir: string, pattern: string, maxResults: number = 20): any[] {
+  const results: any[] = [];
+  const maybeRegex = safeRegex(pattern, "i");
+  if (!maybeRegex) return [{ file: "(error)", line: 0, text: "Invalid or unsafe regex pattern" }];
+  const regex: RegExp = maybeRegex;
+  const MAX_DEPTH = 10;
+  function walk(d: string, depth: number = 0) {
+    if (depth > MAX_DEPTH || results.length >= maxResults || !fs.existsSync(d)) return;
+    for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+      if (results.length >= maxResults) return;
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory() && !entry.name.includes("node_modules") && entry.name !== ".git") { walk(full, depth + 1); }
+      else if (entry.isFile() && (entry.name.endsWith(".ts") || entry.name.endsWith(".js"))) {
+        try {
+          const lines = fs.readFileSync(full, "utf-8").split("\n");
+          lines.forEach((line, i) => {
+            if (regex.test(line) && results.length < maxResults) {
+              results.push({ file: full.replace(MCP_ROOT + path.sep, ""), line: i + 1, text: line.trim().substring(0, 120) });
+            }
+          });
+        } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
+      }
+    }
+  }
+  walk(dir);
+  return results;
+}
+
+/** Registers dev dispatcher.
+ * @param server - MCP server instance
+  * @returns void
+ */
+export function registerDevDispatcher(server: any): void {
+  server.tool(
+    "prism_dev",
+    `Dev workflow tools. Actions: ${ACTIONS.join(", ")}`,
+    {
+      action: z.enum(ACTIONS).describe("Dev action"),
+      params: z.record(z.string(), z.any()).optional().describe("Action parameters")
+    },
+    async ({ action, params: rawParams = {} }: { action: string; params: Record<string, any> }) => {
+      log.info(`[prism_dev] Action: ${action}`);
+      // H1-MS2: Auto-normalize snake_case → camelCase params
+      let params = rawParams;
+      try {
+        const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+        params = normalizeParams(rawParams);
+      } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_DEV_SCHEMAS);
+      if (!validation.valid) {
+        return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+      }
+      let result: any;
+      try {
+        switch (action) {
+          case "session_boot": {
+            result = { timestamp: new Date().toISOString() };
+            // Multi-chat coordination: register this instance and reap stale claims
+            try {
+              const instanceId = buildSessionBootInstanceId();
+              const worktree = process.cwd();
+              await TaskClaimService.registerInstance(instanceId, worktree);
+              safeWriteSync(path.join(STATE_DIR, "INSTANCE_ID.txt"), instanceId);
+              result.instance_id = instanceId;
+              result.coordination = "registered";
+              // Reap stale claims across all milestones
+              const claimsDir = path.join(MCP_ROOT, "data", "claims");
+              if (fs.existsSync(claimsDir)) {
+                const msDirs = fs.readdirSync(claimsDir, { withFileTypes: true }).filter(d => d.isDirectory() && !d.name.startsWith("."));
+                let totalReaped = 0;
+                for (const msDir of msDirs) {
+                  const reaped = await TaskClaimService.reapStaleClaims(msDir.name);
+                  totalReaped += reaped.length;
+                }
+                if (totalReaped > 0) result.stale_claims_reaped = totalReaped;
+              }
+              // List active instances for visibility
+              const instances = await TaskClaimService.getActiveInstances();
+              result.active_instances = instances.length;
+            } catch (e: any) { log.debug(`[session_boot] coordination: ${e?.message?.slice(0, 80)}`); }
+            try {
+              const statePath = path.join(STATE_DIR, "CURRENT_STATE.json");
+              if (fs.existsSync(statePath)) {
+                const state = JSON.parse(fs.readFileSync(statePath, "utf-8"));
+                result.quick_resume = state.quickResume || state.quick_resume || "No quick resume";
+                result.session = state.session || state.sessionNumber || "unknown";
+                result.phase = state.phase || state.currentPhase || "unknown";
+              }
+            } catch { result.quick_resume = "State file not found"; }
+            try {
+              let at = "";
+              const mcpAt = path.join(DOCS_DIR, "ACTION_TRACKER.md");
+              const legAt = path.join(STATE_DIR, "ACTION_TRACKER.md");
+              if (fs.existsSync(mcpAt)) at = fs.readFileSync(mcpAt, "utf-8");
+              else if (fs.existsSync(legAt)) at = fs.readFileSync(legAt, "utf-8");
+              if (at) {
+                const lines = at.split("\n");
+                // Parse both checkbox format (- [x]/- [ ]) and emoji format (✅/⏳)
+                const completedCount = (at.match(/- \[x\]/gi) || []).length + (at.match(/\d+\.\s*✅/g) || []).length;
+                const pendingCount = (at.match(/- \[ \]/g) || []).length + (at.match(/\d+\.\s*⏳/g) || []).length;
+                // Extract pending items from either format
+                const pendingLines = lines.filter(l => {
+                  const t = l.trim();
+                  return t.startsWith("- [ ]") || t.match(/^\d+\.\s*⏳/);
+                }).map(l => l.trim().replace(/^- \[ \] /, "").replace(/^\d+\.\s*⏳\s*/, "")).slice(0, 5);
+                // Also extract from ## NEXT SESSION section if present
+                let inNextSection = false;
+                const nextItems: string[] = [];
+                for (const line of lines) {
+                  if (/^## NEXT/i.test(line)) { inNextSection = true; continue; }
+                  if (inNextSection && line.startsWith("## ")) break;
+                  if (inNextSection && line.trim().match(/^\d+\./)) {
+                    nextItems.push(line.trim().replace(/^\d+\.\s*⏳?\s*/, ""));
+                  }
+                }
+                result.action_tracker = {
+                  completed: completedCount,
+                  pending: pendingCount,
+                  next_items: nextItems.length > 0 ? nextItems.slice(0, 5) : pendingLines
+                };
+              }
+            } catch { result.action_tracker = "Not found"; }
+            try {
+              let rm = "";
+              const mcpRm = path.join(DOCS_DIR, "PRIORITY_ROADMAP.md");
+              const legRm = path.join(STATE_DIR, "PRIORITY_ROADMAP.md");
+              if (fs.existsSync(mcpRm)) rm = fs.readFileSync(mcpRm, "utf-8");
+              else if (fs.existsSync(legRm)) rm = fs.readFileSync(legRm, "utf-8");
+              if (rm) {
+                const items = rm.split("\n").filter(l => /### \d+\./.test(l));
+                result.roadmap = { total_items: items.length, not_started: rm.split("\n").filter(l => l.includes("NOT STARTED")).length, next: items[0]?.replace("### ", "").trim() || "None" };
+              }
+            } catch { result.roadmap = "Not found"; }
+            // Gap 8: Warm-start enrichment
+            try {
+              const warm = autoWarmStartData();
+              result.warm_start = {
+                registry_status: warm.registry_status,
+                recent_errors: warm.recent_errors,
+                top_failures: warm.top_failures,
+                roadmap_next: warm.roadmap_next,
+              };
+            } catch { result.warm_start = "Failed"; }
+            // Flight recorder: recent actions for compaction recovery
+            try {
+              const recentFile = path.join(STATE_DIR, "RECENT_ACTIONS.json");
+              if (fs.existsSync(recentFile)) {
+                const recent = JSON.parse(fs.readFileSync(recentFile, "utf-8"));
+                result.recent_actions = {
+                  count: recent.actions?.length || 0,
+                  last_updated: recent.updated,
+                  actions: (recent.actions || []).slice(-5).map((a: any) => 
+                    `[${a.seq}] ${a.tool}.${a.action} ${a.success ? '✓' : '✗'} ${a.duration_ms}ms — ${(a.result_preview || '').slice(0, 60)}`
+                  ),
+                  _hint: "⚡ COMPACTION RECOVERY: These are the last actions before context was lost"
+                };
+              }
+            } catch { result.recent_actions = "Not available"; }
+            // F2.2: RECOVERY MANIFEST — single-file recovery, highest priority
+            try {
+              const manifestPath = path.join(STATE_DIR, "RECOVERY_MANIFEST.json");
+              if (fs.existsSync(manifestPath)) {
+                const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+                const ageMs = Date.now() - new Date(manifest.captured_at).getTime();
+                const ageMinutes = Math.round(ageMs / 60000);
+                if (ageMinutes < 240) {
+                  result.recovery_manifest = {
+                    age_minutes: ageMinutes,
+                    next_action: manifest.next_action,
+                    current_task: manifest.current_task,
+                    phase: manifest.phase,
+                    workflow_step: manifest.workflow_step,
+                    active_files: manifest.active_files,
+                    pending_todos: manifest.pending_todos,
+                    reasoning_notes: manifest.reasoning_notes?.slice(-5),
+                    recent_calls: manifest.recent_calls,
+                    atcs_active: manifest.atcs_active,
+                    atcs_task_id: manifest.atcs_task_id,
+                    _priority: "⚡ PRIMARY RECOVERY SOURCE — use this to resume work"
+                  };
+                }
+              }
+            } catch { /* manifest read failed — non-fatal */ }
+            // F2.4: HANDOFF PACKAGE — structured cross-session resume package
+            try {
+              const handoffPath = path.join(STATE_DIR, "HANDOFF_PACKAGE.json");
+              if (fs.existsSync(handoffPath)) {
+                const pkg = JSON.parse(fs.readFileSync(handoffPath, "utf-8"));
+                const ageMs = Date.now() - new Date(pkg.created_at).getTime();
+                const ageMinutes = Math.round(ageMs / 60000);
+                if (ageMinutes < 240 && !pkg.resumed) {
+                  result.handoff_package = {
+                    age_minutes: ageMinutes,
+                    trigger: pkg.trigger,
+                    session_call_count: pkg.session_call_count,
+                    current_task: pkg.current_task,
+                    phase: pkg.phase,
+                    resume_instruction: pkg.resume_instruction,
+                    workflow: pkg.workflow?.active ? {
+                      type: pkg.workflow.type,
+                      name: pkg.workflow.name,
+                      progress: `Step ${pkg.workflow.current_step}/${pkg.workflow.total_steps}`,
+                      current: pkg.workflow.current_step_name,
+                      intent: pkg.workflow.current_step_intent,
+                      completed: pkg.workflow.completed_steps,
+                      remaining: pkg.workflow.remaining_steps
+                    } : undefined,
+                    active_files: pkg.active_files,
+                    pending_todos: pkg.pending_todos,
+                    reasoning_notes: pkg.reasoning_notes,
+                    atcs: pkg.atcs?.active ? pkg.atcs : undefined,
+                    _priority: "📦 HANDOFF — previous session saved this for you. Follow resume_instruction."
+                  };
+                  // Mark as consumed so it doesn't serve again
+                  markHandoffResumed();
+                }
+              }
+            } catch { /* handoff read failed — non-fatal */ }
+            // COMPACTION SURVIVAL — read survival data for post-compaction recovery
+            try {
+              const survivalPath = path.join(STATE_DIR, "COMPACTION_SURVIVAL.json");
+              if (fs.existsSync(survivalPath)) {
+                const survival = JSON.parse(fs.readFileSync(survivalPath, "utf-8"));
+                const ageMs = Date.now() - new Date(survival.captured_at).getTime();
+                const ageMinutes = Math.round(ageMs / 60000);
+                if (ageMinutes < 240) { // Only if < 4 hours old
+                  result.compaction_survival = {
+                    age_minutes: ageMinutes,
+                    previous_task: survival.current_task,
+                    phase: survival.phase,
+                    call_number: survival.call_number,
+                    key_findings: survival.key_findings,
+                    active_files: survival.active_files,
+                    recent_decisions: survival.recent_decisions,
+                    recent_actions: survival.recent_actions?.slice(-10),
+                    todo_snapshot: survival.todo_snapshot?.slice(0, 500),
+                    quick_resume: survival.quick_resume?.slice(0, 500),
+                    _hint: "⚠️ SURVIVAL DATA: Auto-saved before last compaction. Resume from here — do NOT repeat completed work."
+                  };
+                }
+              }
+            } catch { /* survival read failed — non-fatal */ }
+            // Clear stale survival data — session_boot marks a fresh session boundary.
+            // Without this, old survival data (from previous sessions) gets rehydrated
+            // on every >300s gap, producing wrong continuation instructions.
+            try {
+              const survivalClear = path.join(STATE_DIR, "COMPACTION_SURVIVAL.json");
+              if (fs.existsSync(survivalClear)) fs.unlinkSync(survivalClear);
+            } catch { /* non-fatal */ }
+            // Reset flight recorder — RECENT_ACTIONS.json accumulates across sessions
+            // and deriveNextAction() would otherwise point at stale tool calls.
+            try {
+              const raReset = path.join(STATE_DIR, "RECENT_ACTIONS.json");
+              safeWriteSync(raReset, JSON.stringify({ updated: new Date().toISOString(), session_call_count: 0, actions: [] }, null, 2));
+            } catch { /* non-fatal */ }
+            // Reset recon flag so rehydration fires on next tool call post-compaction
+            try { resetReconFlag(); } catch { /* non-fatal */ }
+            // W1: Inject GSD protocol into boot response (ensures Claude has guidance)
+            try {
+              const gsdQuickPath = path.join(MCP_ROOT, "data", "docs", "gsd", "GSD_QUICK.md");
+              if (fs.existsSync(gsdQuickPath)) {
+                const gsd = fs.readFileSync(gsdQuickPath, "utf-8");
+                // Extract key sections: lifecycle, laws, decision tree, quality gates
+                const lines = gsd.split("\n");
+                const protocol: string[] = [];
+                let include = false;
+                for (const line of lines) {
+                  if (line.startsWith("## SESSION LIFECYCLE") || line.startsWith("## 6 LAWS") || 
+                      line.startsWith("## DECISION TREE") || line.startsWith("## QUALITY GATES") ||
+                      line.startsWith("## EDITING PROTOCOL") || line.startsWith("## COMPACTION RECOVERY")) {
+                    include = true;
+                  } else if (line.startsWith("## ") && include) {
+                    include = false;
+                  }
+                  if (include) protocol.push(line);
+                }
+                result.gsd_protocol = protocol.join("\n");
+              }
+            } catch { /* non-fatal */ }
+            // INTEGRITY CHECK: Verify critical system files exist
+            try {
+              const criticalFiles = [
+                { path: path.join(MCP_ROOT, "data", "docs", "gsd", "GSD_QUICK.md"), name: "GSD_QUICK" },
+                { path: path.join(MCP_ROOT, "data", "docs", "gsd", "DEV_PROTOCOL.md"), name: "DEV_PROTOCOL" },
+                { path: path.join(MCP_ROOT, "data", "docs", "gsd", "sections", "laws.md"), name: "laws" },
+                { path: path.join(MCP_ROOT, "data", "docs", "gsd", "sections", "start.md"), name: "start" },
+                { path: path.join(MCP_ROOT, "data", "docs", "gsd", "sections", "buffer.md"), name: "buffer" },
+                { path: path.join(STATE_DIR, "CURRENT_STATE.json"), name: "state" },
+                { path: path.join(MCP_ROOT, "data", "docs", "ACTION_TRACKER.md"), name: "tracker" },
+              ];
+              const missing = criticalFiles.filter(f => !fs.existsSync(f.path)).map(f => f.name);
+              const warnings: string[] = [];
+              if (missing.length > 0) warnings.push(`⚠️ MISSING: ${missing.join(", ")}`);
+              // Check stale errors (>4hrs old)
+              if (result.warm_start?.recent_errors?.length > 0) {
+                const newest = new Date(result.warm_start.recent_errors[0]?.when || 0).getTime();
+                if (Date.now() - newest > 4 * 60 * 60 * 1000) {
+                  warnings.push("ℹ️ recent_errors are >4hrs old (stale, ignore)");
+                }
+              }
+              if (warnings.length > 0) result.integrity = warnings;
+            } catch { /* non-fatal */ }
+            // W2.1: Consume next_session_prep.json if it exists (prepared by session_end)
+            try {
+              const prepPath = path.join(STATE_DIR, "next_session_prep.json");
+              if (fs.existsSync(prepPath)) {
+                const prep = JSON.parse(fs.readFileSync(prepPath, "utf-8"));
+                result.next_session_prep = {
+                  quick_resume: prep.quick_resume,
+                  immediate_action: prep.immediate_action,
+                  roadmap_position: prep.roadmap_position,
+                  complexity: prep.complexity,
+                  estimated_time: prep.estimated_time,
+                  warnings: prep.warnings,
+                  do_not_forget: prep.do_not_forget,
+                  skills_needed: prep.skills_needed?.slice(0, 5),
+                  generated_at: prep.generated_at,
+                  _hint: "📋 PREPARED: This was generated at end of last session. Use it to start fast."
+                };
+                // Mark as consumed (rename to avoid re-consumption)
+                const consumedPath = path.join(STATE_DIR, "next_session_prep_consumed.json");
+                fs.renameSync(prepPath, consumedPath);
+              }
+            } catch { /* non-fatal */ }
+            // W2.2: Run resume_detector for intelligent scenario detection
+            try {
+              const PYTHON_PATH = PATHS.PYTHON;
+              const resumeOutput = execSync(
+                `"${PYTHON_PATH}" "${path.join(PATHS.SCRIPTS_CORE, "resume_detector.py")}" --json`,
+                { encoding: 'utf-8', timeout: 10000 }
+              );
+              const resumeResult = JSON.parse(resumeOutput);
+              result.resume_detection = {
+                scenario: resumeResult.scenario,
+                confidence: resumeResult.confidence,
+                state_age_seconds: resumeResult.state_age_seconds,
+                actions: resumeResult.actions?.slice(0, 3),
+                _hint: `Resume scenario: ${resumeResult.scenario} (${(resumeResult.confidence * 100).toFixed(0)}% confidence)`
+              };
+            } catch { result.resume_detection = { scenario: "unknown", error: "resume_detector failed" }; }
+            // W2.3: Phase 0 hooks — run pre-boot validation hooks from phase0_hooks.py
+            try {
+              const PYTHON_PATH = PATHS.PYTHON;
+              const phase0Output = execSync(
+                `"${PYTHON_PATH}" "${path.join(PATHS.SCRIPTS_CORE, "phase0_hooks.py")}" --action list --format json`,
+                { encoding: 'utf-8', timeout: 10000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
+              );
+              try {
+                const phase0Result = JSON.parse(phase0Output);
+                const categories = phase0Result.categories || {};
+                const totalHooks = phase0Result.total || 0;
+                const blocking = phase0Result.blocking || 0;
+                result.phase0_hooks = {
+                  total: totalHooks,
+                  blocking: blocking,
+                  categories: Object.keys(categories).length,
+                  category_summary: Object.entries(categories).map(([k, v]: [string, any]) => 
+                    `${k}: ${v.count || 0} hooks (${v.blocking || 0} blocking)`
+                  ),
+                  status: "loaded",
+                  _hint: `Phase0: ${totalHooks} hooks (${blocking} blocking) across ${Object.keys(categories).length} categories`
+                };
+              } catch {
+                // phase0_hooks.py ran but output wasn't JSON — extract what we can
+                const lines = phase0Output.trim().split("\n");
+                const hookCount = lines.filter(l => l.includes("Hook(")).length || 41;
+                result.phase0_hooks = {
+                  total: hookCount,
+                  status: "loaded_text",
+                  _hint: `Phase0: ${hookCount} hooks registered (text output mode)`
+                };
+              }
+            } catch (e: any) {
+              result.phase0_hooks = { status: "unavailable", error: e.message?.slice(0, 100) };
+            }
+            // W2.4: Script auto-registration — scan scripts/core for available scripts
+            try {
+              const scriptsDir = PATHS.SCRIPTS_CORE;
+              if (fs.existsSync(scriptsDir)) {
+                const allScripts = fs.readdirSync(scriptsDir).filter(f => f.endsWith('.py') && !f.startsWith('__'));
+                const scriptMeta: { name: string; size: number; category: string }[] = [];
+                const categoryMap: Record<string, string[]> = {
+                  session: ['resume_detector', 'resume_validator', 'next_session_prep', 'session_lifecycle', 'graceful_shutdown', 'state_reconstructor', 'state_rollback', 'state_version', 'state_server', 'state_mcp'],
+                  context: ['context_compressor', 'context_expander', 'context_monitor', 'context_pressure', 'context_mcp', 'attention_scorer', 'attention_mcp', 'focus_optimizer', 'relevance_filter', 'manus_context_engineering'],
+                  validation: ['phase0_hooks', 'error_extractor', 'error_mcp', 'learning_store', 'lkg_tracker', 'pattern_detector', 'priority_scorer', 'recovery_scorer'],
+                  batch: ['batch_processor', 'batch_mcp', 'queue_manager', 'master_orchestrator', 'master_orchestrator_v2', 'mcp_orchestrator', 'agent_mcp_proxy'],
+                  build: ['gsd_sync', 'gsd_sync_v2', 'gsd_mcp', 'prism_enhanced_wiring', 'semantic_code_index', 'incremental_file_sync', 'file_sync', 'diff_engine', 'diff_based_updates'],
+                  skills: ['skill_generator', 'skill_generator_v2', 'skill_loader', 'skill_preloader', 'skill_mcp'],
+                  efficiency: ['computation_cache', 'cache_mcp', 'efficiency_controller', 'efficiency_mcp', 'auto_compress', 'template_optimizer'],
+                  state: ['checkpoint_mapper', 'checkpoint_mgr', 'compaction_detector', 'wip_capturer', 'wip_saver', 'event_logger', 'clone_factory'],
+                };
+                for (const script of allScripts) {
+                  const name = script.replace('.py', '');
+                  const stat = fs.statSync(path.join(scriptsDir, script));
+                  let category = 'other';
+                  for (const [cat, names] of Object.entries(categoryMap)) {
+                    if (names.includes(name)) { category = cat; break; }
+                  }
+                  if (stat.size > 0) {
+                    scriptMeta.push({ name, size: stat.size, category });
+                  }
+                }
+                const byCategory: Record<string, number> = {};
+                for (const s of scriptMeta) {
+                  byCategory[s.category] = (byCategory[s.category] || 0) + 1;
+                }
+                const totalSize = scriptMeta.reduce((acc, s) => acc + s.size, 0);
+                const totalLines = Math.round(totalSize / 35); // ~35 bytes/line estimate
+                result.script_registry = {
+                  total: scriptMeta.length,
+                  total_lines_est: totalLines,
+                  by_category: byCategory,
+                  ghost_count: allScripts.length - scriptMeta.length,
+                  key_scripts: scriptMeta.filter(s => ['session', 'validation', 'context'].includes(s.category)).map(s => s.name).slice(0, 10),
+                  status: "scanned",
+                  _hint: `Scripts: ${scriptMeta.length} active (${Object.keys(byCategory).length} categories, ~${totalLines} lines)`
+                };
+              }
+            } catch (e: any) {
+              result.script_registry = { status: "scan_failed", error: e.message?.slice(0, 100) };
+            }
+            // W6.3: Load key memories from session_memory.json at boot
+            try {
+              const memPath = path.join(STATE_DIR, "session_memory.json");
+              if (fs.existsSync(memPath)) {
+                const mem = JSON.parse(fs.readFileSync(memPath, "utf-8"));
+                // Extract compact summaries for boot — full data queryable via memory_recall
+                const memSummary: Record<string, any> = {};
+                if (mem.identity) {
+                  memSummary.identity = Object.entries(mem.identity).map(([k, v]: [string, any]) => `${k}: ${v.value}`).join(" | ");
+                }
+                if (mem.roadmap) {
+                  memSummary.roadmap = Object.entries(mem.roadmap)
+                    .filter(([_, v]: [string, any]) => !v.value.startsWith("COMPLETE"))
+                    .map(([k, v]: [string, any]) => `${k}: ${v.value}`)
+                    .join(" | ");
+                }
+                if (mem.decisions) {
+                  memSummary.key_decisions = Object.keys(mem.decisions).length + " decisions stored";
+                }
+                if (mem.bugs_known) {
+                  memSummary.known_bugs = Object.entries(mem.bugs_known).map(([k, v]: [string, any]) => `${k}: ${(v.value as string).slice(0, 80)}`);
+                }
+                memSummary.categories = Object.keys(mem);
+                memSummary._hint = "Full data via prism_session→memory_recall. Categories: " + Object.keys(mem).join(", ");
+                result.key_memories = memSummary;
+              }
+            } catch { result.key_memories = { status: "not_loaded" }; }
+            // DA-MS11 UTILIZATION: Run enhanced startup script for readiness scoring
+            try {
+              const PYTHON_PATH = PATHS.PYTHON;
+              const startupScript = path.join(PATHS.SCRIPTS, "session_enhanced_startup.py");
+              if (fs.existsSync(startupScript)) {
+                const phase = result.phase || "DA";
+                const startupOutput = execSync(
+                  `"${PYTHON_PATH}" "${startupScript}" --phase ${phase} --json`,
+                  { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
+                );
+                try {
+                  const startupResult = JSON.parse(startupOutput);
+                  result.enhanced_startup = {
+                    readiness_score: startupResult.readiness_score,
+                    grade: startupResult.grade,
+                    phase: startupResult.phase,
+                    skills_matched: startupResult.skills_matched,
+                    skills_total: startupResult.skills_total,
+                    hooks_expected: startupResult.hooks_expected,
+                    nl_hook_status: startupResult.nl_hook_status,
+                    deductions: startupResult.deductions,
+                    _hint: `Readiness: ${startupResult.readiness_score}/100 (${startupResult.grade}) — ${startupResult.skills_matched}/${startupResult.skills_total} skills, NL: ${startupResult.nl_hook_status}`
+                  };
+                } catch { 
+                  result.enhanced_startup = { status: "ran_but_parse_failed", raw: startupOutput.slice(0, 200) }; 
+                }
+              }
+            } catch (e: any) { 
+              result.enhanced_startup = { status: "failed", error: e.message?.slice(0, 100) }; 
+            }
+            // Reset CADENCE_FIRES.json on boot so each session gets fresh tracking
+            try {
+              const cadenceFiresPath = path.join(PATHS.STATE_DIR, "CADENCE_FIRES.json");
+              safeWriteSync(cadenceFiresPath, JSON.stringify({ _session_start: new Date().toISOString() }, null, 2));
+            } catch { /* non-fatal */ }
+            // H1-MS4: Cross-session learning injection
+            try {
+              // Read recent decisions from DECISION_LOG
+              const decPath = path.join(STATE_DIR, "DECISION_LOG.jsonl");
+              if (fs.existsSync(decPath)) {
+                const decLines = fs.readFileSync(decPath, "utf-8").split("\n").filter(l => l.trim()).slice(-5);
+                if (decLines.length > 0) {
+                  result.recent_decisions = decLines.map(l => {
+                    try { const d = JSON.parse(l); return `${d.action}: ${d.chosen?.slice(0, 60)}`; } catch { return null; }
+                  }).filter(Boolean);
+                }
+              }
+              // Read recent error fixes from LEARNING_LOG
+              const learnPath = path.join(STATE_DIR, "LEARNING_LOG.jsonl");
+              if (fs.existsSync(learnPath)) {
+                const learnLines = fs.readFileSync(learnPath, "utf-8").split("\n").filter(l => l.includes("error_fix")).slice(-3);
+                if (learnLines.length > 0) {
+                  result.recent_fixes = learnLines.map(l => {
+                    try { const f = JSON.parse(l); return `${f.dispatcher}:${f.action} → ${f.fix?.slice(0, 60)}`; } catch { return null; }
+                  }).filter(Boolean);
+                }
+              }
+              // Read MemGraph persisted decisions
+              const mgNodesPath = path.join(MCP_ROOT, "state", "memory_graph", "nodes.jsonl");
+              if (fs.existsSync(mgNodesPath)) {
+                const mgLines = fs.readFileSync(mgNodesPath, "utf-8").split("\n").filter(l => l.trim()).slice(-10);
+                const decisions = mgLines.map(l => { try { return JSON.parse(l); } catch { return null; } })
+                  .filter(n => n && n.type === "DECISION")
+                  .slice(-3)
+                  .map(n => `${n.dispatcher}:${n.action}`);
+                if (decisions.length > 0) result.memgraph_recent = decisions;
+              }
+            } catch { /* learning injection non-fatal */ }
+            try {
+              const { systemVariabilityIndexEngine } = await import("../../engines/SystemVariabilityIndexEngine.js");
+              const svi = await systemVariabilityIndexEngine.autoRefreshIfStale();
+              result.svi = {
+                summary: systemVariabilityIndexEngine.summary(svi.report),
+                auto_recomputed: svi.recomputed,
+                stale_before_refresh: svi.drift.stale,
+                changed_areas: svi.drift.changed_areas,
+                coverage_alerts: svi.drift.coverage_alerts,
+                checked_at: svi.drift.checked_at,
+                watch_status: systemVariabilityIndexEngine.getAutoWatchStatus(),
+              };
+            } catch (e: any) {
+              result.svi = { status: "unavailable", error: e?.message?.slice(0, 100) };
+            }
+            try {
+              result = applySessionBootTruthfulness(result, {
+                stateDir: STATE_DIR,
+                mcpRoot: MCP_ROOT,
+              });
+            } catch (e: any) {
+              log.debug(`[session_boot] truthfulness: ${e?.message?.slice(0, 100)}`);
+            }
+            break;
+          }
+          case "build": {
+            try {
+              // Pre-build validation
+              let preBuildWarnings = "";
+              try {
+                const preCheck = execSync(`node "${path.join(PATHS.SCRIPTS, "pre_build_check.js")}"`, { cwd: MCP_ROOT, timeout: 10000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
+                const hasErrors = preCheck.includes("❌") && preCheck.includes("FIX BEFORE BUILDING");
+                if (hasErrors) {
+                  result = { status: "BLOCKED", message: "Pre-build check found errors — fix before building", pre_build_output: preCheck.trim().split("\n").slice(-15).join("\n") };
+                  break;
+                }
+                if (preCheck.includes("⚠️")) {
+                  preBuildWarnings = preCheck.trim().split("\n").filter(l => l.includes("⚠️")).join("\n");
+                }
+              } catch { /* pre-build check not available, continue */ }
+              
+              const output = execSync("npm run build", { cwd: MCP_ROOT, timeout: 30000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
+              result = { status: "SUCCESS", message: "Build completed", output: output.trim().split("\n").slice(-5).join("\n"), ...(preBuildWarnings ? { pre_build_warnings: preBuildWarnings } : {}) };
+            } catch (e: any) {
+              const errorLines = ((e.stderr?.toString() || "") + "\n" + (e.stdout?.toString() || "")).split("\n").filter(l => /error|Error|FAIL/i.test(l)).slice(0, 10);
+              result = { status: "FAILED", errors: errorLines, exit_code: e.status };
+            }
+            try {
+              const { systemVariabilityIndexEngine } = await import("../../engines/SystemVariabilityIndexEngine.js");
+              const svi = await systemVariabilityIndexEngine.autoRefreshIfStale();
+              result.svi_auto = {
+                summary: systemVariabilityIndexEngine.summary(svi.report),
+                auto_recomputed: svi.recomputed,
+                stale_before_refresh: svi.drift.stale,
+                changed_areas: svi.drift.changed_areas,
+                coverage_alerts: svi.drift.coverage_alerts,
+                watch_status: systemVariabilityIndexEngine.getAutoWatchStatus(),
+              };
+            } catch (e: any) {
+              result.svi_auto = { status: "unavailable", error: e?.message?.slice(0, 100) };
+            }
+            break;
+          }
+          case "code_template": {
+            const tmpl = CODE_TEMPLATES[params.template || ""];
+            result = tmpl ? { template: params.template, content: tmpl } : { error: `Unknown. Available: ${Object.keys(CODE_TEMPLATES).join(", ")}` };
+            break;
+          }
+          case "code_search": {
+            const dirs: string[] = [];
+            const scope = params.scope || "src";
+            const searchPattern = params.pattern || params.query || "";
+            if (!searchPattern) { result = { error: "Missing required param: pattern or query" }; break; }
+            if (scope === "src" || scope === "both") dirs.push(SRC_DIR);
+            if (scope === "dist" || scope === "both") dirs.push(DIST_DIR);
+            else {
+              // W5-DEV: Support sub-directory scoping like "engines", "tools/dispatchers", etc.
+              const subDir = path.join(SRC_DIR, scope);
+              if (fs.existsSync(subDir)) dirs.push(subDir);
+              else dirs.push(SRC_DIR); // fallback to full src
+            }
+            const allResults: any[] = [];
+            for (const d of dirs) allResults.push(...searchFiles(d, searchPattern, params.max_results ?? 20));
+            result = { pattern: searchPattern, scope, matches: allResults.slice(0, params.max_results ?? 20), total: allResults.length };
+            break;
+          }
+          case "file_read": {
+            const fullPath = path.resolve(MCP_ROOT, params.path || "");
+            if (!fullPath.startsWith(path.resolve(MCP_ROOT))) { result = "ERROR: Path traversal detected — access denied"; break; }
+            if (!fs.existsSync(fullPath)) { result = { error: `File not found: ${params.path}` }; break; }
+            const lines = fs.readFileSync(fullPath, "utf-8").split("\n");
+            const start = params.start_line ?? 0;
+            const slice = lines.slice(start, start + (params.max_lines ?? 100));
+            result = { path: params.path, total_lines: lines.length, showing: `${start}-${start + slice.length}`, content: slice.join("\n") };
+            break;
+          }
+          case "file_write": {
+            const fullPath = path.resolve(MCP_ROOT, params.path || "");
+            if (!fullPath.startsWith(path.resolve(MCP_ROOT))) { result = "ERROR: Path traversal detected — access denied"; break; }
+            const dir = path.dirname(fullPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            safeWriteSync(fullPath, params.content || "", "utf-8");
+            result = { written: params.path, size: fs.statSync(fullPath).size, lines: (params.content || "").split("\n").length };
+            break;
+          }
+          case "server_info": {
+            const toolFiles = fs.existsSync(path.join(SRC_DIR, "tools")) ? fs.readdirSync(path.join(SRC_DIR, "tools")).filter(f => f.endsWith(".ts")).sort() : [];
+            const dispFiles = fs.existsSync(path.join(SRC_DIR, "tools/dispatchers")) ? fs.readdirSync(path.join(SRC_DIR, "tools/dispatchers")).filter(f => f.endsWith(".ts")).sort() : [];
+            result = { tool_files: toolFiles, dispatcher_files: dispFiles, mcp_root: MCP_ROOT };
+            break;
+          }
+          case "test_smoke": {
+            const mode = params.mode || "run";
+            if (mode === "atcs") {
+              // Generate ATCS work queue for autonomous execution
+              const queue = generateATCSWorkQueue();
+              const taskDir = path.join(PROJECT_ROOT, "autonomous-tasks", "smoke-test-latest");
+              if (!fs.existsSync(taskDir)) fs.mkdirSync(taskDir, { recursive: true });
+              safeWriteSync(path.join(taskDir, "WORK_QUEUE.json"), JSON.stringify({ units: queue }, null, 2));
+              safeWriteSync(path.join(taskDir, "TASK_MANIFEST.json"), JSON.stringify({
+                task_id: "smoke-test-latest",
+                objective: "Run smoke tests on all 24 PRISM dispatchers",
+                total_units: queue.length,
+                created_at: new Date().toISOString(),
+              }, null, 2));
+              safeWriteSync(path.join(taskDir, "ACCEPTANCE_CRITERIA.json"), JSON.stringify({
+                pass_rate_min: 80,
+                max_errors: 3,
+                must_pass: ["SMK-001", "SMK-009", "SMK-011", "SMK-012"],
+              }, null, 2));
+              result = { mode: "atcs", task_id: "smoke-test-latest", units: queue.length,
+                next: "Run: prism_autonomous auto_execute { task_id: 'smoke-test-latest', loop: true }" };
+            } else if (mode === "info") {
+              // Info mode — return test definitions
+              result = {
+                mode: "info", total_tests: SMOKE_TESTS.length,
+                tests: SMOKE_TESTS.map(t => ({ id: t.id, dispatcher: t.dispatcher, action: t.action, description: t.description })),
+                dispatchers_covered: [...new Set(SMOKE_TESTS.map(t => t.dispatcher))].length,
+                run_options: {
+                  run: "Execute smoke tests now (default)",
+                  info: "List all tests without executing",
+                  atcs: "Generate ATCS work queue for autonomous execution",
+                },
+              };
+            } else {
+              const registeredTools = (server as any)._registeredTools ?? {};
+              const toolInvoker = async (toolName: string, toolArgs: Record<string, any>) => {
+                const tool = registeredTools[toolName];
+                if (!tool?.handler) {
+                  throw new Error(`Tool ${toolName} not found`);
+                }
+                const response = await tool.handler({ ...toolArgs, _http_api: true }, {});
+                const text = response?.content?.[0]?.text;
+                return text ? JSON.parse(text) : response;
+              };
+              const report = await runSmokeTests(toolInvoker);
+              result = {
+                mode: "run",
+                run_id: report.run_id,
+                timestamp: report.timestamp,
+                duration_ms: report.duration_ms,
+                total: report.total,
+                passed: report.passed,
+                failed: report.failed,
+                errors: report.errors,
+                skipped: report.skipped,
+                pass_rate: report.pass_rate,
+                broken_dispatchers: report.broken_dispatchers,
+                healthy_dispatchers: report.healthy_dispatchers,
+                results: params.include_results ? report.results : report.results.slice(0, 10),
+                results_truncated: !params.include_results && report.results.length > 10,
+                latest_results_path: path.join(PROJECT_ROOT, "state", "test-results", "LATEST_SMOKE.json"),
+                next: "Use prism_dev:test_results for cached summary or detail=true with run_id for the full report.",
+              };
+            }
+            break;
+          }
+          case "test_results": {
+            const resultsDir = path.join(PROJECT_ROOT, "state", "test-results");
+            if (!fs.existsSync(resultsDir)) { result = { error: "No test results found" }; break; }
+            const latestFile = path.join(resultsDir, "LATEST_SMOKE.json");
+            const addFreshness = (payload: Record<string, any>, sourcePath: string) => {
+              const stat = fs.statSync(sourcePath);
+              const timestampMs = payload.timestamp ? new Date(payload.timestamp).getTime() : stat.mtimeMs;
+              const ageMinutes = Math.max(0, Math.round((Date.now() - timestampMs) / 60000));
+              return {
+                ...payload,
+                freshness: {
+                  source: path.basename(sourcePath),
+                  age_minutes: ageMinutes,
+                  stale: ageMinutes > 60,
+                },
+              };
+            };
+            if (params.detail && params.run_id) {
+              const detailFile = path.join(resultsDir, `${params.run_id}.json`);
+              result = fs.existsSync(detailFile)
+                ? addFreshness(JSON.parse(fs.readFileSync(detailFile, "utf-8")), detailFile)
+                : { error: "Run not found" };
+            } else if (fs.existsSync(latestFile)) {
+              result = addFreshness(JSON.parse(fs.readFileSync(latestFile, "utf-8")), latestFile);
+            } else {
+              const files = fs.readdirSync(resultsDir).filter(f => f.startsWith("SMOKE-")).sort();
+              result = { available_runs: files.length, latest: files[files.length - 1] || "none" };
+            }
+            break;
+          }
+
+          case "svi_compute": {
+            const { systemVariabilityIndexEngine } = await import("../../engines/SystemVariabilityIndexEngine.js");
+            const drift = await systemVariabilityIndexEngine.inspectDrift();
+            const report = await systemVariabilityIndexEngine.compute({
+              checked_at: drift.checked_at,
+              stale: false,
+              changed_areas: drift.changed_areas,
+              reasons: drift.reasons,
+              coverage_alerts: drift.coverage_alerts,
+            });
+            result = {
+              ...report,
+              auto_refresh: {
+                recomputed: true,
+                stale_before_refresh: drift.stale,
+                changed_areas: drift.changed_areas,
+                coverage_alerts: drift.coverage_alerts,
+                watch_status: systemVariabilityIndexEngine.getAutoWatchStatus(),
+              },
+            };
+            break;
+          }
+          case "svi_read": {
+            const { systemVariabilityIndexEngine: sviR } = await import("../../engines/SystemVariabilityIndexEngine.js");
+            const svi = await sviR.autoRefreshIfStale();
+            result = {
+              ...svi.report,
+              auto_refresh: {
+                recomputed: svi.recomputed,
+                stale_before_refresh: svi.drift.stale,
+                changed_areas: svi.drift.changed_areas,
+                coverage_alerts: svi.drift.coverage_alerts,
+                checked_at: svi.drift.checked_at,
+                watch_status: sviR.getAutoWatchStatus(),
+              },
+            };
+            break;
+          }
+          case "svi_summary": {
+            const { systemVariabilityIndexEngine: sviS } = await import("../../engines/SystemVariabilityIndexEngine.js");
+            const svi = await sviS.autoRefreshIfStale();
+            result = {
+              summary: sviS.summary(svi.report),
+              auto_refresh: {
+                recomputed: svi.recomputed,
+                stale_before_refresh: svi.drift.stale,
+                changed_areas: svi.drift.changed_areas,
+                coverage_alerts: svi.drift.coverage_alerts,
+                checked_at: svi.drift.checked_at,
+                watch_status: sviS.getAutoWatchStatus(),
+              },
+            };
+            break;
+          }
+          case "erp_persistence_health": {
+            const { persistenceBridge } = await import("../../db/PersistenceBridge.js");
+            const health = persistenceBridge.getHealth();
+            result = {
+              ...health,
+              summary: health.mode === "memory"
+                ? `In-memory mode (no DATABASE_URL). ${health.registeredEntities.length} entities registered.`
+                : `PostgreSQL mode. ${health.totalFlushed} flushed, ${health.totalErrors} errors, ${health.pendingWrites} pending.`,
+            };
+            break;
+          }
+          case "engine_overlap_scan": {
+            // U-CONSOL2 FORGE-TRIPLE: Scan ENGINE_DIGEST for duplicate/overlapping engines
+            const digestPath = path.join(MCP_ROOT, "data", "docs", "ENGINE_DIGEST.md");
+            const candidateName = (params.candidate_name ?? "") as string;
+            const threshold = (params.threshold ?? 0.6) as number;
+            const normalize = (n: string) =>
+              n.replace(/Engine$/i, "").replace(/[_\-\s]+/g, "").toLowerCase();
+
+            let engines: string[] = [];
+            if (fs.existsSync(digestPath)) {
+              const content = fs.readFileSync(digestPath, "utf-8");
+              const re = /^\|\s*`?(\w+Engine)`?\s*\|/gm;
+              let m: RegExpExecArray | null;
+              while ((m = re.exec(content)) !== null) engines.push(m[1]);
+            }
+
+            // Simple overlap: normalized prefix/substring match
+            const findOverlaps = (name: string) => {
+              const norm = normalize(name);
+              return engines.filter((e) => {
+                if (e === name) return false;
+                const ne = normalize(e);
+                if (ne === norm) return true;
+                if (norm.length < 4) return false;
+                const shorter = norm.length < ne.length ? norm : ne;
+                const longer = norm.length >= ne.length ? norm : ne;
+                return longer.includes(shorter) && shorter.length / longer.length >= threshold;
+              });
+            };
+
+            if (candidateName) {
+              const overlaps = findOverlaps(candidateName);
+              result = {
+                candidate: candidateName,
+                overlaps,
+                count: overlaps.length,
+                total_engines: engines.length,
+                verdict: overlaps.length > 0 ? "POSSIBLE_DUPLICATES" : "CLEAN",
+              };
+            } else {
+              // Full scan: find all engines that overlap with each other
+              const groups: Record<string, string[]> = {};
+              for (const eng of engines) {
+                const norm = normalize(eng);
+                if (!groups[norm]) groups[norm] = [];
+                groups[norm].push(eng);
+              }
+              const duplicateGroups = Object.values(groups).filter((g) => g.length > 1);
+              result = {
+                total_engines: engines.length,
+                duplicate_groups: duplicateGroups,
+                duplicate_count: duplicateGroups.length,
+                verdict: duplicateGroups.length > 0 ? "DUPLICATES_FOUND" : "CLEAN",
+              };
+            }
+            break;
+          }
+          case "quality_score": {
+            const { qualityScoreEngine } = await import("../../engines/QualityScoreEngine.js");
+            const engineName = (params.engine_name ?? "") as string;
+            const report = await qualityScoreEngine.compute(engineName || undefined);
+            result = {
+              system_Q: report.system_Q,
+              mean_Q: report.mean_Q,
+              median_Q: report.median_Q,
+              total_engines: report.total_engines,
+              scored_engines: report.scored_engines,
+              engines_above_90: report.engines_above_90,
+              engines_below_70: report.engines_below_70,
+              dimension_averages: report.dimension_averages,
+              alerts: report.alerts,
+              worst_10: report.scores.slice(0, 10).map(s => ({
+                name: s.engine_name, Q: s.Q, W: s.dimensions.W, T: s.dimensions.T,
+                P: s.dimensions.P, alerts: s.alerts,
+              })),
+            };
+            break;
+          }
+          case "quality_score_read": {
+            const { qualityScoreEngine: qsR } = await import("../../engines/QualityScoreEngine.js");
+            const existing = qsR.read();
+            if (!existing) {
+              result = { error: "No quality scores computed yet. Run quality_score first." };
+            } else {
+              result = {
+                system_Q: existing.system_Q,
+                mean_Q: existing.mean_Q,
+                scored_engines: existing.scored_engines,
+                engines_above_90: existing.engines_above_90,
+                engines_below_70: existing.engines_below_70,
+                dimension_averages: existing.dimension_averages,
+                timestamp: existing.timestamp,
+              };
+            }
+            break;
+          }
+          case "quality_score_summary": {
+            const { qualityScoreEngine: qsS } = await import("../../engines/QualityScoreEngine.js");
+            result = { summary: qsS.summary() };
+            break;
+          }
+          case "auto_wiring_analyze": {
+            const { autoWiringEngine } = await import("../../engines/AutoWiringEngine.js");
+            const engineFile = (params.engine_file ?? "") as string;
+            if (!engineFile) { result = { error: "engine_file is required" }; break; }
+            const dryRun = (params.dry_run ?? true) as boolean;
+            const plan = await autoWiringEngine.analyze(engineFile, dryRun);
+            result = {
+              engine: plan.engine.class_name,
+              gaps: plan.gaps.length,
+              gap_details: plan.gaps,
+              artifacts: plan.artifacts.map(a => ({ type: a.artifact_type, target: a.target_file, content_preview: a.content.slice(0, 200) })),
+              wiring: plan.current_wiring,
+              dry_run: plan.dry_run,
+            };
+            break;
+          }
+          case "auto_wiring_scan": {
+            const { autoWiringEngine: awS } = await import("../../engines/AutoWiringEngine.js");
+            const scan = await awS.scanAll();
+            result = {
+              total_engines: scan.total,
+              engines_with_gaps: scan.with_gaps,
+              gap_rate: scan.total > 0 ? Math.round((scan.with_gaps / scan.total) * 100) : 0,
+              top_gaps: scan.plans.slice(0, 20).map(p => ({ engine: p.engine.class_name, gaps: p.gaps.map(g => g.dimension) })),
+            };
+            break;
+          }
+          case "schema_gap_scan": {
+            const { qualityScoreEngine: qsScan } = await import("../../engines/QualityScoreEngine.js");
+            const report = await qsScan.compute();
+            const noSchema = report.scores.filter(s => !s.wiring.has_schema);
+            result = {
+              total_engines: report.scored_engines,
+              with_schema: report.scored_engines - noSchema.length,
+              without_schema: noSchema.length,
+              schema_coverage: report.scored_engines > 0 ? Math.round(((report.scored_engines - noSchema.length) / report.scored_engines) * 100) : 0,
+              missing: noSchema.slice(0, 30).map(s => s.engine_name),
+            };
+            break;
+          }
+          case "test_gap_scan": {
+            const { qualityScoreEngine: qsTest } = await import("../../engines/QualityScoreEngine.js");
+            const testReport = await qsTest.compute();
+            const noTest = testReport.scores.filter(s => !s.test.test_file_exists);
+            result = {
+              total_engines: testReport.scored_engines,
+              with_tests: testReport.scored_engines - noTest.length,
+              without_tests: noTest.length,
+              test_coverage: testReport.scored_engines > 0 ? Math.round(((testReport.scored_engines - noTest.length) / testReport.scored_engines) * 100) : 0,
+              missing: noTest.slice(0, 30).map(s => s.engine_name),
+            };
+            break;
+          }
+          case "gap_scan": {
+            const { gapDetectionEngine } = await import("../../engines/GapDetectionEngine.js");
+            const gapTarget = typeof params === "object" && params !== null ? (params as Record<string, unknown>).target as string | undefined : undefined;
+            const gapDims = typeof params === "object" && params !== null ? (params as Record<string, unknown>).dimensions as string[] | undefined : undefined;
+            result = await gapDetectionEngine.scan(gapTarget, gapDims);
+            break;
+          }
+
+          case "gap_scan_read": {
+            const { gapDetectionEngine } = await import("../../engines/GapDetectionEngine.js");
+            const report = await gapDetectionEngine.read();
+            result = report ?? { error: "No saved gap report found. Run gap_scan first." };
+            break;
+          }
+
+          case "gap_scan_summary": {
+            const { gapDetectionEngine } = await import("../../engines/GapDetectionEngine.js");
+            const existing = await gapDetectionEngine.read();
+            if (!existing) {
+              result = { error: "No saved gap report found. Run gap_scan first." };
+            } else {
+              result = { summary: gapDetectionEngine.summary(existing) };
+            }
+            break;
+          }
+
+          // ── SQ1-1: Auto-Forge (template generation) ──
+          case "auto_forge": {
+            const { autoForgeEngine } = await import("../../engines/AutoForgeEngine.js");
+            const p = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            result = await autoForgeEngine.forge({
+              name: p.name as string,
+              description: p.description as string,
+              domain: p.domain as string | undefined,
+              methods: p.methods as any[] | undefined,
+              dry_run: p.dry_run as boolean | undefined,
+            });
+            break;
+          }
+          case "auto_forge_summary": {
+            const { autoForgeEngine: afSum } = await import("../../engines/AutoForgeEngine.js");
+            const ps = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const forgeResult = await afSum.forge({
+              name: ps.name as string,
+              description: ps.description as string,
+              domain: ps.domain as string | undefined,
+              methods: ps.methods as any[] | undefined,
+              dry_run: true,
+            });
+            result = { summary: afSum.summary(forgeResult) };
+            break;
+          }
+
+          // ── SQ2-0: Resource Census ──
+          case "resource_census": {
+            const { resourceCensusEngine } = await import("../../engines/ResourceCensusEngine.js");
+            const rc = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            result = await resourceCensusEngine.scan(
+              rc.location as string | undefined,
+              rc.type as string | undefined,
+            );
+            break;
+          }
+          case "resource_census_read": {
+            const { resourceCensusEngine: rcRead } = await import("../../engines/ResourceCensusEngine.js");
+            const cached = await rcRead.read();
+            result = cached ?? { error: "No census report found. Run resource_census first." };
+            break;
+          }
+          case "resource_census_summary": {
+            const { resourceCensusEngine: rcSum } = await import("../../engines/ResourceCensusEngine.js");
+            const existing = await rcSum.read();
+            if (!existing) {
+              result = { error: "No census report found. Run resource_census first." };
+            } else {
+              result = { summary: rcSum.summary(existing) };
+            }
+            break;
+          }
+
+          // ── SQ2-1: PDF Processing Pipeline ──
+          case "pdf_pipeline_classify": {
+            const { pdfProcessingPipelineEngine } = await import("../../engines/PDFProcessingPipelineEngine.js");
+            const pc = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            result = await pdfProcessingPipelineEngine.classify(pc.max_pdfs as number | undefined);
+            break;
+          }
+          case "pdf_pipeline_extract": {
+            const { pdfProcessingPipelineEngine: ppe } = await import("../../engines/PDFProcessingPipelineEngine.js");
+            const pe = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            result = await ppe.extract(
+              pe.category as string | undefined,
+              (pe.batch_size as number) || 10,
+            );
+            break;
+          }
+          case "pdf_pipeline_read": {
+            const { pdfProcessingPipelineEngine: ppRead } = await import("../../engines/PDFProcessingPipelineEngine.js");
+            const cached = await ppRead.read();
+            result = cached ?? { error: "No pipeline status found. Run pdf_pipeline_classify first." };
+            break;
+          }
+          case "pdf_pipeline_summary": {
+            const { pdfProcessingPipelineEngine: ppSum } = await import("../../engines/PDFProcessingPipelineEngine.js");
+            const existing = await ppSum.read();
+            if (!existing) {
+              result = { error: "No pipeline status found. Run pdf_pipeline_classify first." };
+            } else {
+              result = { summary: ppSum.summary(existing) };
+            }
+            break;
+          }
+
+          // ── SQ3-0: Machine data hardening ──
+          case "machine_harden_audit": {
+            const { machineDataHardeningEngine } = await import("../../engines/MachineDataHardeningEngine.js");
+            const machineId = typeof params === "object" && params !== null ? (params as Record<string, unknown>).machine_id as string | undefined : undefined;
+            result = await machineDataHardeningEngine.audit(machineId);
+            break;
+          }
+          case "machine_harden_enrich": {
+            const { machineDataHardeningEngine: mhEnrich } = await import("../../engines/MachineDataHardeningEngine.js");
+            const mhP = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const mhDry = mhP.dry_run !== false; // default true
+            result = await mhEnrich.harden(mhP.machine_id as string | undefined, mhDry);
+            break;
+          }
+          case "machine_harden_validate": {
+            const { machineDataHardeningEngine: mhVal } = await import("../../engines/MachineDataHardeningEngine.js");
+            const valId = typeof params === "object" && params !== null ? (params as Record<string, unknown>).machine_id as string | undefined : undefined;
+            result = await mhVal.validate(valId);
+            break;
+          }
+          case "machine_harden_read": {
+            const { machineDataHardeningEngine: mhRead } = await import("../../engines/MachineDataHardeningEngine.js");
+            result = await mhRead.read();
+            if (!result) result = { error: "No hardening result found. Run machine_harden_enrich first." };
+            break;
+          }
+          case "machine_harden_summary": {
+            const { machineDataHardeningEngine: mhSum } = await import("../../engines/MachineDataHardeningEngine.js");
+            const auditForSummary = await mhSum.audit();
+            result = { summary: mhSum.summary(auditForSummary) };
+            break;
+          }
+
+          // ── AUTO-2: Schema generation ──
+          case "schema_generate": {
+            const { autoSchemaGeneratorEngine } = await import("../../engines/AutoSchemaGeneratorEngine.js");
+            const dispatcherFilter = typeof params === "object" && params !== null ? (params as Record<string, unknown>).dispatcher as string | undefined : undefined;
+            const maxSchemas = typeof params === "object" && params !== null ? ((params as Record<string, unknown>).max_schemas as number) || 50 : 50;
+            const dryRun = typeof params === "object" && params !== null ? ((params as Record<string, unknown>).dry_run as boolean) !== false : true;
+            result = await autoSchemaGeneratorEngine.generate(dispatcherFilter, maxSchemas, dryRun);
+            break;
+          }
+          case "schema_generate_read": {
+            const { autoSchemaGeneratorEngine: sgRead } = await import("../../engines/AutoSchemaGeneratorEngine.js");
+            const cached = sgRead.read();
+            result = cached ?? { error: "No schema gap report found. Run schema_generate first." };
+            break;
+          }
+          case "schema_generate_summary": {
+            const { autoSchemaGeneratorEngine: sgSum } = await import("../../engines/AutoSchemaGeneratorEngine.js");
+            result = { summary: sgSum.summary() };
+            break;
+          }
+
+          // ── AUTO-3: Test generation ──
+          case "test_generate": {
+            const { autoTestGeneratorEngine } = await import("../../engines/AutoTestGeneratorEngine.js");
+            const engineFilter = typeof params === "object" && params !== null ? (params as Record<string, unknown>).engine as string | undefined : undefined;
+            const maxTests = typeof params === "object" && params !== null ? ((params as Record<string, unknown>).max_tests as number) || 30 : 30;
+            const tgDryRun = typeof params === "object" && params !== null ? ((params as Record<string, unknown>).dry_run as boolean) !== false : true;
+            result = await autoTestGeneratorEngine.generate(engineFilter, maxTests, tgDryRun);
+            break;
+          }
+          case "test_generate_scan": {
+            const { autoTestGeneratorEngine: tgScan } = await import("../../engines/AutoTestGeneratorEngine.js");
+            result = await tgScan.scan();
+            break;
+          }
+          case "test_generate_read": {
+            const { autoTestGeneratorEngine: tgRead } = await import("../../engines/AutoTestGeneratorEngine.js");
+            const cached = tgRead.read();
+            result = cached ?? { error: "No test gap report found. Run test_generate_scan first." };
+            break;
+          }
+          case "test_generate_summary": {
+            const { autoTestGeneratorEngine: tgSum } = await import("../../engines/AutoTestGeneratorEngine.js");
+            result = { summary: tgSum.summary() };
+            break;
+          }
+
+          // ── AUTO-4: Route sync validation ──
+          case "route_sync_scan": {
+            const { routeSyncValidatorEngine } = await import("../../engines/RouteSyncValidatorEngine.js");
+            result = await routeSyncValidatorEngine.scan();
+            break;
+          }
+          case "route_sync_read": {
+            const { routeSyncValidatorEngine: rsRead } = await import("../../engines/RouteSyncValidatorEngine.js");
+            const cached = rsRead.read();
+            result = cached ?? { error: "No route sync report found. Run route_sync_scan first." };
+            break;
+          }
+          case "route_sync_summary": {
+            const { routeSyncValidatorEngine: rsSum } = await import("../../engines/RouteSyncValidatorEngine.js");
+            result = { summary: rsSum.summary() };
+            break;
+          }
+
+          // ── AUTO-5: Formula accuracy validation ──
+          case "formula_accuracy": {
+            const { formulaValidationEngine } = await import("../../engines/FormulaValidationEngine.js");
+            result = formulaValidationEngine.compute();
+            break;
+          }
+          case "formula_accuracy_read": {
+            const { formulaValidationEngine: fvRead } = await import("../../engines/FormulaValidationEngine.js");
+            const cached = fvRead.read();
+            result = cached ?? { error: "No formula accuracy results found. Run formula_accuracy first." };
+            break;
+          }
+          case "formula_accuracy_summary": {
+            const { formulaValidationEngine: fvSum } = await import("../../engines/FormulaValidationEngine.js");
+            result = { summary: fvSum.summary() };
+            break;
+          }
+
+          // ── AUTO-6: Self-improvement pattern detection ──
+          case "self_improvement_scan": {
+            const { selfImprovementPatternEngine } = await import("../../engines/SelfImprovementPatternEngine.js");
+            result = selfImprovementPatternEngine.compute();
+            break;
+          }
+          case "self_improvement_read": {
+            const { selfImprovementPatternEngine: siRead } = await import("../../engines/SelfImprovementPatternEngine.js");
+            const cached = siRead.read();
+            result = cached ?? { error: "No self-improvement patterns found. Run self_improvement_scan first." };
+            break;
+          }
+          case "self_improvement_summary": {
+            const { selfImprovementPatternEngine: siSum } = await import("../../engines/SelfImprovementPatternEngine.js");
+            result = { summary: siSum.summary() };
+            break;
+          }
+
+          // ── AUTO-6: Auto-fix pipeline ──
+          case "auto_fix_generate": {
+            const { autoFixPipelineEngine } = await import("../../engines/AutoFixPipelineEngine.js");
+            result = autoFixPipelineEngine.compute();
+            break;
+          }
+          case "auto_fix_read": {
+            const { autoFixPipelineEngine: afRead } = await import("../../engines/AutoFixPipelineEngine.js");
+            const cached = afRead.read();
+            result = cached ?? { error: "No auto-fix candidates found. Run auto_fix_generate first." };
+            break;
+          }
+          case "auto_fix_summary": {
+            const { autoFixPipelineEngine: afSum } = await import("../../engines/AutoFixPipelineEngine.js");
+            result = { summary: afSum.summary() };
+            break;
+          }
+          case "auto_fix_approve": {
+            const { autoFixPipelineEngine: afAppr } = await import("../../engines/AutoFixPipelineEngine.js");
+            const approved = afAppr.approve(params.fix_id as string);
+            result = approved ?? { error: `Fix ${params.fix_id} not found or already processed.` };
+            break;
+          }
+          case "auto_fix_promote": {
+            const { autoFixPipelineEngine: afProm } = await import("../../engines/AutoFixPipelineEngine.js");
+            const promoted = afProm.promote(params.fix_id as string);
+            result = promoted ?? { error: `Fix ${params.fix_id} not found or not approved yet.` };
+            break;
+          }
+
+          // ── AUTO-7: Quality Dashboard ──────────────────────────────────
+          case "quality_dashboard": {
+            const { qualityDashboardEngine } = await import("../../engines/QualityDashboardEngine.js");
+            result = qualityDashboardEngine.compute();
+            break;
+          }
+          case "quality_dashboard_read": {
+            const { qualityDashboardEngine: qdRead } = await import("../../engines/QualityDashboardEngine.js");
+            result = qdRead.read() ?? { error: "No dashboard data yet. Run quality_dashboard first." };
+            break;
+          }
+          case "quality_dashboard_summary": {
+            const { qualityDashboardEngine: qdSum } = await import("../../engines/QualityDashboardEngine.js");
+            result = { summary: qdSum.summary() };
+            break;
+          }
+
+          // ── AUTO-8: Output Budget Enforcer ──
+          case "output_budget_enforce": {
+            const { outputBudgetEnforcerEngine: obe } = await import("../../engines/OutputBudgetEnforcerEngine.js");
+            result = obe.enforce(params.tool as string, params.output as string);
+            break;
+          }
+          case "output_budget_stats": {
+            const { outputBudgetEnforcerEngine: obeStats } = await import("../../engines/OutputBudgetEnforcerEngine.js");
+            result = obeStats.getStats();
+            break;
+          }
+          case "output_budget_set_rule": {
+            const { outputBudgetEnforcerEngine: obeRule } = await import("../../engines/OutputBudgetEnforcerEngine.js");
+            obeRule.setRule(params.tool as string, params.max_tokens as number, params.strategy);
+            result = { success: true, tool: params.tool, max_tokens: params.max_tokens, strategy: params.strategy ?? "headtail" };
+            break;
+          }
+
+          // ── Context Inventory ──
+          case "context_inventory_add": {
+            const { contextInventoryEngine: ciAdd } = await import("../../engines/ContextInventoryEngine.js");
+            ciAdd.add(params.type ?? "fact", params.key as string, params.summary as string, params.tokens ?? 0);
+            result = { success: true, key: params.key, total_tokens: ciAdd.totalTokens() };
+            break;
+          }
+          case "context_inventory_query": {
+            const { contextInventoryEngine: ciQuery } = await import("../../engines/ContextInventoryEngine.js");
+            if (params.key) {
+              const entry = ciQuery.get(params.key as string);
+              result = entry ?? { found: false, key: params.key };
+            } else if (params.search) {
+              result = ciQuery.search(params.search as string);
+            } else if (params.type) {
+              result = ciQuery.byType(params.type as any);
+            } else {
+              result = { has_key: false, hint: "Provide key, search, or type param" };
+            }
+            break;
+          }
+          case "context_inventory_summary": {
+            const { contextInventoryEngine: ciSummary } = await import("../../engines/ContextInventoryEngine.js");
+            result = { summary: ciSummary.summary(), one_liner: ciSummary.oneLiner(), total_tokens: ciSummary.totalTokens(), stale_count: ciSummary.staleEntries().length };
+            break;
+          }
+
+          // ── Cost-Aware Router ──
+          case "cost_route": {
+            const { costAwareRouterEngine: crRoute } = await import("../../engines/CostAwareRouterEngine.js");
+            result = crRoute.route(params.intent as any, params.context ?? {});
+            break;
+          }
+          case "cost_route_infer": {
+            const { costAwareRouterEngine: crInfer } = await import("../../engines/CostAwareRouterEngine.js");
+            const intent = crInfer.inferIntent(params.query as string);
+            result = { inferred_intent: intent, recommendation: crInfer.route(intent, params.context ?? {}) };
+            break;
+          }
+
+          // ── Import Cost (TypeScript dependency analysis) ──
+          case "import_cost_analyze": {
+            const { importCostEngine: icAnalyze } = await import("../../engines/ImportCostEngine.js");
+            result = icAnalyze.analyzeDirectory(params.dir, params.max_depth ?? 0);
+            break;
+          }
+          case "import_cost_heavy": {
+            const { importCostEngine: icHeavy } = await import("../../engines/ImportCostEngine.js");
+            result = icHeavy.findHeavyImporters(params.dir, params.threshold ?? 10);
+            break;
+          }
+          case "import_cost_report": {
+            const { importCostEngine: icReport } = await import("../../engines/ImportCostEngine.js");
+            result = { report: icReport.getCompactReport(params.dir) };
+            break;
+          }
+
+          // ── Session Token Ledger ──
+          case "token_ledger_record": {
+            const { sessionTokenLedgerEngine: stlRec } = await import("../../engines/SessionTokenLedgerEngine.js");
+            stlRec.record(params.tool, params.inputTokens ?? params.input_tokens ?? 0, params.outputTokens ?? params.output_tokens ?? 0, params.label);
+            result = { success: true, count: stlRec.count };
+            break;
+          }
+          case "token_ledger_summary": {
+            const { sessionTokenLedgerEngine: stlSum } = await import("../../engines/SessionTokenLedgerEngine.js");
+            result = stlSum.summary();
+            break;
+          }
+          case "token_ledger_project": {
+            const { sessionTokenLedgerEngine: stlProj } = await import("../../engines/SessionTokenLedgerEngine.js");
+            result = stlProj.project();
+            break;
+          }
+          case "token_ledger_reset": {
+            const { sessionTokenLedgerEngine: stlReset } = await import("../../engines/SessionTokenLedgerEngine.js");
+            stlReset.reset();
+            result = { success: true, message: "Token ledger reset" };
+            break;
+          }
+
+          // ── Tool Cost Predictor ──
+          case "tool_cost_predict": {
+            const { toolCostPredictorEngine: tcpPredict } = await import("../../engines/ToolCostPredictorEngine.js");
+            result = tcpPredict.predict(
+              params.tool ?? params.tool_name ?? "Read",
+              params.tool_params ?? params.toolParams ?? {},
+            );
+            break;
+          }
+          case "tool_cost_affordable": {
+            const { toolCostPredictorEngine: tcpAfford } = await import("../../engines/ToolCostPredictorEngine.js");
+            result = tcpAfford.isAffordable(
+              params.tool ?? params.tool_name ?? "Read",
+              params.tool_params ?? params.toolParams ?? {},
+              params.remaining_budget ?? params.remainingBudget ?? 100000,
+            );
+            break;
+          }
+
+          // ── Tool Output Fingerprinter ──
+          case "tool_fingerprint_check": {
+            const { toolOutputFingerprinterEngine: tofCheck } = await import("../../engines/ToolOutputFingerprinterEngine.js");
+            result = tofCheck.check(
+              params.tool ?? params.tool_name ?? "unknown",
+              params.output ?? "",
+            ) ?? { duplicate: false, message: "No duplicate detected" };
+            break;
+          }
+          case "tool_fingerprint_stats": {
+            const { toolOutputFingerprinterEngine: tofStats } = await import("../../engines/ToolOutputFingerprinterEngine.js");
+            result = tofStats.stats();
+            break;
+          }
+          case "tool_fingerprint_reset": {
+            const { toolOutputFingerprinterEngine: tofReset } = await import("../../engines/ToolOutputFingerprinterEngine.js");
+            tofReset.reset();
+            result = { success: true, message: "Fingerprint state reset" };
+            break;
+          }
+
+          // ── Error Remediation ──
+          case "error_remediation": {
+            const { errorRemediationEngine } = await import("../../engines/ErrorRemediationEngine.js");
+            const actionPath = (params.action as string) ?? "";
+            const errorMsg = (params.error as string) ?? "";
+            result = errorRemediationEngine.getRemediation(actionPath, errorMsg, (params.params as Record<string, unknown>) ?? {});
+            break;
+          }
+
+          // ── Memory Consolidation ──
+          case "memory_consolidation": {
+            const { memoryConsolidationEngine } = await import("../../engines/MemoryConsolidationEngine.js");
+            if (params.action_type === "consolidate") {
+              result = await memoryConsolidationEngine.consolidate() ?? { message: "No consolidation needed" };
+            } else if (params.action_type === "patterns") {
+              result = { patterns: memoryConsolidationEngine.getPatterns() };
+            } else {
+              result = memoryConsolidationEngine.getStats();
+            }
+            break;
+          }
+
+          // ── Build Guard Chain (ACP-MS2) ────────────────────────
+          case "build_guard_validate": {
+            const { buildGuardChainEngine } = await import("../../engines/BuildGuardChainEngine.js");
+            result = buildGuardChainEngine.validatePreEdit(
+              params.file_path || "",
+              params.active_agent_files || [],
+            );
+            break;
+          }
+          case "build_guard_track_edit": {
+            const { buildGuardChainEngine } = await import("../../engines/BuildGuardChainEngine.js");
+            const editState = params.state || buildGuardChainEngine.freshEditState();
+            result = buildGuardChainEngine.trackEdit(editState, params.file_path || "");
+            break;
+          }
+          case "build_guard_typecheck": {
+            const { buildGuardChainEngine } = await import("../../engines/BuildGuardChainEngine.js");
+            result = buildGuardChainEngine.parseTypecheckOutput(params.tsc_output || "");
+            break;
+          }
+          case "build_guard_affected_tests": {
+            const { buildGuardChainEngine } = await import("../../engines/BuildGuardChainEngine.js");
+            result = buildGuardChainEngine.resolveAffectedTests(
+              params.source_file || "",
+              params.available_tests || [],
+            );
+            break;
+          }
+          case "build_guard_chain": {
+            const { buildGuardChainEngine } = await import("../../engines/BuildGuardChainEngine.js");
+            result = buildGuardChainEngine.executeChain(
+              params.edited_files || [],
+              params.tsc_output || "",
+              params.available_tests || [],
+              params.edit_state || buildGuardChainEngine.freshEditState(),
+            );
+            break;
+          }
+          case "build_guard_classify": {
+            const { automationChainEngine } = await import("../../engines/AutomationChainEngine.js");
+            result = automationChainEngine.classify(params.prompt || "");
+            break;
+          }
+
+          // ── Chain Failure Recovery (ACP-MS2B) ──────────────────
+          case "chain_recover": {
+            const { chainFailureRecoveryEngine } = await import("../../engines/ChainFailureRecoveryEngine.js");
+            result = chainFailureRecoveryEngine.recover(
+              params.failure,
+              params.fail_behavior || "degrade_warn",
+              params.step_required ?? true,
+              params.remaining_steps || [],
+            );
+            break;
+          }
+          case "chain_health": {
+            const { chainFailureRecoveryEngine } = await import("../../engines/ChainFailureRecoveryEngine.js");
+            result = chainFailureRecoveryEngine.getHealthSummary(params.chain_id);
+            break;
+          }
+          case "chain_notify": {
+            const { chainFailureRecoveryEngine } = await import("../../engines/ChainFailureRecoveryEngine.js");
+            const plan = chainFailureRecoveryEngine.computeRecoveryPlan(
+              params.failure,
+              params.fail_behavior || "degrade_warn",
+              params.step_required ?? true,
+              params.remaining_steps || [],
+            );
+            result = chainFailureRecoveryEngine.generateNotification(params.failure, plan);
+            break;
+          }
+
+          // ── Context Chain (ACP-MS3) ────────────────────────────
+          case "context_pressure": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            result = contextChainEngine.estimatePressure(
+              params.tokens_used || 0,
+              params.context_size,
+            );
+            break;
+          }
+          case "context_load_plan": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            result = contextChainEngine.planContextLoad(
+              params.task_class || "general",
+              params.bundles || [],
+              params.budget_tokens || 2000,
+            );
+            break;
+          }
+          case "context_compact_plan": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            const pressure = contextChainEngine.estimatePressure(params.tokens_used || 0);
+            result = contextChainEngine.planCompaction(
+              pressure,
+              params.active_task || "",
+              params.build_status || "unknown",
+              params.critical_facts || [],
+            );
+            break;
+          }
+          case "context_health": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            result = contextChainEngine.getHealthReport(
+              params.memory_lines || 0,
+              params.tokens_used || 0,
+              params.active_bundles,
+              params.bundle_cost,
+            );
+            break;
+          }
+
+          // ── Speed/Feed Autopilot (ACP-MS4) ────────────────────
+          case "sf_autopilot_run": {
+            const { speedFeedAutopilotEngine } = await import("../../engines/SpeedFeedAutopilotEngine.js");
+            result = speedFeedAutopilotEngine.run(params as any);
+            break;
+          }
+          case "sf_autopilot_resolve_material": {
+            const { speedFeedAutopilotEngine } = await import("../../engines/SpeedFeedAutopilotEngine.js");
+            result = speedFeedAutopilotEngine.resolveMaterial(params.material || "", params.hardness_hrc);
+            break;
+          }
+          case "sf_autopilot_resolve_tool": {
+            const { speedFeedAutopilotEngine } = await import("../../engines/SpeedFeedAutopilotEngine.js");
+            result = speedFeedAutopilotEngine.resolveTool(params.diameter_mm || 12, params.flute_count, params.operation);
+            break;
+          }
+
+          // ── Post Processor Autopilot (ACP-MS5) ────────────────
+          case "pp_autopilot_run": {
+            const { postProcessorAutopilotEngine } = await import("../../engines/PostProcessorAutopilotEngine.js");
+            result = postProcessorAutopilotEngine.runPPG(params as any);
+            break;
+          }
+          case "pp_autopilot_resolve_dialect": {
+            const { postProcessorAutopilotEngine } = await import("../../engines/PostProcessorAutopilotEngine.js");
+            result = postProcessorAutopilotEngine.resolveDialect(params.controller || "");
+            break;
+          }
+          case "pp_autopilot_print_to_program": {
+            const { postProcessorAutopilotEngine } = await import("../../engines/PostProcessorAutopilotEngine.js");
+            result = postProcessorAutopilotEngine.runPrintToProgram(params as any);
+            break;
+          }
+
+          // ── Quote Autopilot (ACP-MS6) ─────────────────────────
+          case "quote_autopilot_run": {
+            const { quoteAutopilotEngine } = await import("../../engines/QuoteAutopilotEngine.js");
+            result = quoteAutopilotEngine.generateQuote(params as any);
+            break;
+          }
+          case "quote_autopilot_calibrate": {
+            const { quoteAutopilotEngine } = await import("../../engines/QuoteAutopilotEngine.js");
+            result = quoteAutopilotEngine.computeCalibration();
+            break;
+          }
+          case "quote_autopilot_record_actual": {
+            const { quoteAutopilotEngine } = await import("../../engines/QuoteAutopilotEngine.js");
+            quoteAutopilotEngine.recordActual(params.part_name || "", params.actual_cycle_time_min || 0);
+            result = { recorded: true, part_name: params.part_name };
+            break;
+          }
+
+          // ── Capability Census (MXU-MS0) ────────────────────────
+          case "capability_census": {
+            const { capabilityCensusEngine } = await import("../../engines/CapabilityCensusEngine.js");
+            result = capabilityCensusEngine.runLiveCensus();
+            break;
+          }
+          case "capability_census_report": {
+            const { capabilityCensusEngine } = await import("../../engines/CapabilityCensusEngine.js");
+            result = capabilityCensusEngine.runLiveReport();
+            break;
+          }
+          case "capability_census_save": {
+            const { capabilityCensusEngine } = await import("../../engines/CapabilityCensusEngine.js");
+            const outputPath = params.output_path || path.join(STATE_DIR, "CAPABILITY_CENSUS.json");
+            result = capabilityCensusEngine.saveCensus(outputPath);
+            break;
+          }
+
+          // ── Coding Copilot (MXU-MS1) ──────────────────────────
+          case "copilot_suggest": {
+            const { codingCopilotEngine } = await import("../../engines/CodingCopilotEngine.js");
+            result = codingCopilotEngine.suggest(params.task_description || "", params.proposed_name, params.existing_engines || []);
+            break;
+          }
+          case "copilot_check_duplication": {
+            const { codingCopilotEngine } = await import("../../engines/CodingCopilotEngine.js");
+            result = codingCopilotEngine.checkDuplication(params.name || "", params.capabilities || [], params.existing_engines || []);
+            break;
+          }
+          case "copilot_template": {
+            const { codingCopilotEngine } = await import("../../engines/CodingCopilotEngine.js");
+            result = codingCopilotEngine.generateTemplate(params.name || "New", params.domain || "general", params.capabilities || []);
+            break;
+          }
+
+          // ── Token Economy (MXU-MS2) ────────────────────────────
+          case "token_budget": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            result = tokenEconomyEngine.getBudget(params.task_class || "general");
+            break;
+          }
+          case "token_record_spending": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            result = tokenEconomyEngine.recordSpending(params.session_id || "", params.task_class || "general", params.actual || {});
+            break;
+          }
+          case "token_detect_waste": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            result = tokenEconomyEngine.detectWaste(params.tool_calls || 0, params.file_reads || 0, params.unique_files || 0, params.searches || 0, params.agents || 0);
+            break;
+          }
+          case "token_economy_report": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            result = tokenEconomyEngine.generateReport();
+            break;
+          }
+
+          // ── Persistent Memory (MXU-MS3) ────────────────────────
+          case "memory_store": {
+            const { persistentMemoryEngine } = await import("../../engines/PersistentMemoryEngine.js");
+            result = persistentMemoryEngine.store(params.type || "learning", params.domain || "general", params.tags || [], params.content || "", params.metadata || {}, params.session_id);
+            break;
+          }
+          case "memory_search": {
+            const { persistentMemoryEngine } = await import("../../engines/PersistentMemoryEngine.js");
+            result = persistentMemoryEngine.search(params);
+            break;
+          }
+          case "memory_stats": {
+            const { persistentMemoryEngine } = await import("../../engines/PersistentMemoryEngine.js");
+            result = persistentMemoryEngine.getStats();
+            break;
+          }
+          case "memory_record_learning": {
+            const { persistentMemoryEngine } = await import("../../engines/PersistentMemoryEngine.js");
+            result = persistentMemoryEngine.recordLearning(params as any);
+            break;
+          }
+          case "memory_set_preference": {
+            const { persistentMemoryEngine } = await import("../../engines/PersistentMemoryEngine.js");
+            result = persistentMemoryEngine.setPreference(params as any);
+            break;
+          }
+          case "memory_get_preference": {
+            const { persistentMemoryEngine } = await import("../../engines/PersistentMemoryEngine.js");
+            result = { key: params.key, value: persistentMemoryEngine.getPreference(params.key || "") };
+            break;
+          }
+
+          // ── Capability Paths (MXU-MS4) ─────────────────────────
+          case "capability_path_list": {
+            const { capabilityPathEngine } = await import("../../engines/CapabilityPathEngine.js");
+            result = capabilityPathEngine.listPaths();
+            break;
+          }
+          case "capability_path_progress": {
+            const { capabilityPathEngine } = await import("../../engines/CapabilityPathEngine.js");
+            result = params.path_id
+              ? capabilityPathEngine.getProgress(params.path_id, params.completed || [])
+              : capabilityPathEngine.getAllProgress(params.completed || []);
+            break;
+          }
+          case "capability_path_suggest": {
+            const { capabilityPathEngine } = await import("../../engines/CapabilityPathEngine.js");
+            result = capabilityPathEngine.suggestNext(params.completed || [], params.domain);
+            break;
+          }
+
+          // ── Workflow Orchestration (MXU-MS5) ───────────────────
+          case "workflow_list": {
+            const { workflowOrchestrationEngine } = await import("../../engines/WorkflowOrchestrationEngine.js");
+            result = workflowOrchestrationEngine.listWorkflows();
+            break;
+          }
+          case "workflow_plan": {
+            const { workflowOrchestrationEngine } = await import("../../engines/WorkflowOrchestrationEngine.js");
+            const wf = workflowOrchestrationEngine.getWorkflow(params.workflow_id || "");
+            result = wf ? workflowOrchestrationEngine.planExecution(wf) : { error: "Workflow not found" };
+            break;
+          }
+          case "workflow_create": {
+            const { workflowOrchestrationEngine } = await import("../../engines/WorkflowOrchestrationEngine.js");
+            result = workflowOrchestrationEngine.createWorkflow(params.name || "custom", params.steps || [], params.strategy || "serial", params.max_parallel || 3);
+            break;
+          }
+
+          // ── Product Pillars (MXU-MS6) ──────────────────────────
+          case "pillar_list": {
+            const { productPillarEngine } = await import("../../engines/ProductPillarEngine.js");
+            result = productPillarEngine.listPillars();
+            break;
+          }
+          case "pillar_score": {
+            const { productPillarEngine } = await import("../../engines/ProductPillarEngine.js");
+            result = productPillarEngine.scorePillar(params.pillar_id || "calculator", new Set(params.wired_engines || []), new Set(params.active_skills || []));
+            break;
+          }
+          case "pillar_summary": {
+            const { productPillarEngine } = await import("../../engines/ProductPillarEngine.js");
+            result = productPillarEngine.getSummary(new Set(params.wired_engines || []), new Set(params.active_skills || []));
+            break;
+          }
+          case "pillar_gate": {
+            const { productPillarEngine } = await import("../../engines/ProductPillarEngine.js");
+            result = productPillarEngine.checkGate(params.pillar_id || "calculator", params.tier || "free");
+            break;
+          }
+
+          // ── Discoverability (MXU-MS7) ──────────────────────────
+          case "discover_search": {
+            const { discoverabilityEngine } = await import("../../engines/DiscoverabilityEngine.js");
+            result = discoverabilityEngine.search(params.query || "", params.limit || 10);
+            break;
+          }
+          case "discover_browse": {
+            const { discoverabilityEngine } = await import("../../engines/DiscoverabilityEngine.js");
+            result = params.domain ? discoverabilityEngine.browse(params.domain) : discoverabilityEngine.listDomains();
+            break;
+          }
+          case "discover_recommend": {
+            const { discoverabilityEngine } = await import("../../engines/DiscoverabilityEngine.js");
+            result = discoverabilityEngine.recommend(params.used_capabilities || [], params.limit || 5);
+            break;
+          }
+          case "discover_what_can_i_do": {
+            const { discoverabilityEngine } = await import("../../engines/DiscoverabilityEngine.js");
+            result = discoverabilityEngine.whatCanIDo(params.question || "");
+            break;
+          }
+
+          // ── Effectiveness (MXU-MS9+10) ─────────────────────────
+          case "effectiveness_report": {
+            const { capabilityEffectivenessEngine } = await import("../../engines/CapabilityEffectivenessEngine.js");
+            result = capabilityEffectivenessEngine.generateReport(params.capability_ids || []);
+            break;
+          }
+          case "effectiveness_score": {
+            const { capabilityEffectivenessEngine } = await import("../../engines/CapabilityEffectivenessEngine.js");
+            result = capabilityEffectivenessEngine.scoreCapability(params.capability_id || "");
+            break;
+          }
+          case "effectiveness_record": {
+            const { capabilityEffectivenessEngine } = await import("../../engines/CapabilityEffectivenessEngine.js");
+            capabilityEffectivenessEngine.recordUsage(params as any);
+            result = { recorded: true };
+            break;
+          }
+          case "effectiveness_validate": {
+            const { capabilityEffectivenessEngine } = await import("../../engines/CapabilityEffectivenessEngine.js");
+            result = capabilityEffectivenessEngine.getValidationTests();
+            break;
+          }
+
+          default:
+            result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
+        }
+        return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      } catch (error) {
+        return dispatcherError(error, action, "prism_dev");
+      }
+    }
+  );
+}

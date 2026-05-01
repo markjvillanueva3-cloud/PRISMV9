@@ -1,0 +1,2115 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-03-01T22:24:24.914269+00:00",
+  "total_practices": 36,
+  "categories": {
+    "setup_workholding": {
+      "name": "Setup Workholding",
+      "practice_count": 7,
+      "practices": [
+        {
+          "practice_id": "SP-0001",
+          "title": "Vise jaw alignment with dial indicator",
+          "category": "setup_workholding",
+          "practice_type": "setup_procedure",
+          "description": "Use a dial indicator to sweep the fixed jaw of the vise to ensure it is parallel to the machine X-axis within 0.0005 inches.",
+          "steps": [
+            "Mount dial indicator in spindle or magnetic base on spindle housing",
+            "Bring indicator tip to contact fixed jaw face",
+            "Traverse X-axis across full jaw length",
+            "Tap vise body with soft mallet to adjust alignment",
+            "Re-sweep until TIR reads 0.0005 in or better",
+            "Tighten mounting bolts in star pattern"
+          ],
+          "warnings": [
+            "Never use a hard hammer on vise — can crack casting",
+            "Ensure spindle is locked before sweeping"
+          ],
+          "tips": [
+            "Use a brass or dead-blow mallet for adjustment"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-001",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 180000,
+              "likes": 4500,
+              "published_date": "",
+              "confidence": 0.92,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.92,
+          "source_count": 1,
+          "tags": [
+            "vise",
+            "alignment",
+            "setup",
+            "indicator"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0002",
+          "title": "Soft jaw machining for round stock",
+          "category": "setup_workholding",
+          "practice_type": "workholding_technique",
+          "description": "Machine custom soft jaws to match round stock diameter for maximum grip and concentricity.",
+          "steps": [
+            "Install aluminum soft jaw blanks in vise",
+            "Close vise on a round spacer slightly smaller than workpiece diameter",
+            "Face the jaw tops flat if needed",
+            "Bore or mill semicircular pockets matching workpiece OD minus 0.002 in",
+            "Deburr jaw pocket edges",
+            "Test fit with actual workpiece"
+          ],
+          "warnings": [
+            "Ensure clamping force is adequate — soft jaws can deform under heavy cuts",
+            "Check concentricity with indicator after clamping workpiece"
+          ],
+          "tips": [
+            "Use 6061-T6 aluminum for soft jaws — good machinability and grip"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-002",
+              "video_title": "",
+              "channel": "NYC CNC",
+              "channel_subscribers": 400000,
+              "views": 95000,
+              "likes": 3200,
+              "published_date": "",
+              "confidence": 0.88,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.88,
+          "source_count": 1,
+          "tags": [
+            "soft_jaws",
+            "round_stock",
+            "workholding"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0003",
+          "title": "Part zero setting with edge finder",
+          "category": "setup_workholding",
+          "practice_type": "setup_procedure",
+          "description": "Establish work coordinate origin using a mechanical or electronic edge finder on the workpiece.",
+          "steps": [
+            "Install edge finder in spindle collet",
+            "Set spindle speed to 800-1000 RPM",
+            "Approach workpiece edge slowly in X until edge finder kicks out",
+            "Record X position and offset by edge finder radius",
+            "Repeat for Y edge",
+            "Touch off Z with a gauge block or paper shim method",
+            "Enter offsets in work coordinate system (G54-G59)"
+          ],
+          "warnings": [
+            "Approach slowly — fast approach can break the edge finder or mark the workpiece",
+            "Verify coordinates with a test cut before running the program"
+          ],
+          "tips": [
+            "Electronic edge finders give more repeatable results than mechanical ones"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-003",
+              "video_title": "",
+              "channel": "Titans of CNC",
+              "channel_subscribers": 350000,
+              "views": 220000,
+              "likes": 7800,
+              "published_date": "",
+              "confidence": 0.9,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.9,
+          "source_count": 1,
+          "tags": [
+            "edge_finder",
+            "work_offset",
+            "setup",
+            "G54"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0004",
+          "title": "Toe clamp setup for irregular parts",
+          "category": "setup_workholding",
+          "practice_type": "workholding_technique",
+          "description": "Use toe clamps with step blocks for holding irregularly shaped parts that cannot be held in a vise.",
+          "steps": [
+            "Clean T-slot table surface thoroughly",
+            "Position part on parallels or fixture plate",
+            "Select step blocks that position clamp heel at or slightly below workpiece top surface",
+            "Place toe clamps with bolt as close to workpiece as possible",
+            "Tighten in opposing pairs to balance clamping force",
+            "Verify part does not shift under light hand pressure"
+          ],
+          "warnings": [
+            "Clamp bolt must be closer to workpiece than to step block for mechanical advantage",
+            "Use at least 4 clamps for stability on larger parts",
+            "Check for interference with toolpath before running"
+          ],
+          "tips": [
+            "Mitee-Bite pit-bull clamps offer low-profile alternative for shallow parts"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-004",
+              "video_title": "",
+              "channel": "This Old Tony",
+              "channel_subscribers": 600000,
+              "views": 310000,
+              "likes": 12000,
+              "published_date": "",
+              "confidence": 0.85,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.85,
+          "source_count": 1,
+          "tags": [
+            "toe_clamps",
+            "irregular_parts",
+            "workholding"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0005",
+          "title": "Vacuum workholding for thin sheet stock",
+          "category": "setup_workholding",
+          "practice_type": "workholding_technique",
+          "description": "Use vacuum table or vacuum fixture for holding thin sheet material that would deform under mechanical clamping.",
+          "steps": [
+            "Ensure vacuum table surface is flat and clean",
+            "Place sacrificial MDF spoilboard if needed",
+            "Lay sheet stock on vacuum surface",
+            "Engage vacuum pump and verify gauge shows adequate hold (min 20 inHg)",
+            "Run light facing pass first to verify holding force",
+            "Reduce feed rate and depth of cut to minimize lateral forces"
+          ],
+          "warnings": [
+            "Vacuum force is limited — avoid aggressive cuts that exceed holding strength",
+            "Material can shift if vacuum seal is broken by through-cuts",
+            "Always have emergency stop ready during first cuts"
+          ],
+          "tips": [
+            "Use rubber gasket tape around perimeter for better seal"
+          ],
+          "applicable_materials": [
+            "aluminum"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "router"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-005",
+              "video_title": "",
+              "channel": "Datron",
+              "channel_subscribers": 45000,
+              "views": 28000,
+              "likes": 850,
+              "published_date": "",
+              "confidence": 0.87,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.87,
+          "source_count": 1,
+          "tags": [
+            "vacuum",
+            "thin_stock",
+            "sheet",
+            "workholding"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0031",
+          "title": "Indicate vise with DTI",
+          "category": "setup_workholding",
+          "practice_type": "workholding_technique",
+          "description": "Use dial test indicator to align vise",
+          "steps": [
+            "Mount DTI",
+            "Sweep jaw",
+            "Adjust"
+          ],
+          "warnings": [
+            "Ensure spindle is off"
+          ],
+          "tips": [],
+          "applicable_materials": [],
+          "applicable_machines": [],
+          "sources": [
+            {
+              "video_id": "v001",
+              "video_title": "",
+              "channel": "TestShop",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.8,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v001",
+              "video_title": "",
+              "channel": "TestShop",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.8,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v001",
+              "video_title": "",
+              "channel": "TestShop",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.8,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v001",
+              "video_title": "",
+              "channel": "TestShop",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.8,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v001",
+              "video_title": "",
+              "channel": "TestShop",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.8,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v001",
+              "video_title": "",
+              "channel": "TestShop",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.8,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.41,
+          "source_count": 6,
+          "tags": [
+            "setup"
+          ],
+          "last_updated": "2026-03-01T22:24:24.556836+00:00",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0034",
+          "title": "P1",
+          "category": "setup_workholding",
+          "practice_type": "setup_procedure",
+          "description": "D1",
+          "steps": [
+            "S1"
+          ],
+          "warnings": [],
+          "tips": [],
+          "applicable_materials": [],
+          "applicable_machines": [],
+          "sources": [
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.29,
+          "source_count": 5,
+          "tags": [],
+          "last_updated": "2026-03-01T22:23:35.305945+00:00",
+          "safety_reviewed": true
+        }
+      ]
+    },
+    "cutting_practices": {
+      "name": "Cutting Practices",
+      "practice_count": 7,
+      "practices": [
+        {
+          "practice_id": "SP-0006",
+          "title": "Adaptive/trochoidal milling for deep pockets",
+          "category": "cutting_practices",
+          "practice_type": "cutting_practice",
+          "description": "Use trochoidal or adaptive clearing toolpaths for deep pocket roughing to maintain consistent tool engagement and reduce radial forces.",
+          "steps": [
+            "Set radial stepover to 10-15% of tool diameter",
+            "Set axial depth to 2-3x tool diameter (full flute length engagement)",
+            "Program trochoidal or adaptive clearing toolpath in CAM",
+            "Use climb milling direction",
+            "Increase feed rate 2-3x compared to conventional slotting",
+            "Monitor spindle load — should stay below 60%"
+          ],
+          "warnings": [
+            "Ensure adequate coolant delivery to bottom of deep pockets",
+            "Tool must have sufficient flute length for programmed depth",
+            "Chip evacuation becomes critical beyond 3x diameter depth"
+          ],
+          "tips": [
+            "Compressed air blast helps evacuate chips from deep pockets when flood coolant cannot reach"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel",
+            "titanium"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-006",
+              "video_title": "",
+              "channel": "Fusion 360",
+              "channel_subscribers": 500000,
+              "views": 150000,
+              "likes": 5200,
+              "published_date": "",
+              "confidence": 0.91,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.91,
+          "source_count": 1,
+          "tags": [
+            "trochoidal",
+            "adaptive",
+            "pocket",
+            "roughing",
+            "HSM"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0007",
+          "title": "Ramp entry for pocket milling",
+          "category": "cutting_practices",
+          "practice_type": "cutting_practice",
+          "description": "Use ramping or helical entry instead of plunging to enter a pocket, reducing axial forces on the end mill.",
+          "steps": [
+            "Program helical ramp entry in CAM with 2-3 degree ramp angle",
+            "Set ramp diameter to at least 50% of pocket width",
+            "Reduce feed rate during ramp to 50% of normal cutting feed",
+            "Use center-cutting end mill (required for ramping)",
+            "Transition to full feed once at depth"
+          ],
+          "warnings": [
+            "Non-center-cutting end mills cannot ramp — will break",
+            "Steep ramp angles above 5 degrees generate excessive axial force"
+          ],
+          "tips": [
+            "Helical bore entry is gentler than zigzag ramp for harder materials"
+          ],
+          "applicable_materials": [
+            "steel",
+            "stainless_steel",
+            "titanium"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-007",
+              "video_title": "",
+              "channel": "NYC CNC",
+              "channel_subscribers": 400000,
+              "views": 88000,
+              "likes": 2900,
+              "published_date": "",
+              "confidence": 0.89,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.89,
+          "source_count": 1,
+          "tags": [
+            "ramp",
+            "helical",
+            "entry",
+            "pocket"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0008",
+          "title": "Climb vs conventional milling selection",
+          "category": "cutting_practices",
+          "practice_type": "cutting_practice",
+          "description": "Choose between climb milling (preferred for CNC) and conventional milling based on machine rigidity and workpiece setup.",
+          "steps": [
+            "Default to climb milling on CNC machines with ball screw drives",
+            "Switch to conventional milling if workpiece is not rigidly held",
+            "Use conventional for parts with hard skin or scale (castings, forgings)",
+            "Monitor surface finish — climb produces better finish on ductile materials",
+            "Adjust feed rate: climb can run 10% faster than conventional in most cases"
+          ],
+          "warnings": [
+            "Climb milling on machines with backlash can cause tool to grab and break",
+            "Conventional milling generates more heat at the cutting edge"
+          ],
+          "tips": [
+            "For thin walls, conventional milling pushes material into the wall rather than pulling it away"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-008",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 195000,
+              "likes": 6100,
+              "published_date": "",
+              "confidence": 0.93,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.93,
+          "source_count": 1,
+          "tags": [
+            "climb",
+            "conventional",
+            "milling_direction"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0009",
+          "title": "Speed and feed adjustment for tool life",
+          "category": "cutting_practices",
+          "practice_type": "optimization_tip",
+          "description": "Balance speed, feed, and depth of cut to optimize tool life while maintaining productivity.",
+          "steps": [
+            "Start with manufacturer recommended parameters",
+            "Reduce surface speed by 10-15% for extended tool life",
+            "Increase feed per tooth slightly to maintain chip thickness (prevents rubbing)",
+            "Monitor flank wear — replace at 0.3mm VB max for finishing tools",
+            "Track tool life per material for cost optimization"
+          ],
+          "warnings": [
+            "Running too slow causes rubbing and work hardening in stainless and titanium",
+            "Excessive speed without adequate feed generates heat and accelerates wear"
+          ],
+          "tips": [
+            "Chip color indicates cutting temperature — blue chips in steel mean too much heat"
+          ],
+          "applicable_materials": [
+            "steel",
+            "stainless_steel",
+            "titanium"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-009",
+              "video_title": "",
+              "channel": "Sandvik Coromant",
+              "channel_subscribers": 180000,
+              "views": 120000,
+              "likes": 3800,
+              "published_date": "",
+              "confidence": 0.94,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.94,
+          "source_count": 1,
+          "tags": [
+            "speed_feed",
+            "tool_life",
+            "optimization"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0010",
+          "title": "Finishing pass strategy for tight tolerances",
+          "category": "cutting_practices",
+          "practice_type": "cutting_practice",
+          "description": "Use spring pass and light finishing cuts to achieve tight tolerances and good surface finish.",
+          "steps": [
+            "Leave 0.010-0.020 in stock for finishing after roughing",
+            "Take a single finishing pass at full depth with light radial engagement",
+            "Run a spring pass (zero-cut) at same parameters to remove deflection error",
+            "Use sharp, coated finishing end mills with higher helix angle",
+            "Reduce feed rate 20-30% from roughing feed for finishing"
+          ],
+          "warnings": [
+            "Worn tools will not achieve tolerance — inspect before finishing pass",
+            "Thermal growth can affect dimensions — let machine warm up first"
+          ],
+          "tips": [
+            "Measure after roughing to know actual stock remaining before finish pass"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-010",
+              "video_title": "",
+              "channel": "Titans of CNC",
+              "channel_subscribers": 350000,
+              "views": 175000,
+              "likes": 5500,
+              "published_date": "",
+              "confidence": 0.91,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.91,
+          "source_count": 1,
+          "tags": [
+            "finishing",
+            "tolerance",
+            "spring_pass",
+            "surface_finish"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0032",
+          "title": "Aluminum cutting tips",
+          "category": "cutting_practices",
+          "practice_type": "cutting_practice",
+          "description": "Tips for cutting aluminum",
+          "steps": [
+            "Set high RPM"
+          ],
+          "warnings": [],
+          "tips": [
+            "Use 3-flute end mill",
+            "Apply mist coolant"
+          ],
+          "applicable_materials": [
+            "aluminum"
+          ],
+          "applicable_machines": [],
+          "sources": [
+            {
+              "video_id": "v002",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v002",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v002",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v002",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v002",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v002",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.29,
+          "source_count": 6,
+          "tags": [],
+          "last_updated": "2026-03-01T22:24:24.658081+00:00",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0035",
+          "title": "P2",
+          "category": "cutting_practices",
+          "practice_type": "cutting_practice",
+          "description": "D2",
+          "steps": [
+            "S2"
+          ],
+          "warnings": [],
+          "tips": [],
+          "applicable_materials": [],
+          "applicable_machines": [],
+          "sources": [
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.29,
+          "source_count": 5,
+          "tags": [],
+          "last_updated": "2026-03-01T22:23:35.305945+00:00",
+          "safety_reviewed": true
+        }
+      ]
+    },
+    "tool_management": {
+      "name": "Tool Management",
+      "practice_count": 6,
+      "practices": [
+        {
+          "practice_id": "SP-0011",
+          "title": "Tool length offset measurement with probe",
+          "category": "tool_management",
+          "practice_type": "measurement_technique",
+          "description": "Use a tool length measuring probe to automatically set tool length offsets for all tools in the magazine.",
+          "steps": [
+            "Calibrate probe reference with a known master tool",
+            "Load tool into spindle via M6 tool change",
+            "Run probe cycle (G37 or macro call depending on controller)",
+            "Verify measured length matches expected value within 0.001 in",
+            "Store offset in tool table",
+            "Repeat for all tools in the job"
+          ],
+          "warnings": [
+            "Dirty tools give false readings — blow off chips before measuring",
+            "Probe surface must be clean and undamaged"
+          ],
+          "tips": [
+            "Measure tools at operating RPM if possible to account for spindle growth"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-011",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 140000,
+              "likes": 4200,
+              "published_date": "",
+              "confidence": 0.93,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.93,
+          "source_count": 1,
+          "tags": [
+            "tool_probe",
+            "tool_length",
+            "offset",
+            "measurement"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0012",
+          "title": "End mill holder selection and runout control",
+          "category": "tool_management",
+          "practice_type": "tool_management",
+          "description": "Select appropriate tool holders and minimize runout for better tool life and surface finish.",
+          "steps": [
+            "Use hydraulic or shrink-fit holders for finishing operations (TIR < 0.0002 in)",
+            "Use ER collet chucks for general purpose (TIR < 0.0005 in)",
+            "Avoid set-screw holders for precision work",
+            "Check runout at tool tip with dial indicator before critical operations",
+            "Replace worn collets that cannot hold runout spec"
+          ],
+          "warnings": [
+            "Excessive runout causes uneven tooth loading and premature failure",
+            "Pull-out risk increases with high axial forces — verify retention force"
+          ],
+          "tips": [
+            "Milling chucks (Weldon flat) are adequate for roughing but limit finishing quality"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-012",
+              "video_title": "",
+              "channel": "Kennametal",
+              "channel_subscribers": 50000,
+              "views": 45000,
+              "likes": 1500,
+              "published_date": "",
+              "confidence": 0.9,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.9,
+          "source_count": 1,
+          "tags": [
+            "tool_holder",
+            "runout",
+            "collet",
+            "shrink_fit"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0013",
+          "title": "Tool wear monitoring and replacement criteria",
+          "category": "tool_management",
+          "practice_type": "tool_management",
+          "description": "Monitor tool wear indicators and establish replacement criteria to prevent tool failure and maintain quality.",
+          "steps": [
+            "Check flank wear visually or with toolmaker microscope at regular intervals",
+            "Replace inserts at VB = 0.3mm for roughing, VB = 0.2mm for finishing",
+            "Monitor cutting forces — 20% increase indicates significant wear",
+            "Listen for changes in cutting sound — higher pitch indicates dulling",
+            "Track tool life in pieces or minutes per edge"
+          ],
+          "warnings": [
+            "Catastrophic tool failure risk increases exponentially beyond recommended wear limits",
+            "Worn tools generate excessive heat — can damage workpiece metallurgy"
+          ],
+          "tips": [
+            "Keep a tool life log — patterns emerge that help predict replacement timing"
+          ],
+          "applicable_materials": [
+            "steel",
+            "stainless_steel",
+            "titanium",
+            "cast_iron"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-013",
+              "video_title": "",
+              "channel": "Sandvik Coromant",
+              "channel_subscribers": 180000,
+              "views": 98000,
+              "likes": 3100,
+              "published_date": "",
+              "confidence": 0.92,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.92,
+          "source_count": 1,
+          "tags": [
+            "tool_wear",
+            "replacement",
+            "monitoring",
+            "VB"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0014",
+          "title": "Coolant-through tooling setup",
+          "category": "tool_management",
+          "practice_type": "tool_management",
+          "description": "Configure coolant-through (TSC) tooling for improved chip evacuation and tool life in deep hole operations.",
+          "steps": [
+            "Verify machine has through-spindle coolant capability and adequate pressure (300+ PSI)",
+            "Select drills/end mills with internal coolant channels",
+            "Use compatible tool holders with coolant-through passages",
+            "Check for leaks at all connections before running",
+            "Adjust coolant pressure per tool manufacturer recommendation"
+          ],
+          "warnings": [
+            "High-pressure coolant spray can be hazardous — ensure machine enclosure is sealed",
+            "Clogged coolant channels cause tool failure — inspect periodically"
+          ],
+          "tips": [
+            "TSC is most effective for drilling deeper than 3x diameter"
+          ],
+          "applicable_materials": [
+            "steel",
+            "stainless_steel",
+            "titanium"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-014",
+              "video_title": "",
+              "channel": "Kennametal",
+              "channel_subscribers": 50000,
+              "views": 32000,
+              "likes": 980,
+              "published_date": "",
+              "confidence": 0.88,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.88,
+          "source_count": 1,
+          "tags": [
+            "TSC",
+            "coolant_through",
+            "deep_hole",
+            "chip_evacuation"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0015",
+          "title": "Tool breakage detection setup",
+          "category": "tool_management",
+          "practice_type": "tool_management",
+          "description": "Configure tool breakage detection to prevent crashes and scrap when tools fail during unattended operation.",
+          "steps": [
+            "Enable tool breakage detection macro in controller",
+            "Set detection method: laser, contact probe, or spindle load monitoring",
+            "Program detection check after each tool use (M code or macro call)",
+            "Set spindle load alarm threshold to 120% of normal cutting load",
+            "Program automatic tool change to sister tool on breakage detection"
+          ],
+          "warnings": [
+            "False positives from chip buildup on laser detector — keep sensor clean",
+            "Sister tool must be verified in magazine before enabling auto-swap"
+          ],
+          "tips": [
+            "Spindle load monitoring catches gradual wear too, not just breakage"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-015",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 85000,
+              "likes": 2800,
+              "published_date": "",
+              "confidence": 0.9,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.9,
+          "source_count": 1,
+          "tags": [
+            "tool_breakage",
+            "detection",
+            "unattended",
+            "sister_tool"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0036",
+          "title": "P3",
+          "category": "tool_management",
+          "practice_type": "tool_management",
+          "description": "D3",
+          "steps": [
+            "S3"
+          ],
+          "warnings": [],
+          "tips": [],
+          "applicable_materials": [],
+          "applicable_machines": [],
+          "sources": [
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v005",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.29,
+          "source_count": 5,
+          "tags": [],
+          "last_updated": "2026-03-01T22:23:35.305945+00:00",
+          "safety_reviewed": true
+        }
+      ]
+    },
+    "troubleshooting": {
+      "name": "Troubleshooting",
+      "practice_count": 6,
+      "practices": [
+        {
+          "practice_id": "SP-0016",
+          "title": "Diagnosing chatter vibration",
+          "category": "troubleshooting",
+          "practice_type": "troubleshooting",
+          "description": "Identify and resolve chatter vibration that causes poor surface finish and accelerated tool wear.",
+          "steps": [
+            "Identify chatter by characteristic marks on surface or audible vibration",
+            "Check tool stickout — reduce to minimum possible length",
+            "Vary spindle speed by 10-15% to find stable speed (SLD lobes)",
+            "Reduce radial depth of cut",
+            "Increase feed per tooth to maintain chip thickness",
+            "Check tool holder and spindle taper for wear or contamination"
+          ],
+          "warnings": [
+            "Severe chatter can break tools and damage spindle bearings"
+          ],
+          "tips": [
+            "Odd-flute end mills (3 or 5 flute) can reduce harmonic chatter"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel",
+            "titanium"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-016",
+              "video_title": "",
+              "channel": "Fusion 360",
+              "channel_subscribers": 500000,
+              "views": 210000,
+              "likes": 7200,
+              "published_date": "",
+              "confidence": 0.93,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.93,
+          "source_count": 1,
+          "tags": [
+            "chatter",
+            "vibration",
+            "surface_finish",
+            "SLD"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0017",
+          "title": "Resolving poor surface finish",
+          "category": "troubleshooting",
+          "practice_type": "troubleshooting",
+          "description": "Diagnose and fix poor surface finish on machined parts.",
+          "steps": [
+            "Check tool condition — worn/chipped tools leave poor finish",
+            "Verify speed and feed are appropriate for material and operation",
+            "Check for chatter (see chatter troubleshooting)",
+            "Verify adequate coolant coverage at cutting zone",
+            "Check tool runout — excessive runout causes one tooth to do all the cutting",
+            "Consider using a wiper insert or higher-helix end mill for finishing"
+          ],
+          "warnings": [
+            "Do not increase speed without increasing feed proportionally — causes rubbing"
+          ],
+          "tips": [
+            "Surface finish Ra improves with higher speed and lower feed per revolution for turning"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-017",
+              "video_title": "",
+              "channel": "Titans of CNC",
+              "channel_subscribers": 350000,
+              "views": 165000,
+              "likes": 5400,
+              "published_date": "",
+              "confidence": 0.9,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.9,
+          "source_count": 1,
+          "tags": [
+            "surface_finish",
+            "Ra",
+            "troubleshooting"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0018",
+          "title": "Fixing dimensional inaccuracy",
+          "category": "troubleshooting",
+          "practice_type": "troubleshooting",
+          "description": "Troubleshoot parts that are not holding dimensional tolerance.",
+          "steps": [
+            "Measure actual vs programmed dimensions on multiple features",
+            "Check for consistent offset — indicates work coordinate or tool offset error",
+            "Check for thermal drift — measure cold vs warmed-up machine",
+            "Verify tool deflection is not causing size variation",
+            "Check backlash compensation settings",
+            "Verify material is not moving in workholding during cutting"
+          ],
+          "warnings": [
+            "Thermal growth of 0.001 in per degree F is typical on cast iron machines"
+          ],
+          "tips": [
+            "Run warm-up program for 20+ minutes before precision work"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-018",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 130000,
+              "likes": 4000,
+              "published_date": "",
+              "confidence": 0.91,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.91,
+          "source_count": 1,
+          "tags": [
+            "dimensional",
+            "accuracy",
+            "tolerance",
+            "thermal"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0019",
+          "title": "Troubleshooting excessive tool wear",
+          "category": "troubleshooting",
+          "practice_type": "troubleshooting",
+          "description": "Diagnose causes of tools wearing out faster than expected.",
+          "steps": [
+            "Identify wear type: flank, crater, notch, or built-up edge",
+            "Flank wear too fast: reduce cutting speed 10-15%",
+            "Crater wear: switch to Al2O3-coated or ceramic insert grade",
+            "Notch wear at DOC line: vary depth of cut or use round inserts",
+            "Built-up edge: increase cutting speed and ensure adequate coolant",
+            "Check that tool grade matches workpiece material"
+          ],
+          "warnings": [
+            "Switching to a harder grade without reducing feed can cause chipping"
+          ],
+          "tips": [
+            "Consult tooling manufacturer grade selection chart for material-specific recommendations"
+          ],
+          "applicable_materials": [
+            "steel",
+            "stainless_steel",
+            "titanium",
+            "cast_iron"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-019",
+              "video_title": "",
+              "channel": "Sandvik Coromant",
+              "channel_subscribers": 180000,
+              "views": 110000,
+              "likes": 3500,
+              "published_date": "",
+              "confidence": 0.94,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.94,
+          "source_count": 1,
+          "tags": [
+            "tool_wear",
+            "flank",
+            "crater",
+            "BUE",
+            "troubleshooting"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0020",
+          "title": "Resolving chip evacuation problems",
+          "category": "troubleshooting",
+          "practice_type": "troubleshooting",
+          "description": "Diagnose and fix chip packing, bird-nesting, and re-cutting of chips.",
+          "steps": [
+            "Identify symptom: chip packing in flutes, stringy chips wrapping tool, re-cut marks on surface",
+            "For chip packing: increase coolant pressure or switch to air blast",
+            "For stringy chips: increase feed to create thicker chips that break naturally",
+            "Consider chip-breaker geometry inserts for turning operations",
+            "Use peck drilling cycle (G83) for deep holes instead of straight drill",
+            "Reduce number of flutes to increase chip space for aluminum"
+          ],
+          "warnings": [
+            "Never reach into machine to clear chips while spindle is running",
+            "Chip auger/conveyor must be running during heavy roughing operations"
+          ],
+          "tips": [
+            "2-flute end mills in aluminum give much better chip evacuation than 3+ flute"
+          ],
+          "applicable_materials": [
+            "aluminum",
+            "steel",
+            "stainless_steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-020",
+              "video_title": "",
+              "channel": "NYC CNC",
+              "channel_subscribers": 400000,
+              "views": 78000,
+              "likes": 2600,
+              "published_date": "",
+              "confidence": 0.88,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.88,
+          "source_count": 1,
+          "tags": [
+            "chips",
+            "evacuation",
+            "packing",
+            "bird_nest"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0033",
+          "title": "Chatter troubleshooting",
+          "category": "troubleshooting",
+          "practice_type": "troubleshooting",
+          "description": "Tool chatter during milling",
+          "steps": [
+            "Check tool stickout",
+            "Reduce to 3:1 ratio",
+            "Lower RPM by 10%"
+          ],
+          "warnings": [],
+          "tips": [
+            "Use stub-length tool"
+          ],
+          "applicable_materials": [
+            "steel"
+          ],
+          "applicable_machines": [],
+          "sources": [
+            {
+              "video_id": "v003",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v003",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v003",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v003",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v003",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            },
+            {
+              "video_id": "v003",
+              "video_title": "",
+              "channel": "",
+              "channel_subscribers": 0,
+              "views": 0,
+              "likes": 0,
+              "published_date": "",
+              "confidence": 0.5,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.29,
+          "source_count": 6,
+          "tags": [
+            "chatter"
+          ],
+          "last_updated": "2026-03-01T22:24:24.747301+00:00",
+          "safety_reviewed": true
+        }
+      ]
+    },
+    "material_tips": {
+      "name": "Material Tips",
+      "practice_count": 5,
+      "practices": [
+        {
+          "practice_id": "SP-0021",
+          "title": "Aluminum high-speed machining fundamentals",
+          "category": "material_tips",
+          "practice_type": "cutting_practice",
+          "description": "Key practices for efficient aluminum machining: high speed, high feed, proper chip load.",
+          "steps": [
+            "Use uncoated or ZrN-coated carbide tools (TiAlN builds up edge on aluminum)",
+            "Run high spindle speeds: SFM 800-1500 for 6061, up to 2000 for cast alloys",
+            "Maintain minimum chip load of 0.002 in/tooth to avoid rubbing",
+            "Use 2 or 3 flute end mills for better chip evacuation",
+            "Apply flood coolant or MQL — aluminum is sticky without lubrication"
+          ],
+          "warnings": [
+            "Fine aluminum chips are a fire hazard — ensure proper chip collection",
+            "Built-up edge is the primary failure mode — increase speed to prevent"
+          ],
+          "tips": [
+            "Polished flute end mills reduce built-up edge in aluminum"
+          ],
+          "applicable_materials": [
+            "aluminum"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "router"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-021",
+              "video_title": "",
+              "channel": "Datron",
+              "channel_subscribers": 45000,
+              "views": 62000,
+              "likes": 2100,
+              "published_date": "",
+              "confidence": 0.91,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.91,
+          "source_count": 1,
+          "tags": [
+            "aluminum",
+            "HSM",
+            "speeds_feeds"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0022",
+          "title": "Stainless steel work hardening prevention",
+          "category": "material_tips",
+          "practice_type": "cutting_practice",
+          "description": "Prevent work hardening in austenitic stainless steels (304, 316) by maintaining positive chip load.",
+          "steps": [
+            "Never let the tool rub — maintain minimum 0.003 in/tooth feed",
+            "Use sharp positive-rake tools with honed edges",
+            "Climb mill only — conventional milling rubs on exit",
+            "Do not dwell or pause in cut",
+            "Take full-width passes when possible rather than multiple light passes",
+            "Use TiAlN or AlCrN coated carbide tools"
+          ],
+          "warnings": [
+            "Work-hardened layer is harder than the parent material and will destroy tools",
+            "Re-cutting a work-hardened surface dramatically shortens tool life"
+          ],
+          "tips": [
+            "If surface has been work-hardened, take a deeper cut to get under the hardened layer"
+          ],
+          "applicable_materials": [
+            "stainless_steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-022",
+              "video_title": "",
+              "channel": "Titans of CNC",
+              "channel_subscribers": 350000,
+              "views": 195000,
+              "likes": 6800,
+              "published_date": "",
+              "confidence": 0.93,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.93,
+          "source_count": 1,
+          "tags": [
+            "stainless",
+            "work_hardening",
+            "304",
+            "316"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0023",
+          "title": "Titanium machining thermal management",
+          "category": "material_tips",
+          "practice_type": "cutting_practice",
+          "description": "Manage heat generation when machining titanium alloys — the primary challenge with this material.",
+          "steps": [
+            "Use low cutting speeds: SFM 100-200 for Ti-6Al-4V",
+            "Maintain high feed per tooth to move heat into chip",
+            "Apply high-pressure coolant (1000+ PSI preferred) directed at cutting zone",
+            "Use sharp tools with positive rake angles",
+            "Limit radial engagement to 30-40% of tool diameter",
+            "Use climb milling exclusively"
+          ],
+          "warnings": [
+            "Titanium chips can ignite if too fine — never use compressed air alone",
+            "Titanium fires cannot be extinguished with water — use Class D extinguisher",
+            "Tool failure in titanium is sudden — no gradual wear warning like steel"
+          ],
+          "tips": [
+            "Carbide with PVD TiAlN coating is the standard for titanium milling"
+          ],
+          "applicable_materials": [
+            "titanium"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-023",
+              "video_title": "",
+              "channel": "Sandvik Coromant",
+              "channel_subscribers": 180000,
+              "views": 88000,
+              "likes": 3200,
+              "published_date": "",
+              "confidence": 0.95,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.95,
+          "source_count": 1,
+          "tags": [
+            "titanium",
+            "thermal",
+            "Ti-6Al-4V",
+            "coolant"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0024",
+          "title": "Cast iron dry machining advantages",
+          "category": "material_tips",
+          "practice_type": "cutting_practice",
+          "description": "Cast iron machines best dry or with air blast — coolant can cause thermal shock on ceramic inserts.",
+          "steps": [
+            "Use ceramic or CBN inserts for high-speed cast iron machining",
+            "Run dry with compressed air blast for chip clearing",
+            "If coolant is needed, use flood (not mist) to avoid thermal cycling",
+            "Higher speeds are possible with cast iron vs steel: SFM 400-800 with carbide",
+            "Expect powder/dust chips — ensure proper extraction system"
+          ],
+          "warnings": [
+            "Cast iron dust is a respiratory hazard — ensure proper ventilation and filtration",
+            "Never use coolant with ceramic inserts — thermal shock causes immediate fracture"
+          ],
+          "tips": [
+            "Gray cast iron is free-machining; ductile iron machines more like steel"
+          ],
+          "applicable_materials": [
+            "cast_iron"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-024",
+              "video_title": "",
+              "channel": "Kennametal",
+              "channel_subscribers": 50000,
+              "views": 35000,
+              "likes": 1100,
+              "published_date": "",
+              "confidence": 0.89,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.89,
+          "source_count": 1,
+          "tags": [
+            "cast_iron",
+            "dry_machining",
+            "ceramic",
+            "CBN"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0025",
+          "title": "Carbon steel general machining guidelines",
+          "category": "material_tips",
+          "practice_type": "cutting_practice",
+          "description": "General best practices for machining carbon and alloy steels (1018, 4140, 4340, etc.).",
+          "steps": [
+            "Select carbide grade based on hardness: softer grades for soft steel, harder for hardened",
+            "Use TiCN or TiAlN coated tools for general purpose",
+            "Standard speeds: SFM 300-600 for carbide depending on alloy and hardness",
+            "Use flood coolant for drilling and tapping; optional for milling",
+            "Monitor chip color: silver is good, blue/purple indicates excessive heat"
+          ],
+          "warnings": [
+            "Pre-hardened steels (>40 HRC) require different tooling — standard carbide will fail",
+            "Long-chipping steels (low carbon like 1018) require chip-breaking geometry"
+          ],
+          "tips": [
+            "4140 pre-hard (28-32 HRC) is a common shop material — treat it as medium difficulty"
+          ],
+          "applicable_materials": [
+            "steel"
+          ],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-025",
+              "video_title": "",
+              "channel": "NYC CNC",
+              "channel_subscribers": 400000,
+              "views": 145000,
+              "likes": 4800,
+              "published_date": "",
+              "confidence": 0.9,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.9,
+          "source_count": 1,
+          "tags": [
+            "steel",
+            "carbon_steel",
+            "alloy_steel",
+            "general"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        }
+      ]
+    },
+    "machine_tips": {
+      "name": "Machine Tips",
+      "practice_count": 5,
+      "practices": [
+        {
+          "practice_id": "SP-0026",
+          "title": "Daily machine warm-up procedure",
+          "category": "machine_tips",
+          "practice_type": "machine_operation",
+          "description": "Run a warm-up routine to thermally stabilize the machine before precision work.",
+          "steps": [
+            "Start spindle at low RPM (500) for 2 minutes",
+            "Ramp to 50% max RPM for 5 minutes",
+            "Ramp to 80% max RPM for 5 minutes",
+            "Run all axes through full travel at rapid traverse",
+            "Check way lube and hydraulic levels",
+            "Verify coolant concentration with refractometer"
+          ],
+          "warnings": [
+            "Cold spindle bearings are more susceptible to damage from high-speed starts",
+            "Precision work on a cold machine can result in 0.001-0.003 in thermal drift"
+          ],
+          "tips": [
+            "Some machines have built-in warm-up cycles — check controller settings"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-026",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 160000,
+              "likes": 5000,
+              "published_date": "",
+              "confidence": 0.92,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.92,
+          "source_count": 1,
+          "tags": [
+            "warm_up",
+            "thermal",
+            "daily",
+            "maintenance"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0027",
+          "title": "Spindle taper cleaning and inspection",
+          "category": "machine_tips",
+          "practice_type": "maintenance",
+          "description": "Keep spindle taper and tool holders clean for proper seating, runout, and retention force.",
+          "steps": [
+            "Wipe spindle taper with clean lint-free cloth before tool change",
+            "Inspect taper for nicks, scoring, or rust",
+            "Clean tool holder taper with brass brush or Scotch-Brite pad",
+            "Check pull stud (retention knob) torque periodically",
+            "Use taper gauge annually to check spindle taper wear"
+          ],
+          "warnings": [
+            "A damaged taper causes runout, vibration, and potential tool pull-out",
+            "Never leave the spindle empty and uncovered overnight — moisture causes rust"
+          ],
+          "tips": [
+            "Coated tool holders (TiN taper) resist fretting corrosion better than uncoated"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-027",
+              "video_title": "",
+              "channel": "Kennametal",
+              "channel_subscribers": 50000,
+              "views": 25000,
+              "likes": 800,
+              "published_date": "",
+              "confidence": 0.88,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.88,
+          "source_count": 1,
+          "tags": [
+            "spindle",
+            "taper",
+            "cleaning",
+            "maintenance"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0028",
+          "title": "Interpreting common alarm codes",
+          "category": "machine_tips",
+          "practice_type": "troubleshooting",
+          "description": "Quick reference for common CNC alarm codes and their resolution.",
+          "steps": [
+            "Servo alarm (overload): check for mechanical binding, reduce rapid rates, check lubrication",
+            "Spindle alarm (overheat): reduce duty cycle, check cooling system, clean spindle cooling fins",
+            "ATC alarm: check tool magazine orientation sensor, verify pot numbering, clear chips from carousel",
+            "Axis limit switch alarm: home machine, check travel limits, verify fixture does not exceed envelope",
+            "Low air pressure alarm: check shop air supply, drain water from filter/regulator, check for leaks"
+          ],
+          "warnings": [
+            "Never override safety alarms without understanding the root cause",
+            "Repeated servo alarms can indicate failing ball screw or bearing"
+          ],
+          "tips": [
+            "Keep a machine-specific alarm log to track recurring issues"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-028",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 220000,
+              "likes": 7500,
+              "published_date": "",
+              "confidence": 0.93,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.93,
+          "source_count": 1,
+          "tags": [
+            "alarms",
+            "troubleshooting",
+            "servo",
+            "spindle",
+            "ATC"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0029",
+          "title": "Backlash compensation verification",
+          "category": "machine_tips",
+          "practice_type": "machine_operation",
+          "description": "Verify and adjust backlash compensation to maintain positional accuracy.",
+          "steps": [
+            "Mount dial indicator on table, indicator on spindle nose",
+            "Command positive X move of 1.000 in, zero indicator",
+            "Command negative X move of 1.000 in back to start",
+            "Read indicator — difference is backlash",
+            "Enter backlash compensation value in parameter settings",
+            "Repeat test to verify compensation is correct",
+            "Test Y and Z axes similarly"
+          ],
+          "warnings": [
+            "Backlash values should be less than 0.001 in — larger values indicate mechanical wear",
+            "Backlash compensation only works for simple reversals — does not fix all positioning errors"
+          ],
+          "tips": [
+            "Ball screw pre-load adjustment is the mechanical fix for excessive backlash"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-029",
+              "video_title": "",
+              "channel": "Haas Automation",
+              "channel_subscribers": 250000,
+              "views": 95000,
+              "likes": 3200,
+              "published_date": "",
+              "confidence": 0.91,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.91,
+          "source_count": 1,
+          "tags": [
+            "backlash",
+            "compensation",
+            "accuracy",
+            "ball_screw"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        },
+        {
+          "practice_id": "SP-0030",
+          "title": "Coolant system maintenance schedule",
+          "category": "machine_tips",
+          "practice_type": "maintenance",
+          "description": "Maintain coolant system for consistent performance, tool life, and operator health.",
+          "steps": [
+            "Check coolant concentration daily with refractometer (target 6-8%)",
+            "Skim tramp oil weekly with belt or disk skimmer",
+            "Check pH weekly — should be 8.5-9.5 for most water-soluble coolants",
+            "Clean sump and replace coolant every 3-6 months depending on use",
+            "Replace filters per manufacturer schedule",
+            "Monitor for bacterial growth (foul smell indicates contamination)"
+          ],
+          "warnings": [
+            "Rancid coolant is a health hazard — causes dermatitis and respiratory issues",
+            "Low coolant concentration reduces corrosion protection and lubricity",
+            "Never add used coolant to fresh batch"
+          ],
+          "tips": [
+            "Adding biocide during coolant change extends coolant life significantly"
+          ],
+          "applicable_materials": [],
+          "applicable_machines": [
+            "3-axis_vertical",
+            "5-axis",
+            "lathe"
+          ],
+          "sources": [
+            {
+              "video_id": "seed-030",
+              "video_title": "",
+              "channel": "NYC CNC",
+              "channel_subscribers": 400000,
+              "views": 72000,
+              "likes": 2400,
+              "published_date": "",
+              "confidence": 0.87,
+              "timestamp_seconds": null
+            }
+          ],
+          "consensus_confidence": 0.87,
+          "source_count": 1,
+          "tags": [
+            "coolant",
+            "maintenance",
+            "concentration",
+            "pH"
+          ],
+          "last_updated": "2026-03-01T22:00:00Z",
+          "safety_reviewed": true
+        }
+      ]
+    }
+  }
+}

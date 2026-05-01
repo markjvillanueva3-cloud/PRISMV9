@@ -1,0 +1,19 @@
+{
+  "id": "EIGC-MS6",
+  "version": "1.0.0",
+  "title": "Direct Integrity Test Coverage",
+  "brief": "Add direct tests for all 7 scoped engines. Assert degraded paths expose degraded status, unsupported paths don't return fake artifacts, no-op mutations can't report success. Target: >=80% branch coverage for scoped engines. Add audit script for ongoing regression detection.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Test Coverage", "sessions": "2-3", "units": [
+    {"id": "P0-U01", "title": "Add integrity tests for ToolSync + BatchCAMToolBridge", "effort": 70, "dependencies": []},
+    {"id": "P0-U02", "title": "Add integrity tests for MultiProcessCAMBridge + SolidEditing", "effort": 70, "dependencies": []},
+    {"id": "P0-U03", "title": "Add integrity tests for SecondaryOps + ExecutionVerification + ToolpathSimulation", "effort": 70, "dependencies": []},
+    {"id": "P0-U04", "title": "Build engine-integrity audit script for regression detection", "effort": 60, "dependencies": ["P0-U01", "P0-U02", "P0-U03"]}
+  ]}],
+  "dependencies": ["EIGC-MS5"],
+  "exit_conditions": [">=80% branch coverage for scoped engines", "Audit script catches placeholder G-code, success-on-noop, roadmap contradictions"]
+}

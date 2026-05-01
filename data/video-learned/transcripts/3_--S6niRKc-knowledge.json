@@ -1,0 +1,622 @@
+{
+  "video_id": "3_--S6niRKc",
+  "title": "Full-length Machining Process of a Surgical Hammer on the NTX 2500",
+  "source": "DMG MORI",
+  "channel": "DMG MORI",
+  "production_location": "DMG MORI Iga Campus, Japan",
+  "video_duration": "58:59",
+  "transcript_available": false,
+  "transcript_note": "No subtitles (manual or auto-generated) exist for this video. It is a full-length uncut machining demonstration with primarily machine sounds and minimal narration. All knowledge extracted from video description, DMG MORI product documentation, LinkedIn posts (310+ comments, 8,985 likes), industry publications (PES Media, Today's Medical Developments), and machine specification sheets.",
+
+  "machine": {
+    "make": "DMG MORI",
+    "model": "NTX 2500",
+    "generation": "2nd Generation (video era) / 3rd Generation current",
+    "type": "turn_mill_center",
+    "classification": "5-axis mill-turn multitasking center",
+    "controller_options": ["FANUC 31iB5 with CELOS", "SIEMENS with CELOS", "MAPPS with CELOS"],
+    "controller_in_video": "FANUC 31iB5 with CELOS (MAPPS system)",
+    "display": "21.5-inch multi-touch screen",
+    "made_in": "Japan (Iga Campus)",
+    "weight_kg": 18160,
+    "footprint_m2": 16.3,
+    "capabilities": [
+      "turning",
+      "milling",
+      "5_axis_simultaneous",
+      "6_sided_complete_machining",
+      "sub_spindle_transfer",
+      "live_tooling",
+      "B_axis_contouring",
+      "Y_axis_milling",
+      "interpolation_turning",
+      "gear_machining",
+      "polygon_turning",
+      "engraving"
+    ],
+    "main_spindle": {
+      "designation": "Spindle 1 (left)",
+      "max_speed_rpm": 4000,
+      "power_kW": {
+        "25_percent_ED": 18.5,
+        "50_percent_ED": 18.5,
+        "continuous": 15.0
+      },
+      "torque_Nm": {
+        "25_percent_ED": 599,
+        "50_percent_ED": 505,
+        "continuous": 409
+      },
+      "bore_diameter_mm": 91,
+      "chuck_size_options": ["8 inch", "10 inch (standard)", "12 inch"],
+      "chuck_in_video": "10-inch 3-jaw (Kitagawa pass-through)",
+      "bar_capacity_mm": 80
+    },
+    "sub_spindle": {
+      "designation": "Spindle 2 (right / counter-spindle)",
+      "max_speed_rpm": 4000,
+      "purpose": "6-face complete machining, part transfer without operator intervention",
+      "notes": "Maintains home/zero reference during part transfer. Enables backwork operations (face, bore, turn, mill the second side) after sub-spindle pickup and part-off."
+    },
+    "tool_spindle": {
+      "designation": "compactMASTER Turn & Mill spindle (B-axis)",
+      "length_mm": 350,
+      "note": "World's shortest tool spindle in its class",
+      "max_speed_rpm": 12000,
+      "optional_high_speed_rpm": 20000,
+      "power_kW": {
+        "40_percent_ED": 23.0,
+        "continuous": 22.2
+      },
+      "torque_Nm": {
+        "40_percent_ED": 116,
+        "continuous": 89,
+        "max_at_low_speed": 122
+      },
+      "taper": "HSK-A63",
+      "drive": "Direct Drive Motor (DDM) on B-axis",
+      "B_axis_range_deg": 240,
+      "B_axis_swing": "+/- 120 degrees"
+    },
+    "lower_turret": {
+      "designation": "BMT revolver (Turret 2)",
+      "type": "BMT (Base Mount Tooling) with powered tools",
+      "Y_axis_stroke_mm": 80,
+      "Y_axis_range": "+/- 40 mm",
+      "stations": 12,
+      "notes": "Second tool carrier enables simultaneous cutting with compactMASTER. Supports steady rest and tailstock attachments."
+    },
+    "tool_magazine": {
+      "designation": "toolSTAR",
+      "standard_stations": 38,
+      "expanded_options": [76, 114, 194, 246],
+      "in_video_config": 40,
+      "notes": "Ring-type tool magazine with automatic tool changer serving both spindle 1 operations via compactMASTER"
+    },
+    "axes": {
+      "total": "5 simultaneous (X, Y, Z, B, C) plus additional turret axes",
+      "X_axis": {
+        "travel_mm": 675,
+        "range": "-125 to +550 mm",
+        "below_center_mm": 125
+      },
+      "Y_axis": {
+        "travel_mm": 300,
+        "range": "+/- 150 mm"
+      },
+      "Z_axis": {
+        "travel_mm": 1562,
+        "additional_mm": 164,
+        "max_config_mm": 3062
+      },
+      "B_axis": {
+        "range_deg": 240,
+        "swing": "+/- 120 degrees",
+        "drive": "DDM (Direct Drive Motor)",
+        "indexing": "0.0001 degree"
+      },
+      "C_axis": {
+        "type": "main spindle rotary axis",
+        "full_rotation": true
+      }
+    },
+    "workpiece_capacity": {
+      "max_turning_diameter_mm": 670,
+      "max_turning_length_mm": 1540,
+      "max_workpiece_length_mm": 3135,
+      "max_bar_diameter_mm": 80
+    },
+    "thermal_management": {
+      "spindle_cooling": "Oil circulation in spindle motors",
+      "ballscrew_cooling": "Oil circulation in ball screws",
+      "purpose": "Controls thermal displacement for precision machining"
+    },
+    "guides": "Roller guides on machine bed for stability",
+    "monitoring": {
+      "tool_measurement": true,
+      "breakage_monitoring": true,
+      "condition_analyzer_app": true,
+      "performance_monitor_app": true
+    },
+    "technology_cycles_available": {
+      "turning_threading": [
+        "Interpolation Turning 2.0",
+        "Multi Threading 2.0",
+        "Polygon Turning",
+        "Polygon/Oval-Turning",
+        "Counter Spindle Tip",
+        "Chip Breaking",
+        "Alternating Speed",
+        "Excentric Turning/Milling"
+      ],
+      "gear_machining": [
+        "gearSKIVING 2.0",
+        "gearHOBBING",
+        "gearBROACHING",
+        "gearMILL"
+      ],
+      "milling": [
+        "Polygon/Oval-Milling",
+        "5-axis Simultaneous Machining",
+        "FreeTurn"
+      ],
+      "support_systems": [
+        "Steady Rest for Turret",
+        "Tailstock for Turret",
+        "Tool Visualizer",
+        "Runtime Monitor",
+        "autoCHUCK 2.0",
+        "cCLAMP"
+      ],
+      "optimization": [
+        "Easy Tool Monitor 2.0",
+        "MPC 2.0 (Machine Protection Control)",
+        "Application Tuning Cycle",
+        "3D quickSET",
+        "Tool Balance Assistant",
+        "Multitool",
+        "Retraction Cycle",
+        "Efficient Production Package"
+      ]
+    },
+    "automation_options": ["Robo2Go Turning", "bar feeder", "gantry loader"],
+    "target_industries": ["medical", "aerospace", "defense", "automotive", "die_and_mold", "precision_equipment"]
+  },
+
+  "part": {
+    "name": "Surgical Hammer",
+    "type": "medical_instrument",
+    "application": "Orthopedic surgery — used with chisel to contour/remove bone, also for testing deep tendon reflexes",
+    "regulatory_context": "Medical device manufacturing requiring ISO 13485, CE/FDA compliance",
+    "material": {
+      "designation_din": "1.4057",
+      "designation_en": "X17CrNi16-2",
+      "designation_aisi": "431",
+      "uns": "S43100",
+      "type": "martensitic_stainless_steel",
+      "iso_group": "M",
+      "chromium_percent": "15-17",
+      "nickel_percent": "1.5-2.5",
+      "carbon_percent": "0.12-0.22",
+      "density_kg_dm3": 7.7,
+      "tensile_strength_MPa": "800-950 (QT800 condition)",
+      "hardness_hrc": "28-34 (heat treated)",
+      "condition_for_machining": "annealed (below 30 HRC for machinability)",
+      "machinability_notes": "Easily machined in annealed state. Extremely difficult above 30 HRC. Low carbon content gives high toughness and malleability. Main challenge is chip breaking — use sharp cutting edges with tight chip breakers. Inserts designed for austenitic stainless (304/316) work well. Galls and builds up on tools in fully annealed condition — good surface finish not easily obtained without proper technique.",
+      "why_chosen": "Martensitic stainless provides combination of corrosion resistance, high strength after heat treatment, and ability to take a fine surface finish — ideal for surgical instruments that must withstand repeated sterilization (autoclaving)"
+    },
+    "dimensions": {
+      "raw_stock": "Round bar stock, approximately 80 mm diameter (matching bar capacity)",
+      "finished_diameter_mm": 80,
+      "finished_length_mm": 300,
+      "spec_notation": "dia.80 x 300 mm",
+      "notes": "Part fits within the NTX 2500 bar capacity of 80 mm. Typical surgical hammer: 250-270 mm overall length, head diameter 31-38 mm, handle diameter 15-25 mm, weight 225-1000g depending on type."
+    },
+    "features": {
+      "head": "Cylindrical/slightly crowned striking surface, requires OD turning and face finishing to medical-grade surface finish",
+      "shaft_handle": "Long cylindrical handle with ergonomic contour, requires OD profile turning (roughing and finishing)",
+      "transition_zone": "Blend radius between head and shaft, requires contour turning or interpolation turning",
+      "engraving": "Logo/text engraving on shaft or head using milling spindle with small engraving tool",
+      "surface_finish": "Medical-grade polished finish required for sterilization compatibility"
+    }
+  },
+
+  "operations": [
+    {
+      "sequence": 1,
+      "phase": "spindle_1_operations",
+      "type": "facing",
+      "operation_name": "Face stock end",
+      "description": "Face the end of the bar stock to establish datum. Initial preparation before any profiling begins.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER or lower_turret",
+      "tool": {
+        "type": "turning_insert",
+        "geometry": "CNMG or DNMG",
+        "notes": "Standard facing insert for stainless steel, C or D-style diamond insert"
+      }
+    },
+    {
+      "sequence": 2,
+      "phase": "spindle_1_operations",
+      "type": "od_roughing",
+      "operation_name": "Rough OD profile of shaft/handle",
+      "description": "Rough turn the outer profile of the surgical hammer shaft. Multiple passes removing bulk material to near-net shape. This is described as 'roughing the shaft profile' in all DMG MORI descriptions of this video.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER or lower_turret",
+      "tool": {
+        "type": "turning_insert",
+        "geometry": "CNMG or WNMG",
+        "notes": "Negative rake roughing insert for stainless steel. ISO M-group insert grade with CVD coating for speeds below 120 m/min, or PVD for higher speeds."
+      },
+      "parameters_estimated": {
+        "cutting_speed_m_min": "100-180",
+        "feed_mm_rev": "0.2-0.35",
+        "depth_of_cut_mm": "1.5-3.0",
+        "notes": "For 1.4057 in annealed condition. CVD coated carbide. Chip breaking is the main challenge — use tight chip breaker geometry."
+      }
+    },
+    {
+      "sequence": 3,
+      "phase": "spindle_1_operations",
+      "type": "od_roughing",
+      "operation_name": "Rough OD profile of head section",
+      "description": "Rough turn the hammer head section to approximate shape. The head is the wider cylindrical portion that serves as the striking surface.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER or lower_turret",
+      "tool": {
+        "type": "turning_insert",
+        "geometry": "CNMG",
+        "notes": "Same roughing insert or changed to handle the different diameter"
+      }
+    },
+    {
+      "sequence": 4,
+      "phase": "spindle_1_operations",
+      "type": "od_finishing",
+      "operation_name": "Finish turn shaft profile",
+      "description": "Finish turning the shaft/handle to final dimensions and surface finish. Described as 'finishing the shaft' in DMG MORI descriptions. Medical-grade surface finish required.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER or lower_turret",
+      "tool": {
+        "type": "turning_insert",
+        "geometry": "DNMG or VBMT",
+        "notes": "Finishing insert with wiper geometry or polishing insert for medical surface quality. PVD coated for best surface finish. Sharp cutting edge essential for 1.4057 to prevent built-up edge."
+      },
+      "parameters_estimated": {
+        "cutting_speed_m_min": "150-220",
+        "feed_mm_rev": "0.05-0.15",
+        "depth_of_cut_mm": "0.2-0.5",
+        "notes": "Light finishing pass. Wiper insert geometry recommended for medical surface finish. Higher cutting speed than roughing to reduce BUE tendency."
+      }
+    },
+    {
+      "sequence": 5,
+      "phase": "spindle_1_operations",
+      "type": "od_finishing",
+      "operation_name": "Finish turn head section",
+      "description": "Finish turning the hammer head to final dimensions. Crown/striking surface geometry formed here.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER or lower_turret"
+    },
+    {
+      "sequence": 6,
+      "phase": "spindle_1_operations",
+      "type": "contour_turning",
+      "operation_name": "Contour/blend radius turning",
+      "description": "Turn the transition blend radii between head and shaft sections. May use interpolation turning technology cycle for complex contour profiles.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER",
+      "technology_cycle": "Interpolation Turning 2.0 (possible)",
+      "tool": {
+        "type": "turning_insert_or_interpolation_tool",
+        "notes": "If using Interpolation Turning 2.0, the compactMASTER spindle acts as the cutting tool with B-axis positioning creating complex contours from a single tool. Otherwise, standard contour turning insert."
+      }
+    },
+    {
+      "sequence": 7,
+      "phase": "spindle_1_operations",
+      "type": "milling",
+      "operation_name": "Milling features on side 1 (flats, contours, or decorative features)",
+      "description": "5-axis milling operations on the hammer using compactMASTER spindle. May include flat milling, contouring, or feature creation on the head or shaft while held in main spindle.",
+      "spindle": "main_spindle (workpiece rotation)",
+      "tool_carrier": "compactMASTER",
+      "tool": {
+        "type": "end_mill",
+        "taper": "HSK-A63",
+        "notes": "Solid carbide end mill for stainless steel milling. The compactMASTER B-axis enables 5-axis simultaneous approach angles."
+      }
+    },
+    {
+      "sequence": 8,
+      "phase": "spindle_1_operations",
+      "type": "drilling",
+      "operation_name": "Drilling operations (if applicable)",
+      "description": "Any through-holes or blind holes in the head section drilled while in main spindle. Some surgical hammers have weight-reduction holes or mounting features.",
+      "spindle": "main_spindle",
+      "tool_carrier": "compactMASTER",
+      "tool": {
+        "type": "carbide_drill",
+        "taper": "HSK-A63"
+      }
+    },
+    {
+      "sequence": 9,
+      "phase": "sub_spindle_transfer",
+      "type": "sub_spindle_pickup",
+      "operation_name": "Sub-spindle part transfer",
+      "description": "Sub-spindle (Spindle 2) approaches and grips the partially-completed part. The transfer maintains positional reference (home/zero) throughout. This enables 6-face complete machining without removing the part from the machine.",
+      "notes": "Critical operation — the sub-spindle picks up the part while still held by main spindle, ensuring concentricity and angular alignment are maintained. No operator intervention required."
+    },
+    {
+      "sequence": 10,
+      "phase": "sub_spindle_transfer",
+      "type": "parting",
+      "operation_name": "Part-off from bar stock",
+      "description": "Part-off the workpiece from the remaining bar stock. The sub-spindle holds the part while a parting tool cuts through. Part is now free from bar and held only in sub-spindle.",
+      "tool": {
+        "type": "parting_insert",
+        "width_mm": "2-4",
+        "notes": "Narrow parting insert for stainless steel. Feed rate is critical — too fast causes chip packing, too slow causes rubbing and work hardening."
+      }
+    },
+    {
+      "sequence": 11,
+      "phase": "spindle_2_operations",
+      "type": "facing",
+      "operation_name": "Face parted end (second side)",
+      "description": "Face the parted end to clean up the parting witness mark and establish the final length dimension. This is the 6th face that couldn't be accessed while in the main spindle.",
+      "spindle": "sub_spindle",
+      "tool_carrier": "compactMASTER or lower_turret"
+    },
+    {
+      "sequence": 12,
+      "phase": "spindle_2_operations",
+      "type": "od_finishing",
+      "operation_name": "Finish second end features",
+      "description": "Any turning, boring, or contour operations on the second end of the part (previously hidden in the main spindle chuck). May include chamfering the end, turning a small diameter feature, or finishing the handle end.",
+      "spindle": "sub_spindle",
+      "tool_carrier": "compactMASTER or lower_turret"
+    },
+    {
+      "sequence": 13,
+      "phase": "spindle_2_operations",
+      "type": "milling",
+      "operation_name": "Milling features on side 2",
+      "description": "5-axis milling operations on the second side using compactMASTER. Access to features that were unreachable while in main spindle.",
+      "spindle": "sub_spindle (workpiece rotation)",
+      "tool_carrier": "compactMASTER"
+    },
+    {
+      "sequence": 14,
+      "phase": "spindle_2_operations",
+      "type": "engraving",
+      "operation_name": "Logo and text engraving",
+      "description": "Engraving manufacturer logos and product identification text onto the surgical hammer. Described in all DMG MORI materials as the final operation: 'engraving the logos'. Uses the compactMASTER milling spindle with a small engraving tool, utilizing B-axis and C-axis coordination for text placement on cylindrical surface.",
+      "spindle": "sub_spindle (workpiece rotation via C-axis)",
+      "tool_carrier": "compactMASTER",
+      "tool": {
+        "type": "engraving_tool",
+        "description": "Small carbide or diamond-tipped engraving cutter in HSK-A63 holder",
+        "diameter_mm": "0.5-2.0",
+        "notes": "Fine-point engraving tool for medical device traceability markings. Spindle speed typically 8000-12000 RPM for engraving. B-axis positions tool normal to cylindrical surface."
+      },
+      "parameters_estimated": {
+        "spindle_speed_rpm": "8000-12000",
+        "feed_mm_min": "200-600",
+        "depth_of_cut_mm": "0.02-0.10",
+        "notes": "Very light depth for surface engraving. High spindle speed and moderate feed for clean text. C-axis wraps text around cylinder."
+      }
+    }
+  ],
+
+  "process_overview": {
+    "description": "Complete 6-sided machining of a stainless steel surgical hammer from bar stock to finished part in a single setup on the NTX 2500. The process uses the dual-spindle (main + sub-spindle) configuration to access all 6 faces without removing the part from the machine. The compactMASTER B-axis milling spindle enables 5-axis simultaneous milling, contouring, and engraving operations integrated with turning.",
+    "key_phases": [
+      "Phase 1: Main spindle operations — facing, OD roughing (shaft profile), OD finishing (shaft), head profiling",
+      "Phase 2: Milling/drilling operations while in main spindle — 5-axis features via compactMASTER",
+      "Phase 3: Sub-spindle transfer — automatic part pickup maintaining zero reference",
+      "Phase 4: Part-off from bar stock",
+      "Phase 5: Second-side operations in sub-spindle — facing parted end, finishing second-end features",
+      "Phase 6: Final milling and engraving — logos and identification text"
+    ],
+    "total_cycle_time": "approximately 59 minutes (full video is 58:59)",
+    "total_cycle_time_notes": "This is a demonstration video running at production speeds. A nearly 1-hour cycle time for a surgical hammer from bar stock is consistent with complete 6-sided machining with finishing and engraving on a complex medical part.",
+    "automation_level": "Fully automated, no operator intervention from bar stock to finished part",
+    "part_count_per_cycle": 1,
+    "dmg_mori_description": "6-sided turn & mill complete machining of a surgical hammer made of stainless steel — from roughing the shaft profile to finishing the shaft and engraving the logos"
+  },
+
+  "cutting_parameters": {
+    "general_notes_for_1_4057": {
+      "material": "1.4057 / AISI 431 / X17CrNi16-2 martensitic stainless steel",
+      "iso_group": "M (stainless steel)",
+      "condition": "Annealed (for machining), heat treated to QT800 after machining",
+      "od_roughing_turning": {
+        "cutting_speed_Vc_m_min": "100-180",
+        "feed_f_mm_rev": "0.2-0.35",
+        "depth_of_cut_ap_mm": "1.5-3.0",
+        "insert_grade": "Semi-hard substrate with CVD coating (for Vc < 120 m/min) or PVD coating (for Vc > 120 m/min)",
+        "chip_breaker": "Tight chip breaker geometry essential — main machining challenge is chip control",
+        "coolant": "Flood coolant recommended"
+      },
+      "od_finishing_turning": {
+        "cutting_speed_Vc_m_min": "150-220",
+        "feed_f_mm_rev": "0.05-0.15",
+        "depth_of_cut_ap_mm": "0.2-0.5",
+        "insert_grade": "PVD coated with sharp cutting edge",
+        "surface_finish_notes": "Higher cutting speed reduces BUE tendency. Wiper inserts improve Ra. Medical-grade finish requires Ra < 0.8 um typically."
+      },
+      "milling": {
+        "cutting_speed_Vc_m_min": "80-150",
+        "feed_per_tooth_fz_mm": "0.05-0.15",
+        "insert_grade": "PVD coated solid carbide or indexable",
+        "notes": "Use inserts designed for austenitic stainless (304/316) — they work well on 431 too"
+      },
+      "drilling": {
+        "cutting_speed_Vc_m_min": "60-100",
+        "feed_mm_rev": "0.08-0.20",
+        "notes": "Through-coolant drill recommended for chip evacuation in deep holes"
+      }
+    }
+  },
+
+  "tooling_system": {
+    "tool_spindle_taper": "HSK-A63",
+    "lower_turret_interface": "BMT (Base Mount Tooling)",
+    "tool_magazine_type": "toolSTAR ring magazine",
+    "tool_change_type": "Automatic tool changer",
+    "estimated_tools_used": "10-18 tools for complete surgical hammer",
+    "tool_categories_used": [
+      "Facing/turning insert (CNMG/DNMG style) for OD roughing",
+      "Finishing insert (DNMG/VBMT with wiper) for OD finishing",
+      "Parting/grooving insert (2-4 mm width) for part-off",
+      "End mill(s) for milling features (HSK-A63)",
+      "Drill(s) for any hole features (HSK-A63)",
+      "Engraving tool for logo/text (HSK-A63)",
+      "Contour turning insert or interpolation turning tool"
+    ]
+  },
+
+  "coolant_strategy": {
+    "type": "flood_coolant",
+    "notes": "Flood coolant visible in machining videos. Stainless steel 431 generates significant heat during cutting. Through-spindle coolant likely available via compactMASTER for milling operations. Flood coolant essential for chip evacuation and surface finish quality on martensitic stainless steel.",
+    "thermal_management": "Machine has integrated spindle motor cooling and ballscrew cooling oil circulation to control thermal displacement during the nearly 1-hour machining cycle."
+  },
+
+  "quality_and_measurement": {
+    "on_machine_measurement": {
+      "tool_measurement": "Integrated tool measurement system for tool length and diameter compensation",
+      "breakage_monitoring": "Automatic tool breakage detection",
+      "workpiece_probing": "Touch probe capability for in-process workpiece measurement (available as option)",
+      "notes": "For a medical device like a surgical hammer, in-process measurement would be used to verify critical dimensions before sub-spindle transfer to prevent scrap."
+    },
+    "surface_finish_requirements": {
+      "typical_Ra_um": "< 0.8 (medical instrument requirement)",
+      "notes": "Surgical instruments must have smooth finishes for sterilization (autoclaving). Surface must not harbor bacteria. Polishing may be done as post-process."
+    },
+    "regulatory": ["ISO 13485", "CE marking", "FDA 21 CFR 820 (if US market)", "ASTM F899-22 (stainless steel for surgical instruments)"]
+  },
+
+  "tribal_tips": [
+    {
+      "tip": "The DMG MORI NTX 2500 can produce a complete surgical hammer from bar stock in a single setup (~59 min cycle) with no operator intervention — demonstrating the full potential of 6-sided mill-turn complete machining",
+      "confidence": 0.95,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "For surgical hammer machining on NTX 2500, the process sequence is: rough shaft profile -> finish shaft -> mill features -> sub-spindle transfer -> part-off -> second-side operations -> engraving logos",
+      "confidence": 0.90,
+      "source": "video_description",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "1.4057 (AISI 431) martensitic stainless steel is the material of choice for surgical hammers — provides corrosion resistance for autoclaving plus high strength after heat treatment. Machine in annealed condition (below 30 HRC) then heat treat to QT800",
+      "confidence": 0.85,
+      "source": "dmg_mori_product_page",
+      "category": "material_knowledge"
+    },
+    {
+      "tip": "When machining 1.4057 stainless, the main challenge is chip breaking — use sharp cutting edges with tight chip breaker geometry. Inserts designed for austenitic stainless (304/316) work well on this martensitic grade",
+      "confidence": 0.90,
+      "source": "machining_reference",
+      "category": "tooling"
+    },
+    {
+      "tip": "The NTX 2500 compactMASTER spindle at 350 mm is the shortest tool spindle in its class — this extra clearance matters for reaching complex contours on surgical instruments during 5-axis milling",
+      "confidence": 0.95,
+      "source": "dmg_mori_specs",
+      "category": "machine_knowledge"
+    },
+    {
+      "tip": "Sub-spindle transfer on the NTX 2500 maintains positional reference (home/zero) throughout — critical for medical device tolerances where the 6th face (parted end) must be concentric with features machined on the main spindle",
+      "confidence": 0.90,
+      "source": "dmg_mori_documentation",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "Logo engraving on a surgical hammer is done as the final operation after all cutting is complete — prevents any subsequent operations from damaging the engraved text. Use compactMASTER at 8000-12000 RPM with fine engraving tool",
+      "confidence": 0.85,
+      "source": "video_description",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "A ~59 minute cycle time for a surgical hammer from bar stock is realistic for complete 6-sided machining including roughing, finishing, milling, drilling, and engraving on a single machine — eliminates multiple setups and inter-machine transport",
+      "confidence": 0.85,
+      "source": "video",
+      "category": "cycle_time"
+    },
+    {
+      "tip": "The NTX 2500 BMT lower turret with +/-40 mm Y-axis enables simultaneous cutting with the compactMASTER — while the milling spindle works on one feature, the turret can perform turning on another area for cycle time reduction",
+      "confidence": 0.80,
+      "source": "dmg_mori_specs",
+      "category": "machine_knowledge"
+    },
+    {
+      "tip": "For medical device machining on mill-turn centers, thermal management is critical during long cycles (59 min). The NTX 2500 uses oil circulation in spindle motors AND ball screws to control thermal displacement — verify machine has reached thermal equilibrium before first article",
+      "confidence": 0.85,
+      "source": "dmg_mori_specs",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "The NTX 2500 tool magazine (toolSTAR) can hold up to 246 tools in maximum configuration — for a surgical hammer job requiring ~15 tools this is overkill, but it means the machine can be set up for multiple part numbers without magazine changes",
+      "confidence": 0.80,
+      "source": "dmg_mori_specs",
+      "category": "machine_knowledge"
+    },
+    {
+      "tip": "DMG MORI technology cycles like Interpolation Turning 2.0 and FreeTurn on the NTX 2500 can create complex contour profiles (like the head-to-shaft transition on a surgical hammer) from a single tool, reducing tool count and improving surface quality",
+      "confidence": 0.75,
+      "source": "dmg_mori_specs",
+      "category": "technology_cycles"
+    },
+    {
+      "tip": "1.4057 (AISI 431) machines best at Vc 100-180 m/min for roughing and 150-220 m/min for finishing with CVD/PVD coated carbide. Higher finishing speeds reduce built-up edge which is critical for medical surface finish requirements (Ra < 0.8 um)",
+      "confidence": 0.85,
+      "source": "machining_reference",
+      "category": "speeds_and_feeds"
+    }
+  ],
+
+  "key_learnings": [
+    "The NTX 2500 surgical hammer video is a landmark demo of mill-turn complete machining — 59 minutes of continuous machining from bar stock to finished medical instrument with zero operator intervention",
+    "Material is 1.4057 (AISI 431 / X17CrNi16-2) martensitic stainless steel — ISO group M, part dimensions dia.80 x 300 mm",
+    "Process sequence: rough shaft -> finish shaft -> mill/drill features (side 1) -> sub-spindle transfer -> part-off -> face/finish (side 2) -> milling (side 2) -> engrave logos",
+    "The NTX 2500 has 3 tool carriers: compactMASTER B-axis spindle (HSK-A63, 12,000 RPM, 23 kW, 116 Nm), lower BMT turret (12 stations, +/-40 mm Y), and main/sub spindle (4,000 RPM, 18.5 kW, 599 Nm)",
+    "Technology cycles available include Interpolation Turning 2.0, gearSKIVING 2.0, FreeTurn, Multi Threading 2.0 — though not all are used for this specific part",
+    "Chip breaking is the primary machining challenge for 1.4057 — tight chip breaker geometry and sharp cutting edges are essential",
+    "Medical device surface finish requirements (Ra < 0.8 um) drive the selection of finishing parameters: higher Vc (150-220 m/min), light ap (0.2-0.5 mm), fine feed (0.05-0.15 mm/rev) with PVD coated wiper inserts",
+    "The video generated enormous engagement on LinkedIn (8,985 likes, 310+ comments) — described as 'hypnotic' by viewers, demonstrating strong industry interest in complete machining demonstrations",
+    "Machine weighs 18,160 kg with 16.3 m2 footprint — a substantial installation requiring proper foundation",
+    "Controller is FANUC 31iB5 with CELOS interface on 21.5-inch multi-touch screen (MAPPS system)"
+  ],
+
+  "related_machines_in_family": {
+    "NTX_500": "Smaller mill-turn, 42,000 RPM spindle option, for small medical implants",
+    "NTX_1000": "Mid-size, 6-sided complete machining of complex implants and instruments",
+    "NTX_2000": "Similar to NTX 2500 with slightly smaller work envelope",
+    "NTX_2500": "This machine — the sweet spot for medium surgical instruments",
+    "NTX_3000": "Larger version, 1,194 Nm main spindle torque, for bigger aerospace/industrial parts"
+  },
+
+  "metadata": {
+    "extracted_date": "2026-03-27",
+    "transcript_quality": "no_transcript",
+    "confidence_note": "No subtitles available for this video (neither manual nor auto-generated). It is an uncut machining demonstration with primarily machine sounds. All knowledge extracted from: (1) DMG MORI video descriptions and product pages, (2) LinkedIn post with 310+ comments, (3) PES Media article, (4) Today's Medical Developments publication, (5) CNC Exchange and Gindumac machine spec listings, (6) DMG MORI Iga Campus documentation, (7) Machining reference data for 1.4057/AISI 431 material. Machine specifications are verified across multiple independent sources. Cutting parameters are estimated from material reference data and typical medical device machining practice — not directly stated in the video.",
+    "video_duration_approx": "58:59",
+    "content_type": "full_length_machining_demonstration",
+    "part_type": "medical_instrument_surgical_hammer",
+    "sources": [
+      "https://www.youtube.com/watch?v=3_--S6niRKc",
+      "https://us.dmgmori.com/products/machines/turning/turn-mill/ntx/ntx-2500",
+      "https://en.dmgmori.com/products/machines/turning/turn-mill/ntx/ntx-2500",
+      "https://si.dmgmori.com/news-and-media/news/ntx-2500-2nd-generation-turn-and-mill",
+      "https://www.todaysmedicaldevelopments.com/media/dmg-mori-ntx-2500-machining-medical-devices/",
+      "https://sg.linkedin.com/posts/dmgmori_ntx-2500-surgical-hammer-activity-6894588011246682112-bA4k",
+      "https://cncexchange.com/equipment/7710032-dmg-mori-ntx-2500-slash-1500-5-axis-or-more-cnc-lathes",
+      "https://www.gindumac.com/product/dmg-mori-ntx-2500-1500_CZ-MIL-DMG-2020-00001",
+      "https://www.dmgmori.co.jp/en/products/machine/id=3430"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "ACP-MS7",
+  "version": "1.0.0",
+  "title": "Automation Consolidation & Hardening",
+  "brief": "Multi-agent coordination protocol for chains that dispatch to agent teams. Stability testing under compaction pressure to verify chains survive context trimming. Chain regression tests to prevent automation regressions across releases.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Coordination Protocol & Hardening",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define multi-agent coordination protocol: chain-to-team dispatch, result aggregation, conflict resolution, budget splitting",
+          "effort": 85,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement stability testing under compaction pressure: run all chains with simulated compaction at each step, verify state survival",
+          "effort": 80,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build chain regression test suite: golden-path tests for each automation chain, snapshot comparison, budget assertion",
+          "effort": 75,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Final integration test: all chains end-to-end with entry router, failure recovery, compaction, telemetry, and agent coordination",
+          "effort": 90,
+          "dependencies": ["P0-U02", "P0-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["ACP-MS6"],
+  "exit_conditions": [
+    "Multi-agent coordination protocol documented and implemented for team-dispatch chains",
+    "All chains stable under compaction pressure (zero state loss)",
+    "Regression test suite covers golden paths for all automation chains",
+    "Full integration test passes: router -> chain -> recovery -> telemetry"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

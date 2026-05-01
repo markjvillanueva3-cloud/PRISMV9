@@ -1,0 +1,700 @@
+hyperMILL
+Software documentation
+
+The content of this documentation and the associated software are the property of OPEN MIND Technologies AG. No reproduction of
+any kind is permitted without the prior consent of OPEN MIND Technologies AG.
+All rights reserved.
+As we constantly develop our products, we reserve the right to make changes without notice.
+Last updated: 2022-04-06T13:48:14+01:00
+hyperCAD and hyperMILL are registered trademarks of OPEN MIND Technologies AG. Windows and Windows products are registered
+trademarks of Microsoft Corporation. Google Chrome is a Google Inc. product.
+All other brand and product names are registered trademarks of their respective owners.
+Verification and simulation technology from hyperVIEW provided by MachineWorks Ltd.
+Autodesk Inventor ® and the Autodesk ® logo are registered trademarks of Autodesk Inc.
+CATIA® and SolidWorks are registered trademarks of Dassault Systems SA.
+OPEN MIND Technologies AG
+Argelsrieder Feld 5
+82234 Wessling
+Germany
+Tel.: (+49-8153) 933-500
+Fax: (+49-8153) 933-501
+E-mail: <sales.europe@openmind-tech.com>
+Web: www.openmind-tech.com
+Compliance Intelligence
+The Software may include a compliance intelligence mechanism for security and reporting purposes ("Security Mechanism") that
+automatically collects and transmits data regarding the installation and use of the Software to OPEN MIND Technologies AG, its
+licensor and the manufacturer of the Security Mechanism for purposes of verifying End Customer's compliance with the terms of the
+applicable EULA, identifying unauthorized use and users, and otherwise protecting and enforcing intellectual property rights. Data
+processed through the security mechanism may include, but is not limited to, user, device and network identification information,
+location and organizational domain information and software usage information. For more information about the processing of personal
+data through the Security Mechanism, please see our privacy policy at https://www.openmind-tech.com/en/footer/privacy.html.
+
+Table of Contents
+1. New in version 2022.2 ....................................................................................................................  7
+2. Introduction ..................................................................................................................................  9
+hyperMILL: integrated CAM Application ........................................................................................  9
+hyperMILL SHOP Viewer ...........................................................................................................  9
+Supported CAD formats .............................................................................................................  9
+Saving hyperMILL SHOP Viewer data ........................................................................................  10
+*.e3 data for hyperMILL for hyperCAD-S ...................................................................................  10
+3. User interface .............................................................................................................................  11
+hyperMILL and CAD program ...................................................................................................  11
+The hyperMILL browser ...........................................................................................................  18
+Job definition dialogues ...........................................................................................................  23
+Selecting elements in the CAD system ........................................................................................  26
+4. Basics of CAM editing ..................................................................................................................  30
+Overview: From the model to the NC program ..............................................................................  30
+Using the Project Assistant .......................................................................................................  31
+Specifying the basic settings .....................................................................................................  36
+NC system and frames ............................................................................................................  42
+Tool management ..................................................................................................................  49
+Prepare manufacturing geometry ...............................................................................................  60
+Structure CAM project .............................................................................................................  70
+Transformations ...................................................................................................................  117
+Collision check preparations ...................................................................................................  127
+Calculate and analyse toolpaths ..............................................................................................  133
+Simulate machining ..............................................................................................................  141
+hyperMILL additional functions ................................................................................................  183
+CAD Utilities ........................................................................................................................  191
+Produce electrodes ...............................................................................................................  194
+5. Feature and macro technology .....................................................................................................  201
+The advantages of feature technology ......................................................................................  201
+User interface ......................................................................................................................  201
+Feature catalogue ................................................................................................................  208
+Generate feature ..................................................................................................................  235
+Use feature .........................................................................................................................  255
+Macro technology .................................................................................................................  261
+6. Probing ...................................................................................................................................  269
+Available machining cycles .....................................................................................................  269
+3D Point Probing ..................................................................................................................  270
+Workpiece alignment along edge .............................................................................................  273
+Workpiece alignment with holes ..............................................................................................  279
+Rectangular Probing .............................................................................................................  283
+Slot-Rib Probing ...................................................................................................................  287
+Circular Probing ...................................................................................................................  294
+Axis dependent Probing .........................................................................................................  299
+7. Turning ...................................................................................................................................  302
+Available machining cycles .....................................................................................................  302
+Roughing ............................................................................................................................  303
+Contour parallel Turning ........................................................................................................  319
+Finishing .............................................................................................................................  329
+Rollfeed Turning ...................................................................................................................  342
+3X simultaneous Roughing .....................................................................................................  349
+3X simultaneous Finishing ......................................................................................................  364
+Groove Turning ....................................................................................................................  376
+Grooving ............................................................................................................................  384
+Groove Finishing ..................................................................................................................  391
+Parting ...............................................................................................................................  401
+Face Groove Turning ............................................................................................................  407
+hyperMILL
+3
+
+Face Groove Plunging ...........................................................................................................  415
+Face Groove Finishing ..........................................................................................................  422
+Thread Cutting .....................................................................................................................  430
+8. Drilling ....................................................................................................................................  433
+Available machining cycles .....................................................................................................  433
+Tool ...................................................................................................................................  433
+Contours ............................................................................................................................  433
+Optimisation ........................................................................................................................  436
+Parameters .........................................................................................................................  442
+Boundary ............................................................................................................................  446
+Centering ............................................................................................................................  447
+Simple Drilling .....................................................................................................................  460
+Drilling with Chip Break ..........................................................................................................  472
+Drilling with Pecking ..............................................................................................................  484
+Optimised deep Hole Drilling ...................................................................................................  499
+Reaming .............................................................................................................................  516
+Tapping ..............................................................................................................................  528
+Boring ................................................................................................................................  540
+Helical Drilling ......................................................................................................................  554
+Thread Milling ......................................................................................................................  567
+Circular Pocket ....................................................................................................................  586
+Gun Drilling .........................................................................................................................  597
+5X Helical Drilling (MAXX Machining) .......................................................................................  598
+9. Jig grinding ..............................................................................................................................  611
+Available machining cycles .....................................................................................................  611
+Hole Grinding ......................................................................................................................  611
+2D Contour Grinding on 3D Model ...........................................................................................  621
+10. 2D Machining .........................................................................................................................  633
+Available machining cycles .....................................................................................................  633
+General information ..............................................................................................................  633
+Pocket Milling ......................................................................................................................  639
+Contour Milling .....................................................................................................................  654
+Contour Milling on 3D Model ...................................................................................................  667
+T-Slot Milling on 3D Model .....................................................................................................  687
+Chamfer Milling on 3D Model ..................................................................................................  698
+Inclined Contouring ...............................................................................................................  713
+Inclined Pocketing ................................................................................................................  721
+Rectangular Pocket ..............................................................................................................  728
+Rest Machining ....................................................................................................................  733
+Face Milling .........................................................................................................................  736
+Playback Milling ...................................................................................................................  742
+Plunge Milling ......................................................................................................................  749
+11. 3D Machining .........................................................................................................................  756
+Available machining cycles .....................................................................................................  756
+3D collision check .................................................................................................................  756
+Parameters .........................................................................................................................  757
+Strategy parameters .............................................................................................................  760
+Boundary ............................................................................................................................  760
+Macros ...............................................................................................................................  764
+Setup .................................................................................................................................  767
+Optimised Roughing .............................................................................................................  773
+Profile Finishing ...................................................................................................................  793
+Z Level Shape Finishing ........................................................................................................  823
+Iso machining ......................................................................................................................  841
+Free Path Milling ..................................................................................................................  855
+Plane Machining ..................................................................................................................  862
+Arbitrary Stock Roughing .......................................................................................................  870
+Z Level Finishing ..................................................................................................................  889
+Complete Finishing ...............................................................................................................  905
+Equidistant Finishing .............................................................................................................  915
+hyperMILL
+4
+
+Automatic Rest Machining ......................................................................................................  926
+Corner Rest Machining ..........................................................................................................  943
+Cutting edge ........................................................................................................................  953
+Rework Machining ................................................................................................................  968
+Rib / Groove Machining .........................................................................................................  977
+Form Pocket ........................................................................................................................  989
+Pencil Milling .......................................................................................................................  997
+12. 5X Machining ........................................................................................................................  1004
+General information .............................................................................................................  1004
+Cavity Milling ......................................................................................................................  1005
+Surface Milling ....................................................................................................................  1152
+Additive Manufacturing .........................................................................................................  1249
+Tube Milling .......................................................................................................................  1264
+Blade Milling .......................................................................................................................  1283
+Multiblade Milling .................................................................................................................  1332
+13. OPEN MIND tool database .......................................................................................................  1386
+Database formats ................................................................................................................  1386
+Convert older database to the new format ................................................................................  1386
+Starting the OPEN MIND tool database ....................................................................................  1387
+User interface .....................................................................................................................  1388
+Create database .................................................................................................................  1390
+Define tool .........................................................................................................................  1392
+Define turning tool ...............................................................................................................  1395
+Tool geometry parameters ....................................................................................................  1408
+Tool technology parameters ..................................................................................................  1417
+Define user-defined data class ...............................................................................................  1425
+Define coupling ...................................................................................................................  1426
+Define spindle .....................................................................................................................  1430
+Define holder/extension ........................................................................................................  1431
+Define NC tool ....................................................................................................................  1433
+Define depot .......................................................................................................................  1445
+Data exchange ...................................................................................................................  1447
+Additional functions ..............................................................................................................  1449
+Interfaces ..........................................................................................................................  1451
+Icons ................................................................................................................................  1453
+14. hyperVIEW ...........................................................................................................................  1455
+User interface .....................................................................................................................  1455
+Important workflows .............................................................................................................  1456
+Menu functions ...................................................................................................................  1460
+Browser functions ................................................................................................................  1466
+Toolbars ............................................................................................................................  1487
+15. Appendix ..............................................................................................................................  1491
+Application Settings .............................................................................................................  1491
+ReportDesigner ...................................................................................................................  1491
+FAQs / Contacting your OPEN MIND partner ............................................................................  1498
+Trademarks ........................................................................................................................  1504
+16. Third Party Software Terms ......................................................................................................  1505
+Apache 2.0 ........................................................................................................................  1507
+Boost ................................................................................................................................  1509
+CxImage ............................................................................................................................  1510
+FreeType ...........................................................................................................................  1510
+libxls .................................................................................................................................  1513
+Microsoft Public License (MS-PL) ...........................................................................................  1513
+NLopt ................................................................................................................................  1514
+OpenCascade ....................................................................................................................  1516
+OpenMesh .........................................................................................................................  1516
+OpenSSL License ...............................................................................................................  1517
+OpenVR ............................................................................................................................  1518
+Pugixml .............................................................................................................................  1519
+hyperMILL
+5
+
+QT ....................................................................................................................................  1519
+Qwt ..................................................................................................................................  1521
+VOLUMILL™ ......................................................................................................................  1521
+WTL .................................................................................................................................  1524
+hyperMILL
+6
+
+1. New in version 2022.2
+• Job Optimization: New functions for optimising manually created jobs as well as macro jobs with
+the aim of reducing the number of tool changes and shortening machine running times. See the
+information in section Job Optimization (page 108).
+• Turning When turning with main and counter spindle, a standard frame for turning operations is now
+automatically created when creating a Counterspindle subjob list. See the information in section
+Main spindle / counter spindle (page 85).
+• 2D Contour Milling : Use the new Rapid plunge function for spiral machining to carry out the first
+infeed as a rapid movement. See the information in section Parameters (page 659).
+• 2D Contour Milling  / 2D Contour Milling on 3D Model l : Use the new Global depth  function to
+assign a top and bottom value globally to several contours. The values can either refer to the frame
+selected in the job (option Frame based) or be defined relative to a contour (option Contour based).
+See the information in section Contours (page 654) (2D Contour Milling) and Contours (page 667)
+(2D Contour Milling on 3D Model).
+• 3D Plane Machining : The Manual top and Manual bottom parameters can now also be defined by
+predefined cycle parameters using formulas. Click the 
+  icon to access the following parameters
+and operators that are available for defining formulas:
+Manual top Manual bottom
+J:Btm Bottom J:Sd Clearance distance + Addition
+J:Sd Clearance distance J:Cl Clearance plane - Subtraction
+J:Cl Clearance plane * Multiplication
+/ Division
+( Open bracket
+) Close bracket
+• 5X Blade Tangent Milling / 5X Blade Point Milling  → Strategy → Edge curves : New functions for
+defining the edge curves that are already known from the 5X Blade Top Milling cycle. See the
+information in section Strategy (page 1325) (5X Blade Tangent Milling) and Strategy (page 1292) (5X
+Blade Point Milling).
+• 5X Blade Tangent Milling  → Parameter → Technology add. edge allowance  → Leading edge offset /
+Trailing edge offset : The new functions make it possible to define an independent or a common
+additional allowance for each edge. See the information in section Parameters (page 1326).
+• 5X Blade Point Milling  → Parameter → Technology: Edge behaviour : The new functions make it
+possible to define an independent or a common additional allowance as well as a feedrate for each
+edge. See the information in section Parameters (page 1293).
+The following functions were introduced with version 2021.2 Service Pack 1 but have not yet been
+documented.
+hyperMILL
+7
+
+• 5X Blade Top Milling  → Parameter → Technology add. edge allowance  → Leading edge offset /
+Trailing edge offset  makes it possible to define an independent or a common additional allowance
+for each edge. See the information in section Parameters (page 1317).
+• 5X MB: Flank Milling  → Strategy → Edge Milling enables machining of both (round) edges. See the
+information in section Strategy (page 1372).
+• 5X MB: Flank Milling → Parameter → Technology: edge behaviour → Overlap length / Overlap height
+controls the machining of both round edges. See the information in section Parameters (page 1372).
+hyperMILL
+8
+
+2. Introduction
+This user's guide covers the CAM editing functions. Information on the CAD functions is provided in the
+online help for hyperCAD-S (on the Help menu) or in the online help texts for Autodesk Inventor and
+SolidWorks.
+hyperMILL: integrated CAM Application
+The hyperMILL CAM solution requires you to have installed a working version of a CAD application or
+the Geometric Engine from hyperMILL, into which it is fully integrated. It is used for generating 2D, 3D,
+5-axis and turning NC programs for model and mold construction. hyperMILL is available as an integrated
+application for the following CAD systems:
+• hyperCAD-S
+• hyperCAD
+• Autodesk Inventor
+• SolidWorks
+Note that some of the functions described in this guide are not available in your installation. The range of
+functions depends on the licences obtained and the configuration of the software purchased.
+hyperMILL SHOP Viewer
+The hyperMILL SHOP Viewer allows you to display, analyse and document processed CAD/CAM data.
+The software works on the basis of hyperCAD-S and hyperMILL. The following software documentation
+explains all the features of hyperMILL. The functions described may not be available or may not be
+available to the extent described, in hyperMILL SHOP Viewer.
+For further information on the functions of hyperMILL SHOP Viewer , please refer to the corresponding
+section in the product documentation for hyperCAD-S.
+Supported CAD formats
+Supports a wide range of geometry formats (for example, DXF, DWG, IGES, VDA), which enable data
+exchange with the majority of CAD construction programs. Data conversion takes place in the background,
+while the model is loading.
+During conversion, a log window with status information is displayed. The corresponding log file (*.log) can
+be opened and viewed later on from within the directory of the associated model file.
+Direct interfaces are provided as modules for the following data formats: CATIA V4,
+CATIA V5, PTC CREO, Siemens NX, Parasolid and SolidWorks. Please contact your
+dealer. For further information, please see the hyperMILL for hyperCAD-S software
+documentation
+The following formats are supported for saving model data and for CAM editing:
+hyperMILL
+9
+
+• *.hmc: hyperMILL for hyperCAD-S document format,
+• *.hcplain: uncompressed hyperMILL for hyperCAD-S document format,
+• *.hmct: hyperMILL for hyperCAD-S format for saving a geometry as a template for a new docu-
+ment,
+• *.hmcgeom: Native hyperMILL for hyperCAD-S format. Contains only geometric and topological
+data in binary, uncompressed format including information on solids and meshes, but no colours,
+attributes and so on.
+• *.e2 or *.e3: hyperMILL / hyperMILL in hyperCAD
+• *.ipt:  hyperMILL for Autodesk® Inventor®.
+• *.sldprt and *.sldasm: hyperMILL for SOLIDWORKS.
+Saving hyperMILL SHOP Viewer data
+When data is saved as a SHOP Viewer document ( *.hmc), the following options can be enabled and
+included as components in the file in the Setup dialogue: stock data, toolpath entities, postprocessor
+configuration, prepared geometry.
+*.e3 data for hyperMILL for hyperCAD-S
+A *.e3 file must have been stored with a hyperMILL version 2009.2 or newer and with an active hy-
+perMILL session in order to ensure that all selections in hyperMILL are restored for hyperCAD-S.
+Further information on exchanging data is available in the corresponding CAD manual.
+hyperMILL
+10
+
+3. User interface
+hyperMILL and CAD program
+hyperMILL is a CAM module that is fully integrated into the CAD program and is used for generating 2D,
+3D, 5-axis, milling and turning programs. Individual machining steps (jobs) are created on the basis of
+machining cycles with the open CAD model in the form of one or more work schedules (joblists).
+All functions of the hyperMILL toolkit, as well as all input pages, menus and programs that can be opened
+with icons can also be accessed using keyboard commands and repeated using <return>.
+The functions that are available for the respective CAD platform are outlined below.
+hyperMILL for hyperCAD-S
+When you open a hyperCAD-S document, the hyperMILL browser opens automatically. All CAM function-
+alities can be accessed through the entry hyperMILL in the hyperCAD-S menu bar.
+Icon Function Explanatory note
+Browser Start the hyperMILL browser.
+Converters Create a model for the collision check.
+Project Assistant Create a milling project or MillTurn project with the
+Project Assistant.
+Job Select a processing cycle and define a job.
+Undo Undo a job step.
+Delete toolpaths Delete toolpaths.
+Read toolpath Import toolpath from *.pof file.
+Analysis toolpath Display coordinate values of toolpath points in rela-
+tion to a reference coordinate system. Show tool
+vectors in any toolpath point. Display feedrate, spin-
+dle speed and sequential number for each toolpath
+point. Show the job name for a toolpath.
+hyperMILL
+11
+
+Icon Function Explanatory note
+Show toolpath
+Show G1 only Only show the toolpath segments with G1 move-
+ments.
+Show G0 only Only show the toolpath segments with G0 move-
+ments.
+Show all Show the complete toolpath.
+Hide/Show Show or hide toolpath.
+Automation
+hyperMILL AUTOMATION Cen-
+ter
+Open the hyperMILL AUTOMATION Center to cre-
+ate a script for an automated sequence.
+Tool report
+Export Export tool reports.
+Configure Select and configure template for tool report.
+Utilities
+Analysis Open the hyperMILL analysis tool.
+Converter display surface errors Display faces that indicate an error during prepara-
+tion for the toolpath calculation. The faces contain a
+tag. The visibility filter is modified.
+Remove image Remove remains of temporary hyperMILL feedback
+graphics.
+hyperMILL
+12
+
+Icon Function Explanatory note
+Import OMX Import *.omx files.
+Export OMX Export *.omx files.
+Import TDM Systems tools Import tools from the TDM Systems tool database.
+Export TDM systems tools Export tools to the TDM Systems tool database.
+Import WinTool tools Import tools from the WinTool tool database.
+Export WinTool tools Export tools to the WinTool tool database.
+ZOLLER import tools Import tools from the Zoller tool database.
+ZOLLER export tools Export tools to the Zoller tool database.
+Import NC Simul | Tool tools Import tools from the NC Simul TOOL tool data-
+base.
+Contour offset Generate a contour offset.
+Contour autolink Generate a contour to limit the machining.
+hyperMILL
+13
+
+Icon Function Explanatory note
+Wrapping side shell Wrap or unwrap a label for a sideshell. See the
+information in the hyperCAD-S product documenta-
+tion.
+Wrapping tread Wrap or unwrap a profile pattern. See the informa-
+tion in the hyperCAD-S product documentation.
+Automation Controller Open the hyperMILL AUTOMATION Center to cre-
+ate a script for an automated sequence.
+Execute >
+VIRTUAL Tool Editor Start the VIRTUAL Tool Editor.
+Tool database Start the tool database.
+hyperVIEW Start the hyperVIEW software.
+Setup >
+Setup Open the hyperMILL settings dialogue to set up hy-
+perMILL.
+View manager Control the visibility of tabs in the hyperMILL brows-
+er.
+Adjust paths Adjust the file paths to current default settings.
+Info >
+hyperMILL Help... Open the hyperMILL help.
+hyperMILL
+14
+
+Icon Function Explanatory note
+E-Learning... Open e-learning content
+About hyperMILL... Open the hyperMILL version information.
+hyperMILL for Autodesk® Inventor®, hyperMILL for SOLIDWORKS
+Once the program is running, the CAM editing toolbar is displayed.
+CAM functions and keyboard commands
+The icons in the CAD platform  column indicate the availability of a function for the respective CAD
+platform.
+ hyperMILL for SOLIDWORKS
+ hyperMILL for Autodesk® Inventor®
+Icon CAD plat-
+form
+Explanatory note
+Create a new job.
+Create a milling project or MillTurn project with the Project Assis-
+tant.
+Control the visibility of tabs in the hyperMILL browser.
+Undo a job step.
+Read and display toolpaths.
+Prepare a model for the collision check.
+Delete toolpaths.
+Start the hyperVIEW software.
+hyperMILL
+15
+
+Icon CAD plat-
+form
+Explanatory note
+Start the nightSHIFT software.
+Update the CAD model for the collision check.
+Open the hyperMILL settings dialogue to set up hyperMILL.
+Adjust the file paths to current default settings.
+Open the hyperMILL help.
+Open the hyperMILL version information.
+Additional functions
+Open the hyperMILL analysis tool.
+Save geometry data in OPEN MIND-specific format.
+Delete temporary hyperMILL graphics.
+Keyboard commands ( hyperMILL for hyperCAD-S, hyperMILL for SOLIDWORKS, hyperMILL for Autodesk®
+Inventor®)
+Keyboard com-
+mand
+Tab Description
+n/N Jobs, Frames, Models, (Milling areas/
+Turning areas)
+N = Create a new joblist. n = Create a
+new job. N = Create a new joblist.
+e/E Jobs, Frames, Models, (Milling areas/
+Turning areas)
+Edit: Change definitions for the selec-
+ted tab entry.
+m/M Jobs, Frames, Models, (Milling areas/
+Turning areas)
+Message: Display messages (notices,
+errors, warnings) for the selected en-
+try.
+hyperMILL
+16
+
+Keyboard com-
+mand
+Tab Description
+c/C Jobs, Job lists Calculate: Recalculate toolpaths.
+u/U Jobs, Job lists Update: Update the toolpath file and
+transfer modified job definitions.
+v/V Jobs, Job lists View: Start the hyperVIEW simulation
+program.
+r/R Jobs, Job lists Read: Read toolpaths.
+t/T Jobs, Job lists Start the internal simulation.
+P Jobs, Job lists Check the toolpath status.
+h Jobs, Job lists Hide selected paths: Hide the tool-
+paths of the selected jobs.
+H Jobs, Job lists Hide all paths: Hide all toolpaths in the
+graphics area.
+s Jobs, Job lists Show selected paths: Display the tool-
+paths of the selected jobs.
+S Jobs, Job lists Show all paths: Display all toolpaths.
+A Jobs, Job lists Autoshow: Automatically display the
+toolpaths of the selected jobs.
+q/Q Jobs, Job lists Highlight and display the geometry of
+the elements used for toolpath calcula-
+tion.
+Button Q: Switch on the visualization. The geometric elements are highlighted. The other geometry is
+displayed transparently. Press the key again to switch off the visualization.
+A solid edge is represented by a dotted line, a surface boundary by a "fanned" dotted line. In a job
+list, info / elements of all jobs involved are displayed. When switching to a single job, job-related info /
+elements are automatically adjusted.
+The tooltip on element shows information about the job ID, the milling area and geometric information
+of the element. Quickinfo on Element displays information about the job ID, milling area and geometric
+information of the element.
+The visibility filter and the selection filter are taken into account. The Check visibility function can help
+to determine the visibility settings of elements.
+Select the color for referenced elements in File → Options → Options / Properties in the option Graphic
+→ System → Rendering → Color for referenced elements of a job.
+hyperMILL
+17
+
+The hyperMILL browser
+The hyperMILL browser is used to define job lists, jobs, tools, machining systems (frames) and features.
+Layout of the browser
+The hyperMILL browser consists of the following elements:
+Tabs (1) Jobs, Tools, Frames, Models, Features and Macros.
+Upper browser window (2) with defined elements in a tree structure.
+Toolbar (3) with functions for editing and calculating the elements.
+Lower browser window (4) with defined elements.
+Open the selected entry (job/job list) for editing.
+Delete the selected entry (job/job list).
+Display messages for the selected entry (job/joblist).
+Save the current view in the graphics area using the hyperMILL bookmark. CAD visibility set-
+tings and toolpaths are taken into account. Associative to hyperMILL jobs. Can be assigned
+to any hyperMILL job.
+Delete the toolpath for the selected entry (job/joblist).
+Open the tool database to select an NC tool.
+hyperMILL
+18
+
+Display the model in a transparent manner in the graphics area.
+Show the removed material automatically when a job has been selected.
+??
+Check the status of the toolpaths for the selected entry (job/joblist).
+Calculate the toolpaths for the selected entry (job/joblist).
+Jobs tab
+The top section of the browser displays joblists and jobs and the bottom section shows the milling areas
+and stockmodels.
+Meaning of the text colour for displaying stocks in the lower area of the browser:
+Red: The start stock of the selected job. Prerequisite for a resulting stock (highlighted in
+blue).
+Blue: The resulting stock of the selected job.
+Black: The stock generated last in a machining sequence.
+The start stock or last generated stock of a machining sequence is used in hyperVIEW
+or in hyperMILL VIRTUAL Machining Center.
+The entry's marking in the browser indicates whether or not a job definition is complete and correct.
+Definition free of errors/warning. Calculate job with these parameters.
+Definition free of errors/warning. Definition free of errors/warning calculation status currently
+unknown (can be checked explicitly using command Toolpath status check).
+Definition free of errors/warning. Job must be calculated.
+Definition contains warnings. Definition free of errors/warning calculation status currently
+unknown (can be checked explicitly using command Toolpath status check).
+Definition contains warnings job must be calculated.
+Element (toolpath/stockmodel) does not exist.
+Element (toolpath/stockmodel) is calculated and hidden. Click the icon to show the element.
+hyperMILL
+19
+
+Element (toolpath/stockmodel) is calculated and shown. Click the icon to hide the element.
+Double-click the icon to automatically display the toolpath when the job name is clicked.
+Display the toolpath automatically. Click the job name to automatically show the toolpath for
+this job. Double-click the icon to disable the automatic display of the toolpath.
+Tools tab
+The browser window consists of the milling tool, drilling tool and turning tools areas.
+Frames tab
+The top section of the browser displays coordinate systems and the bottom section of the browser displays
+transformations.
+Models tab
+The browser window contains milling and turning areas in the top section and stockmodels in the bottom
+section. An entry highlighted in red is a prerequisite for an entry highlighted in blue. An entry highlighted in
+blue is dependent on an entry highlighted in red. The entry's marking in the browser indicates whether or
+not a job is complete and correct.
+Milling area contains no faults or warnings
+Milling area contains warnings
+Milling area has to be recalculated or redefined
+Turning area contains no faults or warnings
+Turning area contains warnings
+Turning area has to be recalculated or redefined
+Closed stock contains no faults or warnings
+Closed stock contains warnings
+Closed stock has to be recalculated or redefined
+Open stock contains no faults or warnings
+Open stock contains warnings
+Open stock has to be calculated or defined
+Stock is too large
+hyperMILL
+20
+
+Compound stock
+Stock created manually from job chain
+Element (toolpath/stockmodel) is hidden
+Element (toolpath/stockmodel) is shown
+Element (toolpath/stockmodel) does not exist, must be calculated
+Toolpaths of compound job are partly shown
+Features tab
+The top section of the browser displays feature lists and the bottom section of the browser displays
+features.
+Macros tab
+The macros that are applied are displayed in the browser window.
+Configure browser
+The tabs can be arranged anywhere in the browser or undocked from the browser window. To do this,
+click the tab and move it to the required place while holding down the left mouse button. Possible docking
+positions are indicated by a graphical feedback as blue, transparent areas. Dock or undock the tab from
+the browser by double-clicking (left mouse button) the title bar in the browser.
+Show or hide a tab. Right-click the tab and enable or disable the respective function on the shortcut menu.
+hyperMILL
+21
+
+View manager
+Use the View manager to control the visibility of tabs in the hyperMILL browser.
+hyperMILL → Setup → View manager
+By default, all tabs are shown in the browser. To hide a tab, disable the respective option. Use Reset
+layout to restore the default settings.
+hyperMILL
+22
+
+Job definition dialogues
+Dialogue control configuration
+Set the dialogue control in the hyperMILL settings → Setup dialogue, on the Application dialogue page.
+Dialogues
+Modal: The input dialogues contain the general function icons. It is not possible to quickly switch the
+display between different jobs.
+Modeless: The input dialogues do not contain any general function icons. It is possible to quickly switch
+the display between different jobs.
+The dialogue control functions can be accessed via the shortcut menu of the input dialogue header. Input
+dialogues can be fixed to any chosen position by clicking on a pin in the header. Jobs can be calculated
+when a dialogue is open
+In this mode all settings are applied immediately and are always saved when the dialogue is closed. It is
+not possible to exit without saving changes.
+Text: Dialogue tabs contain text that displays the contents. In the case of cycles with a high number of
+definition parameters, the different tabs cannot be viewed side by side.
+Icons: Dialogue tabs contain icons that display the contents. Even in the case of cycles with a high number
+of definition parameters, all the tabs can be viewed side by side.
+Dialogue control functions
+The general dialogue control functions can be accessed via icons (only in Modal) mode or via the shortcut
+menu.
+Shortcut menu: Position the mouse pointer in the left half of the input dialogue header, then right-click. The
+content depends on the input dialogue and the selected mode for dialogue control (modal/modeless).
+Icon Function Description
+Calculate Calculate toolpaths (job) or create 3DF file ( hy-
+perMILL Converter).
+Save As Default: Save the entries as user-defined default set-
+tings in the Global Working Space under met-
+ric.cfg or inch.cfg.
+Reset Discard the entries; the dialogue stays open.
+Help Open the online help.
+Ok Save the entries and close the dialogue.
+Cancel Discard the entries and close the dialogue.
+Apply Save entries; dialogue stays open.
+Messages Display job and calculation information.
+hyperMILL
+23
+
+Icon Function Description
+Set workplane to clearance plane Set the current workplane to the clearance
+plane.
+Internal simulation/Internal machin-
+ing simulation
+Start the internal simulation or machine simula-
+tion.
+Reset workplane Reset the original workplane.
+Temporary/permanent feedbacks Control the graphical feedback during the job
+definition.
+Dialogue positioning
+In the Modeless dialogue control mode, all input dialogues that are opened via the browser feature a pin
+that allows the dialogue to be fixed anywhere on the screen. Message windows always feature this pin,
+regardless of which dialogue control mode is set.
+ Dialogue is not pinned: The current dialogue window will close when you switch to another dialogue or
+to the browser.
+ Dialogue is pinned: Pinning allows you to simultaneously display different dialogues for a job (for
+example, job, tool and frame definition assigned to each other as well as message windows). When you
+select a different job list entry, the display switches to the definitions for the currently selected list entry.
+This means that you can quickly check all definitions for a job. The contents of the open message window
+refresh immediately when you edit in other dialogue windows.
+Define parameters
+Input field colours
+Black input value: The value is correct.
+Red input value: The job can be calculated with this value, however, collisions might occur. Read the warn-
+ing in the message window. Change the respective values if necessary and check the job in simulation
+after calculating the toolpath.
+Input field values
+Values can be entered as follows:
+• Direct entry of required value into input field.
+• Use of a predefined local cycle parameters.
+• Definition of user variables.
+• Definition using arithmetical expressions.
+Local parameters and user variables can be combined in a single expression. You may also enter all
+values directly into the input field using the keyboard.
+Local cycle parameters
+Depending on the cycle and input dialogue, you can also use predefined local cycle parameters.
+ Click the icon to select a local parameter directly from the shortcut menu (J:). All the ent

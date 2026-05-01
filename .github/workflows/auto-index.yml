@@ -1,0 +1,88 @@
+name: Auto-Index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'EXTRACTED/**'
+      - 'CURRENT_STATE.json'
+      - 'MASTER_INVENTORY.json'
+      - 'SESSION_STATE.json'
+      - 'SCRIPTS/extraction_index_*.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Rebuild PROJECT_INDEX.json
+        run: |
+          echo "Rebuilding unified project index..."
+          python3 SCRIPTS/rebuild_project_index.py
+
+      - name: Validate rebuilt index
+        run: |
+          python3 -c "
+          import json
+          with open('PROJECT_INDEX.json') as f:
+              idx = json.load(f)
+          assert '_meta' in idx, 'Missing _meta'
+          assert 'project' in idx, 'Missing project'
+          assert 'session' in idx, 'Missing session'
+          assert 'extraction' in idx, 'Missing extraction'
+          indexes = idx['extraction'].get('indexes', {})
+          completed = idx['extraction'].get('completedExtractions', [])
+          print(f'Index valid: {len(indexes)} category indexes, {len(completed)} completed extractions')
+          print(f'Files indexed: {sum(len(v) for v in idx.get(\"fileIndex\", {}).values())}')
+          "
+
+      - name: Generate missing extraction indexes
+        run: |
+          if [ -f "_BUILD/"*.html ] || [ -f "_BUILD/"*.zip ]; then
+            MONOLITH=$(find _BUILD/ -name "*.html" -o -name "*.zip" | head -1)
+            echo "Monolith found: $MONOLITH"
+
+            for category in databases engines knowledgeBases systems materials tools learning business; do
+              INDEX="SCRIPTS/extraction_index_${category}.json"
+              if [ ! -f "$INDEX" ]; then
+                echo "Generating index for $category..."
+                python3 SCRIPTS/generate_extraction_index.py "$MONOLITH" "$category" || echo "  Skipped: $category"
+              else
+                echo "Index exists: $INDEX"
+              fi
+            done
+          else
+            echo "No monolith source found in _BUILD/, skipping index generation."
+          fi
+
+      - name: Validate extractions if EXTRACTED/ exists
+        run: |
+          if [ -d "EXTRACTED" ]; then
+            python3 SCRIPTS/validate_extractions.py || echo "Validation completed with warnings."
+          else
+            echo "No EXTRACTED/ directory, skipping validation."
+          fi
+
+      - name: Commit updated indexes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PROJECT_INDEX.json SCRIPTS/extraction_index_*.json 2>/dev/null
+          if git diff --cached --quiet; then
+            echo "No index changes to commit."
+          else
+            git commit -m "chore: auto-rebuild project index [skip ci]"
+            git push
+          fi

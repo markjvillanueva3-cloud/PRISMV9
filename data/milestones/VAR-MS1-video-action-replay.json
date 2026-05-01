@@ -1,0 +1,366 @@
+{
+  "id": "VAR-MS1",
+  "title": "Video Action Replay — Watch & Do CAD/CAM from Videos",
+  "track": "VAR",
+  "status": "complete",
+  "created_at": "2026-03-14T00:00:00Z",
+  "brief": "Build a complete pipeline that watches CAD/CAM tutorial videos, extracts action sequences, maps them to executable CAD operations, and replays those actions via CadQuery (programmatic) or Playwright (GUI automation). The system should be able to 'learn by watching' — not just extract knowledge, but reproduce the demonstrated work.",
+  "dependencies": [
+    "VL-MS0"
+  ],
+  "estimated_sessions": 4,
+  "total_units": 15,
+  "completed_units": 15,
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Video Action Recognition",
+      "description": "Extend VideoLearningEngine to extract structured action sequences from video, not just knowledge. Each keyframe is analyzed for: what UI element is being interacted with, what operation is being performed, what parameters are visible.",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "VideoActionExtractorEngine — Frame-to-Action Recognition",
+          "status": "complete",
+          "steps": [
+            "Create src/engines/VideoActionExtractorEngine.ts",
+            "Method: extractActions(videoPath, options) — extends VideoLearningEngine pipeline",
+            "For each keyframe pair (before/after), use Claude Vision to identify: (1) what changed between frames, (2) what CAD/CAM operation was performed, (3) what parameters/values are visible on screen, (4) what tool/menu was used",
+            "Output: ActionSequence[] — ordered list of { timestamp, action_type, operation, parameters, ui_context, screenshot_ref }",
+            "Action types taxonomy: 'sketch_create', 'sketch_constraint', 'extrude', 'revolve', 'fillet', 'chamfer', 'cut', 'pattern', 'mirror', 'shell', 'loft', 'sweep', 'assembly_mate', 'toolpath_create', 'parameter_set', 'menu_navigate', 'view_change'",
+            "Use adaptive keyframe extraction — more frames during action sequences, fewer during pauses",
+            "Include OCR for parameter values visible in UI (dimensions, angles, depths)",
+            "Write 15+ tests covering: action type identification, parameter extraction, sequence ordering, OCR accuracy, edge cases (fast actions, dark UI)"
+          ],
+          "exit_conditions": [
+            "Engine compiles with 0 TS errors",
+            "Can process a sample video and output structured ActionSequence[]",
+            "Correctly identifies at least 5 action types from test frames",
+            "15+ tests passing"
+          ],
+          "entry_conditions": [
+            "VideoLearningEngine exists and works"
+          ],
+          "estimated_tokens": 50000
+        },
+        {
+          "id": "P1-U02",
+          "title": "ActionSequenceValidator — Verify and Clean Action Sequences",
+          "status": "complete",
+          "steps": [
+            "Create validation/cleaning layer for extracted action sequences",
+            "Method: validateSequence(actions) — check logical consistency (can't fillet before creating a solid, can't extrude without a sketch)",
+            "Method: deduplicateActions(actions) — remove redundant view changes, repeated menu navigations",
+            "Method: inferMissingParams(actions) — if OCR missed a dimension, infer from geometry context",
+            "Method: classifyDifficulty(actions) — rate 1-5 how complex the sequence is",
+            "Build a CAD operation dependency graph: sketch → extrude → fillet → chamfer (topological sort)",
+            "Write 10+ tests"
+          ],
+          "exit_conditions": [
+            "Validates and cleans action sequences",
+            "Catches impossible operation ordering",
+            "10+ tests passing"
+          ],
+          "entry_conditions": [
+            "P1-U01 complete"
+          ],
+          "estimated_tokens": 30000
+        },
+        {
+          "id": "P1-U03",
+          "title": "CADOperationTaxonomy — Standardized Operation Catalog",
+          "status": "complete",
+          "steps": [
+            "Create a comprehensive taxonomy mapping video-observed operations to standardized CAD API calls",
+            "Cover all major CAD operations: 2D sketching (line, arc, circle, rectangle, spline, trim, offset, mirror, pattern), 3D modeling (extrude, revolve, sweep, loft, shell, fillet, chamfer, boolean, draft, rib, hole), assembly (mate, constrain, pattern), CAM (toolpath, operation, setup)",
+            "Map each operation to: (1) CadQuery Python call, (2) Playwright GUI actions for Fusion 360/OnShape/FreeCAD, (3) required parameters with types/units/defaults",
+            "Include visual signatures — what each operation looks like in different CAD software UIs",
+            "Write 8+ tests"
+          ],
+          "exit_conditions": [
+            "40+ CAD operations cataloged with both CadQuery and GUI mappings",
+            "Each operation has required/optional parameters defined",
+            "8+ tests passing"
+          ],
+          "entry_conditions": [],
+          "estimated_tokens": 35000
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Action-to-Code Translation",
+      "description": "Translate validated action sequences into executable code — either CadQuery Python scripts or Playwright automation scripts.",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "CadQueryCodeGenerator — Actions to CadQuery Python",
+          "status": "complete",
+          "steps": [
+            "Create src/engines/CadQueryCodeGeneratorEngine.ts",
+            "Method: generateScript(actions: ActionSequence[]) → string (Python CadQuery code)",
+            "For each action in sequence, emit the corresponding CadQuery call: sketch().rect(w,h).extrude(d).fillet(r)...",
+            "Handle variable naming, workplane selection, coordinate transforms",
+            "Include comments in generated code linking back to video timestamps",
+            "Support parametric generation — extract dimensions as variables at top of script",
+            "Method: generateStepByStep(actions) → { step: number, code: string, description: string }[]",
+            "Validate generated code syntax (parse check before execution)",
+            "Integrate with existing cad-engine/code_gen.py patterns",
+            "Write 12+ tests: simple extrude, sketch+extrude+fillet, multi-body, parametric, comments"
+          ],
+          "exit_conditions": [
+            "Generates valid CadQuery Python for 10+ operation types",
+            "Generated code executes without error in CadQuery",
+            "12+ tests passing"
+          ],
+          "entry_conditions": [
+            "P1-U03 complete"
+          ],
+          "estimated_tokens": 45000
+        },
+        {
+          "id": "P2-U02",
+          "title": "PlaywrightAutomationGenerator — Actions to GUI Script",
+          "status": "complete",
+          "steps": [
+            "Create src/engines/PlaywrightAutomationEngine.ts",
+            "Method: generateGUIScript(actions, target_software) → PlaywrightAction[]",
+            "Target software profiles: FreeCAD (desktop via Playwright), OnShape (web), Fusion 360 (web panel), TinkerCAD (web)",
+            "For each CAD action, generate Playwright calls: navigate to menu, click tool, enter parameters, confirm",
+            "Handle wait-for-element patterns (CAD UIs are async — geometry computation takes time)",
+            "Include screenshot verification after each major action",
+            "Method: executeWithVerification(actions, browser) — run actions and verify each step matches expected result",
+            "Use Playwright MCP tools: browser_click, browser_fill_form, browser_snapshot, browser_wait_for",
+            "Write 10+ tests (mock Playwright actions, verify correct click targets)"
+          ],
+          "exit_conditions": [
+            "Generates valid Playwright scripts for at least 2 target CAD systems",
+            "Handles async waits and verification",
+            "10+ tests passing"
+          ],
+          "entry_conditions": [
+            "P1-U03 complete"
+          ],
+          "estimated_tokens": 40000
+        },
+        {
+          "id": "P2-U03",
+          "title": "HybridExecutionEngine — Route to Best Execution Path",
+          "status": "complete",
+          "steps": [
+            "Create routing engine that decides: CadQuery (fast, scriptable) vs Playwright (GUI, any software)",
+            "Decision logic: if all operations are supported by CadQuery → use CadQuery; if target is specific CAM software → use Playwright; if mixed → use CadQuery for modeling + Playwright for CAM",
+            "Method: planExecution(actions, preferences) → ExecutionPlan with ordered steps and execution targets",
+            "Method: executeHybrid(plan) — orchestrate both CadQuery and Playwright in correct order",
+            "Write 8+ tests"
+          ],
+          "exit_conditions": [
+            "Routes to correct execution engine based on operation types",
+            "Handles hybrid CadQuery+Playwright workflows",
+            "8+ tests passing"
+          ],
+          "entry_conditions": [
+            "P2-U01 complete",
+            "P2-U02 complete"
+          ],
+          "estimated_tokens": 30000
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Execution & Feedback Loop",
+      "description": "Execute generated code, verify results match the video, and handle errors with intelligent retry.",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "ExecutionVerificationEngine — Run and Compare",
+          "status": "complete",
+          "steps": [
+            "Create src/engines/ExecutionVerificationEngine.ts",
+            "Method: executeAndVerify(code, expected_keyframe) — run CadQuery code, capture result, compare to video keyframe",
+            "Geometry comparison: export STEP/STL, compare bounding box, volume, face count against expected",
+            "Visual comparison: render result, use Claude Vision to compare with video keyframe — 'does this look like the expected result?'",
+            "Tolerance-based matching: allow 5-10% dimensional deviation (video extraction isn't pixel-perfect)",
+            "Method: diagnoseFailure(expected, actual) — identify what went wrong (wrong dimension, missing feature, wrong sequence)",
+            "Write 10+ tests"
+          ],
+          "exit_conditions": [
+            "Can execute CadQuery code and compare result geometry",
+            "Visual comparison gives meaningful similarity score",
+            "Failure diagnosis identifies specific mismatches",
+            "10+ tests passing"
+          ],
+          "entry_conditions": [
+            "P2-U01 complete"
+          ],
+          "estimated_tokens": 40000
+        },
+        {
+          "id": "P3-U02",
+          "title": "AdaptiveRetryEngine — Self-Correcting Execution",
+          "status": "complete",
+          "steps": [
+            "Create intelligent retry logic when execution doesn't match expected result",
+            "Method: retryWithCorrection(failedStep, diagnosis, context) — modify code based on diagnosis",
+            "Correction strategies: adjust dimensions (±10%), try alternative operation sequence, use different CadQuery API (e.g., box vs extrude), add/remove intermediate steps",
+            "Use Claude to reason about corrections: 'the fillet failed because the edge doesn't exist — the extrude direction may be wrong'",
+            "Maximum 3 retry attempts before flagging for human review",
+            "Method: learnFromCorrection(original, corrected) — store successful corrections as patterns for future videos",
+            "Write 8+ tests"
+          ],
+          "exit_conditions": [
+            "Successfully corrects at least 50% of first-attempt failures",
+            "Stores correction patterns for reuse",
+            "8+ tests passing"
+          ],
+          "entry_conditions": [
+            "P3-U01 complete"
+          ],
+          "estimated_tokens": 35000
+        },
+        {
+          "id": "P3-U03",
+          "title": "ProgressTrackerEngine — Step-by-Step Execution Display",
+          "status": "complete",
+          "steps": [
+            "Create progress tracking that shows: which video step we're on, what action is being performed, current result vs expected",
+            "Method: trackProgress(plan, currentStep) → ProgressReport with visual indicators",
+            "Include: step number, video timestamp, action description, status (pending/executing/passed/failed/retrying), screenshot comparison",
+            "Support pause/resume — user can stop at any step, inspect result, then continue",
+            "Write 6+ tests"
+          ],
+          "exit_conditions": [
+            "Shows clear progress through action sequence",
+            "Supports pause/resume",
+            "6+ tests passing"
+          ],
+          "entry_conditions": [
+            "P3-U01 complete"
+          ],
+          "estimated_tokens": 20000
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Interactive Learning Mode",
+      "description": "Allow the user to guide the system through a video tutorial interactively — pause, explain, correct, and teach.",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "InteractiveLearningSessionEngine — Guided Video Following",
+          "status": "complete",
+          "steps": [
+            "Create src/engines/InteractiveLearningSessionEngine.ts",
+            "Method: startSession(videoPath, options) — begin interactive learning from a video",
+            "Workflow: (1) analyze first segment, (2) show extracted actions, (3) ask user to confirm/correct, (4) execute confirmed actions, (5) verify result, (6) proceed to next segment",
+            "Support user corrections: 'that dimension should be 25mm not 35mm', 'skip this step', 'the operation is a revolve not an extrude'",
+            "Method: askQuestion(context) — generate clarifying questions when uncertain: 'I see a fillet being applied — is the radius approximately 3mm?'",
+            "Store session corrections as training data for improving future extractions",
+            "Write 8+ tests"
+          ],
+          "exit_conditions": [
+            "Interactive session workflow works end-to-end",
+            "User corrections modify the action sequence",
+            "8+ tests passing"
+          ],
+          "entry_conditions": [
+            "P3-U01 complete"
+          ],
+          "estimated_tokens": 35000
+        },
+        {
+          "id": "P4-U02",
+          "title": "KnowledgeTransferEngine — Learn Patterns Across Videos",
+          "status": "complete",
+          "steps": [
+            "Create engine that accumulates learning across multiple video sessions",
+            "Method: recordPattern(videoId, actions, corrections) — store what worked and what needed correction",
+            "Method: suggestFromHistory(currentAction) — when extracting new video, suggest parameters based on similar past actions",
+            "Build a growing library of: operation signatures (what a fillet looks like across different CAD UIs), parameter ranges (typical fillet radii, extrude depths), correction patterns (common OCR errors, common misidentifications)",
+            "Method: getConfidence(action) — rate 0-1 how confident the system is in this extraction based on historical accuracy",
+            "Write 8+ tests"
+          ],
+          "exit_conditions": [
+            "Patterns accumulate across sessions",
+            "Confidence improves with more videos processed",
+            "8+ tests passing"
+          ],
+          "entry_conditions": [
+            "P4-U01 complete"
+          ],
+          "estimated_tokens": 30000
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Integration & Slash Commands",
+      "description": "Wire everything into PRISM dispatchers, create user-facing slash commands, and end-to-end testing.",
+      "units": [
+        {
+          "id": "P5-U01",
+          "title": "Dispatcher Wiring + Action Schemas",
+          "status": "complete",
+          "steps": [
+            "Create action schemas for all new engines",
+            "Wire to cadDispatcher or create new videoActionDispatcher",
+            "Actions: video_extract_actions, video_generate_cadquery, video_generate_playwright, video_execute_replay, video_verify_result, video_interactive_session, video_learn_pattern",
+            "Update calcDispatcher ACTIONS array and switch cases",
+            "Write 5+ integration tests"
+          ],
+          "exit_conditions": [
+            "All actions accessible via MCP tools",
+            "Build passes",
+            "5+ tests passing"
+          ],
+          "entry_conditions": [
+            "P4-U02 complete"
+          ],
+          "estimated_tokens": 25000
+        },
+        {
+          "id": "P5-U02",
+          "title": "Slash Commands: /video-replay and /video-follow",
+          "status": "complete",
+          "steps": [
+            "Create ~/.claude/commands/video-replay.md — fully autonomous: give video path, get CAD model",
+            "Create ~/.claude/commands/video-follow.md — interactive: step through video with user, learning as you go",
+            "Update SLASH_COMMANDS.md",
+            "Each command: (1) validates video exists + FFmpeg available, (2) runs pipeline, (3) reports results with screenshots"
+          ],
+          "exit_conditions": [
+            "Both slash commands created and documented",
+            "SLASH_COMMANDS.md updated"
+          ],
+          "entry_conditions": [
+            "P5-U01 complete"
+          ],
+          "estimated_tokens": 15000
+        },
+        {
+          "id": "P5-U03",
+          "title": "End-to-End Test: Simple Box Tutorial",
+          "status": "complete",
+          "steps": [
+            "Create a test video (screen recording) of making a simple box with fillet in FreeCAD or CadQuery",
+            "Run the full pipeline: video → actions → CadQuery code → execute → verify",
+            "Verify: output STEP file has correct dimensions, 12 edges (box) with 4 filleted",
+            "Document the E2E test as a reference for future videos",
+            "Write the E2E test as a vitest integration test (skipped by default, run with --e2e flag)"
+          ],
+          "exit_conditions": [
+            "Full pipeline works end-to-end on test video",
+            "Output geometry matches expected within 10% tolerance",
+            "E2E test documented"
+          ],
+          "entry_conditions": [
+            "P5-U01 complete"
+          ],
+          "estimated_tokens": 30000
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-14T00:00:00Z"
+}

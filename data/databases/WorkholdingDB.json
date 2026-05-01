@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-02-27",
+  "milestone": "L0-P0-MS2",
+  "description": "PRISM Workholding Database — friction coefficients, safety factors, device specs. SAFETY CRITICAL.",
+  "source_file": "mcp-server/src/engines/WorkholdingEngine.ts",
+  "device_types": ["VICE_SMOOTH", "VICE_SERRATED", "VICE_SOFT_JAWS", "HYDRAULIC_CLAMP", "TOGGLE_CLAMP", "STRAP_CLAMP", "VACUUM_FIXTURE", "MAGNETIC_CHUCK", "COLLET", "THREE_JAW_CHUCK", "FOUR_JAW_CHUCK", "FIXTURE_PLATE", "TOMBSTONE", "CUSTOM"],
+  "surface_conditions": ["DRY", "OILY", "COOLANT_WET", "RUSTY", "GROUND", "AS_CAST"],
+  "friction_coefficients": {
+    "_description": "Static friction coefficient μ by device type and surface condition. VACUUM_FIXTURE and MAGNETIC_CHUCK use 0.0 (area/magnetic-based calculations instead).",
+    "VICE_SMOOTH":     { "DRY": 0.15, "OILY": 0.08, "COOLANT_WET": 0.10, "RUSTY": 0.20, "GROUND": 0.12, "AS_CAST": 0.18 },
+    "VICE_SERRATED":   { "DRY": 0.30, "OILY": 0.20, "COOLANT_WET": 0.22, "RUSTY": 0.35, "GROUND": 0.28, "AS_CAST": 0.32 },
+    "VICE_SOFT_JAWS":  { "DRY": 0.25, "OILY": 0.15, "COOLANT_WET": 0.18, "RUSTY": 0.28, "GROUND": 0.22, "AS_CAST": 0.26 },
+    "HYDRAULIC_CLAMP": { "DRY": 0.18, "OILY": 0.10, "COOLANT_WET": 0.12, "RUSTY": 0.22, "GROUND": 0.15, "AS_CAST": 0.20 },
+    "TOGGLE_CLAMP":    { "DRY": 0.20, "OILY": 0.12, "COOLANT_WET": 0.14, "RUSTY": 0.25, "GROUND": 0.18, "AS_CAST": 0.22 },
+    "STRAP_CLAMP":     { "DRY": 0.18, "OILY": 0.10, "COOLANT_WET": 0.12, "RUSTY": 0.22, "GROUND": 0.15, "AS_CAST": 0.20 },
+    "VACUUM_FIXTURE":  { "DRY": 0.0, "OILY": 0.0, "COOLANT_WET": 0.0, "RUSTY": 0.0, "GROUND": 0.0, "AS_CAST": 0.0 },
+    "MAGNETIC_CHUCK":  { "DRY": 0.0, "OILY": 0.0, "COOLANT_WET": 0.0, "RUSTY": 0.0, "GROUND": 0.0, "AS_CAST": 0.0 },
+    "COLLET":          { "DRY": 0.35, "OILY": 0.25, "COOLANT_WET": 0.28, "RUSTY": 0.40, "GROUND": 0.32, "AS_CAST": 0.36 },
+    "THREE_JAW_CHUCK": { "DRY": 0.30, "OILY": 0.20, "COOLANT_WET": 0.22, "RUSTY": 0.35, "GROUND": 0.28, "AS_CAST": 0.32 },
+    "FOUR_JAW_CHUCK":  { "DRY": 0.30, "OILY": 0.20, "COOLANT_WET": 0.22, "RUSTY": 0.35, "GROUND": 0.28, "AS_CAST": 0.32 },
+    "FIXTURE_PLATE":   { "DRY": 0.20, "OILY": 0.12, "COOLANT_WET": 0.14, "RUSTY": 0.25, "GROUND": 0.18, "AS_CAST": 0.22 },
+    "TOMBSTONE":       { "DRY": 0.20, "OILY": 0.12, "COOLANT_WET": 0.14, "RUSTY": 0.25, "GROUND": 0.18, "AS_CAST": 0.22 },
+    "CUSTOM":          { "DRY": 0.15, "OILY": 0.08, "COOLANT_WET": 0.10, "RUSTY": 0.18, "GROUND": 0.12, "AS_CAST": 0.16 }
+  },
+  "dynamic_force_factors": {
+    "_description": "Dynamic force amplification factors — interrupted cuts and entry/exit create impact loads",
+    "CONTINUOUS_CUT": 1.0,
+    "LIGHT_INTERRUPTED": 1.5,
+    "HEAVY_INTERRUPTED": 2.0,
+    "SLOTTING": 2.5,
+    "PLUNGE_MILLING": 2.0,
+    "DRILLING_ENTRY": 1.3,
+    "DRILLING_EXIT": 1.8,
+    "TAPPING": 1.5,
+    "HIGH_SPEED_ENTRY": 2.5
+  },
+  "safety_factors": {
+    "_description": "Minimum safety factors by application. SAFETY CRITICAL — never reduce below these values.",
+    "ROUGHING": 3.0,
+    "SEMI_FINISH": 2.5,
+    "FINISHING": 2.0,
+    "HIGH_SPEED": 3.5,
+    "HEAVY_INTERRUPTED": 4.0
+  },
+  "magnetic_chuck_data": {
+    "typical_friction_steel_on_chuck": 0.25,
+    "holding_force_per_area_n_per_cm2": {
+      "standard": 80,
+      "fine_pole": 120,
+      "electropermanent": 150
+    }
+  },
+  "vacuum_fixture_data": {
+    "atmospheric_pressure_n_per_cm2": 10.13,
+    "typical_efficiency": 0.85,
+    "min_seal_overlap_mm": 5
+  }
+}
