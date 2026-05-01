@@ -1,7 +1,9 @@
 {
   "_doc": "Allowlist for leave-a-copy-behind-guard.mjs Stop hook. Files matching these entries may be deleted/renamed without leaving a copy at the original path. Use sparingly — the default is to preserve. Format: 'exact' = literal path strings (forward-slash, repo-relative); 'patterns' = JS RegExp source strings tested against forward-slash repo-relative paths.",
   "_added": "2026-04-29 — initial seed alongside hook deployment (META-FIX/CAMX-MS22-U01-RECOVERY)",
-  "exact": [],
+  "exact": [
+    "mcp-server/src/engines/SolidCAMiMachiningEngine.ts"
+  ],
   "patterns": [
     "^mcp-server/data/state/.*\\.json$",
     "^mcp-server/data/state/.*\\.jsonl$",

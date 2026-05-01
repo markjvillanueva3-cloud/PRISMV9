@@ -366,6 +366,8 @@ let _controllerMatrix: any;
 let _optimizationTier: any;
 let _rapidReposition: any;
 let _postPhysicsFoundation: any;
+let _physicsSidecarBuilder: any;
+let _noInlinePhysicsConstants: any;
 let _lineByLine: any;
 let _motionInjection: any;
 let _postVerification: any;
@@ -523,7 +525,7 @@ async function getEngine(name: string): Promise<any> {
     // CAMX-MS5 U06 — NXCAMCodeGeneratorEngine (E1119)
     case "nxCAMCodeGen": return _nxCAMCodeGen ??= (await import("../../engines/NXCAMCodeGeneratorEngine.js")).nxCAMCodeGeneratorEngine;
     // CAMX-MS4 U03
-    case "iMachining": return _iMachining ??= (await import("../../engines/SolidCAMiMachiningEngine.js")).solidCAMiMachiningEngine;
+    case "iMachining": return _iMachining ??= (await import("../../engines/PrismPathConstantEngagementEngine.js")).prismPathConstantEngagementEngine;
     // E1107 — ML Strategy Ranker
     case "mlStrategyRanker": return _mlStrategyRanker ??= (await import("../../engines/MachineLearningStrategyRankerEngine.js")).machineLearningStrategyRankerEngine;
     // CAMX-MS3 U02
@@ -635,6 +637,8 @@ async function getEngine(name: string): Promise<any> {
     case "optimizationTier": return _optimizationTier ??= (await import("../../engines/OptimizationTierEngine.js")).optimizationTierEngine;
     case "rapidReposition": return _rapidReposition ??= (await import("../../engines/RapidRepositionOptEngine.js")).rapidRepositionOptEngine;
     case "postPhysicsFoundation": return _postPhysicsFoundation ??= (await import("../../engines/PostPhysicsFoundationEngine.js")).postPhysicsFoundationEngine;
+    case "physicsSidecarBuilder": return _physicsSidecarBuilder ??= (await import("../../engines/PhysicsSidecarBuilderEngine.js")).physicsSidecarBuilderEngine;
+    case "noInlinePhysicsConstants": return _noInlinePhysicsConstants ??= (await import("../../engines/NoInlinePhysicsConstantsEngine.js")).noInlinePhysicsConstantsEngine;
     case "lineByLine": return _lineByLine ??= (await import("../../engines/LineByLineAdaptiveEngine.js")).lineByLineAdaptiveEngine;
     case "motionInjection": return _motionInjection ??= (await import("../../engines/MotionControllerInjectionEngine.js")).motionControllerInjectionEngine;
     case "postVerification": return _postVerification ??= (await import("../../engines/PostVerificationSafetyEngine.js")).postVerificationSafetyEngine;
@@ -1237,7 +1241,7 @@ export const ACTIONS = [
   "nx_cam_recommend", "nx_cam_parameters", "nx_cam_ipw", "nx_cam_fbm", "nx_cam_list_strategies",
   // CAMX-MS5 U06 — NXCAMCodeGeneratorEngine (E1119)
   "nx_code_generate", "nx_code_templates",
-  // CAMX-MS4 U03 — SolidCAMiMachiningEngine (E1103)
+  // CAMX-MS4 U03 — PrismPathConstantEngagementEngine (E1103)
   "imachining_chipload", "imachining_compute", "imachining_engagement", "imachining_moat", "imachining_spiral", "imachining_wizard",
   // E1107 — MachineLearningStrategyRankerEngine (4 actions)
   "ml_strategy_history", "ml_strategy_rank", "ml_strategy_recommend", "ml_strategy_record",
@@ -1336,6 +1340,10 @@ export const ACTIONS = [
   "post_optimize_rapids", "post_calculate_budget", "post_full_rapid_optimize",
   // PostPhysicsFoundationEngine (1)
   "post_physics_foundation",
+  // PhysicsSidecarBuilderEngine (3) — MS0/U-PPGM02
+  "post_sidecar_build", "post_sidecar_verify", "post_sidecar_canonicalize",
+  // NoInlinePhysicsConstantsEngine (2) — MS0/U-PPGM04
+  "post_check_no_inlined_constants", "post_check_no_inlined_constants_or_throw",
   // LineByLineAdaptiveEngine (2)
   "post_line_by_line", "post_chip_thinning",
   // MotionControllerInjectionEngine (3)
@@ -6866,7 +6874,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
 
           // ── CAMX-MS5 U01: NXCAMStrategyEngine (E1104) ──────────────────────
-          // ── CAMX-MS4 U03: SolidCAMiMachiningEngine (E1103) ───────────────────
+          // ── CAMX-MS4 U03: PrismPathConstantEngagementEngine (E1103) ───────────────────
           case "imachining_compute": {
             const eng = await getEngine("iMachining");
             result = eng.compute(params.feature, params.material, params.tool, params.machine, params.level);
@@ -8372,6 +8380,36 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "post_physics_foundation": {
             const eng = await getEngine("postPhysicsFoundation");
             result = eng.fullFoundation(params);
+            break;
+          }
+
+          // ── PhysicsSidecarBuilderEngine (3 actions) — MS0/U-PPGM02 ─────
+          case "post_sidecar_build": {
+            const eng = await getEngine("physicsSidecarBuilder");
+            result = eng.buildAndSeal(params);
+            break;
+          }
+          case "post_sidecar_verify": {
+            const eng = await getEngine("physicsSidecarBuilder");
+            result = eng.verify(params?.sidecar ?? params);
+            break;
+          }
+          case "post_sidecar_canonicalize": {
+            const eng = await getEngine("physicsSidecarBuilder");
+            const canonical = eng.canonicalize(params?.payload ?? params);
+            result = { canonical, sha256: eng.computeSha256(canonical), length: canonical.length };
+            break;
+          }
+
+          // ── NoInlinePhysicsConstantsEngine (2 actions) — MS0/U-PPGM04 ──
+          case "post_check_no_inlined_constants": {
+            const eng = await getEngine("noInlinePhysicsConstants");
+            result = eng.scan(params?.source ?? "", { tier: params?.tier });
+            break;
+          }
+          case "post_check_no_inlined_constants_or_throw": {
+            const eng = await getEngine("noInlinePhysicsConstants");
+            result = eng.scanOrThrow(params?.source ?? "", { tier: params?.tier });
             break;
           }
 

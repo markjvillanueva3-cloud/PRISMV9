@@ -1,8 +1,8 @@
 /**
- * SolidCAMiMachiningEngine — Definitive iMachining Consolidation
+ * PrismPathConstantEngagementEngine — Definitive Constant-Engagement Consolidation
  *
- * Consolidates 18 engines implementing iMachining concepts into ONE
- * authoritative engine. PRISM-branded iMachining equivalent.
+ * Consolidates 18 engines implementing constant-engagement pocketing concepts into ONE
+ * authoritative engine. PRISM Constant-Engagement Pocketing.
  *
  * Core algorithms:
  *   1. Technology Wizard (level 1-8) — material/machine/level parameter mapping
@@ -26,7 +26,7 @@
  *   - Altintas, Y. "Manufacturing Automation" (2012)
  *   - PRISM canonical constants (src/physics/constants.ts)
  *
- * @engine SolidCAMiMachiningEngine
+ * @engine PrismPathConstantEngagementEngine
  * @shortcode E1103
  * @dispatcher camDispatcher
  * @actions imachining_compute, imachining_wizard, imachining_spiral,
@@ -103,7 +103,7 @@ const MOAT_WIDTH_THRESHOLD = 5.0;
 // TYPES
 // ════════════════════════════════════════════════════════════════════════════════
 
-export interface iMachiningFeature {
+export interface EngagementMillingFeature {
   /** Feature type */
   type: "pocket" | "slot" | "contour" | "face" | "cavity" | "open_pocket";
   /** Volume to remove, cm^3 */
@@ -118,7 +118,7 @@ export interface iMachiningFeature {
   corner_radii_mm?: number[];
 }
 
-export interface iMachiningMaterial {
+export interface EngagementMillingMaterial {
   /** ISO group */
   iso_group: ISOGroup;
   /** Optional material key from CANONICAL_MATERIAL_DB */
@@ -131,7 +131,7 @@ export interface iMachiningMaterial {
   vc_base?: number;
 }
 
-export interface iMachiningTool {
+export interface EngagementMillingTool {
   /** Tool diameter, mm */
   diameter_mm: number;
   /** Number of flutes */
@@ -144,7 +144,7 @@ export interface iMachiningTool {
   flute_length_mm?: number;
 }
 
-export interface iMachiningMachine {
+export interface EngagementMillingMachine {
   /** Machine rigidity class */
   class: "hobby" | "light" | "medium" | "heavy" | "ultra_rigid";
   /** Max spindle speed, RPM */
@@ -265,7 +265,7 @@ export interface FeedProfile {
   warnings: string[];
 }
 
-export interface iMachiningResult {
+export interface EngagementMillingResult {
   level: number;
   ae_mm: number;
   ap_mm: number;
@@ -313,10 +313,10 @@ function wizardScale(level: number, lowFactor: number, highFactor: number): numb
 }
 
 /**
- * Resolve material physics from iMachiningMaterial input.
+ * Resolve material physics from EngagementMillingMaterial input.
  * Priority: explicit overrides > material_key lookup > ISO group defaults.
  */
-function resolveMaterial(mat: iMachiningMaterial): {
+function resolveMaterial(mat: EngagementMillingMaterial): {
   kc1_1: number; mc: number; vc_base: number; taylor_C: number; taylor_n: number;
 } {
   // Start with ISO group defaults
@@ -493,7 +493,7 @@ function technologyWizard(
     `fz=${fz_mm.toFixed(3)}mm/tooth`,
   ];
 
-  log.info(`[iMachining] Wizard L${lvl} ISO-${material_iso} ${machine_class}: ae=${ae_mm.toFixed(2)} ap=${ap_mm.toFixed(2)} Vc=${Vc.toFixed(0)} fz=${fz_mm.toFixed(3)}`);
+  log.info(`[CE-Mill] Wizard L${lvl} ISO-${material_iso} ${machine_class}: ae=${ae_mm.toFixed(2)} ap=${ap_mm.toFixed(2)} Vc=${Vc.toFixed(0)} fz=${fz_mm.toFixed(3)}`);
 
   return {
     level: lvl,
@@ -643,7 +643,7 @@ function generateMorphedSpiral(
     warnings.push("No spiral points generated; pocket may be too small for tool");
   }
 
-  log.info(`[iMachining] Spiral: ${points.length} points, ${pass} passes, avg engagement ${avgEngagement.toFixed(1)} deg, morph ${avgMorph.toFixed(2)}`);
+  log.info(`[CE-Mill] Spiral: ${points.length} points, ${pass} passes, avg engagement ${avgEngagement.toFixed(1)} deg, morph ${avgMorph.toFixed(2)}`);
 
   return {
     points,
@@ -766,7 +766,7 @@ function constantEngagement(
     warnings.push(`${pct_air.toFixed(0)}% of segments air-cutting (<10 deg); toolpath may need optimization`);
   }
 
-  log.info(`[iMachining] Engagement control: ${n} segments, ${pct_in.toFixed(0)}% in range, ${pct_over.toFixed(0)}% overloaded`);
+  log.info(`[CE-Mill] Engagement control: ${n} segments, ${pct_in.toFixed(0)}% in range, ${pct_over.toFixed(0)}% overloaded`);
 
   return {
     segments,
@@ -890,7 +890,7 @@ function calculateMoat(
     },
   ];
 
-  log.info(`[iMachining] Moat: ratio=${ratio.toFixed(1)}x, moat_width=${moat_width.toFixed(1)}mm, ${zones.length} zones`);
+  log.info(`[CE-Mill] Moat: ratio=${ratio.toFixed(1)}x, moat_width=${moat_width.toFixed(1)}mm, ${zones.length} zones`);
 
   return {
     requires_moat: true,
@@ -989,7 +989,7 @@ function chipLoadMaintenance(
 
   const avg_factor = sumFactor / engagement_profile.length;
 
-  log.info(`[iMachining] ChipLoad: ${points.length} points, avg factor ${avg_factor.toFixed(2)}, range [${minFactor.toFixed(2)}, ${maxFactor.toFixed(2)}]`);
+  log.info(`[CE-Mill] ChipLoad: ${points.length} points, avg factor ${avg_factor.toFixed(2)}, range [${minFactor.toFixed(2)}, ${maxFactor.toFixed(2)}]`);
 
   return {
     points,
@@ -1077,7 +1077,7 @@ function variableStepover(
 // ════════════════════════════════════════════════════════════════════════════════
 
 /**
- * Full iMachining computation — orchestrates all algorithms.
+ * Full constant-engagement computation — orchestrates all algorithms.
  *
  * 1. Technology Wizard → cutting parameters
  * 2. Moating check → zone decomposition
@@ -1087,12 +1087,12 @@ function variableStepover(
  * 6. Cycle time & tool life estimation
  */
 function compute(
-  feature: iMachiningFeature,
-  material: iMachiningMaterial,
-  tool: iMachiningTool,
-  machine: iMachiningMachine,
+  feature: EngagementMillingFeature,
+  material: EngagementMillingMaterial,
+  tool: EngagementMillingTool,
+  machine: EngagementMillingMachine,
   level?: number,
-): iMachiningResult {
+): EngagementMillingResult {
   const justification: string[] = [];
   const lvl = level ?? WIZARD_LEVELS.default;
 
@@ -1213,7 +1213,7 @@ function compute(
     ? clamp(1 - 1 / boundaryAspectRatio(feature.boundary), 0, 0.95)
     : 0.5;
 
-  log.info(`[iMachining] Compute complete: L${lvl} ae=${ae_mm.toFixed(2)} ap=${ap.toFixed(2)} Vc=${actual_Vc.toFixed(0)} cycle=${cycle_time.toFixed(1)}min`);
+  log.info(`[CE-Mill] Compute complete: L${lvl} ae=${ae_mm.toFixed(2)} ap=${ap.toFixed(2)} Vc=${actual_Vc.toFixed(0)} cycle=${cycle_time.toFixed(1)}min`);
 
   return {
     level: wizard.level,
@@ -1235,9 +1235,9 @@ function compute(
 // ENGINE EXPORT
 // ════════════════════════════════════════════════════════════════════════════════
 
-export type SolidCAMiMachiningEngine = typeof solidCAMiMachiningEngine;
+export type PrismPathConstantEngagementEngine = typeof prismPathConstantEngagementEngine;
 
-export const solidCAMiMachiningEngine = {
+export const prismPathConstantEngagementEngine = {
   compute,
   technologyWizard,
   generateMorphedSpiral,
