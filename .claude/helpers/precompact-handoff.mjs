@@ -22,11 +22,16 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { inferAgentIdentity } from "./agent-identity.mjs";
 import { deriveSessionTopic } from "./derive-session-topic.mjs";
+import { resolveWorktreeCwd } from "./resolve-worktree-cwd.mjs";
 
 const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
 const SESSION_ID_FILE = path.join(HANDOFFS_DIR, ".current-session-ids.json");
 const POSITION_FILE = path.resolve("H:/prism/state/CURRENT_POSITION.md");
 const PRISM_ROOT = path.resolve("H:/prism");
+// Worktree CWD for this session — resolved once per invocation. Eliminates the
+// recurring handoff-clobber bug where every chat's RESUME directive ended up
+// reading H:/prism's commit log instead of its own worktree's commit log.
+let WORKTREE_CWD = PRISM_ROOT; // initialized in main() once session_id is known
 
 // Known placeholder RESUME strings that are useless for auto-continue
 const PLACEHOLDER_RESUMES = [
@@ -74,8 +79,11 @@ function handoffPath(instance) {
 }
 
 function runGit(args) {
+  // CRITICAL: cwd must be the worktree (e.g. H:/prism-engine-wire-ms0), NOT
+  // H:/prism, otherwise generateSmartResume() reads peer chats' commits and
+  // every chat's RESUME directive becomes wrong. Resolved in main().
   const result = spawnSync("git", args, {
-    cwd: PRISM_ROOT,
+    cwd: WORKTREE_CWD,
     encoding: "utf8",
     windowsHide: true,
   });
@@ -198,7 +206,7 @@ function extractTopicSlug() {
   // 2. Fall back to CURRENT_POSITION.md milestone
   try {
     const position = fs.readFileSync(POSITION_FILE, "utf-8");
-    const msMatch = position.match(/(?:Last\s+Milestone|Current|##)\s*:?\s*([A-Z][\w-]+-MS\d+)/i);
+    const msMatch = position.match(/(?:Last\s+Milestone|Current|##)\s*:?\s*([A-Z][\w-]+-MS\d+)/i);
     if (msMatch?.[1]) {
       return msMatch[1].toLowerCase();
     }
@@ -307,13 +315,19 @@ function generateSmartResume(identity) {
 function resolveTerminalFromHookStdinOrHelper() {
   // (1) Claude Code's PreCompact hook pipes JSON with session_id on stdin.
   //     Use that directly — it's the most stable anchor and survives /compact.
+  //     Capture the FULL session_id so we can also resolve the worktree CWD.
   try {
     if (!process.stdin.isTTY) {
       const raw = fs.readFileSync(0, "utf-8");
       if (raw && raw.trim().startsWith("{")) {
         const j = JSON.parse(raw);
         const sid = j?.session_id || j?.sessionId;
-        if (typeof sid === "string" && sid.length >= 8) return `claude-${sid.slice(0, 8)}`;
+        if (typeof sid === "string" && sid.length >= 8) {
+          // Side-effect: resolve worktree CWD for runGit calls. Must happen
+          // before any runGit invocation (smart resume / topic extraction).
+          WORKTREE_CWD = resolveWorktreeCwd(sid);
+          return `claude-${sid.slice(0, 8)}`;
+        }
       }
     }
   } catch { /* ignore */ }
@@ -324,8 +338,15 @@ function resolveTerminalFromHookStdinOrHelper() {
       encoding: "utf-8", timeout: 2000,
     });
     const id = (r.stdout || "").trim();
-    if (id) return id;
+    if (id) {
+      // No full UUID available — try resolving worktree by 8-char prefix
+      WORKTREE_CWD = resolveWorktreeCwd(id.replace(/^claude-/, ""));
+      return id;
+    }
   } catch { /* ignore */ }
+  // (3) No session_id resolved — last resort: process.cwd() if it looks like
+  //     a worktree, else PRISM_ROOT. resolveWorktreeCwd handles this fallback.
+  WORKTREE_CWD = resolveWorktreeCwd(null);
   return null;
 }
 

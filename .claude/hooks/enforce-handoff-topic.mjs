@@ -24,11 +24,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { deriveSessionTopic } from "../helpers/derive-session-topic.mjs";
+import { resolveWorktreeCwd } from "../helpers/resolve-worktree-cwd.mjs";
 
 const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
 const POSITION_FILE = path.resolve("H:/prism/state/CURRENT_POSITION.md");
 const PRISM_ROOT = path.resolve("H:/prism");
 const STABLE_ID_HELPER = path.resolve("H:/prism/.claude/helpers/stable-session-id.mjs");
+// Worktree CWD for this Stop hook — set in resolveSessionId() once we know
+// which chat's session this is. See resolve-worktree-cwd.mjs for fallback chain.
+let WORKTREE_CWD = PRISM_ROOT;
 
 function emit(systemMessage) {
   process.stdout.write(JSON.stringify({ continue: true, systemMessage: systemMessage || "" }));
@@ -48,6 +52,9 @@ function resolveSessionId() {
   const payload = readStdinJSON();
   const sid = payload?.session_id || payload?.sessionId;
   if (typeof sid === "string" && sid.length >= 8) {
+    // Side-effect: resolve worktree CWD before any runGit call so topic
+    // extraction reads THIS chat's worktree, not H:/prism's stale state.
+    WORKTREE_CWD = resolveWorktreeCwd(sid);
     return `claude-${sid.slice(0, 8)}`;
   }
   try {
@@ -55,14 +62,20 @@ function resolveSessionId() {
       encoding: "utf-8", timeout: 2000, windowsHide: true,
     });
     const id = (r.stdout || "").trim();
-    if (id) return id;
+    if (id) {
+      WORKTREE_CWD = resolveWorktreeCwd(id.replace(/^claude-/, ""));
+      return id;
+    }
   } catch { /* ignore */ }
+  WORKTREE_CWD = resolveWorktreeCwd(null);
   return null;
 }
 
 function runGit(args) {
+  // cwd is the per-chat worktree (e.g. H:/prism-engine-wire-ms0), not the
+  // hardcoded H:/prism that caused topic mis-attribution across worktrees.
   const r = spawnSync("git", args, {
-    cwd: PRISM_ROOT, encoding: "utf-8", windowsHide: true, timeout: 3000,
+    cwd: WORKTREE_CWD, encoding: "utf-8", windowsHide: true, timeout: 3000,
   });
   return r.status === 0 ? (r.stdout || "").trim() : "";
 }
