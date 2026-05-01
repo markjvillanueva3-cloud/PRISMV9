@@ -1362,7 +1362,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled"
+          "rollback": "delete script + remove cron entry if scheduled",
+          "status": "partial",
+          "shipped_at": "2026-05-01T20:05:00.000Z",
+          "shipped_by": "claude-ba192f8a",
+          "ship_notes": "Phase 1 (infra) shipped: scripts/add-schema-describes.mjs (parser, inserter, Ollama client, sidecar cache, --audit + --file + --dry-run + --limit + --no-cache + --model + --all flags, 22-test vitest suite) + AddSchemaDescribes.test.ts (22/22 green: parseFieldLine, findCandidatesInSource, insertDescribe edge cases including chain placement / quote escape / newline collapse / 280-char cap, auditFile aggregation invariants). Audit reports 13,404 fields total with 4,150 (31%) already describing themselves and 7,445 phase-1-fixable (1,809 multi-line / z.object skipped to phase 2). DEFERRED: Phase 2 generation sweep blocked on Ollama runner crash — both qwen2.5-coder:7b (4.36 GB) and qwen2.5-coder:32b (18.49 GB) terminate immediately with 'llama runner process has terminated' (only nomic-embed-text loads). Verified via direct curl probes after the script's first attempt failed. Likely RAM pressure or Ollama configuration on DESKTOP-N7MI1VB. Reopen P8-U04 when Ollama generation is healthy: run `node scripts/add-schema-describes.mjs --all --limit N` in batches with sidecar cache resumability (mcp-server/data/state/SCHEMA-DESCRIBES-CACHE.json) — the script is designed to checkpoint per-field. SCOPE DRIFT NOTE: envelope said ~340 fields baseline; reality is 13,404 (40x). Hitting the ≥95% target is multi-session even with healthy Ollama (10-20h inference). Suggest batching across scheduled remote agent runs."
         },
         {
           "id": "P8-U05",
