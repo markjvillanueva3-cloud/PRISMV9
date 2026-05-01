@@ -1,0 +1,108 @@
+$2608B945077a.min%
+m1
+nbar
+clear
+def work
+ps lc,[-400,0],[400,19]
+end
+draw
+/call obar
+m1
+
+nat01   (rgh od&face .032r)
+g0 x20 z20
+t010101
+g50 s800
+g96 s450 m3
+g0 x.85 z.005 m8
+g1 x-.03 f.003
+g0 x.85 z.06
+G85 NR001 D.06 U.005 W.005 F.007
+nr001 g81
+g0 x.650 z.03
+G1 Z0.0 
+G3 X.710 Z-.03 L.03
+G1 z-.509
+g0 x1.0
+G80
+g0 x20 z20 m9
+M1
+
+NAT02   (FIN OD .015R)
+G0 X20 Z20
+T020202
+G96 S800 M3
+G0 X.85 Z0.0 M8
+G1 X-.03 F.003
+G87 NR001
+G0 X20 Z20 M9
+M1
+
+nat03   (spot drill .240)
+g0 x20 z20
+t030303
+g97 s600 m3
+g0 x0 z.05 m8
+g1 z-.15 f.003
+g0 z.05
+g0 x20 z20
+m1
+
+nat06   (drill .330)
+g0 x20 z20
+t060606
+g97 s500 m3
+g0 x0 z.05 m8
+g74 x0 z-.53 d.15 l.15 f.0015
+g0 z.1
+g0 x20 z20 m9
+m1
+
+nat07   (RGH ID CARBIDEBORE .015R)
+g0 x20 z20
+t070707
+g96 s350 m3
+g0 x.33 z.06 m8
+G85 NR002 D.015 U.01 W.01 F.0025
+nr002 g81
+g0 x.535 z.03 m8
+g1 z0.0 g41
+g2 X.495 Z-.02 l.02
+G1 Z-.098
+G3 X.452 Z-.118 L.02
+g1 X.406
+G2 X.358 Z-.142 L.024
+G1 Z-.374
+G1 X.29
+G0 Z.05
+g40
+G80
+g0 x20 z20 m9
+m1
+
+nat08   (FIN. ID CARBIDEBORE .007R)
+g0 x20 z20
+t080808
+g96 s450 m3
+g0 x.255 z.02 m8
+G87 Nr002
+g0 x20 z20
+m1
+
+nat11   (cutoff)
+g0 x20 z20
+t111111
+g96 s100 m3
+g0 x.85 z.499 m8
+g1 x-.6 f.001 
+G0 X.85
+G0 Z-.469
+G1 X.710 F.001
+G3 X.650 Z-.499 L.03
+G1 X-.03
+g0 x.95
+g0 x20 z20 m9
+m5
+/goto nbar
+m2
+%
