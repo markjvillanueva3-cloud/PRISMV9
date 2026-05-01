@@ -1,0 +1,568 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Sketch Operations — Complete Enumeration (2D Sketcher)",
+    "description": "Parameter catalog for the Inventor 2D parametric sketcher. Inventor sketches solve as constraint networks — every primitive carries dimensional + geometric constraints that drive parametric updates. Catalog covers 9 primitive families (Line, Rectangle, Circle, Arc, Ellipse, Polygon, Spline, Slot, Point), 8 editing tools, 3 reference-projection ops, 13 geometric constraints, 7 dimension constraint types, and the Construction-Geometry toggle.",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-01",
+    "source": "Autodesk Inventor 2025 Help — Sketch Reference; Autodesk Inventor API Reference — PartSketch object model",
+    "totalParameters": 138,
+    "operationCount": 28,
+    "cad_concepts_used": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "PROJECTED_GEOMETRY",
+      "DRIVING_VS_DRIVEN_DIMENSION",
+      "DEGREE_OF_FREEDOM",
+      "EQUATION_PARAMETER"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor sketch operations",
+    "tabs": ["Plane", "Geometry", "Properties"]
+  },
+  "operations": {
+    "LINE": {
+      "description": "Line creation between two sketch points. Inventor's Line tool also supports a chain mode that drops continuous coincident-constrained segments and an arc-tangent toggle for transitioning between line and tangent arc without leaving the tool.",
+      "category": "Sketch_Primitive_Line",
+      "fusion_command": "n/a (Inventor uses SketchLines.AddByTwoPoints)",
+      "python_api": "Sketch.SketchLines.AddByTwoPoints(StartPoint, EndPoint)",
+      "parameterCount": 7,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "description": "XY/XZ/YZ origin plane, planar face, or work plane", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Start Point", "type": "point2d", "description": "First endpoint", "required": true},
+            {"name": "End Point", "type": "point2d", "description": "Second endpoint", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Override length — drives a dimension constraint at creation"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Angle from horizontal — drives an angular dimension constraint"},
+            {"name": "Continuous Chain", "type": "checkbox", "description": "Auto-coincident the next line at this endpoint", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "description": "Mark as construction geometry (excluded from feature consumption)", "default": false}
+          ]
+        }
+      }
+    },
+    "RECTANGLE": {
+      "description": "Closed rectangle in 4 modes: Two Point (corner-corner axis-aligned), Three Point (rotated), Two Point Centered (origin + corner), Three Point Centered (origin + edge midpoint + corner). Auto-generates Horizontal/Vertical/Perpendicular constraints.",
+      "category": "Sketch_Primitive_Rectangle",
+      "fusion_command": "n/a (Inventor uses SketchLines.AddAsTwoPointRectangle / AddAsThreePointRectangle / AddAsTwoPointCenteredRectangle / AddAsThreePointCenteredRectangle)",
+      "python_api": "Sketch.SketchLines.AddAsTwoPointRectangle(Corner1, Corner2)",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["two_point", "three_point", "two_point_centered", "three_point_centered"], "default": "two_point", "required": true},
+            {"name": "Corner 1", "type": "point2d", "description": "First corner (or center for centered modes)", "required": true},
+            {"name": "Corner 2", "type": "point2d", "description": "Opposite corner / direction reference", "required": true},
+            {"name": "Third Point", "type": "point2d", "description": "Width-edge endpoint (three_point modes only)"},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Override width — drives the dimension"},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Override height — drives the dimension"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CIRCLE": {
+      "description": "Closed circle in 3 placement modes: Center-Point (center + point on circumference), Tangent (3 tangent references), and Ellipse Conversion (degenerate). Inventor's tangent mode constructs the unique inscribed circle for the 3 selected entities.",
+      "category": "Sketch_Primitive_Circle",
+      "fusion_command": "n/a (Inventor uses SketchCircles.AddByCenterRadius / AddByThreeTangents)",
+      "python_api": "Sketch.SketchCircles.AddByCenterRadius(Center, Radius)",
+      "parameterCount": 7,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["center_point", "tangent_three", "tangent_two_radius"], "default": "center_point", "required": true},
+            {"name": "Center", "type": "point2d", "description": "Center point (center_point mode)"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Radius (drives a dimension)", "min": 0.001},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "description": "Alternative to radius (mutually exclusive)"},
+            {"name": "Tangent Entities", "type": "selection_list", "description": "Three reference entities (tangent_three) or two + radius (tangent_two_radius)"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ARC": {
+      "description": "Open arc in 4 placement modes: Three Point (start, point on arc, end), Center Point (center, start, end with sweep direction), Tangent (tangent to existing endpoint + length/angle), Fillet (between two intersecting entities, with auto-trim).",
+      "category": "Sketch_Primitive_Arc",
+      "fusion_command": "n/a (Inventor uses SketchArcs.AddByThreePoints / AddByCenterStartEndPoint / AddByFillet / AddByTangent)",
+      "python_api": "Sketch.SketchArcs.AddByCenterStartEndPoint(Center, Start, End)",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["three_point", "center_point", "tangent", "fillet"], "default": "three_point", "required": true},
+            {"name": "Center", "type": "point2d", "description": "Center (center_point / fillet modes)"},
+            {"name": "Start Point", "type": "point2d", "description": "Start endpoint"},
+            {"name": "End Point", "type": "point2d", "description": "End endpoint"},
+            {"name": "Mid Point", "type": "point2d", "description": "On-arc point (three_point mode only)"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Drives a dimension constraint", "min": 0.001},
+            {"name": "Sweep Direction", "type": "dropdown", "options": ["counter_clockwise", "clockwise"], "default": "counter_clockwise"}
+          ]
+        }
+      }
+    },
+    "ELLIPSE": {
+      "description": "Closed ellipse defined by center + endpoint of major axis + minor radius. Inventor provides a single ellipse constructor — variant placements all reduce to this triple.",
+      "category": "Sketch_Primitive_Ellipse",
+      "fusion_command": "n/a (Inventor uses SketchEllipses.Add)",
+      "python_api": "Sketch.SketchEllipses.Add(Center, MajorAxisPoint, MinorRadius)",
+      "parameterCount": 5,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Center", "type": "point2d", "required": true},
+            {"name": "Major Axis Point", "type": "point2d", "description": "Endpoint of major axis — defines orientation + major radius", "required": true},
+            {"name": "Minor Radius", "type": "numeric", "unit": "mm", "description": "Distance from center to ellipse along minor axis", "required": true, "min": 0.001},
+            {"name": "Major Radius", "type": "numeric", "unit": "mm", "description": "Computed from Major Axis Point unless overridden"}
+          ]
+        }
+      }
+    },
+    "POLYGON": {
+      "description": "Regular n-sided polygon in 2 modes: Inscribed (vertices on a virtual circle of given radius) and Circumscribed (edge midpoints on the virtual circle). Inventor supports 3 ≤ N ≤ 128 sides.",
+      "category": "Sketch_Primitive_Polygon",
+      "fusion_command": "n/a (Inventor uses SketchPolygons.AddCircumscribed / AddInscribed)",
+      "python_api": "Sketch.SketchPolygons.AddInscribed(Center, NumSides, RadiusPoint)",
+      "parameterCount": 6,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["inscribed", "circumscribed"], "default": "inscribed", "required": true},
+            {"name": "Center", "type": "point2d", "required": true},
+            {"name": "Number of Sides", "type": "integer", "min": 3, "max": 128, "default": 6, "required": true},
+            {"name": "Radius Point", "type": "point2d", "description": "Defines size + orientation; drives polygon-circle radius dimension"},
+            {"name": "Circumradius", "type": "numeric", "unit": "mm", "description": "Override — drives the radius dimension"}
+          ]
+        }
+      }
+    },
+    "SPLINE": {
+      "description": "B-spline curve in 2 modes: Interpolation (passes through every fit point with computed tangents) and Control Polygon (fit points are control vertices). Inventor exposes degree (2-12), end-tangent handles, and curvature combs.",
+      "category": "Sketch_Primitive_Spline",
+      "fusion_command": "n/a (Inventor uses SketchSplines.Add)",
+      "python_api": "Sketch.SketchSplines.Add(FitPoints, Closed)",
+      "parameterCount": 7,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["interpolation", "control_polygon"], "default": "interpolation", "required": true},
+            {"name": "Fit Points", "type": "point2d_list", "description": "Ordered points (interpolation) or control vertices (control_polygon)", "required": true, "min": 2},
+            {"name": "Closed", "type": "checkbox", "description": "Wrap last point to first (forms closed loop)", "default": false},
+            {"name": "Degree", "type": "integer", "min": 2, "max": 12, "default": 3},
+            {"name": "Start Tangent", "type": "vector2d", "description": "Optional explicit start-tangent direction"},
+            {"name": "End Tangent", "type": "vector2d", "description": "Optional explicit end-tangent direction"}
+          ]
+        }
+      }
+    },
+    "SLOT": {
+      "description": "Closed slot primitive in 4 modes: Center-to-Center (two arc centers + width), Overall (overall length + width), Center (one arc center + length + width), and Arc Slot (curved slot along an arc path).",
+      "category": "Sketch_Primitive_Slot",
+      "fusion_command": "n/a (Inventor 2018+ uses SketchSlots family — modeled via SketchLines + SketchArcs prior to 2018)",
+      "python_api": "Sketch.SketchSlots.AddByCenterToCenter(Center1, Center2, Width)",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["center_to_center", "overall", "center", "arc"], "default": "center_to_center", "required": true},
+            {"name": "Center 1", "type": "point2d", "description": "First arc center (center_to_center / center)", "required": true},
+            {"name": "Center 2", "type": "point2d", "description": "Second arc center (center_to_center mode)"},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Distance between parallel sides", "required": true, "min": 0.001},
+            {"name": "Overall Length", "type": "numeric", "unit": "mm", "description": "Total slot length (overall mode)", "min": 0.001},
+            {"name": "Arc Center", "type": "point2d", "description": "Center of curved slot path (arc mode)"},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "description": "Arc sweep (arc mode)"}
+          ]
+        }
+      }
+    },
+    "POINT": {
+      "description": "Standalone sketch point. Used as construction reference, drill-hole center for the Hole feature, or work-point creation seed. Inventor distinguishes 'Hole Center' (drives the Hole feature) from 'Sketch Point' (reference-only).",
+      "category": "Sketch_Primitive_Point",
+      "fusion_command": "n/a (Inventor uses SketchPoints.Add)",
+      "python_api": "Sketch.SketchPoints.Add(Point, HoleCenter:=False)",
+      "parameterCount": 4,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Location", "type": "point2d", "required": true},
+            {"name": "Hole Center", "type": "checkbox", "description": "Mark as drill-hole center (consumed by Hole feature)", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "TRIM": {
+      "description": "Trim sketch entity to nearest intersection. Inventor auto-detects intersections with all sketch entities + projected geometry; selecting a region trims toward that region.",
+      "category": "Sketch_Edit_Trim",
+      "python_api": "Sketch.TrimEntity(Curve, ReferencePoint)",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Entity", "type": "selection", "description": "Sketch curve to trim", "required": true},
+            {"name": "Reference Point", "type": "point2d", "description": "Point on the segment to remove", "required": true},
+            {"name": "Cascade", "type": "checkbox", "description": "Auto-trim chained intersections", "default": false}
+          ]
+        }
+      }
+    },
+    "EXTEND": {
+      "description": "Extend sketch entity to nearest boundary entity. Direction inferred from cursor position; supports preview before commit.",
+      "category": "Sketch_Edit_Extend",
+      "python_api": "Sketch.ExtendEntity(Curve, ReferencePoint)",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Entity", "type": "selection", "required": true},
+            {"name": "Reference Point", "type": "point2d", "description": "Endpoint side to extend from", "required": true}
+          ]
+        }
+      }
+    },
+    "BREAK": {
+      "description": "Split a sketch entity at a specified point into two coincident-constrained segments. Useful for selectively dimensioning sub-segments.",
+      "category": "Sketch_Edit_Break",
+      "python_api": "Sketch.BreakSketchEntity(Curve, BreakPoint)",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Entity", "type": "selection", "required": true},
+            {"name": "Break Point", "type": "point2d", "description": "Location on entity where the split occurs", "required": true}
+          ]
+        }
+      }
+    },
+    "OFFSET": {
+      "description": "Offset selected sketch entities by a signed distance. Inventor supports loop selection (closed-chain offset) and individual-entity offset. Auto-generates Equal-Distance constraints between source and offset.",
+      "category": "Sketch_Edit_Offset",
+      "python_api": "Sketch.OffsetSketchEntities(InputEntities, OffsetPoint, ConstrainOffset, AutoLoopSelect)",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "description": "Curves / chain to offset", "required": true},
+            {"name": "Offset Distance", "type": "numeric", "unit": "mm", "description": "Signed offset (drives an offset dimension)", "required": true},
+            {"name": "Auto Loop Select", "type": "checkbox", "description": "Treat selection as closed loop", "default": true},
+            {"name": "Constrain Offset", "type": "checkbox", "description": "Add equal-offset geometric constraint", "default": true},
+            {"name": "Side", "type": "dropdown", "options": ["positive", "negative"], "description": "Resolves sign ambiguity for closed loops"}
+          ]
+        }
+      }
+    },
+    "MIRROR": {
+      "description": "Reflect selected entities across a sketch line. Inventor adds Symmetric geometric constraints between source and image so subsequent edits maintain symmetry.",
+      "category": "Sketch_Edit_Mirror",
+      "python_api": "Sketch.MirrorSketchEntities(InputEntities, MirrorLine)",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Mirror Line", "type": "selection", "description": "Sketch line acting as the mirror axis", "required": true},
+            {"name": "Add Symmetric Constraints", "type": "checkbox", "default": true},
+            {"name": "Keep Source", "type": "checkbox", "description": "Retain original entities (always true for sketch mirror)", "default": true}
+          ]
+        }
+      }
+    },
+    "MOVE": {
+      "description": "Translate selected entities by a vector. Inventor optionally preserves constraints to source entities or breaks them so the moved set is independent.",
+      "category": "Sketch_Edit_Move",
+      "python_api": "Sketch.MoveSketchEntities(InputEntities, FromPoint, ToPoint, Copy)",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "From Point", "type": "point2d", "required": true},
+            {"name": "To Point", "type": "point2d", "required": true},
+            {"name": "Copy", "type": "checkbox", "description": "Keep source AND create translated duplicate", "default": false},
+            {"name": "Optimize", "type": "checkbox", "description": "Preserve constraints to environment when possible", "default": true}
+          ]
+        }
+      }
+    },
+    "ROTATE": {
+      "description": "Rotate selected entities about a center by an angle. Optionally copies the rotated set.",
+      "category": "Sketch_Edit_Rotate",
+      "python_api": "Sketch.RotateSketchEntities(InputEntities, CenterPoint, Angle, Copy)",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Center Point", "type": "point2d", "required": true},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "required": true},
+            {"name": "Copy", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SCALE": {
+      "description": "Scale selected entities about a base point by a factor. Inventor allows fractional scaling (0 < factor); negative factors require Mirror instead.",
+      "category": "Sketch_Edit_Scale",
+      "python_api": "Sketch.ScaleSketchEntities(InputEntities, BasePoint, Factor)",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Base Point", "type": "point2d", "required": true},
+            {"name": "Scale Factor", "type": "numeric", "description": "Positive numeric scalar", "required": true, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "PROJECT_GEOMETRY": {
+      "description": "Project edges, faces, or vertices of existing 3D model geometry onto the sketch plane. Projected entities update parametrically when the source moves.",
+      "category": "Sketch_Reference_Projection",
+      "python_api": "Sketch.AddByProjectingEntity(SourceEntity)",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source", "type": "selection", "description": "Edge / face / vertex / work-point to project", "required": true},
+            {"name": "Projection Type", "type": "dropdown", "options": ["geometry", "cut_edges", "loop"], "default": "geometry"},
+            {"name": "Construction Output", "type": "checkbox", "description": "Mark projected entities as construction", "default": false}
+          ]
+        }
+      }
+    },
+    "PROJECT_TO_SURFACE": {
+      "description": "Project a sketch curve onto a 3D surface, preserving the projection direction. Result is a 3D curve usable in Sweep / Loft path inputs.",
+      "category": "Sketch_Reference_Projection",
+      "python_api": "Sketch.AddByProjectingToSurface(SketchEntity, TargetFace, ProjectionType)",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Sketch Entity", "type": "selection", "required": true},
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Projection Direction", "type": "dropdown", "options": ["closest_point", "along_vector", "two_sides"], "default": "closest_point"}
+          ]
+        }
+      }
+    },
+    "INTERSECT_CURVE": {
+      "description": "Create a sketch curve at the intersection of a face/surface with the sketch plane. Useful for trimming sketches to imported geometry boundaries.",
+      "category": "Sketch_Reference_Projection",
+      "python_api": "Sketch.AddByIntersectingFaceWithSurface(Face)",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Face", "type": "selection", "required": true},
+            {"name": "Construction Output", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "GEOMETRIC_CONSTRAINT": {
+      "description": "Add a geometric (relational) constraint between two sketch entities. Inventor exposes 13 types: Coincident, Collinear, Concentric, Equal, Fix, Horizontal, Parallel, Perpendicular, Smooth, Symmetric, Tangent, Vertical, and Pattern (for derived patterns).",
+      "category": "Sketch_Constraint_Geometric",
+      "python_api": "Sketch.GeometricConstraints.AddCoincident(EntityA, EntityB) | AddTangent | AddParallel | ...",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Constraint Type", "type": "dropdown", "options": ["coincident", "collinear", "concentric", "equal", "fix", "horizontal", "parallel", "perpendicular", "smooth", "symmetric", "tangent", "vertical", "pattern"], "required": true},
+            {"name": "Entity A", "type": "selection", "required": true},
+            {"name": "Entity B", "type": "selection", "description": "Required for binary constraints (parallel/perpendicular/tangent/concentric/coincident/equal/collinear/smooth/symmetric); not used by horizontal/vertical/fix"},
+            {"name": "Reference Line", "type": "selection", "description": "Required for Symmetric — line of symmetry"}
+          ]
+        }
+      }
+    },
+    "DIMENSION_CONSTRAINT": {
+      "description": "Add a dimensional constraint that drives sketch parameters. Inventor's General Dimension tool infers the dimension type from the selection (linear, angular, radial, diametral, arc-length, tangent-distance, two-line angle).",
+      "category": "Sketch_Constraint_Dimension",
+      "python_api": "Sketch.DimensionConstraints.AddTwoPointDistance(P1, P2, Orientation, TextPoint, Driven)",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Dimension Type", "type": "dropdown", "options": ["linear", "linear_horizontal", "linear_vertical", "angular_two_line", "radius", "diameter", "arc_length"], "required": true},
+            {"name": "Selection", "type": "selection_list", "description": "Two points / one entity / two entities, depending on type", "required": true},
+            {"name": "Value", "type": "numeric", "description": "Dimension value (mm or deg)", "required": true},
+            {"name": "Driven", "type": "checkbox", "description": "Driven (read-only computed) vs driving (parametric input)", "default": false},
+            {"name": "Text Point", "type": "point2d", "description": "Anchor for the dimension text"},
+            {"name": "Tolerance", "type": "string", "description": "Symmetric / Bilateral / Limits / Limits-Stacked / Reference / Basic"}
+          ]
+        }
+      }
+    },
+    "FILLET_SKETCH": {
+      "description": "Round the corner between two intersecting sketch entities with a tangent arc. Inventor auto-trims the source entities to the new arc endpoints and drops a tangent constraint at each end.",
+      "category": "Sketch_Edit_Fillet",
+      "python_api": "Sketch.SketchArcs.AddByFillet(EntityA, EntityB, Radius)",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Entity A", "type": "selection", "required": true},
+            {"name": "Entity B", "type": "selection", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Drives the fillet radius dimension", "required": true, "min": 0.001},
+            {"name": "Equal Constraint", "type": "checkbox", "description": "Add equal-radius constraint with first-placed fillet (chain mode)", "default": false}
+          ]
+        }
+      }
+    },
+    "CHAMFER_SKETCH": {
+      "description": "Cut a beveled corner between two sketch lines. Inventor supports 3 modes: Equal Distance, Two Distance, and Distance + Angle.",
+      "category": "Sketch_Edit_Chamfer",
+      "python_api": "Sketch.SketchLines.AddByChamfer(LineA, LineB, Distance1, Distance2)",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Line A", "type": "selection", "required": true},
+            {"name": "Line B", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["equal_distance", "two_distance", "distance_angle"], "default": "equal_distance"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Distance 2 / Angle", "type": "numeric", "description": "mm in two_distance, deg in distance_angle"}
+          ]
+        }
+      }
+    },
+    "PATTERN_RECTANGULAR": {
+      "description": "Linear-array existing sketch entities along two independent direction vectors with count and spacing. Used heavily for hole arrays + sheet-metal punch patterns.",
+      "category": "Sketch_Pattern_Linear",
+      "python_api": "Sketch.RectangularPatternSketchEntities(...)",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Direction 1", "type": "selection", "description": "Reference line / edge for first axis", "required": true},
+            {"name": "Count 1", "type": "integer", "min": 1, "default": 2, "required": true},
+            {"name": "Spacing 1", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Direction 2", "type": "selection", "description": "Reference for second axis (optional 1D pattern when omitted)"},
+            {"name": "Count 2", "type": "integer", "min": 1, "default": 1},
+            {"name": "Spacing 2", "type": "numeric", "unit": "mm"}
+          ]
+        }
+      }
+    },
+    "PATTERN_CIRCULAR": {
+      "description": "Polar-array existing sketch entities about a center with count and total/incremental angle. Counter-clockwise default.",
+      "category": "Sketch_Pattern_Circular",
+      "python_api": "Sketch.CircularPatternSketchEntities(...)",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Entities", "type": "selection_list", "required": true},
+            {"name": "Center", "type": "point2d", "required": true},
+            {"name": "Count", "type": "integer", "min": 2, "default": 4, "required": true},
+            {"name": "Angle Mode", "type": "dropdown", "options": ["total", "incremental"], "default": "total"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "required": true, "default": 360},
+            {"name": "Direction", "type": "dropdown", "options": ["counter_clockwise", "clockwise"], "default": "counter_clockwise"}
+          ]
+        }
+      }
+    },
+    "CONSTRUCTION_TOGGLE": {
+      "description": "Toggle the Construction property on selected sketch entities. Construction geometry participates in the constraint solver but is excluded from feature consumption (Extrude/Sweep/Loft skip construction).",
+      "category": "Sketch_Property_Construction",
+      "python_api": "SketchEntity.Construction = True",
+      "parameterCount": 2,
+      "tabs": {
+        "Properties": {
+          "parameters": [
+            {"name": "Selected Entities", "type": "selection_list", "required": true},
+            {"name": "Construction", "type": "checkbox", "description": "Set true to mark as construction; false to mark as profile", "required": true}
+          ]
+        }
+      }
+    },
+    "TEXT_SKETCH": {
+      "description": "Place driven text in a sketch (used as profile for embossed/extruded text features). Supports font / style / size / alignment + leader-line for callouts.",
+      "category": "Sketch_Primitive_Text",
+      "python_api": "Sketch.TextBoxes.AddFitted(InsertionPoint, Width, Height, Text)",
+      "parameterCount": 8,
+      "tabs": {
+        "Plane": {
+          "parameters": [
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Insertion Point", "type": "point2d", "required": true},
+            {"name": "Text", "type": "string", "required": true},
+            {"name": "Font Family", "type": "string", "default": "Arial"},
+            {"name": "Size", "type": "numeric", "unit": "mm", "default": 5.0, "min": 0.5},
+            {"name": "Style", "type": "dropdown", "options": ["regular", "bold", "italic", "bold_italic"], "default": "regular"},
+            {"name": "Alignment", "type": "dropdown", "options": ["left", "center", "right", "justify"], "default": "left"},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0}
+          ]
+        }
+      }
+    }
+  }
+}

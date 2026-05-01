@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "inventor",
+  "module_id": "cad_function_index",
+  "module_name": "Autodesk Inventor CAD Unified Function Index",
+  "description": "Top-level index for Autodesk Inventor CAD-side (Part / Assembly / Drawing environments) operations. Inventor is a feature-based parametric MCAD system with first-class sheet-metal, frame-generator, and weldment workspaces that have no Fusion 360 / hyperCAD-S equivalent. Coverage spans 8 environments: Sketch (2D constraint solver), Part (3D solid features), Surface (lofted / boundary / patch / stitch), Sheet Metal (face / flange / contour roll / unfold), Frame Generator (skeleton / frame member / notch / extend / trim / lengthen), Weldment (preparation / weld bead / machining), Drawing (multi-view / annotation), and Assembly (component / constraint / joint / pattern). Consumed by InventorCADFunctionIndexEngine for parameter discovery and AI orchestration of Inventor automation via the COM API + iLogic.",
+  "indexed_at": "2026-05-01T16:45:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/inventor/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-INV-01"],
+      "parameter_count_estimate": 138,
+      "description": "2D parametric sketcher: 9 primitive families (Line, Rectangle in 4 modes, Circle in 3 modes, Arc in 4 modes, Ellipse, Polygon inscribed/circumscribed, Spline interpolation/control, Slot in 4 modes, Point), 8 editing tools (Trim, Extend, Break, Offset, Mirror, Move, Rotate, Scale), 1 reference-projection family (Project Geometry / Project to Surface / Intersect Curve), 13 geometric constraints, 7 dimension constraints, fillet/chamfer, sketch patterns (linear/circular), construction toggle, and text. Inventor sketches solve as a constraint network — every entity carries a sketch-DOF count surfaced through AddCoincident etc.",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "PROJECTED_GEOMETRY",
+      "DRIVING_VS_DRIVEN_DIMENSION",
+      "DEGREE_OF_FREEDOM",
+      "ILOGIC_RULE",
+      "PARAMETER_TABLE"
+    ],
+    "dispatchers_touched": ["prism_cad"],
+    "engines_linked": [
+      "InventorCADFunctionIndexEngine",
+      "InventorCADCodeGeneratorEngine",
+      "InventorAutomationBridge"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 1,
+    "total_units_covered": ["U-CAD-FIDX-INV-01"],
+    "estimated_parameter_total": 138,
+    "api_surface": {
+      "coverage_state": "FOUNDATION",
+      "phase_1_target_modules": 8,
+      "phase_1_target_modules_remaining": 7,
+      "phase_1_modules_pending": [
+        "part_operations",
+        "surface_operations",
+        "sheet_metal_operations",
+        "frame_generator_operations",
+        "weldment_operations",
+        "drawing_operations",
+        "assembly_operations"
+      ]
+    },
+    "pdf_sources_bound": [
+      "Autodesk Inventor 2025 Help — Sketch Reference",
+      "Autodesk Inventor API Reference — PartSketch / Sketch3D objects",
+      "iLogic Reference — Sketch automation patterns"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": ["sketch_constraints", "dimension_strategy", "construction_geometry"]
+  },
+  "platform_integration": {
+    "inventor_2025": true,
+    "inventor_2024": true,
+    "inventor_2023": true,
+    "ilogic": true,
+    "vault": false
+  },
+  "future_modules": [
+    {
+      "planned_id": "part_operations",
+      "scope": "3D solid features: Extrude (Distance / To / To-Next / Through-All / Between), Revolve (Full / Angle / To-Next), Sweep (Path / Path-and-Guide / Path-and-Surface), Loft (Rails / Conditions / Ship Curves), Coil (Pitch-Revolution / Revolution-Height / Spiral), Rib, Hole (5 head types × 4 termination types), Thread, Fillet (Equal / Variable / Setback / Full Round), Chamfer (Distance / 2-Distance / Angle), Shell, Draft, Boolean Combine (Join / Cut / Intersect), Pattern (Rectangular / Circular / Mirror / Sketch-Driven / Path).",
+      "estimated_params": 245,
+      "deferred_to": "U-CAD-FIDX-INV-02"
+    },
+    {
+      "planned_id": "surface_operations",
+      "scope": "Surface modeling: Boundary Patch, Stitch, Trim, Extend, Replace Face, Delete Face, Sculpt, Thicken/Offset, Ruled Surface. Inventor's surface workflow is thinner than hyperCAD-S since most CAD work stays solid.",
+      "estimated_params": 75,
+      "deferred_to": "U-CAD-FIDX-INV-03"
+    },
+    {
+      "planned_id": "sheet_metal_operations",
+      "scope": "Sheet metal (Inventor strength — no Fusion / hyperCAD parity): Face, Contour Flange, Contour Roll, Lofted Flange, Cut, Corner Seam, Bend, Fold, Hem, Punch (iFeature), Rip, Unfold/Refold, Flat Pattern. Driven by Sheet Metal Defaults / Style + per-face thickness rule.",
+      "estimated_params": 165,
+      "deferred_to": "U-CAD-FIDX-INV-04"
+    },
+    {
+      "planned_id": "frame_generator_operations",
+      "scope": "Frame Generator (Inventor-only): Insert Frame Member (skeleton-driven structural shapes from Content Center), Miter, Notch, Trim/Extend, Lengthen/Shorten, Remove End Treatment, Change/Reuse Frame Member. Bind to part skeleton sketch.",
+      "estimated_params": 85,
+      "deferred_to": "U-CAD-FIDX-INV-05"
+    },
+    {
+      "planned_id": "weldment_operations",
+      "scope": "Weldment environment: Preparations (Cope / Chamfer / Fillet for groove prep), Weld Beads (Cosmetic / Fillet / Groove with material removal), Machining (post-weld features), Weld Symbol annotation. Triggered by Convert-to-Weldment.",
+      "estimated_params": 95,
+      "deferred_to": "U-CAD-FIDX-INV-06"
+    },
+    {
+      "planned_id": "drawing_operations",
+      "scope": "2D drawing output: Base View, Projected View, Section View (Full / Half / Aligned / Offset), Detail View, Auxiliary View, Break View, Crop View, dimensions (Linear / Angular / Radius / Diameter / Chamfer / Baseline / Ordinate / Hole Table / Bend Table for sheet metal flat patterns), Note / Leader / Surface Texture / Weld Symbol / GD&T Frame, Title Block + Revision Table + Parts List.",
+      "estimated_params": 145,
+      "deferred_to": "U-CAD-FIDX-INV-07"
+    },
+    {
+      "planned_id": "assembly_operations",
+      "scope": "Assembly: Place Component, Pattern (Component-Pattern / Mirror), Constraints (Mate / Flush / Angle / Tangent / Insert / Symmetry / Rotation), Joints (Rigid / Rotational / Slider / Cylindrical / Planar / Ball — replaces legacy constraints in modern Inventor), Adaptivity, Frame Analysis, Bill of Materials, Interference Analysis.",
+      "estimated_params": 130,
+      "deferred_to": "U-CAD-FIDX-INV-08"
+    }
+  ]
+}

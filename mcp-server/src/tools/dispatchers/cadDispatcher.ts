@@ -188,6 +188,12 @@ const ACTIONS = [
   "cad_hypercad_operations_by_category",
   // hyperCAD-S discovery surface (U-CAD-FIDX-HCAD-DISCOVERY)
   "cad_hypercad_summary", "cad_hypercad_total_parameter_count", "cad_hypercad_load_errors",
+  // Autodesk Inventor CAD Function Index (U-CAD-FIDX-INV-01)
+  "cad_inventor_get_index", "cad_inventor_list_modules", "cad_inventor_list_operations",
+  "cad_inventor_get_operation", "cad_inventor_find_parameter", "cad_inventor_search_parameters",
+  "cad_inventor_operations_by_category",
+  // Inventor discovery surface (U-CAD-FIDX-INV-01 — full discovery from day 1)
+  "cad_inventor_summary", "cad_inventor_total_parameter_count", "cad_inventor_load_errors",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1853,6 +1859,166 @@ Params vary by action — pass relevant fields in params object.`,
               "../../engines/HyperCADCADFunctionIndexEngine.js"
             );
             const errors = HyperCADCADFunctionIndexEngine.getLoadErrors();
+            result = { success: true, count: errors.length, errors };
+            break;
+          }
+          // ─── Autodesk Inventor CAD Function Index (U-CAD-FIDX-INV-01) ─────
+          // 7 navigation actions + 3 discovery actions, mirroring the
+          // hyperCAD-S / Fusion 360 CAD Function Index dispatcher pattern.
+          case "cad_inventor_get_index": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            result = { success: true, index: InventorCADFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "cad_inventor_list_modules": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const modules = InventorCADFunctionIndexEngine.listModules();
+            result = { success: true, count: modules.length, modules };
+            break;
+          }
+          case "cad_inventor_list_operations": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operations = moduleId
+              ? InventorCADFunctionIndexEngine.listOperations(moduleId)
+              : InventorCADFunctionIndexEngine.listAllOperations();
+            result = { success: true, count: operations.length, operations };
+            break;
+          }
+          case "cad_inventor_get_operation": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_inventor_get_operation requires module_id and operation_id",
+                action,
+                "prism_cad"
+              );
+            }
+            const op = InventorCADFunctionIndexEngine.getOperation(moduleId, operationId);
+            result = op
+              ? { success: true, module_id: moduleId, operation_id: operationId, operation: op }
+              : { success: false, error: `Operation not found: ${moduleId}/${operationId}` };
+            break;
+          }
+          case "cad_inventor_find_parameter": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const parameterName = (params.parameter_name ?? params.parameterName) as
+              | string
+              | undefined;
+            if (!moduleId || !operationId || !parameterName) {
+              return dispatcherError(
+                "cad_inventor_find_parameter requires module_id, operation_id, and parameter_name",
+                action,
+                "prism_cad"
+              );
+            }
+            const found = InventorCADFunctionIndexEngine.findParameter(
+              moduleId,
+              operationId,
+              parameterName
+            );
+            result = found
+              ? { success: true, ...found }
+              : { success: false, error: `Parameter not found: ${parameterName}` };
+            break;
+          }
+          case "cad_inventor_search_parameters": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const query = params.query as string | undefined;
+            const limit = (params.limit as number | undefined) ?? 50;
+            if (!query) {
+              return dispatcherError(
+                "cad_inventor_search_parameters requires a 'query' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const matches = InventorCADFunctionIndexEngine.searchParameters(query, limit);
+            result = { success: true, query, count: matches.length, matches };
+            break;
+          }
+          case "cad_inventor_operations_by_category": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const category = params.category as string | undefined;
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            if (!category) {
+              return dispatcherError(
+                "cad_inventor_operations_by_category requires a 'category' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const operations = InventorCADFunctionIndexEngine.getOperationsByCategory(
+              category,
+              moduleId
+            );
+            result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+          case "cad_inventor_summary": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const index = InventorCADFunctionIndexEngine.getIndex();
+            const allOps = InventorCADFunctionIndexEngine.listAllOperations();
+            const totalParams = InventorCADFunctionIndexEngine.getTotalParameterCount();
+            result = {
+              success: true,
+              system_id: index.system_id,
+              module_name: index.module_name,
+              total_modules: index.coverage_summary.total_modules,
+              total_operations: allOps.length,
+              total_parameters: totalParams,
+              estimated_parameter_total: index.coverage_summary.estimated_parameter_total,
+              coverage_state:
+                (index.coverage_summary.api_surface as { coverage_state?: string } | undefined)
+                  ?.coverage_state ?? "UNKNOWN",
+              modules: index.modules.map((m) => ({
+                module_id: m.module_id,
+                covered_units: m.covered_units,
+                parameter_count_estimate: m.parameter_count_estimate,
+              })),
+            };
+            break;
+          }
+          case "cad_inventor_total_parameter_count": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const total = InventorCADFunctionIndexEngine.getTotalParameterCount();
+            const declared = InventorCADFunctionIndexEngine.getIndex().coverage_summary
+              .estimated_parameter_total;
+            result = {
+              success: true,
+              total_parameters: total,
+              declared_total: declared,
+              drift: total - declared,
+            };
+            break;
+          }
+          case "cad_inventor_load_errors": {
+            const { InventorCADFunctionIndexEngine } = await import(
+              "../../engines/InventorCADFunctionIndexEngine.js"
+            );
+            const errors = InventorCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
             break;
           }

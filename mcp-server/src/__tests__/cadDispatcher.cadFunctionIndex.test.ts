@@ -27,6 +27,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { registerCadDispatcher } from "../tools/dispatchers/cadDispatcher.js";
 import { HyperCADCADFunctionIndexEngine } from "../engines/HyperCADCADFunctionIndexEngine.js";
 import { Fusion360CADFunctionIndexEngine } from "../engines/Fusion360CADFunctionIndexEngine.js";
+import { InventorCADFunctionIndexEngine } from "../engines/InventorCADFunctionIndexEngine.js";
 
 interface CapturedTool {
   name: string;
@@ -190,30 +191,123 @@ describe("cadDispatcher — Fusion 360 discovery actions (U-CAD-FIDX-AUDIT-02 pa
   });
 });
 
+// ─── Inventor discovery surface (U-CAD-FIDX-INV-01 — full discovery from day 1) ──
+
+describe("cadDispatcher — Autodesk Inventor discovery actions (U-CAD-FIDX-INV-01)", () => {
+  it("cad_inventor_summary returns aggregated index summary", async () => {
+    const out = await invoke("cad_inventor_summary");
+    expect(out.success).toBe(true);
+    expect(out.system_id).toBe("inventor");
+    expect(typeof out.module_name).toBe("string");
+    expect(typeof out.total_modules).toBe("number");
+    expect(typeof out.total_operations).toBe("number");
+    expect(typeof out.total_parameters).toBe("number");
+    expect(typeof out.estimated_parameter_total).toBe("number");
+    expect(typeof out.coverage_state).toBe("string");
+    expect(Array.isArray(out.modules)).toBe(true);
+    expect((out.modules as unknown[]).length).toBe(out.total_modules);
+  });
+
+  it("cad_inventor_summary parity with engine getters (drift guard)", async () => {
+    const out = await invoke("cad_inventor_summary");
+    const index = InventorCADFunctionIndexEngine.getIndex();
+    const allOps = InventorCADFunctionIndexEngine.listAllOperations();
+    const totalParams = InventorCADFunctionIndexEngine.getTotalParameterCount();
+    expect(out.system_id).toBe(index.system_id);
+    expect(out.module_name).toBe(index.module_name);
+    expect(out.total_modules).toBe(index.coverage_summary.total_modules);
+    expect(out.total_operations).toBe(allOps.length);
+    expect(out.total_parameters).toBe(totalParams);
+    expect(out.estimated_parameter_total).toBe(index.coverage_summary.estimated_parameter_total);
+  });
+
+  it("cad_inventor_total_parameter_count exposes drift between live + declared", async () => {
+    const out = await invoke("cad_inventor_total_parameter_count");
+    expect(out.success).toBe(true);
+    expect(typeof out.total_parameters).toBe("number");
+    expect(typeof out.declared_total).toBe("number");
+    expect(typeof out.drift).toBe("number");
+    expect(out.drift).toBe(
+      (out.total_parameters as number) - (out.declared_total as number),
+    );
+  });
+
+  it("cad_inventor_total_parameter_count matches engine getter", async () => {
+    const out = await invoke("cad_inventor_total_parameter_count");
+    expect(out.total_parameters).toBe(InventorCADFunctionIndexEngine.getTotalParameterCount());
+    expect(out.declared_total).toBe(
+      InventorCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total,
+    );
+  });
+
+  it("cad_inventor_load_errors returns error array (empty when healthy)", async () => {
+    const out = await invoke("cad_inventor_load_errors");
+    expect(out.success).toBe(true);
+    expect(typeof out.count).toBe("number");
+    const errors = (out.errors as unknown[] | undefined) ?? [];
+    expect(Array.isArray(errors)).toBe(true);
+    expect(errors.length).toBe(out.count);
+    expect(out.count).toBe(InventorCADFunctionIndexEngine.getLoadErrors().length);
+  });
+
+  it("cad_inventor_list_modules surfaces sketch_operations", async () => {
+    const out = await invoke("cad_inventor_list_modules");
+    expect(out.success).toBe(true);
+    expect(out.modules).toEqual(["sketch_operations"]);
+    expect(out.count).toBe(1);
+  });
+
+  it("cad_inventor_get_operation('sketch_operations','LINE') returns the LINE op", async () => {
+    const out = await invoke("cad_inventor_get_operation", {
+      module_id: "sketch_operations",
+      operation_id: "LINE",
+    });
+    expect(out.success).toBe(true);
+    expect(out.module_id).toBe("sketch_operations");
+    expect(out.operation_id).toBe("LINE");
+    const op = out.operation as { category?: string; python_api?: string };
+    expect(op.category).toBe("Sketch_Primitive_Line");
+    expect(op.python_api).toContain("AddByTwoPoints");
+  });
+
+  it("cad_inventor_find_parameter requires module_id, operation_id, parameter_name", async () => {
+    const out = await invoke("cad_inventor_find_parameter", {});
+    expect(out.success).toBe(false);
+    expect(typeof out.error).toBe("string");
+    expect(out.error as string).toContain("module_id");
+  });
+});
+
 // ─── Cross-system parity ──────────────────────────────────────────────────
 
 describe("cadDispatcher — cross-system discovery parity", () => {
-  it("hyperCAD-S and Fusion 360 expose the same discovery action triplet", async () => {
+  it("hyperCAD-S, Fusion 360, and Inventor expose the same discovery action triplet", async () => {
     const hcadKeys = Object.keys(await invoke("cad_hypercad_summary")).sort();
     const f360Keys = Object.keys(await invoke("cad_fusion360_summary")).sort();
+    const invKeys = Object.keys(await invoke("cad_inventor_summary")).sort();
     expect(hcadKeys).toEqual(f360Keys);
+    expect(hcadKeys).toEqual(invKeys);
   });
 
-  it("both systems' total_parameter_count return the same shape", async () => {
+  it("all three systems' total_parameter_count return the same shape", async () => {
     const hcadKeys = Object.keys(await invoke("cad_hypercad_total_parameter_count")).sort();
     const f360Keys = Object.keys(await invoke("cad_fusion360_total_parameter_count")).sort();
+    const invKeys = Object.keys(await invoke("cad_inventor_total_parameter_count")).sort();
     expect(hcadKeys).toEqual(f360Keys);
+    expect(hcadKeys).toEqual(invKeys);
     expect(hcadKeys).toEqual(["declared_total", "drift", "success", "total_parameters"]);
   });
 
-  it("both systems' load_errors return the same shape", async () => {
+  it("all three systems' load_errors return the same shape", async () => {
     const hcadKeys = Object.keys(await invoke("cad_hypercad_load_errors")).sort();
     const f360Keys = Object.keys(await invoke("cad_fusion360_load_errors")).sort();
+    const invKeys = Object.keys(await invoke("cad_inventor_load_errors")).sort();
     expect(hcadKeys).toEqual(f360Keys);
-    // slimResponse strips empty `errors` arrays — when both systems are
-    // healthy, key set is ["count", "success"]; when either has loaded
+    expect(hcadKeys).toEqual(invKeys);
+    // slimResponse strips empty `errors` arrays — when all systems are
+    // healthy, key set is ["count", "success"]; when any has loaded
     // errors, key set is ["count", "errors", "success"]. Either is valid as
-    // long as the two systems agree.
+    // long as the systems agree.
     const allowed = [
       ["count", "success"],
       ["count", "errors", "success"],
