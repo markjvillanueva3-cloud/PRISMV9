@@ -289,8 +289,8 @@ class WEDMGapVoltageControlEngine {
     const dielectric = this.getDielectricProperties(dielectric_type);
 
     // Binary search for optimal gap at given debris
-    let low = EDM_PHYSICS.gap_voltage.min_gap_um;
-    let high = EDM_PHYSICS.gap_voltage.max_gap_um;
+    let low: number = EDM_PHYSICS.gap_voltage.min_gap_um;
+    let high: number = EDM_PHYSICS.gap_voltage.max_gap_um;
     let optimal_gap = (low + high) / 2;
     let max_P_d = 0;
 
