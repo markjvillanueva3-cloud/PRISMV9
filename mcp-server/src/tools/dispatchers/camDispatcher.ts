@@ -1605,6 +1605,8 @@ export const ACTIONS = [
   "cam_fixture_part_list", "cam_fixture_part_list_by_category", "cam_fixture_part_list_by_host", "cam_fixture_part_get", "cam_fixture_part_count", "cam_fixture_part_count_by_category", "cam_fixture_part_audit",
   // CAM-EXHAUST-MS0 U-CAMTEST06 — Stock + Workholding Catalog (100 setups = 20 parts × 5 templates)
   "cam_stock_setup_list", "cam_stock_setup_list_by_part", "cam_stock_setup_list_by_material", "cam_stock_setup_list_by_form", "cam_stock_setup_get", "cam_stock_setup_count", "cam_stock_setup_count_by_material", "cam_stock_setup_audit",
+  // CAM-EXHAUST-MS0 U-CAMTEST07 — Material × Tool 3×3 matrix (9 slots, materializes per part = 180 combos)
+  "cam_mt_matrix_slots", "cam_mt_matrix_tool_classes_for", "cam_mt_matrix_combos_for_part", "cam_mt_matrix_get_combo", "cam_mt_matrix_all_combos", "cam_mt_matrix_expected_count", "cam_mt_matrix_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12513,6 +12515,47 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_stock_setup_audit": {
             const { StockWorkholdingCatalogEngine } = await import("../../engines/StockWorkholdingCatalogEngine.js");
             result = StockWorkholdingCatalogEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST07: Material × Tool Matrix ──
+          case "cam_mt_matrix_slots": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            result = { slots: MaterialToolMatrixEngine.slots() };
+            break;
+          }
+          case "cam_mt_matrix_tool_classes_for": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            const category = params.category as Parameters<typeof MaterialToolMatrixEngine.toolClassesFor>[0];
+            result = { category, tool_classes: MaterialToolMatrixEngine.toolClassesFor(category) };
+            break;
+          }
+          case "cam_mt_matrix_combos_for_part": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            const partId = params.part_id as string;
+            result = { part_id: partId, combos: MaterialToolMatrixEngine.comboesForPart(partId) };
+            break;
+          }
+          case "cam_mt_matrix_get_combo": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            const partId = params.part_id as string;
+            const slotId = params.slot_id as string;
+            result = { part_id: partId, slot_id: slotId, combo: MaterialToolMatrixEngine.getCombo(partId, slotId) };
+            break;
+          }
+          case "cam_mt_matrix_all_combos": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            result = { combos: MaterialToolMatrixEngine.allCombos() };
+            break;
+          }
+          case "cam_mt_matrix_expected_count": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            result = { expected: MaterialToolMatrixEngine.expectedComboCount() };
+            break;
+          }
+          case "cam_mt_matrix_audit": {
+            const { MaterialToolMatrixEngine } = await import("../../engines/MaterialToolMatrixEngine.js");
+            result = MaterialToolMatrixEngine.auditMatrix();
             break;
           }
 
