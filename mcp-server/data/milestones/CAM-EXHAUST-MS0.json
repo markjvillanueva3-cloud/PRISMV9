@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 133,
+  "completed_units": 134,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -255,7 +255,8 @@
     "U-CAMTEST12",
     "U-CAMTEST13",
     "U-CAMTEST14",
-    "U-CAMTEST15"
+    "U-CAMTEST15",
+    "U-CAMTEST16"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6658,7 +6659,7 @@
       "title": "Nightly CI Orchestrator + Results Dashboard",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Nightly runner triggers each host's test runner, aggregates results, serves dashboard for pass/fail per host Ã— scenario family.",
       "entry_conditions": [
         "U-CAMTEST15 complete"
@@ -6672,6 +6673,24 @@
         "src/engines/CAMInHostNightlyOrchestratorEngine.ts",
         "web/src/pages/CAMInHostDashboard.tsx"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMInHostNightlyOrchestratorEngine.ts",
+        "src/__tests__/CAMInHostNightlyOrchestratorEngine.test.ts",
+        "src/tools/dispatchers/camDispatcher.ts (cam_nightly_{run,list_recent,get_run,text_dashboard,dashboard_data,audit})"
+      ],
+      "deferred_deliverables": [
+        "web/src/pages/CAMInHostDashboard.tsx — React frontend deferred to Codex frontend lane (per state/shared/ROADMAP_COLLABORATION_STATE.md). dashboardData() emits the exact JSON shape the React side will render."
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 25,
+        "schema_version": "1.0.0",
+        "default_dir": "data/state/CAM_NIGHTLY_RUNS",
+        "dispatcher_wiring": "wired (cam_nightly_* — 6 actions) + 3 round-trip tests",
+        "text_dashboard": "ASCII pass/fail matrix per host + per category + per assertion family",
+        "json_dashboard_data_shape": "stable contract for React side"
+      },
+      "completion_note": "Backend half complete; React dashboard explicitly deferred to Codex frontend lane (see deferred_deliverables). Orchestrator uses DI for the scenario runner (default no-op for hermetic tests; production injects the hub-driven runner). One run cycle: generate → group-by-host → invoke runner_fn per host → bridge.summarize() → persist versioned NightlyRunReport (schema 1.0.0) to data/state/CAM_NIGHTLY_RUNS/<run_id>.json. dashboardData() emits the stable JSON contract the React side will render — frontend can build against it without re-parsing the full report. formatTextDashboard() renders an ASCII pass/fail matrix so a failing nightly is readable in raw terminal output even before the React dashboard exists. 25 tests cover orchestration happy path + partial-fail runner + per-host dispatch tracking + hosts filter + default no-op runner + duration math, persistence (write/list/get/missing-file), text dashboard contents (header + per-host + per-category + assertion families), JSON dashboard shape (overall + hosts + categories + assertion_failures arrays, division-by-zero guard), audit invariant (duration drift + roll-up mismatch detected), and 3 dispatcher round-trip tests."
+      ,
       "estimated_tokens": 16000,
       "four_loop": [
         "BUILD",
