@@ -508,6 +508,11 @@ const ACTIONS = [
   "milling_deep_harden", "milling_deep_validate", "milling_deep_optimize",
   // MillingMachineIntelligenceEngine (4 actions) — MILL-AI-MS4
   "milling_machine_profile", "milling_machine_select", "milling_machine_compare", "milling_machine_capability",
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P5: Orphan reasoning engines wired (4 actions) =====
+  "creative_solve",          // P5-U01 → PRISMCreativeReasoningEngine.explore
+  "causal_analyze",          // P5-U02 → CausalReasoningEngine.traceImpact|rootCauses
+  "counterfactual_predict",  // P5-U03 → CounterfactualReasoningEngine.generateCounterfactual
+  "scientific_reason",       // P5-U04 → ScientificReasoningEngine.reason
 ] as const;
 
 function ok(data: any) {
@@ -6112,6 +6117,133 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "milling_machine_capability": {
             const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
             return ok(millingMachineIntelligenceEngine.checkCapability?.(params as any) ?? millingMachineIntelligenceEngine.getCapabilities?.(params as any));
+          }
+
+          // ============================================================
+          // INTEL-OLLAMA-OBSIDIAN-MS0 / P5-U01..U04: orphan reasoning engines
+          // Each was previously built but had NO dispatcher wiring (5-agent
+          // forge-audit finding). These four bring them online; P5-U05
+          // (DiagnosticReasoningEngine) lives on intelligenceDispatcher
+          // since the engine targets shop-floor diagnosis.
+          // ============================================================
+
+          // P5-U01 — PRISMCreativeReasoningEngine.explore
+          // Required: domain, objective, desiredOutcome, flexibility
+          // Optional: constraints[], currentApproach, mode (default: "exploratory")
+          case "creative_solve": {
+            const required = ["domain", "objective", "desiredOutcome", "flexibility"] as const;
+            const missing = required.filter((k) => params[k] === undefined || params[k] === null);
+            if (missing.length > 0) {
+              return ok({ error: `creative_solve missing required params: ${missing.join(", ")}` });
+            }
+            const validFlex = ["strict", "moderate", "flexible", "maximum"];
+            if (!validFlex.includes(String(params.flexibility))) {
+              return ok({ error: `creative_solve flexibility must be one of ${validFlex.join("|")}` });
+            }
+            const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+            const result = prismCreativeReasoningEngine.explore(
+              {
+                domain: params.domain,
+                objective: String(params.objective),
+                constraints: Array.isArray(params.constraints) ? params.constraints.map(String) : [],
+                currentApproach: typeof params.currentApproach === "string" ? params.currentApproach : undefined,
+                desiredOutcome: String(params.desiredOutcome),
+                flexibility: params.flexibility,
+              },
+              typeof params.mode === "string" ? (params.mode as any) : "exploratory",
+            );
+            return ok(result);
+          }
+
+          // P5-U02 — CausalReasoningEngine
+          // Mode 1: traceImpact — required: source, optional: maxHops (default 3)
+          // Mode 2: rootCauses  — required: target, optional: maxHops (default 3)
+          // Optional: edges[] to seed the graph before tracing.
+          case "causal_analyze": {
+            const hasSource = typeof params.source === "string" && params.source.length > 0;
+            const hasTarget = typeof params.target === "string" && params.target.length > 0;
+            if (!hasSource && !hasTarget) {
+              return ok({ error: "causal_analyze requires either 'source' (traceImpact) or 'target' (rootCauses)" });
+            }
+            if (hasSource && hasTarget) {
+              return ok({ error: "causal_analyze: pass either source OR target, not both" });
+            }
+            const maxHopsRaw = params.maxHops;
+            const maxHops = Number.isFinite(maxHopsRaw) && Number(maxHopsRaw) > 0 ? Math.min(20, Math.floor(Number(maxHopsRaw))) : 3;
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            // Seed edges only if explicitly requested. The caller takes
+            // responsibility for not corrupting the shared singleton.
+            // CausalEdge shape (per CausalReasoningEngine.ts): {from, to, confidence ∈ [0,1], polarity, reason?}.
+            if (Array.isArray(params.edges)) {
+              const validPolarities = ["positive", "negative", "unknown"];
+              for (const e of params.edges as Array<{ from: string; to: string; confidence?: number; polarity?: string; reason?: string }>) {
+                if (typeof e?.from !== "string" || typeof e?.to !== "string") continue;
+                if (e.from === e.to) continue;
+                const confidence = typeof e.confidence === "number" && Number.isFinite(e.confidence) ? Math.max(0, Math.min(1, e.confidence)) : 0.7;
+                const polarity = validPolarities.includes(String(e.polarity)) ? (e.polarity as any) : "positive";
+                causalReasoningEngine.addEdge({
+                  from: e.from,
+                  to: e.to,
+                  confidence,
+                  polarity,
+                  reason: typeof e.reason === "string" ? e.reason : undefined,
+                });
+              }
+            }
+            if (hasSource) {
+              return ok({ mode: "traceImpact", source: params.source, maxHops, report: causalReasoningEngine.traceImpact(params.source, maxHops) });
+            }
+            return ok({ mode: "rootCauses", target: params.target, maxHops, causes: causalReasoningEngine.rootCauses(params.target, maxHops) });
+          }
+
+          // P5-U03 — CounterfactualReasoningEngine
+          // Required: variables[], variable, counterfactual_value
+          // Optional: domain (default "machining")
+          case "counterfactual_predict": {
+            if (!Array.isArray(params.variables) || params.variables.length === 0) {
+              return ok({ error: "counterfactual_predict requires 'variables[]' (CausalVariable[])" });
+            }
+            if (typeof params.variable !== "string" || params.variable.length === 0) {
+              return ok({ error: "counterfactual_predict requires 'variable' (target name) string" });
+            }
+            if (params.counterfactual_value === undefined || params.counterfactual_value === null) {
+              return ok({ error: "counterfactual_predict requires 'counterfactual_value' (number|string|boolean)" });
+            }
+            const validDomains = ["machining", "edm", "grinding", "custom"];
+            const domain = validDomains.includes(String(params.domain)) ? params.domain : "machining";
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            const graph = counterfactualReasoningEngine.createCausalGraph(params.variables as any, domain as any);
+            const counterfactual = counterfactualReasoningEngine.generateCounterfactual(
+              graph.id,
+              params.variable,
+              params.counterfactual_value as number | string | boolean,
+            );
+            if (counterfactual === null) {
+              return ok({ error: `counterfactual_predict: variable '${params.variable}' not found in graph`, graphId: graph.id });
+            }
+            return ok({ graphId: graph.id, domain, counterfactual });
+          }
+
+          // P5-U04 — ScientificReasoningEngine.reason
+          // Required: problem (string), inputs (Record<string, PhysicalQuantity>),
+          //           calculationType (string)
+          case "scientific_reason": {
+            if (typeof params.problem !== "string" || params.problem.length === 0) {
+              return ok({ error: "scientific_reason requires non-empty 'problem' string" });
+            }
+            if (!params.inputs || typeof params.inputs !== "object") {
+              return ok({ error: "scientific_reason requires 'inputs' (Record<string, PhysicalQuantity>)" });
+            }
+            if (typeof params.calculationType !== "string" || params.calculationType.length === 0) {
+              return ok({ error: "scientific_reason requires non-empty 'calculationType' string" });
+            }
+            const { scientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+            const reasoning = scientificReasoningEngine.reason(
+              params.problem,
+              params.inputs as any,
+              params.calculationType,
+            );
+            return ok(reasoning);
           }
 
           default:
