@@ -186,6 +186,131 @@ export const whiteLayerThresholdsTableSchema = z.record(
 );
 
 // ============================================================================
+// PER-BLOCK S/F ANNOTATIONS — MS0/U-PPGM07 (schema 1.1.0)
+// ----------------------------------------------------------------------------
+// Carries one entry per emitted G-code block whose S/F values were derived
+// from physics — not just the canonical recommendation tables. This lets the
+// closed-loop SFC compare actual (operator-cut) values against what the post
+// emitted, attribute drift to a specific physics chain, and refuse to load a
+// post whose block-level numerics don't match the sidecar (NoInlinePhysics
+// gate, U-PPGM04).
+//
+// Backward compat: optional. Pre-1.1.0 sidecars omit this field; loaders
+// must tolerate `undefined` and treat as "no per-block telemetry".
+// ============================================================================
+
+/** Discriminator for which physics path produced the block's S/F values. */
+const physicsBasisSchema = z.enum([
+  "kienzle",            // Specific cutting force model (Sandvik / ISO 3685)
+  "taylor",             // Tool life equation (Taylor 1907 / ISO 3685)
+  "sle_chatter",        // Stability lobe envelope (Altintas / Budak)
+  "empirical_table",    // CANONICAL_*_SPEEDS / CANONICAL_*_FEEDS lookup
+  "operator_override",  // Manual override — emitted, but not physics-derived
+]);
+export type PhysicsBasis = z.infer<typeof physicsBasisSchema>;
+
+const emittedSpeedFeedSchema = z.object({
+  /** Surface speed [m/min]. */
+  vc_mpm: finitePositive,
+  /** Feed per tooth [mm]. Optional (turning ops use fn instead). */
+  fpt_mm: finitePositive.optional(),
+  /** Feed per revolution [mm/rev]. Optional (milling uses fpt). */
+  fn_mmrev: finitePositive.optional(),
+  /** Axial depth of cut [mm]. */
+  ap_mm: finitePositive.optional(),
+  /** Radial depth / stepover [mm]. */
+  ae_mm: finitePositive.optional(),
+  /** Spindle speed [rpm]. Required — every block has an emitted S. */
+  S_rpm: finitePositive,
+  /** Linear feed [mm/min]. Required — every block has an emitted F. */
+  F_mmpm: finitePositive,
+});
+export type EmittedSpeedFeed = z.infer<typeof emittedSpeedFeedSchema>;
+
+export const blockAnnotationSchema = z.object({
+  /**
+   * Block identifier matching the post output. Convention: "N<seq>" for
+   * sequence-numbered posts, or any non-empty string the post emits as a
+   * stable label. MUST be unique within a single sidecar's block_annotations.
+   */
+  block_id: z.string().min(1),
+  /** Operation identifier from the caller's CAM job (e.g., "rough_pocket_1"). */
+  op_id: z.string().min(1),
+  /** ISO material group of the cut workpiece for this block. */
+  iso_group: isoGroupSchema,
+  /** Tool material substrate for this block. */
+  tool_material: toolMaterialSchema,
+  /** S/F values actually emitted to the .cps post for this block. */
+  emitted: emittedSpeedFeedSchema,
+  /** Which physics chain produced the emitted values. */
+  physics_basis: physicsBasisSchema,
+  /**
+   * Stochastic confidence in [0,1] from the physics chain.
+   * 1.0 = canonical certainty, 0.0 = pure guess. Operator overrides should
+   * report 1.0 (they bypass uncertainty propagation by definition).
+   */
+  confidence: z
+    .number()
+    .refine((v) => Number.isFinite(v) && v >= 0 && v <= 1, {
+      message: "confidence must be in [0, 1]",
+    }),
+  /**
+   * Multiplicative safety margin applied to the physics-derived value.
+   * 1.0 = no derate; 0.85 = 15% conservative. Strictly positive and ≤1.5
+   * (a margin >1.5 is a sign of upstream bug, not legitimate safety).
+   */
+  safety_margin: z
+    .number()
+    .refine((v) => Number.isFinite(v) && v > 0 && v <= 1.5, {
+      message: "safety_margin must be in (0, 1.5]",
+    }),
+  /**
+   * Names of canonical constants pulled from src/physics/constants.ts that
+   * drove this block's values (e.g. ["CANONICAL_KIENZLE.P","CANONICAL_TAYLOR.P"]).
+   * Empty array iff physics_basis === "operator_override".
+   */
+  source_constants: z.array(z.string().min(1)),
+});
+export type BlockAnnotation = z.infer<typeof blockAnnotationSchema>;
+
+/**
+ * Validate block_annotations array as a whole — catches duplicate block_ids
+ * and the operator_override invariant (must have empty source_constants).
+ * Used as a refinement on the master schema below.
+ */
+function validateBlockAnnotationsArray(
+  arr: BlockAnnotation[],
+  ctx: z.RefinementCtx,
+): void {
+  const seen = new Set<string>();
+  for (let i = 0; i < arr.length; i++) {
+    const a = arr[i];
+    if (seen.has(a.block_id)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "block_id"],
+        message: `duplicate block_id "${a.block_id}" — block_ids must be unique within a sidecar`,
+      });
+    }
+    seen.add(a.block_id);
+    if (a.physics_basis === "operator_override" && a.source_constants.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "source_constants"],
+        message: "operator_override blocks must have empty source_constants (override bypasses physics)",
+      });
+    }
+    if (a.physics_basis !== "operator_override" && a.source_constants.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "source_constants"],
+        message: `physics_basis "${a.physics_basis}" requires at least one source constant reference`,
+      });
+    }
+  }
+}
+
+// ============================================================================
 // EDM PHYSICS — verbatim subtree from EDM_PHYSICS (passthrough — verified by SHA)
 // ============================================================================
 
@@ -226,27 +351,41 @@ export const sidecarMetaSchema = z.object({
 // MASTER SIDECAR SCHEMA
 // ============================================================================
 
-export const postPhysicsSidecarSchema = z.object({
-  meta: sidecarMetaSchema,
-  kienzle: kienzleTableSchema,
-  taylor: taylorTableSchema,
-  extended_taylor: extendedTaylorTableSchema,
-  tool_modulus_MPa: toolModulusTableSchema,
-  white_layer_thresholds: whiteLayerThresholdsTableSchema,
-  edm_physics: edmPhysicsSchema,
-  canonical_turning_speeds: speedFeedTableSchema,
-  canonical_turning_feeds: speedFeedTableSchema,
-  canonical_milling_speeds: speedFeedTableSchema,
-  canonical_milling_feeds: speedFeedTableSchema,
-});
+export const postPhysicsSidecarSchema = z
+  .object({
+    meta: sidecarMetaSchema,
+    kienzle: kienzleTableSchema,
+    taylor: taylorTableSchema,
+    extended_taylor: extendedTaylorTableSchema,
+    tool_modulus_MPa: toolModulusTableSchema,
+    white_layer_thresholds: whiteLayerThresholdsTableSchema,
+    edm_physics: edmPhysicsSchema,
+    canonical_turning_speeds: speedFeedTableSchema,
+    canonical_turning_feeds: speedFeedTableSchema,
+    canonical_milling_speeds: speedFeedTableSchema,
+    canonical_milling_feeds: speedFeedTableSchema,
+    /**
+     * Per-block S/F annotations. Optional — pre-1.1.0 sidecars omit this
+     * field, and loaders treat absence as "no per-block telemetry available".
+     * MS0/U-PPGM07 introduces this field at schema 1.1.0 (additive, backward
+     * compatible).
+     */
+    block_annotations: z
+      .array(blockAnnotationSchema)
+      .superRefine(validateBlockAnnotationsArray)
+      .optional(),
+  });
 
 export type PostPhysicsSidecar = z.infer<typeof postPhysicsSidecarSchema>;
 
 // ============================================================================
 // CURRENT SCHEMA VERSION
+// ----------------------------------------------------------------------------
+// 1.0.0 — initial sealed sidecar (kienzle/taylor/EDM/canonical S+F tables)
+// 1.1.0 — additive: optional block_annotations[] (MS0/U-PPGM07)
 // ============================================================================
 
-export const POST_PHYSICS_SIDECAR_SCHEMA_VERSION = "1.0.0";
+export const POST_PHYSICS_SIDECAR_SCHEMA_VERSION = "1.1.0";
 
 // ============================================================================
 // CANONICAL BUILDER — pulls from src/physics/constants.ts (no inlining)
