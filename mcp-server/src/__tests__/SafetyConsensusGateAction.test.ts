@@ -177,8 +177,9 @@ describe("prism_safety:consensus_gate — schema validation", () => {
     const good = schema.safeParse({ input: "real input", context: { sessionId: "s" } });
     expect(good.success).toBe(true);
     if (good.success) {
-      expect(good.data.input).toBe("real input");
-      expect(good.data.context?.sessionId).toBe("s");
+      const data = good.data as { input: string; context?: { sessionId?: string } };
+      expect(data.input).toBe("real input");
+      expect(data.context?.sessionId).toBe("s");
     }
   });
 
