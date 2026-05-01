@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 88,
+  "completed_units": 91,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -2167,7 +2167,7 @@
       "title": "PowerMill â€” 5-Axis & Robot Machining Functions",
       "phase": "PHASE-2",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract PowerMill 5-axis and robot machining strategies.",
       "entry_conditions": [
         "U-CAM44 complete"
@@ -2186,14 +2186,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-27T12:48:08.000Z",
+      "shipped_artifacts": [
+        "data/cam-functions/powermill/5axis-robot.json â€” 14 ops across 4 categories (continuous_5axis, indexed_5axis, blade_hub_port, robot_machining), 298 declared parameters",
+        "src/engines/PowerMill5AxisFunctionIndexEngine.ts â€” 9 methods (getCatalog, listOperations, getOperation, listByCategory, getCategories, recommendByFeature, axisLimitCheck, singularityRiskEstimate, toolReachCheck)",
+        "src/__tests__/PowerMill5AxisFunctionIndexEngine.test.ts â€” 32 passing cases",
+        "9 dispatcher actions (pm_5axis_*) wired in camDispatcher.ts"
+      ],
+      "shipped_in_commit": "5d7856056",
+      "status_reconciled_at": "2026-05-01T16:34:00.000Z",
+      "status_reconcile_note": "Build shipped 2026-04-27 via commit 5d7856056 on work/cam-exhaust-ms0; status field never updated. Reconciled by claude-839c3a5b after verifying deliverable + tests (32/32 pass)."
     },
     {
       "id": "U-CAM46",
       "title": "PowerMill â€” Complete Function Index Assembly",
       "phase": "PHASE-2",
       "type": "integration",
-      "status": "not_started",
+      "status": "complete",
       "description": "Assemble all PowerMill functions into unified CAMFunctionIndex.",
       "entry_conditions": [
         "U-CAM43 through U-CAM45 complete"
@@ -2213,14 +2223,24 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-26T23:16:17.000Z",
+      "shipped_artifacts": [
+        "src/engines/PowerMillUnifiedFunctionIndexEngine.ts â€” 448-line engine aggregating all 3 PowerMill catalogs (roughing, finishing, 5axis_robot): 38 operations, 708 parameters across 13 categories. Methods: getUnifiedCatalog, listAllOperations, getOperation, searchOperations, listAllCategories, listByCategory, recommendByIntent, getCatalogStats, validateAllCatalogs, suggestWorkflow",
+        "src/__tests__/PowerMillUnifiedFunctionIndexEngine.test.ts â€” 34/34 passing (cross-catalog search, workflow suggestions, validation invariants)",
+        "10 dispatcher actions (pm_unified_catalog, pm_unified_list, pm_unified_get, pm_unified_search, pm_unified_categories, pm_unified_by_category, pm_unified_recommend, pm_unified_stats, pm_unified_validate, pm_unified_workflow) wired in camDispatcher.ts"
+      ],
+      "shipped_in_commit": "12d1e3a17",
+      "deliverable_deviation_note": "Implementation chose PowerMillUnifiedFunctionIndexEngine (engine-driven aggregation) over the originally-specified PowerMillFunctionIndexEngine + standalone function-index.json (data-driven manifest). The Unified engine reads roughing/finishing/5axis-robot.json on demand instead of materializing a separate manifest. Functionally equivalent: cross-catalog search, intent routing, validation, stats. A parallel sibling-branch implementation (work/cam-exhaust-cam43-plus commit 51649ddf4) used the manifest pattern; the main-branch unified-engine pattern was chosen as canonical.",
+      "status_reconciled_at": "2026-05-01T16:36:00.000Z",
+      "status_reconcile_note": "Build shipped 2026-04-26 via commit 12d1e3a17 on work/cam-exhaust-ms0; status field never updated. Reconciled by claude-839c3a5b after verifying engine + tests (34/34 pass) + dispatcher wiring (10 pm_unified_* actions)."
     },
     {
       "id": "U-CAM47",
       "title": "CATIA Machining â€” Prismatic & Surface Machining Functions",
       "phase": "PHASE-2",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract CATIA Machining: Prismatic Machining, Surface Machining, Advanced Machining, DELMIA integration.",
       "entry_conditions": [
         "U-CAM46 complete"
@@ -2239,7 +2259,17 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
-      ]
+      ],
+      "completed_at": "2026-04-27T01:03:16.000Z",
+      "shipped_artifacts": [
+        "data/cam-functions/catia/machining.json â€” 16 ops across 6 categories (prismatic_machining, surface_machining, advanced_machining, drilling, lathe_machining, delmia_integration), 316 parameters from V5-6R2024/3DEXPERIENCE docs",
+        "src/engines/CATIAMachiningFunctionIndexEngine.ts â€” pivots ops by category into 6 virtual sections, 12+ static methods incl. getSurfaceMachiningOperations and getLatheMachiningOperations specialty surfaces (added later via U-CAM-FIDX-23 commit 6e46021b7)",
+        "src/__tests__/CATIAMachiningFunctionIndexEngine.test.ts â€” 50 passing cases",
+        "10 dispatcher actions wired in camDispatcher.ts"
+      ],
+      "shipped_in_commit": "1908fa0db",
+      "status_reconciled_at": "2026-05-01T16:34:30.000Z",
+      "status_reconcile_note": "Catalog shipped 2026-04-27 via commit 1908fa0db on work/cam-exhaust-ms0; FunctionIndex engine + tests added 2026-04-27 via U-CAM-FIDX-23 commit 6e46021b7. Status field never updated. Reconciled by claude-839c3a5b after verifying deliverable + tests (50/50 pass)."
     },
     {
       "id": "U-CAM48",
