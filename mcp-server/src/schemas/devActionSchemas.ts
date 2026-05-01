@@ -304,4 +304,9 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     min_usage_threshold: z.number().int().nonnegative().optional().describe("Floor on usage count"),
     max_usage_threshold: z.number().int().positive().optional().describe("Ceiling on usage count"),
   }).passthrough(),
+
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P8-U05 - schema quality audit
+  // No required input: scans the canonical schemas/ + tools/schemas/ directories
+  // and returns z.any() residue, .describe() coverage, and schema-vs-dispatcher drift.
+  schema_coverage_audit: z.object({}).passthrough(),
 };

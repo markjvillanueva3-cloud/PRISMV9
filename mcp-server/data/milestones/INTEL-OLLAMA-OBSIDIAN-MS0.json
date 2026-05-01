@@ -1406,7 +1406,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "complete",
+          "shipped_at": "2026-05-01T20:13:00.000Z",
+          "shipped_by": "claude-ba192f8a",
+          "ship_notes": "SchemaQualityAuditEngine.ts (190 LOC) + dispatcher action wiring (z.enum entry, lazy-import case handler in devDispatcher.ts:3398-3402, Zod schema in devActionSchemas.ts) + SchemaQualityAuditEngine.test.ts (12 cases, all green). Engine reports z.any() residue (0 on the cleaned schemas — built-in regression guard), .describe() coverage (4,150 / 13,404 = 31% baseline; tracks P8-U04 phase 2 progress), and schema-vs-dispatcher drift (orphan schemas + dispatchers without matching schema). Test file actual name SchemaQualityAuditEngine.test.ts (envelope spec said SchemaCoverageAudit.test.ts; both names point to the same exit condition — kept the engine-test-pair convention). Dispatcher round-trip uses text-grep pattern (matches BuildAdvisorEngine.test.ts:429 precedent) because runtime Zod import is blocked by missing node_modules/zod on this worktree (pre-existing env gap, not P8-U05's responsibility). All 58 P8 tests green: AuditZany 24, AddSchemaDescribes 22, SchemaQualityAuditEngine 12."
         },
         {
           "id": "P8-U06",
