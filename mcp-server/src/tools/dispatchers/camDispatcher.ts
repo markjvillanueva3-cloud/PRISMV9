@@ -1157,6 +1157,8 @@ export const ACTIONS = [
   "wedm_dialect_verify", "wedm_dialect_gate", "wedm_dialect_resolve",
   // WEDM-WIRE-MS0: lightweight orphan engine wiring (verify + tier6 gate + pre-flight checklist)
   "wedm_program_verify", "wedm_tier6_geom_validate", "wedm_preflight_checklist",
+  // WEDM-WIRE-MS0/Batch2: wire-break risk + setup sheet + job-pattern learner
+  "wedm_wire_break_risk", "wedm_setup_sheet_generate", "wedm_job_pattern_learn",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -5916,6 +5918,39 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { wedmPreFlightCheckEngine } = await import("../../engines/WEDMPreFlightCheckEngine.js");
             try {
               result = wedmPreFlightCheckEngine.generateChecklist(params as Parameters<typeof wedmPreFlightCheckEngine.generateChecklist>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch2: wire-break risk + setup sheet + job-pattern learner ──
+          case "wedm_wire_break_risk": {
+            const { wedmWireBreakRiskCostEngine } = await import("../../engines/WEDMWireBreakRiskCostEngine.js");
+            try {
+              result = wedmWireBreakRiskCostEngine.calculate(params as Parameters<typeof wedmWireBreakRiskCostEngine.calculate>[0]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_setup_sheet_generate": {
+            const { generateSetupSheet } = await import("../../engines/WEDMSetupSheetEngine.js");
+            const programResult = (params as Record<string, unknown>).program_result;
+            if (!programResult || typeof programResult !== "object") { result = { success: false, error: "program_result required (WEDMProgramResult)" }; break; }
+            try {
+              const hardness = Number((params as Record<string, unknown>).hardness_hrc ?? 60);
+              result = generateSetupSheet(programResult as Parameters<typeof generateSetupSheet>[0], hardness);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_job_pattern_learn": {
+            const { wedmJobPatternLearnerEngine } = await import("../../engines/WEDMJobPatternLearnerEngine.js");
+            const jobs = (params as Record<string, unknown>).jobs;
+            if (!Array.isArray(jobs)) { result = { success: false, error: "jobs array required (JobRecord[])" }; break; }
+            try {
+              result = wedmJobPatternLearnerEngine.learn(jobs as Parameters<typeof wedmJobPatternLearnerEngine.learn>[0]);
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

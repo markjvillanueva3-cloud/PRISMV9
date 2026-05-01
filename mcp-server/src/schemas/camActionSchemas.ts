@@ -229,4 +229,13 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_program_verify: z.object({}).passthrough().describe("VerificationInput for WEDMProgramVerificationEngine.verify() - passthrough until interface surfaced"),
   wedm_tier6_geom_validate: z.object({}).passthrough().describe("Tier6GeomInput for WEDMTier6GeomGateEngine.validate() - passthrough until interface surfaced"),
   wedm_preflight_checklist: z.object({}).passthrough().describe("PreFlightInput for WEDMPreFlightCheckEngine.generateChecklist() - passthrough until interface surfaced"),
+  // WEDM-WIRE-MS0/Batch2: wire-break risk + setup sheet + job-pattern learner
+  wedm_wire_break_risk: z.object({}).passthrough().describe("WireBreakRiskInput for WEDMWireBreakRiskCostEngine.calculate() - passthrough until interface surfaced"),
+  wedm_setup_sheet_generate: z.object({
+    program_result: z.record(z.string(), z.unknown()).describe("WEDMProgramResult from a prior wedm_program_* action"),
+    hardness_hrc: z.number().min(0).max(80).optional().describe("Workpiece hardness HRC (default 60)"),
+  }).passthrough(),
+  wedm_job_pattern_learn: z.object({
+    jobs: z.array(z.record(z.string(), z.unknown())).min(1).describe("JobRecord[] array - past WEDM jobs to learn patterns from"),
+  }).passthrough(),
 };
