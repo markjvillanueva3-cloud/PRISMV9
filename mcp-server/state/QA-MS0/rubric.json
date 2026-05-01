@@ -1,0 +1,159 @@
+{
+  "id": "qa-rubric-v1",
+  "version": "1.0.0",
+  "created_at": "2026-04-12T05:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "description": "QA audit scoring rubric for PRISM system verification",
+
+  "dimensions": {
+    "correctness": {
+      "id": "D1",
+      "name": "Correctness",
+      "description": "Code does what it claims. No logic errors, physics formula accuracy, proper wiring.",
+      "weight": 0.35,
+      "pass_threshold": 0.80,
+      "critical_threshold": 0.60,
+      "metrics": [
+        "formula_accuracy",
+        "dispatcher_wiring_completeness",
+        "schema_validation_coverage",
+        "test_pass_rate"
+      ],
+      "gap_categories": ["missing_deps", "sequence_errors", "missing_tests"]
+    },
+    "completeness": {
+      "id": "D2",
+      "name": "Completeness",
+      "description": "All declared features exist. No orphans, no missing implementations, no stubs.",
+      "weight": 0.25,
+      "pass_threshold": 0.85,
+      "critical_threshold": 0.65,
+      "metrics": [
+        "engine_wiring_rate",
+        "action_implementation_rate",
+        "deliverable_existence_rate",
+        "doc_accuracy_rate"
+      ],
+      "gap_categories": ["missing_tools", "missing_exit_conditions", "orphaned_deliverables", "missing_indexing"]
+    },
+    "safety": {
+      "id": "D3",
+      "name": "Safety",
+      "description": "No dangerous operations without guards. S(x) scoring, hard blocks, validation hooks.",
+      "weight": 0.25,
+      "pass_threshold": 0.90,
+      "critical_threshold": 0.70,
+      "metrics": [
+        "safety_hook_coverage",
+        "sx_score_minimum",
+        "hard_block_enforcement",
+        "physics_guard_rate"
+      ],
+      "gap_categories": ["missing_rollback", "underspecified_steps", "missing_skills"]
+    },
+    "performance": {
+      "id": "D4",
+      "name": "Performance",
+      "description": "Build time, bundle size, test speed, response latency within acceptable bounds.",
+      "weight": 0.15,
+      "pass_threshold": 0.75,
+      "critical_threshold": 0.50,
+      "metrics": [
+        "build_time_seconds",
+        "bundle_size_mb",
+        "test_suite_duration_seconds",
+        "dispatcher_response_p95_ms"
+      ],
+      "gap_categories": ["effort_mismatch", "role_mismatch"]
+    }
+  },
+
+  "severity_levels": {
+    "CRITICAL": {
+      "code": "C",
+      "score_impact": -20,
+      "description": "Blocks release. Must fix immediately. Safety violation, data loss risk, major feature broken.",
+      "examples": [
+        "Physics formula returns wrong units",
+        "Dispatcher action not wired",
+        "Safety hook bypassed",
+        "Build fails"
+      ]
+    },
+    "MAJOR": {
+      "code": "M",
+      "score_impact": -10,
+      "description": "Significant issue requiring fix before milestone completion. Feature degraded.",
+      "examples": [
+        "Engine missing from dispatcher registry",
+        "Test coverage below threshold",
+        "Documentation counts incorrect by >10%",
+        "Missing error handling"
+      ]
+    },
+    "MINOR": {
+      "code": "N",
+      "score_impact": -3,
+      "description": "Small issue, fix when convenient. Does not block progress.",
+      "examples": [
+        "Missing JSDoc on public method",
+        "Suboptimal algorithm choice",
+        "Minor doc typo",
+        "Console.log left in code"
+      ]
+    },
+    "INFO": {
+      "code": "I",
+      "score_impact": 0,
+      "description": "Observation or suggestion. No action required.",
+      "examples": [
+        "Could refactor for clarity",
+        "Consider adding feature flag",
+        "Future optimization opportunity",
+        "Alternative approach available"
+      ]
+    }
+  },
+
+  "gap_category_mapping": {
+    "missing_tools": { "dimension": "completeness", "default_severity": "MAJOR" },
+    "missing_deps": { "dimension": "correctness", "default_severity": "CRITICAL" },
+    "missing_exit_conditions": { "dimension": "completeness", "default_severity": "MAJOR" },
+    "missing_rollback": { "dimension": "safety", "default_severity": "MAJOR" },
+    "sequence_errors": { "dimension": "correctness", "default_severity": "CRITICAL" },
+    "role_mismatch": { "dimension": "performance", "default_severity": "MINOR" },
+    "effort_mismatch": { "dimension": "performance", "default_severity": "MINOR" },
+    "missing_indexing": { "dimension": "completeness", "default_severity": "MINOR" },
+    "missing_skills": { "dimension": "safety", "default_severity": "MAJOR" },
+    "orphaned_deliverables": { "dimension": "completeness", "default_severity": "MAJOR" },
+    "underspecified_steps": { "dimension": "safety", "default_severity": "MINOR" },
+    "missing_tests": { "dimension": "correctness", "default_severity": "MAJOR" }
+  },
+
+  "scoring": {
+    "base_score": 100,
+    "pass_score": 80,
+    "warning_score": 70,
+    "fail_score": 60,
+    "calculation": "base_score - sum(severity_impacts) weighted by dimension",
+    "composite_formula": "sum(dimension_score * dimension_weight) for all dimensions"
+  },
+
+  "thresholds": {
+    "system_pass": {
+      "composite_score": 80,
+      "all_dimensions_above": 60,
+      "no_critical_findings": true
+    },
+    "milestone_pass": {
+      "composite_score": 75,
+      "all_dimensions_above": 50,
+      "critical_findings_max": 0
+    },
+    "unit_pass": {
+      "composite_score": 70,
+      "critical_findings_max": 0,
+      "major_findings_max": 3
+    }
+  }
+}

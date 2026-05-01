@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "journal_entries": [
+    {
+      "id": "je_000001",
+      "date": "2026-03-06",
+      "description": "Invoice INV-TEST-001 issued",
+      "source": "invoice",
+      "reference_id": "INV-TEST-001",
+      "lines": [
+        {
+          "account_id": "1200",
+          "debit": 5400,
+          "credit": 0,
+          "description": "Invoice INV-TEST-001"
+        },
+        {
+          "account_id": "4000",
+          "debit": 0,
+          "credit": 5000,
+          "description": "Invoice INV-TEST-001"
+        },
+        {
+          "account_id": "2100",
+          "debit": 0,
+          "credit": 400,
+          "description": "Tax for invoice INV-TEST-001"
+        }
+      ],
+      "posted": true,
+      "created_at": "2026-04-29T04:37:25.791Z"
+    },
+    {
+      "id": "je_000002",
+      "date": "2026-03-07",
+      "description": "Payment for invoice INV-TEST-001",
+      "source": "payment",
+      "reference_id": "INV-TEST-001",
+      "lines": [
+        {
+          "account_id": "1000",
+          "debit": 5400,
+          "credit": 0,
+          "description": "Payment INV-TEST-001"
+        },
+        {
+          "account_id": "1200",
+          "debit": 0,
+          "credit": 5400,
+          "description": "Payment INV-TEST-001"
+        }
+      ],
+      "posted": true,
+      "created_at": "2026-04-29T04:37:25.801Z"
+    },
+    {
+      "id": "je_000003",
+      "date": "2026-03-06",
+      "description": "Purchase PO-TEST-001 (raw_material)",
+      "source": "purchase",
+      "reference_id": "PO-TEST-001",
+      "lines": [
+        {
+          "account_id": "5500",
+          "debit": 2000,
+          "credit": 0,
+          "description": "PO PO-TEST-001"
+        },
+        {
+          "account_id": "2100",
+          "debit": 160,
+          "credit": 0,
+          "description": "Input tax PO PO-TEST-001"
+        },
+        {
+          "account_id": "2000",
+          "debit": 0,
+          "credit": 2160,
+          "description": "PO PO-TEST-001"
+        }
+      ],
+      "posted": true,
+      "created_at": "2026-04-29T04:37:25.809Z"
+    },
+    {
+      "id": "je_000004",
+      "date": "2026-03-15",
+      "description": "Payroll 2026-03",
+      "source": "payroll",
+      "reference_id": "2026-03",
+      "lines": [
+        {
+          "account_id": "5200",
+          "debit": 8000,
+          "credit": 0,
+          "description": "Payroll 2026-03"
+        },
+        {
+          "account_id": "1000",
+          "debit": 0,
+          "credit": 6800,
+          "description": "Net pay 2026-03"
+        },
+        {
+          "account_id": "2100",
+          "debit": 0,
+          "credit": 1200,
+          "description": "Payroll taxes 2026-03"
+        }
+      ],
+      "posted": true,
+      "created_at": "2026-04-29T04:37:25.818Z"
+    }
+  ],
+  "next_entry_seq": 5,
+  "updated_at": "2026-04-29T04:37:25.818Z"
+}

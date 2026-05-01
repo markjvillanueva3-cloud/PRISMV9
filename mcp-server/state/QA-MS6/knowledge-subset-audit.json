@@ -1,0 +1,77 @@
+{
+  "audit_id": "QA-MS6-P0-U03",
+  "title": "Knowledge Engine Action Subset Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 30 knowledge-related actions across 3 engines, all properly routed with key-value extraction",
+
+  "scope": "KnowledgeGraphEngine (10) + ApprenticeEngine (10) + ManufacturingGenomeEngine (10) = 30 actions",
+
+  "knowledge_graph_actions": {
+    "engine": "KnowledgeGraphEngine",
+    "routing_line": 1130,
+    "actions": {
+      "graph_query":     { "handler": "knowledgeGraph(action, params)", "kv_extracted": ["center_node.name", "total_connections"] },
+      "graph_infer":     { "handler": "same", "kv_extracted": ["entity", "confidence", "recommended_strategies.length"] },
+      "graph_discover":  { "handler": "same", "kv_extracted": ["entity", "discoveries.length"] },
+      "graph_predict":   { "handler": "same", "kv_extracted": ["combination.material", "success_rate_pct", "confidence"] },
+      "graph_traverse":  { "handler": "same", "kv_extracted": ["start", "nodes_visited"] },
+      "graph_add":       { "handler": "same", "kv_extracted": ["added", "id/source"] },
+      "graph_search":    { "handler": "same", "kv_extracted": ["query", "total"] },
+      "graph_stats":     { "handler": "same", "kv_extracted": ["total_nodes", "total_edges", "total_job_evidence"] },
+      "graph_history":   { "handler": "same", "kv_extracted": ["total"] },
+      "graph_get":       { "handler": "same", "kv_extracted": ["query_id"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "apprentice_actions": {
+    "engine": "ApprenticeEngine",
+    "routing_line": 1140,
+    "actions": {
+      "apprentice_explain":    { "kv_extracted": ["parameter", "value", "depth", "factors.length"] },
+      "apprentice_lesson":     { "kv_extracted": ["id/total", "title", "track"] },
+      "apprentice_lessons":    { "kv_extracted": ["total"] },
+      "apprentice_assess":     { "kv_extracted": ["assessment_id", "level", "total_score", "gaps.length"] },
+      "apprentice_capture":    { "kv_extracted": ["knowledge_id", "confidence", "material"] },
+      "apprentice_knowledge":  { "kv_extracted": ["total", "by_confidence"] },
+      "apprentice_challenge":  { "kv_extracted": ["challenge_id", "total", "difficulty"] },
+      "apprentice_materials":  { "kv_extracted": ["name", "total"] },
+      "apprentice_history":    { "kv_extracted": ["total", "knowledge_entries"] },
+      "apprentice_get":        { "kv_extracted": ["assessment_id", "level", "total_score"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "genome_actions": {
+    "engine": "ManufacturingGenomeEngine",
+    "routing_line": 1138,
+    "actions": {
+      "genome_lookup":      { "kv_extracted": ["genome_id", "material_name", "iso_group", "family"] },
+      "genome_predict":     { "kv_extracted": ["prediction_id", "material", "recommended_vc", "recommended_fz", "confidence_pct"] },
+      "genome_similar":     { "kv_extracted": ["query_material", "total"] },
+      "genome_compare":     { "kv_extracted": ["a.material", "b.material", "easier_to_machine"] },
+      "genome_list":        { "kv_extracted": ["total"] },
+      "genome_fingerprint": { "kv_extracted": ["genome_id", "material"] },
+      "genome_behavioral":  { "kv_extracted": ["genome_id", "material", "jobs_recorded"] },
+      "genome_search":      { "kv_extracted": ["total"] },
+      "genome_history":     { "kv_extracted": ["total"] },
+      "genome_get":         { "kv_extracted": ["prediction_id", "material"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "common_pattern": "All three engines follow the 10-action CRUD+analytics pattern: domain verbs (4-6), _history (1), _get (1), reference lookups (2-3)",
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "all_knowledge_actions_audited": true,
+    "engine_method_coverage_verified": true,
+    "no_dead_or_duplicate_actions": true
+  }
+}

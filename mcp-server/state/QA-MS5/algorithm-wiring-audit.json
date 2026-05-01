@@ -1,0 +1,66 @@
+{
+  "audit_id": "QA-MS5-P0-U07",
+  "title": "Algorithm-to-Engine Wiring Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T01:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Clean 3-layer wiring: Algorithms -> AlgorithmEngine -> calcDispatcher",
+
+  "wiring_layers": {
+    "layer_1_algorithms": {
+      "location": "src/algorithms/",
+      "count": 50,
+      "interface": "Algorithm<I, O> with validate(), calculate(), getMetadata()",
+      "barrel_export": "src/algorithms/index.ts",
+      "registry": "ALGORITHM_REGISTRY (50 entries keyed by string ID)",
+      "factory": "createAlgorithm(id) -> instance | null",
+      "listing": "listAlgorithms() -> AlgorithmId[]"
+    },
+    "layer_2_engine": {
+      "location": "src/engines/AlgorithmEngine.ts",
+      "class": "AlgorithmEngine",
+      "actions": {
+        "algorithm_calculate": "Validate + calculate by ID",
+        "algorithm_validate": "Validate only",
+        "algorithm_list": "List all with metadata, filter by domain/safety",
+        "algorithm_info": "Get metadata for one",
+        "algorithm_batch": "Run multiple sequentially with stop_on_error",
+        "algorithm_benchmark": "Timed execution"
+      },
+      "pattern": "Validate-first: validation errors throw before calculation",
+      "timing": "execution_time_ms via Date.now() delta"
+    },
+    "layer_3_dispatcher": {
+      "location": "src/tools/dispatchers/calcDispatcher.ts",
+      "lines": "1288-1327",
+      "routes_6_actions": true,
+      "param_normalization": "algorithm_params ?? params ?? params (fallback chain)",
+      "error_handling": "Unknown algorithm throws descriptive error"
+    }
+  },
+
+  "secondary_wiring": {
+    "AlgorithmGatewayEngine": {
+      "location": "src/engines/AlgorithmGatewayEngine.ts",
+      "purpose": "Recommends best algorithm for a problem type + domain",
+      "routed_via": "intelligenceDispatcher (algorithm_select action)",
+      "contains": "10 inline algorithm stubs + references to ALGORITHM_REGISTRY"
+    }
+  },
+
+  "test_coverage": {
+    "algorithms_test": "src/__tests__/algorithms.test.ts (registry, create, validate, metadata)",
+    "algorithm_calculate_audit": "src/__tests__/algorithm-calculate-audit.test.ts (all 50 calculate)",
+    "algorithm_benchmarks": "src/__tests__/algorithm-benchmarks.test.ts (timing all 50)",
+    "smoke_test": "No algorithm-specific smoke test (uses engine tests)"
+  },
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "all_50_algorithms_reachable_via_dispatcher": true,
+    "validate_before_calculate_pattern": true,
+    "error_handling_verified": true,
+    "batch_execution_verified": true
+  }
+}

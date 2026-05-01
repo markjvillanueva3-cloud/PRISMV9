@@ -1,0 +1,41 @@
+channel) {
+    void msg.channel.sendTyping().catch(() => {})
+  }
+
+  // Ack reaction — lets the user know we're processing. Fire-and-forget.
+  const access = result.access
+  if (access.ackReaction) {
+    void msg.react(access.ackReaction).catch(() => {})
+  }
+
+  // Attachments are listed (name/type/size) but not downloaded — the model
+  // calls download_attachment when it wants them. Keeps the notification
+  // fast and avoids filling inbox/ with images nobody looked at.
+  const atts: string[] = []
+  for (const att of msg.attachments.values()) {
+    const kb = (att.size / 1024).toFixed(0)
+    atts.push(`${safeAttName(att)} (${att.contentType ?? 'unknown'}, ${kb}KB)`)
+  }
+
+  // Attachment listing goes in meta only — an in-content annotation is
+  // forgeable by any allowlisted sender typing that string.
+  const content = msg.content || (atts.length > 0 ? '(attachment)' : '')
+
+  mcp.notification({
+    method: 'notifications/claude/channel',
+    params: {
+      content,
+      meta: {
+        chat_id,
+        message_id: msg.id,
+        user: msg.author.username,
+        user_id: msg.author.id,
+        ts: msg.createdAt.toISOString(),
+        ...(atts.length > 0 ? { attachment_count: String(atts.length), attachments: atts.join('; ') } : {}),
+      },
+    },
+  }).catch(err => {
+    process.stderr.write(`discord channel: failed to deliver inbound to Claude: ${err}\n`)
+  })
+}
+

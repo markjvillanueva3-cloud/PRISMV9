@@ -1,0 +1,75 @@
+{
+  "audit_id": "QA-MS8-P0-U02",
+  "title": "prism_toolpath Dispatcher Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 8 actions routing to ToolpathStrategyRegistry (697 strategies, not 680), clean switch dispatch with hook integration",
+
+  "dispatcher_overview": {
+    "file": "src/tools/dispatchers/toolpathDispatcher.ts",
+    "tool_name": "prism_toolpath",
+    "total_actions": 8,
+    "total_lines": 117,
+    "description": "Toolpath strategy engine: selection, parameter calculation, search, list, info, stats, material strategies, PRISM novel"
+  },
+
+  "actions": {
+    "selection": ["strategy_select"],
+    "calculation": ["params_calculate"],
+    "query": ["strategy_search", "strategy_list", "strategy_info", "stats", "material_strategies"],
+    "novel": ["prism_novel"]
+  },
+
+  "routing": {
+    "pattern": "Switch statement with 8 cases, each routing to a named function from toolpathTools.ts",
+    "action_to_function": {
+      "strategy_select": "toolpath_strategy_select",
+      "params_calculate": "toolpath_params_calculate",
+      "strategy_search": "toolpath_strategy_search",
+      "strategy_list": "toolpath_strategy_list",
+      "strategy_info": "toolpath_strategy_info",
+      "stats": "toolpath_stats",
+      "material_strategies": "toolpath_material_strategies",
+      "prism_novel": "toolpath_prism_novel"
+    },
+    "default": "throw new Error(`Unknown action: ${action}`)"
+  },
+
+  "strategy_registry": {
+    "file": "src/registries/ToolpathStrategyRegistry.ts",
+    "total_lines": 4449,
+    "strategy_count_by_id_entries": 697,
+    "claimed_count": 680,
+    "delta": "+17 (likely from PRISM novel additions post-documentation)",
+    "categories": ["milling_roughing", "milling_finishing", "hole_making", "turning", "multiaxis", "prism_novel"],
+    "extended_strategies": "consolidateExtendedStrategies() merges additional strategies into EXTENDED_STRATEGIES Map"
+  },
+
+  "hook_integration": {
+    "CALC_ACTIONS": ["params_calculate", "strategy_select"],
+    "pre_hooks": "pre-calculation (blocking) for CALC_ACTIONS only",
+    "post_hooks": "post-calculation (non-blocking, try/catch wrapped)"
+  },
+
+  "param_normalization": {
+    "pattern": "params = normalizeParams(rawParams)",
+    "consistent": true
+  },
+
+  "findings": [
+    {
+      "id": "F43",
+      "severity": "LOW",
+      "title": "Toolpath strategy count 697 vs documented 680",
+      "impact": "Documentation only — 17 additional strategies (likely PRISM novel additions)",
+      "fix": "Update milestone envelope and documentation to reflect 697"
+    }
+  ],
+
+  "exit_conditions_met": {
+    "strategy_count_verified": true,
+    "action_routing_verified": true,
+    "category_distribution_documented": true
+  }
+}

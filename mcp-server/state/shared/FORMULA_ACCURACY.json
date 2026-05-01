@@ -1,0 +1,817 @@
+{
+  "timestamp": "2026-04-19T01:00:09.735Z",
+  "total_formulas": 7,
+  "total_test_points": 87,
+  "total_passed": 79,
+  "total_failed": 8,
+  "aggregate_accuracy": 0.9691,
+  "per_formula": [
+    {
+      "formula_name": "kienzle_force",
+      "category": "cutting_force",
+      "test_points": 8,
+      "passed": 8,
+      "failed": 0,
+      "accuracy": 1,
+      "mean_error_pct": 0,
+      "max_error_pct": 0,
+      "worst_case_label": "Ti-6Al-4V, ap=1.5mm, fz=0.12mm — conservative",
+      "details": [
+        {
+          "label": "C35 steel, ap=2mm, fz=0.2mm — standard roughing",
+          "expected": 1076.7,
+          "actual": 1076.65,
+          "error_pct": 0.000045,
+          "passed": true,
+          "source": "Sandvik General Turning, Table 6.2 (C35 steel)"
+        },
+        {
+          "label": "C35 steel, ap=3mm, fz=0.3mm — heavy roughing",
+          "expected": 2188.9,
+          "actual": 2188.94,
+          "error_pct": 0.00002,
+          "passed": true,
+          "source": "Sandvik General Turning, Table 6.2 (C35 steel)"
+        },
+        {
+          "label": "C35 steel, ap=1mm, fz=0.1mm — finishing",
+          "expected": 320.1,
+          "actual": 320.09,
+          "error_pct": 0.00003,
+          "passed": true,
+          "source": "Sandvik General Turning, Table 6.2 (C35 steel)"
+        },
+        {
+          "label": "304 SS, ap=2mm, fz=0.15mm — standard turning",
+          "expected": 1012.3,
+          "actual": 1012.32,
+          "error_pct": 0.00002,
+          "passed": true,
+          "source": "Sandvik Stainless Steel Turning Guide"
+        },
+        {
+          "label": "6061-T6 Al, ap=4mm, fz=0.25mm — aggressive roughing",
+          "expected": 962.9,
+          "actual": 962.88,
+          "error_pct": 0.000022,
+          "passed": true,
+          "source": "Kennametal Aluminum Machining Guide"
+        },
+        {
+          "label": "GG25 CI, ap=2.5mm, fz=0.2mm",
+          "expected": 863.1,
+          "actual": 863.13,
+          "error_pct": 0.00003,
+          "passed": true,
+          "source": "Sandvik Cast Iron Turning Guide"
+        },
+        {
+          "label": "Ti-6Al-4V, ap=1.5mm, fz=0.12mm — conservative",
+          "expected": 912.6,
+          "actual": 912.56,
+          "error_pct": 0.000048,
+          "passed": true,
+          "source": "Sandvik Titanium Machining Guide, Table 4.1"
+        },
+        {
+          "label": "C35 steel, ap=2mm, fz=0.2mm, heavy hone edge",
+          "expected": 1205.8,
+          "actual": 1205.85,
+          "error_pct": 0.000041,
+          "passed": true,
+          "source": "Denkena & Biermann (2014) CIRP Annals — edge geometry effects"
+        }
+      ]
+    },
+    {
+      "formula_name": "taylor_tool_life",
+      "category": "tool_life",
+      "test_points": 7,
+      "passed": 7,
+      "failed": 0,
+      "accuracy": 0.9998,
+      "mean_error_pct": 0.02,
+      "max_error_pct": 0.04,
+      "worst_case_label": "6061-T6 at Vc=500 m/min — uncoated carbide",
+      "details": [
+        {
+          "label": "C35 steel at Vc=200 m/min — uncoated carbide",
+          "expected": 9.38,
+          "actual": 9.38,
+          "error_pct": 0.000117,
+          "passed": true,
+          "source": "ISO 3685 reference turning test"
+        },
+        {
+          "label": "C35 steel at Vc=150 m/min — uncoated carbide",
+          "expected": 29.64,
+          "actual": 29.64,
+          "error_pct": 0.000067,
+          "passed": true,
+          "source": "ISO 3685 reference turning test"
+        },
+        {
+          "label": "C35 steel at Vc=250 m/min — uncoated carbide",
+          "expected": 3.84,
+          "actual": 3.84,
+          "error_pct": 0.000417,
+          "passed": true,
+          "source": "ISO 3685 reference turning test"
+        },
+        {
+          "label": "304 SS at Vc=130 m/min — uncoated carbide",
+          "expected": 19.54,
+          "actual": 19.54,
+          "error_pct": 0.000071,
+          "passed": true,
+          "source": "Kennametal Grade Selection — austenitic stainless"
+        },
+        {
+          "label": "6061-T6 at Vc=500 m/min — uncoated carbide",
+          "expected": 5.36,
+          "actual": 5.36,
+          "error_pct": 0.000427,
+          "passed": true,
+          "source": "Kennametal Aluminum Machining Guide"
+        },
+        {
+          "label": "C35 steel at Vc=200 m/min — TiAlN coated",
+          "expected": 47.48,
+          "actual": 47.48,
+          "error_pct": 0.000015,
+          "passed": true,
+          "source": "Kennametal KC5010 grade data (TiAlN PVD)"
+        },
+        {
+          "label": "Ti-6Al-4V at Vc=50 m/min — uncoated carbide",
+          "expected": 447.38,
+          "actual": 447.38,
+          "error_pct": 0.000007,
+          "passed": true,
+          "source": "Sandvik Titanium Machining Guide"
+        }
+      ]
+    },
+    {
+      "formula_name": "tool_deflection",
+      "category": "deflection",
+      "test_points": 4,
+      "passed": 4,
+      "failed": 0,
+      "accuracy": 0.9999,
+      "mean_error_pct": 0.01,
+      "max_error_pct": 0.01,
+      "worst_case_label": "12mm carbide endmill, 50mm stickout, 500N",
+      "details": [
+        {
+          "label": "12mm carbide endmill, 50mm stickout, 500N",
+          "expected": 0.03411,
+          "actual": 0.03411,
+          "error_pct": 0.000071,
+          "passed": true,
+          "source": "Euler-Bernoulli beam theory — exact solution"
+        },
+        {
+          "label": "6mm carbide endmill, 30mm stickout, 200N",
+          "expected": 0.04716,
+          "actual": 0.04716,
+          "error_pct": 0.000063,
+          "passed": true,
+          "source": "Euler-Bernoulli beam theory — exact solution"
+        },
+        {
+          "label": "20mm HSS drill, 80mm stickout, 1000N",
+          "expected": 0.10348,
+          "actual": 0.10348,
+          "error_pct": 0.000039,
+          "passed": true,
+          "source": "Euler-Bernoulli beam theory — exact solution"
+        },
+        {
+          "label": "16mm carbide, 60mm stickout, 800N — typical milling",
+          "expected": 0.02984,
+          "actual": 0.02984,
+          "error_pct": 0.000052,
+          "passed": true,
+          "source": "Euler-Bernoulli beam theory — exact solution"
+        }
+      ]
+    },
+    {
+      "formula_name": "surface_roughness_ra",
+      "category": "surface_finish",
+      "test_points": 5,
+      "passed": 5,
+      "failed": 0,
+      "accuracy": 0.9994,
+      "mean_error_pct": 0.06,
+      "max_error_pct": 0.16,
+      "worst_case_label": "fz=0.05mm, r_e=0.4mm — precision finishing",
+      "details": [
+        {
+          "label": "fz=0.1mm, r_e=0.8mm — fine finishing",
+          "expected": 0.391,
+          "actual": 0.3906,
+          "error_pct": 0.000959,
+          "passed": true,
+          "source": "Brammertz model — Sandvik finishing tables"
+        },
+        {
+          "label": "fz=0.2mm, r_e=0.8mm — standard finish",
+          "expected": 1.563,
+          "actual": 1.5625,
+          "error_pct": 0.00032,
+          "passed": true,
+          "source": "Brammertz model — Sandvik finishing tables"
+        },
+        {
+          "label": "fz=0.3mm, r_e=1.2mm — roughing with large nose radius",
+          "expected": 2.344,
+          "actual": 2.3438,
+          "error_pct": 0.000107,
+          "passed": true,
+          "source": "Brammertz model — typical roughing conditions"
+        },
+        {
+          "label": "fz=0.05mm, r_e=0.4mm — precision finishing",
+          "expected": 0.195,
+          "actual": 0.1953,
+          "error_pct": 0.001603,
+          "passed": true,
+          "source": "Brammertz model — precision turning reference"
+        },
+        {
+          "label": "fz=0.15mm, r_e=0.4mm — semi-finishing",
+          "expected": 1.758,
+          "actual": 1.7578,
+          "error_pct": 0.000107,
+          "passed": true,
+          "source": "Brammertz model — Sandvik semi-finish turning"
+        }
+      ]
+    },
+    {
+      "formula_name": "derived_formulas",
+      "category": "derived",
+      "test_points": 5,
+      "passed": 5,
+      "failed": 0,
+      "accuracy": 1,
+      "mean_error_pct": 0,
+      "max_error_pct": 0.01,
+      "worst_case_label": "Power: Fc=1076N, Vc=200 m/min",
+      "details": [
+        {
+          "label": "RPM: Vc=200 m/min, D=12mm",
+          "expected": 5305,
+          "actual": 5305,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Standard formula — exact arithmetic"
+        },
+        {
+          "label": "RPM: Vc=50 m/min, D=100mm (facing)",
+          "expected": 159,
+          "actual": 159,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Standard formula — exact arithmetic"
+        },
+        {
+          "label": "MRR: ap=2mm, ae=10mm, Vf=800mm/min",
+          "expected": 16,
+          "actual": 16,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Standard formula — exact arithmetic"
+        },
+        {
+          "label": "Power: Fc=1076N, Vc=200 m/min",
+          "expected": 3.587,
+          "actual": 3.5867,
+          "error_pct": 0.000093,
+          "passed": true,
+          "source": "Standard formula — exact arithmetic"
+        },
+        {
+          "label": "Torque: Fc=1076N, D=12mm",
+          "expected": 6.456,
+          "actual": 6.456,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Standard formula — exact arithmetic"
+        }
+      ]
+    },
+    {
+      "formula_name": "canonical_constants",
+      "category": "constants",
+      "test_points": 18,
+      "passed": 18,
+      "failed": 0,
+      "accuracy": 0.9518,
+      "mean_error_pct": 4.82,
+      "max_error_pct": 12,
+      "worst_case_label": "Kienzle kc1_1 ISO N: 700 in [350, 900]",
+      "details": [
+        {
+          "label": "Kienzle kc1_1 ISO P: 1800 in [1500, 2500]",
+          "expected": 2000,
+          "actual": 1800,
+          "error_pct": 0.1,
+          "passed": true,
+          "source": "Sandvik Coromant published kc1_1 ranges"
+        },
+        {
+          "label": "Kienzle kc1_1 ISO M: 2100 in [1800, 2850]",
+          "expected": 2325,
+          "actual": 2100,
+          "error_pct": 0.0968,
+          "passed": true,
+          "source": "Sandvik Coromant published kc1_1 ranges"
+        },
+        {
+          "label": "Kienzle kc1_1 ISO K: 1100 in [790, 1350]",
+          "expected": 1070,
+          "actual": 1100,
+          "error_pct": 0.028,
+          "passed": true,
+          "source": "Sandvik Coromant published kc1_1 ranges"
+        },
+        {
+          "label": "Kienzle kc1_1 ISO N: 700 in [350, 900]",
+          "expected": 625,
+          "actual": 700,
+          "error_pct": 0.12,
+          "passed": true,
+          "source": "Sandvik Coromant published kc1_1 ranges"
+        },
+        {
+          "label": "Kienzle kc1_1 ISO S: 2800 in [2400, 3100]",
+          "expected": 2750,
+          "actual": 2800,
+          "error_pct": 0.0182,
+          "passed": true,
+          "source": "Sandvik Coromant published kc1_1 ranges"
+        },
+        {
+          "label": "Kienzle kc1_1 ISO H: 3200 in [2800, 4000]",
+          "expected": 3400,
+          "actual": 3200,
+          "error_pct": 0.0588,
+          "passed": true,
+          "source": "Sandvik Coromant published kc1_1 ranges"
+        },
+        {
+          "label": "Taylor C ISO P: 350 in [200, 500]",
+          "expected": 350,
+          "actual": 350,
+          "error_pct": 0,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor n ISO P: 0.25 in [0.2, 0.3]",
+          "expected": 0.25,
+          "actual": 0.25,
+          "error_pct": 0,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor C ISO M: 250 in [150, 350]",
+          "expected": 250,
+          "actual": 250,
+          "error_pct": 0,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor n ISO M: 0.22 in [0.18, 0.28]",
+          "expected": 0.23,
+          "actual": 0.22,
+          "error_pct": 0.0435,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor C ISO K: 400 in [250, 550]",
+          "expected": 400,
+          "actual": 400,
+          "error_pct": 0,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor n ISO K: 0.28 in [0.22, 0.35]",
+          "expected": 0.285,
+          "actual": 0.28,
+          "error_pct": 0.0175,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor C ISO N: 900 in [500, 1200]",
+          "expected": 850,
+          "actual": 900,
+          "error_pct": 0.0588,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor n ISO N: 0.35 in [0.3, 0.42]",
+          "expected": 0.36,
+          "actual": 0.35,
+          "error_pct": 0.0278,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor C ISO S: 150 in [80, 250]",
+          "expected": 165,
+          "actual": 150,
+          "error_pct": 0.0909,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor n ISO S: 0.18 in [0.12, 0.25]",
+          "expected": 0.185,
+          "actual": 0.18,
+          "error_pct": 0.027,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor C ISO H: 200 in [100, 350]",
+          "expected": 225,
+          "actual": 200,
+          "error_pct": 0.1111,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        },
+        {
+          "label": "Taylor n ISO H: 0.2 in [0.15, 0.28]",
+          "expected": 0.21500000000000002,
+          "actual": 0.2,
+          "error_pct": 0.0698,
+          "passed": true,
+          "source": "ISO 3685 + Kennametal grade data"
+        }
+      ]
+    },
+    {
+      "formula_name": "material_database",
+      "category": "material_data",
+      "test_points": 40,
+      "passed": 32,
+      "failed": 8,
+      "accuracy": 0.8327,
+      "mean_error_pct": 16.73,
+      "max_error_pct": 86.36,
+      "worst_case_label": "Graphite EDM-200 (Coarse Grain, Roughing) kc1_1=150 vs ISO K median=1100",
+      "details": [
+        {
+          "label": "Carbon Steel (C35-C45) kc1_1=1800 vs ISO P median=1800",
+          "expected": 1800,
+          "actual": 1800,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Alloy Steel (4140/4340) kc1_1=2100 vs ISO P median=1800",
+          "expected": 1800,
+          "actual": 2100,
+          "error_pct": 0.1667,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Tool Steel (D2/H13) kc1_1=3000 vs ISO H median=3200",
+          "expected": 3200,
+          "actual": 3000,
+          "error_pct": 0.0625,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Stainless Steel 304 kc1_1=2100 vs ISO M median=2100",
+          "expected": 2100,
+          "actual": 2100,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Stainless Steel 316 kc1_1=2200 vs ISO M median=2100",
+          "expected": 2100,
+          "actual": 2200,
+          "error_pct": 0.0476,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Stainless Steel 17-4PH (H1025) kc1_1=2800 vs ISO M median=2100",
+          "expected": 2100,
+          "actual": 2800,
+          "error_pct": 0.3333,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Gray Cast Iron (GG25) kc1_1=1100 vs ISO K median=1100",
+          "expected": 1100,
+          "actual": 1100,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Ductile Iron (GGG50) kc1_1=1350 vs ISO K median=1100",
+          "expected": 1100,
+          "actual": 1350,
+          "error_pct": 0.2273,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Aluminum 6061-T6 kc1_1=700 vs ISO N median=700",
+          "expected": 700,
+          "actual": 700,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Aluminum 7075-T6 kc1_1=800 vs ISO N median=700",
+          "expected": 700,
+          "actual": 800,
+          "error_pct": 0.1429,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Brass (CuZn39Pb3) kc1_1=600 vs ISO N median=700",
+          "expected": 700,
+          "actual": 600,
+          "error_pct": 0.1429,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Titanium Ti-6Al-4V (Grade 5) kc1_1=2800 vs ISO S median=2800",
+          "expected": 2800,
+          "actual": 2800,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Inconel 718 kc1_1=3000 vs ISO S median=2800",
+          "expected": 2800,
+          "actual": 3000,
+          "error_pct": 0.0714,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Hardened Steel (52-58 HRC) kc1_1=3200 vs ISO H median=3200",
+          "expected": 3200,
+          "actual": 3200,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Tungsten Carbide (WC-6%Co) kc1_1=4000 vs ISO H median=3200",
+          "expected": 3200,
+          "actual": 4000,
+          "error_pct": 0.25,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Copper C110 (ETP) kc1_1=500 vs ISO N median=700",
+          "expected": 700,
+          "actual": 500,
+          "error_pct": 0.2857,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Graphite EDM-200 (Coarse Grain, Roughing) kc1_1=150 vs ISO K median=1100",
+          "expected": 1100,
+          "actual": 150,
+          "error_pct": 0.8636,
+          "passed": false,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Graphite EDM-3 (Fine Grain, Semi-Finish) kc1_1=250 vs ISO K median=1100",
+          "expected": 1100,
+          "actual": 250,
+          "error_pct": 0.7727,
+          "passed": false,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Graphite POCO AF-5 (Ultra-Fine Grain, Finishing) kc1_1=350 vs ISO K median=1100",
+          "expected": 1100,
+          "actual": 350,
+          "error_pct": 0.6818,
+          "passed": false,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Copper-Tungsten CuW70 (70% W, Carbide Electrode) kc1_1=800 vs ISO N median=700",
+          "expected": 700,
+          "actual": 800,
+          "error_pct": 0.1429,
+          "passed": true,
+          "source": "Internal consistency check — material vs ISO group"
+        },
+        {
+          "label": "Carbon Steel (C35-C45) density=7850 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7850,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Alloy Steel (4140/4340) density=7850 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7850,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Tool Steel (D2/H13) density=7800 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7800,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Stainless Steel 304 density=7930 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7930,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Stainless Steel 316 density=7960 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7960,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Stainless Steel 17-4PH (H1025) density=7800 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7800,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Gray Cast Iron (GG25) density=7200 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7200,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Ductile Iron (GGG50) density=7100 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7100,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Aluminum 6061-T6 density=2700 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 2700,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Aluminum 7075-T6 density=2810 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 2810,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Brass (CuZn39Pb3) density=8500 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 8500,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Titanium Ti-6Al-4V (Grade 5) density=4430 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 4430,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Inconel 718 density=8190 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 8190,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Hardened Steel (52-58 HRC) density=7800 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 7800,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Tungsten Carbide (WC-6%Co) density=15000 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 15000,
+          "error_pct": 0.5,
+          "passed": false,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Copper C110 (ETP) density=8960 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 8960,
+          "error_pct": 0,
+          "passed": true,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Graphite EDM-200 (Coarse Grain, Roughing) density=1780 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 1780,
+          "error_pct": 0.5,
+          "passed": false,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Graphite EDM-3 (Fine Grain, Semi-Finish) density=1820 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 1820,
+          "error_pct": 0.5,
+          "passed": false,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Graphite POCO AF-5 (Ultra-Fine Grain, Finishing) density=1850 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 1850,
+          "error_pct": 0.5,
+          "passed": false,
+          "source": "Physical property bounds — engineering metals"
+        },
+        {
+          "label": "Copper-Tungsten CuW70 (70% W, Carbide Electrode) density=14500 in [2500, 9000] kg/m³",
+          "expected": 5750,
+          "actual": 14500,
+          "error_pct": 0.5,
+          "passed": false,
+          "source": "Physical property bounds — engineering metals"
+        }
+      ]
+    }
+  ],
+  "regressions": [],
+  "warnings": [
+    "1 formula suite(s) have failing test points — review per_formula details",
+    "canonical_constants: max error 12% exceeds 10% — worst case: Kienzle kc1_1 ISO N: 700 in [350, 900]",
+    "material_database: max error 86.36% exceeds 10% — worst case: Graphite EDM-200 (Coarse Grain, Roughing) kc1_1=150 vs ISO K median=1100",
+    "Kienzle validation uses base model (kc1_1 × ap × fz^(1-mc) + edge prep). Extended corrections (K_gamma, K_kappa, K_wear, K_vc, K_coolant) are in KienzleForceModel algorithm, not canonical function.",
+    "Taylor validation uses base model (C/Vc)^(1/n) + coating multiplier. Extended factors (hardness variation, coolant effect, Weibull reliability) are in ToolLifeEngine.",
+    "All force values in [N], tool life in [min], deflection in [mm], roughness Ra in [µm]."
+  ],
+  "reasoning": [
+    "Validation methodology: each canonical physics function in src/physics/constants.ts is tested against reference input/output pairs computed from the published formula with known constants.",
+    "Reference sources: Sandvik Coromant General Turning (2024), ISO 3685:1993, Kennametal Grade Selection Guide, Altintas 'Manufacturing Automation' (2012), Brammertz kinematic model.",
+    "Kienzle force: 8 test points across ISO groups P/M/K/N/S with ±10% tolerance (Sandvik catalogue accuracy).",
+    "Taylor tool life: 7 test points with ±15-20% tolerance (ISO 3685 allows ±20% scatter).",
+    "Tool deflection: 4 test points at ±2% tolerance (exact Euler-Bernoulli analytical solution).",
+    "Surface roughness: 5 test points at ±5% tolerance (Brammertz kinematic ideal).",
+    "Derived formulas: 5 test points at ±0.5% tolerance (exact arithmetic).",
+    "Canonical constants validated against published ranges (Sandvik kc1_1 bands, ISO 3685 Taylor ranges).",
+    "Material DB cross-checked: each material's kc1_1 within ±40% of ISO group median, density in [2500, 9000] kg/m³."
+  ]
+}

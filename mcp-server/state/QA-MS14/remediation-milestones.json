@@ -1,0 +1,83 @@
+{
+  "audit_id": "QA-MS14-P0-U01",
+  "title": "Remediation Milestones for Critical Issues",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T10:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "COMPLETE — 6 remediation milestones proposed. REM-MS0 already complete. REM-MS1 through REM-MS5 cover remaining P1/P2 items.",
+
+  "milestones": [
+    {
+      "id": "REM-MS0",
+      "title": "Safety-Critical Remediation",
+      "status": "COMPLETE",
+      "scope": "All P0 CRITICAL findings + 3 MAJOR safety fixes",
+      "items_fixed": 7,
+      "commit": "df3d8ad"
+    },
+    {
+      "id": "REM-MS1",
+      "title": "Safety System Hardening",
+      "status": "PROPOSED",
+      "scope": "M-001 through M-009: Safety threshold unification, coolant validation, input validation, hook field alignment, empty catch fix",
+      "items": 9,
+      "effort": "2-3 sessions",
+      "dependencies": ["REM-MS0"],
+      "priority": "HIGH"
+    },
+    {
+      "id": "REM-MS2",
+      "title": "Safety Test Coverage Gap",
+      "status": "PROPOSED",
+      "scope": "M-006: Add tests for 18 untested safety-critical actions",
+      "items": 1,
+      "effort": "2 sessions",
+      "dependencies": ["REM-MS1"],
+      "priority": "HIGH"
+    },
+    {
+      "id": "REM-MS3",
+      "title": "Infrastructure Quality Fixes",
+      "status": "PROPOSED",
+      "scope": "M-010 through M-015: GSD sync, guard naming, omega calc, ralph, telemetry, cross-registry",
+      "items": 6,
+      "effort": "2-3 sessions",
+      "dependencies": ["REM-MS0"],
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "REM-MS4",
+      "title": "Calculation & Algorithm Polish",
+      "status": "PROPOSED",
+      "scope": "L-006, L-009 through L-013: Safety factor worst-case, atomic compliance, engine findings, parameter normalization",
+      "items": 6,
+      "effort": "2 sessions",
+      "dependencies": ["REM-MS1"],
+      "priority": "MEDIUM"
+    },
+    {
+      "id": "REM-MS5",
+      "title": "Cleanup & Documentation",
+      "status": "PROPOSED",
+      "scope": "L-001 through L-005, L-007, L-008, L-014: Dead branches, hardcoded values, duplicate actions, count corrections",
+      "items": 8,
+      "effort": "1-2 sessions",
+      "dependencies": [],
+      "priority": "LOW"
+    }
+  ],
+
+  "dependency_graph": {
+    "REM-MS0": { "status": "COMPLETE", "unblocks": ["REM-MS1", "REM-MS3"] },
+    "REM-MS1": { "blocked_by": ["REM-MS0"], "unblocks": ["REM-MS2", "REM-MS4"] },
+    "REM-MS2": { "blocked_by": ["REM-MS1"], "unblocks": [] },
+    "REM-MS3": { "blocked_by": ["REM-MS0"], "unblocks": [] },
+    "REM-MS4": { "blocked_by": ["REM-MS1"], "unblocks": [] },
+    "REM-MS5": { "blocked_by": [], "unblocks": [] }
+  },
+
+  "total_remediation_effort": "9-13 sessions",
+
+  "findings": [],
+  "exit_conditions_met": { "remediation_milestones_generated": true, "each_has_units_and_deliverables": true, "dependency_graph_established": true }
+}

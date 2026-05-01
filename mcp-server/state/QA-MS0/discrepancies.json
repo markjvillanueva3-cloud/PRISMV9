@@ -1,0 +1,147 @@
+{
+  "scan_timestamp": "2026-04-12T05:35:00Z",
+  "rubric_version": "qa-rubric-v1",
+
+  "discrepancies": [
+    {
+      "id": "DISC-001",
+      "field": "engines",
+      "dimension": "completeness",
+      "severity": "CRITICAL",
+      "ground_truth": 1559,
+      "documented_values": {
+        "MASTER_INDEX.md": 1245,
+        "CLAUDE.md_header": 1292,
+        "CLAUDE.md_structure": 1245
+      },
+      "delta": 314,
+      "delta_pct": 25.2,
+      "category": "deflation",
+      "impact": "Documentation significantly understates engine count, causing confusion about system capabilities",
+      "fix_action": "Update MASTER_INDEX.md and CLAUDE.md with ground-truth count of 1559",
+      "priority": 1
+    },
+    {
+      "id": "DISC-002",
+      "field": "actions",
+      "dimension": "completeness",
+      "severity": "MAJOR",
+      "ground_truth": 4296,
+      "documented_values": {
+        "CLAUDE.md_header": 3898
+      },
+      "delta": 398,
+      "delta_pct": 10.2,
+      "category": "deflation",
+      "impact": "Action count underreported by 398, may cause developers to miss existing capabilities",
+      "fix_action": "Update CLAUDE.md header with ground-truth count of 4296",
+      "priority": 2
+    },
+    {
+      "id": "DISC-003",
+      "field": "dispatchers",
+      "dimension": "completeness",
+      "severity": "MAJOR",
+      "ground_truth": 82,
+      "documented_values": {
+        "MASTER_INDEX.md": 77,
+        "CLAUDE.md_header": 79,
+        "CLAUDE.md_structure": 77
+      },
+      "delta": 5,
+      "delta_pct": 6.5,
+      "category": "deflation",
+      "impact": "5 dispatchers not documented in MASTER_INDEX",
+      "fix_action": "Update all docs with ground-truth count of 82",
+      "priority": 3
+    },
+    {
+      "id": "DISC-004",
+      "field": "registries",
+      "dimension": "completeness",
+      "severity": "MINOR",
+      "ground_truth": 24,
+      "documented_values": {
+        "MASTER_INDEX.md": 22,
+        "CLAUDE.md_structure": 24
+      },
+      "delta": 2,
+      "delta_pct": 9.1,
+      "category": "mixed",
+      "impact": "MASTER_INDEX is 2 registries behind, CLAUDE.md is accurate",
+      "fix_action": "Update MASTER_INDEX.md to 24 registries",
+      "priority": 4
+    },
+    {
+      "id": "DISC-005",
+      "field": "algorithms",
+      "dimension": "completeness",
+      "severity": "MINOR",
+      "ground_truth": 52,
+      "documented_values": {
+        "MASTER_INDEX.md": 51,
+        "CLAUDE.md_structure": 51
+      },
+      "delta": 1,
+      "delta_pct": 2.0,
+      "category": "deflation",
+      "impact": "1 algorithm not documented",
+      "fix_action": "Update docs with ground-truth count of 52",
+      "priority": 5
+    }
+  ],
+
+  "internal_inconsistencies": [
+    {
+      "id": "INCON-001",
+      "file": "CLAUDE.md",
+      "field": "engines",
+      "severity": "MAJOR",
+      "header_value": 1292,
+      "structure_value": 1245,
+      "delta": 47,
+      "fix_action": "Reconcile CLAUDE.md header and structure to both show 1559"
+    },
+    {
+      "id": "INCON-002",
+      "file": "CLAUDE.md",
+      "field": "dispatchers",
+      "severity": "MINOR",
+      "header_value": 79,
+      "structure_value": 77,
+      "delta": 2,
+      "fix_action": "Reconcile CLAUDE.md header and structure to both show 82"
+    }
+  ],
+
+  "correction_plan": [
+    {
+      "step": 1,
+      "file": "CLAUDE.md",
+      "changes": [
+        { "line": "header", "old": "79 dispatchers, 3,898 actions, 1,292 engines", "new": "82 dispatchers, 4,296 actions, 1,559 engines" },
+        { "line": "structure", "old": "1,245 engines", "new": "1,559 engines" },
+        { "line": "structure", "old": "77 dispatchers", "new": "82 dispatchers" }
+      ]
+    },
+    {
+      "step": 2,
+      "file": "MASTER_INDEX.md",
+      "changes": [
+        { "section": "## 1. Engines", "old": "(1245)", "new": "(1559)" },
+        { "section": "## 2. Dispatchers", "old": "(77)", "new": "(82)" },
+        { "section": "## 3. Algorithms", "old": "(51)", "new": "(52)" },
+        { "section": "## 4. Registries", "old": "(22)", "new": "(24)" }
+      ]
+    }
+  ],
+
+  "summary": {
+    "total_discrepancies": 5,
+    "by_severity": { "CRITICAL": 1, "MAJOR": 2, "MINOR": 2 },
+    "by_category": { "deflation": 4, "mixed": 1 },
+    "internal_inconsistencies": 2,
+    "files_requiring_update": ["CLAUDE.md", "MASTER_INDEX.md"],
+    "estimated_fix_effort": "15 minutes"
+  }
+}

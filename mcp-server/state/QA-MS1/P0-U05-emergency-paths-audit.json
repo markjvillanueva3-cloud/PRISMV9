@@ -1,0 +1,172 @@
+{
+  "audit_id": "QA-MS1-P0-U05",
+  "title": "Emergency Stop / Hard Block Paths End-to-End Trace",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "0 CRITICAL (after F01/F02 fixes), 1 MEDIUM, 0 LOW. All 6 hard block paths verified end-to-end.",
+
+  "hard_block_paths": [
+    {
+      "id": "HB-1",
+      "name": "S(x) Material Safety Score Block",
+      "trigger": "computeSafetyScore() returns score < 0.70 or criticalDataMissing",
+      "trigger_file": "src/utils/validators.ts:660",
+      "execution_chain": [
+        "Material data → computeSafetyScore() → status='BLOCKED'",
+        "EnforcementHooks postMaterialAddSafety (line 343) checks status === 'BLOCKED'",
+        "→ hookBlock() returns {status: 'blocked', blockReason: 'safety_violation'}",
+        "HookExecutor sees mode='blocking' + status='blocked' → prevents operation"
+      ],
+      "halt_point": "Material addition/modification blocked before persistence",
+      "bypass_check": "PASS — no catch/swallow around EnforcementHooks call",
+      "verified": true
+    },
+    {
+      "id": "HB-2",
+      "name": "HookEngine CALC-SAFETY-VIOLATION-001",
+      "trigger": "context.data.safety_score < 0.70 OR safety_score missing (after F01 fix)",
+      "trigger_file": "src/orchestration/HookEngine.ts:241",
+      "execution_chain": [
+        "HookEngine.execute(hookId='CALC-SAFETY-VIOLATION-001', context)",
+        "→ executeBuiltInHandler checks safety_score",
+        "→ returns {status: 'blocked', blockReason: 'safety_violation' or 'missing_safety_score'}",
+        "→ HookEngine caller receives blocked result"
+      ],
+      "halt_point": "Caller must handle blocked status — typically prevents output",
+      "bypass_check": "PASS after F01 fix — undefined safety_score now blocks (was defaulting to 1.0)",
+      "verified": true
+    },
+    {
+      "id": "HB-3",
+      "name": "EnforcementHooks preOutputSafetyHardGate",
+      "trigger": "context.quality.safety < 0.70 OR undefined (after F02 fix)",
+      "trigger_file": "src/hooks/EnforcementHooks.ts:647",
+      "execution_chain": [
+        "Pre-output phase fires preOutputSafetyHardGate",
+        "→ Checks context.quality.safety against SAFETY_THRESHOLD",
+        "→ hookBlock() with 'HARD BLOCK: S(x) < threshold'",
+        "→ HookExecutor prevents output delivery"
+      ],
+      "halt_point": "Output blocked before delivery to caller",
+      "bypass_check": "PASS after F02 fix — undefined safety now blocks (was returning warning)",
+      "verified": true
+    },
+    {
+      "id": "HB-4",
+      "name": "Cross-Field Physics Validation",
+      "trigger": "Physically impossible calculation results (force/speed/toollife inconsistency)",
+      "trigger_file": "src/validation/crossFieldPhysics.ts:119",
+      "execution_chain": [
+        "validateCrossFieldPhysics(result) runs 4 physics checks",
+        "→ Any violation: throw new SafetyBlockError(message, 0.0)",
+        "→ SafetyBlockError propagates up the call stack",
+        "→ safetyDispatcher.ts:164 re-throws (does NOT catch/swallow)",
+        "→ MCP server returns error to client"
+      ],
+      "halt_point": "Exception prevents any response except error",
+      "bypass_check": "PASS — QA-MS1 FIX at safetyDispatcher.ts:163-164 ensures SafetyBlockError propagates past the generic catch block",
+      "verified": true,
+      "physics_checks": [
+        "Force plausibility — superalloy at Vc>80: Fc must be >2000N; soft at Vc>200: Fc must be <3000N",
+        "Feed rate limits — superalloy: fz must be <=0.5mm/tooth",
+        "Tool life inverse — superalloy at Vc>60: life must be <60min; soft at Vc<200: life must be >5min",
+        "RPM/Vc consistency — implied diameter must be 0.1-1000mm"
+      ]
+    },
+    {
+      "id": "HB-5",
+      "name": "SafetyQualityHooks (5 blocking hooks)",
+      "trigger": "Pre/post calculation or toolpath parameter violations",
+      "trigger_file": "src/hooks/SafetyQualityHooks.ts",
+      "execution_chain": [
+        "HookExecutor fires hook in 'blocking' mode",
+        "→ Handler detects violation (e.g., spindle RPM > 60000)",
+        "→ hookBlock() returns status='blocked'",
+        "→ HookExecutor sees blocking mode + blocked status → prevents operation"
+      ],
+      "halt_point": "Operation blocked at hook layer before proceeding",
+      "bypass_check": "PASS — all 5 safety hooks have mode='blocking' and priority='critical'",
+      "verified": true,
+      "hooks": [
+        "pre-calculate-safety: RPM<=60000, feed<=50000, fz<=1.0, DOC<=50, toolDia>0",
+        "post-calculate-safety: force<=100kN, power<=150kW, torque<=5000Nm, deflection<=0.5mm",
+        "pre-gcode-safety: rapid<=100000, RPM<=60000, feed<=50000, plunge<=10000, coolant code valid",
+        "post-toolpath-safety: collision, envelope, rapid-through-material, gouge, clearance>=1mm",
+        "machine-limit-guard: RPM/power/torque vs machine limits, 6-axis travel bounds"
+      ]
+    },
+    {
+      "id": "HB-6",
+      "name": "Universal Hook Input Validation Block",
+      "trigger": "autoHookWrapper input validation flags inputVal.blocked=true",
+      "trigger_file": "src/tools/autoHookWrapper.ts:906",
+      "execution_chain": [
+        "wrapWithUniversalHooks runs input validation before handler",
+        "→ If inputVal.blocked=true: sets inputBlocked=true",
+        "→ Fires CALC-SAFETY-VIOLATION-001 (logging)",
+        "→ Returns SAFETY BLOCK error envelope instead of calling handler",
+        "→ Handler is NEVER invoked — calculation is prevented"
+      ],
+      "halt_point": "Calculation prevented at input validation — handler never runs",
+      "bypass_check": "PASS — inputBlocked short-circuits before handler invocation at line 922",
+      "verified": true
+    }
+  ],
+
+  "non_blocking_paths_noted": [
+    {
+      "path": "Lambda post-calc annotation (autoHookWrapper:414-434)",
+      "note": "Annotates _safety_warning but does NOT block. See F13 in P0-U03 audit."
+    },
+    {
+      "path": "Quality hooks (4 in SafetyQualityHooks — SPC, tolerance drift, tool wear, surface quality)",
+      "note": "These are mode='warning', not 'blocking'. They add warnings but never prevent output. Correct by design — these are quality advisories, not safety gates."
+    }
+  ],
+
+  "bypass_analysis": {
+    "catch_blocks_audited": [
+      {
+        "location": "safetyDispatcher.ts:162-166",
+        "status": "SAFE — SafetyBlockError re-thrown, only generic errors caught",
+        "qa_fix_present": true
+      },
+      {
+        "location": "autoHookWrapper.ts:388-396 (handler execution try/catch)",
+        "status": "SAFE — errors are re-thrown after firing REFL-002 hook"
+      },
+      {
+        "location": "autoHookWrapper.ts:918 (input validation try/catch)",
+        "status": "CAUTION — empty catch block. If input validation itself throws, the block is silently swallowed and the calculation proceeds. However, the input validator is simple range-check logic unlikely to throw."
+      }
+    ],
+    "config_bypass": {
+      "AUTO_HOOK_CONFIG.enabled": "If set to false, ALL auto-hooks are bypassed (line 368). This includes the input validation blocking. However, the HookEngine and EnforcementHooks paths remain active regardless.",
+      "PRISM_SAFETY_THRESHOLD env var": "Disconnected — see F04. Cannot lower threshold via env."
+    }
+  },
+
+  "findings": [
+    {
+      "id": "F18",
+      "severity": "MEDIUM",
+      "title": "Empty catch block in autoHookWrapper input validation could silently bypass blocking",
+      "file": "src/tools/autoHookWrapper.ts",
+      "line": 918,
+      "issue": "The input validation at lines 896-917 is wrapped in a try-catch with an empty catch block (line 918). If the input validator itself throws an unexpected error, the inputBlocked flag stays false and the calculation proceeds without input validation.",
+      "impact": "Low probability — the validator does simple range checks. But if a malformed input causes a TypeError in the validator, the safety block would be silently skipped.",
+      "fix": "In the catch block, set inputBlocked=true (fail-closed) or at minimum log the error.",
+      "status": "FIXED",
+      "fix_applied": "QA-MS1: autoHookWrapper.ts:918 catch block now sets inputBlocked=true and logs the error."
+    }
+  ],
+
+  "summary": {
+    "hard_block_paths": 6,
+    "all_verified": true,
+    "post_fix_status": "F01, F02, F13, F14, F18 all fixed. All hard block paths verified.",
+    "remaining_concern": "None — all findings with code fixes have been applied and tested.",
+    "defense_in_depth": "Multiple independent blocking layers: computeSafetyScore → EnforcementHooks → HookEngine → SafetyQualityHooks → autoHookWrapper input validation → crossFieldPhysics. Even if one layer fails, others provide backup."
+  }
+}

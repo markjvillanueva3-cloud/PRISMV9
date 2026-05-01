@@ -1,0 +1,120 @@
+{
+  "scan_timestamp": "2026-04-12T05:30:00Z",
+  "sources_compared": ["MASTER_INDEX.md", "CLAUDE.md", "ground_truth_from_code"],
+
+  "ground_truth": {
+    "dispatchers": 82,
+    "actions": 4296,
+    "engines": 1559,
+    "algorithms": 52,
+    "registries_ts": 24,
+    "hooks": 28,
+    "data_catalogs": 101,
+    "data_json_files": 675
+  },
+
+  "master_index_claims": {
+    "engines": 1245,
+    "dispatchers": 77,
+    "algorithms": 51,
+    "registries": 22,
+    "data_tribal": 85,
+    "slash_commands": 161,
+    "memory_files": 23,
+    "test_files": 808,
+    "milestones": 216
+  },
+
+  "claude_md_claims": {
+    "header": {
+      "dispatchers": 79,
+      "actions": 3898,
+      "engines": 1292
+    },
+    "structure_section": {
+      "engines": 1245,
+      "dispatchers": 77,
+      "registries": 24,
+      "algorithms": 51,
+      "test_files": 808
+    }
+  },
+
+  "discrepancies": [
+    {
+      "field": "dispatchers",
+      "ground_truth": 82,
+      "master_index": 77,
+      "claude_md_header": 79,
+      "claude_md_structure": 77,
+      "delta_max": 5,
+      "severity": "MAJOR",
+      "category": "inflation"
+    },
+    {
+      "field": "actions",
+      "ground_truth": 4296,
+      "master_index": null,
+      "claude_md_header": 3898,
+      "claude_md_structure": null,
+      "delta": 398,
+      "severity": "MAJOR",
+      "category": "deflation"
+    },
+    {
+      "field": "engines",
+      "ground_truth": 1559,
+      "master_index": 1245,
+      "claude_md_header": 1292,
+      "claude_md_structure": 1245,
+      "delta_max": 314,
+      "severity": "CRITICAL",
+      "category": "deflation"
+    },
+    {
+      "field": "algorithms",
+      "ground_truth": 52,
+      "master_index": 51,
+      "claude_md_structure": 51,
+      "delta": 1,
+      "severity": "MINOR",
+      "category": "deflation"
+    },
+    {
+      "field": "registries",
+      "ground_truth": 24,
+      "master_index": 22,
+      "claude_md_structure": 24,
+      "delta_max": 2,
+      "severity": "MINOR",
+      "category": "mixed"
+    }
+  ],
+
+  "internal_inconsistencies": [
+    {
+      "file": "CLAUDE.md",
+      "field": "dispatchers",
+      "header_value": 79,
+      "structure_value": 77,
+      "severity": "MINOR"
+    },
+    {
+      "file": "CLAUDE.md",
+      "field": "engines",
+      "header_value": 1292,
+      "structure_value": 1245,
+      "severity": "MAJOR"
+    }
+  ],
+
+  "summary": {
+    "total_discrepancies": 5,
+    "critical": 1,
+    "major": 2,
+    "minor": 2,
+    "internal_inconsistencies": 2,
+    "most_stale_field": "engines",
+    "doc_drift_pct": 20.1
+  }
+}

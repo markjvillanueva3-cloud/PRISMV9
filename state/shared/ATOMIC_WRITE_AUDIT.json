@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "auditTimestamp": "2026-04-16T23:10:00Z",
+  "auditor": "Claude-auto-1 (CPP-MS1-U-CPP04..U-CPP06)",
+  "canonicalPattern": "mcp-server/src/utils/atomicWrite.ts (safeWriteSync)",
+  "inlinePattern": "tmp = `${target}.${pid}.${randomHex4}.tmp`; writeFileSync(tmp); renameSync(tmp, target); catch: unlink(tmp); throw.",
+  "atomizedSites": [
+    {"file": ".claude/helpers/per-agent-handoff.mjs", "callsites": 3, "unit": "U-CPP04", "paths": ["handoffs/HANDOFF-*.md", "PICKUP_QUEUE.json", "SESSION_ID_FILE"], "risk": "HIGH — per-terminal write, 6+ concurrent terminals"},
+    {"file": ".claude/helpers/milestone-tracker.mjs", "callsites": 2, "unit": "U-CPP05", "paths": ["mcp-server/data/roadmap-index.json", "state/CURRENT_POSITION.md"], "risk": "HIGH — multi-terminal milestone marking"},
+    {"file": ".claude/helpers/roadmap-progress.mjs", "callsites": 5, "unit": "U-CPP06", "paths": ["PROGRESS_PATH", "ROADMAP_PATH", "POSITION_PATH"], "risk": "HIGH — notification hook writes"},
+    {"file": ".claude/helpers/roadmap-to-queue.mjs", "callsites": 2, "unit": "U-CPP06", "paths": ["TASK_QUEUE.md", "TASK_QUEUE.json"], "risk": "MEDIUM — sync sites"},
+    {"file": ".claude/helpers/tribal-auto-categorize.mjs", "callsites": 1, "unit": "U-CPP06", "paths": ["tribal_captured_tips.json"], "risk": "HIGH — shared tribal DB"}
+  ],
+  "skippedSites": [
+    {"file": ".claude/helpers/build-tracker.mjs:51", "reason": "accepted-skip", "rationale": "STATE_FILE is /tmp/prism-build-tracker.json (ephemeral). Already wrapped in try/catch /* non-critical */. Worst-case race: BUILD_THRESHOLD counter resets."},
+    {"file": ".claude/helpers/node-orphan-cleaner.mjs:78,140", "reason": "accepted-skip", "rationale": "cleaner has 90s throttle; state file is self-scoped. :140 writes temp PS script per-pid (tmpdir + pid suffix)."},
+    {"file": ".claude/helpers/edit-context-enricher.mjs:86", "reason": "accepted-skip", "rationale": "cache; disposable on corruption"},
+    {"file": ".claude/helpers/mcp-action-router.mjs:74", "reason": "accepted-skip", "rationale": "cache; disposable"},
+    {"file": ".claude/helpers/smart-test-suggest.mjs:45", "reason": "accepted-skip", "rationale": "already try/catch; per-session transient"},
+    {"file": ".claude/helpers/metrics-db.mjs:141,398,418,427", "reason": "accepted-skip", "rationale": "metrics dashboard dumps replaced periodically; readers tolerate stale/partial"}
+  ],
+  "totalAtomized": 13,
+  "totalSkipped": 10,
+  "filesModified": 5,
+  "verdict": {
+    "cpp_ms1_u_cpp04": "COMPLETE — per-agent-handoff.mjs (3 sites) atomized",
+    "cpp_ms1_u_cpp05": "COMPLETE — milestone-tracker.mjs (2 sites) atomized",
+    "cpp_ms1_u_cpp06": "COMPLETE — global sweep done, 13 high-risk sites atomized, 10 low-risk accepted-skip with documented rationale",
+    "gateToNextUnit": "PASS — proceed to U-CPP07 (concurrency test harness)"
+  }
+}

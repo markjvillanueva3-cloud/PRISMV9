@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-04-18T23:14:24.220Z",
+  "services_requested": [
+    "postgres",
+    "prism-server",
+    "prometheus",
+    "ollama",
+    "qdrant"
+  ],
+  "models_requested": [
+    "nomic-embed-text",
+    "mistral:7b",
+    "qwen2.5-coder:3b",
+    "codellama:7b"
+  ],
+  "steps": {
+    "docker_ready": {
+      "ok": true,
+      "alreadyRunning": true
+    },
+    "compose_up": {
+      "ok": false,
+      "stdout": "",
+      "stderr": "time=\"2026-04-18T18:14:24-05:00\" level=warning msg=\"project has been loaded without an explicit name from a symlink. Using name \\\"prism\\\"\"\ntime=\"2026-04-18T18:14:24-05:00\" level=warning msg=\"H:\\\\prism\\\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion\"\n Image prom/prometheus:latest Pulling \n Image postgres:16-alpine Pulling \n a6680b927350 Pulling fs layer 0B\n d70e68dbd61c Pulling fs layer 0B\n f86ef4240a84 Pulling fs layer 0B\n a2243411ec8e Pulling fs layer 0B\n e3e60763add3 Pulling fs layer 0B\n 5b801831dd96 Pulling fs layer 0B\n 259391b25b59 Pulling fs layer 0B\n f60c291aa4d9 Pulling fs layer 0B\n ce2ce3cfbbe4 Pulling fs layer 0B\n 9fa05948455e Pulling fs layer 0B\n 73c9d01ff404 Pulling fs layer 0B\n 6c923cc95637 Pulling fs layer 0B\n f3109855d82f Pulling fs layer 0B\n 76a112421d27 Pulling fs layer 0B\n b519d0178fc6 Pulling fs layer 0B\n a0042064f4cb Pulling fs layer 0B\n 62ef37ef383e Pulling fs layer 0B\n ee7cc5109793 Pulling fs layer 0B\n 6a0ac1617861 Pulling fs layer 0B\n d8a634b722d2 Pulling fs layer 0B\n 8aa92df9afbe Pulling fs layer 0B\n a6680b927350 Download complete 0B\n a6680b927350 Pull complete 0B\n d7be5c1a2bea Download complete 0B\n f86ef4240a84 Download complete 0B\n f60c291aa4d9 Download complete 0B\n ed859c99cf72 Download complete 0B\n 73c9d01ff404 Download complete 0B\n 6c923cc95637 Downloading 169B\n f3109855d82f Download complete 0B\n 5b801831dd96 Download complete 0B\n d70e68dbd61c Download complete 0B\n a2243411ec8e Download complete 0B\n 9fa05948455e Download complete 0B\n 259391b25b59 Download complete 0B\n a2243411ec8e Extracting 1B\nunexpected EOF"
+    }
+  },
+  "status": "fail",
+  "reason": "compose-up-failed"
+}

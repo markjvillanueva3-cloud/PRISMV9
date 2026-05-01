@@ -1,13 +1,61 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { gzipSync } from 'zlib';
 
 const prismApiPort = process.env.PRISM_API_PORT || '3000';
+
+/**
+ * Bundle Budget Plugin (LATHE-PROD-READY-MS0/U-LPR-BUNDLE-GATE)
+ * Enforces per-chunk size budgets during build.
+ */
+function bundleBudgetPlugin(): Plugin {
+  const BUDGETS_KB: Record<string, number> = {
+    'index': 250,
+    'main': 250,
+    'lathe': 40,
+    'monaco-vendor': 600,  // Excluded from hard gate
+    'pdf-vendor': 400,     // Excluded from hard gate
+    'default': 150,
+  };
+
+  const EXCLUDED = ['monaco-vendor', 'pdf-vendor', 'viewer-three'];
+
+  return {
+    name: 'bundle-budget',
+    writeBundle(_, bundle) {
+      const violations: string[] = [];
+
+      for (const [fileName, chunk] of Object.entries(bundle)) {
+        if (chunk.type !== 'chunk' || !fileName.endsWith('.js')) continue;
+
+        const chunkName = fileName.replace(/^assets\//, '').replace(/-[a-f0-9]+\.js$/, '');
+        const isExcluded = EXCLUDED.some(ex => chunkName.includes(ex));
+        const budget = (BUDGETS_KB[chunkName] ?? BUDGETS_KB.default) * 1024;
+
+        const code = 'code' in chunk ? chunk.code : '';
+        const gzipSize = gzipSync(Buffer.from(code)).length;
+
+        if (gzipSize > budget && !isExcluded) {
+          violations.push(
+            `  ${chunkName}: ${(gzipSize / 1024).toFixed(1)}KB > ${budget / 1024}KB budget`
+          );
+        }
+      }
+
+      if (violations.length > 0) {
+        console.warn('\n⚠️  Bundle budget violations:');
+        violations.forEach(v => console.warn(v));
+        console.warn('Run `node scripts/check-bundle-budget.mjs` for details.\n');
+      }
+    },
+  };
+}
 const prismApiHost = process.env.PRISM_API_HOST || 'localhost';
 const prismApiHttpTarget = `http://${prismApiHost}:${prismApiPort}`;
 const prismApiWsTarget = `ws://${prismApiHost}:${prismApiPort}`;
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), bundleBudgetPlugin()],
   build: {
     outDir: '../dist/web',
     emptyOutDir: true,
