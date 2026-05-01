@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 131,
+  "completed_units": 132,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -253,7 +253,8 @@
     "U-CAMTEST10",
     "U-CAMTEST11",
     "U-CAMTEST12",
-    "U-CAMTEST13"
+    "U-CAMTEST13",
+    "U-CAMTEST14"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -6577,7 +6578,7 @@
       "title": "Assertion Bundle Engine â€” All 7 Families",
       "phase": "PHASE-8",
       "type": "test_harness",
-      "status": "not_started",
+      "status": "complete",
       "description": "Central assertion bundle: frame arrival, latency p99, band-transition count, hard-stop trigger, stats reconciliation, encoder schema, reconnect+drain. Reusable across all 4 hosts.",
       "entry_conditions": [
         "U-CAM96 complete"
@@ -6590,6 +6591,20 @@
       "deliverables": [
         "src/engines/CAMInHostAssertionBundleEngine.ts"
       ],
+      "actual_deliverables": [
+        "src/engines/CAMInHostAssertionBundleEngine.ts",
+        "src/__tests__/CAMInHostAssertionBundleEngine.test.ts",
+        "src/tools/dispatchers/camDispatcher.ts (cam_assertion_bundle_{evaluate,failed,by_name,audit,families})"
+      ],
+      "acceptance_evidence": {
+        "tests_pass": 44,
+        "tests_min_30": true,
+        "assertion_families": 7,
+        "dispatcher_wiring": "wired (cam_assertion_bundle_* — 5 actions) + 3 round-trip tests",
+        "host_agnostic": true
+      },
+      "completion_note": "Pure-functional engine. Same evaluate(observed, stats, expectations) signature works for all 4 in-host runners. Pure helpers (p99 nearest-rank, countBandTransitions 0↔nonzero, firstHardStopSeq, seqGaps) exported separately so the runner-side dedup follow-up can call them directly. byName / failed / auditBundle round out the API. Bundle round-trip parses through BundleResultSchema for caller-drift safety. The 4 existing in-host runners (HyperMill / Fusion360 / InventorHSM / Mastercam) currently inline the same logic — a follow-up dedup unit can refactor them to call this engine; their behavior stays unchanged so their existing test suites stay green either way. 44 tests cover happy path (all 7 pass on calm baseline), per-family failure modes (each family fails individually under the right violation), 4-way hard_stop matrix (deliberate × observed crossings + custom budget override), pure helper semantics (p99 nearest-rank with edge cases, band transition counting where consecutive nonzero bands do NOT count as transitions, seq gap + dupe detection), schema rejection (negative seq, band 3, negative latency, negative stats, zero expected_frame_count, unknown assertion family), audit invariant (missing family + overall_pass mismatch detected), filter helpers, and 3 dispatcher round-trip tests."
+      ,
       "estimated_tokens": 18000,
       "four_loop": [
         "BUILD",

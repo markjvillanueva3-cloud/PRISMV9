@@ -1609,6 +1609,8 @@ export const ACTIONS = [
   "cam_mt_matrix_slots", "cam_mt_matrix_tool_classes_for", "cam_mt_matrix_combos_for_part", "cam_mt_matrix_get_combo", "cam_mt_matrix_all_combos", "cam_mt_matrix_expected_count", "cam_mt_matrix_audit",
   // CAM-EXHAUST-MS0 U-CAMTEST08..13 — Unified scenario generator (621 calm-baseline scenarios)
   "cam_scenario_generate", "cam_scenario_generate_all", "cam_scenario_generate_pocket_2d", "cam_scenario_generate_contour_2d", "cam_scenario_generate_drilling_threading", "cam_scenario_generate_surface_3d", "cam_scenario_generate_multi_axis", "cam_scenario_generate_turning", "cam_scenario_predict_count", "cam_scenario_audit",
+  // CAM-EXHAUST-MS0 U-CAMTEST14 — Central 7-family assertion bundle (host-agnostic)
+  "cam_assertion_bundle_evaluate", "cam_assertion_bundle_failed", "cam_assertion_bundle_by_name", "cam_assertion_bundle_audit", "cam_assertion_bundle_families",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12612,6 +12614,38 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_scenario_audit": {
             const { CAMScenarioGeneratorEngine } = await import("../../engines/CAMScenarioGeneratorEngine.js");
             result = CAMScenarioGeneratorEngine.auditGenerator();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAMTEST14: Central 7-family assertion bundle ──
+          case "cam_assertion_bundle_evaluate": {
+            const { CAMInHostAssertionBundleEngine } = await import("../../engines/CAMInHostAssertionBundleEngine.js");
+            const input = params.input as Parameters<typeof CAMInHostAssertionBundleEngine.evaluate>[0];
+            result = CAMInHostAssertionBundleEngine.evaluate(input);
+            break;
+          }
+          case "cam_assertion_bundle_failed": {
+            const { CAMInHostAssertionBundleEngine } = await import("../../engines/CAMInHostAssertionBundleEngine.js");
+            const bundle = params.bundle as Parameters<typeof CAMInHostAssertionBundleEngine.failed>[0];
+            result = { failed: CAMInHostAssertionBundleEngine.failed(bundle) };
+            break;
+          }
+          case "cam_assertion_bundle_by_name": {
+            const { CAMInHostAssertionBundleEngine } = await import("../../engines/CAMInHostAssertionBundleEngine.js");
+            const bundle = params.bundle as Parameters<typeof CAMInHostAssertionBundleEngine.byName>[0];
+            const name = params.name as Parameters<typeof CAMInHostAssertionBundleEngine.byName>[1];
+            result = { assertion: CAMInHostAssertionBundleEngine.byName(bundle, name) };
+            break;
+          }
+          case "cam_assertion_bundle_audit": {
+            const { CAMInHostAssertionBundleEngine } = await import("../../engines/CAMInHostAssertionBundleEngine.js");
+            const bundle = params.bundle as Parameters<typeof CAMInHostAssertionBundleEngine.auditBundle>[0];
+            result = CAMInHostAssertionBundleEngine.auditBundle(bundle);
+            break;
+          }
+          case "cam_assertion_bundle_families": {
+            const { CAMInHostAssertionBundleEngine } = await import("../../engines/CAMInHostAssertionBundleEngine.js");
+            result = { families: CAMInHostAssertionBundleEngine.ASSERTION_FAMILIES };
             break;
           }
 
