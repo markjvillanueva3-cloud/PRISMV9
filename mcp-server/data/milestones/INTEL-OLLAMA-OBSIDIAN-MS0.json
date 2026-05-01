@@ -61,11 +61,10 @@
         "notes": "All 5 reasoning-engine actions wired in code: creative_solve, causal_analyze, counterfactual_predict, scientific_reason (aiReasoningDispatcher.ts:670,679,699,721); diagnose_failure (intelligenceDispatcher.ts:59,214,671). Schemas in aiReasoningActionSchemas.ts. Test file P5OrphanReasoningDispatchers.test.ts passes 21/21 (verified 2026-05-01 by claude-ba192f8a). P6-U02 close-out commit retroactively documents this."
       },
       "P6": {
-        "branch": "work/intel-ollama-obsidian-ms1",
-        "shipped_units": ["P6-U02", "P6-U03"],
-        "partial_units": ["P6-U01"],
-        "commits": {"P6-U02": "3e3bbe018", "P6-U03": "e7bb92603"},
-        "notes": "P6-U02 (rtk-prefix-reminder + P4/P5/P6 close-out) shipped via 3e3bbe018. P6-U03 (awareness hook deduplication) shipped via e7bb92603. P6-U01 (H-drive mirror hook) PARTIAL — .claude/hooks/c-to-h-mirror.mjs exists and implements the C→H copy logic via PostToolUse Write hook, BUT named differently than envelope spec (.claude/hooks/mirror-c-to-h.mjs). The audit + bootstrap deliverables (scripts/mirror-c-to-h-audit.mjs, scripts/bootstrap-h-mirror.mjs) are MISSING. Treat as functionally shipped pending follow-up to add the audit + bootstrap scripts."
+        "branch": "work/intel-ollama-obsidian-ms1 + work/intel-p8-schema",
+        "shipped_units": ["P6-U01", "P6-U02", "P6-U03"],
+        "commits": {"P6-U02": "3e3bbe018", "P6-U03": "e7bb92603", "P6-U01": "[work/intel-p8-schema] hook + this branch's audit/bootstrap scripts"},
+        "notes": "P6-U02 (rtk-prefix-reminder + P4/P5/P6 close-out) shipped via 3e3bbe018. P6-U03 (awareness hook deduplication) shipped via e7bb92603. P6-U01 (H-drive mirror hook) NOW COMPLETE — main hook .claude/hooks/c-to-h-mirror.mjs (different name than envelope spec but functionally identical) was already shipping; this branch adds the missing audit + bootstrap deliverables: scripts/mirror-c-to-h-audit.mjs (--json, --write, exit-1 on gaps), scripts/bootstrap-h-mirror.mjs (--dry-run, --force, idempotent), scripts/lib/c-to-h-mirror-shared.mjs (single source of truth: MIRRORED_ROOT, MIRRORED_SUBDIRS, listCFiles, compareFile, buildAuditReport). Verified against live box: 5/5 root files identical (settings.json, settings.local.json, .mcp.json, CLAUDE.md, keybindings.json), 0 mirror gaps, 0 diverged, 2062 H-only files (informational). Tests: CToHMirrorShared.test.ts 7/7 green covering identical/diverged/c_only classification + missing-root edge case + null-cRoot error path."
       },
       "P7": {
         "branch": "work/intel-ollama-obsidian-ms1",
@@ -99,8 +98,8 @@
       "high_confidence_complete_phases": ["P1", "P2", "P3", "P5"],
       "high_confidence_partial_phases": ["P0", "P4", "P6", "P7", "P8"],
       "verified_unit_states": {
-        "shipped_full": ["P0-U01", "P0-U02", "P0-U03", "P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05", "P2-U01", "P2-U02", "P2-U03", "P2-U04", "P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05", "P4-U01", "P4-U03", "P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05", "P6-U02", "P6-U03", "P7-U02", "P8-U01", "P8-U02", "P8-U03", "P8-U05"],
-        "shipped_partial": ["P0-U04", "P6-U01", "P8-U04", "P8-U06"],
+        "shipped_full": ["P0-U01", "P0-U02", "P0-U03", "P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05", "P2-U01", "P2-U02", "P2-U03", "P2-U04", "P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05", "P4-U01", "P4-U03", "P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05", "P6-U01", "P6-U02", "P6-U03", "P7-U02", "P8-U01", "P8-U02", "P8-U03", "P8-U05"],
+        "shipped_partial": ["P0-U04", "P8-U04", "P8-U06"],
         "not_started": ["P4-U02", "P4-U04", "P7-U01"],
         "audited_count": 38
       }
@@ -108,7 +107,8 @@
     "audit_history": [
       {"by": "claude-ba192f8a", "at": "2026-05-01T20:25:00.000Z", "scope": "phase-level cross-branch grep map (initial cross_branch_shipping_status)"},
       {"by": "claude-ba192f8a", "at": "2026-05-01T20:55:00.000Z", "scope": "verified 5 status-unknown units (P4-U02, P4-U03, P4-U04, P6-U01, P7-U01) against deliverables; P3-U06 was envelope drift (slot is P10-U04)"},
-      {"by": "claude-ba192f8a", "at": "2026-05-01T21:02:00.000Z", "scope": "P4-U03 promoted partial→shipped_full via rate-limit relax 3min→30s (.claude/hooks/claudemd-ollama-enforcer.mjs:47)"}
+      {"by": "claude-ba192f8a", "at": "2026-05-01T21:02:00.000Z", "scope": "P4-U03 promoted partial→shipped_full via rate-limit relax 3min→30s (.claude/hooks/claudemd-ollama-enforcer.mjs:47)"},
+      {"by": "claude-ba192f8a", "at": "2026-05-01T21:06:00.000Z", "scope": "P6-U01 promoted partial→shipped_full via scripts/mirror-c-to-h-audit.mjs + scripts/bootstrap-h-mirror.mjs + scripts/lib/c-to-h-mirror-shared.mjs (7-test vitest suite). Live audit on this box: 5/5 identical, 0 gaps."}
     ]
   },
   "phases": [
