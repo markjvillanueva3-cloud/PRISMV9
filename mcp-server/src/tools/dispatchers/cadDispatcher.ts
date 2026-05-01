@@ -119,6 +119,8 @@ const ACTIONS = [
   "f360_live_new_doc", "f360_live_execute_raw",
   // PIPE-MS2: PrintToGeometryEngine (previously orphaned)
   "blueprint_to_3d_model", "blueprint_to_cadquery_script",
+  // CAD-WIRE-MS0: lightweight CAD generation entry points
+  "text_to_cad_parse",
   // Rhino Grasshopper PRISM Components
   "grasshopper_list_components", "grasshopper_get_component",
   "grasshopper_execute", "grasshopper_registry",
@@ -659,6 +661,15 @@ Params vary by action — pass relevant fields in params object.`,
           case "blueprint_to_cadquery_script": {
             const { printToGeometryEngine } = await import("../../engines/PrintToGeometryEngine.js");
             result = printToGeometryEngine.convert(params as any);
+            break;
+          }
+          // ── CAD-WIRE-MS0: lightweight CAD generation entry points ──
+          case "text_to_cad_parse": {
+            const { textToCADGenerationEngine } = await import("../../engines/TextToCADGenerationEngine.js");
+            const text = String((params as Record<string, unknown>).text ?? "");
+            if (!text) { result = { success: false, error: "text param required" }; break; }
+            const parsed = textToCADGenerationEngine.parseText(text);
+            result = { success: true, parsed };
             break;
           }
           // ── Rhino Grasshopper PRISM Components ──

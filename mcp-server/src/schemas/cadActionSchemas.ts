@@ -376,4 +376,13 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   spring_compute_mechanics: springComputeMechanicsSchema,
   spring_compute_stress_at_force: springComputeStressAtForceSchema,
   spring_generate_coil_path: springGenerateCoilPathSchema,
+
+  // CAD-WIRE-MS0: lightweight CAD generation entry points
+  // Wires TextToCADGenerationEngine.parseText (was orphan; verified via
+  // UNWIRED_ENGINES_MANIFEST.json 2026-04-30). Pure function: text in,
+  // structured ParsedText out (dimensions, features, material, machine
+  // category, constraints). No backend orchestration required.
+  text_to_cad_parse: z.object({
+    text: z.string().min(1).describe("Natural-language part description to parse into structured CAD spec"),
+  }).passthrough(),
 };
