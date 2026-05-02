@@ -4,7 +4,7 @@
   "module_id": "cad_function_index",
   "module_name": "Mastercam CAD Unified Function Index",
   "description": "Top-level index for Mastercam CAD-side authoring operations. Mastercam combines a CAD authoring layer with its CAM-side toolpath engine; this index covers ONLY the CAD authoring surface (wireframe / solid / surface / drafting / transformation / analysis / modify / file_layer). The CAM-side toolpath catalogs live separately under cam-functions/mastercam/ and are owned by the dedicated CAM exhaust roadmap. Coverage spans 8 modules following the Inventor parity pattern. Consumed by MastercamCADFunctionIndexEngine for parameter discovery and AI orchestration of Mastercam CAD authoring via NET-Hook in-host execution and Mastercam ChooseAndPick C-Hook surface.",
-  "indexed_at": "2026-05-02T02:35:00Z",
+  "indexed_at": "2026-05-02T03:00:00Z",
   "modules": [
     {
       "module_id": "wireframe_operations",
@@ -45,6 +45,14 @@
       "parameter_count_estimate": 75,
       "description": "Geometry transformation layer: 4 basic transforms (Translate, Rotate, Mirror, Scale with uniform/non_uniform/along_axis modes) — all support copy/move/join semantics, 3 array variants (Linear 1D, Rectangular 2D, Circular about axis with equal or incremental spacing + skip-index suppression), Dynamic Transform (interactive multi-DOF manipulator with per-axis translation/rotation/scale locks), Project to Plane (orthogonal or specified-vector projection with project-through-surfaces option), and Unroll (flatten developable surfaces — cylindrical/conical — onto a target plane with linear/spline/refit_nurbs approximation). 10 operations total.",
       "dependencies": ["wireframe_operations", "solid_operations", "surface_operations"]
+    },
+    {
+      "module_id": "analysis_operations",
+      "path": "cad-functions/mastercam/analysis-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-06"],
+      "parameter_count_estimate": 60,
+      "description": "Geometry analysis layer: chain integrity (closed/open/gap detection — pre-flight for CAM toolpath chaining), distance (point-to-point with 3d_euclidean / projected_2d / axis_components, entity-to-entity closest/farthest), angle between lines (acute/reflex), area (closed planar profile with inner-loop subtraction, surface area with hole-boundary handling), volume of solid (with optional centroid + mass via density), entity inspection (basic/full/verbose detail levels), dynamic interactive measurement (distance/angle/area with snap modes), and validation (gaps/overlaps/self_intersect/manifold/small_features with optional auto-heal + severity-filtered reporting). 10 operations total.",
+      "dependencies": ["wireframe_operations", "solid_operations", "surface_operations"]
     }
   ],
   "global_cross_references": {
@@ -72,25 +80,25 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 5,
+    "total_modules": 6,
     "total_units_covered": [
       "U-CAD-FIDX-MC-01",
       "U-CAD-FIDX-MC-02",
       "U-CAD-FIDX-MC-03",
       "U-CAD-FIDX-MC-04",
-      "U-CAD-FIDX-MC-05"
+      "U-CAD-FIDX-MC-05",
+      "U-CAD-FIDX-MC-06"
     ],
-    "estimated_parameter_total": 602,
+    "estimated_parameter_total": 662,
     "api_surface": {
-      "net_hook_items": 84,
-      "c_hook_items": 84,
+      "net_hook_items": 94,
+      "c_hook_items": 94,
       "mastercam_2024_compatible": true,
       "mastercam_2025_compatible": true,
       "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 3,
+      "phase_1_target_modules_remaining": 2,
       "phase_1_modules_pending": [
-        "analysis_operations",
         "modify_operations",
         "file_layer_operations"
       ]

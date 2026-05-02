@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 84 ops total at Phase 1 5/8 (+ transformation)", () => {
+    it("listAllOperations equals 94 ops total at Phase 1 6/8 (+ analysis)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(84);
+      expect(all.length).toBe(94);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,9 +344,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 602 parameters across all 84 ops (+ 75 transformation)", () => {
+    it("counts exactly 662 parameters across all 94 ops (+ 60 analysis)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(602);
+      expect(total).toBe(662);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -395,15 +395,29 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(transformTotal).toBe(75);
       expect(transformDeclared).toBe(75);
 
+      const analysisTotal = sumParamsForModule("analysis_operations");
+      const analysisDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("analysis_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(analysisTotal).toBe(60);
+      expect(analysisDeclared).toBe(60);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        wireframeTotal + solidTotal + surfaceTotal + draftingTotal + transformTotal,
+        wireframeTotal +
+          solidTotal +
+          surfaceTotal +
+          draftingTotal +
+          transformTotal +
+          analysisTotal,
       );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (5 of 8 modules shipped)", () => {
+    it("api_surface.coverage_state is exactly 'PARTIAL' (6 of 8 modules shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
@@ -415,17 +429,16 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 3 (5/8 shipped)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 2 (6/8 shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(3);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(2);
     });
 
-    it("api_surface.phase_1_modules_pending lists the 3 unbuilt modules in shipping order", () => {
+    it("api_surface.phase_1_modules_pending lists the 2 unbuilt modules in shipping order", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.phase_1_modules_pending).toEqual([
-        "analysis_operations",
         "modify_operations",
         "file_layer_operations",
       ]);
@@ -447,7 +460,7 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(3);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(2);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -1325,6 +1338,218 @@ describe("MastercamCADFunctionIndexEngine", () => {
         (p) => p.name === "Stationary Edge",
       );
       expect(stationaryParam?.required).toBe(true);
+    });
+  });
+
+  describe("analysis_operations catalog (U-CAD-FIDX-MC-06)", () => {
+    const KNOWN_ANALYSIS_OPS = [
+      "CHAIN_ANALYZE",
+      "DISTANCE_TWO_POINTS",
+      "DISTANCE_TWO_ENTITIES",
+      "ANGLE_TWO_LINES",
+      "AREA_PROFILE",
+      "AREA_SURFACE",
+      "VOLUME_SOLID",
+      "ENTITY_INFO",
+      "DYNAMIC_INSPECT",
+      "ENTITY_VERIFY",
+    ];
+
+    const DISTANCE_OPS = ["DISTANCE_TWO_POINTS", "DISTANCE_TWO_ENTITIES"];
+    const AREA_OPS = ["AREA_PROFILE", "AREA_SURFACE"];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("analysis_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-06'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("analysis_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-06");
+    });
+
+    it("operations dict has exactly 10 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("analysis_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(10);
+    });
+
+    it("listOperations returns exactly the 10 expected analysis ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("analysis_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_ANALYSIS_OPS].sort());
+    });
+
+    it("every operation reports an Analysis_-prefixed category", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("analysis_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Analysis_")).toBe(true);
+      }
+    });
+
+    it("DISTANCE_OPS span both distance subcategories (TwoPoints + TwoEntities)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("analysis_operations");
+      const distanceCategories = ops
+        .filter((op) => DISTANCE_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(distanceCategories).toEqual([
+        "Analysis_Distance_TwoEntities",
+        "Analysis_Distance_TwoPoints",
+      ]);
+    });
+
+    it("AREA_OPS span both area subcategories (Profile + Surface)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("analysis_operations");
+      const areaCategories = ops
+        .filter((op) => AREA_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(areaCategories).toEqual(["Analysis_Area_Profile", "Analysis_Area_Surface"]);
+    });
+
+    it("DISTANCE_TWO_POINTS Display Mode covers 3d_euclidean / projected_2d / axis_components", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "DISTANCE_TWO_POINTS",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Display Mode");
+      expect(modeParam?.options).toEqual(["3d_euclidean", "projected_2d", "axis_components"]);
+    });
+
+    it("DISTANCE_TWO_ENTITIES Mode supports closest/farthest/both", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "DISTANCE_TWO_ENTITIES",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["closest", "farthest", "both"]);
+    });
+
+    it("ANGLE_TWO_LINES Reflex Mode supports acute/reflex/both (failure mode: angle ambiguity)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "ANGLE_TWO_LINES",
+      );
+      const reflexParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Reflex Mode");
+      expect(reflexParam?.options).toEqual(["acute", "reflex", "both"]);
+    });
+
+    it("VOLUME_SOLID Density parameter has g/cm3 unit (mass-properties standard)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "VOLUME_SOLID",
+      );
+      const densityParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Density");
+      expect(densityParam?.unit).toBe("g/cm3");
+    });
+
+    it("AREA_PROFILE Output Units covers SI + imperial (5 unit choices)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "AREA_PROFILE",
+      );
+      const unitParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Output Units");
+      expect(unitParam?.options).toEqual(["mm2", "cm2", "m2", "in2", "ft2"]);
+    });
+
+    it("VOLUME_SOLID Output Units covers SI + imperial (5 unit choices)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "VOLUME_SOLID",
+      );
+      const unitParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Output Units");
+      expect(unitParam?.options).toEqual(["mm3", "cm3", "m3", "in3", "ft3"]);
+    });
+
+    it("CHAIN_ANALYZE Output Mode supports display_only / log / highlight / all", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "CHAIN_ANALYZE",
+      );
+      const outputParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Output Mode");
+      expect(outputParam?.options).toEqual([
+        "display_only",
+        "log_to_file",
+        "highlight_in_view",
+        "all",
+      ]);
+    });
+
+    it("ENTITY_VERIFY Validation Type covers all 6 categories (failure mode: validation completeness)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "ENTITY_VERIFY",
+      );
+      const valParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Validation Type");
+      expect(valParam?.options).toEqual([
+        "gaps",
+        "overlaps",
+        "self_intersect",
+        "manifold",
+        "small_features",
+        "all",
+      ]);
+    });
+
+    it("ENTITY_VERIFY Severity Filter supports errors_only / warnings_and_errors / all", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "ENTITY_VERIFY",
+      );
+      const severityParam = op?.tabs?.Shape?.parameters?.find(
+        (p) => p.name === "Severity Filter",
+      );
+      expect(severityParam?.options).toEqual([
+        "errors_only",
+        "warnings_and_errors",
+        "all",
+      ]);
+    });
+
+    it("DYNAMIC_INSPECT Mode supports distance/angle/area/length", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "DYNAMIC_INSPECT",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["distance", "angle", "area", "length"]);
+    });
+
+    it("ENTITY_INFO Display Detail Level supports basic/full/verbose", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "ENTITY_INFO",
+      );
+      const detailParam = op?.tabs?.Shape?.parameters?.find(
+        (p) => p.name === "Display Detail Level",
+      );
+      expect(detailParam?.options).toEqual(["basic", "full", "verbose"]);
+    });
+
+    it("ENTITY_INFO Output Format supports dialog/log/json/csv (adversarial: format coverage)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "analysis_operations",
+        "ENTITY_INFO",
+      );
+      const formatParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Output Format");
+      expect(formatParam?.options).toEqual(["dialog", "log_to_file", "json", "csv"]);
+    });
+
+    it("returns null for unknown analysis op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation("analysis_operations", "TELEPORT_QUERY"),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Tolerance' on CHAIN_ANALYZE (adversarial: cross-op tolerance)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "analysis_operations",
+        "CHAIN_ANALYZE",
+        "Tolerance",
+      );
+      expect(loc?.parameter.name).toBe("Tolerance");
+      expect(loc?.parameter.unit).toBe("mm");
     });
   });
 });
