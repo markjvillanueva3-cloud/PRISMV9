@@ -1629,6 +1629,8 @@ export const ACTIONS = [
   "cam_fusion360_material_list", "cam_fusion360_material_lookup", "cam_fusion360_material_search", "cam_fusion360_material_by_iso", "cam_fusion360_material_kienzle", "cam_fusion360_material_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-PROBE-01 — Fusion 360 probing bridge (13 ops, Renishaw/Blum macro vocab)
   "cam_fusion360_probing_list", "cam_fusion360_probing_lookup", "cam_fusion360_probing_validate", "cam_fusion360_probing_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-TOOL-01 — Fusion 360 tool library export (Tools.json round-trip)
+  "cam_fusion360_tool_parse", "cam_fusion360_tool_serialize", "cam_fusion360_tool_validate", "cam_fusion360_tool_stats",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13059,6 +13061,33 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_probing_audit": {
             const { Fusion360ProbingBridgeEngine } = await import("../../engines/Fusion360ProbingBridgeEngine.js");
             result = Fusion360ProbingBridgeEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-TOOL-01: Fusion 360 tool library ──
+          case "cam_fusion360_tool_parse": {
+            const { Fusion360ToolExportEngine } = await import("../../engines/Fusion360ToolExportEngine.js");
+            const json = params.json_text as string;
+            result = { library: Fusion360ToolExportEngine.parse(json) };
+            break;
+          }
+          case "cam_fusion360_tool_serialize": {
+            const { Fusion360ToolExportEngine } = await import("../../engines/Fusion360ToolExportEngine.js");
+            const tools = params.tools as Parameters<typeof Fusion360ToolExportEngine.serialize>[0];
+            const exportedAtIso = params.exported_at_iso as string | undefined;
+            result = { json_text: Fusion360ToolExportEngine.serialize(tools, { exportedAtIso }) };
+            break;
+          }
+          case "cam_fusion360_tool_validate": {
+            const { Fusion360ToolExportEngine } = await import("../../engines/Fusion360ToolExportEngine.js");
+            const tools = params.tools as Parameters<typeof Fusion360ToolExportEngine.validate>[0];
+            result = Fusion360ToolExportEngine.validate(tools);
+            break;
+          }
+          case "cam_fusion360_tool_stats": {
+            const { Fusion360ToolExportEngine } = await import("../../engines/Fusion360ToolExportEngine.js");
+            const tools = params.tools as Parameters<typeof Fusion360ToolExportEngine.stats>[0];
+            result = Fusion360ToolExportEngine.stats(tools);
             break;
           }
 
