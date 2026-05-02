@@ -63,7 +63,7 @@ describe("HurcoV11.generateProgramAdvanced — happy path with jmdie_hurco_v11",
       use_advanced_features: true,
       machine_id: "jmdie_hurco_v11",
     });
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
   });
 
   it("populates optimized_gcode (non-null array of length >= base)", async () => {
@@ -99,7 +99,7 @@ describe("HurcoV11.generateProgramAdvanced — UltiMotion strategy gating", () =
       use_ultimotion: true,
       machine_id: "jmdie_hurco_v11",
     });
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
     expect(out.optimized_gcode).not.toBeNull();
   });
 
@@ -110,7 +110,7 @@ describe("HurcoV11.generateProgramAdvanced — UltiMotion strategy gating", () =
       use_ultimotion: false,
       machine_id: "jmdie_hurco_v11",
     });
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
     expect(out.optimized_gcode).not.toBeNull();
   });
 });
@@ -122,7 +122,7 @@ describe("HurcoV11.generateProgramAdvanced — failure / edge modes", () => {
       use_advanced_features: true,
     });
     expect(out.advanced_summary!.machine_used).toBeNull();
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
   });
 
   it("returns advanced_summary.machine_used=null when machine_id is unknown", async () => {

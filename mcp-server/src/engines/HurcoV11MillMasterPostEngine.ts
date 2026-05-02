@@ -36,6 +36,11 @@ import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/c
 import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
 import { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
 import { machineStrategyConstraintEngine } from "./MachineStrategyConstraintEngine.js";
+import {
+  rapidRepositionOptEngine,
+  type RapidMove,
+  type AxisKinematics,
+} from "./RapidRepositionOptEngine.js";
 
 const HURCO_ISO_TO_AUTO_SF_MATERIAL: Record<ISOGroup, string> = {
   P: "steel", M: "stainless_steel", K: "cast_iron",
@@ -137,6 +142,18 @@ export interface HurcoAdvancedSummary {
     rigidity_class: string | undefined;
     ways_type: string | undefined;
     spindle_type: string | undefined;
+  } | null;
+  /** RapidRepositionOptEngine pass output (PPG-WIRE-MS5/U-PPGW-RapidReposition-Wiring).
+   *  Null when advanced pipeline did not run. */
+  rapid_reposition: {
+    rapids_count: number;
+    rapid_savings_sec: number;
+    retracts_count: number;
+    retract_savings_sec: number;
+    air_cuts_count: number;
+    air_cut_wasted_sec: number;
+    total_saved_sec: number;
+    optimizations_count: number;
   } | null;
 }
 
@@ -655,6 +672,10 @@ export class HurcoV11MillMasterPostEngine {
       ? machineStrategyConstraintEngine.getMachineById(cfg.machine_id)
       : null;
 
+    const axes: AxisKinematics[] | undefined = machine
+      ? buildAxesFromMachine(machine)
+      : undefined;
+
     const toolDefs = operations.map((op) => ({
       tool_number: op.tool_number,
       diameter_mm: op.tool_diameter_mm,
@@ -685,6 +706,37 @@ export class HurcoV11MillMasterPostEngine {
         `~${sfResult.stats.estimated_time_savings_pct.toFixed(1)}% time savings`,
     );
 
+    // ── PPG-WIRE-MS5/U-PPGW-RapidReposition-Wiring ─────────────────────
+    // Rapid-reposition optimizer pass — operates on structured rapid moves
+    // extracted from the input MillOperation.coordinates (NOT on G-code text).
+    // Sync `output.gcode` is preserved byte-identical; only advanced_summary
+    // is augmented with rapid/retract/air-cut savings.
+    const rapidMoves = extractRapidMoves(operations);
+    const rapidsResult = rapidRepositionOptEngine.optimizeRapids({
+      moves: rapidMoves,
+      axes,
+      controller_diagonal_mode: cfg.use_ultimotion ? "independent" : "slowest_axis",
+    });
+    const retractsResult = rapidRepositionOptEngine.optimizeRetracts({
+      moves: rapidMoves,
+      axes,
+      retract_clearance_mm: 5,
+    });
+    const airCutSamples = buildAirCutSamples(operations);
+    const airCutsResult = rapidRepositionOptEngine.detectAirCuts({
+      air_cut_data: airCutSamples,
+    });
+    const rapidTotal =
+      rapidsResult.total_saved_sec +
+      retractsResult.total_saved_sec +
+      airCutsResult.total_time_wasted_sec;
+    enhancements.push("rapid_reposition_optimization");
+    log.info(
+      `[HurcoV11] RapidReposition pass: rapids=${rapidsResult.optimizations.length} ` +
+        `retracts=${retractsResult.optimizations.length} air_cuts=${airCutsResult.detections.length} ` +
+        `total_saved=${rapidTotal.toFixed(2)}s`,
+    );
+
     return {
       ...baseOutput,
       advanced_features_applied: enhancements,
@@ -708,9 +760,141 @@ export class HurcoV11MillMasterPostEngine {
               spindle_type: machine.spindle_type,
             }
           : null,
+        rapid_reposition: {
+          rapids_count: rapidsResult.optimizations.length,
+          rapid_savings_sec: round2(rapidsResult.total_saved_sec),
+          retracts_count: retractsResult.optimizations.length,
+          retract_savings_sec: round2(retractsResult.total_saved_sec),
+          air_cuts_count: airCutsResult.detections.length,
+          air_cut_wasted_sec: round2(airCutsResult.total_time_wasted_sec),
+          total_saved_sec: round2(rapidTotal),
+          optimizations_count:
+            rapidsResult.optimizations.length +
+            retractsResult.optimizations.length +
+            airCutsResult.detections.length,
+        },
       },
     };
   }
+}
+
+// ============================================================================
+// PPG-WIRE-MS5/U-PPGW-RapidReposition-Wiring — helpers
+// ============================================================================
+
+/**
+ * Map MachineProfile → AxisKinematics[]. MachineProfile carries a single
+ * `rapid_traverse_mm_min` and `acceleration_g`; we apply both to all linear
+ * axes uniformly. Rotary axes are added when machine.axis_count > 3 with
+ * conservative default rpm (per-axis kinematics enrichment is a separate
+ * fleet-data unit). `work_envelope_mm` populates travel limits.
+ */
+function buildAxesFromMachine(
+  machine: ReturnType<typeof machineStrategyConstraintEngine.getMachineById>,
+): AxisKinematics[] | undefined {
+  if (!machine) return undefined;
+  const rapidM = machine.rapid_traverse_mm_min / 1000;
+  const accel = machine.acceleration_g;
+  const env = machine.work_envelope_mm;
+  const axes: AxisKinematics[] = [
+    { name: "X", rapid_m_min: rapidM, accel_g: accel, is_rotary: false, travel_mm: env.x },
+    { name: "Y", rapid_m_min: rapidM, accel_g: accel, is_rotary: false, travel_mm: env.y },
+    { name: "Z", rapid_m_min: rapidM, accel_g: accel, is_rotary: false, travel_mm: env.z },
+  ];
+  if (machine.axis_count >= 4) {
+    axes.push({ name: "A", rapid_m_min: 0, is_rotary: true, rpm: 30, travel_deg: 360 });
+  }
+  if (machine.axis_count >= 5) {
+    axes.push({ name: "C", rapid_m_min: 0, is_rotary: true, rpm: 30, travel_deg: 360 });
+  }
+  return axes;
+}
+
+/**
+ * Extract pairwise RapidMove[] from `MillOperation.coordinates`. Each operation
+ * starts with an implicit rapid to its first coordinate; subsequent
+ * `type:"rapid"` entries continue the rapid chain. Linear/arc points break the
+ * chain. Cross-operation transitions are also tagged as rapids (matches the
+ * G-code emission where a tool change retracts and rapids to next op start).
+ */
+function extractRapidMoves(operations: MillOperation[]): RapidMove[] {
+  const moves: RapidMove[] = [];
+  let line = 100;
+  let prev: { x: number; y: number; z: number } | null = null;
+
+  for (const op of operations) {
+    if (!op.coordinates || op.coordinates.length === 0) continue;
+    for (const pt of op.coordinates) {
+      if (!Number.isFinite(pt.x) || !Number.isFinite(pt.y) || !Number.isFinite(pt.z)) {
+        throw new Error(
+          `[HurcoV11] Invalid coordinate (NaN or Infinity) at op tool=${op.tool_number}`,
+        );
+      }
+      const here = { x: pt.x, y: pt.y, z: pt.z };
+      if (pt.type === "rapid" && prev) {
+        if (here.x !== prev.x || here.y !== prev.y || here.z !== prev.z) {
+          moves.push({ from: prev, to: here, line_number: line });
+        }
+      }
+      prev = here;
+      line += 10;
+    }
+    // Force a rapid retract gap between operations (mirrors tool-change emission).
+    prev = null;
+    line += 10;
+  }
+  return moves;
+}
+
+/** Synthesize AirCutDetection input from MillOperation feed/length. Material
+ * contact percentage is approximated from radial engagement vs tool diameter. */
+function buildAirCutSamples(operations: MillOperation[]) {
+  const samples: Array<{
+    start_line: number;
+    end_line: number;
+    operation_index: number;
+    feedrate_mm_min: number;
+    distance_mm: number;
+    material_contact_pct: number;
+  }> = [];
+  let line = 100;
+  operations.forEach((op, idx) => {
+    if (!op.coordinates || op.coordinates.length < 2) {
+      line += 100;
+      return;
+    }
+    let dist = 0;
+    for (let i = 1; i < op.coordinates.length; i++) {
+      const a = op.coordinates[i - 1];
+      const b = op.coordinates[i];
+      if (b.type === "linear" || b.type === "arc_cw" || b.type === "arc_ccw") {
+        dist += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+      }
+    }
+    if (dist === 0) {
+      line += op.coordinates.length * 10;
+      return;
+    }
+    const radial = op.radial_depth_mm ?? op.tool_diameter_mm;
+    const contactPct = Math.min(
+      100,
+      Math.max(0, (radial / Math.max(0.001, op.tool_diameter_mm)) * 100),
+    );
+    samples.push({
+      start_line: line,
+      end_line: line + op.coordinates.length * 10,
+      operation_index: idx,
+      feedrate_mm_min: op.feed_mm_min,
+      distance_mm: dist,
+      material_contact_pct: contactPct,
+    });
+    line += op.coordinates.length * 10;
+  });
+  return samples;
+}
+
+function round2(v: number): number {
+  return Math.round(v * 100) / 100;
 }
 
 // Singleton export

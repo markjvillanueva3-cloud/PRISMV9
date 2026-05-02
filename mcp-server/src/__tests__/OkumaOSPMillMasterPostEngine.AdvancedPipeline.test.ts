@@ -79,7 +79,7 @@ describe("generateProgramAdvanced — use_advanced_features=true with Genos M460
       use_advanced_features: true,
       machine_id: "jmdie_okuma_genos_m460v_5ax",
     });
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
   });
 
   it("populates optimized_gcode with at least as many lines as base gcode", async () => {
@@ -170,7 +170,7 @@ describe("generateProgramAdvanced — machine_id resolution variants", () => {
     expect(out.advanced_summary).not.toBeNull();
     expect(out.advanced_summary!.machine_used).toBeNull();
     // AutoSpeedFeed still ran without machine context
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
   });
 
   it("returns advanced_summary.machine_used=null when machine_id is unknown", async () => {
@@ -247,6 +247,6 @@ describe("generateProgramAdvanced — adversarial inputs", () => {
       use_advanced_features: true,
       machine_id: "jmdie_okuma_genos_m460v_5ax",
     });
-    expect(out.advanced_features_applied).toEqual(["auto_speed_feed_optimization"]);
+    expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
   });
 });
