@@ -1203,6 +1203,8 @@ export const ACTIONS = [
   "wedm_virtual_machine_predict", "wedm_reasoning_bridge_enrich", "wedm_start_point_optimize",
   // WEDM-WIRE-MS0/Batch24: tribal runtime + tip learner + transfer learning (3 engines)
   "wedm_tribal_runtime_select", "wedm_tribal_tip_pending", "wedm_transfer_learning_apply",
+  // WEDM-WIRE-MS0/Batch25: taper error budget + Weibull wire life + spark erosion (3 engines)
+  "wedm_taper_error_budget", "wedm_weibull_failure_prob", "wedm_spark_erosion_calc",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6929,6 +6931,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmTransferLearningEngine.transfer(
                 input as Parameters<typeof wedmTransferLearningEngine.transfer>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch25: taper budget + Weibull wire life + spark erosion
+          // ============================================================
+          case "wedm_taper_error_budget": {
+            const { wedmTaperErrorBudgetEngine } = await import("../../engines/WEDMTaperErrorBudgetEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (TaperErrorBudgetInput)" }; break; }
+            try {
+              result = wedmTaperErrorBudgetEngine.calculate(
+                input as Parameters<typeof wedmTaperErrorBudgetEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_weibull_failure_prob": {
+            const { wedmWeibullWireLifeEngine } = await import("../../engines/WEDMWeibullWireLifeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (FailureProbabilityInput)" }; break; }
+            try {
+              result = wedmWeibullWireLifeEngine.failureProbability(
+                input as Parameters<typeof wedmWeibullWireLifeEngine.failureProbability>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_spark_erosion_calc": {
+            const { wedmSparkErosionModelEngine } = await import("../../engines/WEDMSparkErosionModelEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (SparkErosionInput)" }; break; }
+            try {
+              result = wedmSparkErosionModelEngine.calculate(
+                input as Parameters<typeof wedmSparkErosionModelEngine.calculate>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

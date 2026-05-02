@@ -457,4 +457,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_transfer_learning_apply: z.object({
     input: z.record(z.string(), z.unknown()).describe("TransferContext - source/target material + machine for WEDMTransferLearningEngine.transfer() — returns TransferResult with adjusted parameters"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch25: taper budget + Weibull + spark erosion
+  wedm_taper_error_budget: z.object({
+    input: z.record(z.string(), z.unknown()).describe("TaperErrorBudgetInput - taper geometry + tolerance for WEDMTaperErrorBudgetEngine.calculate() — returns TaperErrorBudgetResult"),
+  }).passthrough(),
+  wedm_weibull_failure_prob: z.object({
+    input: z.record(z.string(), z.unknown()).describe("FailureProbabilityInput - Weibull params + time for WEDMWeibullWireLifeEngine.failureProbability() — returns FailureProbabilityResult"),
+  }).passthrough(),
+  wedm_spark_erosion_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("SparkErosionInput - material + pulse params for WEDMSparkErosionModelEngine.calculate() — returns SparkErosionResult"),
+  }).passthrough(),
 };
