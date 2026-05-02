@@ -484,4 +484,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_drift_detect: z.object({
     input: z.record(z.string(), z.unknown()).describe("{modelId: string} — runs LatheLoRADriftDetectorEngine.detectDrift() + needsRetraining() for the model"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch18: LoRA refinement + deployment + benchmark
+  lathe_lora_refinement_start: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{query: string, initialResponse: string} for LatheLoRAAdaptiveRefinementEngine.startSession() — opens new RefinementSession"),
+  }).passthrough(),
+  lathe_lora_deploy_register: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DeploymentTarget — full target descriptor for LatheLoRADeploymentEngine.registerTarget() — adds canary-deployable target"),
+  }).passthrough(),
+  lathe_lora_benchmark_test_cases: z.object({}).passthrough().describe("No input — returns LatheLoRABenchmarkSuiteEngine.getTestCases() + getConfig() — current benchmark suite snapshot"),
 };

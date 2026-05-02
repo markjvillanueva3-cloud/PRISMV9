@@ -95,6 +95,8 @@ const ACTIONS = [
   "lathe_agi_continuous_record", "lathe_agi_feature_reason", "lathe_agi_safety_check",
   // LATHE-WIRE-MS0/Batch17: LoRA cadence + dataset stats + drift detection (3 engines)
   "lathe_lora_cadence_status", "lathe_lora_dataset_stats", "lathe_lora_drift_detect",
+  // LATHE-WIRE-MS0/Batch18: LoRA refinement + deployment + benchmark suite (3 engines)
+  "lathe_lora_refinement_start", "lathe_lora_deploy_register", "lathe_lora_benchmark_test_cases",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1132,6 +1134,51 @@ Actions: ${ACTIONS.join(", ")}.`,
                 success: true,
                 detections: latheLoRADriftDetectorEngine.detectDrift(modelId),
                 needs_retraining: latheLoRADriftDetectorEngine.needsRetraining(modelId),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch18: LoRA refinement + deployment + benchmark
+          // ============================================================
+          case "lathe_lora_refinement_start": {
+            const { latheLoRAAdaptiveRefinementEngine } = await import("../../engines/LatheLoRAAdaptiveRefinementEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const query = input && typeof input.query === "string" ? input.query : "";
+            const initialResponse = input && typeof input.initialResponse === "string" ? input.initialResponse : "";
+            if (!query || !initialResponse) {
+              result = { success: false, error: "input.query (string) and input.initialResponse (string) required" };
+              break;
+            }
+            try {
+              result = latheLoRAAdaptiveRefinementEngine.startSession(query, initialResponse);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_deploy_register": {
+            const { latheLoRADeploymentEngine } = await import("../../engines/LatheLoRADeploymentEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DeploymentTarget)" }; break; }
+            try {
+              result = latheLoRADeploymentEngine.registerTarget(
+                input as Parameters<typeof latheLoRADeploymentEngine.registerTarget>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_benchmark_test_cases": {
+            const { latheLoRABenchmarkSuiteEngine } = await import("../../engines/LatheLoRABenchmarkSuiteEngine.js");
+            try {
+              result = {
+                success: true,
+                test_cases: latheLoRABenchmarkSuiteEngine.getTestCases(),
+                config: latheLoRABenchmarkSuiteEngine.getConfig(),
               };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
