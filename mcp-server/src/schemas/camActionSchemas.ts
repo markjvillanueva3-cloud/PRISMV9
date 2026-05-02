@@ -314,4 +314,15 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     session_id: z.string().min(1).describe("ML optimization session ID (created by upstream session_init action)"),
     observation: z.record(z.string(), z.unknown()).describe("WEDMObservation - measured outcome for the prior parameter suggestion"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch10: learning loop recommend + batch process + lattice graph build
+  wedm_learning_recommend: z.object({
+    material: z.string().min(1).describe("Material name (e.g. 'D2', 'A2_HRC60') for WEDMLearningLoopEngine.getRecommendations()"),
+    thickness_mm: z.number().describe("Workpiece thickness in mm (binned to nearest 5mm internally)"),
+  }).passthrough(),
+  wedm_batch_process: z.object({
+    input: z.record(z.string(), z.unknown()).describe("BatchInput - profiles + grouping strategy for WEDMMultiProfileBatchEngine.processBatch()"),
+  }).passthrough(),
+  wedm_lattice_build: z.object({
+    opts: z.record(z.string(), z.unknown()).optional().describe("BuildOptions - optional lattice build params (defaults supplied if omitted)"),
+  }).passthrough(),
 };

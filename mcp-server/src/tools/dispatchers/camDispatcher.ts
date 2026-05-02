@@ -1173,6 +1173,8 @@ export const ACTIONS = [
   "wedm_dxf_closure_validate", "wedm_drift_detect", "wedm_calibration_report",
   // WEDM-WIRE-MS0/Batch9: neighbor query + formula fusion + ML observation
   "wedm_neighbor_nearest", "wedm_neural_formula_fuse", "wedm_ml_observe",
+  // WEDM-WIRE-MS0/Batch10: learning loop recommend + batch process + lattice graph build
+  "wedm_learning_recommend", "wedm_batch_process", "wedm_lattice_build",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6254,6 +6256,45 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = wedmMLParameterOptimizerEngine.addObservation(
                 sessionId,
                 observation as Parameters<typeof wedmMLParameterOptimizerEngine.addObservation>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch10: learning loop recommend + batch process + lattice graph build ──
+          case "wedm_learning_recommend": {
+            const { wedmLearningLoopEngine } = await import("../../engines/WEDMLearningLoopEngine.js");
+            const material = (params as Record<string, unknown>).material;
+            const thicknessMm = (params as Record<string, unknown>).thickness_mm;
+            if (typeof material !== "string" || material.length === 0) { result = { success: false, error: "material non-empty string required" }; break; }
+            if (typeof thicknessMm !== "number" || !Number.isFinite(thicknessMm)) { result = { success: false, error: "thickness_mm finite number required" }; break; }
+            try {
+              result = wedmLearningLoopEngine.getRecommendations(material, thicknessMm);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_batch_process": {
+            const { wedmMultiProfileBatchEngine } = await import("../../engines/WEDMMultiProfileBatchEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (BatchInput)" }; break; }
+            try {
+              result = wedmMultiProfileBatchEngine.processBatch(
+                input as Parameters<typeof wedmMultiProfileBatchEngine.processBatch>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_lattice_build": {
+            const { wedmLatticeGraphEngine } = await import("../../engines/WEDMLatticeGraphEngine.js");
+            try {
+              const opts = (params as Record<string, unknown>).opts;
+              result = wedmLatticeGraphEngine.build(
+                opts as Parameters<typeof wedmLatticeGraphEngine.build>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
