@@ -1621,6 +1621,8 @@ export const ACTIONS = [
   "cam_fusion360_cycle_catalog_list", "cam_fusion360_cycle_catalog_list_by_category", "cam_fusion360_cycle_catalog_lookup", "cam_fusion360_cycle_catalog_search", "cam_fusion360_cycle_catalog_stats", "cam_fusion360_cycle_catalog_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-CTRL-01 — Fusion 360 controller catalog (16 families, 20+ post variants)
   "cam_fusion360_controller_list", "cam_fusion360_controller_lookup", "cam_fusion360_controller_search", "cam_fusion360_controller_dialect", "cam_fusion360_controller_stats", "cam_fusion360_controller_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-STRAT-01 — Fusion 360 strategy engine (operation+ISO → cycle+params)
+  "cam_fusion360_strategy_recommend", "cam_fusion360_strategy_pick_cycle", "cam_fusion360_strategy_baseline_vc", "cam_fusion360_strategy_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12936,6 +12938,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_controller_audit": {
             const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
             result = Fusion360ControllerCatalogEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-STRAT-01: Fusion 360 strategy engine ──
+          case "cam_fusion360_strategy_recommend": {
+            const { Fusion360StrategyEngine } = await import("../../engines/Fusion360StrategyEngine.js");
+            const request = params.request as Parameters<typeof Fusion360StrategyEngine.recommend>[0];
+            result = Fusion360StrategyEngine.recommend(request);
+            break;
+          }
+          case "cam_fusion360_strategy_pick_cycle": {
+            const { Fusion360StrategyEngine } = await import("../../engines/Fusion360StrategyEngine.js");
+            const request = params.request as Parameters<typeof Fusion360StrategyEngine.pickCycle>[0];
+            result = { cycle: Fusion360StrategyEngine.pickCycle(request) };
+            break;
+          }
+          case "cam_fusion360_strategy_baseline_vc": {
+            const { Fusion360StrategyEngine } = await import("../../engines/Fusion360StrategyEngine.js");
+            const all = params.all === true;
+            if (all) {
+              result = { table: Fusion360StrategyEngine.baselineVcTable() };
+            } else {
+              const op = params.operation as Parameters<typeof Fusion360StrategyEngine.baselineVc>[0];
+              const iso = params.iso_group as Parameters<typeof Fusion360StrategyEngine.baselineVc>[1];
+              result = { operation: op, iso_group: iso, vc_mmin: Fusion360StrategyEngine.baselineVc(op, iso) };
+            }
+            break;
+          }
+          case "cam_fusion360_strategy_audit": {
+            const { Fusion360StrategyEngine } = await import("../../engines/Fusion360StrategyEngine.js");
+            result = Fusion360StrategyEngine.auditEngine();
             break;
           }
 
