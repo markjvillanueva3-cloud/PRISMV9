@@ -291,4 +291,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_job_outcome_record: z.object({
     input: z.unknown().describe("Job outcome record — actual cycle time, scrap, deviations (validated by engine)"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch8: DXF closure validate + drift detect + calibration report
+  wedm_dxf_closure_validate: z.object({
+    segments: z.array(z.record(z.string(), z.unknown())).min(1).describe("DXFSegment[] - DXF entity segments to validate for closure (gaps/overlaps/near-misses)"),
+  }).passthrough(),
+  wedm_drift_detect: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DriftInput - rolling stats input for WEDMDriftDetectionEngine.detect()"),
+  }).passthrough(),
+  wedm_calibration_report: z.object({
+    input: z.record(z.string(), z.unknown()).describe("CalibrationInput - calibration measurements for WEDMCalibrationReportEngine.generate()"),
+  }).passthrough(),
 };

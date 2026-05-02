@@ -1169,6 +1169,8 @@ export const ACTIONS = [
   "wedm_machine_state_ingest", "wedm_material_spark_resolve", "wedm_kalman_fuse",
   // WEDM-WIRE-MS0/Batch7: job cost + job creator + job outcome record
   "wedm_job_cost_calc", "wedm_job_create", "wedm_job_outcome_record",
+  // WEDM-WIRE-MS0/Batch8: DXF closure validate + drift detect + calibration report
+  "wedm_dxf_closure_validate", "wedm_drift_detect", "wedm_calibration_report",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6163,6 +6165,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             if (input === undefined || input === null) { result = { success: false, error: "input required (job outcome record)" }; break; }
             try {
               result = wedmJobOutcomeEngine.recordOutcome(input);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch8: DXF closure validate + drift detect + calibration report ──
+          case "wedm_dxf_closure_validate": {
+            const { wedmDXFClosureValidatorEngine } = await import("../../engines/WEDMDXFClosureValidatorEngine.js");
+            const segments = (params as Record<string, unknown>).segments;
+            if (!Array.isArray(segments)) { result = { success: false, error: "segments array required (DXFSegment[])" }; break; }
+            try {
+              result = wedmDXFClosureValidatorEngine.validate(
+                segments as Parameters<typeof wedmDXFClosureValidatorEngine.validate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_drift_detect": {
+            const { wedmDriftDetectionEngine } = await import("../../engines/WEDMDriftDetectionEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DriftInput)" }; break; }
+            try {
+              result = wedmDriftDetectionEngine.detect(
+                input as Parameters<typeof wedmDriftDetectionEngine.detect>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_calibration_report": {
+            const { wedmCalibrationReportEngine } = await import("../../engines/WEDMCalibrationReportEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (CalibrationInput)" }; break; }
+            try {
+              result = wedmCalibrationReportEngine.generate(
+                input as Parameters<typeof wedmCalibrationReportEngine.generate>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
