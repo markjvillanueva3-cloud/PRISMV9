@@ -87,6 +87,8 @@ const ACTIONS = [
   "lathe_workholding_jaw_select", "lathe_safety_predicate_verify", "lathe_proof_carrying_emit",
   // LATHE-WIRE-MS0/Batch13: master post explain + ensemble cross-check + unified output
   "lathe_masterpost_explain", "lathe_masterpost_ensemble", "lathe_masterpost_unified_output",
+  // LATHE-WIRE-MS0/Batch14: print-to-program AI trio (reasoning + knowledge graph + DL prediction)
+  "lathe_p2p_reasoning_explain", "lathe_p2p_knowledge_graph_ingest", "lathe_p2p_dl_predict",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -958,6 +960,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput(
                 config as Parameters<typeof LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_p2p_reasoning_explain": {
+            const { lathePrintToProgramReasoningEngine } = await import("../../engines/LathePrintToProgramReasoningEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ReasoningInput)" }; break; }
+            try {
+              result = lathePrintToProgramReasoningEngine.explain(
+                input as Parameters<typeof lathePrintToProgramReasoningEngine.explain>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_p2p_knowledge_graph_ingest": {
+            const { lathePrintToProgramKnowledgeGraphEngine } = await import("../../engines/LathePrintToProgramKnowledgeGraphEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (IngestionInput)" }; break; }
+            try {
+              result = lathePrintToProgramKnowledgeGraphEngine.ingest(
+                input as Parameters<typeof lathePrintToProgramKnowledgeGraphEngine.ingest>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_p2p_dl_predict": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import("../../engines/LathePrintToProgramDLIntelligenceEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DLInput)" }; break; }
+            try {
+              result = lathePrintToProgramDLIntelligenceEngine.predict(
+                input as Parameters<typeof lathePrintToProgramDLIntelligenceEngine.predict>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

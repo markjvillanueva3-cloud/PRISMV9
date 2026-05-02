@@ -448,4 +448,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_masterpost_unified_output: z.object({
     config: z.record(z.string(), z.unknown()).describe("UnifiedHeaderConfig (with optional footerConfig) for LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput() — class export, no singleton const"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch14: print-to-program AI trio (reasoning + knowledge graph + DL prediction)
+  lathe_p2p_reasoning_explain: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ReasoningInput — features + decisions + alternatives for LathePrintToProgramReasoningEngine.explain()"),
+  }).passthrough(),
+  lathe_p2p_knowledge_graph_ingest: z.object({
+    input: z.record(z.string(), z.unknown()).describe("IngestionInput — job + customer + tools + outcomes for LathePrintToProgramKnowledgeGraphEngine.ingest()"),
+  }).passthrough(),
+  lathe_p2p_dl_predict: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DLInput — feature vector for LathePrintToProgramDLIntelligenceEngine.predict() — returns FailurePrediction"),
+  }).passthrough(),
 };
