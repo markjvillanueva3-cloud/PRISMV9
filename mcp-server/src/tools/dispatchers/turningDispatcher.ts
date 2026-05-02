@@ -89,6 +89,8 @@ const ACTIONS = [
   "lathe_masterpost_explain", "lathe_masterpost_ensemble", "lathe_masterpost_unified_output",
   // LATHE-WIRE-MS0/Batch14: print-to-program AI trio (reasoning + knowledge graph + DL prediction)
   "lathe_p2p_reasoning_explain", "lathe_p2p_knowledge_graph_ingest", "lathe_p2p_dl_predict",
+  // LATHE-WIRE-MS0/Batch15: dialect post + PO automation + adaptive recorder (3 engines)
+  "lathe_post_dialect_generate", "lathe_po_build", "lathe_adaptive_record",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1000,6 +1002,49 @@ Actions: ${ACTIONS.join(", ")}.`,
               result = lathePrintToProgramDLIntelligenceEngine.predict(
                 input as Parameters<typeof lathePrintToProgramDLIntelligenceEngine.predict>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch15: dialect post + PO automation + adaptive recorder
+          // ============================================================
+          case "lathe_post_dialect_generate": {
+            const { lathePostGeneratorDialectEngine } = await import("../../engines/LathePostGeneratorDialectEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DialectGenerationInput)" }; break; }
+            try {
+              result = lathePostGeneratorDialectEngine.generate(
+                input as Parameters<typeof lathePostGeneratorDialectEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_po_build": {
+            const { lathePurchaseOrderAutomationEngine } = await import("../../engines/LathePurchaseOrderAutomationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (BuildPOInput)" }; break; }
+            try {
+              result = lathePurchaseOrderAutomationEngine.build(
+                input as Parameters<typeof lathePurchaseOrderAutomationEngine.build>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_adaptive_record": {
+            const { latheAdaptiveMachiningEngine } = await import("../../engines/LatheAdaptiveMachiningEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (TurningEngagementProfile)" }; break; }
+            try {
+              latheAdaptiveMachiningEngine.recordOperation(
+                input as Parameters<typeof latheAdaptiveMachiningEngine.recordOperation>[0],
+              );
+              result = { success: true, history_size: latheAdaptiveMachiningEngine.getOperationHistory().length };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

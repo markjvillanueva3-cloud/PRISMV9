@@ -458,4 +458,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_p2p_dl_predict: z.object({
     input: z.record(z.string(), z.unknown()).describe("DLInput — feature vector for LathePrintToProgramDLIntelligenceEngine.predict() — returns FailurePrediction"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch15: dialect post + PO automation + adaptive recorder
+  lathe_post_dialect_generate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DialectGenerationInput — controllerId + cycles + parameters for LathePostGeneratorDialectEngine.generate() — returns GeneratedGCode"),
+  }).passthrough(),
+  lathe_po_build: z.object({
+    input: z.record(z.string(), z.unknown()).describe("BuildPOInput — vendor + items + inventory_on_hand for LathePurchaseOrderAutomationEngine.build() — returns BuildPOResult"),
+  }).passthrough(),
+  lathe_adaptive_record: z.object({
+    input: z.record(z.string(), z.unknown()).describe("TurningEngagementProfile — operation profile for LatheAdaptiveMachiningEngine.recordOperation() — appends to operation history"),
+  }).passthrough(),
 };
