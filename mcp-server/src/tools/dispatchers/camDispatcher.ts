@@ -1637,6 +1637,8 @@ export const ACTIONS = [
   "cam_fusion360_millturn_list", "cam_fusion360_millturn_lookup", "cam_fusion360_millturn_validate_handoff", "cam_fusion360_millturn_thread_passes", "cam_fusion360_millturn_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-AI-01 — Fusion 360 AI orchestration routing
   "cam_fusion360_ai_route", "cam_fusion360_ai_routes", "cam_fusion360_ai_tasks_routed_to", "cam_fusion360_ai_audit",
+  // CAM-EXHAUST-MS0 U-CAM-MC-EDM-01 — Mastercam EDM bridge (Wire 2/4-axis + Sinker + Micro)
+  "cam_mastercam_edm_route", "cam_mastercam_edm_pick_route_type", "cam_mastercam_edm_skim_passes", "cam_mastercam_edm_stats", "cam_mastercam_edm_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13179,6 +13181,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_ai_audit": {
             const { Fusion360AIOrchestrationEngine } = await import("../../engines/Fusion360AIOrchestrationEngine.js");
             result = Fusion360AIOrchestrationEngine.auditRouting();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-MC-EDM-01: Mastercam EDM bridge ──
+          case "cam_mastercam_edm_route": {
+            const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");
+            const f = params.feature as Parameters<typeof MastercamEDMBridge.route>[0];
+            result = MastercamEDMBridge.route(f);
+            break;
+          }
+          case "cam_mastercam_edm_pick_route_type": {
+            const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");
+            const f = params.feature as Parameters<typeof MastercamEDMBridge.pickRouteType>[0];
+            result = { route_type: MastercamEDMBridge.pickRouteType(f) };
+            break;
+          }
+          case "cam_mastercam_edm_skim_passes": {
+            const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");
+            const t = params.workpiece_thickness_mm as number;
+            result = { passes: MastercamEDMBridge.recommendSkimPasses(t), workpiece_thickness_mm: t };
+            break;
+          }
+          case "cam_mastercam_edm_stats": {
+            const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");
+            const features = params.features as Parameters<typeof MastercamEDMBridge.stats>[0];
+            result = MastercamEDMBridge.stats(features);
+            break;
+          }
+          case "cam_mastercam_edm_audit": {
+            const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");
+            result = MastercamEDMBridge.auditEngine();
             break;
           }
 
