@@ -1167,6 +1167,8 @@ export const ACTIONS = [
   "wedm_kerf_predict", "wedm_mrr_calc", "wedm_dielectric_flush_adjust",
   // WEDM-WIRE-MS0/Batch6: machine state ingest + spark DB resolve + kalman fusion
   "wedm_machine_state_ingest", "wedm_material_spark_resolve", "wedm_kalman_fuse",
+  // WEDM-WIRE-MS0/Batch7: job cost + job creator + job outcome record
+  "wedm_job_cost_calc", "wedm_job_create", "wedm_job_outcome_record",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6119,6 +6121,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = wedmKalmanFusionEngine.fuse(
                 reading as Parameters<typeof wedmKalmanFusionEngine.fuse>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch7: job cost + job creator + job outcome record ──
+          case "wedm_job_cost_calc": {
+            const { wedmJobCostEngine } = await import("../../engines/WEDMJobCostEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (JobCostInput)" }; break; }
+            try {
+              result = wedmJobCostEngine.calculateJobCost(
+                input as Parameters<typeof wedmJobCostEngine.calculateJobCost>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_job_create": {
+            const { wedmJobCreatorEngine } = await import("../../engines/WEDMJobCreatorEngine.js");
+            const program = (params as Record<string, unknown>).program;
+            if (!program || typeof program !== "object") { result = { success: false, error: "program required (WEDMProgramResult)" }; break; }
+            try {
+              const options = (params as Record<string, unknown>).options;
+              const quote = (params as Record<string, unknown>).quote;
+              result = wedmJobCreatorEngine.createJob(
+                program as Parameters<typeof wedmJobCreatorEngine.createJob>[0],
+                options as Parameters<typeof wedmJobCreatorEngine.createJob>[1],
+                quote as Parameters<typeof wedmJobCreatorEngine.createJob>[2],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_job_outcome_record": {
+            const { wedmJobOutcomeEngine } = await import("../../engines/WEDMJobOutcomeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (input === undefined || input === null) { result = { success: false, error: "input required (job outcome record)" }; break; }
+            try {
+              result = wedmJobOutcomeEngine.recordOutcome(input);
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

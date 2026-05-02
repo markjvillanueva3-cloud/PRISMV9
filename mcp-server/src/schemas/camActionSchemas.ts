@@ -279,4 +279,16 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_kalman_fuse: z.object({
     reading: z.record(z.string(), z.unknown()).describe("WEDMSensorReading - raw sensor packet to fuse via Kalman filter into WEDMFusedState"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch7: job cost + job creator + job outcome record
+  wedm_job_cost_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("JobCostInput - operation list + machine + material for WEDMJobCostEngine.calculateJobCost()"),
+  }).passthrough(),
+  wedm_job_create: z.object({
+    program: z.record(z.string(), z.unknown()).describe("WEDMProgramResult from a prior wedm_program_* action — drives operation list + NC text"),
+    options: z.record(z.string(), z.unknown()).optional().describe("JobOptions — quantity, notes, customer, due date"),
+    quote: z.record(z.string(), z.unknown()).optional().describe("Quote — optional quote tying job to a sales order"),
+  }).passthrough(),
+  wedm_job_outcome_record: z.object({
+    input: z.unknown().describe("Job outcome record — actual cycle time, scrap, deviations (validated by engine)"),
+  }).passthrough(),
 };
