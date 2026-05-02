@@ -1193,6 +1193,8 @@ export const ACTIONS = [
   "wedm_adaptive_pass_strategy", "wedm_fewshot_plan_first_cut", "edm_quality_plan_cmm",
   // WEDM-WIRE-MS0/Batch19: autonomy snapshot + feature importance + bimaterial optimize (3 engines)
   "wedm_autonomy_snapshot", "wedm_feature_importance_compute", "edm_bimaterial_optimize",
+  // WEDM-WIRE-MS0/Batch20: blackboard + continuous learning + feedback calibration (3 engines)
+  "wedm_blackboard_stats", "wedm_continuous_learning_ingest", "wedm_feedback_submit",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6717,6 +6719,44 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = edmBiMaterialCompensationEngine.optimize(
                 input as Parameters<typeof edmBiMaterialCompensationEngine.optimize>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch20: blackboard + continuous learning + feedback
+          // ============================================================
+          case "wedm_blackboard_stats": {
+            const { wedmBlackboardEngine } = await import("../../engines/WEDMBlackboardEngine.js");
+            try {
+              result = { success: true, stats: wedmBlackboardEngine.getStats() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_continuous_learning_ingest": {
+            const { wedmContinuousLearningEngine } = await import("../../engines/WEDMContinuousLearningEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (LearningSignal)" }; break; }
+            try {
+              result = wedmContinuousLearningEngine.ingest(
+                input as Parameters<typeof wedmContinuousLearningEngine.ingest>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_feedback_submit": {
+            const { wedmFeedbackCalibrationEngine } = await import("../../engines/WEDMFeedbackCalibrationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMFeedback)" }; break; }
+            try {
+              result = wedmFeedbackCalibrationEngine.submit_feedback(
+                input as Parameters<typeof wedmFeedbackCalibrationEngine.submit_feedback>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

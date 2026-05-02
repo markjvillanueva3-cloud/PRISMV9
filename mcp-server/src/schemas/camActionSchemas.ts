@@ -415,4 +415,12 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   edm_bimaterial_optimize: z.object({
     input: z.record(z.string(), z.unknown()).describe("BiMaterialOptimizeInput - dual-material parameters for EDMBiMaterialCompensationEngine.optimize() — returns optimized cut params + transition zones"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch20: blackboard + continuous learning + feedback
+  wedm_blackboard_stats: z.object({}).passthrough().describe("No input — returns WEDMBlackboardEngine.getStats() — namespace counts + entry totals + subscription count"),
+  wedm_continuous_learning_ingest: z.object({
+    input: z.record(z.string(), z.unknown()).describe("LearningSignal — observed outcome with parameters for WEDMContinuousLearningEngine.ingest() — updates per-material model"),
+  }).passthrough(),
+  wedm_feedback_submit: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMFeedback — operator feedback record for WEDMFeedbackCalibrationEngine.submit_feedback() — adjusts k_ra + eta_mrr calibration"),
+  }).passthrough(),
 };
