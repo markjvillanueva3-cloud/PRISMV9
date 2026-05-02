@@ -113,18 +113,24 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       expect(r.count).toBe(30);
     });
 
-    it("returns 0 operations for the not-yet-shipped surface_operations module", async () => {
+    it("returns 20 operations for the surface_operations module (shipped in U-03)", async () => {
       const r = await invoke("cad_solidworks_list_operations", { module_id: "surface_operations" });
+      expect(r.success).toBe(true);
+      expect(r.count).toBe(20);
+    });
+
+    it("returns 0 operations for the not-yet-shipped assembly_operations module", async () => {
+      const r = await invoke("cad_solidworks_list_operations", { module_id: "assembly_operations" });
       expect(r.success).toBe(true);
       expect(r.count).toBe(0);
       // Note: slimResponse drops the empty `operations: []` array from the wire payload;
       // the count===0 assertion above is the canonical check.
     });
 
-    it("returns all 52 ops when no module_id is given (sketch + part shipped through U-02)", async () => {
+    it("returns all 72 ops when no module_id is given (sketch + part + surface shipped through U-03)", async () => {
       const r = await invoke("cad_solidworks_list_operations");
       expect(r.success).toBe(true);
-      expect(r.count).toBe(52);
+      expect(r.count).toBe(72);
     });
   });
 
@@ -205,12 +211,12 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
   });
 
   describe("cad_solidworks_search_parameters", () => {
-    it("finds 17 'Sketch Plane' parameter occurrences across sketch + part", async () => {
+    it("finds 19 'Sketch Plane' parameter occurrences across sketch + part + surface", async () => {
       const r = await invoke("cad_solidworks_search_parameters", { query: "Sketch Plane" });
       expect(r.success).toBe(true);
       expect(r.query).toBe("Sketch Plane");
-      // 16 sketch ops + HOLE_WIZARD references it for hole placement.
-      expect(r.count).toBe(17);
+      // 16 sketch ops + HOLE_WIZARD (part) + SURFACE_EXTRUDE + SURFACE_PLANAR (surface) = 19.
+      expect(r.count).toBe(19);
     });
 
     it("honors the limit parameter and caps results", async () => {
@@ -265,9 +271,9 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       expect(r.system_id).toBe("solidworks");
       expect(r.module_name).toBe("SolidWorks CAD Unified Function Index");
       expect(r.total_modules).toBe(8);
-      expect(r.total_operations).toBe(52);
-      expect(r.total_parameters).toBe(322);
-      expect(r.estimated_parameter_total).toBe(322);
+      expect(r.total_operations).toBe(72);
+      expect(r.total_parameters).toBe(472);
+      expect(r.estimated_parameter_total).toBe(472);
       expect(r.coverage_state).toBe("IN_PROGRESS");
       const modules = r.modules as Array<Record<string, unknown>>;
       expect(modules).toHaveLength(8);
@@ -275,15 +281,17 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       expect(modules[0].parameter_count_estimate).toBe(132);
       expect(modules[1].module_id).toBe("part_operations");
       expect(modules[1].parameter_count_estimate).toBe(190);
+      expect(modules[2].module_id).toBe("surface_operations");
+      expect(modules[2].parameter_count_estimate).toBe(150);
     });
   });
 
   describe("cad_solidworks_total_parameter_count", () => {
-    it("reports 322 total parameters with zero drift from declared total", async () => {
+    it("reports 472 total parameters with zero drift from declared total", async () => {
       const r = await invoke("cad_solidworks_total_parameter_count");
       expect(r.success).toBe(true);
-      expect(r.total_parameters).toBe(322);
-      expect(r.declared_total).toBe(322);
+      expect(r.total_parameters).toBe(472);
+      expect(r.declared_total).toBe(472);
       expect(r.drift).toBe(0);
     });
   });
@@ -307,15 +315,14 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       await invoke("cad_solidworks_list_operations"); // no module_id → iterate all 8
       const r = await invoke("cad_solidworks_load_errors");
       expect(r.success).toBe(true);
-      // 6 modules pending after U-02 (everything except sketch_operations + part_operations)
-      expect(r.count).toBe(6);
+      // 5 modules pending after U-03 (everything except sketch + part + surface)
+      expect(r.count).toBe(5);
       const errors = r.errors as Array<{ module_id: string; error: string }>;
       expect(errors.map((e) => e.module_id).sort()).toEqual([
         "assembly_operations",
         "drawing_operations",
         "evaluation_operations",
         "sheet_metal_operations",
-        "surface_operations",
         "weldment_operations",
       ]);
       expect(errors[0].error).toBe("File not found");

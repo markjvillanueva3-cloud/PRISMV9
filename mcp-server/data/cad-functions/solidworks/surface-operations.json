@@ -1,0 +1,444 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Surface Operations — Surface modeling layer",
+    "description": "Parameter catalog for the SolidWorks CAD surface modeling layer. Surfaces are constructed via 7 sweep families (extrude / revolve / sweep / loft / boundary / ruled / radiated), filled patches (fill / planar / extracted), modified through trim / untrim / extend / offset / replace_face / move_face / delete_face / delete_hole, joined via knit (with optional close-to-solid), and converted to solid bodies via thicken or sewing-to-solid. Catalog covers 20 operations / 150 parameters. Bindings target the SolidWorks API IFeatureManager surface methods (FeatureExtruRefSurface3 / FeatureRevolveSurface2 / FeatureSurfaceLoft / FeatureBoundarySurface / InsertFilledSurfaceFeature2 / InsertOffsetSurface2 / InsertRuledSurface2 / RadiatedSurfaceFeature / InsertPlanarSurface / InsertSurfaceFromBody / InsertSewingFeature / InsertSurfaceTrim2 / FeatureUntrimSurface / InsertExtendSurfaceFeature / InsertReplaceFace2 / InsertMoveFace2 / InsertDeleteFace / DeleteHoleFeature / InsertThickenFeature) and IModelDoc2 surface body management.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-03",
+    "source": "SolidWorks 2024 API Help — Features (Surface); SolidWorks API Reference — IFeatureManager (Surface methods); SolidWorks 2024 Reference — Surfaces toolbar / Insert > Surface menu",
+    "totalParameters": 150,
+    "operationCount": 20,
+    "cad_concepts_used": [
+      "SURFACE_PARAMETRIC_SWEEP",
+      "BOUNDARY_SURFACE_DIRECTION_PAIR",
+      "SURFACE_CONTINUITY_C0_C1_C2_C3",
+      "RULED_SURFACE_GENERATION",
+      "FILLED_SURFACE_BOUNDARY_PATCH",
+      "RADIATED_SURFACE_DRAFT",
+      "SURFACE_OFFSET_NORMAL",
+      "STITCH_TOLERANCE",
+      "SURFACE_TRIM_BOUNDARY",
+      "MANIFOLD_SURFACE_VALIDATION",
+      "SURFACE_TO_SOLID_CLOSURE",
+      "FACE_LEVEL_EDIT",
+      "DIRECT_EDITING_DELETE_FACE_FILL"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks surface operations",
+    "tabs": ["Surface", "Continuity", "Options"]
+  },
+  "operations": {
+    "SURFACE_EXTRUDE": {
+      "description": "Extrude a profile sketch (or 3D curve) into a surface. Direction 1 / Direction 2 each support End Condition: blind / through_all / up_to_next / up_to_vertex / up_to_surface / offset_from_surface / up_to_body / mid_plane. Draft Angle adds taper. Cap Ends optionally closes the extrude into a closed surface set.",
+      "category": "Surface_Sweep_Extrude",
+      "solidworks_command": "Insert > Surface > Extrude",
+      "solidworks_api": "IFeatureManager.FeatureExtruRefSurface3",
+      "parameterCount": 9,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Sketch or 3D curve to extrude", "required": true},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Direction 1 End Condition", "type": "dropdown", "options": ["blind", "through_all", "up_to_next", "up_to_vertex", "up_to_surface", "offset_from_surface", "up_to_body", "mid_plane"], "default": "blind"},
+            {"name": "Direction 1 Depth", "type": "numeric", "unit": "mm", "default": 10, "min": 0.001},
+            {"name": "Direction 1 Draft Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -89, "max": 89},
+            {"name": "Direction 1 Draft Outward", "type": "checkbox", "default": false},
+            {"name": "Direction 2 Enabled", "type": "checkbox", "default": false},
+            {"name": "Direction 2 End Condition", "type": "dropdown", "options": ["blind", "through_all", "up_to_next", "up_to_vertex", "up_to_surface", "offset_from_surface", "up_to_body"], "default": "blind"},
+            {"name": "Cap Ends", "type": "checkbox", "description": "Close to a closed surface set", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_REVOLVE": {
+      "description": "Revolve a profile sketch about an axis to create a surface of revolution. Revolve Type controls one_direction / mid_plane / two_direction. Closed Surface caps the open ends when angle < 360.",
+      "category": "Surface_Sweep_Revolve",
+      "solidworks_command": "Insert > Surface > Revolve",
+      "solidworks_api": "IFeatureManager.FeatureRevolveSurface2",
+      "parameterCount": 7,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Axis / linear edge / construction line", "required": true},
+            {"name": "Revolve Type", "type": "dropdown", "options": ["one_direction", "mid_plane", "two_direction"], "default": "one_direction"},
+            {"name": "Angle 1", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Angle 2", "type": "numeric", "unit": "deg", "default": 0, "min": 0, "max": 360},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Closed Surface", "type": "checkbox", "description": "Cap ends if angle < 360", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_SWEEP": {
+      "description": "Sweep a profile along a path to create a surface. Profile Type selects sketch_profile / circular_profile / solid_profile. Twist Type controls follow_path / keep_normal_constant / direction_vector / twist_with_n_turns / twist_with_angle. Guide Curves shape the cross-section interpolation between endpoints.",
+      "category": "Surface_Sweep_Sweep",
+      "solidworks_command": "Insert > Surface > Sweep",
+      "solidworks_api": "IFeatureManager.FeatureSurfaceSweep",
+      "parameterCount": 10,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Path", "type": "selection", "required": true},
+            {"name": "Profile Type", "type": "dropdown", "options": ["sketch_profile", "circular_profile", "solid_profile"], "default": "sketch_profile"},
+            {"name": "Profile Diameter", "type": "numeric", "unit": "mm", "description": "Required when Profile Type = circular_profile", "min": 0.001},
+            {"name": "Twist Type", "type": "dropdown", "options": ["follow_path", "keep_normal_constant", "direction_vector", "twist_with_n_turns", "twist_with_angle"], "default": "follow_path"},
+            {"name": "Twist Angle", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Guide Curves", "type": "selection"},
+            {"name": "Path Alignment", "type": "dropdown", "options": ["none", "minimum_twist", "direction_vector", "all_faces"], "default": "minimum_twist"},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "default": false},
+            {"name": "Show Preview", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_LOFT": {
+      "description": "Loft a surface through 2+ profiles. Guide Curves shape interpolation between profiles. Centerline shapes the loft cross-section path. Start/End Constraints control tangency (none / normal_to_profile / direction_vector / tangent_to_face / curvature_to_face). Close Loft loops back to the first profile.",
+      "category": "Surface_Sweep_Loft",
+      "solidworks_command": "Insert > Surface > Loft",
+      "solidworks_api": "IFeatureManager.FeatureSurfaceLoft",
+      "parameterCount": 11,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Profiles", "type": "selection", "description": "Ordered profile sequence (2+ profiles)", "required": true},
+            {"name": "Guide Curves", "type": "selection"},
+            {"name": "Centerline", "type": "selection", "description": "Shape-driving spine"},
+            {"name": "Start Constraint", "type": "dropdown", "options": ["none", "normal_to_profile", "direction_vector", "tangent_to_face", "curvature_to_face"], "default": "none"},
+            {"name": "End Constraint", "type": "dropdown", "options": ["none", "normal_to_profile", "direction_vector", "tangent_to_face", "curvature_to_face"], "default": "none"},
+            {"name": "Start Tangent Length", "type": "numeric", "default": 1, "min": 0.01, "max": 10},
+            {"name": "End Tangent Length", "type": "numeric", "default": 1, "min": 0.01, "max": 10},
+            {"name": "Close Loft", "type": "checkbox", "default": false},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "default": false},
+            {"name": "Show Preview", "type": "checkbox", "default": true},
+            {"name": "Refit", "type": "checkbox", "description": "Fit a single NURBS sheet across the loft", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_BOUNDARY": {
+      "description": "Boundary surface from two intersecting curve sets — Direction 1 (u-curves) and Direction 2 (v-curves). Each direction supports per-curve tangency and influence (drag distance). Continuity options: none / contact / tangency / curvature.",
+      "category": "Surface_Sweep_Boundary",
+      "solidworks_command": "Insert > Surface > Boundary",
+      "solidworks_api": "IFeatureManager.FeatureBoundarySurface",
+      "parameterCount": 9,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Direction 1 Curves", "type": "selection", "required": true},
+            {"name": "Direction 2 Curves", "type": "selection"},
+            {"name": "Direction 1 Tangent Type", "type": "dropdown", "options": ["none", "contact", "tangency", "curvature"], "default": "none"},
+            {"name": "Direction 2 Tangent Type", "type": "dropdown", "options": ["none", "contact", "tangency", "curvature"], "default": "none"},
+            {"name": "Direction 1 Influence", "type": "numeric", "default": 1, "min": 0.01, "max": 10},
+            {"name": "Direction 2 Influence", "type": "numeric", "default": 1, "min": 0.01, "max": 10},
+            {"name": "Trim By Direction 1", "type": "checkbox", "default": false},
+            {"name": "Drag Sketch", "type": "checkbox", "description": "Allow drag to refine boundary fit", "default": false},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_RULED": {
+      "description": "Ruled surface — straight-line ruling outward from selected edges. Type controls tangent_to_surface / normal_to_surface / tapered_to_vector / perpendicular_to_vector / sweep. Distance / Angle drive the ruling magnitude.",
+      "category": "Surface_Sweep_Ruled",
+      "solidworks_command": "Insert > Surface > Ruled Surface",
+      "solidworks_api": "IFeatureManager.InsertRuledSurface2",
+      "parameterCount": 7,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Edges", "type": "selection", "description": "Source edges to rule from", "required": true},
+            {"name": "Type", "type": "dropdown", "options": ["tangent_to_surface", "normal_to_surface", "tapered_to_vector", "perpendicular_to_vector", "sweep"], "required": true, "default": "tangent_to_surface"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "default": 10, "min": 0.001},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -89, "max": 89},
+            {"name": "Reference Vector", "type": "selection", "description": "Required when Type = tapered_to_vector or perpendicular_to_vector"},
+            {"name": "Reverse", "type": "checkbox", "default": false},
+            {"name": "Trim And Knit", "type": "checkbox", "description": "Trim adjacent surfaces and knit result", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_RADIATED": {
+      "description": "Radiated surface — extrude curves out at a draft angle from a reference plane. Useful for parting-line projection on mold surfaces.",
+      "category": "Surface_Sweep_Radiated",
+      "solidworks_command": "Insert > Surface > Radiated Surface",
+      "solidworks_api": "IFeatureManager.RadiatedSurfaceFeature",
+      "parameterCount": 7,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Source Curves", "type": "selection", "description": "Curves / split lines to radiate", "required": true},
+            {"name": "Reference Plane", "type": "selection", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "default": 10, "min": 0.001},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -89, "max": 89},
+            {"name": "Propagate Selection", "type": "checkbox", "description": "Auto-extend across tangent edges", "default": true},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Knit Result", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_FILL": {
+      "description": "Filled surface — patch a closed boundary of curves and/or edges. Curvature Control selects contact / tangent / curvature; Optimize Surface generates the smoothest result; Merge With Solid attempts to add the patch to an adjacent body. Constraint Curves further shape the interior of the patch.",
+      "category": "Surface_Sweep_Fill",
+      "solidworks_command": "Insert > Surface > Fill",
+      "solidworks_api": "IFeatureManager.InsertFilledSurfaceFeature2",
+      "parameterCount": 12,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Patch Boundary", "type": "selection", "description": "Closed loop of curves / edges", "required": true},
+            {"name": "Curvature Control", "type": "dropdown", "options": ["contact", "tangent", "curvature"], "default": "contact"},
+            {"name": "Optimize Surface", "type": "checkbox", "default": true},
+            {"name": "Show Preview", "type": "checkbox", "default": true},
+            {"name": "Constraint Curves", "type": "selection", "description": "Optional interior shaping curves"},
+            {"name": "Apply To All Edges", "type": "checkbox", "description": "Apply curvature control uniformly", "default": false},
+            {"name": "Reverse Patch Direction", "type": "checkbox", "default": false},
+            {"name": "Resolution Control", "type": "dropdown", "options": ["coarse", "medium", "fine"], "default": "medium"},
+            {"name": "Fix Up Boundary", "type": "checkbox", "description": "Auto-heal small boundary gaps", "default": true},
+            {"name": "Merge With Solid", "type": "checkbox", "description": "Add patch to adjacent body if possible", "default": false},
+            {"name": "Try To Form Solid", "type": "checkbox", "description": "Knit + close into solid if topologically valid", "default": false},
+            {"name": "Boundary Tolerance", "type": "numeric", "unit": "mm", "default": 0.0001, "min": 0.00001}
+          ]
+        }
+      }
+    },
+    "SURFACE_PLANAR": {
+      "description": "Planar surface from a closed planar boundary — closed sketch / planar curve set / co-planar edges. Inverse of Convert Entities for a planar boundary.",
+      "category": "Surface_Sweep_Planar",
+      "solidworks_command": "Insert > Surface > Planar Surface",
+      "solidworks_api": "IFeatureManager.InsertPlanarSurface",
+      "parameterCount": 4,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Boundary", "type": "selection", "description": "Closed sketch / planar edges / co-planar curve set", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "description": "Optional override (default: inferred from boundary)"},
+            {"name": "Reverse Normal", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_FROM_BODY": {
+      "description": "Extract surfaces from existing solid or surface body faces. Equivalent to OffsetSurface with distance = 0. Useful for capturing molded parting surfaces or building reference geometry from imported solids.",
+      "category": "Surface_Convert_FromSolid",
+      "solidworks_command": "Insert > Surface > Offset (zero offset)",
+      "solidworks_api": "IFeatureManager.InsertSurfaceFromBody",
+      "parameterCount": 6,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Faces", "type": "selection", "description": "Faces to extract", "required": true},
+            {"name": "Body", "type": "selection", "description": "Source body containing the faces"},
+            {"name": "Propagate Across Tangent Edges", "type": "checkbox", "default": false},
+            {"name": "Knit Result", "type": "checkbox", "description": "Knit extracted faces into a surface set", "default": true},
+            {"name": "Convert To NURBS", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_OFFSET": {
+      "description": "Offset a surface by a normal-direction distance. Direction toggles inward / outward. Auto-Heal repairs small gaps that develop in tightly-curved regions during offset. Make Solid attempts to close the result into a solid (useful for thin-walled bodies).",
+      "category": "Surface_Modify_Offset",
+      "solidworks_command": "Insert > Surface > Offset",
+      "solidworks_api": "IFeatureManager.InsertOffsetSurface2",
+      "parameterCount": 6,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Source Faces", "type": "selection", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Auto-Heal", "type": "checkbox", "default": true},
+            {"name": "Make Solid", "type": "checkbox", "description": "Close result into a solid body when topologically valid", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_TRIM": {
+      "description": "Trim a surface to a boundary curve / surface / sketch. Trim Type selects standard (use a single trim tool) or mutual (trim multiple surfaces against each other). Keep Selections retains the chosen pieces; Remove Selections discards the chosen pieces.",
+      "category": "Surface_Modify_Trim",
+      "solidworks_command": "Insert > Surface > Trim",
+      "solidworks_api": "IFeatureManager.InsertSurfaceTrim2",
+      "parameterCount": 10,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Trim Type", "type": "dropdown", "options": ["standard", "mutual"], "required": true, "default": "standard"},
+            {"name": "Trim Tool", "type": "selection", "description": "Curve / surface / sketch boundary", "required": true},
+            {"name": "Surfaces To Trim", "type": "selection", "required": true},
+            {"name": "Selection Mode", "type": "dropdown", "options": ["keep_selections", "remove_selections"], "default": "keep_selections"},
+            {"name": "Keep Pieces", "type": "selection"},
+            {"name": "Remove Pieces", "type": "selection"},
+            {"name": "Surface Split Options", "type": "dropdown", "options": ["natural_extension", "linear_extension", "split_only"], "default": "natural_extension"},
+            {"name": "Knit Result", "type": "checkbox", "default": true},
+            {"name": "Create Solid", "type": "checkbox", "description": "Form solid when trim closes topology", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_UNTRIM": {
+      "description": "Restore the original untrimmed boundary of a surface — inverse of SURFACE_TRIM. Edges Type extends to natural / planar boundary. Untrim Type selects all_internal / external_boundary / both.",
+      "category": "Surface_Modify_Untrim",
+      "solidworks_command": "Insert > Surface > Untrim",
+      "solidworks_api": "IFeatureManager.FeatureUntrimSurface",
+      "parameterCount": 6,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Faces / Edges", "type": "selection", "description": "Trimmed faces or edges to restore", "required": true},
+            {"name": "Untrim Type", "type": "dropdown", "options": ["all_internal", "external_boundary", "both"], "default": "all_internal"},
+            {"name": "Edges Type", "type": "dropdown", "options": ["natural", "planar_boundary"], "default": "natural"},
+            {"name": "Extend Distance", "type": "numeric", "unit": "mm", "default": 0, "min": 0},
+            {"name": "Merge With Original", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_EXTEND": {
+      "description": "Extend a surface beyond an existing edge. Extension Type selects same_surface (continue with parametric extension) or linear (tangent extension). End Condition controls distance / up_to_point / up_to_surface.",
+      "category": "Surface_Modify_Extend",
+      "solidworks_command": "Insert > Surface > Extend",
+      "solidworks_api": "IFeatureManager.InsertExtendSurfaceFeature",
+      "parameterCount": 7,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Edges / Faces", "type": "selection", "description": "Edges to extend (or faces — extends all edges)", "required": true},
+            {"name": "Extension Type", "type": "dropdown", "options": ["same_surface", "linear"], "default": "same_surface"},
+            {"name": "End Condition", "type": "dropdown", "options": ["distance", "up_to_point", "up_to_surface"], "required": true, "default": "distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Required when End Condition = distance", "default": 10, "min": 0.001},
+            {"name": "Reference Point", "type": "selection", "description": "Required when End Condition = up_to_point"},
+            {"name": "Reference Surface", "type": "selection", "description": "Required when End Condition = up_to_surface"},
+            {"name": "Reverse", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_KNIT": {
+      "description": "Knit (sew) multiple surfaces into a single surface body. Try To Form Solid attempts to close the surface set into a solid body when topologically closed; Merge Entities collapses coincident faces; Gap Control reports remaining unhealed gaps.",
+      "category": "Surface_Modify_Knit",
+      "solidworks_command": "Insert > Surface > Knit",
+      "solidworks_api": "IFeatureManager.InsertSewingFeature",
+      "parameterCount": 7,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Surfaces / Faces", "type": "selection", "required": true},
+            {"name": "Try To Form Solid", "type": "checkbox", "description": "Close into solid when topologically valid", "default": false},
+            {"name": "Merge Entities", "type": "checkbox", "description": "Collapse coincident faces during knit", "default": true},
+            {"name": "Gap Control", "type": "checkbox", "description": "Surface gap detection enabled", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Maximum Gap", "type": "numeric", "unit": "mm", "default": 0.01, "min": 0.0001},
+            {"name": "Manifold Check", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_REPLACE_FACE": {
+      "description": "Replace selected target face(s) of a body with a replacement surface. Replacement surface must extend beyond the target boundary on all sides. Useful for direct-edit of imported geometry.",
+      "category": "Surface_Modify_ReplaceFace",
+      "solidworks_command": "Insert > Face > Replace",
+      "solidworks_api": "IFeatureManager.InsertReplaceFace2",
+      "parameterCount": 5,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Target Faces", "type": "selection", "description": "Faces on body to replace", "required": true},
+            {"name": "Replacement Surface", "type": "selection", "description": "New surface (must extend beyond target boundary)", "required": true},
+            {"name": "Knit Result", "type": "checkbox", "default": true},
+            {"name": "Keep Original Surface", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_DELETE_FACE": {
+      "description": "Delete face(s) from a body. Mode selects delete (leave open hole), delete_and_patch (auto-fill via boundary surface), or delete_and_fill (more aggressive auto-fill across multi-face removal).",
+      "category": "Surface_Modify_DeleteFace",
+      "solidworks_command": "Insert > Face > Delete",
+      "solidworks_api": "IFeatureManager.InsertDeleteFace",
+      "parameterCount": 5,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Faces", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["delete", "delete_and_patch", "delete_and_fill"], "required": true, "default": "delete"},
+            {"name": "Propagate Across Tangent Edges", "type": "checkbox", "default": false},
+            {"name": "Convert To Surface", "type": "checkbox", "description": "When deleting from a solid, convert remainder to surface body", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_MOVE_FACE": {
+      "description": "Direct-edit move/offset/rotate of selected face(s) on a body. Move Type selects offset / translate / rotate. Useful for editing imported geometry without feature-tree history.",
+      "category": "Surface_Modify_MoveFace",
+      "solidworks_command": "Insert > Face > Move",
+      "solidworks_api": "IFeatureManager.InsertMoveFace2",
+      "parameterCount": 8,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Faces", "type": "selection", "required": true},
+            {"name": "Move Type", "type": "dropdown", "options": ["offset", "translate", "rotate"], "required": true, "default": "offset"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Offset / translate magnitude", "default": 1},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Rotate magnitude", "default": 0},
+            {"name": "Direction Vector", "type": "selection", "description": "Required for translate / rotate axis"},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Propagate Across Tangent Edges", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_THICKEN": {
+      "description": "Thicken a surface into a solid body. Direction toggles outward / inward / both_directions. Optionally cap an open surface set before thickening to ensure a closed solid result.",
+      "category": "Surface_Convert_Thicken",
+      "solidworks_command": "Insert > Boss/Base > Thicken",
+      "solidworks_api": "IFeatureManager.InsertThickenFeature",
+      "parameterCount": 8,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "description": "Surface body to thicken", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["outward", "inward", "both_directions"], "required": true, "default": "outward"},
+            {"name": "Thickness 1", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0.001},
+            {"name": "Thickness 2", "type": "numeric", "unit": "mm", "description": "Required when Direction = both_directions", "default": 1, "min": 0.001},
+            {"name": "Merge Result", "type": "checkbox", "default": true},
+            {"name": "Cap Ends", "type": "checkbox", "description": "Auto-cap open surface set before thicken", "default": false},
+            {"name": "Boundary Surfaces", "type": "selection", "description": "Optional boundary surfaces for end caps"},
+            {"name": "Feature Scope", "type": "dropdown", "options": ["all_bodies", "selected_bodies"], "default": "all_bodies"}
+          ]
+        }
+      }
+    },
+    "SURFACE_KNIT_TO_SOLID": {
+      "description": "Knit a closed surface set into a solid body (special case of SURFACE_KNIT with Try To Form Solid = true and additional tolerance gating). Used at the end of a complex surfacing workflow to convert the surface envelope into a manifold solid for downstream feature operations / CAM / FEA.",
+      "category": "Surface_Convert_KnitToSolid",
+      "solidworks_command": "Insert > Surface > Knit (Try To Form Solid)",
+      "solidworks_api": "IFeatureManager.InsertSewingFeature",
+      "parameterCount": 6,
+      "tabs": {
+        "Surface": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection", "description": "Closed surface set to convert", "required": true},
+            {"name": "Try To Form Solid", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.0001, "min": 0.00001},
+            {"name": "Merge With Adjacent Solids", "type": "checkbox", "description": "Boolean-union with touching solids if any", "default": false},
+            {"name": "Manifold Check", "type": "checkbox", "default": true},
+            {"name": "Report Open Edges", "type": "checkbox", "description": "Surface remaining open edges if solid formation fails", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}

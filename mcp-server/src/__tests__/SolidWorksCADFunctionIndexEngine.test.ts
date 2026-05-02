@@ -204,17 +204,23 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       ]);
     });
 
-    it("listAllOperations returns 52 ops total (sketch + part shipped through U-02)", () => {
+    it("listAllOperations returns 72 ops total (sketch + part + surface shipped through U-03)", () => {
       const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
-      expect(all).toHaveLength(52);
+      expect(all).toHaveLength(72);
     });
 
     it("listOperations('part_operations') returns 30 (shipped in U-02)", () => {
       expect(SolidWorksCADFunctionIndexEngine.listOperations("part_operations")).toHaveLength(30);
     });
 
-    it("listOperations('surface_operations') returns 0 — module pending — failure mode", () => {
+    it("listOperations('surface_operations') returns 20 (shipped in U-03)", () => {
       expect(SolidWorksCADFunctionIndexEngine.listOperations("surface_operations")).toHaveLength(
+        20,
+      );
+    });
+
+    it("listOperations('assembly_operations') returns 0 — module pending — failure mode", () => {
+      expect(SolidWorksCADFunctionIndexEngine.listOperations("assembly_operations")).toHaveLength(
         0,
       );
     });
@@ -361,10 +367,11 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
   });
 
   describe("searchParameters — substring search across operations", () => {
-    it("searchParameters('Sketch Plane') finds 17 operations across sketch + part modules", () => {
+    it("searchParameters('Sketch Plane') finds 19 operations across sketch + part + surface modules", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Sketch Plane");
-      // 16 sketch ops carry Sketch Plane + HOLE_WIZARD references it for hole placement = 17.
-      expect(matches.length).toBe(17);
+      // 16 sketch ops carry Sketch Plane + HOLE_WIZARD (part) references it for hole placement
+      //   + SURFACE_EXTRUDE + SURFACE_PLANAR (surface) reference it for sketch-driven surface creation = 19.
+      expect(matches.length).toBe(19);
       // First match must reference the sketch_operations module
       expect(matches[0]?.module_id).toBe("sketch_operations");
       expect(matches[0]?.parameter.name).toBe("Sketch Plane");
@@ -377,9 +384,10 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
 
     it("searchParameters('Mode') finds the operations with Mode-bearing parameters", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Mode");
-      // 10 sketch ops carry "Mode" + 1 part_operations op contributes a Mode-bearing parameter = 11.
+      // 10 sketch ops carry "Mode" + 1 part_operations op contributes a Mode-bearing parameter
+      //   + SURFACE_TRIM (Selection Mode) + SURFACE_DELETE_FACE (Mode) = 13 distinct ops.
       const distinctOps = new Set(matches.map((m) => m.operation_id));
-      expect(distinctOps.size).toBe(11);
+      expect(distinctOps.size).toBe(13);
     });
 
     it("searchParameters returns [] for nonsense queries — failure mode", () => {
@@ -415,8 +423,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(empty).toHaveLength(0);
     });
 
-    it("getTotalParameterCount equals 322 (132 sketch + 190 part)", () => {
-      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(322);
+    it("getTotalParameterCount equals 472 (132 sketch + 190 part + 150 surface)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(472);
     });
 
     it("declared estimated_parameter_total matches actual count (no drift)", () => {
@@ -424,12 +432,12 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
       const actual = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
       expect(declared).toBe(actual);
-      expect(declared).toBe(322);
+      expect(declared).toBe(472);
     });
   });
 
   describe("coverage_summary + platform_integration — phase 1 progress", () => {
-    it("coverage_state is IN_PROGRESS with 6 modules pending and the right pending list", () => {
+    it("coverage_state is IN_PROGRESS with 5 modules pending and the right pending list", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
         coverage_state?: string;
         phase_1_target_modules_remaining?: number;
@@ -438,9 +446,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         inventor_parity?: boolean;
       };
       expect(api.coverage_state).toBe("IN_PROGRESS");
-      expect(api.phase_1_target_modules_remaining).toBe(6);
+      expect(api.phase_1_target_modules_remaining).toBe(5);
       expect(api.phase_1_modules_pending).toEqual([
-        "surface_operations",
         "assembly_operations",
         "drawing_operations",
         "sheet_metal_operations",
@@ -451,11 +458,11 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(api.inventor_parity).toBe(false);
     });
 
-    it("platform_integration has sketch_layer + part_layer enabled through U-02", () => {
+    it("platform_integration has sketch_layer + part_layer + surface_layer enabled through U-03", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration ?? {};
       expect(pi.sketch_layer).toBe(true);
       expect(pi.part_layer).toBe(true);
-      expect(pi.surface_layer).toBe(false);
+      expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(false);
       expect(pi.drawing_layer).toBe(false);
       expect(pi.sheet_metal_layer).toBe(false);
@@ -471,9 +478,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_2024_compatible?: boolean;
         solidworks_2025_compatible?: boolean;
       };
-      expect(api.sw_api_com_items).toBe(52);
-      expect(api.vba_macro_items).toBe(52);
-      expect(api.vsta_addin_items).toBe(52);
+      expect(api.sw_api_com_items).toBe(72);
+      expect(api.vba_macro_items).toBe(72);
+      expect(api.vsta_addin_items).toBe(72);
       expect(api.solidworks_2024_compatible).toBe(true);
       expect(api.solidworks_2025_compatible).toBe(true);
     });
@@ -770,43 +777,625 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
     });
   });
 
-  describe("part_operations — coverage rollup into the index", () => {
-    it("coverage_summary.total_units_covered now lists U-01 and U-02", () => {
+  describe("part_operations — coverage rollup into the index (post-U-03)", () => {
+    it("coverage_summary.total_units_covered now lists U-01, U-02, and U-03", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
-      expect(cs.total_units_covered).toEqual(["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02"]);
+      expect(cs.total_units_covered).toEqual([
+        "U-CAD-FIDX-SW-01",
+        "U-CAD-FIDX-SW-02",
+        "U-CAD-FIDX-SW-03",
+      ]);
     });
 
-    it("coverage_summary.estimated_parameter_total is 322 (132 sketch + 190 part)", () => {
+    it("coverage_summary.estimated_parameter_total is 472 (132 sketch + 190 part + 150 surface)", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
-      expect(cs.estimated_parameter_total).toBe(322);
+      expect(cs.estimated_parameter_total).toBe(472);
     });
 
-    it("api_surface counts climb from 22 to 52 (22 sketch + 30 part ops)", () => {
+    it("api_surface counts climb to 72 (22 sketch + 30 part + 20 surface ops)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.sw_api_com_items).toBe(52);
-      expect(api.vba_macro_items).toBe(52);
-      expect(api.vsta_addin_items).toBe(52);
+      expect(api.sw_api_com_items).toBe(72);
+      expect(api.vba_macro_items).toBe(72);
+      expect(api.vsta_addin_items).toBe(72);
     });
 
-    it("phase_1_target_modules_remaining drops from 7 to 6", () => {
+    it("phase_1_target_modules_remaining drops from 6 to 5", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_target_modules_remaining).toBe(6);
+      expect(api.phase_1_target_modules_remaining).toBe(5);
     });
 
-    it("phase_1_modules_pending no longer contains 'part_operations'", () => {
+    it("phase_1_modules_pending no longer contains 'part_operations' or 'surface_operations'", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
       expect(api.phase_1_modules_pending).not.toContain("part_operations");
-      expect(api.phase_1_modules_pending).toHaveLength(6);
+      expect(api.phase_1_modules_pending).not.toContain("surface_operations");
+      expect(api.phase_1_modules_pending).toHaveLength(5);
     });
 
-    it("platform_integration.part_layer is now true", () => {
+    it("platform_integration.part_layer and surface_layer are now true", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration;
       expect(pi.part_layer).toBe(true);
+      expect(pi.surface_layer).toBe(true);
     });
 
-    it("getTotalParameterCount() returns 322 across both shipped modules", () => {
+    it("getTotalParameterCount() returns 472 across all 3 shipped modules", () => {
       const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(322);
+      expect(total).toBe(472);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-03 — surface_operations module
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const KNOWN_SURFACE_OPS_20 = [
+    "SURFACE_EXTRUDE",
+    "SURFACE_REVOLVE",
+    "SURFACE_SWEEP",
+    "SURFACE_LOFT",
+    "SURFACE_BOUNDARY",
+    "SURFACE_RULED",
+    "SURFACE_RADIATED",
+    "SURFACE_FILL",
+    "SURFACE_PLANAR",
+    "SURFACE_FROM_BODY",
+    "SURFACE_OFFSET",
+    "SURFACE_TRIM",
+    "SURFACE_UNTRIM",
+    "SURFACE_EXTEND",
+    "SURFACE_KNIT",
+    "SURFACE_REPLACE_FACE",
+    "SURFACE_DELETE_FACE",
+    "SURFACE_MOVE_FACE",
+    "SURFACE_THICKEN",
+    "SURFACE_KNIT_TO_SOLID",
+  ];
+
+  describe("surface_operations — module catalog (U-CAD-FIDX-SW-03)", () => {
+    it("loads the surface_operations catalog and reports schemaVersion '1.0.0'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      expect(cat).not.toBeNull();
+      expect(cat!.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.totalParameters is exactly 150 (matches index declaration)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      expect(cat!.metadata.totalParameters).toBe(150);
+    });
+
+    it("metadata.operationCount is exactly 20", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      expect(cat!.metadata.operationCount).toBe(20);
+    });
+
+    it("metadata.milestone is 'U-CAD-FIDX-SW-03'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      expect(cat!.metadata.milestone).toBe("U-CAD-FIDX-SW-03");
+    });
+
+    it("listOperations('surface_operations') returns exactly 20 operations", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("surface_operations");
+      expect(ops).toHaveLength(20);
+    });
+
+    it("listOperations contains every expected surface op id", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("surface_operations");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([...KNOWN_SURFACE_OPS_20].sort());
+    });
+
+    it("module_entry.parameter_count_estimate is 150 in the index header", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("surface_operations");
+      expect(entry!.parameter_count_estimate).toBe(150);
+    });
+
+    it("module_entry.dependencies is exactly ['sketch_operations', 'part_operations']", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("surface_operations");
+      expect(entry!.dependencies).toEqual(["sketch_operations", "part_operations"]);
+    });
+
+    it("sum of per-tab parameter arrays equals 150 (no count drift between metadata and reality)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      let total = 0;
+      for (const opId of Object.keys(cat!.operations)) {
+        const op = (cat!.operations as Record<string, { tabs?: Record<string, { parameters?: unknown[] }> }>)[opId];
+        for (const tabName of Object.keys(op.tabs ?? {})) {
+          total += (op.tabs![tabName].parameters ?? []).length;
+        }
+      }
+      expect(total).toBe(150);
+    });
+
+    it("returns same module-object identity on repeated getModule calls (per-module cache)", () => {
+      const a = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      const b = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      expect(a === b).toBe(true);
+    });
+  });
+
+  describe("surface_operations — sweep families (extrude/revolve/sweep/loft/boundary/ruled/radiated)", () => {
+    it("SURFACE_EXTRUDE binds to IFeatureManager.FeatureExtruRefSurface3", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_EXTRUDE",
+      );
+      expect(op!.solidworks_command).toBe("Insert > Surface > Extrude");
+      expect(op!.solidworks_api).toBe("IFeatureManager.FeatureExtruRefSurface3");
+      expect(op!.category).toBe("Surface_Sweep_Extrude");
+    });
+
+    it("SURFACE_EXTRUDE Direction 1 End Condition has 8 termination modes (parity with EXTRUDE_BOSS)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_EXTRUDE",
+        "Direction 1 End Condition",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "blind",
+        "through_all",
+        "up_to_next",
+        "up_to_vertex",
+        "up_to_surface",
+        "offset_from_surface",
+        "up_to_body",
+        "mid_plane",
+      ]);
+    });
+
+    it("SURFACE_REVOLVE Revolve Type lists exactly the 3 revolve modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_REVOLVE",
+        "Revolve Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["one_direction", "mid_plane", "two_direction"]);
+    });
+
+    it("SURFACE_SWEEP Profile Type supports sketch/circular/solid profile modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_SWEEP",
+        "Profile Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["sketch_profile", "circular_profile", "solid_profile"]);
+    });
+
+    it("SURFACE_SWEEP Twist Type covers all 5 twist modes including direction_vector", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_SWEEP",
+        "Twist Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "follow_path",
+        "keep_normal_constant",
+        "direction_vector",
+        "twist_with_n_turns",
+        "twist_with_angle",
+      ]);
+    });
+
+    it("SURFACE_LOFT Start Constraint and End Constraint both expose 5 continuity modes", () => {
+      const startLoc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_LOFT",
+        "Start Constraint",
+      );
+      const endLoc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_LOFT",
+        "End Constraint",
+      );
+      const expected = [
+        "none",
+        "normal_to_profile",
+        "direction_vector",
+        "tangent_to_face",
+        "curvature_to_face",
+      ];
+      expect((startLoc!.parameter as { options?: string[] }).options).toEqual(expected);
+      expect((endLoc!.parameter as { options?: string[] }).options).toEqual(expected);
+    });
+
+    it("SURFACE_BOUNDARY Direction 1/2 Tangent Type both cover 4 continuity modes", () => {
+      const d1 = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_BOUNDARY",
+        "Direction 1 Tangent Type",
+      );
+      const d2 = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_BOUNDARY",
+        "Direction 2 Tangent Type",
+      );
+      const expected = ["none", "contact", "tangency", "curvature"];
+      expect((d1!.parameter as { options?: string[] }).options).toEqual(expected);
+      expect((d2!.parameter as { options?: string[] }).options).toEqual(expected);
+    });
+
+    it("SURFACE_RULED Type enumerates all 5 ruling generation modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_RULED",
+        "Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "tangent_to_surface",
+        "normal_to_surface",
+        "tapered_to_vector",
+        "perpendicular_to_vector",
+        "sweep",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SURFACE_RADIATED Draft Angle is bounded (-89, +89) deg with default 0", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_RADIATED",
+        "Draft Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string };
+      expect(param.min).toBe(-89);
+      expect(param.max).toBe(89);
+      expect(param.default).toBe(0);
+      expect(param.unit).toBe("deg");
+    });
+  });
+
+  describe("surface_operations — patch creators (fill / planar / from_body)", () => {
+    it("SURFACE_FILL has 12 params and Curvature Control with 3 modes", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      const fill = cat!.operations.SURFACE_FILL;
+      expect(fill.parameterCount).toBe(12);
+      const curv = (fill.tabs!.Surface.parameters ?? []).find(
+        (p) => p.name === "Curvature Control",
+      );
+      expect((curv as { options?: string[] }).options).toEqual(["contact", "tangent", "curvature"]);
+    });
+
+    it("SURFACE_FILL Resolution Control supports coarse/medium/fine and defaults to medium", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_FILL",
+        "Resolution Control",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["coarse", "medium", "fine"]);
+      expect(param.default).toBe("medium");
+    });
+
+    it("SURFACE_PLANAR has 4 params on a single Surface tab", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("surface_operations");
+      expect(cat!.operations.SURFACE_PLANAR.parameterCount).toBe(4);
+      expect(Object.keys(cat!.operations.SURFACE_PLANAR.tabs ?? {})).toEqual(["Surface"]);
+    });
+
+    it("SURFACE_FROM_BODY binds to InsertSurfaceFromBody and lives in the Convert taxonomy", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_FROM_BODY",
+      );
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertSurfaceFromBody");
+      expect(op!.category).toBe("Surface_Convert_FromSolid");
+    });
+  });
+
+  describe("surface_operations — modify ops (offset/trim/untrim/extend/knit/replace_face)", () => {
+    it("SURFACE_OFFSET binds to InsertOffsetSurface2 and exposes Make Solid checkbox", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_OFFSET",
+      );
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertOffsetSurface2");
+      const makeSolid = (op!.tabs!.Surface.parameters ?? []).find((p) => p.name === "Make Solid");
+      expect(makeSolid?.type).toBe("checkbox");
+      expect(makeSolid?.default).toBe(false);
+    });
+
+    it("SURFACE_TRIM Trim Type supports standard and mutual trimming", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_TRIM",
+        "Trim Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["standard", "mutual"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SURFACE_TRIM Selection Mode toggles keep vs remove pieces", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_TRIM",
+        "Selection Mode",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["keep_selections", "remove_selections"]);
+    });
+
+    it("SURFACE_UNTRIM Untrim Type covers internal / external / both boundaries", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_UNTRIM",
+        "Untrim Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["all_internal", "external_boundary", "both"]);
+    });
+
+    it("SURFACE_EXTEND End Condition supports distance / up_to_point / up_to_surface", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_EXTEND",
+        "End Condition",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["distance", "up_to_point", "up_to_surface"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SURFACE_KNIT Try To Form Solid is opt-in (default false) — distinct from KNIT_TO_SOLID (default true)", () => {
+      const knit = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_KNIT",
+        "Try To Form Solid",
+      );
+      const knitToSolid = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_KNIT_TO_SOLID",
+        "Try To Form Solid",
+      );
+      expect(knit!.parameter.default).toBe(false);
+      expect(knitToSolid!.parameter.default).toBe(true);
+    });
+
+    it("SURFACE_REPLACE_FACE binds to InsertReplaceFace2 (direct-edit on imported geometry)", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_REPLACE_FACE",
+      );
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertReplaceFace2");
+      expect(op!.category).toBe("Surface_Modify_ReplaceFace");
+    });
+  });
+
+  describe("surface_operations — face-level direct-edit ops (delete_face / move_face)", () => {
+    it("SURFACE_DELETE_FACE Mode supports delete / patch / fill (3 modes)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_DELETE_FACE",
+        "Mode",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["delete", "delete_and_patch", "delete_and_fill"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SURFACE_MOVE_FACE Move Type covers offset / translate / rotate", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_MOVE_FACE",
+        "Move Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["offset", "translate", "rotate"]);
+      expect(param.required).toBe(true);
+    });
+  });
+
+  describe("surface_operations — surface→solid converters (thicken / knit_to_solid)", () => {
+    it("SURFACE_THICKEN Direction lists outward / inward / both_directions", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_THICKEN",
+        "Direction",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["outward", "inward", "both_directions"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SURFACE_THICKEN binds to InsertThickenFeature in the Convert taxonomy", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_THICKEN",
+      );
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertThickenFeature");
+      expect(op!.category).toBe("Surface_Convert_Thicken");
+    });
+
+    it("SURFACE_KNIT_TO_SOLID lives in Convert taxonomy and shares InsertSewingFeature with SURFACE_KNIT", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_KNIT_TO_SOLID",
+      );
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertSewingFeature");
+      expect(op!.category).toBe("Surface_Convert_KnitToSolid");
+    });
+
+    it("getOperationsByCategory('Surface_Convert_KnitToSolid') returns exactly 1 op", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory(
+        "Surface_Convert_KnitToSolid",
+      );
+      expect(ops.map((o) => o.operation_id)).toEqual(["SURFACE_KNIT_TO_SOLID"]);
+    });
+  });
+
+  describe("surface_operations — concrete contract tables (no synthetic loops, no toBeTruthy)", () => {
+    it("getOperation returns null for unknown surface op — failure mode", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.getOperation(
+          "surface_operations",
+          "SURFACE_NONEXISTENT",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter returns null for unknown param on a real surface op — failure mode", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "surface_operations",
+          "SURFACE_EXTRUDE",
+          "phantom_param",
+        ),
+      ).toBeNull();
+    });
+
+    it("Distance numeric params have min=0.001 mm on the 3 distance-bearing ops", () => {
+      const distanceOps: readonly string[] = ["SURFACE_RULED", "SURFACE_RADIATED", "SURFACE_EXTEND"];
+      for (const opId of distanceOps) {
+        const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+          "surface_operations",
+          opId,
+          "Distance",
+        );
+        const param = loc!.parameter as { type?: string; min?: number; unit?: string };
+        expect(param.type).toBe("numeric");
+        expect(param.min).toBe(0.001);
+        expect(param.unit).toBe("mm");
+      }
+    });
+
+    it("SURFACE_REVOLVE Angle 1 is bounded (0.001, 360) deg with default 360", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_REVOLVE",
+        "Angle 1",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string };
+      expect(param.min).toBe(0.001);
+      expect(param.max).toBe(360);
+      expect(param.default).toBe(360);
+      expect(param.unit).toBe("deg");
+    });
+
+    it("each of the 20 surface ops binds to its IFeatureManager API method (concrete table)", () => {
+      const apiBindings: Record<string, string> = {
+        SURFACE_EXTRUDE: "IFeatureManager.FeatureExtruRefSurface3",
+        SURFACE_REVOLVE: "IFeatureManager.FeatureRevolveSurface2",
+        SURFACE_SWEEP: "IFeatureManager.FeatureSurfaceSweep",
+        SURFACE_LOFT: "IFeatureManager.FeatureSurfaceLoft",
+        SURFACE_BOUNDARY: "IFeatureManager.FeatureBoundarySurface",
+        SURFACE_RULED: "IFeatureManager.InsertRuledSurface2",
+        SURFACE_RADIATED: "IFeatureManager.RadiatedSurfaceFeature",
+        SURFACE_FILL: "IFeatureManager.InsertFilledSurfaceFeature2",
+        SURFACE_PLANAR: "IFeatureManager.InsertPlanarSurface",
+        SURFACE_FROM_BODY: "IFeatureManager.InsertSurfaceFromBody",
+        SURFACE_OFFSET: "IFeatureManager.InsertOffsetSurface2",
+        SURFACE_TRIM: "IFeatureManager.InsertSurfaceTrim2",
+        SURFACE_UNTRIM: "IFeatureManager.FeatureUntrimSurface",
+        SURFACE_EXTEND: "IFeatureManager.InsertExtendSurfaceFeature",
+        SURFACE_KNIT: "IFeatureManager.InsertSewingFeature",
+        SURFACE_REPLACE_FACE: "IFeatureManager.InsertReplaceFace2",
+        SURFACE_DELETE_FACE: "IFeatureManager.InsertDeleteFace",
+        SURFACE_MOVE_FACE: "IFeatureManager.InsertMoveFace2",
+        SURFACE_THICKEN: "IFeatureManager.InsertThickenFeature",
+        SURFACE_KNIT_TO_SOLID: "IFeatureManager.InsertSewingFeature",
+      };
+      const expectedKeys = Object.keys(apiBindings).sort();
+      expect(expectedKeys).toEqual([...KNOWN_SURFACE_OPS_20].sort());
+      for (const [opId, expectedApi] of Object.entries(apiBindings)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("surface_operations", opId);
+        expect(op).not.toBeNull();
+        expect(op!.solidworks_api).toBe(expectedApi);
+      }
+    });
+
+    it("each of the 20 surface ops carries its UI command path (Insert > Surface > X table)", () => {
+      const commandPaths: Record<string, string> = {
+        SURFACE_EXTRUDE: "Insert > Surface > Extrude",
+        SURFACE_REVOLVE: "Insert > Surface > Revolve",
+        SURFACE_SWEEP: "Insert > Surface > Sweep",
+        SURFACE_LOFT: "Insert > Surface > Loft",
+        SURFACE_BOUNDARY: "Insert > Surface > Boundary",
+        SURFACE_RULED: "Insert > Surface > Ruled Surface",
+        SURFACE_RADIATED: "Insert > Surface > Radiated Surface",
+        SURFACE_FILL: "Insert > Surface > Fill",
+        SURFACE_PLANAR: "Insert > Surface > Planar Surface",
+        SURFACE_FROM_BODY: "Insert > Surface > Offset (zero offset)",
+        SURFACE_OFFSET: "Insert > Surface > Offset",
+        SURFACE_TRIM: "Insert > Surface > Trim",
+        SURFACE_UNTRIM: "Insert > Surface > Untrim",
+        SURFACE_EXTEND: "Insert > Surface > Extend",
+        SURFACE_KNIT: "Insert > Surface > Knit",
+        SURFACE_REPLACE_FACE: "Insert > Face > Replace",
+        SURFACE_DELETE_FACE: "Insert > Face > Delete",
+        SURFACE_MOVE_FACE: "Insert > Face > Move",
+        SURFACE_THICKEN: "Insert > Boss/Base > Thicken",
+        SURFACE_KNIT_TO_SOLID: "Insert > Surface > Knit (Try To Form Solid)",
+      };
+      for (const [opId, expectedCommand] of Object.entries(commandPaths)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("surface_operations", opId);
+        expect(op!.solidworks_command).toBe(expectedCommand);
+      }
+    });
+
+    it("each of the 20 surface ops sits in its category bucket (Sweep/Convert/Modify split table)", () => {
+      const categories: Record<string, string> = {
+        SURFACE_EXTRUDE: "Surface_Sweep_Extrude",
+        SURFACE_REVOLVE: "Surface_Sweep_Revolve",
+        SURFACE_SWEEP: "Surface_Sweep_Sweep",
+        SURFACE_LOFT: "Surface_Sweep_Loft",
+        SURFACE_BOUNDARY: "Surface_Sweep_Boundary",
+        SURFACE_RULED: "Surface_Sweep_Ruled",
+        SURFACE_RADIATED: "Surface_Sweep_Radiated",
+        SURFACE_FILL: "Surface_Sweep_Fill",
+        SURFACE_PLANAR: "Surface_Sweep_Planar",
+        SURFACE_FROM_BODY: "Surface_Convert_FromSolid",
+        SURFACE_OFFSET: "Surface_Modify_Offset",
+        SURFACE_TRIM: "Surface_Modify_Trim",
+        SURFACE_UNTRIM: "Surface_Modify_Untrim",
+        SURFACE_EXTEND: "Surface_Modify_Extend",
+        SURFACE_KNIT: "Surface_Modify_Knit",
+        SURFACE_REPLACE_FACE: "Surface_Modify_ReplaceFace",
+        SURFACE_DELETE_FACE: "Surface_Modify_DeleteFace",
+        SURFACE_MOVE_FACE: "Surface_Modify_MoveFace",
+        SURFACE_THICKEN: "Surface_Convert_Thicken",
+        SURFACE_KNIT_TO_SOLID: "Surface_Convert_KnitToSolid",
+      };
+      for (const [opId, expectedCategory] of Object.entries(categories)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("surface_operations", opId);
+        expect(op!.category).toBe(expectedCategory);
+      }
+    });
+
+    it("each surface op declares its first required input (concrete API selection contract)", () => {
+      const requiredFirstParam: Record<string, string> = {
+        SURFACE_EXTRUDE: "Profile",
+        SURFACE_REVOLVE: "Profile",
+        SURFACE_SWEEP: "Profile",
+        SURFACE_LOFT: "Profiles",
+        SURFACE_BOUNDARY: "Direction 1 Curves",
+        SURFACE_RULED: "Edges",
+        SURFACE_RADIATED: "Source Curves",
+        SURFACE_FILL: "Patch Boundary",
+        SURFACE_PLANAR: "Boundary",
+        SURFACE_FROM_BODY: "Faces",
+        SURFACE_OFFSET: "Source Faces",
+        SURFACE_TRIM: "Trim Type",
+        SURFACE_UNTRIM: "Faces / Edges",
+        SURFACE_EXTEND: "Edges / Faces",
+        SURFACE_KNIT: "Surfaces / Faces",
+        SURFACE_REPLACE_FACE: "Target Faces",
+        SURFACE_DELETE_FACE: "Faces",
+        SURFACE_MOVE_FACE: "Faces",
+        SURFACE_THICKEN: "Surface",
+        SURFACE_KNIT_TO_SOLID: "Surfaces",
+      };
+      for (const [opId, paramName] of Object.entries(requiredFirstParam)) {
+        const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+          "surface_operations",
+          opId,
+          paramName,
+        );
+        expect(loc, `${opId} missing required first param '${paramName}'`).not.toBeNull();
+        expect(loc!.parameter.required).toBe(true);
+      }
     });
   });
 });
