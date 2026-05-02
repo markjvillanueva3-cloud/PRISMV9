@@ -1209,6 +1209,8 @@ export const ACTIONS = [
   "wedm_autonomy_audit_recent", "wedm_benchmark_tolerance_classify", "wedm_slug_tab_calc",
   // WEDM-WIRE-MS0/Batch27: citation check + complete orchestration + wire deflection (3 engines)
   "wedm_citation_check_engine", "wedm_complete_orch_program", "wedm_wire_deflection_calc",
+  // WEDM-WIRE-MS0/Batch28: EDM cost + EDM parameter + EDM surface integrity (3 EDM engines)
+  "edm_cost_estimate", "edm_parameter_calc", "edm_surface_assess",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -7075,6 +7077,50 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = {
                 success: true,
                 deflection_mm: wedmWireDeflectionEngine.calculateDeflection(discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch28: EDM cost + EDM parameter + EDM surface integrity
+          // ============================================================
+          case "edm_cost_estimate": {
+            const { edmCostDocumentationEngine } = await import("../../engines/EDMCostDocumentationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (CostInput)" }; break; }
+            try {
+              result = edmCostDocumentationEngine.estimateCost(
+                input as Parameters<typeof edmCostDocumentationEngine.estimateCost>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "edm_parameter_calc": {
+            const { edmParameterEngine } = await import("../../engines/EDMParameterEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (EDMParameterInput)" }; break; }
+            try {
+              result = edmParameterEngine.calculate(
+                input as Parameters<typeof edmParameterEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "edm_surface_assess": {
+            const { edmSurfaceIntegrityEngine } = await import("../../engines/EDMSurfaceIntegrityEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (EDMSurfaceInput)" }; break; }
+            try {
+              result = {
+                success: true,
+                assessment: edmSurfaceIntegrityEngine.assess(input as Parameters<typeof edmSurfaceIntegrityEngine.assess>[0]),
+                validation: edmSurfaceIntegrityEngine.validate(input as Parameters<typeof edmSurfaceIntegrityEngine.validate>[0]),
               };
             } catch (err) {
               result = { success: false, error: (err as Error).message };

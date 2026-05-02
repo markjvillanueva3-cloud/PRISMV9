@@ -487,4 +487,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_wire_deflection_calc: z.object({
     input: z.record(z.string(), z.unknown()).describe("{discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa} for WEDMWireDeflectionEngine.calculateDeflection() — returns deflection in mm"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch28: EDM cost + EDM parameter + EDM surface integrity
+  edm_cost_estimate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("CostInput - machine + wire + consumables for EDMCostDocumentationEngine.estimateCost() — returns CostEstimate"),
+  }).passthrough(),
+  edm_parameter_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("EDMParameterInput - operation context for EDMParameterEngine.calculate() — returns EDMParameterResult"),
+  }).passthrough(),
+  edm_surface_assess: z.object({
+    input: z.record(z.string(), z.unknown()).describe("EDMSurfaceInput - cut params + material for EDMSurfaceIntegrityEngine.assess() + validate() — returns assessment + safe-or-not verdict"),
+  }).passthrough(),
 };
