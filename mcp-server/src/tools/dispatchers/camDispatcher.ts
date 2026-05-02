@@ -1639,6 +1639,8 @@ export const ACTIONS = [
   "cam_fusion360_ai_route", "cam_fusion360_ai_routes", "cam_fusion360_ai_tasks_routed_to", "cam_fusion360_ai_audit",
   // CAM-EXHAUST-MS0 U-CAM-MC-EDM-01 — Mastercam EDM bridge (Wire 2/4-axis + Sinker + Micro)
   "cam_mastercam_edm_route", "cam_mastercam_edm_pick_route_type", "cam_mastercam_edm_skim_passes", "cam_mastercam_edm_stats", "cam_mastercam_edm_audit",
+  // CAM-EXHAUST-MS0 U-CAM-MC-GRIND-01 — Mastercam grinding bridge (8 kinds, wheel RPM + grit + spark-out)
+  "cam_mastercam_grinding_plan", "cam_mastercam_grinding_wheel_rpm", "cam_mastercam_grinding_cycle_codes", "cam_mastercam_grinding_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13212,6 +13214,31 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_mastercam_edm_audit": {
             const { MastercamEDMBridge } = await import("../../engines/MastercamEDMBridge.js");
             result = MastercamEDMBridge.auditEngine();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-MC-GRIND-01: Mastercam grinding bridge ──
+          case "cam_mastercam_grinding_plan": {
+            const { MastercamGrindingBridge } = await import("../../engines/MastercamGrindingBridge.js");
+            const f = params.feature as Parameters<typeof MastercamGrindingBridge.plan>[0];
+            result = MastercamGrindingBridge.plan(f);
+            break;
+          }
+          case "cam_mastercam_grinding_wheel_rpm": {
+            const { MastercamGrindingBridge } = await import("../../engines/MastercamGrindingBridge.js");
+            const dia = params.wheel_dia_mm as number;
+            const speed = params.surface_speed_ms as number;
+            result = { wheel_dia_mm: dia, surface_speed_ms: speed, rpm: MastercamGrindingBridge.wheelRpmFromSurfaceSpeed(dia, speed) };
+            break;
+          }
+          case "cam_mastercam_grinding_cycle_codes": {
+            const { MastercamGrindingBridge } = await import("../../engines/MastercamGrindingBridge.js");
+            result = { codes: MastercamGrindingBridge.cycleCodes() };
+            break;
+          }
+          case "cam_mastercam_grinding_audit": {
+            const { MastercamGrindingBridge } = await import("../../engines/MastercamGrindingBridge.js");
+            result = MastercamGrindingBridge.auditEngine();
             break;
           }
 
