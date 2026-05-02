@@ -5,6 +5,7 @@
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
 **Last touched:** 2026-05-01 (claude-b913f3b9)
 **Last commits on roadmap:**
+- `(pending) [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill-CallOO88: 5-axis fixture-offset macro + WCS 51 reservation`
 - `765c2102b [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill-Tribal: JM_DIE_PRESET + 14 .def/.cps tribal tips (PPG-WIRE-MS5 closes 2/2)`
 - `b60ec9260 [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill: OkumaOSPMillMasterPostEngine + sidecar seal`
 - `f382c3935 [MAIN] PPG-WIRE-MS0/U-PPGM15: camDispatcher seals sidecar + opt-in gate for master_post_*`

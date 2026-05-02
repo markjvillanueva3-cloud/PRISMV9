@@ -100,6 +100,15 @@ export interface OkumaOSPMillPostConfig {
   tool_change_position?: { x: number; y: number; z: number };
   /** Override default spindle ceiling. Default: 12 000 RPM (P300) / 15 000 RPM (P500). */
   max_spindle_rpm?: number;
+  /** Emit `CALL OO88 ... PP={fixture_offset_wcs}` + `G15 H{fixture_offset_wcs}` macro
+   *  preamble before each 5-axis (3d_surface / adaptive) operation on P500.
+   *  Default `false` = skip (3-axis flows + Fusion-style TCPM emission unchanged).
+   *  Source: PRISM-modified Fusion post `OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps:2333-2347`. */
+  use_call_oo88?: boolean;
+  /** WCS slot reserved for the OO88 fixture-offset macro output. Default 51.
+   *  HARD-RESERVED: the engine throws if `work_offset_index === fixture_offset_wcs`
+   *  (operator must never assign the macro slot manually — matches `.cps:2953-2954`). */
+  fixture_offset_wcs?: number;
 }
 
 /**
@@ -129,6 +138,8 @@ export const JM_DIE_PRESET: Partial<OkumaOSPMillPostConfig> = {
   super_nurbs_code: "G131",
   tcp_mode: "G169_G170",
   n_number_pad_digits: 4,
+  use_call_oo88: true,
+  fixture_offset_wcs: 51,
 };
 
 export interface MillOperation {
@@ -159,6 +170,12 @@ export interface MillOperation {
     type: "rapid" | "linear" | "arc_cw" | "arc_ccw";
   }>;
   arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+  /** Indexed A-axis (table tilt) angle in degrees. Used by the CALL OO88
+   *  fixture-offset macro on P500 5-axis ops. Default 0 = horizontal table.
+   *  Genos M460V trunnion travel: [-110°, +10°]. */
+  rotary_a_deg?: number;
+  /** Indexed C-axis (table rotation) angle in degrees. Default 0. */
+  rotary_c_deg?: number;
 }
 
 export interface OkumaOSPMillPostOutput {
@@ -390,6 +407,14 @@ const OKUMA_OSP_MILL_TRIBAL_KNOWLEDGE: OkumaMillTip[] = [
     confidence: 0.95,
     source: "cps:1095,1109,1122 (overrides def:122-123)",
   },
+  {
+    category: "jm_die_call_oo88",
+    tip: "5-axis fixture-offset macro `CALL OO88 PX=0 PY=0 PZ=0 PA={a} PC={c} PH={user_offset} PP=51` followed by `G15 H51` — rewrites WCS 51 in-place from the operator's input H-offset and the indexed A/C angles. WCS 51 is HARD-RESERVED: the engine throws if user assigns work_offset_index === 51",
+    applies_to: ["3d_surface", "adaptive"],
+    osp_family: "P500",
+    confidence: 0.96,
+    source: "OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps:2333-2347,2953-2954 + .def:95 (PLANE:CALL_OO88)",
+  },
 ];
 
 // ============================================================================
@@ -420,6 +445,19 @@ export class OkumaOSPMillMasterPostEngine {
     config?: Partial<OkumaOSPMillPostConfig>,
   ): OkumaOSPMillPostOutput {
     const cfg: OkumaOSPMillPostConfig = { ...this.defaultConfig, ...config };
+
+    // WCS-51 reservation guard — the OO88 macro recalculates the offset stored
+    // in `fixture_offset_wcs` (default 51) every time it fires. If the operator
+    // also uses that same H-slot for normal work, the macro silently overwrites
+    // their setup. Mirrors the .cps:2953-2954 self-check.
+    const fixtureWcs = cfg.fixture_offset_wcs ?? 51;
+    if (cfg.use_call_oo88 && (cfg.work_offset_index ?? 1) === fixtureWcs) {
+      throw new Error(
+        `OkumaOSPMill: work_offset_index=${cfg.work_offset_index} collides with fixture_offset_wcs=${fixtureWcs}. ` +
+          `WCS ${fixtureWcs} is reserved for the CALL OO88 macro output — pick a different work_offset_index.`,
+      );
+    }
+
     const dialectId = cfg.osp_family === "P500" ? "okuma_osp_p500" : "okuma_osp_p300";
     const dialect = controllerDialectEngine.getDialect(dialectId);
 
@@ -499,6 +537,24 @@ export class OkumaOSPMillMasterPostEngine {
       gcode.push(tlcLine);
       if (cfg.tool_length_comp_mode === "G56_HA") {
         tribalTipsApplied.push("[jm_die_tool_length] G56 HA emitted (tool-length-comp via active register)");
+      }
+
+      // CALL OO88 fixture-offset macro — emitted before the spindle-start line
+      // for indexed 5-axis ops on P500 when use_call_oo88 is set. Recalculates
+      // WCS `fixture_offset_wcs` (default 51) from the input H-offset and the
+      // op's A/C angles, then loads it via `G15 H{wcs}`.
+      const isFiveAxisOp = op.operation_type === "3d_surface" || op.operation_type === "adaptive";
+      if (cfg.use_call_oo88 && cfg.osp_family === "P500" && isFiveAxisOp) {
+        const aDeg = op.rotary_a_deg ?? 0;
+        const cDeg = op.rotary_c_deg ?? 0;
+        const userOffset = cfg.work_offset_index ?? 1;
+        gcode.push(
+          `CALL OO88 PX=0.000 PY=0.000 PZ=0.000 PA=${aDeg.toFixed(3)} PC=${cDeg.toFixed(3)} PH=${userOffset} PP=${fixtureWcs}`,
+        );
+        gcode.push(`G15 H${fixtureWcs} ${this.fmtComment(dialect, "OO88 RECALCULATED OFFSET")}`);
+        tribalTipsApplied.push(
+          `[jm_die_call_oo88] OO88 macro emitted for ${op.operation_type} at A=${aDeg.toFixed(1)} C=${cDeg.toFixed(1)} (PP=${fixtureWcs})`,
+        );
       }
 
       // Spindle start with N-label so verifyBlockAnnotations can cross-check.
