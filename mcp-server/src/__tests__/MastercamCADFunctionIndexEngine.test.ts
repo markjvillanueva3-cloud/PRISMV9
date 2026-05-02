@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 108 ops total at Phase 1 7/8 (+ modify)", () => {
+    it("listAllOperations equals 120 ops total at Phase 1 8/8 COMPLETE (Inventor parity)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(108);
+      expect(all.length).toBe(120);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,9 +344,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 748 parameters across all 108 ops (+ 86 modify)", () => {
+    it("counts exactly 815 parameters across all 120 ops (Mastercam CAD 8/8 COMPLETE)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(748);
+      expect(total).toBe(815);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -413,6 +413,15 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(modifyTotal).toBe(86);
       expect(modifyDeclared).toBe(86);
 
+      const fileLayerTotal = sumParamsForModule("file_layer_operations");
+      const fileLayerDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("file_layer_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(fileLayerTotal).toBe(67);
+      expect(fileLayerDeclared).toBe(67);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
         wireframeTotal +
@@ -421,16 +430,17 @@ describe("MastercamCADFunctionIndexEngine", () => {
           draftingTotal +
           transformTotal +
           analysisTotal +
-          modifyTotal,
+          modifyTotal +
+          fileLayerTotal,
       );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (7 of 8 modules shipped — 1 to go)", () => {
+    it("api_surface.coverage_state is exactly 'COMPLETE' (Mastercam CAD 8/8 — Inventor parity)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.coverage_state).toBe("PARTIAL");
+      expect(apiSurface?.coverage_state).toBe("COMPLETE");
     });
 
     it("api_surface.phase_1_target_modules equals 8 (full Inventor parity target)", () => {
@@ -439,16 +449,28 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 1 (7/8 shipped)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 0 (Phase 1 closed)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(1);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(0);
     });
 
-    it("api_surface.phase_1_modules_pending lists exactly file_layer_operations as last unbuilt module", () => {
+    it("api_surface.phase_1_modules_pending is empty array (zero work pending)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_modules_pending).toEqual(["file_layer_operations"]);
+      expect(apiSurface?.phase_1_modules_pending).toEqual([]);
+    });
+
+    it("api_surface.mastercam_cad_8_of_8 marker is true (true exhaustion flag)", () => {
+      const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.mastercam_cad_8_of_8).toBe(true);
+    });
+
+    it("api_surface.inventor_parity marker is true (parity guarantee)", () => {
+      const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.inventor_parity).toBe(true);
     });
 
     it("phase_1 ledger is internally consistent (failure mode: target/remaining/pending drift)", () => {
@@ -466,8 +488,8 @@ describe("MastercamCADFunctionIndexEngine", () => {
       MastercamCADFunctionIndexEngine.clearCache();
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(1);
+      expect(apiSurface?.coverage_state).toBe("COMPLETE");
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(0);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -1757,6 +1779,291 @@ describe("MastercamCADFunctionIndexEngine", () => {
       );
       expect(loc?.parameter.name).toBe("Bias");
       expect(loc?.tab_id).toBe("Continuity");
+    });
+  });
+
+  describe("file_layer_operations catalog (U-CAD-FIDX-MC-08 — FINAL, closes 8/8)", () => {
+    const KNOWN_FILE_LAYER_OPS = [
+      "FILE_OPEN",
+      "FILE_SAVE",
+      "FILE_IMPORT",
+      "FILE_EXPORT",
+      "LEVEL_CREATE",
+      "LEVEL_DELETE",
+      "LEVEL_SET_ACTIVE",
+      "LEVEL_VISIBILITY",
+      "GROUP_CREATE",
+      "GROUP_DELETE",
+      "GROUP_ADD_MEMBERS",
+      "ATTRIBUTE_SET",
+    ];
+
+    const FILE_OPS = ["FILE_OPEN", "FILE_SAVE", "FILE_IMPORT", "FILE_EXPORT"];
+    const LEVEL_OPS = [
+      "LEVEL_CREATE",
+      "LEVEL_DELETE",
+      "LEVEL_SET_ACTIVE",
+      "LEVEL_VISIBILITY",
+    ];
+    const GROUP_OPS = ["GROUP_CREATE", "GROUP_DELETE", "GROUP_ADD_MEMBERS"];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("file_layer_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-08'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("file_layer_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-08");
+    });
+
+    it("operations dict has exactly 12 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("file_layer_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(12);
+    });
+
+    it("listOperations returns exactly the 12 expected file/layer ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("file_layer_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_FILE_LAYER_OPS].sort());
+    });
+
+    it("FILE_OPS span all 4 file subcategories (File_Open / Save / Import / Export)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("file_layer_operations");
+      const fileCategories = ops
+        .filter((op) => FILE_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(fileCategories).toEqual([
+        "File_Export",
+        "File_Import",
+        "File_Open",
+        "File_Save",
+      ]);
+    });
+
+    it("LEVEL_OPS span all 4 Level subcategories", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("file_layer_operations");
+      const levelCategories = ops
+        .filter((op) => LEVEL_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(levelCategories).toEqual([
+        "Level_Create",
+        "Level_Delete",
+        "Level_SetActive",
+        "Level_Visibility",
+      ]);
+    });
+
+    it("GROUP_OPS span all 3 Group subcategories", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("file_layer_operations");
+      const groupCategories = ops
+        .filter((op) => GROUP_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(groupCategories).toEqual([
+        "Group_AddMembers",
+        "Group_Create",
+        "Group_Delete",
+      ]);
+    });
+
+    it("FILE_IMPORT Format covers 9 source CAD formats", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "FILE_IMPORT",
+      );
+      const formatParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Format");
+      expect(formatParam?.options).toEqual([
+        "step",
+        "iges",
+        "parasolid",
+        "sldprt",
+        "iam",
+        "dxf",
+        "dwg",
+        "stl",
+        "obj",
+      ]);
+    });
+
+    it("FILE_EXPORT Format covers 9 target CAD formats including pdf3d/x3d", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "FILE_EXPORT",
+      );
+      const formatParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Format");
+      expect(formatParam?.options).toEqual([
+        "step",
+        "iges",
+        "parasolid",
+        "dxf",
+        "dwg",
+        "stl",
+        "obj",
+        "x3d",
+        "pdf3d",
+      ]);
+    });
+
+    it("FILE_SAVE Save Mode supports overwrite/version/incremental", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "FILE_SAVE",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Save Mode");
+      expect(modeParam?.options).toEqual(["overwrite", "version", "incremental"]);
+    });
+
+    it("LEVEL_CREATE Level Number is bounded 1..2048 (Mastercam levels constraint)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "LEVEL_CREATE",
+      );
+      const numParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Level Number");
+      expect(numParam?.min).toBe(1);
+      expect(numParam?.max).toBe(2048);
+    });
+
+    it("LEVEL_CREATE Color is bounded 1..255 (Mastercam color index)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "LEVEL_CREATE",
+      );
+      const colorParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Color");
+      expect(colorParam?.min).toBe(1);
+      expect(colorParam?.max).toBe(255);
+    });
+
+    it("GROUP_DELETE Disband Mode supports release/delete_members", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "GROUP_DELETE",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Disband Mode");
+      expect(modeParam?.options).toEqual(["release", "delete_members"]);
+    });
+
+    it("ATTRIBUTE_SET Line Style covers 6 standard line types", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "ATTRIBUTE_SET",
+      );
+      const styleParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Line Style");
+      expect(styleParam?.options).toEqual([
+        "solid",
+        "dashed",
+        "phantom",
+        "chain",
+        "hidden",
+        "construction",
+      ]);
+    });
+
+    it("ATTRIBUTE_SET Lock State supports tri-state (unlocked/locked/no_change)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "ATTRIBUTE_SET",
+      );
+      const lockParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Lock State");
+      expect(lockParam?.options).toEqual(["unlocked", "locked", "no_change"]);
+    });
+
+    it("FILE_IMPORT Units Conversion covers auto + 2 directions + no_convert", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "FILE_IMPORT",
+      );
+      const unitParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Units Conversion");
+      expect(unitParam?.options).toEqual([
+        "auto",
+        "mm_to_inch",
+        "inch_to_mm",
+        "no_convert",
+      ]);
+    });
+
+    it("FILE_EXPORT Selection supports all/visible_only/selected", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "FILE_EXPORT",
+      );
+      const selParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Selection");
+      expect(selParam?.options).toEqual(["all", "visible_only", "selected"]);
+    });
+
+    it("returns null for unknown file/layer op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation(
+          "file_layer_operations",
+          "TELEPORT_FILE",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Heal Geometry' on FILE_IMPORT (adversarial: import safety)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "file_layer_operations",
+        "FILE_IMPORT",
+        "Heal Geometry",
+      );
+      expect(loc?.parameter.name).toBe("Heal Geometry");
+      expect(loc?.parameter.default).toBe(true);
+    });
+
+    it("LEVEL_VISIBILITY Apply To All flag exists for global visibility ops (adversarial: bulk-toggle)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "file_layer_operations",
+        "LEVEL_VISIBILITY",
+      );
+      const allParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Apply To All");
+      expect(allParam?.type).toBe("checkbox");
+      expect(allParam?.default).toBe(false);
+    });
+  });
+
+  describe("Mastercam CAD final integration — 8/8 COMPLETE (Inventor parity)", () => {
+    it("complete catalog: 8 modules, 120 ops, 815 params, COMPLETE state", () => {
+      // Final integration check - confirms entire Mastercam CAD catalog landed clean.
+      expect(MastercamCADFunctionIndexEngine.listModules()).toHaveLength(8);
+      expect(MastercamCADFunctionIndexEngine.listAllOperations()).toHaveLength(120);
+      expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(815);
+      expect(MastercamCADFunctionIndexEngine.getIndex().future_modules).toEqual([]);
+
+      const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.coverage_state).toBe("COMPLETE");
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(0);
+      expect(apiSurface?.phase_1_modules_pending).toEqual([]);
+      expect(apiSurface?.mastercam_cad_8_of_8).toBe(true);
+      expect(apiSurface?.inventor_parity).toBe(true);
+    });
+
+    it("all 8 platform_integration layer flags are true (full Mastercam coverage)", () => {
+      const platform = MastercamCADFunctionIndexEngine.getIndex().platform_integration ?? {};
+      expect(platform.wireframe_layer).toBe(true);
+      expect(platform.solid_layer).toBe(true);
+      expect(platform.surface_layer).toBe(true);
+      expect(platform.drafting_layer).toBe(true);
+      expect(platform.transformation_layer).toBe(true);
+      expect(platform.analysis_layer).toBe(true);
+      expect(platform.modify_layer).toBe(true);
+      expect(platform.file_layer).toBe(true);
+    });
+
+    it("modules array contains all 8 expected modules in shipping order", () => {
+      expect(MastercamCADFunctionIndexEngine.listModules()).toEqual([
+        "wireframe_operations",
+        "solid_operations",
+        "surface_operations",
+        "drafting_operations",
+        "transformation_operations",
+        "analysis_operations",
+        "modify_operations",
+        "file_layer_operations",
+      ]);
     });
   });
 });
