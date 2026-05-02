@@ -800,6 +800,26 @@ export function registerSessionDispatcher(server: any): void {
               }
             } catch { /* enhanced shutdown non-fatal */ }
 
+            // ── INTEL-OLLAMA-OBSIDIAN-MS0/P9-U04: consolidate self-improvement patterns ──
+            // SelfImprovementPatternEngine.compute() reads failure-pattern, quality, formula,
+            // error, learning, and edit-review state and emits a ranked SelfImprovementReport.
+            // Acts as the AUTO-6 "consolidate" step for the session-end lifecycle: callers see
+            // a digest of how many patterns are pending, top priority, and warning count.
+            let consolidate: { total_patterns: number; aggregate_priority: number; system_improvement_rate: number; top_priority: number; warnings_count: number } | null = null;
+            try {
+              const { selfImprovementPatternEngine } = await import("../../engines/SelfImprovementPatternEngine.js");
+              const sip = selfImprovementPatternEngine.compute();
+              consolidate = {
+                total_patterns: sip.total_patterns,
+                aggregate_priority: sip.aggregate_priority,
+                system_improvement_rate: sip.system_improvement_rate,
+                top_priority: sip.patterns[0]?.priority ?? 0,
+                warnings_count: (sip.warnings ?? []).length,
+              };
+            } catch (e: any) {
+              log.debug(`[session_end] SelfImprovement consolidate failed: ${e?.message?.slice(0, 80)}`);
+            }
+
             // Multi-chat coordination: release all claims held by this instance
             let claimsReleased = 0;
             try {
@@ -810,7 +830,7 @@ export function registerSessionDispatcher(server: any): void {
               }
             } catch (e: any) { log.debug(`[session_end] claim release: ${e?.message?.slice(0, 80)}`); }
 
-            return ok({ status: params.status, endTime, quickResume: params.quick_resume, graceful_shutdown: shutdownResult, next_session_prep: nextSessionPrep, enhanced_shutdown: enhancedShutdown, claims_released: claimsReleased });
+            return ok({ status: params.status, endTime, quickResume: params.quick_resume, graceful_shutdown: shutdownResult, next_session_prep: nextSessionPrep, enhanced_shutdown: enhancedShutdown, claims_released: claimsReleased, consolidate });
           }
           
           case "auto_checkpoint": {
