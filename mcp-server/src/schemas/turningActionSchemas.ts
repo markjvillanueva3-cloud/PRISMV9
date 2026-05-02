@@ -382,4 +382,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
       page_count: z.number().int().min(1).optional().describe("Page count if multi-page"),
     }).passthrough().describe("BlueprintIntake input — raw_text + format hints"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch8: customer order + ERP orchestrator + master post router
+  lathe_customer_order_create: z.object({
+    input: z.record(z.string(), z.unknown()).describe("CreateOrderInput — customer + parts + due date for LatheCustomerOrderLifecycleEngine.createOrder()"),
+  }).passthrough(),
+  lathe_erp_full: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ERPFullInput — full ERP packet (orders, inventory, scheduling) for LatheERPOrchestratorEngine.erpFull()"),
+  }).passthrough(),
+  lathe_masterpost_route: z.object({
+    input: z.record(z.string(), z.unknown()).describe("LatheRouteInput — controller + machine context for LatheMasterPostRouterEngine.route() to pick the right post"),
+  }).passthrough(),
 };

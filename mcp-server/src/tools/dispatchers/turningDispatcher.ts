@@ -75,6 +75,8 @@ const ACTIONS = [
   "lathe_post_process", "lathe_post_dialect_compare", "lathe_post_spec_ingest",
   // LATHE-WIRE-MS0/Batch7: print pipeline (emit + signoff + ingest)
   "lathe_print_program_emit", "lathe_print_program_signoff", "lathe_print_ingest",
+  // LATHE-WIRE-MS0/Batch8: customer order + ERP orchestrator + master post router
+  "lathe_customer_order_create", "lathe_erp_full", "lathe_masterpost_route",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -696,6 +698,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = lathePrintIngestPipelineEngine.ingest(
                 input as Parameters<typeof lathePrintIngestPipelineEngine.ingest>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_customer_order_create": {
+            const { latheCustomerOrderLifecycleEngine } = await import("../../engines/LatheCustomerOrderLifecycleEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (CreateOrderInput)" }; break; }
+            try {
+              result = latheCustomerOrderLifecycleEngine.createOrder(
+                input as Parameters<typeof latheCustomerOrderLifecycleEngine.createOrder>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_erp_full": {
+            const { latheERPOrchestratorEngine } = await import("../../engines/LatheERPOrchestratorEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ERPFullInput)" }; break; }
+            try {
+              result = latheERPOrchestratorEngine.erpFull(
+                input as Parameters<typeof latheERPOrchestratorEngine.erpFull>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_route": {
+            const { latheMasterPostRouterEngine } = await import("../../engines/LatheMasterPostRouterEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (LatheRouteInput)" }; break; }
+            try {
+              result = latheMasterPostRouterEngine.route(
+                input as Parameters<typeof latheMasterPostRouterEngine.route>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
