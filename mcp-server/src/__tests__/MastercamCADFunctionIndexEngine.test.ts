@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 74 ops total at Phase 1 4/8 (wireframe + solid + surface + drafting)", () => {
+    it("listAllOperations equals 84 ops total at Phase 1 5/8 (+ transformation)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(74);
+      expect(all.length).toBe(84);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,9 +344,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 527 parameters across all 74 ops (153 wireframe + 140 solid + 110 surface + 124 drafting)", () => {
+    it("counts exactly 602 parameters across all 84 ops (+ 75 transformation)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(527);
+      expect(total).toBe(602);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -386,15 +386,24 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(draftingTotal).toBe(124);
       expect(draftingDeclared).toBe(124);
 
+      const transformTotal = sumParamsForModule("transformation_operations");
+      const transformDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("transformation_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(transformTotal).toBe(75);
+      expect(transformDeclared).toBe(75);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        wireframeTotal + solidTotal + surfaceTotal + draftingTotal,
+        wireframeTotal + solidTotal + surfaceTotal + draftingTotal + transformTotal,
       );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (4 of 8 modules shipped)", () => {
+    it("api_surface.coverage_state is exactly 'PARTIAL' (5 of 8 modules shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
@@ -406,17 +415,16 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 4 (4/8 shipped — halfway)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 3 (5/8 shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(4);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(3);
     });
 
-    it("api_surface.phase_1_modules_pending lists the 4 unbuilt modules in shipping order", () => {
+    it("api_surface.phase_1_modules_pending lists the 3 unbuilt modules in shipping order", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.phase_1_modules_pending).toEqual([
-        "transformation_operations",
         "analysis_operations",
         "modify_operations",
         "file_layer_operations",
@@ -439,7 +447,7 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(4);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(3);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -1142,6 +1150,181 @@ describe("MastercamCADFunctionIndexEngine", () => {
       );
       const styleParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Break Style");
       expect(styleParam?.options).toEqual(["straight", "curved", "zigzag", "step"]);
+    });
+  });
+
+  describe("transformation_operations catalog (U-CAD-FIDX-MC-05)", () => {
+    const KNOWN_TRANSFORM_OPS = [
+      "TRANSLATE",
+      "ROTATE",
+      "MIRROR",
+      "SCALE",
+      "ARRAY_LINEAR",
+      "ARRAY_RECTANGULAR",
+      "ARRAY_CIRCULAR",
+      "DYNAMIC_TRANSFORM",
+      "PROJECT_TO_PLANE",
+      "UNROLL",
+    ];
+
+    const ARRAY_OPS = ["ARRAY_LINEAR", "ARRAY_RECTANGULAR", "ARRAY_CIRCULAR"];
+    const BASIC_TRANSFORMS = ["TRANSLATE", "ROTATE", "MIRROR", "SCALE"];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("transformation_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-05'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("transformation_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-05");
+    });
+
+    it("operations dict has exactly 10 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("transformation_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(10);
+    });
+
+    it("listOperations returns exactly the 10 expected transformation ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("transformation_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_TRANSFORM_OPS].sort());
+    });
+
+    it("every operation reports a Transform_-prefixed category", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("transformation_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Transform_")).toBe(true);
+      }
+    });
+
+    it("ARRAY_OPS span all 3 array subcategories (Transform_Array_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("transformation_operations");
+      const arrayCategories = ops
+        .filter((op) => ARRAY_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(arrayCategories).toEqual([
+        "Transform_Array_Circular",
+        "Transform_Array_Linear",
+        "Transform_Array_Rectangular",
+      ]);
+    });
+
+    it("BASIC_TRANSFORMS each support copy/move/join semantics (failure mode: missing copy mode)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("transformation_operations");
+      const basics = ops.filter((op) => BASIC_TRANSFORMS.includes(op.operation_id));
+      expect(basics.length).toBe(4);
+      for (const op of basics) {
+        const fullOp = MastercamCADFunctionIndexEngine.getOperation(
+          "transformation_operations",
+          op.operation_id,
+        );
+        const copyParam = fullOp?.tabs?.Shape?.parameters?.find((p) => p.name === "Copy/Move");
+        expect(copyParam?.options).toContain("copy");
+        expect(copyParam?.options).toContain("move");
+      }
+    });
+
+    it("SCALE Mode supports uniform/non_uniform/along_axis (failure mode: scale mode completeness)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "SCALE",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["uniform", "non_uniform", "along_axis"]);
+    });
+
+    it("ARRAY_CIRCULAR Spacing supports equal + incremental", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "ARRAY_CIRCULAR",
+      );
+      const spaceParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Spacing");
+      expect(spaceParam?.options).toEqual(["equal", "incremental"]);
+    });
+
+    it("DYNAMIC_TRANSFORM Translation Lock supports 7 axis-lock combinations", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "DYNAMIC_TRANSFORM",
+      );
+      const lockParam = op?.tabs?.Shape?.parameters?.find(
+        (p) => p.name === "Translation Lock",
+      );
+      expect(lockParam?.options).toEqual(["none", "x", "y", "z", "xy", "xz", "yz"]);
+    });
+
+    it("DYNAMIC_TRANSFORM Scale Lock includes uniform-lock alongside per-axis (failure mode: scale lock semantics)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "DYNAMIC_TRANSFORM",
+      );
+      const scaleLockParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Scale Lock");
+      expect(scaleLockParam?.options).toEqual(["none", "x", "y", "z", "uniform"]);
+    });
+
+    it("PROJECT_TO_PLANE Direction supports normal + specified projection (failure mode: projection direction)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "PROJECT_TO_PLANE",
+      );
+      const dirParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Direction");
+      expect(dirParam?.options).toEqual(["normal", "specified"]);
+    });
+
+    it("UNROLL Approximation Mode supports linear/spline/refit_nurbs", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "UNROLL",
+      );
+      const approxParam = op?.tabs?.Shape?.parameters?.find(
+        (p) => p.name === "Approximation Mode",
+      );
+      expect(approxParam?.options).toEqual(["linear", "spline", "refit_nurbs"]);
+    });
+
+    it("MIRROR Connect Open Ends parameter exists for source-mirror bridge", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "MIRROR",
+      );
+      const connectParam = op?.tabs?.Shape?.parameters?.find(
+        (p) => p.name === "Connect Open Ends",
+      );
+      expect(connectParam?.type).toBe("checkbox");
+      expect(connectParam?.default).toBe(false);
+    });
+
+    it("returns null for unknown transformation op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation(
+          "transformation_operations",
+          "TELEPORT_BODY",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Center Axis' on ARRAY_CIRCULAR as required (adversarial)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "transformation_operations",
+        "ARRAY_CIRCULAR",
+        "Center Axis",
+      );
+      expect(loc?.parameter.name).toBe("Center Axis");
+      expect(loc?.parameter.required).toBe(true);
+    });
+
+    it("UNROLL Stationary Edge is required (adversarial: unroll requires fixed edge)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "transformation_operations",
+        "UNROLL",
+      );
+      const stationaryParam = op?.tabs?.Shape?.parameters?.find(
+        (p) => p.name === "Stationary Edge",
+      );
+      expect(stationaryParam?.required).toBe(true);
     });
   });
 });
