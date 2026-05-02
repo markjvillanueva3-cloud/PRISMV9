@@ -1183,6 +1183,8 @@ export const ACTIONS = [
   "wedm_post_mitsubishi", "wedm_post_fanuc", "wedm_post_makino",
   // WEDM-WIRE-MS0/Batch14: post Sodick + Agie + DWG import (async)
   "wedm_post_sodick", "wedm_post_agie", "wedm_dwg_import",
+  // WEDM-WIRE-MS0/Batch15: Ra predictor + recast depth + pulse limit
+  "wedm_ra_predict", "wedm_recast_depth_predict", "wedm_pulse_limit_validate",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6468,6 +6470,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = await wedmDwgImportEngine.import(
                 input as Parameters<typeof wedmDwgImportEngine.import>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch15: Ra predictor + recast depth + pulse limit ──
+          case "wedm_ra_predict": {
+            const { wedmRaPredictorEngine } = await import("../../engines/WEDMRaPredictorEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (RaPredictionInput)" }; break; }
+            try {
+              result = wedmRaPredictorEngine.predict(
+                input as Parameters<typeof wedmRaPredictorEngine.predict>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_recast_depth_predict": {
+            const { wedmRecastDepthPredictorEngine } = await import("../../engines/WEDMRecastDepthPredictorEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (RecastPredictionInput)" }; break; }
+            try {
+              result = wedmRecastDepthPredictorEngine.predict(
+                input as Parameters<typeof wedmRecastDepthPredictorEngine.predict>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_pulse_limit_validate": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (PulseLimitInput)" }; break; }
+            try {
+              result = wedmPulseLimitEngine.validate(
+                input as Parameters<typeof wedmPulseLimitEngine.validate>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

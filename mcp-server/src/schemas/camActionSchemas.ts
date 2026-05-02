@@ -367,4 +367,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_dwg_import: z.object({
     input: z.record(z.string(), z.unknown()).describe("DwgImportInput - DWG file path + converter config for WEDMDwgImportEngine.import() (async, shells out to LibreDWG/ODA)"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch15: Ra predictor + recast depth + pulse limit
+  wedm_ra_predict: z.object({
+    input: z.record(z.string(), z.unknown()).describe("RaPredictionInput - cut params + material context for WEDMRaPredictorEngine.predict() — surface roughness Ra prediction"),
+  }).passthrough(),
+  wedm_recast_depth_predict: z.object({
+    input: z.record(z.string(), z.unknown()).describe("RecastPredictionInput - energy + material context for WEDMRecastDepthPredictorEngine.predict() — recast layer depth"),
+  }).passthrough(),
+  wedm_pulse_limit_validate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("PulseLimitInput - pulse on-time + off-time + peak current for WEDMPulseLimitEngine.validate() — safety limit gate"),
+  }).passthrough(),
 };
