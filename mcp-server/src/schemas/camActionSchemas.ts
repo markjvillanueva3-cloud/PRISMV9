@@ -162,6 +162,60 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     }).optional().describe("Post processor configuration"),
   }),
 
+  /**
+   * Okuma OSP-P300M / OSP-P500M mill master post — closes the OSP-P*M
+   * HARD-REJECT branch in master_post_by_machine. Same MillOperation shape
+   * as Hurco V11; family flag selects 3-axis (P300M / MB-V) vs 5-axis
+   * (P500M / MU-V) dialect rows in ControllerDialectEngine.
+   * PPG-WIRE-MS5/U-PPGW-OkumaMill.
+   */
+  master_post_okuma_osp: z.object({
+    operations: z.array(z.object({
+      operation_type: z.enum([
+        "face", "pocket", "contour", "drill", "tap", "bore", "slot", "3d_surface", "adaptive"
+      ]).describe("Mill operation type"),
+      tool_number: z.number().int().min(1).max(99).describe("Tool station number (T01-T99)"),
+      tool_diameter_mm: z.number().positive().describe("Tool diameter in mm"),
+      tool_flutes: z.number().int().min(1).max(12).describe("Number of flutes"),
+      tool_description: z.string().optional().describe("Tool description for comments"),
+      material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group"),
+      spindle_rpm: z.number().positive().describe("Spindle RPM"),
+      feed_mm_min: z.number().positive().describe("Feed rate mm/min"),
+      axial_depth_mm: z.number().positive().describe("Axial depth of cut mm"),
+      radial_depth_mm: z.number().positive().optional().describe("Radial depth of cut mm"),
+      coolant: z.enum(["flood", "mist", "tsc", "off"]).optional().describe("Coolant mode"),
+      coordinates: z.array(z.object({
+        x: z.number().describe("X coordinate"),
+        y: z.number().describe("Y coordinate"),
+        z: z.number().describe("Z coordinate"),
+        type: z.enum(["rapid", "linear", "arc_cw", "arc_ccw"]).describe("Move type"),
+      })).min(1).describe("Toolpath coordinates"),
+      arc_data: z.array(z.object({
+        i: z.number().optional().describe("Arc center I offset"),
+        j: z.number().optional().describe("Arc center J offset"),
+        k: z.number().optional().describe("Arc center K offset"),
+        r: z.number().optional().describe("Arc radius"),
+      })).optional().describe("Arc center data (matches coordinates array)"),
+    })).min(1).describe("Array of mill operations to post-process"),
+    config: z.object({
+      program_number: z.number().int().min(1).max(9999).optional().describe("O-number (default: 1000)"),
+      program_comment: z.string().optional().describe("Program header comment"),
+      osp_family: z.enum(["P300", "P500"]).optional().describe("OSP family (P300M or P500M); default P300"),
+      use_super_nurbs: z.boolean().optional().describe("Enable G05.1 Q1 Super-NURBS (P500 only — ignored on P300)"),
+      coolant_mode: z.enum(["flood", "mist", "tsc", "off"]).optional().describe("Default coolant mode"),
+      work_offset_index: z.number().int().min(1).max(99).optional().describe("H index for G15 H{n} work offset (default: 1)"),
+      units: z.enum(["metric", "inch"]).optional().describe("Output units (default: metric)"),
+      safe_z_mm: z.number().optional().describe("Safe Z retract position"),
+      tool_change_position: z.object({
+        x: z.number(),
+        y: z.number(),
+        z: z.number(),
+      }).optional().describe("Tool change position"),
+      max_spindle_rpm: z.number().positive().optional().describe("Override spindle ceiling (default: 12000 P300, 15000 P500)"),
+    }).optional().describe("Post processor configuration"),
+    verify_tier: z.enum(["sim", "proven_out", "production", "shop_floor"]).optional().describe("Tier for sealMasterPostOutput post-emit verifier (omit to skip gate)"),
+  }),
+
   /** Mitsubishi MV1200R Wire EDM master post — JM Die canonical wire EDM post with M700V/M800 */
   master_post_mitsubishi_mv1200r: z.object({
     operations: z.array(z.object({
