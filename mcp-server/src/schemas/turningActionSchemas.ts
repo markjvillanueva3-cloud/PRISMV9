@@ -468,4 +468,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_adaptive_record: z.object({
     input: z.record(z.string(), z.unknown()).describe("TurningEngagementProfile — operation profile for LatheAdaptiveMachiningEngine.recordOperation() — appends to operation history"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch16: AGI continuous learning + feature bridge + safety
+  lathe_agi_continuous_record: z.object({
+    input: z.record(z.string(), z.unknown()).describe("RecordFeedbackInput — {feature, key, kind, sample} for LatheAGIContinuousLearningEngine.recordFeedback() — updates EWMA slot, returns Slot"),
+  }).passthrough(),
+  lathe_agi_feature_reason: z.object({
+    input: z.record(z.string(), z.unknown()).describe("AGIReasonInput — feature + payload for LatheAGIFeatureBridgeEngine.reason() — returns AGIReasonResult with confidence + history"),
+  }).passthrough(),
+  lathe_agi_safety_check: z.object({
+    input: z.record(z.string(), z.unknown()).describe("SafetyCheckInput — candidates (speed_feed/quote/schedule/kinematic) for LatheAGISafetyContainmentEngine.check() — returns SafetyReport"),
+  }).passthrough(),
 };

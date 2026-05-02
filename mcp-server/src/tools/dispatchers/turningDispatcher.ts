@@ -91,6 +91,8 @@ const ACTIONS = [
   "lathe_p2p_reasoning_explain", "lathe_p2p_knowledge_graph_ingest", "lathe_p2p_dl_predict",
   // LATHE-WIRE-MS0/Batch15: dialect post + PO automation + adaptive recorder (3 engines)
   "lathe_post_dialect_generate", "lathe_po_build", "lathe_adaptive_record",
+  // LATHE-WIRE-MS0/Batch16: AGI continuous learning + feature bridge + safety containment (3 engines)
+  "lathe_agi_continuous_record", "lathe_agi_feature_reason", "lathe_agi_safety_check",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1045,6 +1047,48 @@ Actions: ${ACTIONS.join(", ")}.`,
                 input as Parameters<typeof latheAdaptiveMachiningEngine.recordOperation>[0],
               );
               result = { success: true, history_size: latheAdaptiveMachiningEngine.getOperationHistory().length };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch16: AGI continuous learning + feature bridge + safety
+          // ============================================================
+          case "lathe_agi_continuous_record": {
+            const { latheAGIContinuousLearningEngine } = await import("../../engines/LatheAGIContinuousLearningEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (RecordFeedbackInput)" }; break; }
+            try {
+              result = latheAGIContinuousLearningEngine.recordFeedback(
+                input as Parameters<typeof latheAGIContinuousLearningEngine.recordFeedback>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_agi_feature_reason": {
+            const { latheAGIFeatureBridgeEngine } = await import("../../engines/LatheAGIFeatureBridgeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (AGIReasonInput)" }; break; }
+            try {
+              result = latheAGIFeatureBridgeEngine.reason(
+                input as Parameters<typeof latheAGIFeatureBridgeEngine.reason>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_agi_safety_check": {
+            const { latheAGISafetyContainmentEngine } = await import("../../engines/LatheAGISafetyContainmentEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (SafetyCheckInput)" }; break; }
+            try {
+              result = latheAGISafetyContainmentEngine.check(
+                input as Parameters<typeof latheAGISafetyContainmentEngine.check>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
