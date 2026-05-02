@@ -506,4 +506,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_agi_kg_query: z.object({
     input: z.record(z.string(), z.unknown()).describe("QueryInput - {nodeType?, edgeType?, filter?} for LatheAGIKnowledgeUnificationEngine.query() — returns QueryResult"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch21: ensemble combiner + continual learning + cron
+  lathe_lora_combiner_remove_outliers: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{values: number[]} for LatheLoRAEnsembleCombinerEngine.removeOutliers() — returns {filtered, removedCount}"),
+  }).passthrough(),
+  lathe_lora_continual_replay_buffer: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{limit?: number} for LatheLoRAContinualLearningEngine.getReplayBuffer() — returns Experience[] from replay buffer"),
+  }).passthrough(),
+  lathe_lora_cron_list_jobs: z.object({}).passthrough().describe("No input — returns LatheLoRACronJobEngine.getAllJobs() + getConfig() — current cron job registry"),
 };

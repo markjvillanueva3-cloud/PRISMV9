@@ -101,6 +101,8 @@ const ACTIONS = [
   "lathe_lora_attention_stats", "lathe_lora_dataset_validate_one", "lathe_lora_example_gen_stats",
   // LATHE-WIRE-MS0/Batch20: ensemble voter + embedding cache + AGI knowledge graph (3 engines)
   "lathe_lora_ensemble_vote", "lathe_lora_embedding_stats", "lathe_agi_kg_query",
+  // LATHE-WIRE-MS0/Batch21: ensemble combiner + continual learning + cron jobs (3 engines)
+  "lathe_lora_combiner_remove_outliers", "lathe_lora_continual_replay_buffer", "lathe_lora_cron_list_jobs",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1265,6 +1267,44 @@ Actions: ${ACTIONS.join(", ")}.`,
               result = latheAGIKnowledgeUnificationEngine.query(
                 (input && typeof input === "object" ? input : {}) as Parameters<typeof latheAGIKnowledgeUnificationEngine.query>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch21: ensemble combiner + continual learning + cron jobs
+          // ============================================================
+          case "lathe_lora_combiner_remove_outliers": {
+            const { latheLoRAEnsembleCombinerEngine } = await import("../../engines/LatheLoRAEnsembleCombinerEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const values = input && Array.isArray(input.values) ? input.values : null;
+            if (!values || !values.every(v => typeof v === "number")) {
+              result = { success: false, error: "input.values (number[]) required" };
+              break;
+            }
+            try {
+              result = latheLoRAEnsembleCombinerEngine.removeOutliers(values as number[]);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_continual_replay_buffer": {
+            const { latheLoRAContinualLearningEngine } = await import("../../engines/LatheLoRAContinualLearningEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const limit = input && typeof input.limit === "number" && input.limit > 0 ? input.limit : undefined;
+            try {
+              result = { success: true, experiences: latheLoRAContinualLearningEngine.getReplayBuffer(limit) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_cron_list_jobs": {
+            const { latheLoRACronJobEngine } = await import("../../engines/LatheLoRACronJobEngine.js");
+            try {
+              result = { success: true, jobs: latheLoRACronJobEngine.getAllJobs(), config: latheLoRACronJobEngine.getConfig() };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
