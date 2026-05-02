@@ -83,6 +83,8 @@ const ACTIONS = [
   "lathe_ai_optimize_sequence", "lathe_auto_quote", "lathe_orchestrate",
   // LATHE-WIRE-MS0/Batch11: feature recognize + tolerance stack + toolpath generate
   "lathe_feature_recognize", "lathe_tolerance_stack_analyze", "lathe_toolpath_generate",
+  // LATHE-WIRE-MS0/Batch12: workholding jaw + safety predicate verify + proof-carrying emit
+  "lathe_workholding_jaw_select", "lathe_safety_predicate_verify", "lathe_proof_carrying_emit",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -874,6 +876,47 @@ Actions: ${ACTIONS.join(", ")}.`,
                 features as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[1],
                 material as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[2],
                 limits as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[3],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_workholding_jaw_select": {
+            const { latheWorkholdingEngine } = await import("../../engines/LatheWorkholdingEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (JawSelectionInput)" }; break; }
+            try {
+              result = latheWorkholdingEngine.selectJaw(
+                input as Parameters<typeof latheWorkholdingEngine.selectJaw>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_safety_predicate_verify": {
+            const { latheSafetyPredicateEngine } = await import("../../engines/LatheSafetyPredicateEngine.js");
+            const signals = (params as Record<string, unknown>).signals;
+            if (!signals || typeof signals !== "object") { result = { success: false, error: "signals required (LatheSafetySignals)" }; break; }
+            try {
+              const envelope = (params as Record<string, unknown>).envelope;
+              result = latheSafetyPredicateEngine.verify(
+                signals as Parameters<typeof latheSafetyPredicateEngine.verify>[0],
+                envelope as Parameters<typeof latheSafetyPredicateEngine.verify>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_proof_carrying_emit": {
+            const { latheProofCarryingEmitEngine } = await import("../../engines/LatheProofCarryingEmitEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ProofEmitInput)" }; break; }
+            try {
+              result = latheProofCarryingEmitEngine.emit(
+                input as Parameters<typeof latheProofCarryingEmitEngine.emit>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

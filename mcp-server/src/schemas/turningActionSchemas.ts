@@ -427,4 +427,15 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     material: z.record(z.string(), z.unknown()).describe("MaterialInput — workpiece material for cutting-data lookup"),
     limits: z.record(z.string(), z.unknown()).optional().describe("MachineLimits — optional envelope/feed/spindle caps (defaults supplied if omitted)"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch12: workholding jaw + safety predicate verify + proof-carrying emit
+  lathe_workholding_jaw_select: z.object({
+    input: z.record(z.string(), z.unknown()).describe("JawSelectionInput — part diameter + length + material + grip context for LatheWorkholdingEngine.selectJaw()"),
+  }).passthrough(),
+  lathe_safety_predicate_verify: z.object({
+    signals: z.record(z.string(), z.unknown()).describe("LatheSafetySignals — chuck/material/FRF/machine signals for LatheSafetyPredicateEngine.verify()"),
+    envelope: z.record(z.string(), z.unknown()).optional().describe("EnvelopeCheck — optional machine envelope constraints (defaults pulled from machine config if omitted)"),
+  }).passthrough(),
+  lathe_proof_carrying_emit: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ProofEmitInput — toolpath + safety predicate verdict + machine context for LatheProofCarryingEmitEngine.emit()"),
+  }).passthrough(),
 };
