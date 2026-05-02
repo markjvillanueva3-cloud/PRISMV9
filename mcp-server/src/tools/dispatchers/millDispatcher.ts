@@ -48,6 +48,8 @@ let _agi: any, _selfaware: any, _scientific: any, _kinematics: any;
 let _aiLearn: any, _millTurn: any, _fiveAxisAgg: any, _multiAxisAgg: any;
 // Unwired engine additions
 let _tribal: any, _e2e: any, _traceLedger: any, _inferenceOrch: any;
+// MILL-WIRE-MS0/Batch1: swiss + LoRA dataset/cadence
+let _swiss: any, _loraDataset: any, _loraCadence: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -124,6 +126,14 @@ async function getEngine(name: string): Promise<any> {
       return _traceLedger ??= (await import("../../engines/MillingReasoningTraceLedgerEngine.js")).millingReasoningTraceLedgerEngine;
     case "inference_orch":
       return _inferenceOrch ??= (await import("../../engines/MillingInferenceOrchestratorEngine.js")).millingInferenceOrchestratorEngine;
+
+    // MILL-WIRE-MS0/Batch1: Swiss pipeline + LoRA dataset/cadence
+    case "swiss":
+      return _swiss ??= (await import("../../engines/MillTurnSwissPipelineEngine.js")).millTurnSwissPipelineEngine;
+    case "lora_dataset":
+      return _loraDataset ??= (await import("../../engines/MillingLoRADatasetBuilderEngine.js")).millingLoRADatasetBuilderEngine;
+    case "lora_cadence":
+      return _loraCadence ??= (await import("../../engines/MillingLoRACadenceEngine.js")).millingLoRACadenceEngine;
 
     default:
       throw new Error(`Unknown mill engine: ${name}`);
@@ -225,6 +235,11 @@ export const MILL_ACTIONS = [
 
   // Inference orchestration (MillingInferenceOrchestratorEngine)
   "mill_inference_run",
+
+  // MILL-WIRE-MS0/Batch1: Swiss pipeline + LoRA dataset/cadence (3 engines)
+  "mill_swiss_calculate",
+  "mill_lora_dataset_build",
+  "mill_lora_cadence_check",
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -601,6 +616,25 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_inference_run": {
             const engine = await getEngine("inference_orch");
             result = await engine.infer(params);
+            break;
+          }
+
+          // ============================================================
+          // MILL-WIRE-MS0/Batch1: Swiss pipeline + LoRA dataset/cadence
+          // ============================================================
+          case "mill_swiss_calculate": {
+            result = await callOrThrow(await getEngine("swiss"), ["calculate"], params, "MillTurnSwissPipelineEngine");
+            break;
+          }
+          case "mill_lora_dataset_build": {
+            const engine = await getEngine("lora_dataset");
+            const jobs = Array.isArray(params.jobs) ? params.jobs : [];
+            result = engine.buildDataset(jobs, params.split);
+            break;
+          }
+          case "mill_lora_cadence_check": {
+            const engine = await getEngine("lora_cadence");
+            result = engine.shouldTriggerRun();
             break;
           }
 

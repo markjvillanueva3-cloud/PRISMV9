@@ -786,6 +786,39 @@ const mill_inference_run = z
   })
   .passthrough();
 
+// ─── MILL-WIRE-MS0/Batch1: Swiss pipeline + LoRA dataset/cadence ────────────
+
+const mill_swiss_calculate = z
+  .object({
+    mode: z
+      .enum(["live_tool", "sub_spindle_transfer", "multi_channel", "bar_feeder", "swiss_machining", "program_assembly"])
+      .optional()
+      .describe("Swiss/mill-turn calculation mode."),
+  })
+  .passthrough()
+  .describe("Input for MillTurnSwissPipelineEngine.calculate — Swiss/mill-turn pipeline calculation.");
+
+const mill_lora_dataset_build = z
+  .object({
+    jobs: z.array(z.record(z.string(), z.unknown())).describe("Raw job records to build dataset from."),
+    split: z
+      .object({
+        train: z.number().min(0).max(1).optional(),
+        val: z.number().min(0).max(1).optional(),
+        test: z.number().min(0).max(1).optional(),
+      })
+      .passthrough()
+      .optional()
+      .describe("Dataset split configuration (train/val/test fractions)."),
+  })
+  .passthrough()
+  .describe("Input for MillingLoRADatasetBuilderEngine.buildDataset — LoRA fine-tuning dataset construction.");
+
+const mill_lora_cadence_check = z
+  .object({})
+  .passthrough()
+  .describe("Input for MillingLoRACadenceEngine.shouldTriggerRun — checks if a LoRA training run should fire.");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -887,4 +920,9 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
 
   // Inference orchestration (MillingInferenceOrchestratorEngine)
   mill_inference_run,
+
+  // MILL-WIRE-MS0/Batch1: Swiss pipeline + LoRA dataset/cadence
+  mill_swiss_calculate,
+  mill_lora_dataset_build,
+  mill_lora_cadence_check,
 };
