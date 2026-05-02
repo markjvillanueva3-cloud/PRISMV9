@@ -1623,6 +1623,8 @@ export const ACTIONS = [
   "cam_fusion360_controller_list", "cam_fusion360_controller_lookup", "cam_fusion360_controller_search", "cam_fusion360_controller_dialect", "cam_fusion360_controller_stats", "cam_fusion360_controller_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-STRAT-01 — Fusion 360 strategy engine (operation+ISO → cycle+params)
   "cam_fusion360_strategy_recommend", "cam_fusion360_strategy_pick_cycle", "cam_fusion360_strategy_baseline_vc", "cam_fusion360_strategy_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-SAFETY-01 — Fusion 360 safety hooks (15 rules, PASS/WARN/BLOCK verdict)
+  "cam_fusion360_safety_validate", "cam_fusion360_safety_validate_all", "cam_fusion360_safety_rules", "cam_fusion360_safety_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12969,6 +12971,30 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_strategy_audit": {
             const { Fusion360StrategyEngine } = await import("../../engines/Fusion360StrategyEngine.js");
             result = Fusion360StrategyEngine.auditEngine();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-SAFETY-01: Fusion 360 safety hooks ──
+          case "cam_fusion360_safety_validate": {
+            const { Fusion360SafetyHooksEngine } = await import("../../engines/Fusion360SafetyHooksEngine.js");
+            const ctx = params.context as Parameters<typeof Fusion360SafetyHooksEngine.validate>[0];
+            result = Fusion360SafetyHooksEngine.validate(ctx);
+            break;
+          }
+          case "cam_fusion360_safety_validate_all": {
+            const { Fusion360SafetyHooksEngine } = await import("../../engines/Fusion360SafetyHooksEngine.js");
+            const ops = params.operations as Parameters<typeof Fusion360SafetyHooksEngine.validateAll>[0];
+            result = Fusion360SafetyHooksEngine.validateAll(ops);
+            break;
+          }
+          case "cam_fusion360_safety_rules": {
+            const { Fusion360SafetyHooksEngine } = await import("../../engines/Fusion360SafetyHooksEngine.js");
+            result = { rules: Fusion360SafetyHooksEngine.getRules() };
+            break;
+          }
+          case "cam_fusion360_safety_audit": {
+            const { Fusion360SafetyHooksEngine } = await import("../../engines/Fusion360SafetyHooksEngine.js");
+            result = Fusion360SafetyHooksEngine.auditEngine();
             break;
           }
 
