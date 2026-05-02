@@ -546,4 +546,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     input: z.record(z.string(), z.unknown()).describe("{modelId?: string, limit?: number=10} for LatheLoRAVerificationEngine.getHistory() — returns VerificationSuiteResult[]"),
   }).passthrough(),
   lathe_lora_resource_pools: z.object({}).passthrough().describe("No input — returns LatheLoRAResourceManagerEngine.getPools() — current ResourcePool[] with availability"),
+  // LATHE-WIRE-MS0/Batch26: knowledge graph + quantization + reward shaping
+  lathe_lora_kg_top_connected: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{limit?: number=10} for LatheLoRAKnowledgeGraphEngine.getTopConnected() — returns top-N nodes by degree centrality"),
+  }).passthrough(),
+  lathe_lora_quant_formats: z.object({}).passthrough().describe("No input — returns LatheLoRAQuantizationOptimizerEngine.getFormats() + getGGUFLevels() — quantization format catalog"),
+  lathe_lora_reward_config: z.object({}).passthrough().describe("No input — returns LatheLoRARewardShapingEngine.getConfig() — current reward shaping config"),
 };

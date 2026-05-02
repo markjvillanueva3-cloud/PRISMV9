@@ -111,6 +111,8 @@ const ACTIONS = [
   "lathe_lora_health_alerts", "lathe_lora_model_registry_query", "lathe_lora_safety_evaluate",
   // LATHE-WIRE-MS0/Batch25: model selector + verification + resource manager (3 engines)
   "lathe_lora_model_selector_models", "lathe_lora_verification_history", "lathe_lora_resource_pools",
+  // LATHE-WIRE-MS0/Batch26: knowledge graph + quantization optimizer + reward shaping (3 engines)
+  "lathe_lora_kg_top_connected", "lathe_lora_quant_formats", "lathe_lora_reward_config",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1480,6 +1482,42 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { latheLoRAResourceManagerEngine } = await import("../../engines/LatheLoRAResourceManagerEngine.js");
             try {
               result = { success: true, pools: latheLoRAResourceManagerEngine.getPools() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch26: knowledge graph + quantization + reward shaping
+          // ============================================================
+          case "lathe_lora_kg_top_connected": {
+            const { latheLoRAKnowledgeGraphEngine } = await import("../../engines/LatheLoRAKnowledgeGraphEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const limit = input && typeof input.limit === "number" && input.limit > 0 ? input.limit : 10;
+            try {
+              result = { success: true, top: latheLoRAKnowledgeGraphEngine.getTopConnected(limit) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_quant_formats": {
+            const { latheLoRAQuantizationOptimizerEngine } = await import("../../engines/LatheLoRAQuantizationOptimizerEngine.js");
+            try {
+              result = {
+                success: true,
+                formats: latheLoRAQuantizationOptimizerEngine.getFormats(),
+                gguf_levels: latheLoRAQuantizationOptimizerEngine.getGGUFLevels(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_reward_config": {
+            const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
+            try {
+              result = { success: true, config: latheLoRARewardShapingEngine.getConfig() };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
