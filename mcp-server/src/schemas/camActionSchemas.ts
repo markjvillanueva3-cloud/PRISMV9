@@ -447,4 +447,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_start_point_optimize: z.object({
     input: z.record(z.string(), z.unknown()).describe("StartPointOptimizationInput - profile + constraints for WEDMStartPointOptimizationEngine.optimize() — returns StartPointOptimizationResult"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch24: tribal runtime + tip learner + transfer learning
+  wedm_tribal_runtime_select: z.object({
+    input: z.record(z.string(), z.unknown()).describe("SelectionContext - tip selection context for WEDMTribalRuntimeEngine.select() — returns SelectionResult with applied tips"),
+  }).passthrough(),
+  wedm_tribal_tip_pending: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{limit?: number=50} for WEDMTribalTipLearnerEngine.getPendingReview() + getStats()"),
+  }).passthrough(),
+  wedm_transfer_learning_apply: z.object({
+    input: z.record(z.string(), z.unknown()).describe("TransferContext - source/target material + machine for WEDMTransferLearningEngine.transfer() — returns TransferResult with adjusted parameters"),
+  }).passthrough(),
 };

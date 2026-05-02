@@ -1201,6 +1201,8 @@ export const ACTIONS = [
   "wedm_scheduling_list_reservations", "wedm_self_awareness_state", "wedm_handoff_pending",
   // WEDM-WIRE-MS0/Batch23: virtual machine twin + reasoning bridge + start point optimizer (3 engines)
   "wedm_virtual_machine_predict", "wedm_reasoning_bridge_enrich", "wedm_start_point_optimize",
+  // WEDM-WIRE-MS0/Batch24: tribal runtime + tip learner + transfer learning (3 engines)
+  "wedm_tribal_runtime_select", "wedm_tribal_tip_pending", "wedm_transfer_learning_apply",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6883,6 +6885,50 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmStartPointOptimizationEngine.optimize(
                 input as Parameters<typeof wedmStartPointOptimizationEngine.optimize>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch24: tribal runtime + tip learner + transfer learning
+          // ============================================================
+          case "wedm_tribal_runtime_select": {
+            const { wedmTribalRuntimeEngine } = await import("../../engines/WEDMTribalRuntimeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (SelectionContext)" }; break; }
+            try {
+              result = wedmTribalRuntimeEngine.select(
+                input as Parameters<typeof wedmTribalRuntimeEngine.select>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_tribal_tip_pending": {
+            const { wedmTribalTipLearnerEngine } = await import("../../engines/WEDMTribalTipLearnerEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const limit = input && typeof input.limit === "number" && input.limit > 0 ? input.limit : 50;
+            try {
+              result = {
+                success: true,
+                pending: wedmTribalTipLearnerEngine.getPendingReview(limit),
+                stats: wedmTribalTipLearnerEngine.getStats(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_transfer_learning_apply": {
+            const { wedmTransferLearningEngine } = await import("../../engines/WEDMTransferLearningEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (TransferContext)" }; break; }
+            try {
+              result = wedmTransferLearningEngine.transfer(
+                input as Parameters<typeof wedmTransferLearningEngine.transfer>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
