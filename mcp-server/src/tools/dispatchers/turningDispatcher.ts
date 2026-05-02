@@ -73,6 +73,8 @@ const ACTIONS = [
   "lathe_print_strategy_plan", "lathe_print_sequence_plan", "lathe_print_setup_select",
   // LATHE-WIRE-MS0/Batch6: post processor + dialect validator + spec ingest
   "lathe_post_process", "lathe_post_dialect_compare", "lathe_post_spec_ingest",
+  // LATHE-WIRE-MS0/Batch7: print pipeline (emit + signoff + ingest)
+  "lathe_print_program_emit", "lathe_print_program_signoff", "lathe_print_ingest",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -650,6 +652,50 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = lathePostGeneratorSpecIngestEngine.ingest(
                 input as Parameters<typeof lathePostGeneratorSpecIngestEngine.ingest>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_print_program_emit": {
+            const { lathePrintProgramEmitterEngine } = await import("../../engines/LathePrintProgramEmitterEngine.js");
+            const program = (params as Record<string, unknown>).program;
+            const options = (params as Record<string, unknown>).options;
+            if (!program || typeof program !== "object") { result = { success: false, error: "program required (ToolpathProgram)" }; break; }
+            if (!options || typeof options !== "object") { result = { success: false, error: "options required (EmitOptions)" }; break; }
+            try {
+              result = lathePrintProgramEmitterEngine.emit(
+                program as Parameters<typeof lathePrintProgramEmitterEngine.emit>[0],
+                options as Parameters<typeof lathePrintProgramEmitterEngine.emit>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_print_program_signoff": {
+            const { lathePrintProgramSignoffEngine } = await import("../../engines/LathePrintProgramSignoffEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (SignoffInput)" }; break; }
+            try {
+              result = lathePrintProgramSignoffEngine.generatePackage(
+                input as Parameters<typeof lathePrintProgramSignoffEngine.generatePackage>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_print_ingest": {
+            const { lathePrintIngestPipelineEngine } = await import("../../engines/LathePrintIngestPipelineEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({raw_text, filename?, format?, page_count?})" }; break; }
+            const rawText = (input as Record<string, unknown>).raw_text;
+            if (typeof rawText !== "string" || rawText.length === 0) { result = { success: false, error: "input.raw_text non-empty string required" }; break; }
+            try {
+              result = lathePrintIngestPipelineEngine.ingest(
+                input as Parameters<typeof lathePrintIngestPipelineEngine.ingest>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

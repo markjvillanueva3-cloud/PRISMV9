@@ -366,4 +366,20 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_post_spec_ingest: z.object({
     input: z.record(z.string(), z.unknown()).describe("SpecIngestionInput — controller spec to ingest into the post-generator catalog"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch7: print pipeline (emit + signoff + ingest)
+  lathe_print_program_emit: z.object({
+    program: z.record(z.string(), z.unknown()).describe("ToolpathProgram — sequence of operations + tool list to emit as G-code"),
+    options: z.record(z.string(), z.unknown()).describe("EmitOptions — formatting, header, comment style, line numbers"),
+  }).passthrough(),
+  lathe_print_program_signoff: z.object({
+    input: z.record(z.string(), z.unknown()).describe("SignoffInput — program + verification artifacts to package for sign-off"),
+  }).passthrough(),
+  lathe_print_ingest: z.object({
+    input: z.object({
+      raw_text: z.string().min(1).describe("Raw blueprint text (from PDF/OCR/DXF/text)"),
+      filename: z.string().optional().describe("Source filename (for diagnostics)"),
+      format: z.enum(["pdf", "image", "dxf", "text"]).optional().describe("Source format hint (defaults to 'text')"),
+      page_count: z.number().int().min(1).optional().describe("Page count if multi-page"),
+    }).passthrough().describe("BlueprintIntake input — raw_text + format hints"),
+  }).passthrough(),
 };
