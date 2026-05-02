@@ -1641,6 +1641,8 @@ export const ACTIONS = [
   "cam_mastercam_edm_route", "cam_mastercam_edm_pick_route_type", "cam_mastercam_edm_skim_passes", "cam_mastercam_edm_stats", "cam_mastercam_edm_audit",
   // CAM-EXHAUST-MS0 U-CAM-MC-GRIND-01 — Mastercam grinding bridge (8 kinds, wheel RPM + grit + spark-out)
   "cam_mastercam_grinding_plan", "cam_mastercam_grinding_wheel_rpm", "cam_mastercam_grinding_cycle_codes", "cam_mastercam_grinding_audit",
+  // CAM-EXHAUST-MS0 U-CAM-MC-SI-01 — Mastercam surface integrity prediction (Ra/Rz + white-layer + residual stress)
+  "cam_mastercam_si_predict", "cam_mastercam_si_validate", "cam_mastercam_si_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13239,6 +13241,25 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_mastercam_grinding_audit": {
             const { MastercamGrindingBridge } = await import("../../engines/MastercamGrindingBridge.js");
             result = MastercamGrindingBridge.auditEngine();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-MC-SI-01: Mastercam surface integrity ──
+          case "cam_mastercam_si_predict": {
+            const { MastercamSurfaceIntegrityBridge } = await import("../../engines/MastercamSurfaceIntegrityBridge.js");
+            const r = params.request as Parameters<typeof MastercamSurfaceIntegrityBridge.predict>[0];
+            result = MastercamSurfaceIntegrityBridge.predict(r);
+            break;
+          }
+          case "cam_mastercam_si_validate": {
+            const { MastercamSurfaceIntegrityBridge } = await import("../../engines/MastercamSurfaceIntegrityBridge.js");
+            const a = params as Parameters<typeof MastercamSurfaceIntegrityBridge.validateAgainstSpec>[0];
+            result = MastercamSurfaceIntegrityBridge.validateAgainstSpec(a);
+            break;
+          }
+          case "cam_mastercam_si_audit": {
+            const { MastercamSurfaceIntegrityBridge } = await import("../../engines/MastercamSurfaceIntegrityBridge.js");
+            result = MastercamSurfaceIntegrityBridge.auditEngine();
             break;
           }
 
