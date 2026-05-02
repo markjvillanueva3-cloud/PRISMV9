@@ -93,6 +93,8 @@ const ACTIONS = [
   "lathe_post_dialect_generate", "lathe_po_build", "lathe_adaptive_record",
   // LATHE-WIRE-MS0/Batch16: AGI continuous learning + feature bridge + safety containment (3 engines)
   "lathe_agi_continuous_record", "lathe_agi_feature_reason", "lathe_agi_safety_check",
+  // LATHE-WIRE-MS0/Batch17: LoRA cadence + dataset stats + drift detection (3 engines)
+  "lathe_lora_cadence_status", "lathe_lora_dataset_stats", "lathe_lora_drift_detect",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1089,6 +1091,48 @@ Actions: ${ACTIONS.join(", ")}.`,
               result = latheAGISafetyContainmentEngine.check(
                 input as Parameters<typeof latheAGISafetyContainmentEngine.check>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch17: LoRA cadence + dataset stats + drift detection
+          // ============================================================
+          case "lathe_lora_cadence_status": {
+            const { latheLoRACadenceEngine } = await import("../../engines/LatheLoRACadenceEngine.js");
+            try {
+              result = {
+                success: true,
+                trigger: latheLoRACadenceEngine.shouldTriggerRun(),
+                state: latheLoRACadenceEngine.getState(),
+                config: latheLoRACadenceEngine.getConfig(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_dataset_stats": {
+            const { latheLoRADatasetBuilderEngine } = await import("../../engines/LatheLoRADatasetBuilderEngine.js");
+            try {
+              result = { success: true, stats: latheLoRADatasetBuilderEngine.getStats() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_drift_detect": {
+            const { latheLoRADriftDetectorEngine } = await import("../../engines/LatheLoRADriftDetectorEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const modelId = input && typeof input.modelId === "string" ? input.modelId : "";
+            if (!modelId) { result = { success: false, error: "input.modelId (string) required" }; break; }
+            try {
+              result = {
+                success: true,
+                detections: latheLoRADriftDetectorEngine.detectDrift(modelId),
+                needs_retraining: latheLoRADriftDetectorEngine.needsRetraining(modelId),
+              };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

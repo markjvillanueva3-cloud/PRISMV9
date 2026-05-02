@@ -478,4 +478,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_agi_safety_check: z.object({
     input: z.record(z.string(), z.unknown()).describe("SafetyCheckInput — candidates (speed_feed/quote/schedule/kinematic) for LatheAGISafetyContainmentEngine.check() — returns SafetyReport"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch17: LoRA cadence + dataset stats + drift detection
+  lathe_lora_cadence_status: z.object({}).passthrough().describe("No input — returns LatheLoRACadenceEngine.shouldTriggerRun() + getState() + getConfig() snapshot"),
+  lathe_lora_dataset_stats: z.object({}).passthrough().describe("No input — returns LatheLoRADatasetBuilderEngine.getStats() — DatasetStats with example counts + format breakdown"),
+  lathe_lora_drift_detect: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{modelId: string} — runs LatheLoRADriftDetectorEngine.detectDrift() + needsRetraining() for the model"),
+  }).passthrough(),
 };
