@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 42 ops total at Phase 1 2/8 (wireframe + solid)", () => {
+    it("listAllOperations equals 58 ops total at Phase 1 3/8 (wireframe + solid + surface)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(42);
+      expect(all.length).toBe(58);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,9 +344,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 293 parameters across all 42 ops (153 wireframe + 140 solid)", () => {
+    it("counts exactly 403 parameters across all 58 ops (153 wireframe + 140 solid + 110 surface)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(293);
+      expect(total).toBe(403);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -368,15 +368,24 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(solidTotal).toBe(140);
       expect(solidDeclared).toBe(140);
 
+      const surfaceTotal = sumParamsForModule("surface_operations");
+      const surfaceDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("surface_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(surfaceTotal).toBe(110);
+      expect(surfaceDeclared).toBe(110);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        wireframeTotal + solidTotal,
+        wireframeTotal + solidTotal + surfaceTotal,
       );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (2 of 8 modules shipped)", () => {
+    it("api_surface.coverage_state is exactly 'PARTIAL' (3 of 8 modules shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
@@ -388,17 +397,16 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 6 (2/8 shipped)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 5 (3/8 shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(6);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(5);
     });
 
-    it("api_surface.phase_1_modules_pending lists the 6 unbuilt modules in shipping order", () => {
+    it("api_surface.phase_1_modules_pending lists the 5 unbuilt modules in shipping order", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.phase_1_modules_pending).toEqual([
-        "surface_operations",
         "drafting_operations",
         "transformation_operations",
         "analysis_operations",
@@ -423,7 +431,7 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(6);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(5);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -652,6 +660,230 @@ describe("MastercamCADFunctionIndexEngine", () => {
       );
       const spaceParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Spacing");
       expect(spaceParam?.options).toEqual(["equal", "incremental"]);
+    });
+  });
+
+  describe("surface_operations catalog (U-CAD-FIDX-MC-03)", () => {
+    const KNOWN_SURFACE_OPS = [
+      "SURFACE_LOFT",
+      "SURFACE_SWEEP",
+      "SURFACE_REVOLVE",
+      "SURFACE_RULED",
+      "SURFACE_DRAFT",
+      "SURFACE_NET",
+      "SURFACE_PRIMITIVE",
+      "SURFACE_FROM_SOLID",
+      "SURFACE_TRIM",
+      "SURFACE_EXTEND",
+      "SURFACE_FILLET_FACE_FACE",
+      "SURFACE_BLEND",
+      "SURFACE_OFFSET",
+      "SURFACE_KNIT",
+      "SURFACE_UNTRIM",
+      "SURFACE_SPLIT",
+    ];
+
+    const SWEEP_GENERATION_OPS = [
+      "SURFACE_LOFT",
+      "SURFACE_SWEEP",
+      "SURFACE_REVOLVE",
+      "SURFACE_RULED",
+      "SURFACE_DRAFT",
+      "SURFACE_NET",
+    ];
+
+    const MODIFY_OPS = [
+      "SURFACE_TRIM",
+      "SURFACE_EXTEND",
+      "SURFACE_FILLET_FACE_FACE",
+      "SURFACE_BLEND",
+      "SURFACE_OFFSET",
+      "SURFACE_KNIT",
+      "SURFACE_UNTRIM",
+      "SURFACE_SPLIT",
+    ];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("surface_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-03'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("surface_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-03");
+    });
+
+    it("operations dict has exactly 16 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("surface_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(16);
+    });
+
+    it("listOperations returns exactly the 16 expected surface ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("surface_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_SURFACE_OPS].sort());
+    });
+
+    it("every operation reports a Surface_-prefixed category", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("surface_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Surface_")).toBe(true);
+      }
+    });
+
+    it("SWEEP_GENERATION_OPS span all 6 generation subcategories (Surface_Sweep_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("surface_operations");
+      const sweepCategories = ops
+        .filter((op) => SWEEP_GENERATION_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(sweepCategories).toEqual([
+        "Surface_Sweep_Draft",
+        "Surface_Sweep_Loft",
+        "Surface_Sweep_Net",
+        "Surface_Sweep_Revolve",
+        "Surface_Sweep_Ruled",
+        "Surface_Sweep_Sweep",
+      ]);
+    });
+
+    it("MODIFY_OPS span all 8 modify subcategories (Surface_Modify_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("surface_operations");
+      const modifyCategories = ops
+        .filter((op) => MODIFY_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(modifyCategories).toEqual([
+        "Surface_Modify_Blend",
+        "Surface_Modify_Extend",
+        "Surface_Modify_FilletFaceFace",
+        "Surface_Modify_Knit",
+        "Surface_Modify_Offset",
+        "Surface_Modify_Split",
+        "Surface_Modify_Trim",
+        "Surface_Modify_Untrim",
+      ]);
+    });
+
+    it("SURFACE_BLEND Continuity 1 + Continuity 2 each support G0/G1/G2/G3 independently", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_BLEND",
+      );
+      const c1 = op?.tabs?.Continuity?.parameters?.find((p) => p.name === "Continuity 1");
+      const c2 = op?.tabs?.Continuity?.parameters?.find((p) => p.name === "Continuity 2");
+      expect(c1?.options).toEqual(["G0", "G1", "G2", "G3"]);
+      expect(c2?.options).toEqual(["G0", "G1", "G2", "G3"]);
+    });
+
+    it("SURFACE_FILLET_FACE_FACE Continuity supports G1/G2/G3 (failure mode: G2 minimum for class-A surfacing)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_FILLET_FACE_FACE",
+      );
+      const contParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Continuity");
+      expect(contParam?.options).toEqual(["G1", "G2", "G3"]);
+    });
+
+    it("SURFACE_FILLET_FACE_FACE Roll Direction covers all 4 reverse permutations", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_FILLET_FACE_FACE",
+      );
+      const rollParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Roll Direction");
+      expect(rollParam?.options).toEqual([
+        "natural",
+        "reverse_1",
+        "reverse_2",
+        "reverse_both",
+      ]);
+    });
+
+    it("SURFACE_PRIMITIVE Type covers 5 classical primitives", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_PRIMITIVE",
+      );
+      const typeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual(["box", "cylinder", "cone", "sphere", "torus"]);
+    });
+
+    it("SURFACE_TRIM Keep Side supports positive/negative/both (failure mode: trim direction)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("surface_operations", "SURFACE_TRIM");
+      const sideParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Keep Side");
+      expect(sideParam?.options).toEqual(["positive", "negative", "both"]);
+    });
+
+    it("SURFACE_EXTEND Continuity supports G0/G1/G2 (failure mode: extension continuity)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_EXTEND",
+      );
+      const contParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Continuity");
+      expect(contParam?.options).toEqual(["G0", "G1", "G2"]);
+    });
+
+    it("SURFACE_KNIT Output As Solid + Manifold Check expose closed-set conversion path", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("surface_operations", "SURFACE_KNIT");
+      const solidParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Output As Solid");
+      const manifoldParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Manifold Check");
+      expect(solidParam?.type).toBe("checkbox");
+      expect(manifoldParam?.type).toBe("checkbox");
+      expect(manifoldParam?.default).toBe(true);
+    });
+
+    it("SURFACE_NET U Tangency + V Tangency each support G0/G1/G2", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("surface_operations", "SURFACE_NET");
+      const u = op?.tabs?.Shape?.parameters?.find((p) => p.name === "U Tangency");
+      const v = op?.tabs?.Shape?.parameters?.find((p) => p.name === "V Tangency");
+      expect(u?.options).toEqual(["G0", "G1", "G2"]);
+      expect(v?.options).toEqual(["G0", "G1", "G2"]);
+    });
+
+    it("SURFACE_BLEND Bias is bounded 0..1 (failure mode: blend bias range)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_BLEND",
+      );
+      const biasParam = op?.tabs?.Continuity?.parameters?.find((p) => p.name === "Bias");
+      expect(biasParam?.min).toBe(0);
+      expect(biasParam?.max).toBe(1);
+      expect(biasParam?.default).toBe(0.5);
+    });
+
+    it("SURFACE_SPLIT Result Mode supports two_surfaces vs one_with_seam", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_SPLIT",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Result Mode");
+      expect(modeParam?.options).toEqual(["two_surfaces", "one_with_seam"]);
+    });
+
+    it("returns null for unknown surface op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation("surface_operations", "TELEPORT_SURFACE"),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Bias' on SURFACE_BLEND in Continuity tab (adversarial: cross-tab param)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "surface_operations",
+        "SURFACE_BLEND",
+        "Bias",
+      );
+      expect(loc?.parameter.name).toBe("Bias");
+      expect(loc?.tab_id).toBe("Continuity");
+    });
+
+    it("SURFACE_OFFSET Side selector supports outside/inside/both (adversarial: offset direction)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "surface_operations",
+        "SURFACE_OFFSET",
+      );
+      const sideParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Side");
+      expect(sideParam?.options).toEqual(["outside", "inside", "both"]);
     });
   });
 });

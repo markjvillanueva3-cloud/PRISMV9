@@ -1,0 +1,349 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Surface Operations — Surface modeling layer",
+    "description": "Parameter catalog for the Mastercam CAD surface modeling layer. Surfaces are built from wireframe curves via 6 generation methods (loft / sweep / revolve / ruled / draft / net), populated with primitive shapes, extracted from solid faces, then modified through trim / extend / offset / split / untrim, joined via knit, blended/filleted across faces with G0..G3 continuity, and validated for closure. Catalog covers 16 operations / 110 parameters. Bindings target Mastercam .NET-Hook API (Mastercam.Surfaces namespace) and the C-Hook ChooseAndPick surface for ops not yet exposed in .NET.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-03",
+    "source": "Mastercam 2024 Reference — Surfaces ribbon; Mastercam .NET-Hook API Reference (Mastercam.Surfaces / Mastercam.Operations.Surface)",
+    "totalParameters": 110,
+    "operationCount": 16,
+    "cad_concepts_used": [
+      "PARAMETRIC_SWEEP",
+      "RULED_SURFACE",
+      "NET_SURFACE",
+      "SURFACE_CONTINUITY",
+      "SURFACE_BLENDING",
+      "TRIM_BOUNDARY",
+      "STITCH_TOLERANCE",
+      "OFFSET_NORMAL",
+      "G0_G1_G2_G3_CONTINUITY",
+      "MANIFOLD_VALIDATION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam surface operations",
+    "tabs": ["Shape", "Continuity"]
+  },
+  "operations": {
+    "SURFACE_LOFT": {
+      "description": "Loft a surface through 2+ profiles. Optional guide curves shape the surface. Tangent mode controls boundary tangency; closed mode loops back to first profile; refit smooths the lofted surface to a single NURBS sheet.",
+      "category": "Surface_Sweep_Loft",
+      "mastercam_command": "SurfaceLoft",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceLofter.Loft",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile List", "type": "selection", "description": "Ordered profile sequence (2+ profiles)", "required": true},
+            {"name": "Guide Curves", "type": "selection", "description": "Optional shaping guides"},
+            {"name": "Tangent Mode", "type": "dropdown", "options": ["natural", "specified", "normal_to_profile"], "default": "natural"},
+            {"name": "Closed", "type": "checkbox", "default": false},
+            {"name": "Lock Continuity", "type": "dropdown", "options": ["none", "G1", "G2"], "default": "none"},
+            {"name": "Refit", "type": "checkbox", "default": false},
+            {"name": "Auto-Update", "type": "checkbox", "default": true},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "SURFACE_SWEEP": {
+      "description": "Sweep a profile curve along a guide path to generate a surface. Twist adds rotation; lock-to-profile keeps the cross-section orthogonal to the path. Output type selects open surface vs closed (capped) form.",
+      "category": "Surface_Sweep_Sweep",
+      "mastercam_command": "SurfaceSweep",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceSweeper.Sweep",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Path", "type": "selection", "description": "Guide curve(s)", "required": true},
+            {"name": "Twist", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Continuity", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G1"},
+            {"name": "Lock To Profile", "type": "checkbox", "default": false},
+            {"name": "Auto-Update", "type": "checkbox", "default": true},
+            {"name": "Profile Plane", "type": "selection"},
+            {"name": "Output Type", "type": "dropdown", "options": ["surface_only", "closed_set"], "default": "surface_only"}
+          ]
+        }
+      }
+    },
+    "SURFACE_REVOLVE": {
+      "description": "Revolve a profile curve about an axis to create a surface of revolution. Sweep angle controls partial vs full revolution. Closed Surface option caps the ends to form a closed envelope.",
+      "category": "Surface_Sweep_Revolve",
+      "mastercam_command": "SurfaceRevolve",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceRevolver.Revolve",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "required": true},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Symmetric", "type": "checkbox", "default": false},
+            {"name": "Closed Surface", "type": "checkbox", "description": "Cap ends if sweep_angle < 360", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_RULED": {
+      "description": "Ruled surface between two curves — straight-line ruling at every parametric station. Match Endpoints aligns curve start/end (else automatic). Output type selects single sheet or multi-patch.",
+      "category": "Surface_Sweep_Ruled",
+      "mastercam_command": "SurfaceRuled",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceRuler.Create",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Curve 1", "type": "selection", "required": true},
+            {"name": "Curve 2", "type": "selection", "required": true},
+            {"name": "Tangency Mode", "type": "dropdown", "options": ["natural", "specified", "force_match"], "default": "natural"},
+            {"name": "Match Endpoints", "type": "checkbox", "default": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["single_sheet", "multi_patch"], "default": "single_sheet"},
+            {"name": "Direction", "type": "dropdown", "options": ["forward", "reverse"], "default": "forward"}
+          ]
+        }
+      }
+    },
+    "SURFACE_DRAFT": {
+      "description": "Draft surface — sweep a generator curve through space at a draft angle. Used to produce molded sidewalls, gravity-flow surfaces, and inclined sheets.",
+      "category": "Surface_Sweep_Draft",
+      "mastercam_command": "SurfaceDraft",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceDrafter.Create",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Generator Curve", "type": "selection", "required": true},
+            {"name": "Direction", "type": "selection", "description": "Draft direction (vector or axis)", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -89, "max": 89},
+            {"name": "Tangent Propagation", "type": "checkbox", "default": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["single_sheet", "multi_patch"], "default": "single_sheet"},
+            {"name": "Reference Plane", "type": "selection", "description": "Override plane (default: generator's sketch plane)"}
+          ]
+        }
+      }
+    },
+    "SURFACE_NET": {
+      "description": "Net surface from a u-curve grid + v-curve grid. Each parametric station is constrained by the u/v intersection. Tolerance controls fitting precision; refit produces a single NURBS sheet.",
+      "category": "Surface_Sweep_Net",
+      "mastercam_command": "SurfaceNet",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceNetter.Create",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "U-Curves", "type": "selection", "description": "Curves running in U direction", "required": true},
+            {"name": "V-Curves", "type": "selection", "description": "Curves running in V direction", "required": true},
+            {"name": "U Tangency", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G0"},
+            {"name": "V Tangency", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G0"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Refit", "type": "checkbox", "default": false},
+            {"name": "Output Type", "type": "dropdown", "options": ["nurbs", "polysurface"], "default": "nurbs"}
+          ]
+        }
+      }
+    },
+    "SURFACE_PRIMITIVE": {
+      "description": "Parametric primitive surface: box (faces only — open or closed set), cylinder, cone, sphere, or torus. Output type selects single surface (e.g. cylinder side) vs closed set (cylinder including caps).",
+      "category": "Surface_Primitive",
+      "mastercam_command": "SurfacePrimitive",
+      "mastercam_api": "Mastercam.Surfaces.SurfacePrimitive.Create",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["box", "cylinder", "cone", "sphere", "torus"], "required": true, "default": "box"},
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Width", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Inner Radius", "type": "numeric", "unit": "mm", "description": "Cone-top / torus-tube", "min": 0},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Output Type", "type": "dropdown", "options": ["surface_only", "closed_set"], "default": "surface_only"}
+          ]
+        }
+      }
+    },
+    "SURFACE_FROM_SOLID": {
+      "description": "Extract a surface from a face of an existing solid body. Heal Boundary mends small gaps along the extracted edge. Convert To NURBS produces a single rational sheet rather than a B-rep face.",
+      "category": "Surface_Convert_FromSolid",
+      "mastercam_command": "SurfaceFromSolid",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceFromSolid.Extract",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Face", "type": "selection", "description": "Face on solid body to extract", "required": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["surface", "polysurface"], "default": "surface"},
+            {"name": "Heal Boundary", "type": "checkbox", "default": true},
+            {"name": "Convert To NURBS", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001}
+          ]
+        }
+      }
+    },
+    "SURFACE_TRIM": {
+      "description": "Trim a surface to a boundary defined by curves on the surface. Keep Side selects which side of the boundary survives. Multi-boundary mode supports trimming with multiple boundary curves simultaneously.",
+      "category": "Surface_Modify_Trim",
+      "mastercam_command": "SurfaceTrim",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceTrim.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "required": true},
+            {"name": "Boundary Curves", "type": "selection", "required": true},
+            {"name": "Keep Side", "type": "dropdown", "options": ["positive", "negative", "both"], "default": "positive"},
+            {"name": "Untrimmable Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Multi-Boundary", "type": "checkbox", "default": false},
+            {"name": "Lock Boundary", "type": "checkbox", "description": "Maintain trim through subsequent edits", "default": true},
+            {"name": "Cut-Through Mode", "type": "dropdown", "options": ["surface_only", "punch_through"], "default": "surface_only"}
+          ]
+        }
+      }
+    },
+    "SURFACE_EXTEND": {
+      "description": "Extend a surface beyond an existing edge. Continuity controls how the extension blends with the source surface (G0 = position only, G1 = tangent, G2 = curvature).",
+      "category": "Surface_Modify_Extend",
+      "mastercam_command": "SurfaceExtend",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceExtend.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "required": true},
+            {"name": "Edge", "type": "selection", "description": "Edge to extend from", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Continuity", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G1"},
+            {"name": "Direction", "type": "dropdown", "options": ["natural", "specified"], "default": "natural"},
+            {"name": "Reverse", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_FILLET_FACE_FACE": {
+      "description": "Fillet between two surfaces (face-face fillet — does not require a shared edge). Continuity G1/G2/G3 controls how the fillet blends with both source surfaces. Trim Sources removes overhanging surface portions; Roll Direction inverts which side of each surface the fillet rolls on.",
+      "category": "Surface_Modify_FilletFaceFace",
+      "mastercam_command": "SurfaceFilletFaceFace",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceFillet.FaceFace",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface 1", "type": "selection", "required": true},
+            {"name": "Surface 2", "type": "selection", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Continuity", "type": "dropdown", "options": ["G1", "G2", "G3"], "default": "G1"},
+            {"name": "Trim Sources", "type": "checkbox", "default": true},
+            {"name": "Roll Direction", "type": "dropdown", "options": ["natural", "reverse_1", "reverse_2", "reverse_both"], "default": "natural"},
+            {"name": "Extension Mode", "type": "dropdown", "options": ["natural", "tangent", "linear"], "default": "natural"},
+            {"name": "Tangent Propagation", "type": "checkbox", "default": true},
+            {"name": "Keep Surfaces", "type": "checkbox", "description": "Preserve source surfaces post-fillet", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_BLEND": {
+      "description": "Blend surface bridging two source edges with controllable continuity per side (G0..G3 independently). Bias controls how the blend leans toward source 1 vs source 2 (0..1). Tangent Strength multiplies the tangency magnitude (1.0 = natural).",
+      "category": "Surface_Modify_Blend",
+      "mastercam_command": "SurfaceBlend",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceBlend.Create",
+      "parameterCount": 8,
+      "tabs": {
+        "Continuity": {
+          "parameters": [
+            {"name": "Source 1 Edge", "type": "selection", "required": true},
+            {"name": "Source 2 Edge", "type": "selection", "required": true},
+            {"name": "Continuity 1", "type": "dropdown", "options": ["G0", "G1", "G2", "G3"], "default": "G1"},
+            {"name": "Continuity 2", "type": "dropdown", "options": ["G0", "G1", "G2", "G3"], "default": "G1"},
+            {"name": "Bias", "type": "numeric", "description": "0..1 bias toward source 1 vs source 2", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Tangent Strength", "type": "numeric", "description": "Tangency magnitude multiplier", "default": 1, "min": 0.01, "max": 10},
+            {"name": "Refit", "type": "checkbox", "default": false},
+            {"name": "Output Type", "type": "dropdown", "options": ["nurbs", "polysurface"], "default": "nurbs"}
+          ]
+        }
+      }
+    },
+    "SURFACE_OFFSET": {
+      "description": "Offset a surface by a normal-direction distance. Side controls outside / inside / both directions. Auto-heal repairs small gaps that develop in highly-curved regions during offset.",
+      "category": "Surface_Modify_Offset",
+      "mastercam_command": "SurfaceOffset",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceOffset.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Direction", "type": "selection", "description": "Optional override (default: surface normal)"},
+            {"name": "Side", "type": "dropdown", "options": ["outside", "inside", "both"], "default": "outside"},
+            {"name": "Auto-Heal", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Reverse Normal", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_KNIT": {
+      "description": "Knit (stitch) multiple surfaces into a single connected surface set. Tolerance controls how close edges must be to be considered shared. Output As Solid attempts to close the surface set into a solid body if topologically closed; Manifold Check validates the result.",
+      "category": "Surface_Modify_Knit",
+      "mastercam_command": "SurfaceKnit",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceKnit.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection", "description": "Surfaces to knit", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Auto-Heal", "type": "checkbox", "default": true},
+            {"name": "Output As Solid", "type": "checkbox", "description": "Convert to solid body if closed", "default": false},
+            {"name": "Force Closed", "type": "checkbox", "description": "Cap any open holes during knit", "default": false},
+            {"name": "Manifold Check", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_UNTRIM": {
+      "description": "Restore the original untrimmed boundary of a surface. Inverse of SURFACE_TRIM.",
+      "category": "Surface_Modify_Untrim",
+      "mastercam_command": "SurfaceUntrim",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceTrim.Untrim",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "required": true},
+            {"name": "Restore Original", "type": "checkbox", "description": "Restore underlying parametric boundary", "default": true},
+            {"name": "Reset Trims", "type": "checkbox", "description": "Discard all trim data", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "SURFACE_SPLIT": {
+      "description": "Split a surface along a curve into two surfaces. Result mode controls whether the result is two independent surfaces or one surface with an internal seam.",
+      "category": "Surface_Modify_Split",
+      "mastercam_command": "SurfaceSplit",
+      "mastercam_api": "Mastercam.Surfaces.SurfaceSplit.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "required": true},
+            {"name": "Splitting Curve", "type": "selection", "required": true},
+            {"name": "Keep Both Sides", "type": "checkbox", "default": true},
+            {"name": "Result Mode", "type": "dropdown", "options": ["two_surfaces", "one_with_seam"], "default": "two_surfaces"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001},
+            {"name": "Auto-Heal", "type": "checkbox", "default": true},
+            {"name": "Trim Method", "type": "dropdown", "options": ["natural", "force_perpendicular"], "default": "natural"}
+          ]
+        }
+      }
+    }
+  }
+}
