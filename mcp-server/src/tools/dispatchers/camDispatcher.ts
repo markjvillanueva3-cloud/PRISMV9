@@ -1627,6 +1627,8 @@ export const ACTIONS = [
   "cam_fusion360_safety_validate", "cam_fusion360_safety_validate_all", "cam_fusion360_safety_rules", "cam_fusion360_safety_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-MAT-01 — Fusion 360 material bridge (24 materials, ISO-grouped)
   "cam_fusion360_material_list", "cam_fusion360_material_lookup", "cam_fusion360_material_search", "cam_fusion360_material_by_iso", "cam_fusion360_material_kienzle", "cam_fusion360_material_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-PROBE-01 — Fusion 360 probing bridge (13 ops, Renishaw/Blum macro vocab)
+  "cam_fusion360_probing_list", "cam_fusion360_probing_lookup", "cam_fusion360_probing_validate", "cam_fusion360_probing_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13033,6 +13035,30 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_material_audit": {
             const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
             result = Fusion360MaterialBridgeEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-PROBE-01: Fusion 360 probing bridge ──
+          case "cam_fusion360_probing_list": {
+            const { Fusion360ProbingBridgeEngine } = await import("../../engines/Fusion360ProbingBridgeEngine.js");
+            result = { operations: Fusion360ProbingBridgeEngine.list() };
+            break;
+          }
+          case "cam_fusion360_probing_lookup": {
+            const { Fusion360ProbingBridgeEngine } = await import("../../engines/Fusion360ProbingBridgeEngine.js");
+            const id = params.id as string;
+            result = { id, operation: Fusion360ProbingBridgeEngine.lookup(id) };
+            break;
+          }
+          case "cam_fusion360_probing_validate": {
+            const { Fusion360ProbingBridgeEngine } = await import("../../engines/Fusion360ProbingBridgeEngine.js");
+            const args = params as Parameters<typeof Fusion360ProbingBridgeEngine.validateProbeParams>[0];
+            result = Fusion360ProbingBridgeEngine.validateProbeParams(args);
+            break;
+          }
+          case "cam_fusion360_probing_audit": {
+            const { Fusion360ProbingBridgeEngine } = await import("../../engines/Fusion360ProbingBridgeEngine.js");
+            result = Fusion360ProbingBridgeEngine.auditCatalog();
             break;
           }
 
