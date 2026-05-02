@@ -48,10 +48,10 @@ function getSessionId(hookInput) {
   return `host-${hostname()}`;
 }
 
-function git(args) {
+function git(args, cwd = REPO) {
   try {
     return execFileSync("git", args, {
-      cwd: REPO,
+      cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 10000,
@@ -77,8 +77,12 @@ function saveOwnership(state) {
   } catch { /* non-fatal */ }
 }
 
-function getStagedFiles() {
-  const result = git(["diff", "--cached", "--name-only"]);
+function getStagedFiles(cwd) {
+  // FIX 2026-05-02: read staged index from the ACTUAL commit CWD (which may be
+  // a worktree like H:/prism-cad-sw-fidx/), not the hardcoded H:/prism main repo.
+  // Without this, worktree commits get false-positive-blocked when H:/prism's
+  // own index has unrelated foreign-claimed files staged by another session.
+  const result = git(["diff", "--cached", "--name-only"], cwd);
   if (!result) return [];
   return result.split("\n").filter(f => f.trim());
 }
@@ -108,8 +112,15 @@ function main() {
   const state = loadOwnership();
   const now = Date.now();
 
-  // Get staged files
-  const staged = getStagedFiles();
+  // Resolve commit CWD from hook payload (Claude Code passes the Bash CWD).
+  // Fall back to the hardcoded REPO when missing — preserves prior behavior
+  // for direct/test invocations that don't carry a cwd field.
+  const commitCwd = (typeof hookInput.cwd === "string" && hookInput.cwd.length > 0)
+    ? hookInput.cwd
+    : REPO;
+
+  // Get staged files (from the actual commit CWD, not the hardcoded REPO)
+  const staged = getStagedFiles(commitCwd);
   if (staged.length === 0) {
     console.log(JSON.stringify({ continue: true }));
     return;
