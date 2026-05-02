@@ -498,4 +498,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     input: z.record(z.string(), z.unknown()).describe("LoRAExample | TrainingExample for LatheLoRADatasetValidatorEngine.validateSingle() — returns ValidationIssue[]"),
   }).passthrough(),
   lathe_lora_example_gen_stats: z.object({}).passthrough().describe("No input — returns LatheLoRAExampleGeneratorEngine.getStats() — GenerationStats with counts + timing"),
+  // LATHE-WIRE-MS0/Batch20: ensemble voter + embedding cache + AGI KG
+  lathe_lora_ensemble_vote: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{predictions: ModelPrediction[], strategy?: VotingStrategy} for LatheLoRAEnsembleVoterEngine.vote() — returns VotingResult with consensus + weights"),
+  }).passthrough(),
+  lathe_lora_embedding_stats: z.object({}).passthrough().describe("No input — returns LatheLoRAEmbeddingCacheEngine.getStats() — CacheStats with hit/miss + entry counts"),
+  lathe_agi_kg_query: z.object({
+    input: z.record(z.string(), z.unknown()).describe("QueryInput - {nodeType?, edgeType?, filter?} for LatheAGIKnowledgeUnificationEngine.query() — returns QueryResult"),
+  }).passthrough(),
 };

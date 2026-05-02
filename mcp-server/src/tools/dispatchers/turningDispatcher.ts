@@ -99,6 +99,8 @@ const ACTIONS = [
   "lathe_lora_refinement_start", "lathe_lora_deploy_register", "lathe_lora_benchmark_test_cases",
   // LATHE-WIRE-MS0/Batch19: LoRA attention + validator + example generator (3 engines)
   "lathe_lora_attention_stats", "lathe_lora_dataset_validate_one", "lathe_lora_example_gen_stats",
+  // LATHE-WIRE-MS0/Batch20: ensemble voter + embedding cache + AGI knowledge graph (3 engines)
+  "lathe_lora_ensemble_vote", "lathe_lora_embedding_stats", "lathe_agi_kg_query",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1220,6 +1222,49 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { latheLoRAExampleGeneratorEngine } = await import("../../engines/LatheLoRAExampleGeneratorEngine.js");
             try {
               result = { success: true, stats: latheLoRAExampleGeneratorEngine.getStats() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch20: ensemble voter + embedding cache + AGI KG
+          // ============================================================
+          case "lathe_lora_ensemble_vote": {
+            const { latheLoRAEnsembleVoterEngine } = await import("../../engines/LatheLoRAEnsembleVoterEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({predictions, strategy?})" }; break; }
+            const predictions = Array.isArray(input.predictions) ? input.predictions : null;
+            if (!predictions) {
+              result = { success: false, error: "input.predictions (ModelPrediction[]) required" };
+              break;
+            }
+            try {
+              result = latheLoRAEnsembleVoterEngine.vote(
+                predictions as Parameters<typeof latheLoRAEnsembleVoterEngine.vote>[0],
+                input.strategy as Parameters<typeof latheLoRAEnsembleVoterEngine.vote>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_embedding_stats": {
+            const { latheLoRAEmbeddingCacheEngine } = await import("../../engines/LatheLoRAEmbeddingCacheEngine.js");
+            try {
+              result = { success: true, stats: latheLoRAEmbeddingCacheEngine.getStats() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_agi_kg_query": {
+            const { latheAGIKnowledgeUnificationEngine } = await import("../../engines/LatheAGIKnowledgeUnificationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            try {
+              result = latheAGIKnowledgeUnificationEngine.query(
+                (input && typeof input === "object" ? input : {}) as Parameters<typeof latheAGIKnowledgeUnificationEngine.query>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
