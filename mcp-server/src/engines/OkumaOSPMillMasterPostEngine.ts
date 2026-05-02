@@ -48,6 +48,25 @@ import {
 } from "../physics/constants.js";
 import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
 import { controllerDialectEngine } from "./ControllerDialectEngine.js";
+import { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
+import { machineStrategyConstraintEngine } from "./MachineStrategyConstraintEngine.js";
+
+/** Map ISO machinability group → coarse material name accepted by AutoSpeedFeed. */
+const ISO_GROUP_TO_AUTO_SF_MATERIAL: Record<ISOGroup, string> = {
+  P: "steel",
+  M: "stainless_steel",
+  K: "cast_iron",
+  N: "aluminum",
+  S: "superalloy",
+  H: "hardened_steel",
+};
+
+/** Map MachineCapabilities.rigidity_class → AutoSpeedFeedInput.machine_rigidity (3-band). */
+function rigidityToAutoSF(r: string | undefined): "low" | "medium" | "high" {
+  if (r === "low") return "low";
+  if (r === "ultra_high" || r === "high") return "high";
+  return "medium";
+}
 
 // ============================================================================
 // TYPES
@@ -109,6 +128,18 @@ export interface OkumaOSPMillPostConfig {
    *  HARD-RESERVED: the engine throws if `work_offset_index === fixture_offset_wcs`
    *  (operator must never assign the macro slot manually — matches `.cps:2953-2954`). */
   fixture_offset_wcs?: number;
+  /** Enable post-emission advanced-pipeline pass. When true, `generateProgramAdvanced()`
+   *  threads the base G-code through `autoSpeedFeedEngine.optimize()` for chip-thinning,
+   *  corner deceleration, and physics-aware S/F per cutting line. Default false (the
+   *  sync `generateProgram()` path is unchanged). */
+  use_advanced_features?: boolean;
+  /** Machine id from `MachineStrategyConstraintEngine` (e.g. `jmdie_okuma_genos_m460v_5ax`)
+   *  used to load the compounding capability context (rigidity, ways, spindle, taper)
+   *  fed to the AutoSpeedFeed optimizer. */
+  machine_id?: string;
+  /** Aggressiveness for the AutoSpeedFeed pass. 0.0 (conservative) → 1.0 (push limits).
+   *  Default 0.5. Ignored unless `use_advanced_features` is true. */
+  advanced_aggressiveness?: number;
 }
 
 /**
@@ -178,6 +209,27 @@ export interface MillOperation {
   rotary_c_deg?: number;
 }
 
+export interface AdvancedPipelineSummary {
+  /** AutoSpeedFeedEngine post-pass results — non-null when feature ran. */
+  auto_speed_feed: {
+    lines_modified: number;
+    tools_processed: number;
+    avg_feed_change_pct: number;
+    time_savings_pct: number;
+    chip_thinning_adjustments: number;
+    corner_decelerations: number;
+  } | null;
+  /** Machine context loaded from MachineStrategyConstraintEngine. */
+  machine_used: {
+    id: string;
+    name: string;
+    atc: number;
+    rigidity_class: string | undefined;
+    ways_type: string | undefined;
+    spindle_type: string | undefined;
+  } | null;
+}
+
 export interface OkumaOSPMillPostOutput {
   gcode: string[];
   program_number: number;
@@ -193,6 +245,13 @@ export interface OkumaOSPMillPostOutput {
     limit?: number;
   }>;
   tribal_tips_applied: string[];
+  /** Advanced-pipeline output — populated only when `generateProgramAdvanced` is called
+   *  with `use_advanced_features: true`. Sync `generateProgram()` returns null here. */
+  advanced_features_applied?: string[];
+  /** Optimized G-code emitted by AutoSpeedFeed when advanced pipeline ran. Otherwise null. */
+  optimized_gcode?: string[] | null;
+  /** Per-engine advanced summary. Null when advanced pipeline did not run. */
+  advanced_summary?: AdvancedPipelineSummary | null;
   /**
    * Per-block S/F annotations (schema 1.1.0). One entry per operation,
    * keyed by the Nxxx label emitted on the spindle-start line. Caller
@@ -828,6 +887,117 @@ export class OkumaOSPMillMasterPostEngine {
         "G65 P88xx Renishaw probing",
         ...(family === "P500" ? ["Super-NURBS (G05.1 Q1)", "5-axis TCPC (G43.5)"] : []),
       ],
+    };
+  }
+
+  /**
+   * Advanced-pipeline post-emission pass.
+   *
+   * Threads the base sync `generateProgram()` output through PRISM's existing
+   * advanced engines so the master post benefits from features the user has
+   * already built but had not yet been wired in:
+   *
+   *   1. `autoSpeedFeedEngine.optimize()` — physics-aware S/F per cutting line:
+   *        chip thinning compensation, corner deceleration, plunge feed limits,
+   *        spindle-power-aware ceiling, machine-rigidity-band-aware aggressiveness.
+   *        Uses MachineStrategyConstraintEngine for the compounding context
+   *        (rigidity_class, ways_type, spindle_type → AutoSpeedFeedInput).
+   *
+   * Future passes (intentionally additive — extend this method, never replace):
+   *   2. `rapidRepositionOptEngine.*` — feature sequencing, retract optimization,
+   *        air-cut detection, magazine-aware tool-change reordering.
+   *   3. `advancedPostProcessorEngine.enhance()` — HSM/NURBS interpolation,
+   *        adaptive clearing, RTCP, in-process measurement integration.
+   *
+   * Sync `generateProgram()` is unchanged and remains the canonical contract;
+   * this method is opt-in via `cfg.use_advanced_features = true` and returns
+   * the SAME shape augmented with `optimized_gcode` + `advanced_summary`.
+   *
+   * @milestone PPG-WIRE-MS5/U-PPGW-AdvancedWiring
+   */
+  async generateProgramAdvanced(
+    operations: MillOperation[],
+    config?: Partial<OkumaOSPMillPostConfig>,
+  ): Promise<OkumaOSPMillPostOutput> {
+    const baseOutput = this.generateProgram(operations, config);
+    const cfg: OkumaOSPMillPostConfig = { ...this.defaultConfig, ...config };
+
+    if (!cfg.use_advanced_features) {
+      return {
+        ...baseOutput,
+        advanced_features_applied: [],
+        optimized_gcode: null,
+        advanced_summary: null,
+      };
+    }
+
+    const enhancements: string[] = [];
+
+    // ── Resolve compounding machine context (optional — falls back to defaults) ──
+    const machine = cfg.machine_id
+      ? machineStrategyConstraintEngine.getMachineById(cfg.machine_id)
+      : null;
+
+    // ── 1. AutoSpeedFeed pass over the base G-code ──────────────────────────
+    // Build the tool definition list from operation metadata. Material is
+    // resolved per-program from the first op's ISO group (acceptable because
+    // a single emitted program runs against one stock material in practice).
+    const toolDefs = operations.map((op) => ({
+      tool_number: op.tool_number,
+      diameter_mm: op.tool_diameter_mm,
+      flutes: op.tool_flutes,
+      type: "endmill" as const,
+      material: "carbide" as const,
+    }));
+
+    const primaryIso = operations[0]?.material_iso ?? "P";
+    const sfInput = {
+      gcode: baseOutput.gcode.join("\n"),
+      material: ISO_GROUP_TO_AUTO_SF_MATERIAL[primaryIso],
+      iso_group: primaryIso,
+      tools: toolDefs,
+      strategy: "hsm" as const,
+      coolant: "flood" as const,
+      machine_power_kw: machine?.spindle_power_kW,
+      machine_max_rpm: machine?.max_rpm,
+      machine_rigidity: rigidityToAutoSF(machine?.rigidity_class),
+      optimize_for: "balanced" as const,
+      aggressiveness: cfg.advanced_aggressiveness ?? 0.5,
+      preserve_rapids: true,
+    };
+
+    const sfResult = await autoSpeedFeedEngine.optimize(sfInput);
+    enhancements.push("auto_speed_feed_optimization");
+
+    log.info(
+      `[OkumaOSPMill] AutoSpeedFeed pass: ${sfResult.stats.lines_modified}/${sfResult.stats.cutting_lines} cutting lines modified, ` +
+        `~${sfResult.stats.estimated_time_savings_pct.toFixed(1)}% time savings`,
+    );
+
+    return {
+      ...baseOutput,
+      advanced_features_applied: enhancements,
+      optimized_gcode: sfResult.gcode.split("\n"),
+      advanced_summary: {
+        auto_speed_feed: {
+          lines_modified: sfResult.stats.lines_modified,
+          tools_processed: sfResult.stats.tools_processed,
+          avg_feed_change_pct: sfResult.stats.average_feed_change_pct,
+          time_savings_pct: sfResult.stats.estimated_time_savings_pct,
+          chip_thinning_adjustments: sfResult.stats.chip_thinning_adjustments,
+          corner_decelerations: sfResult.stats.corner_decelerations,
+        },
+        machine_used: machine
+          ? {
+              id: machine.machine_id,
+              name: machine.name,
+              atc: machine.tool_magazine_capacity,
+              rigidity_class: machine.rigidity_class,
+              ways_type: machine.ways_type,
+              spindle_type: machine.spindle_type,
+            }
+          : null,
+      },
     };
   }
 }
