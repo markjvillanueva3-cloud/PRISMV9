@@ -103,6 +103,8 @@ const ACTIONS = [
   "lathe_lora_ensemble_vote", "lathe_lora_embedding_stats", "lathe_agi_kg_query",
   // LATHE-WIRE-MS0/Batch21: ensemble combiner + continual learning + cron jobs (3 engines)
   "lathe_lora_combiner_remove_outliers", "lathe_lora_continual_replay_buffer", "lathe_lora_cron_list_jobs",
+  // LATHE-WIRE-MS0/Batch22: feature inference + speed-feed facade (3 engines)
+  "lathe_program_feature_infer_one", "lathe_sf_calculate", "lathe_sf_supported_materials",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1305,6 +1307,48 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { latheLoRACronJobEngine } = await import("../../engines/LatheLoRACronJobEngine.js");
             try {
               result = { success: true, jobs: latheLoRACronJobEngine.getAllJobs(), config: latheLoRACronJobEngine.getConfig() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch22: feature inference + speed-feed facade
+          // ============================================================
+          case "lathe_program_feature_infer_one": {
+            const { latheProgramFeatureInferenceEngine } = await import("../../engines/LatheProgramFeatureInferenceEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (InferenceOperationView)" }; break; }
+            try {
+              result = latheProgramFeatureInferenceEngine.inferOne(
+                input as Parameters<typeof latheProgramFeatureInferenceEngine.inferOne>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_sf_calculate": {
+            const { latheSpeedFeedCalculatorFacadeEngine } = await import("../../engines/LatheSpeedFeedCalculatorFacadeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (LatheSpeedFeedInput)" }; break; }
+            try {
+              result = latheSpeedFeedCalculatorFacadeEngine.calculate(
+                input as Parameters<typeof latheSpeedFeedCalculatorFacadeEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_sf_supported_materials": {
+            const { latheSpeedFeedCalculatorFacadeEngine } = await import("../../engines/LatheSpeedFeedCalculatorFacadeEngine.js");
+            try {
+              result = {
+                success: true,
+                materials: latheSpeedFeedCalculatorFacadeEngine.listSupportedMaterials(),
+                version: latheSpeedFeedCalculatorFacadeEngine.getVersion(),
+              };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

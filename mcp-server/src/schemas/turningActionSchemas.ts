@@ -514,4 +514,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     input: z.record(z.string(), z.unknown()).describe("{limit?: number} for LatheLoRAContinualLearningEngine.getReplayBuffer() — returns Experience[] from replay buffer"),
   }).passthrough(),
   lathe_lora_cron_list_jobs: z.object({}).passthrough().describe("No input — returns LatheLoRACronJobEngine.getAllJobs() + getConfig() — current cron job registry"),
+  // LATHE-WIRE-MS0/Batch22: feature inference + speed-feed facade
+  lathe_program_feature_infer_one: z.object({
+    input: z.record(z.string(), z.unknown()).describe("InferenceOperationView - single op view for LatheProgramFeatureInferenceEngine.inferOne() — returns InferredFeature"),
+  }).passthrough(),
+  lathe_sf_calculate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("LatheSpeedFeedInput - material + tool + operation for LatheSpeedFeedCalculatorFacadeEngine.calculate() (static) — returns LatheSpeedFeedResult"),
+  }).passthrough(),
+  lathe_sf_supported_materials: z.object({}).passthrough().describe("No input — returns LatheSpeedFeedCalculatorFacadeEngine.listSupportedMaterials() + getVersion() (static) — supported material list + facade version"),
 };
