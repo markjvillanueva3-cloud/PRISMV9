@@ -492,4 +492,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     input: z.record(z.string(), z.unknown()).describe("DeploymentTarget — full target descriptor for LatheLoRADeploymentEngine.registerTarget() — adds canary-deployable target"),
   }).passthrough(),
   lathe_lora_benchmark_test_cases: z.object({}).passthrough().describe("No input — returns LatheLoRABenchmarkSuiteEngine.getTestCases() + getConfig() — current benchmark suite snapshot"),
+  // LATHE-WIRE-MS0/Batch19: LoRA attention + validator + example generator
+  lathe_lora_attention_stats: z.object({}).passthrough().describe("No input — returns LatheLoRAAttentionAnalyzerEngine.getStats() + getConfig() — attention analysis aggregate stats"),
+  lathe_lora_dataset_validate_one: z.object({
+    input: z.record(z.string(), z.unknown()).describe("LoRAExample | TrainingExample for LatheLoRADatasetValidatorEngine.validateSingle() — returns ValidationIssue[]"),
+  }).passthrough(),
+  lathe_lora_example_gen_stats: z.object({}).passthrough().describe("No input — returns LatheLoRAExampleGeneratorEngine.getStats() — GenerationStats with counts + timing"),
 };

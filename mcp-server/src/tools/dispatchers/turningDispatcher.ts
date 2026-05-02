@@ -97,6 +97,8 @@ const ACTIONS = [
   "lathe_lora_cadence_status", "lathe_lora_dataset_stats", "lathe_lora_drift_detect",
   // LATHE-WIRE-MS0/Batch18: LoRA refinement + deployment + benchmark suite (3 engines)
   "lathe_lora_refinement_start", "lathe_lora_deploy_register", "lathe_lora_benchmark_test_cases",
+  // LATHE-WIRE-MS0/Batch19: LoRA attention + validator + example generator (3 engines)
+  "lathe_lora_attention_stats", "lathe_lora_dataset_validate_one", "lathe_lora_example_gen_stats",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1180,6 +1182,44 @@ Actions: ${ACTIONS.join(", ")}.`,
                 test_cases: latheLoRABenchmarkSuiteEngine.getTestCases(),
                 config: latheLoRABenchmarkSuiteEngine.getConfig(),
               };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch19: LoRA attention + validator + example gen
+          // ============================================================
+          case "lathe_lora_attention_stats": {
+            const { latheLoRAAttentionAnalyzerEngine } = await import("../../engines/LatheLoRAAttentionAnalyzerEngine.js");
+            try {
+              result = {
+                success: true,
+                stats: latheLoRAAttentionAnalyzerEngine.getStats(),
+                config: latheLoRAAttentionAnalyzerEngine.getConfig(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_dataset_validate_one": {
+            const { latheLoRADatasetValidatorEngine } = await import("../../engines/LatheLoRADatasetValidatorEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (LoRAExample | TrainingExample)" }; break; }
+            try {
+              result = { success: true, issues: latheLoRADatasetValidatorEngine.validateSingle(
+                input as Parameters<typeof latheLoRADatasetValidatorEngine.validateSingle>[0],
+              ) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_example_gen_stats": {
+            const { latheLoRAExampleGeneratorEngine } = await import("../../engines/LatheLoRAExampleGeneratorEngine.js");
+            try {
+              result = { success: true, stats: latheLoRAExampleGeneratorEngine.getStats() };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
