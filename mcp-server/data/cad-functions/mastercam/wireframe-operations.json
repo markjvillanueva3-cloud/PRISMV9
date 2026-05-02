@@ -1,0 +1,496 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Wireframe Operations — Wireframe authoring layer",
+    "description": "Parameter catalog for the Mastercam CAD wireframe layer. Mastercam's CAD authoring is wireframe-first (lines / arcs / circles / splines / points) with optional solid + surface workflows layered on top. Wireframe is the foundation that drives Mastercam's CAM toolpath chain pickers — every toolpath chains across wireframe entities, so wireframe authoring is critical for CAM downstream. Catalog covers 24 operations spanning point creation (8 modes), 5 line variants, 5 circle variants, 3 arc variants, ellipse, polygon, rectangle, shape (oval/slot/hexagon/diamond), 2 spline variants (parametric + NURBS), curve derivation from solids, wireframe text on path, helix, and spiral. Bindings target Mastercam .NET-Hook API (Mastercam.Curves namespace) and the C-Hook ChooseAndPick surface for ops not yet exposed in .NET.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-01",
+    "source": "Mastercam 2024 Reference — Wireframe ribbon; Mastercam .NET-Hook API Reference (Mastercam.Curves / Mastercam.Geometry); Mastercam C-Hook ChooseAndPick API",
+    "totalParameters": 153,
+    "operationCount": 24,
+    "cad_concepts_used": [
+      "WIREFRAME_GEOMETRY",
+      "PARAMETRIC_POINT",
+      "TANGENT_CONSTRUCTION",
+      "PERPENDICULAR_CONSTRUCTION",
+      "PARALLEL_CONSTRUCTION",
+      "NURBS_SPLINE",
+      "PARAMETRIC_SPLINE",
+      "HELIX_GENERATION",
+      "SPIRAL_GENERATION",
+      "CURVE_DERIVATION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam wireframe operations",
+    "tabs": ["Shape", "Geometry", "Style"]
+  },
+  "operations": {
+    "POINT": {
+      "description": "Create a point with one of 8 modes: free position, parametric (along entity), dynamic (interactive), endpoint (of entity), intersection (of two entities), perpendicular (foot of perpendicular from external point), on-entity (closest point), or segment (subdivide entity into N points).",
+      "category": "Wireframe_Point",
+      "mastercam_command": "WireframePoint",
+      "mastercam_api": "Mastercam.Curves.PointCreator.Create",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["free_position", "parametric", "dynamic", "endpoint", "intersection", "perpendicular", "on_entity", "segment"], "default": "free_position"},
+            {"name": "Sketch Plane", "type": "selection", "description": "Construction plane (Top/Front/Right/named/face)", "required": true},
+            {"name": "Position", "type": "selection", "description": "XYZ coordinate or pick", "required": true},
+            {"name": "Reference Entity", "type": "selection", "description": "Entity for parametric / endpoint / intersection / perpendicular / on_entity modes"},
+            {"name": "Parametric Position", "type": "numeric", "description": "0..1 along reference entity (parametric mode)", "min": 0, "max": 1},
+            {"name": "Distance From Endpoint", "type": "numeric", "unit": "mm", "description": "Used with endpoint + segment modes"},
+            {"name": "Visible Style", "type": "dropdown", "options": ["dot", "x", "plus", "asterisk", "small_circle"], "default": "dot"}
+          ]
+        }
+      }
+    },
+    "LINE_ENDPOINTS": {
+      "description": "Line by two endpoints. Length mode controls absolute (3D length) vs projected (2D length on sketch plane).",
+      "category": "Wireframe_Line_Endpoints",
+      "mastercam_command": "WireframeLineEndpoints",
+      "mastercam_api": "Mastercam.Curves.LineCreator.CreateByEndpoints",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Endpoint 1", "type": "selection", "description": "Start point", "required": true},
+            {"name": "Endpoint 2", "type": "selection", "description": "End point", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "description": "Construction plane"},
+            {"name": "Length Mode", "type": "dropdown", "options": ["absolute_3d", "projected_2d"], "default": "absolute_3d"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Computed or specified"},
+            {"name": "Style", "type": "dropdown", "options": ["solid", "dashed", "construction", "phantom"], "default": "solid"}
+          ]
+        }
+      }
+    },
+    "LINE_PARALLEL": {
+      "description": "Line parallel to a reference entity at a specified distance. Direction toggles which side of the reference the parallel line lands on.",
+      "category": "Wireframe_Line_Parallel",
+      "mastercam_command": "WireframeLineParallel",
+      "mastercam_api": "Mastercam.Curves.LineCreator.CreateParallel",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Reference Line", "type": "selection", "description": "Existing line to be parallel to", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Offset distance", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative", "both_sides"], "default": "positive"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Resulting line length (default: same as reference)"},
+            {"name": "Sketch Plane", "type": "selection", "description": "Construction plane"}
+          ]
+        }
+      }
+    },
+    "LINE_PERPENDICULAR": {
+      "description": "Line perpendicular to a reference entity, passing through a specified point. Side selector determines positive / negative orientation when ambiguous.",
+      "category": "Wireframe_Line_Perpendicular",
+      "mastercam_command": "WireframeLinePerpendicular",
+      "mastercam_api": "Mastercam.Curves.LineCreator.CreatePerpendicular",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Reference Line", "type": "selection", "description": "Existing line/edge", "required": true},
+            {"name": "Through Point", "type": "selection", "description": "Point the perpendicular passes through", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm"},
+            {"name": "Side", "type": "dropdown", "options": ["positive", "negative", "auto"], "default": "auto"},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "LINE_CLOSEST": {
+      "description": "Line connecting the two closest points between two entities (e.g., closest points between two arcs / two splines / line and arc).",
+      "category": "Wireframe_Line_Closest",
+      "mastercam_command": "WireframeLineClosest",
+      "mastercam_api": "Mastercam.Curves.LineCreator.CreateClosest",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "description": "First entity", "required": true},
+            {"name": "Entity 2", "type": "selection", "description": "Second entity", "required": true},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Show Closest Points", "type": "checkbox", "description": "Mark the two closest points with point entities", "default": false}
+          ]
+        }
+      }
+    },
+    "LINE_TANGENT": {
+      "description": "Line tangent to one entity (single tangent + length) or tangent to two entities (closest tangent line between two arcs / circles / splines).",
+      "category": "Wireframe_Line_Tangent",
+      "mastercam_command": "WireframeLineTangent",
+      "mastercam_api": "Mastercam.Curves.LineCreator.CreateTangent",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Tangent To", "type": "selection", "description": "First entity (always tangent)", "required": true},
+            {"name": "Target", "type": "selection", "description": "Second tangent target (mode=to_two) OR endpoint (mode=from_entity)"},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Used with from_entity mode"},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative", "auto"], "default": "auto"},
+            {"name": "Mode", "type": "dropdown", "options": ["from_entity", "to_two"], "default": "from_entity"}
+          ]
+        }
+      }
+    },
+    "CIRCLE_CENTER_POINT": {
+      "description": "Circle defined by center + a point on the perimeter. Snap mode controls grid / endpoint / intersection snapping during pick.",
+      "category": "Wireframe_Circle_CenterPoint",
+      "mastercam_command": "WireframeCircleCenterPoint",
+      "mastercam_api": "Mastercam.Curves.CircleCreator.CreateCenterPoint",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center Point", "type": "selection", "required": true},
+            {"name": "Edge Point", "type": "selection", "description": "Point on perimeter", "required": true},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Style", "type": "dropdown", "options": ["solid", "dashed", "construction", "phantom"], "default": "solid"},
+            {"name": "Snap Mode", "type": "dropdown", "options": ["grid", "endpoint", "intersection", "midpoint", "none"], "default": "grid"}
+          ]
+        }
+      }
+    },
+    "CIRCLE_CENTER_RADIUS": {
+      "description": "Circle defined by center + numeric radius. Most common method for parametric circle creation.",
+      "category": "Wireframe_Circle_CenterRadius",
+      "mastercam_command": "WireframeCircleCenterRadius",
+      "mastercam_api": "Mastercam.Curves.CircleCreator.CreateCenterRadius",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Style", "type": "dropdown", "options": ["solid", "dashed", "construction", "phantom"], "default": "solid"},
+            {"name": "Snap Mode", "type": "dropdown", "options": ["grid", "endpoint", "intersection", "midpoint", "none"], "default": "grid"}
+          ]
+        }
+      }
+    },
+    "CIRCLE_3_POINTS": {
+      "description": "Circle through three specified points (auto-fits a circle).",
+      "category": "Wireframe_Circle_3Points",
+      "mastercam_command": "WireframeCircle3Points",
+      "mastercam_api": "Mastercam.Curves.CircleCreator.Create3Points",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Point 1", "type": "selection", "required": true},
+            {"name": "Point 2", "type": "selection", "required": true},
+            {"name": "Point 3", "type": "selection", "required": true},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "CIRCLE_2_POINTS": {
+      "description": "Circle through two points where the two points define either the diameter (diameter mode) or the center-to-edge distance (center_distance mode).",
+      "category": "Wireframe_Circle_2Points",
+      "mastercam_command": "WireframeCircle2Points",
+      "mastercam_api": "Mastercam.Curves.CircleCreator.Create2Points",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Point 1", "type": "selection", "required": true},
+            {"name": "Point 2", "type": "selection", "required": true},
+            {"name": "Diameter Mode", "type": "dropdown", "options": ["diameter", "center_distance"], "default": "diameter"},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "CIRCLE_TANGENT": {
+      "description": "Circle tangent to two entities at a specified radius (2_tangent_radius mode) OR circle tangent to three entities (3_tangent — Apollonian circle problem solver).",
+      "category": "Wireframe_Circle_Tangent",
+      "mastercam_command": "WireframeCircleTangent",
+      "mastercam_api": "Mastercam.Curves.CircleCreator.CreateTangent",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Tangent Entity 1", "type": "selection", "required": true},
+            {"name": "Tangent Entity 2", "type": "selection", "required": true},
+            {"name": "Tangent Entity 3", "type": "selection", "description": "Used with 3_tangent mode"},
+            {"name": "Mode", "type": "dropdown", "options": ["2_tangent_radius", "3_tangent"], "default": "2_tangent_radius"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Used with 2_tangent_radius mode", "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "ARC_3_POINT": {
+      "description": "Arc through three points. Direction reverses the sweep direction when ambiguous.",
+      "category": "Wireframe_Arc_3Point",
+      "mastercam_command": "WireframeArc3Point",
+      "mastercam_api": "Mastercam.Curves.ArcCreator.Create3Point",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Start", "type": "selection", "required": true},
+            {"name": "Through", "type": "selection", "description": "Point arc passes through", "required": true},
+            {"name": "End", "type": "selection", "required": true},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise", "auto"], "default": "auto"}
+          ]
+        }
+      }
+    },
+    "ARC_ENDPOINTS": {
+      "description": "Arc by start + end + center + radius + sweep angle. Most parametric arc creation mode.",
+      "category": "Wireframe_Arc_Endpoints",
+      "mastercam_command": "WireframeArcEndpoints",
+      "mastercam_api": "Mastercam.Curves.ArcCreator.CreateEndpoints",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Start", "type": "selection", "required": true},
+            {"name": "End", "type": "selection", "required": true},
+            {"name": "Center", "type": "selection", "description": "Optional explicit center"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "min": 0.001, "max": 359.999},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "ARC_TANGENT": {
+      "description": "Arc tangent to an entity at one endpoint, with start/end/radius parameters.",
+      "category": "Wireframe_Arc_Tangent",
+      "mastercam_command": "WireframeArcTangent",
+      "mastercam_api": "Mastercam.Curves.ArcCreator.CreateTangent",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Tangent Entity", "type": "selection", "required": true},
+            {"name": "Start", "type": "selection", "description": "Arc start (tangent endpoint of source)"},
+            {"name": "End", "type": "selection", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "ELLIPSE": {
+      "description": "Full or partial ellipse. Major / minor axes + start angle + sweep angle define the curve. Rotation rotates the ellipse local coordinate system on the sketch plane.",
+      "category": "Wireframe_Ellipse",
+      "mastercam_command": "WireframeEllipse",
+      "mastercam_api": "Mastercam.Curves.EllipseCreator.Create",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Major Axis Length", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Minor Axis Length", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Start Angle", "type": "numeric", "unit": "deg", "default": 0, "min": 0, "max": 360},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "description": "Local coordinate rotation", "default": 0},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Mode", "type": "dropdown", "options": ["full", "partial"], "default": "full"}
+          ]
+        }
+      }
+    },
+    "POLYGON": {
+      "description": "Regular polygon (3..256 sides) with optional fillet at corners. Inscribed (vertex on circle) vs Circumscribed (edge tangent to circle) controls outer vs inner radius.",
+      "category": "Wireframe_Polygon",
+      "mastercam_command": "WireframePolygon",
+      "mastercam_api": "Mastercam.Curves.PolygonCreator.Create",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Side Count", "type": "integer", "min": 3, "max": 256, "default": 6, "required": true},
+            {"name": "Inscribed/Circumscribed", "type": "dropdown", "options": ["inscribed", "circumscribed"], "default": "inscribed"},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Corner Mode", "type": "dropdown", "options": ["sharp", "filleted"], "default": "sharp"},
+            {"name": "Fillet Radius", "type": "numeric", "unit": "mm", "description": "Used with filleted corner mode", "min": 0}
+          ]
+        }
+      }
+    },
+    "RECTANGLE": {
+      "description": "Rectangle by 4 placement modes: 1-point (origin + width + height), 2-point (corner + diagonal corner), diagonal (rotated diagonal), or center (center + half-width + half-height).",
+      "category": "Wireframe_Rectangle",
+      "mastercam_command": "WireframeRectangle",
+      "mastercam_api": "Mastercam.Curves.RectangleCreator.Create",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["1_point", "2_point", "diagonal", "center"], "default": "2_point"},
+            {"name": "Origin", "type": "selection", "description": "Anchor point per Mode", "required": true},
+            {"name": "Width", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Anchor Position", "type": "dropdown", "options": ["lower_left", "center", "upper_left", "upper_right", "lower_right"], "default": "lower_left"}
+          ]
+        }
+      }
+    },
+    "SHAPE": {
+      "description": "Built-in shape from Mastercam shape library: oval / slot / hexagon / diamond / D-shape / rounded rectangle. Each library shape has a parametric envelope (length × width) plus shape-specific corner radius.",
+      "category": "Wireframe_Shape",
+      "mastercam_command": "WireframeShape",
+      "mastercam_api": "Mastercam.Curves.ShapeCreator.CreateLibraryShape",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["oval", "slot", "hexagon", "diamond", "rounded_rectangle", "d_shape"], "required": true, "default": "oval"},
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Width", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Corner Radius", "type": "numeric", "unit": "mm", "description": "Used by oval / slot / rounded_rectangle / d_shape"},
+            {"name": "Anchor", "type": "dropdown", "options": ["center", "lower_left", "lower_right", "upper_left", "upper_right"], "default": "center"}
+          ]
+        }
+      }
+    },
+    "SPLINE_PARAMETRIC": {
+      "description": "Parametric spline through specified points. Tangency mode controls boundary tangents (natural / specified / periodic). Refit tolerance controls how closely the spline follows the through-points.",
+      "category": "Wireframe_Spline_Parametric",
+      "mastercam_command": "WireframeSplineParametric",
+      "mastercam_api": "Mastercam.Curves.SplineCreator.CreateParametric",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Through Points", "type": "selection", "description": "Ordered list of points the spline passes through", "required": true},
+            {"name": "Tangency Mode", "type": "dropdown", "options": ["natural", "specified", "periodic"], "default": "natural"},
+            {"name": "Start Tangent", "type": "selection", "description": "Tangent vector at start (specified mode)"},
+            {"name": "End Tangent", "type": "selection", "description": "Tangent vector at end (specified mode)"},
+            {"name": "Smoothness", "type": "dropdown", "options": ["G0", "G1", "G2", "G3"], "default": "G2"},
+            {"name": "Refit Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Closed", "type": "checkbox", "description": "Close spline back to first point", "default": false}
+          ]
+        }
+      }
+    },
+    "SPLINE_NURBS": {
+      "description": "NURBS (Non-Uniform Rational B-Spline) defined by control points + degree + weights + knot vector. Most flexible spline form for industrial CAD. Continuity controls C0 / C1 / C2 / G2 between segments.",
+      "category": "Wireframe_Spline_NURBS",
+      "mastercam_command": "WireframeSplineNURBS",
+      "mastercam_api": "Mastercam.Curves.SplineCreator.CreateNURBS",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Control Points", "type": "selection", "description": "Ordered control polygon", "required": true},
+            {"name": "Degree", "type": "integer", "default": 3, "min": 1, "max": 7},
+            {"name": "Weights", "type": "string", "description": "Comma-separated weight list (default: all 1.0)"},
+            {"name": "Knot Vector", "type": "string", "description": "Comma-separated knot list (default: uniform)"},
+            {"name": "Continuity", "type": "dropdown", "options": ["C0", "C1", "C2", "G2"], "default": "C2"},
+            {"name": "Sketch Plane", "type": "selection"},
+            {"name": "Refit Existing", "type": "checkbox", "description": "Refit existing spline to NURBS form", "default": false},
+            {"name": "Edit Mode", "type": "dropdown", "options": ["create", "edit_control_polygon", "edit_through_points"], "default": "create"},
+            {"name": "Style", "type": "dropdown", "options": ["solid", "dashed", "construction"], "default": "solid"}
+          ]
+        }
+      }
+    },
+    "CURVE_DERIVE": {
+      "description": "Derive wireframe curves from existing geometry: from solid edges, from surface boundaries, silhouette curves (view-dependent), surface intersection curves, or curve projection onto a target plane / surface.",
+      "category": "Wireframe_Curve_Derive",
+      "mastercam_command": "WireframeCurveDerive",
+      "mastercam_api": "Mastercam.Curves.CurveDeriver.Derive",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Type", "type": "dropdown", "options": ["edge", "face_boundary", "silhouette", "intersection", "project"], "required": true, "default": "edge"},
+            {"name": "Source Geometry", "type": "selection", "description": "Solid edge / face / two surfaces (intersection) / curve to project", "required": true},
+            {"name": "Target Plane", "type": "selection", "description": "Used with project / silhouette modes"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative", "both"], "default": "positive"},
+            {"name": "Trim", "type": "checkbox", "description": "Trim derived curves to source extent", "default": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["spline", "polyline", "auto"], "default": "auto"}
+          ]
+        }
+      }
+    },
+    "TEXT_WIREFRAME": {
+      "description": "Wireframe text — text rendered as a closed wireframe path (NOT engraved or rasterized). Path mode: straight horizontal placement OR text-along-curve (text follows a path entity).",
+      "category": "Wireframe_Text",
+      "mastercam_command": "WireframeText",
+      "mastercam_api": "Mastercam.Curves.TextCreator.CreateWireframe",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Text Body", "type": "string", "required": true},
+            {"name": "Font", "type": "string", "default": "Arial"},
+            {"name": "Size", "type": "numeric", "unit": "mm", "default": 5, "min": 0.1},
+            {"name": "Position", "type": "selection", "description": "Anchor (start point or path entity)"},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Style", "type": "dropdown", "options": ["solid", "outline"], "default": "solid"},
+            {"name": "Path", "type": "dropdown", "options": ["straight", "along_curve"], "default": "straight"},
+            {"name": "Spacing", "type": "numeric", "unit": "mm", "description": "Inter-character spacing", "default": 0.5}
+          ]
+        }
+      }
+    },
+    "HELIX": {
+      "description": "Helix curve along a center axis. Constant radius (cylindrical) or end-radius-different-from-start-radius (conical). Sweep angle in degrees defines total rotation; pitch + height interrelate (specifying any 2 derives the third).",
+      "category": "Wireframe_Helix",
+      "mastercam_command": "WireframeHelix",
+      "mastercam_api": "Mastercam.Curves.HelixCreator.Create",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center Axis", "type": "selection", "description": "Axis line / edge", "required": true},
+            {"name": "Start Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "End Radius", "type": "numeric", "unit": "mm", "description": "Equal to Start Radius for cylindrical helix"},
+            {"name": "Pitch", "type": "numeric", "unit": "mm", "description": "Distance per full revolution", "min": 0.001},
+            {"name": "Total Height", "type": "numeric", "unit": "mm", "description": "Total axial length"},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "description": "Total rotation; combines with pitch + height", "min": 0.001},
+            {"name": "Start Angle", "type": "numeric", "unit": "deg", "description": "Initial rotation offset", "default": 0},
+            {"name": "Conical", "type": "checkbox", "description": "Differentiate Start vs End Radius", "default": false}
+          ]
+        }
+      }
+    },
+    "SPIRAL": {
+      "description": "Spiral curve in a plane (not along an axis like Helix). Start radius spirals out to End radius over Turn Count revolutions; Pitch Per Turn is the radial increment per revolution.",
+      "category": "Wireframe_Spiral",
+      "mastercam_command": "WireframeSpiral",
+      "mastercam_api": "Mastercam.Curves.SpiralCreator.Create",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Start Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0},
+            {"name": "End Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Turn Count", "type": "numeric", "description": "Total revolutions", "required": true, "default": 5, "min": 0.01},
+            {"name": "Pitch Per Turn", "type": "numeric", "unit": "mm", "description": "Radial increment per revolution"},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Sketch Plane", "type": "selection"}
+          ]
+        }
+      }
+    }
+  }
+}

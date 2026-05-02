@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "mastercam",
+  "module_id": "cad_function_index",
+  "module_name": "Mastercam CAD Unified Function Index",
+  "description": "Top-level index for Mastercam CAD-side authoring operations. Mastercam combines a CAD authoring layer with its CAM-side toolpath engine; this index covers ONLY the CAD authoring surface (wireframe / solid / surface / drafting / transformation / analysis / modify / file_layer). The CAM-side toolpath catalogs live separately under cam-functions/mastercam/ and are owned by the dedicated CAM exhaust roadmap. Coverage spans 8 modules following the Inventor parity pattern. Consumed by MastercamCADFunctionIndexEngine for parameter discovery and AI orchestration of Mastercam CAD authoring via NET-Hook in-host execution and Mastercam ChooseAndPick C-Hook surface.",
+  "indexed_at": "2026-05-02T00:30:00Z",
+  "modules": [
+    {
+      "module_id": "wireframe_operations",
+      "path": "cad-functions/mastercam/wireframe-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-01"],
+      "parameter_count_estimate": 153,
+      "description": "Wireframe entity creation: 8 line variants (Endpoints / Parallel / Perpendicular / Closest / Tangent), 5 circle variants (Center+Point / Center+Radius / 3-Points / 2-Points / Tangent), 3 arc variants (3-Point / Endpoints+Center / Tangent), Ellipse (full + partial), Polygon (regular 3..256 sides w/ optional fillet), Rectangle (4 placement modes), Shape (oval/slot/hexagon/diamond/D-shape/rounded_rect from built-in library), 2 spline variants (Parametric through-points + NURBS control-point), Curve Derive (from solid edges / surfaces / intersection / projection), Wireframe Text on path or straight, Helix (constant or conical), Spiral, and Point (8 creation modes including parametric / endpoint / intersection / perpendicular / on-entity). 24 operations total.",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "WIREFRAME_GEOMETRY",
+      "PARAMETRIC_POINT",
+      "CONSTRUCTION_GEOMETRY",
+      "SKETCH_PLANE_DEFINITION",
+      "TANGENT_CONSTRUCTION",
+      "PERPENDICULAR_CONSTRUCTION",
+      "PARALLEL_CONSTRUCTION",
+      "NURBS_SPLINE",
+      "PARAMETRIC_SPLINE",
+      "HELIX_GENERATION",
+      "SPIRAL_GENERATION",
+      "POLYGON_GENERATION",
+      "CURVE_DERIVATION",
+      "WIREFRAME_TEXT_PATH"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "MastercamCADFunctionIndexEngine",
+      "MastercamInHostRunnerEngine",
+      "MastercamFunctionIndexEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 1,
+    "total_units_covered": ["U-CAD-FIDX-MC-01"],
+    "estimated_parameter_total": 153,
+    "api_surface": {
+      "net_hook_items": 24,
+      "c_hook_items": 24,
+      "mastercam_2024_compatible": true,
+      "mastercam_2025_compatible": true,
+      "coverage_state": "PARTIAL",
+      "phase_1_target_modules": 8,
+      "phase_1_target_modules_remaining": 7,
+      "phase_1_modules_pending": [
+        "solid_operations",
+        "surface_operations",
+        "drafting_operations",
+        "transformation_operations",
+        "analysis_operations",
+        "modify_operations",
+        "file_layer_operations"
+      ]
+    },
+    "pdf_sources_bound": [
+      "Mastercam 2024 Reference — Wireframe",
+      "Mastercam .NET-Hook API Reference",
+      "Mastercam C-Hook (ChooseAndPick) Reference"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "wireframe_authoring",
+      "solid_modeling",
+      "surface_modeling",
+      "drafting_output",
+      "transform_workflow",
+      "analysis_query",
+      "modify_workflow",
+      "file_layer_management"
+    ]
+  },
+  "platform_integration": {
+    "net_hook_enabled": true,
+    "c_hook_enabled": true,
+    "wireframe_layer": true,
+    "solid_layer": false,
+    "surface_layer": false,
+    "drafting_layer": false
+  },
+  "future_modules": []
+}

@@ -194,6 +194,12 @@ const ACTIONS = [
   "cad_inventor_operations_by_category",
   // Inventor discovery surface (U-CAD-FIDX-INV-01 — full discovery from day 1)
   "cad_inventor_summary", "cad_inventor_total_parameter_count", "cad_inventor_load_errors",
+  // Mastercam CAD Function Index (U-CAD-FIDX-MC-01..08 — CAD-side authoring; CAM lives in cam-functions/)
+  "cad_mastercam_get_index", "cad_mastercam_list_modules", "cad_mastercam_list_operations",
+  "cad_mastercam_get_operation", "cad_mastercam_find_parameter", "cad_mastercam_search_parameters",
+  "cad_mastercam_operations_by_category",
+  // Mastercam discovery surface (U-CAD-FIDX-MC-01 — full discovery from day 1)
+  "cad_mastercam_summary", "cad_mastercam_total_parameter_count", "cad_mastercam_load_errors",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2019,6 +2025,164 @@ Params vary by action — pass relevant fields in params object.`,
               "../../engines/InventorCADFunctionIndexEngine.js"
             );
             const errors = InventorCADFunctionIndexEngine.getLoadErrors();
+            result = { success: true, count: errors.length, errors };
+            break;
+          }
+          // ─── Mastercam CAD Function Index (U-CAD-FIDX-MC-01..08) ────────────
+          case "cad_mastercam_get_index": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            result = { success: true, index: MastercamCADFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "cad_mastercam_list_modules": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const modules = MastercamCADFunctionIndexEngine.listModules();
+            result = { success: true, count: modules.length, modules };
+            break;
+          }
+          case "cad_mastercam_list_operations": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operations = moduleId
+              ? MastercamCADFunctionIndexEngine.listOperations(moduleId)
+              : MastercamCADFunctionIndexEngine.listAllOperations();
+            result = { success: true, count: operations.length, operations };
+            break;
+          }
+          case "cad_mastercam_get_operation": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_mastercam_get_operation requires module_id and operation_id",
+                action,
+                "prism_cad"
+              );
+            }
+            const op = MastercamCADFunctionIndexEngine.getOperation(moduleId, operationId);
+            result = op
+              ? { success: true, module_id: moduleId, operation_id: operationId, operation: op }
+              : { success: false, error: `Operation not found: ${moduleId}/${operationId}` };
+            break;
+          }
+          case "cad_mastercam_find_parameter": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const parameterName = (params.parameter_name ?? params.parameterName) as
+              | string
+              | undefined;
+            if (!moduleId || !operationId || !parameterName) {
+              return dispatcherError(
+                "cad_mastercam_find_parameter requires module_id, operation_id, and parameter_name",
+                action,
+                "prism_cad"
+              );
+            }
+            const found = MastercamCADFunctionIndexEngine.findParameter(
+              moduleId,
+              operationId,
+              parameterName
+            );
+            result = found
+              ? { success: true, ...found }
+              : { success: false, error: `Parameter not found: ${parameterName}` };
+            break;
+          }
+          case "cad_mastercam_search_parameters": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const query = params.query as string | undefined;
+            const limit = (params.limit as number | undefined) ?? 50;
+            if (!query) {
+              return dispatcherError(
+                "cad_mastercam_search_parameters requires a 'query' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const matches = MastercamCADFunctionIndexEngine.searchParameters(query, limit);
+            result = { success: true, query, count: matches.length, matches };
+            break;
+          }
+          case "cad_mastercam_operations_by_category": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const category = params.category as string | undefined;
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            if (!category) {
+              return dispatcherError(
+                "cad_mastercam_operations_by_category requires a 'category' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const operations = MastercamCADFunctionIndexEngine.getOperationsByCategory(
+              category,
+              moduleId
+            );
+            result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+          case "cad_mastercam_summary": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const index = MastercamCADFunctionIndexEngine.getIndex();
+            const allOps = MastercamCADFunctionIndexEngine.listAllOperations();
+            const totalParams = MastercamCADFunctionIndexEngine.getTotalParameterCount();
+            result = {
+              success: true,
+              system_id: index.system_id,
+              module_name: index.module_name,
+              total_modules: index.coverage_summary.total_modules,
+              total_operations: allOps.length,
+              total_parameters: totalParams,
+              estimated_parameter_total: index.coverage_summary.estimated_parameter_total,
+              coverage_state:
+                (index.coverage_summary.api_surface as { coverage_state?: string } | undefined)
+                  ?.coverage_state ?? "UNKNOWN",
+              modules: index.modules.map((m) => ({
+                module_id: m.module_id,
+                covered_units: m.covered_units,
+                parameter_count_estimate: m.parameter_count_estimate,
+              })),
+            };
+            break;
+          }
+          case "cad_mastercam_total_parameter_count": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
+            const declared = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
+              .estimated_parameter_total;
+            result = {
+              success: true,
+              total_parameters: total,
+              declared_total: declared,
+              drift: total - declared,
+            };
+            break;
+          }
+          case "cad_mastercam_load_errors": {
+            const { MastercamCADFunctionIndexEngine } = await import(
+              "../../engines/MastercamCADFunctionIndexEngine.js"
+            );
+            const errors = MastercamCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
             break;
           }

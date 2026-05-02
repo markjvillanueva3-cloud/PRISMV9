@@ -28,6 +28,7 @@ import { registerCadDispatcher } from "../tools/dispatchers/cadDispatcher.js";
 import { HyperCADCADFunctionIndexEngine } from "../engines/HyperCADCADFunctionIndexEngine.js";
 import { Fusion360CADFunctionIndexEngine } from "../engines/Fusion360CADFunctionIndexEngine.js";
 import { InventorCADFunctionIndexEngine } from "../engines/InventorCADFunctionIndexEngine.js";
+import { MastercamCADFunctionIndexEngine } from "../engines/MastercamCADFunctionIndexEngine.js";
 
 interface CapturedTool {
   name: string;
@@ -342,5 +343,62 @@ describe("cadDispatcher — discovery action adversarial input", () => {
     expect(b.success).toBe(true);
     expect(b.system_id).toBe(a.system_id);
     expect(b.total_parameters).toBe(a.total_parameters);
+  });
+
+  it("ignores extra params on cad_mastercam_summary (idempotent read)", async () => {
+    const a = await invoke("cad_mastercam_summary");
+    const b = await invoke("cad_mastercam_summary", { unrelated: "value", n: 42 });
+    expect(b.success).toBe(true);
+    expect(b.system_id).toBe(a.system_id);
+    expect(b.total_parameters).toBe(a.total_parameters);
+  });
+});
+
+// ─── Mastercam CAD discovery surface (U-CAD-FIDX-MC-01..08) ──────────────────
+
+describe("cadDispatcher — Mastercam CAD discovery actions (U-CAD-FIDX-MC-01)", () => {
+  it("cad_mastercam_summary returns aggregated index summary", async () => {
+    const out = await invoke("cad_mastercam_summary");
+    expect(out.success).toBe(true);
+    expect(out.system_id).toBe("mastercam");
+    expect(typeof out.module_name).toBe("string");
+    expect(typeof out.total_modules).toBe("number");
+    expect(typeof out.total_operations).toBe("number");
+    expect(typeof out.total_parameters).toBe("number");
+    expect(typeof out.estimated_parameter_total).toBe("number");
+    expect(typeof out.coverage_state).toBe("string");
+    expect(Array.isArray(out.modules)).toBe(true);
+    expect((out.modules as unknown[]).length).toBe(out.total_modules);
+  });
+
+  it("cad_mastercam_summary parity with engine getters (drift guard)", async () => {
+    const out = await invoke("cad_mastercam_summary");
+    const index = MastercamCADFunctionIndexEngine.getIndex();
+    const allOps = MastercamCADFunctionIndexEngine.listAllOperations();
+    const totalParams = MastercamCADFunctionIndexEngine.getTotalParameterCount();
+    expect(out.system_id).toBe(index.system_id);
+    expect(out.module_name).toBe(index.module_name);
+    expect(out.total_modules).toBe(index.coverage_summary.total_modules);
+    expect(out.total_operations).toBe(allOps.length);
+    expect(out.total_parameters).toBe(totalParams);
+    expect(out.estimated_parameter_total).toBe(index.coverage_summary.estimated_parameter_total);
+  });
+
+  it("cad_mastercam_total_parameter_count exposes drift between live + declared", async () => {
+    const out = await invoke("cad_mastercam_total_parameter_count");
+    expect(out.success).toBe(true);
+    expect(typeof out.total_parameters).toBe("number");
+    expect(typeof out.declared_total).toBe("number");
+    expect(typeof out.drift).toBe("number");
+    expect(out.drift).toBe(
+      (out.total_parameters as number) - (out.declared_total as number),
+    );
+  });
+
+  it("cad_mastercam_list_modules contains wireframe_operations (U-CAD-FIDX-MC-01)", async () => {
+    const out = await invoke("cad_mastercam_list_modules");
+    expect(out.success).toBe(true);
+    const modules = (out.modules as readonly string[]) ?? [];
+    expect(modules).toContain("wireframe_operations");
   });
 });
