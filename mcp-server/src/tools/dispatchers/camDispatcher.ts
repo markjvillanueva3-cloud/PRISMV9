@@ -1635,6 +1635,8 @@ export const ACTIONS = [
   "cam_fusion360_multiaxis_list", "cam_fusion360_multiaxis_lookup", "cam_fusion360_multiaxis_validate", "cam_fusion360_multiaxis_plane_matrix", "cam_fusion360_multiaxis_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-MILLTURN-01 — Fusion 360 mill-turn archetypes + sub-spindle handoff
   "cam_fusion360_millturn_list", "cam_fusion360_millturn_lookup", "cam_fusion360_millturn_validate_handoff", "cam_fusion360_millturn_thread_passes", "cam_fusion360_millturn_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-AI-01 — Fusion 360 AI orchestration routing
+  "cam_fusion360_ai_route", "cam_fusion360_ai_routes", "cam_fusion360_ai_tasks_routed_to", "cam_fusion360_ai_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13153,6 +13155,30 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_millturn_audit": {
             const { Fusion360MillTurnBridgeEngine } = await import("../../engines/Fusion360MillTurnBridgeEngine.js");
             result = Fusion360MillTurnBridgeEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-AI-01: Fusion 360 AI orchestration ──
+          case "cam_fusion360_ai_route": {
+            const { Fusion360AIOrchestrationEngine } = await import("../../engines/Fusion360AIOrchestrationEngine.js");
+            const request = params.request as Parameters<typeof Fusion360AIOrchestrationEngine.route>[0];
+            result = Fusion360AIOrchestrationEngine.route(request);
+            break;
+          }
+          case "cam_fusion360_ai_routes": {
+            const { Fusion360AIOrchestrationEngine } = await import("../../engines/Fusion360AIOrchestrationEngine.js");
+            result = { routes: Fusion360AIOrchestrationEngine.routes() };
+            break;
+          }
+          case "cam_fusion360_ai_tasks_routed_to": {
+            const { Fusion360AIOrchestrationEngine } = await import("../../engines/Fusion360AIOrchestrationEngine.js");
+            const target = params.target as Parameters<typeof Fusion360AIOrchestrationEngine.tasksRoutedTo>[0];
+            result = { target, tasks: Fusion360AIOrchestrationEngine.tasksRoutedTo(target) };
+            break;
+          }
+          case "cam_fusion360_ai_audit": {
+            const { Fusion360AIOrchestrationEngine } = await import("../../engines/Fusion360AIOrchestrationEngine.js");
+            result = Fusion360AIOrchestrationEngine.auditRouting();
             break;
           }
 
