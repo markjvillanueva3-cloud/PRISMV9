@@ -276,13 +276,45 @@ export function registerMemoryDispatcher(server: McpServer): void {
               | "formula"
               | "rule"
               | "playbook"
-              | "note";
+              | "note"
+              | "wiki";
             const requestedLimit = Number.isFinite(params.limit) ? Number(params.limit) : 5;
             const limit = Math.max(1, Math.min(100, requestedLimit));
             const threshold = Number.isFinite(params.threshold) ? Number(params.threshold) : 0;
             const filter = (params.filter && typeof params.filter === "object")
               ? (params.filter as Record<string, unknown>)
               : undefined;
+
+            // ── INTEL-OLLAMA-OBSIDIAN-MS0/P4-U04: wiki kind routes to TF-IDF backstop ──
+            // Wiki queries do not need an embedder service. We bypass Qdrant entirely
+            // and return TF-IDF cosine matches over knowledge/wiki/index.md (722 entries).
+            // Save: ~600 tokens/query vs the caller having to read raw wiki files.
+            if (kind === "wiki") {
+              const { wikiIndexQueryEngine } = await import("../../engines/WikiIndexQueryEngine.js");
+              const wikiResults = wikiIndexQueryEngine.query(query, { limit, minScore: threshold });
+              const items = wikiResults.map((r) => ({
+                slug: r.entry.slug,
+                title: r.entry.title,
+                description: r.entry.description,
+                category: r.entry.category,
+                source_path: r.entry.source_path,
+                score: r.score,
+                matched_tokens: r.matched_tokens,
+              }));
+              result = {
+                success: true,
+                data: {
+                  kind,
+                  query,
+                  limit,
+                  threshold,
+                  hits: items.length,
+                  items,
+                  backend: "wiki_tfidf",
+                },
+              };
+              break;
+            }
 
             const { qdrantMemoryEngine } = await import("../../engines/QdrantMemoryEngine.js");
             const { ensureQdrantEmbedder } = await import("../../engines/OllamaEmbedderFactory.js");
