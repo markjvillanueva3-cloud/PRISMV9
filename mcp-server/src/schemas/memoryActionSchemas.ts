@@ -88,6 +88,16 @@ const semantic_search = z.object({
   filter: z.record(z.string(), z.unknown()).optional().describe("Optional Qdrant payload filter (forwarded as-is to QdrantMemoryEngine.recall)"),
 }).passthrough();
 
+// INTEL-OLLAMA-OBSIDIAN-MS0/P4-U01: writes to QdrantMemoryEngine.remember.
+// Mirrors the dispatcher's hand-rolled validation in memoryDispatcher.ts so
+// schema audit (P8 phase) sees coverage parity with semantic_search.
+const remember = z.object({
+  kind: z.enum(SEMANTIC_KIND_VALUES).describe("Memory kind / Qdrant collection (must match a registered MEMORY_KIND)"),
+  id: z.union([z.string(), z.number()]).describe("Stable record id (path, hash, or numeric)"),
+  text: z.string().min(1).max(32768).describe("Text to embed and store (max 32KB to keep embedding bounded)"),
+  metadata: z.record(z.string(), z.unknown()).optional().describe("Extra payload — source, tags, indexed_at, etc."),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -102,4 +112,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   pressure_get,
   pressure_recommend,
   semantic_search,
+  remember,
 };
