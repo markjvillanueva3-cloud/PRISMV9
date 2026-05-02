@@ -431,4 +431,10 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     input: z.record(z.string(), z.unknown()).describe("ClearanceReport — head/wire clearance status for WEDMFailsafeEngine.planFromClearance() — returns FailsafePlan with step ladder"),
   }).passthrough(),
   wedm_fewshot_material_list: z.object({}).passthrough().describe("No input — returns WEDMFewShotMaterialEngine.listMaterials() — list of materials with adapters available"),
+  // WEDM-WIRE-MS0/Batch22: scheduling + self-awareness + human handoff
+  wedm_scheduling_list_reservations: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{machineId?: string} for WEDMSchedulingEngine.listReservations() — returns WEDMReservation[]"),
+  }).passthrough(),
+  wedm_self_awareness_state: z.object({}).passthrough().describe("No input — returns WEDMSelfAwarenessEngine combined snapshot (substrate + autonomy + learning + tribal)"),
+  wedm_handoff_pending: z.object({}).passthrough().describe("No input — returns WEDMHumanHandoffEngine.listPending() — pending HandoffPacket[] awaiting operator acknowledgement"),
 };

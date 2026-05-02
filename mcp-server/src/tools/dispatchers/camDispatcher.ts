@@ -1197,6 +1197,8 @@ export const ACTIONS = [
   "wedm_blackboard_stats", "wedm_continuous_learning_ingest", "wedm_feedback_submit",
   // WEDM-WIRE-MS0/Batch21: exception handler + failsafe + few-shot material (3 engines)
   "wedm_exception_handle", "wedm_failsafe_plan_clearance", "wedm_fewshot_material_list",
+  // WEDM-WIRE-MS0/Batch22: scheduling + self-awareness + human handoff (3 engines)
+  "wedm_scheduling_list_reservations", "wedm_self_awareness_state", "wedm_handoff_pending",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6798,6 +6800,44 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { wedmFewShotMaterialEngine } = await import("../../engines/WEDMFewShotMaterialEngine.js");
             try {
               result = { success: true, materials: wedmFewShotMaterialEngine.listMaterials() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch22: scheduling + self-awareness + human handoff
+          // ============================================================
+          case "wedm_scheduling_list_reservations": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const machineId = input && typeof input.machineId === "string" ? input.machineId : undefined;
+            try {
+              result = { success: true, reservations: wedmSchedulingEngine.listReservations(machineId) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_self_awareness_state": {
+            const { wedmSelfAwarenessEngine } = await import("../../engines/WEDMSelfAwarenessEngine.js");
+            try {
+              result = {
+                success: true,
+                substrate: wedmSelfAwarenessEngine.getSubstrateState(),
+                autonomy: wedmSelfAwarenessEngine.getAutonomyState(),
+                learning: wedmSelfAwarenessEngine.getLearningState(),
+                tribal: wedmSelfAwarenessEngine.getTribalState(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_handoff_pending": {
+            const { wedmHumanHandoffEngine } = await import("../../engines/WEDMHumanHandoffEngine.js");
+            try {
+              result = { success: true, pending: wedmHumanHandoffEngine.listPending() };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
