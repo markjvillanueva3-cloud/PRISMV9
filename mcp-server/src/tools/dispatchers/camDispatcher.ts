@@ -1631,6 +1631,8 @@ export const ACTIONS = [
   "cam_fusion360_probing_list", "cam_fusion360_probing_lookup", "cam_fusion360_probing_validate", "cam_fusion360_probing_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-TOOL-01 — Fusion 360 tool library export (Tools.json round-trip)
   "cam_fusion360_tool_parse", "cam_fusion360_tool_serialize", "cam_fusion360_tool_validate", "cam_fusion360_tool_stats",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-MULTIAXIS-01 — Fusion 360 5-axis kinematic + indexed plane math
+  "cam_fusion360_multiaxis_list", "cam_fusion360_multiaxis_lookup", "cam_fusion360_multiaxis_validate", "cam_fusion360_multiaxis_plane_matrix", "cam_fusion360_multiaxis_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13088,6 +13090,36 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { Fusion360ToolExportEngine } = await import("../../engines/Fusion360ToolExportEngine.js");
             const tools = params.tools as Parameters<typeof Fusion360ToolExportEngine.stats>[0];
             result = Fusion360ToolExportEngine.stats(tools);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-MULTIAXIS-01: Fusion 360 multi-axis ──
+          case "cam_fusion360_multiaxis_list": {
+            const { Fusion360MultiAxisEngine } = await import("../../engines/Fusion360MultiAxisEngine.js");
+            result = { kinematics: Fusion360MultiAxisEngine.list() };
+            break;
+          }
+          case "cam_fusion360_multiaxis_lookup": {
+            const { Fusion360MultiAxisEngine } = await import("../../engines/Fusion360MultiAxisEngine.js");
+            const id = params.id as string;
+            result = { id, kinematic: Fusion360MultiAxisEngine.lookup(id) };
+            break;
+          }
+          case "cam_fusion360_multiaxis_validate": {
+            const { Fusion360MultiAxisEngine } = await import("../../engines/Fusion360MultiAxisEngine.js");
+            const args = params as Parameters<typeof Fusion360MultiAxisEngine.validateOrientation>[0];
+            result = Fusion360MultiAxisEngine.validateOrientation(args);
+            break;
+          }
+          case "cam_fusion360_multiaxis_plane_matrix": {
+            const { Fusion360MultiAxisEngine } = await import("../../engines/Fusion360MultiAxisEngine.js");
+            const plane = params.plane as Parameters<typeof Fusion360MultiAxisEngine.planeRotationMatrix>[0];
+            result = { matrix: Fusion360MultiAxisEngine.planeRotationMatrix(plane) };
+            break;
+          }
+          case "cam_fusion360_multiaxis_audit": {
+            const { Fusion360MultiAxisEngine } = await import("../../engines/Fusion360MultiAxisEngine.js");
+            result = Fusion360MultiAxisEngine.auditCatalog();
             break;
           }
 
