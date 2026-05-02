@@ -81,6 +81,8 @@ const ACTIONS = [
   "lathe_masterpost_emit", "lathe_masterpost_validate", "lathe_masterpost_audit",
   // LATHE-WIRE-MS0/Batch10: AI sequence + auto quote + orchestration pipeline
   "lathe_ai_optimize_sequence", "lathe_auto_quote", "lathe_orchestrate",
+  // LATHE-WIRE-MS0/Batch11: feature recognize + tolerance stack + toolpath generate
+  "lathe_feature_recognize", "lathe_tolerance_stack_analyze", "lathe_toolpath_generate",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -822,6 +824,56 @@ Actions: ${ACTIONS.join(", ")}.`,
               result = latheOrchestrationEngine.calculate(
                 actionTag,
                 orchInput as Parameters<typeof latheOrchestrationEngine.calculate>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_feature_recognize": {
+            const { latheTurningFeatureRecognizerEngine } = await import("../../engines/LatheTurningFeatureRecognizerEngine.js");
+            const intake = (params as Record<string, unknown>).intake;
+            if (!intake || typeof intake !== "object") { result = { success: false, error: "intake required (BlueprintIntake)" }; break; }
+            try {
+              result = latheTurningFeatureRecognizerEngine.recognize(
+                intake as Parameters<typeof latheTurningFeatureRecognizerEngine.recognize>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_tolerance_stack_analyze": {
+            const { lathePrintToleranceStackEngine } = await import("../../engines/LathePrintToleranceStackEngine.js");
+            const features = (params as Record<string, unknown>).features;
+            const budgetMm = (params as Record<string, unknown>).budget_mm;
+            if (!Array.isArray(features)) { result = { success: false, error: "features array required (RecognizedFeature[])" }; break; }
+            if (typeof budgetMm !== "number" || !Number.isFinite(budgetMm)) { result = { success: false, error: "budget_mm finite number required" }; break; }
+            try {
+              result = lathePrintToleranceStackEngine.analyzeStacks(
+                features as Parameters<typeof lathePrintToleranceStackEngine.analyzeStacks>[0],
+                budgetMm,
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_toolpath_generate": {
+            const { lathePrintToolpathGeneratorEngine } = await import("../../engines/LathePrintToolpathGeneratorEngine.js");
+            const sequencePlan = (params as Record<string, unknown>).sequence_plan;
+            const features = (params as Record<string, unknown>).features;
+            const material = (params as Record<string, unknown>).material;
+            if (!sequencePlan || typeof sequencePlan !== "object") { result = { success: false, error: "sequence_plan required (SequencePlan)" }; break; }
+            if (!Array.isArray(features)) { result = { success: false, error: "features array required (FeatureInput[])" }; break; }
+            if (!material || typeof material !== "object") { result = { success: false, error: "material required (MaterialInput)" }; break; }
+            try {
+              const limits = (params as Record<string, unknown>).limits;
+              result = lathePrintToolpathGeneratorEngine.generateProgram(
+                sequencePlan as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[0],
+                features as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[1],
+                material as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[2],
+                limits as Parameters<typeof lathePrintToolpathGeneratorEngine.generateProgram>[3],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

@@ -413,4 +413,18 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     input: z.record(z.string(), z.unknown()).describe("LatheOrchestrationInput — full pipeline input (features, material, tools, machine, etc.)"),
     orch_action: z.string().optional().describe("Optional pipeline action tag (defaults to 'default'); first arg to LatheOrchestrationEngine.calculate()"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch11: feature recognize + tolerance stack + toolpath generate
+  lathe_feature_recognize: z.object({
+    intake: z.record(z.string(), z.unknown()).describe("BlueprintIntake from a prior lathe_print_ingest action — drives turning-feature recognition"),
+  }).passthrough(),
+  lathe_tolerance_stack_analyze: z.object({
+    features: z.array(z.record(z.string(), z.unknown())).min(1).describe("RecognizedFeature[] — recognized print features for tolerance stack analysis"),
+    budget_mm: z.number().describe("Total tolerance budget in mm (drives Cpk target assignment)"),
+  }).passthrough(),
+  lathe_toolpath_generate: z.object({
+    sequence_plan: z.record(z.string(), z.unknown()).describe("SequencePlan from a prior lathe_print_sequence_plan action"),
+    features: z.array(z.record(z.string(), z.unknown())).describe("FeatureInput[] — print features for geometry context"),
+    material: z.record(z.string(), z.unknown()).describe("MaterialInput — workpiece material for cutting-data lookup"),
+    limits: z.record(z.string(), z.unknown()).optional().describe("MachineLimits — optional envelope/feed/spindle caps (defaults supplied if omitted)"),
+  }).passthrough(),
 };
