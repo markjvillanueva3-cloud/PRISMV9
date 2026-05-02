@@ -1199,6 +1199,8 @@ export const ACTIONS = [
   "wedm_exception_handle", "wedm_failsafe_plan_clearance", "wedm_fewshot_material_list",
   // WEDM-WIRE-MS0/Batch22: scheduling + self-awareness + human handoff (3 engines)
   "wedm_scheduling_list_reservations", "wedm_self_awareness_state", "wedm_handoff_pending",
+  // WEDM-WIRE-MS0/Batch23: virtual machine twin + reasoning bridge + start point optimizer (3 engines)
+  "wedm_virtual_machine_predict", "wedm_reasoning_bridge_enrich", "wedm_start_point_optimize",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6838,6 +6840,50 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { wedmHumanHandoffEngine } = await import("../../engines/WEDMHumanHandoffEngine.js");
             try {
               result = { success: true, pending: wedmHumanHandoffEngine.listPending() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch23: virtual machine twin + reasoning bridge + start point
+          // ============================================================
+          case "wedm_virtual_machine_predict": {
+            const { wedmVirtualMachineEngine } = await import("../../engines/WEDMVirtualMachineEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const horizonMs = input && typeof input.horizonMs === "number" && input.horizonMs > 0 ? input.horizonMs : 0;
+            if (!horizonMs) {
+              result = { success: false, error: "input.horizonMs (positive number) required" };
+              break;
+            }
+            try {
+              result = { success: true, prediction: wedmVirtualMachineEngine.predict(horizonMs), state: wedmVirtualMachineEngine.getState() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_reasoning_bridge_enrich": {
+            const { wedmReasoningBridgeEngine } = await import("../../engines/WEDMReasoningBridgeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (BridgeInput)" }; break; }
+            try {
+              result = wedmReasoningBridgeEngine.enrichContext(
+                input as Parameters<typeof wedmReasoningBridgeEngine.enrichContext>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_start_point_optimize": {
+            const { wedmStartPointOptimizationEngine } = await import("../../engines/WEDMStartPointOptimizationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (StartPointOptimizationInput)" }; break; }
+            try {
+              result = wedmStartPointOptimizationEngine.optimize(
+                input as Parameters<typeof wedmStartPointOptimizationEngine.optimize>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

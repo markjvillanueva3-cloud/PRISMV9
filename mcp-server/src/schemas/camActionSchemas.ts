@@ -437,4 +437,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   }).passthrough(),
   wedm_self_awareness_state: z.object({}).passthrough().describe("No input — returns WEDMSelfAwarenessEngine combined snapshot (substrate + autonomy + learning + tribal)"),
   wedm_handoff_pending: z.object({}).passthrough().describe("No input — returns WEDMHumanHandoffEngine.listPending() — pending HandoffPacket[] awaiting operator acknowledgement"),
+  // WEDM-WIRE-MS0/Batch23: virtual machine twin + reasoning bridge + start point
+  wedm_virtual_machine_predict: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{horizonMs: number} for WEDMVirtualMachineEngine.predict() — returns TwinPrediction + current TwinState"),
+  }).passthrough(),
+  wedm_reasoning_bridge_enrich: z.object({
+    input: z.record(z.string(), z.unknown()).describe("BridgeInput - decision context for WEDMReasoningBridgeEngine.enrichContext() — returns EnrichedContext"),
+  }).passthrough(),
+  wedm_start_point_optimize: z.object({
+    input: z.record(z.string(), z.unknown()).describe("StartPointOptimizationInput - profile + constraints for WEDMStartPointOptimizationEngine.optimize() — returns StartPointOptimizationResult"),
+  }).passthrough(),
 };
