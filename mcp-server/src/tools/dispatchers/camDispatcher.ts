@@ -1123,8 +1123,8 @@ export const ACTIONS = [
   "motion_axis_decompose", "motion_feed_effectiveness", "motion_optimize_feed",
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
-  // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0
-  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
+  // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0 + MS5
+  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_okuma_osp", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -1617,6 +1617,8 @@ export const ACTIONS = [
   "cam_nightly_run", "cam_nightly_list_recent", "cam_nightly_get_run", "cam_nightly_text_dashboard", "cam_nightly_dashboard_data", "cam_nightly_audit",
   // CAM-EXHAUST-MS0 U-CAMTEST17 — Regression detector vs golden baseline
   "cam_regression_detect", "cam_regression_detect_against_golden", "cam_regression_load_golden", "cam_regression_promote_golden", "cam_regression_has_golden", "cam_regression_findings_by_severity", "cam_regression_findings_by_type", "cam_regression_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-CYCLES-01 — Fusion 360 cycle catalog (52 cycles, 8 categories)
+  "cam_fusion360_cycle_catalog_list", "cam_fusion360_cycle_catalog_list_by_category", "cam_fusion360_cycle_catalog_lookup", "cam_fusion360_cycle_catalog_search", "cam_fusion360_cycle_catalog_stats", "cam_fusion360_cycle_catalog_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -5399,6 +5401,54 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             });
             break;
           }
+          case "master_post_okuma_osp": {
+            // PPG-WIRE-MS5/U-PPGW-OkumaMill — Okuma OSP-P300M / OSP-P500M
+            // mill master post. Closes the OSP-P*M HARD-REJECT branch in
+            // master_post_by_machine. Same MillOperation contract as Hurco;
+            // family flag selects 3-axis (P300M) vs 5-axis (P500M).
+            const { okumaOSPMillMasterPostEngine } = await import("../../engines/OkumaOSPMillMasterPostEngine.js");
+            const p = params as {
+              operations: Array<{
+                operation_type: string;
+                tool_number: number;
+                tool_diameter_mm: number;
+                tool_flutes: number;
+                tool_description?: string;
+                material_iso: string;
+                spindle_rpm: number;
+                feed_mm_min: number;
+                axial_depth_mm: number;
+                radial_depth_mm?: number;
+                coolant?: "flood" | "mist" | "tsc" | "off";
+                coordinates: Array<{ x: number; y: number; z: number; type: string }>;
+                arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+              }>;
+              config?: {
+                program_number?: number;
+                program_comment?: string;
+                osp_family?: "P300" | "P500";
+                use_super_nurbs?: boolean;
+                coolant_mode?: "flood" | "mist" | "tsc" | "off";
+                work_offset_index?: number;
+                units?: "metric" | "inch";
+                safe_z_mm?: number;
+                tool_change_position?: { x: number; y: number; z: number };
+                max_spindle_rpm?: number;
+              };
+              /** Tier for sealMasterPostOutput post-emit verifier; omit to skip gate. */
+              verify_tier?: "sim" | "proven_out" | "production" | "shop_floor";
+            };
+            const ospEngineOutput = okumaOSPMillMasterPostEngine.generateProgram(
+              p.operations as any,
+              p.config,
+            );
+            const { sealMasterPostOutput: sealOSP } = await import("../../cps/sealMasterPostOutput.js");
+            result = sealOSP(ospEngineOutput, {
+              source_engine_versions: { "OkumaOSPMillMasterPostEngine": "1.0.0" },
+              verify_tier: p.verify_tier,
+            });
+            break;
+          }
           case "master_post_mitsubishi_mv1200r": {
             const { mitsubishiMV1200RWireEDMMasterPostEngine } = await import("../../engines/MitsubishiMV1200RWireEDMMasterPostEngine.js");
             const p = params as {
@@ -5461,17 +5511,32 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "master_post_by_machine": {
             const model = (params.machine_model as string ?? "").toUpperCase();
             // ────────────────────────────────────────────────────────────
-            // U-PPGW12 — Okuma mill controller hard-reject (PRECEDES the
-            // lathe match). OSP-P300M/P500M = mill; no Okuma mill master
-            // post engine exists. Reject loudly rather than mis-route to
-            // the lathe engine; track under PPG-WIRE-MS5/OkumaMill.
+            // U-PPGW-OkumaMill (PPG-WIRE-MS5) — Okuma OSP-P*M mill branch.
+            // Replaces the previous HARD-REJECT (U-PPGW12). OSP-P300M and
+            // OSP-P500M now route through OkumaOSPMillMasterPostEngine.
+            // The mill check still PRECEDES the OKUMA-lathe branch so the
+            // dispatcher cannot mis-route a mill controller to the lathe
+            // engine even when the model name also contains "OKUMA".
+            //
+            // Family inference: "OSP-P500" / "OSP_P500" → P500M (5-axis
+            // MU-V); anything else with "OSP-P*M" suffix → P300M (3-axis
+            // MB-V / Genos M, the default).
             // ────────────────────────────────────────────────────────────
             if (model.includes("OSP-P300M") || model.includes("OSP_P300M") ||
                 model.includes("OSP-P500M") || model.includes("OSP_P500M")) {
-              result = {
-                success: false,
-                error: `Okuma mill controller "${params.machine_model}" detected; no Okuma mill master post engine exists yet. Track under PPG-WIRE-MS5/U-PPGW-OkumaMill. Use a Hurco mill or specify a different controller.`,
-              };
+              const { okumaOSPMillMasterPostEngine } = await import("../../engines/OkumaOSPMillMasterPostEngine.js");
+              const ospFamily: "P300" | "P500" =
+                (model.includes("OSP-P500") || model.includes("OSP_P500")) ? "P500" : "P300";
+              const callerCfg = ((params as any).config ?? {}) as Record<string, unknown>;
+              const ospEngineOutput = okumaOSPMillMasterPostEngine.generateProgram(
+                (params as any).operations,
+                { ...callerCfg, osp_family: ospFamily } as any,
+              );
+              const { sealMasterPostOutput: sealOSPRouter } = await import("../../cps/sealMasterPostOutput.js");
+              result = sealOSPRouter(ospEngineOutput, {
+                source_engine_versions: { "OkumaOSPMillMasterPostEngine": "1.0.0" },
+                verify_tier: (params as any).verify_tier,
+              });
             } else if (
               model.includes("OKUMA") || model.includes("LB250") ||
               // U-PPGW12 — Okuma lathe alias-expand: LB-family compact
@@ -5534,7 +5599,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             } else {
               result = {
                 success: false,
-                error: `Unknown machine model: ${params.machine_model}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION. Wire EDM: MITSUBISHI_MV1200R. Mill controllers OSP-P300M/P500M are explicitly NOT supported (no engine).`,
+                error: `Unknown machine model: ${params.machine_model}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION; OKUMA OSP-P300M/OSP-P500M (PPG-WIRE-MS5/U-PPGW-OkumaMill). Wire EDM: MITSUBISHI_MV1200R.`,
               };
             }
             break;
@@ -12799,6 +12864,41 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMInHostRegressionDetectorEngine } = await import("../../engines/CAMInHostRegressionDetectorEngine.js");
             const report = params.report as Parameters<typeof CAMInHostRegressionDetectorEngine.auditReport>[0];
             result = CAMInHostRegressionDetectorEngine.auditReport(report);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-CYCLES-01: Fusion 360 cycle catalog ──
+          case "cam_fusion360_cycle_catalog_list": {
+            const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
+            result = { cycles: Fusion360CycleCatalogEngine.list() };
+            break;
+          }
+          case "cam_fusion360_cycle_catalog_list_by_category": {
+            const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
+            const category = params.category as Parameters<typeof Fusion360CycleCatalogEngine.listByCategory>[0];
+            result = { category, cycles: Fusion360CycleCatalogEngine.listByCategory(category) };
+            break;
+          }
+          case "cam_fusion360_cycle_catalog_lookup": {
+            const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
+            const code = params.code as string;
+            result = { code, cycle: Fusion360CycleCatalogEngine.lookup(code) };
+            break;
+          }
+          case "cam_fusion360_cycle_catalog_search": {
+            const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
+            const query = params.query as string;
+            result = { query, cycles: Fusion360CycleCatalogEngine.search(query) };
+            break;
+          }
+          case "cam_fusion360_cycle_catalog_stats": {
+            const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
+            result = Fusion360CycleCatalogEngine.stats();
+            break;
+          }
+          case "cam_fusion360_cycle_catalog_audit": {
+            const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
+            result = Fusion360CycleCatalogEngine.auditCatalog();
             break;
           }
 
