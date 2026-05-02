@@ -522,4 +522,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     input: z.record(z.string(), z.unknown()).describe("LatheSpeedFeedInput - material + tool + operation for LatheSpeedFeedCalculatorFacadeEngine.calculate() (static) — returns LatheSpeedFeedResult"),
   }).passthrough(),
   lathe_sf_supported_materials: z.object({}).passthrough().describe("No input — returns LatheSpeedFeedCalculatorFacadeEngine.listSupportedMaterials() + getVersion() (static) — supported material list + facade version"),
+  // LATHE-WIRE-MS0/Batch23: cadence orch + ensemble orch + experiment tracker
+  lathe_lora_cadence_orch_active: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{modelId: string} for LatheLoRACadenceOrchestratorEngine.getActiveRun() + canTrain() — returns active run + train-readiness"),
+  }).passthrough(),
+  lathe_lora_ensemble_orch_stats: z.object({}).passthrough().describe("No input — returns LatheLoRAEnsembleOrchestratorEngine.getStats() + getActiveRuns()"),
+  lathe_lora_experiment_create: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{name: string, hyperparameters: object, tags?: string[]} for LatheLoRAExperimentTrackerEngine.createExperiment() — returns Experiment"),
+  }).passthrough(),
 };

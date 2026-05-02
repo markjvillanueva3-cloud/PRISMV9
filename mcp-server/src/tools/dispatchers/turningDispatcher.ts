@@ -105,6 +105,8 @@ const ACTIONS = [
   "lathe_lora_combiner_remove_outliers", "lathe_lora_continual_replay_buffer", "lathe_lora_cron_list_jobs",
   // LATHE-WIRE-MS0/Batch22: feature inference + speed-feed facade (3 engines)
   "lathe_program_feature_infer_one", "lathe_sf_calculate", "lathe_sf_supported_materials",
+  // LATHE-WIRE-MS0/Batch23: cadence orchestrator + ensemble orchestrator + experiment tracker (3 engines)
+  "lathe_lora_cadence_orch_active", "lathe_lora_ensemble_orch_stats", "lathe_lora_experiment_create",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1349,6 +1351,56 @@ Actions: ${ACTIONS.join(", ")}.`,
                 materials: latheSpeedFeedCalculatorFacadeEngine.listSupportedMaterials(),
                 version: latheSpeedFeedCalculatorFacadeEngine.getVersion(),
               };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch23: cadence orch + ensemble orch + experiment tracker
+          // ============================================================
+          case "lathe_lora_cadence_orch_active": {
+            const { latheLoRACadenceOrchestratorEngine } = await import("../../engines/LatheLoRACadenceOrchestratorEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const modelId = input && typeof input.modelId === "string" ? input.modelId : "";
+            if (!modelId) { result = { success: false, error: "input.modelId (string) required" }; break; }
+            try {
+              result = {
+                success: true,
+                active_run: latheLoRACadenceOrchestratorEngine.getActiveRun(modelId),
+                can_train: latheLoRACadenceOrchestratorEngine.canTrain(modelId),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_ensemble_orch_stats": {
+            const { latheLoRAEnsembleOrchestratorEngine } = await import("../../engines/LatheLoRAEnsembleOrchestratorEngine.js");
+            try {
+              result = {
+                success: true,
+                stats: latheLoRAEnsembleOrchestratorEngine.getStats(),
+                active_runs: latheLoRAEnsembleOrchestratorEngine.getActiveRuns(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_experiment_create": {
+            const { latheLoRAExperimentTrackerEngine } = await import("../../engines/LatheLoRAExperimentTrackerEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({name, hyperparameters, tags?})" }; break; }
+            const name = typeof input.name === "string" ? input.name : "";
+            const hyperparameters = (input.hyperparameters && typeof input.hyperparameters === "object") ? input.hyperparameters as Record<string, unknown> : null;
+            const tags = Array.isArray(input.tags) ? input.tags.filter(t => typeof t === "string") as string[] : [];
+            if (!name || !hyperparameters) {
+              result = { success: false, error: "input.name (string) and input.hyperparameters (object) required" };
+              break;
+            }
+            try {
+              result = latheLoRAExperimentTrackerEngine.createExperiment(name, hyperparameters, tags);
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
