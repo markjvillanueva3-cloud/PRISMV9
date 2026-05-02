@@ -357,4 +357,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_post_makino: z.object({
     input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller-specific post for WEDMPostMakinoEngine.generate() — emits Makino-dialect G-code"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch14: post Sodick + Agie + DWG import (async)
+  wedm_post_sodick: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller-specific post for WEDMPostSodickEngine.generate() — emits Sodick-dialect G-code with E/S tech-table conditions"),
+  }).passthrough(),
+  wedm_post_agie: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller-specific post for WEDMPostAgieEngine.generate() — emits AgieCharmilles-dialect G-code with TEC/pulse table"),
+  }).passthrough(),
+  wedm_dwg_import: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DwgImportInput - DWG file path + converter config for WEDMDwgImportEngine.import() (async, shells out to LibreDWG/ODA)"),
+  }).passthrough(),
 };

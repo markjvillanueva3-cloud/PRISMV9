@@ -1181,6 +1181,8 @@ export const ACTIONS = [
   "wedm_print_to_program", "wedm_overage_request", "wedm_credit_cost_calc",
   // WEDM-WIRE-MS0/Batch13: post Mitsubishi + Fanuc + Makino (controller-specific generate)
   "wedm_post_mitsubishi", "wedm_post_fanuc", "wedm_post_makino",
+  // WEDM-WIRE-MS0/Batch14: post Sodick + Agie + DWG import (async)
+  "wedm_post_sodick", "wedm_post_agie", "wedm_dwg_import",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6426,6 +6428,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmPostMakinoEngine.generate(
                 input as Parameters<typeof wedmPostMakinoEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch14: post Sodick + Agie + DWG import (async) ──
+          case "wedm_post_sodick": {
+            const { wedmPostSodickEngine } = await import("../../engines/WEDMPostSodickEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMPostInput)" }; break; }
+            try {
+              result = wedmPostSodickEngine.generate(
+                input as Parameters<typeof wedmPostSodickEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_post_agie": {
+            const { wedmPostAgieEngine } = await import("../../engines/WEDMPostAgieEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMPostInput)" }; break; }
+            try {
+              result = wedmPostAgieEngine.generate(
+                input as Parameters<typeof wedmPostAgieEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_dwg_import": {
+            const { wedmDwgImportEngine } = await import("../../engines/WEDMDwgImportEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DwgImportInput)" }; break; }
+            try {
+              result = await wedmDwgImportEngine.import(
+                input as Parameters<typeof wedmDwgImportEngine.import>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
