@@ -1195,6 +1195,8 @@ export const ACTIONS = [
   "wedm_autonomy_snapshot", "wedm_feature_importance_compute", "edm_bimaterial_optimize",
   // WEDM-WIRE-MS0/Batch20: blackboard + continuous learning + feedback calibration (3 engines)
   "wedm_blackboard_stats", "wedm_continuous_learning_ingest", "wedm_feedback_submit",
+  // WEDM-WIRE-MS0/Batch21: exception handler + failsafe + few-shot material (3 engines)
+  "wedm_exception_handle", "wedm_failsafe_plan_clearance", "wedm_fewshot_material_list",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6758,6 +6760,44 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = wedmFeedbackCalibrationEngine.submit_feedback(
                 input as Parameters<typeof wedmFeedbackCalibrationEngine.submit_feedback>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch21: exception handler + failsafe + few-shot material
+          // ============================================================
+          case "wedm_exception_handle": {
+            const { wedmExceptionHandlerEngine } = await import("../../engines/WEDMExceptionHandlerEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMException)" }; break; }
+            try {
+              result = wedmExceptionHandlerEngine.handle(
+                input as Parameters<typeof wedmExceptionHandlerEngine.handle>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_failsafe_plan_clearance": {
+            const { wedmFailsafeEngine } = await import("../../engines/WEDMFailsafeEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ClearanceReport)" }; break; }
+            try {
+              result = wedmFailsafeEngine.planFromClearance(
+                input as Parameters<typeof wedmFailsafeEngine.planFromClearance>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_fewshot_material_list": {
+            const { wedmFewShotMaterialEngine } = await import("../../engines/WEDMFewShotMaterialEngine.js");
+            try {
+              result = { success: true, materials: wedmFewShotMaterialEngine.listMaterials() };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

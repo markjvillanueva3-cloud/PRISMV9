@@ -423,4 +423,12 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_feedback_submit: z.object({
     input: z.record(z.string(), z.unknown()).describe("WEDMFeedback — operator feedback record for WEDMFeedbackCalibrationEngine.submit_feedback() — adjusts k_ra + eta_mrr calibration"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch21: exception handler + failsafe + few-shot material
+  wedm_exception_handle: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMException — exception payload for WEDMExceptionHandlerEngine.handle() — returns RecoveryPlan with directive ladder"),
+  }).passthrough(),
+  wedm_failsafe_plan_clearance: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ClearanceReport — head/wire clearance status for WEDMFailsafeEngine.planFromClearance() — returns FailsafePlan with step ladder"),
+  }).passthrough(),
+  wedm_fewshot_material_list: z.object({}).passthrough().describe("No input — returns WEDMFewShotMaterialEngine.listMaterials() — list of materials with adapters available"),
 };
