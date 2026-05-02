@@ -377,4 +377,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_pulse_limit_validate: z.object({
     input: z.record(z.string(), z.unknown()).describe("PulseLimitInput - pulse on-time + off-time + peak current for WEDMPulseLimitEngine.validate() — safety limit gate"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch16: online learning + reasoning + progress tracker
+  wedm_online_predict_v2: z.object({
+    input: z.record(z.string(), z.unknown()).describe("OnlinePredictInput - {material, parameters (ProductionFeedback['parameters']), thickness, machineId} for WEDMOnlineLearningEngine.predict() — multi-outcome prediction with confidence"),
+  }).passthrough(),
+  wedm_reasoning_explain_v2: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ReasoningQuery - decision context for WEDMReasoningExplainEngine.explain() — returns ReasoningExplanation with provenance"),
+  }).passthrough(),
+  wedm_progress_start_job: z.object({
+    input: z.record(z.string(), z.unknown()).describe("StartJobInput - {job_id?, total_stages?=30} for WEDMProgressTrackerEngine.startJob() — initializes JobProgress ledger"),
+  }).passthrough(),
 };

@@ -1185,6 +1185,8 @@ export const ACTIONS = [
   "wedm_post_sodick", "wedm_post_agie", "wedm_dwg_import",
   // WEDM-WIRE-MS0/Batch15: Ra predictor + recast depth + pulse limit
   "wedm_ra_predict", "wedm_recast_depth_predict", "wedm_pulse_limit_validate",
+  // WEDM-WIRE-MS0/Batch16: online learning + reasoning + progress tracker (3 engines)
+  "wedm_online_predict_v2", "wedm_reasoning_explain_v2", "wedm_progress_start_job",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6511,6 +6513,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = wedmPulseLimitEngine.validate(
                 input as Parameters<typeof wedmPulseLimitEngine.validate>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch16: online learning + reasoning + progress tracker
+          // ============================================================
+          case "wedm_online_predict_v2": {
+            const { wedmOnlineLearningEngine } = await import("../../engines/WEDMOnlineLearningEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (OnlinePredictInput)" }; break; }
+            const material = typeof input.material === "string" ? input.material : "";
+            const thickness = typeof input.thickness === "number" ? input.thickness : 0;
+            const machineId = typeof input.machineId === "string" ? input.machineId : "default";
+            const parameters = input.parameters;
+            if (!material || !parameters || typeof parameters !== "object") {
+              result = { success: false, error: "input.material (string) and input.parameters (object) required" };
+              break;
+            }
+            try {
+              result = wedmOnlineLearningEngine.predict(
+                material,
+                parameters as Parameters<typeof wedmOnlineLearningEngine.predict>[1],
+                thickness,
+                machineId,
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_reasoning_explain_v2": {
+            const { wedmReasoningExplainEngine } = await import("../../engines/WEDMReasoningExplainEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ReasoningQuery)" }; break; }
+            try {
+              result = wedmReasoningExplainEngine.explain(
+                input as Parameters<typeof wedmReasoningExplainEngine.explain>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_progress_start_job": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (StartJobInput)" }; break; }
+            const job_id = typeof input.job_id === "string" && input.job_id.length > 0
+              ? input.job_id
+              : wedmProgressTrackerEngine.generateJobId();
+            const total_stages = typeof input.total_stages === "number" && input.total_stages > 0
+              ? input.total_stages
+              : 30;
+            try {
+              result = wedmProgressTrackerEngine.startJob(job_id, total_stages);
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
