@@ -337,4 +337,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     generated_nc: z.string().describe("Generated NC program text to compare against reference"),
     options: z.record(z.string(), z.unknown()).optional().describe("Optional comparison options (filename hints, tolerance overrides)"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch12: print-to-program (async) + overage approval + credit cost
+  wedm_print_to_program: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMGenerateInput - print + material + thickness + machine context for WEDMPrintToProgramEngine.generate() (async, awaits self-awareness lookup)"),
+  }).passthrough(),
+  wedm_overage_request: z.object({
+    input: z.record(z.string(), z.unknown()).describe("OverageRequestInput - job_id + overage_amount + reason for WEDMOverageApprovalEngine.createRequest()"),
+  }).passthrough(),
+  wedm_credit_cost_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("CreditCostInput - cycle time + power + dielectric usage for WEDMCreditCostEngine.calculate()"),
+  }).passthrough(),
 };

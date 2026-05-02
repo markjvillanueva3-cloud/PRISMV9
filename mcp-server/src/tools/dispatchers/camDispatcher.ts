@@ -1177,6 +1177,8 @@ export const ACTIONS = [
   "wedm_learning_recommend", "wedm_batch_process", "wedm_lattice_build",
   // WEDM-WIRE-MS0/Batch11: post dialect route + power density guard + program compare
   "wedm_post_route", "wedm_power_density_validate", "wedm_program_compare",
+  // WEDM-WIRE-MS0/Batch12: print-to-program (async) + overage approval + credit cost
+  "wedm_print_to_program", "wedm_overage_request", "wedm_credit_cost_calc",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6342,6 +6344,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 refNc,
                 genNc,
                 options as Parameters<typeof wedmProgramComparisonEngine.compare>[2],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch12: print-to-program (async) + overage approval + credit cost ──
+          case "wedm_print_to_program": {
+            const { wedmPrintToProgramEngine } = await import("../../engines/WEDMPrintToProgramEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMGenerateInput)" }; break; }
+            try {
+              result = await wedmPrintToProgramEngine.generate(
+                input as Parameters<typeof wedmPrintToProgramEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_overage_request": {
+            const { wedmOverageApprovalEngine } = await import("../../engines/WEDMOverageApprovalEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (OverageRequestInput)" }; break; }
+            try {
+              result = wedmOverageApprovalEngine.createRequest(
+                input as Parameters<typeof wedmOverageApprovalEngine.createRequest>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_credit_cost_calc": {
+            const { wedmCreditCostEngine } = await import("../../engines/WEDMCreditCostEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (CreditCostInput)" }; break; }
+            try {
+              result = wedmCreditCostEngine.calculate(
+                input as Parameters<typeof wedmCreditCostEngine.calculate>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
