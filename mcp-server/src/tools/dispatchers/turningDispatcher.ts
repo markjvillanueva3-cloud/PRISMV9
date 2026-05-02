@@ -71,6 +71,8 @@ const ACTIONS = [
   "lathe_cost_reconcile", "lathe_job_profitability_record", "lathe_inventory_upsert",
   // LATHE-WIRE-MS0/Batch5: print pipeline (strategy plan + sequence plan + setup select)
   "lathe_print_strategy_plan", "lathe_print_sequence_plan", "lathe_print_setup_select",
+  // LATHE-WIRE-MS0/Batch6: post processor + dialect validator + spec ingest
+  "lathe_post_process", "lathe_post_dialect_compare", "lathe_post_spec_ingest",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -604,6 +606,50 @@ Actions: ${ACTIONS.join(", ")}.`,
                 material as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[1],
                 loads as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[2],
                 chucks as Parameters<typeof lathePrintSetupSelectionEngine.selectSetup>[3],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_post_process": {
+            const { lathePostProcessorEngine } = await import("../../engines/LathePostProcessorEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            const config = (params as Record<string, unknown>).config;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (LatheInput)" }; break; }
+            if (!config || typeof config !== "object") { result = { success: false, error: "config required (LathePostConfig)" }; break; }
+            try {
+              result = lathePostProcessorEngine.process(
+                input as Parameters<typeof lathePostProcessorEngine.process>[0],
+                config as Parameters<typeof lathePostProcessorEngine.process>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_post_dialect_compare": {
+            const { lathePostProcessorDialectValidatorEngine } = await import("../../engines/LathePostProcessorDialectValidatorEngine.js");
+            const refPath = (params as Record<string, unknown>).reference_path;
+            const refContent = (params as Record<string, unknown>).reference_content;
+            const genContent = (params as Record<string, unknown>).generated_content;
+            if (typeof refPath !== "string") { result = { success: false, error: "reference_path string required" }; break; }
+            if (typeof refContent !== "string") { result = { success: false, error: "reference_content string required" }; break; }
+            if (typeof genContent !== "string") { result = { success: false, error: "generated_content string required" }; break; }
+            try {
+              result = lathePostProcessorDialectValidatorEngine.compare(refPath, refContent, genContent);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_post_spec_ingest": {
+            const { lathePostGeneratorSpecIngestEngine } = await import("../../engines/LathePostGeneratorSpecIngestEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (SpecIngestionInput)" }; break; }
+            try {
+              result = lathePostGeneratorSpecIngestEngine.ingest(
+                input as Parameters<typeof lathePostGeneratorSpecIngestEngine.ingest>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

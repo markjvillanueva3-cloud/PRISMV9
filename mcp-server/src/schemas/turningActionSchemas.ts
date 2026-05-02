@@ -353,4 +353,17 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
     loads: z.record(z.string(), z.unknown()).describe("CuttingLoadInput — cutting force loads for chuck-grip sizing"),
     chucks: z.array(z.record(z.string(), z.unknown())).optional().describe("ChuckSpec[] — optional candidate chucks (defaults supplied if omitted)"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch6: post processor + dialect validator + spec ingest
+  lathe_post_process: z.object({
+    input: z.record(z.string(), z.unknown()).describe("LatheInput — toolpath + ops + tool list to post-process"),
+    config: z.record(z.string(), z.unknown()).describe("LathePostConfig — controller dialect + machine config"),
+  }).passthrough(),
+  lathe_post_dialect_compare: z.object({
+    reference_path: z.string().describe("File path of the reference G-code program (for diagnostics)"),
+    reference_content: z.string().describe("Reference G-code program content (golden master)"),
+    generated_content: z.string().describe("Generated G-code program content to validate against reference"),
+  }).passthrough(),
+  lathe_post_spec_ingest: z.object({
+    input: z.record(z.string(), z.unknown()).describe("SpecIngestionInput — controller spec to ingest into the post-generator catalog"),
+  }).passthrough(),
 };
