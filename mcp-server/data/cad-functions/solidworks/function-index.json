@@ -18,8 +18,8 @@
       "module_id": "part_operations",
       "path": "cad-functions/solidworks/part-operations.json",
       "covered_units": ["U-CAD-FIDX-SW-02"],
-      "parameter_count_estimate": 0,
-      "description": "(pending) Solid feature layer: 4 sweep features + 4 cut variants, boundary, hole wizard (5 hole types × 4 termination modes), rib, dome, indent, flex/deform, fillet/chamfer/shell/draft, patterns (linear/circular/curve/sketch/table/fill), mirror, body operations (move/copy/scale/combine/split/intersect).",
+      "parameter_count_estimate": 190,
+      "description": "Solid feature layer: 30 operations covering the four sweep families with boss + cut variants (extrude / revolve / sweep / loft — 8 ops with 8 termination modes on extrude), boundary surface→solid, the hole wizard (5 hole types × 5 termination modes folded into one op), 5 apply features (rib / dome / indent / flex / thicken), 4 modify features (fillet / chamfer / shell / draft including variable-radius and neutral-plane modes), 6 patterns (linear / circular / curve-driven / sketch-driven / table-driven / fill), mirror_feature, and 4 body operations (move-copy / scale / combine / split). Bindings target SolidWorks API IFeatureManager (FeatureExtrusion3 / FeatureRevolve2 / FeatureSweep / FeatureLoft / etc.) and IModelDoc2 body operations. Foundation for assembly_operations (components are part instances), drawing_operations (views derive from feature-tree topology), sheet_metal_operations (sheet metal subsets the part-modeling environment), and weldment_operations (weldment is multi-body part topology).",
       "dependencies": ["sketch_operations"]
     },
     {
@@ -97,19 +97,18 @@
   },
   "coverage_summary": {
     "total_modules": 8,
-    "total_units_covered": ["U-CAD-FIDX-SW-01"],
-    "estimated_parameter_total": 132,
+    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02"],
+    "estimated_parameter_total": 322,
     "api_surface": {
-      "sw_api_com_items": 22,
-      "vba_macro_items": 22,
-      "vsta_addin_items": 22,
+      "sw_api_com_items": 52,
+      "vba_macro_items": 52,
+      "vsta_addin_items": 52,
       "solidworks_2024_compatible": true,
       "solidworks_2025_compatible": true,
       "coverage_state": "IN_PROGRESS",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 7,
+      "phase_1_target_modules_remaining": 6,
       "phase_1_modules_pending": [
-        "part_operations",
         "surface_operations",
         "assembly_operations",
         "drawing_operations",
@@ -122,8 +121,17 @@
     },
     "pdf_sources_bound": [
       "SolidWorks 2024 API Help — Sketch",
+      "SolidWorks 2024 API Help — Features",
       "SolidWorks API Reference — ISketchManager",
-      "SolidWorks API Reference — IFeatureManager.InsertSketch"
+      "SolidWorks API Reference — IFeatureManager",
+      "SolidWorks API Reference — IFeatureManager.InsertSketch",
+      "SolidWorks API Reference — IFeatureManager.FeatureExtrusion3",
+      "SolidWorks API Reference — IFeatureManager.FeatureRevolve2",
+      "SolidWorks API Reference — IFeatureManager.FeatureSweep",
+      "SolidWorks API Reference — IFeatureManager.FeatureLoft",
+      "SolidWorks API Reference — IFeatureManager.HoleWizard5",
+      "SolidWorks API Reference — IBody2 (move/scale/combine/split)",
+      "SolidWorks Hole Wizard standards (ANSI / DIN / ISO)"
     ]
   },
   "tribal_knowledge_integration": {
@@ -147,7 +155,7 @@
     "design_tables": true,
     "equations": true,
     "sketch_layer": true,
-    "part_layer": false,
+    "part_layer": true,
     "surface_layer": false,
     "assembly_layer": false,
     "drawing_layer": false,

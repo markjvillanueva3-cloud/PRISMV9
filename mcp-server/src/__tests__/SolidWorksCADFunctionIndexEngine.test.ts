@@ -204,13 +204,19 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       ]);
     });
 
-    it("listAllOperations returns 22 ops total (only sketch shipped this unit)", () => {
+    it("listAllOperations returns 52 ops total (sketch + part shipped through U-02)", () => {
       const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
-      expect(all).toHaveLength(22);
+      expect(all).toHaveLength(52);
     });
 
-    it("listOperations('part_operations') returns 0 — module pending — failure mode", () => {
-      expect(SolidWorksCADFunctionIndexEngine.listOperations("part_operations")).toHaveLength(0);
+    it("listOperations('part_operations') returns 30 (shipped in U-02)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.listOperations("part_operations")).toHaveLength(30);
+    });
+
+    it("listOperations('surface_operations') returns 0 — module pending — failure mode", () => {
+      expect(SolidWorksCADFunctionIndexEngine.listOperations("surface_operations")).toHaveLength(
+        0,
+      );
     });
   });
 
@@ -355,11 +361,10 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
   });
 
   describe("searchParameters — substring search across operations", () => {
-    it("searchParameters('Sketch Plane') finds the 16 operations carrying that parameter", () => {
+    it("searchParameters('Sketch Plane') finds 17 operations across sketch + part modules", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Sketch Plane");
-      // 16 operations explicitly carry a Sketch Plane parameter (every primitive geometry op
-      // plus TRIM_ENTITIES and MIRROR_ENTITIES; modify ops without plane reference are excluded).
-      expect(matches.length).toBe(16);
+      // 16 sketch ops carry Sketch Plane + HOLE_WIZARD references it for hole placement = 17.
+      expect(matches.length).toBe(17);
       // First match must reference the sketch_operations module
       expect(matches[0]?.module_id).toBe("sketch_operations");
       expect(matches[0]?.parameter.name).toBe("Sketch Plane");
@@ -370,12 +375,11 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(matches.length).toBe(3);
     });
 
-    it("searchParameters('Mode') finds exactly the operations with Mode dropdowns", () => {
+    it("searchParameters('Mode') finds the operations with Mode-bearing parameters", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Mode");
-      // CIRCLE, ARC, STYLE_SPLINE, POLYGON, RECTANGLE, SLOT, TEXT, SMART_DIMENSION,
-      // SKETCH_CHAMFER, TRIM_ENTITIES — exactly 10 operations expose a Mode parameter.
+      // 10 sketch ops carry "Mode" + 1 part_operations op contributes a Mode-bearing parameter = 11.
       const distinctOps = new Set(matches.map((m) => m.operation_id));
-      expect(distinctOps.size).toBe(10);
+      expect(distinctOps.size).toBe(11);
     });
 
     it("searchParameters returns [] for nonsense queries — failure mode", () => {
@@ -411,8 +415,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(empty).toHaveLength(0);
     });
 
-    it("getTotalParameterCount equals 132 (matches metadata.totalParameters)", () => {
-      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(132);
+    it("getTotalParameterCount equals 322 (132 sketch + 190 part)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(322);
     });
 
     it("declared estimated_parameter_total matches actual count (no drift)", () => {
@@ -420,12 +424,12 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
       const actual = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
       expect(declared).toBe(actual);
-      expect(declared).toBe(132);
+      expect(declared).toBe(322);
     });
   });
 
   describe("coverage_summary + platform_integration — phase 1 progress", () => {
-    it("coverage_state is IN_PROGRESS with 7 modules pending and the right pending list", () => {
+    it("coverage_state is IN_PROGRESS with 6 modules pending and the right pending list", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
         coverage_state?: string;
         phase_1_target_modules_remaining?: number;
@@ -434,9 +438,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         inventor_parity?: boolean;
       };
       expect(api.coverage_state).toBe("IN_PROGRESS");
-      expect(api.phase_1_target_modules_remaining).toBe(7);
+      expect(api.phase_1_target_modules_remaining).toBe(6);
       expect(api.phase_1_modules_pending).toEqual([
-        "part_operations",
         "surface_operations",
         "assembly_operations",
         "drawing_operations",
@@ -448,10 +451,10 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(api.inventor_parity).toBe(false);
     });
 
-    it("platform_integration has only sketch_layer enabled this unit", () => {
+    it("platform_integration has sketch_layer + part_layer enabled through U-02", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration ?? {};
       expect(pi.sketch_layer).toBe(true);
-      expect(pi.part_layer).toBe(false);
+      expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(false);
       expect(pi.assembly_layer).toBe(false);
       expect(pi.drawing_layer).toBe(false);
@@ -468,9 +471,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_2024_compatible?: boolean;
         solidworks_2025_compatible?: boolean;
       };
-      expect(api.sw_api_com_items).toBe(22);
-      expect(api.vba_macro_items).toBe(22);
-      expect(api.vsta_addin_items).toBe(22);
+      expect(api.sw_api_com_items).toBe(52);
+      expect(api.vba_macro_items).toBe(52);
+      expect(api.vsta_addin_items).toBe(52);
       expect(api.solidworks_2024_compatible).toBe(true);
       expect(api.solidworks_2025_compatible).toBe(true);
     });
@@ -502,6 +505,308 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       const b = SolidWorksCADFunctionIndexEngine.getIndex();
       expect(a === b).toBe(true);
       expect(SolidWorksCADFunctionIndexEngine.getLoadErrors()).toHaveLength(0);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-02 — part_operations module
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const KNOWN_PART_OPS_30 = [
+    "EXTRUDE_BOSS",
+    "EXTRUDE_CUT",
+    "REVOLVE_BOSS",
+    "REVOLVE_CUT",
+    "SWEEP_BOSS",
+    "SWEEP_CUT",
+    "LOFT_BOSS",
+    "LOFT_CUT",
+    "BOUNDARY",
+    "HOLE_WIZARD",
+    "RIB",
+    "DOME",
+    "INDENT",
+    "FLEX",
+    "THICKEN",
+    "FILLET",
+    "CHAMFER",
+    "SHELL",
+    "DRAFT",
+    "LINEAR_PATTERN",
+    "CIRCULAR_PATTERN",
+    "CURVE_DRIVEN_PATTERN",
+    "SKETCH_DRIVEN_PATTERN",
+    "TABLE_DRIVEN_PATTERN",
+    "FILL_PATTERN",
+    "MIRROR_FEATURE",
+    "MOVE_COPY_BODY",
+    "SCALE_BODY",
+    "COMBINE_BODIES",
+    "SPLIT_BODY",
+  ];
+
+  describe("part_operations — module catalog (U-CAD-FIDX-SW-02)", () => {
+    it("loads the part_operations catalog and reports schemaVersion '1.0.0'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("part_operations");
+      expect(cat).not.toBeNull();
+      expect(cat!.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.totalParameters is exactly 190 (matches index declaration)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("part_operations");
+      expect(cat!.metadata.totalParameters).toBe(190);
+    });
+
+    it("metadata.operationCount is exactly 30", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("part_operations");
+      expect(cat!.metadata.operationCount).toBe(30);
+    });
+
+    it("metadata.milestone is 'U-CAD-FIDX-SW-02'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("part_operations");
+      expect(cat!.metadata.milestone).toBe("U-CAD-FIDX-SW-02");
+    });
+
+    it("listOperations('part_operations') returns exactly 30 operations", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("part_operations");
+      expect(ops).toHaveLength(30);
+    });
+
+    it("listOperations contains every expected part-feature op id", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("part_operations");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([...KNOWN_PART_OPS_30].sort());
+    });
+
+    it("module_entry.parameter_count_estimate is 190 in the index header", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("part_operations");
+      expect(entry!.parameter_count_estimate).toBe(190);
+    });
+
+    it("module_entry.dependencies is exactly ['sketch_operations']", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("part_operations");
+      expect(entry!.dependencies).toEqual(["sketch_operations"]);
+    });
+
+    it("sum of per-tab parameter arrays equals 190 (no count drift)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("part_operations");
+      let total = 0;
+      for (const opId of Object.keys(cat!.operations)) {
+        const op = (cat!.operations as Record<string, { tabs?: Record<string, { parameters?: unknown[] }> }>)[opId];
+        for (const tabName of Object.keys(op.tabs ?? {})) {
+          total += (op.tabs![tabName].parameters ?? []).length;
+        }
+      }
+      expect(total).toBe(190);
+    });
+  });
+
+  describe("part_operations — sweep families (8 ops with boss/cut variants)", () => {
+    it("EXTRUDE_BOSS binds to IFeatureManager.FeatureExtrusion3", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "EXTRUDE_BOSS");
+      expect(op!.solidworks_command).toBe("Insert.Boss.Extrude");
+      expect(op!.solidworks_api).toBe("IFeatureManager.FeatureExtrusion3");
+      expect(op!.category).toBe("Part_Sweep_Boss");
+    });
+
+    it("EXTRUDE_CUT binds to IFeatureManager.FeatureCut4", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "EXTRUDE_CUT");
+      expect(op!.solidworks_command).toBe("Insert.Cut.Extrude");
+      expect(op!.solidworks_api).toBe("IFeatureManager.FeatureCut4");
+      expect(op!.category).toBe("Part_Sweep_Cut");
+    });
+
+    it("REVOLVE_BOSS binds to IFeatureManager.FeatureRevolve2", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "REVOLVE_BOSS");
+      expect(op!.solidworks_api).toBe("IFeatureManager.FeatureRevolve2");
+    });
+
+    it("LOFT_BOSS lives in the Part_Sweep_Boss category", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "LOFT_BOSS");
+      expect(op!.category).toBe("Part_Sweep_Boss");
+    });
+
+    it("operationsByCategory('Part_Sweep_Boss') returns exactly 4 ops (extrude/revolve/sweep/loft)", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Part_Sweep_Boss");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["EXTRUDE_BOSS", "LOFT_BOSS", "REVOLVE_BOSS", "SWEEP_BOSS"]);
+    });
+
+    it("operationsByCategory('Part_Sweep_Cut') returns exactly 4 ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Part_Sweep_Cut");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["EXTRUDE_CUT", "LOFT_CUT", "REVOLVE_CUT", "SWEEP_CUT"]);
+    });
+
+    it("EXTRUDE_BOSS End Condition has 8 termination modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "part_operations",
+        "EXTRUDE_BOSS",
+        "End Condition",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "blind",
+        "through_all",
+        "up_to_next",
+        "up_to_vertex",
+        "up_to_surface",
+        "offset_from_surface",
+        "up_to_body",
+        "mid_plane",
+      ]);
+    });
+  });
+
+  describe("part_operations — hole wizard, apply, modify families", () => {
+    it("HOLE_WIZARD binds to IFeatureManager.HoleWizard5", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "HOLE_WIZARD");
+      expect(op!.solidworks_api).toBe("IFeatureManager.HoleWizard5");
+    });
+
+    it("HOLE_WIZARD Hole Type dropdown lists exactly 5 hole types", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "part_operations",
+        "HOLE_WIZARD",
+        "Hole Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "simple",
+        "counterbore",
+        "countersink",
+        "threaded_tap",
+        "tapered_pipe",
+      ]);
+    });
+
+    it("HOLE_WIZARD End Condition lists exactly 5 termination modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "part_operations",
+        "HOLE_WIZARD",
+        "End Condition",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "blind",
+        "through_all",
+        "up_to_next",
+        "up_to_vertex",
+        "up_to_surface",
+      ]);
+    });
+
+    it("operationsByCategory('Part_Apply') returns exactly 5 ops (rib/dome/indent/flex/thicken)", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Part_Apply");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["DOME", "FLEX", "INDENT", "RIB", "THICKEN"]);
+    });
+
+    it("operationsByCategory('Part_Modify') returns exactly 4 ops (fillet/chamfer/shell/draft)", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Part_Modify");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["CHAMFER", "DRAFT", "FILLET", "SHELL"]);
+    });
+
+    it("FILLET 'Fillet Type' dropdown contains 'variable_radius' (variable-radius fillet support)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "part_operations",
+        "FILLET",
+        "Fillet Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toContain("variable_radius");
+    });
+
+    it("DRAFT 'Draft Type' dropdown contains all 3 draft modes (neutral/parting/step)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "part_operations",
+        "DRAFT",
+        "Draft Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["neutral_plane", "parting_line", "step"]);
+    });
+  });
+
+  describe("part_operations — patterns, mirror, body operations", () => {
+    it("operationsByCategory('Part_Pattern') returns exactly 6 pattern ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Part_Pattern");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "CIRCULAR_PATTERN",
+        "CURVE_DRIVEN_PATTERN",
+        "FILL_PATTERN",
+        "LINEAR_PATTERN",
+        "SKETCH_DRIVEN_PATTERN",
+        "TABLE_DRIVEN_PATTERN",
+      ]);
+    });
+
+    it("operationsByCategory('Part_Body') returns exactly 4 body ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Part_Body");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["COMBINE_BODIES", "MOVE_COPY_BODY", "SCALE_BODY", "SPLIT_BODY"]);
+    });
+
+    it("MIRROR_FEATURE has its own Part_Mirror category (distinct from patterns)", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "MIRROR_FEATURE");
+      expect(op!.category).toBe("Part_Mirror");
+    });
+
+    it("COMBINE_BODIES 'Operation' dropdown lists boolean modes (add/subtract/common)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "part_operations",
+        "COMBINE_BODIES",
+        "Operation",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["add", "subtract", "common"]);
+    });
+
+    it("LINEAR_PATTERN binds to IFeatureManager.FeatureLinearPattern5", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("part_operations", "LINEAR_PATTERN");
+      expect(op!.solidworks_api).toBe("IFeatureManager.FeatureLinearPattern5");
+    });
+  });
+
+  describe("part_operations — coverage rollup into the index", () => {
+    it("coverage_summary.total_units_covered now lists U-01 and U-02", () => {
+      const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
+      expect(cs.total_units_covered).toEqual(["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02"]);
+    });
+
+    it("coverage_summary.estimated_parameter_total is 322 (132 sketch + 190 part)", () => {
+      const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
+      expect(cs.estimated_parameter_total).toBe(322);
+    });
+
+    it("api_surface counts climb from 22 to 52 (22 sketch + 30 part ops)", () => {
+      const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
+      expect(api.sw_api_com_items).toBe(52);
+      expect(api.vba_macro_items).toBe(52);
+      expect(api.vsta_addin_items).toBe(52);
+    });
+
+    it("phase_1_target_modules_remaining drops from 7 to 6", () => {
+      const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
+      expect(api.phase_1_target_modules_remaining).toBe(6);
+    });
+
+    it("phase_1_modules_pending no longer contains 'part_operations'", () => {
+      const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
+      expect(api.phase_1_modules_pending).not.toContain("part_operations");
+      expect(api.phase_1_modules_pending).toHaveLength(6);
+    });
+
+    it("platform_integration.part_layer is now true", () => {
+      const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration;
+      expect(pi.part_layer).toBe(true);
+    });
+
+    it("getTotalParameterCount() returns 322 across both shipped modules", () => {
+      const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
+      expect(total).toBe(322);
     });
   });
 });
