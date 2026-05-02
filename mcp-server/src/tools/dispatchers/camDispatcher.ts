@@ -1625,6 +1625,8 @@ export const ACTIONS = [
   "cam_fusion360_strategy_recommend", "cam_fusion360_strategy_pick_cycle", "cam_fusion360_strategy_baseline_vc", "cam_fusion360_strategy_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-SAFETY-01 — Fusion 360 safety hooks (15 rules, PASS/WARN/BLOCK verdict)
   "cam_fusion360_safety_validate", "cam_fusion360_safety_validate_all", "cam_fusion360_safety_rules", "cam_fusion360_safety_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-MAT-01 — Fusion 360 material bridge (24 materials, ISO-grouped)
+  "cam_fusion360_material_list", "cam_fusion360_material_lookup", "cam_fusion360_material_search", "cam_fusion360_material_by_iso", "cam_fusion360_material_kienzle", "cam_fusion360_material_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12995,6 +12997,42 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_safety_audit": {
             const { Fusion360SafetyHooksEngine } = await import("../../engines/Fusion360SafetyHooksEngine.js");
             result = Fusion360SafetyHooksEngine.auditEngine();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-MAT-01: Fusion 360 material bridge ──
+          case "cam_fusion360_material_list": {
+            const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
+            result = { materials: Fusion360MaterialBridgeEngine.list() };
+            break;
+          }
+          case "cam_fusion360_material_lookup": {
+            const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
+            const id = params.id as string;
+            result = { id, material: Fusion360MaterialBridgeEngine.lookup(id) };
+            break;
+          }
+          case "cam_fusion360_material_search": {
+            const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
+            const query = params.query as string;
+            result = { query, materials: Fusion360MaterialBridgeEngine.search(query) };
+            break;
+          }
+          case "cam_fusion360_material_by_iso": {
+            const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
+            const iso = params.iso_group as Parameters<typeof Fusion360MaterialBridgeEngine.listByISOGroup>[0];
+            result = { iso_group: iso, materials: Fusion360MaterialBridgeEngine.listByISOGroup(iso) };
+            break;
+          }
+          case "cam_fusion360_material_kienzle": {
+            const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
+            const id = params.material_id as string;
+            result = { material_id: id, kienzle: Fusion360MaterialBridgeEngine.kienzleFor(id) };
+            break;
+          }
+          case "cam_fusion360_material_audit": {
+            const { Fusion360MaterialBridgeEngine } = await import("../../engines/Fusion360MaterialBridgeEngine.js");
+            result = Fusion360MaterialBridgeEngine.auditCatalog();
             break;
           }
 
