@@ -3,8 +3,9 @@
 **Trigger phrase:** `continue posts` (any chat, any session)
 **Roadmap:** `PPG-WIRE-MS0` — Post Processor Generator (sidecar bridge + dialect branches)
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
-**Last touched:** 2026-05-01 (claude-b913f3b9)
+**Last touched:** 2026-05-02 (claude-40932463 — resumed after claude-b913f3b9 crash)
 **Last commits on roadmap:**
+- `01b44110d [MAIN] PPG-WIRE-MS5/U-PPGW-RapidReposition-Wiring: RapidRepositionOptEngine pipeline → Hurco + Okuma`
 - `4ca5d71cc [MAIN] PPG-WIRE-MS5/U-PPGW-AdvancedWiring: AutoSpeedFeed pipeline wired into Okuma + Hurco master posts`
 - `91885d7c3 [MAIN] PPG-WIRE-MS5/U-PPGW-FleetProfiles: register JM Die fleet (5 machines) + capability schema`
 - `09f155d03 [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill-CallOO88: 5-axis fixture-offset macro + WCS 51 reservation`
