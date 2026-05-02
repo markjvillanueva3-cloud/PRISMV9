@@ -407,4 +407,12 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   edm_quality_plan_cmm: z.object({
     input: z.record(z.string(), z.unknown()).describe("QualityVerificationInput - features + tolerances for EDMQualityOrchestratorEngine.planCMMRoutine() — returns CMMProbePoint[]"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch19: autonomy + feature importance + bimaterial
+  wedm_autonomy_snapshot: z.object({}).passthrough().describe("No input — returns WEDMAutonomyEngine.snapshot() — current AutonomyLevel + name + role + capability matrix"),
+  wedm_feature_importance_compute: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{data: WEDMDataPoint[], targetOutcome: OutcomeName, options?: {nPermutations?}} for WEDMFeatureImportanceEngine.computeImportance() — permutation feature importance"),
+  }).passthrough(),
+  edm_bimaterial_optimize: z.object({
+    input: z.record(z.string(), z.unknown()).describe("BiMaterialOptimizeInput - dual-material parameters for EDMBiMaterialCompensationEngine.optimize() — returns optimized cut params + transition zones"),
+  }).passthrough(),
 };

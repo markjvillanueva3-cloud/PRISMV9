@@ -1191,6 +1191,8 @@ export const ACTIONS = [
   "wedm_quote_to_line_items", "wedm_reasoning_trace_recent", "edm_feasibility_assess",
   // WEDM-WIRE-MS0/Batch18: adaptive pass strategy + few-shot first cut + EDM CMM (3 engines)
   "wedm_adaptive_pass_strategy", "wedm_fewshot_plan_first_cut", "edm_quality_plan_cmm",
+  // WEDM-WIRE-MS0/Batch19: autonomy snapshot + feature importance + bimaterial optimize (3 engines)
+  "wedm_autonomy_snapshot", "wedm_feature_importance_compute", "edm_bimaterial_optimize",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6670,6 +6672,52 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = { success: true, probe_points: edmQualityOrchestratorEngine.planCMMRoutine(
                 input as Parameters<typeof edmQualityOrchestratorEngine.planCMMRoutine>[0],
               ) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch19: autonomy snapshot + feature importance + bimaterial
+          // ============================================================
+          case "wedm_autonomy_snapshot": {
+            const { wedmAutonomyEngine } = await import("../../engines/WEDMAutonomyEngine.js");
+            try {
+              result = { success: true, snapshot: wedmAutonomyEngine.snapshot() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_feature_importance_compute": {
+            const { wedmFeatureImportanceEngine } = await import("../../engines/WEDMFeatureImportanceEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({data, targetOutcome, options?})" }; break; }
+            const data = Array.isArray(input.data) ? input.data : null;
+            const targetOutcome = typeof input.targetOutcome === "string" ? input.targetOutcome : "";
+            if (!data || !targetOutcome) {
+              result = { success: false, error: "input.data (WEDMDataPoint[]) and input.targetOutcome (OutcomeName) required" };
+              break;
+            }
+            try {
+              result = wedmFeatureImportanceEngine.computeImportance(
+                data as Parameters<typeof wedmFeatureImportanceEngine.computeImportance>[0],
+                targetOutcome as Parameters<typeof wedmFeatureImportanceEngine.computeImportance>[1],
+                input.options as Parameters<typeof wedmFeatureImportanceEngine.computeImportance>[2],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "edm_bimaterial_optimize": {
+            const { edmBiMaterialCompensationEngine } = await import("../../engines/EDMBiMaterialCompensationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (BiMaterialOptimizeInput)" }; break; }
+            try {
+              result = edmBiMaterialCompensationEngine.optimize(
+                input as Parameters<typeof edmBiMaterialCompensationEngine.optimize>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
