@@ -50,6 +50,8 @@ let _aiLearn: any, _millTurn: any, _fiveAxisAgg: any, _multiAxisAgg: any;
 let _tribal: any, _e2e: any, _traceLedger: any, _inferenceOrch: any;
 // MILL-WIRE-MS0/Batch1: swiss + LoRA dataset/cadence
 let _swiss: any, _loraDataset: any, _loraCadence: any;
+// MILL-WIRE-MS0/Batch2: mill-turn LoRA + CAM
+let _mtLoraDataset: any, _mtLoraCadence: any, _mtCam: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -134,6 +136,14 @@ async function getEngine(name: string): Promise<any> {
       return _loraDataset ??= (await import("../../engines/MillingLoRADatasetBuilderEngine.js")).millingLoRADatasetBuilderEngine;
     case "lora_cadence":
       return _loraCadence ??= (await import("../../engines/MillingLoRACadenceEngine.js")).millingLoRACadenceEngine;
+
+    // MILL-WIRE-MS0/Batch2: mill-turn LoRA + CAM
+    case "mt_lora_dataset":
+      return _mtLoraDataset ??= (await import("../../engines/MillTurnLoRADatasetBuilderEngine.js")).millTurnLoRADatasetBuilderEngine;
+    case "mt_lora_cadence":
+      return _mtLoraCadence ??= (await import("../../engines/MillTurnLoRACadenceEngine.js")).millTurnLoRACadenceEngine;
+    case "mt_cam":
+      return _mtCam ??= (await import("../../engines/MillTurnCAMEngine.js")).millTurnCAMEngine;
 
     default:
       throw new Error(`Unknown mill engine: ${name}`);
@@ -240,6 +250,11 @@ export const MILL_ACTIONS = [
   "mill_swiss_calculate",
   "mill_lora_dataset_build",
   "mill_lora_cadence_check",
+
+  // MILL-WIRE-MS0/Batch2: mill-turn LoRA + CAM (3 engines)
+  "mill_turn_lora_dataset_build",
+  "mill_turn_lora_cadence_check",
+  "mill_turn_cam_generate",
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -635,6 +650,30 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_lora_cadence_check": {
             const engine = await getEngine("lora_cadence");
             result = engine.shouldTriggerRun();
+            break;
+          }
+
+          // ============================================================
+          // MILL-WIRE-MS0/Batch2: mill-turn LoRA + CAM
+          // ============================================================
+          case "mill_turn_lora_dataset_build": {
+            const engine = await getEngine("mt_lora_dataset");
+            const jobs = Array.isArray(params.jobs) ? params.jobs : [];
+            result = engine.buildDataset(jobs, params.split);
+            break;
+          }
+          case "mill_turn_lora_cadence_check": {
+            const engine = await getEngine("mt_lora_cadence");
+            result = engine.shouldTriggerRun();
+            break;
+          }
+          case "mill_turn_cam_generate": {
+            const engine = await getEngine("mt_cam");
+            const operations = Array.isArray(params.operations) ? params.operations : [];
+            const config = (params.config && typeof params.config === "object")
+              ? params.config
+              : { material_iso_group: "P", machine_type: "mill_turn" };
+            result = engine.generate(operations, config);
             break;
           }
 

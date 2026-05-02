@@ -819,6 +819,52 @@ const mill_lora_cadence_check = z
   .passthrough()
   .describe("Input for MillingLoRACadenceEngine.shouldTriggerRun — checks if a LoRA training run should fire.");
 
+// ─── MILL-WIRE-MS0/Batch2: mill-turn LoRA + CAM ─────────────────────────────
+
+const mill_turn_lora_dataset_build = z
+  .object({
+    jobs: z.array(z.record(z.string(), z.unknown())).describe("Raw mill-turn job records."),
+    split: z
+      .object({
+        train: z.number().min(0).max(1).optional(),
+        val: z.number().min(0).max(1).optional(),
+        test: z.number().min(0).max(1).optional(),
+      })
+      .passthrough()
+      .optional()
+      .describe("Dataset split configuration (train/val/test fractions)."),
+  })
+  .passthrough()
+  .describe("Input for MillTurnLoRADatasetBuilderEngine.buildDataset — mill-turn LoRA dataset construction.");
+
+const mill_turn_lora_cadence_check = z
+  .object({})
+  .passthrough()
+  .describe("Input for MillTurnLoRACadenceEngine.shouldTriggerRun — mill-turn LoRA training trigger.");
+
+const mill_turn_cam_generate = z
+  .object({
+    operations: z
+      .array(z.record(z.string(), z.unknown()))
+      .describe("Mill-turn operations array (sorted by dependency + phase by engine)."),
+    config: z
+      .object({
+        material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group."),
+        bar_diameter_mm: z.number().positive().optional().describe("Bar stock diameter."),
+        bar_length_mm: z.number().positive().optional().describe("Bar stock length."),
+        part_length_mm: z.number().positive().optional().describe("Finished part length."),
+        machine_type: z.enum(["mill_turn", "swiss", "vtl"]).describe("Mill-turn machine class."),
+        max_main_rpm: z.number().positive().optional(),
+        max_sub_rpm: z.number().positive().optional(),
+        max_live_rpm: z.number().positive().optional(),
+        program_number: z.number().int().nonnegative().optional(),
+      })
+      .passthrough()
+      .describe("Mill-turn machine + stock configuration."),
+  })
+  .passthrough()
+  .describe("Input for MillTurnCAMEngine.generate — multi-channel mill-turn program generation.");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -925,4 +971,9 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_swiss_calculate,
   mill_lora_dataset_build,
   mill_lora_cadence_check,
+
+  // MILL-WIRE-MS0/Batch2: mill-turn LoRA + CAM
+  mill_turn_lora_dataset_build,
+  mill_turn_lora_cadence_check,
+  mill_turn_cam_generate,
 };
