@@ -1,0 +1,448 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Sketch Operations — 2D parametric authoring layer",
+    "description": "Parameter catalog for the SolidWorks 2D sketching environment. SolidWorks sketches are constraint-driven (DOF tracker enforces fully-defined / under-defined / over-defined state) and feed every solid feature (extrude / revolve / sweep / loft / cut) plus reference geometry (planes / axes). Catalog covers 22 operations spanning primitive geometry (line / centerline / circle / arc / spline / style_spline / polygon / rectangle / slot / ellipse / partial_ellipse / conic / point / text), constraints (smart_dimension across 10 modes + add_relation across 16 geometric relation types), and sketch modify ops (sketch_fillet / sketch_chamfer / trim_entities / extend_entities / offset_entities / mirror_entities). Bindings target SolidWorks API ISketchManager + IFeatureManager.InsertSketch (COM API), plus VBA macro and VSTA add-in execution surfaces.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-01",
+    "source": "SolidWorks 2024 API Help — Sketch; SolidWorks API Reference — ISketchManager.CreateLine / CreateCircle / CreateArc / etc.; Y14.5 dimensioning conventions for SmartDimension modes",
+    "totalParameters": 132,
+    "operationCount": 22,
+    "cad_concepts_used": [
+      "SKETCH_PARAMETRIC_2D",
+      "DIMENSIONAL_CONSTRAINT_SOLVER",
+      "GEOMETRIC_RELATION_NETWORK",
+      "DOF_DEGREE_OF_FREEDOM_TRACKER",
+      "CONSTRUCTION_GEOMETRY",
+      "NURBS_SPLINE",
+      "STYLE_SPLINE_BEZIER",
+      "CONIC_RHO_PARAMETER",
+      "K_FACTOR_NEUTRAL_AXIS"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks sketch operations",
+    "tabs": ["Shape", "Constraint", "Style"]
+  },
+  "operations": {
+    "LINE": {
+      "description": "Create a 2D line by two endpoints. Length and angle are derivable post-creation. Construction-geometry toggle converts to non-feature-affecting reference line.",
+      "category": "Sketch_Line",
+      "solidworks_command": "Sketch.Line",
+      "solidworks_api": "ISketchManager.CreateLine",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Endpoint 1", "type": "selection", "description": "Start point (X, Y) on the active sketch plane", "required": true},
+            {"name": "Endpoint 2", "type": "selection", "description": "End point (X, Y) on the active sketch plane", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "description": "Active sketch plane (Front/Top/Right/named/face)", "required": true},
+            {"name": "For Construction", "type": "checkbox", "description": "Mark as construction geometry — visible in sketch but ignored by feature creation", "default": false},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Computed line length, optionally constrained via SmartDimension"},
+            {"name": "Style", "type": "dropdown", "options": ["solid", "dashed", "phantom", "construction"], "default": "solid"}
+          ]
+        }
+      }
+    },
+    "CENTERLINE": {
+      "description": "Create a centerline (axis of symmetry / revolution axis). Always construction geometry. Used as the axis input for Revolve features and as the mirror axis for Mirror Entities.",
+      "category": "Sketch_Centerline",
+      "solidworks_command": "Sketch.Centerline",
+      "solidworks_api": "ISketchManager.CreateCenterLine",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Endpoint 1", "type": "selection", "description": "Start point", "required": true},
+            {"name": "Endpoint 2", "type": "selection", "description": "End point", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "description": "Active sketch plane", "required": true},
+            {"name": "For Symmetry", "type": "checkbox", "description": "Hint that this centerline is the symmetry axis for downstream Mirror Entities", "default": false},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Computed centerline length"}
+          ]
+        }
+      }
+    },
+    "CIRCLE": {
+      "description": "Create a circle by center+radius, perimeter (3-point), or 2-point/tangent variants. Mode parameter selects the construction method; required points adjust per mode.",
+      "category": "Sketch_Circle",
+      "solidworks_command": "Sketch.Circle",
+      "solidworks_api": "ISketchManager.CreateCircle / CreateCircleByRadius / CreatePerimeterCircle",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["center_radius", "perimeter_3point", "perimeter_2point", "tangent_3entity"], "default": "center_radius"},
+            {"name": "Center", "type": "selection", "description": "Center point (center_radius mode only)", "required": false},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Radius (center_radius mode)", "min": 0.001},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "description": "Alternative size input — synced to Radius", "min": 0.002},
+            {"name": "Perimeter Points", "type": "selection", "description": "Array of 2 or 3 perimeter points (perimeter modes)"},
+            {"name": "Sketch Plane", "type": "selection", "description": "Active sketch plane", "required": true},
+            {"name": "For Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ARC": {
+      "description": "Create an arc by centerpoint+endpoints, tangent to existing entity, or 3-point. Reverse Direction toggles minor vs major arc when ambiguous.",
+      "category": "Sketch_Arc",
+      "solidworks_command": "Sketch.Arc",
+      "solidworks_api": "ISketchManager.CreateArc / CreateTangentArc / CreatePerimeterCircle",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["centerpoint", "tangent", "3point"], "default": "centerpoint"},
+            {"name": "Center", "type": "selection", "description": "Arc center (centerpoint mode)"},
+            {"name": "Start Point", "type": "selection", "description": "Start endpoint", "required": true},
+            {"name": "End Point", "type": "selection", "description": "End endpoint", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Computed or constrained radius", "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Reverse Direction", "type": "checkbox", "description": "Toggle minor vs major arc", "default": false}
+          ]
+        }
+      }
+    },
+    "SPLINE": {
+      "description": "Create a NURBS spline through a sequence of through-points. Tangency and curvature handles can be enabled at endpoints for G1/G2 continuity into adjacent geometry. Smoothing tolerance allows non-interpolating fits for noisy point sets.",
+      "category": "Sketch_Spline",
+      "solidworks_command": "Sketch.Spline",
+      "solidworks_api": "ISketchManager.CreateSpline / CreateSpline2",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Through Points", "type": "selection", "description": "Ordered array of points the spline passes through", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Tangency Control", "type": "checkbox", "description": "Enable tangent vector handles at endpoints (G1)", "default": false},
+            {"name": "Curvature Control", "type": "checkbox", "description": "Enable curvature handles at endpoints (G2)", "default": false},
+            {"name": "End Tangent Direction", "type": "selection", "description": "Optional tangent reference entity at endpoints"},
+            {"name": "Closed", "type": "checkbox", "description": "Close the spline back to its first through-point", "default": false},
+            {"name": "Smoothing Tolerance", "type": "numeric", "unit": "mm", "description": "Non-interpolating tolerance — 0 forces exact pass-through", "min": 0, "default": 0}
+          ]
+        }
+      }
+    },
+    "STYLE_SPLINE": {
+      "description": "Create a style spline (Bezier-flavored or B-spline-flavored) by control polygon. Degree 3..5 controls smoothness vs local control trade-off. Style splines do not interpolate the control points; the curve lies inside the convex hull of the polygon.",
+      "category": "Sketch_StyleSpline",
+      "solidworks_command": "Sketch.StyleSpline",
+      "solidworks_api": "ISketchManager.CreateStyleSpline",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["b_spline", "bezier"], "default": "b_spline"},
+            {"name": "Degree", "type": "numeric", "description": "Polynomial degree (3..5 for B-spline, fixed by control point count for Bezier)", "min": 3, "max": 5, "default": 3},
+            {"name": "Control Points", "type": "selection", "description": "Ordered array of control polygon vertices", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Closed", "type": "checkbox", "default": false},
+            {"name": "Tangency", "type": "checkbox", "description": "Enable G1 tangent handles at endpoints", "default": false},
+            {"name": "Curvature", "type": "checkbox", "description": "Enable G2 curvature handles at endpoints", "default": false}
+          ]
+        }
+      }
+    },
+    "POLYGON": {
+      "description": "Create a regular N-sided polygon by center, diameter, and inscribed/circumscribed mode. Inscribed = vertices touch reference circle; Circumscribed = edge midpoints touch reference circle. Rotation angle orients the polygon relative to sketch X axis.",
+      "category": "Sketch_Polygon",
+      "solidworks_command": "Sketch.Polygon",
+      "solidworks_api": "ISketchManager.CreatePolygon",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Number of Sides", "type": "numeric", "description": "Side count", "min": 3, "max": 40, "default": 6, "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["inscribed", "circumscribed"], "default": "inscribed"},
+            {"name": "Center", "type": "selection", "description": "Polygon centroid", "required": true},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "description": "Reference circle diameter", "min": 0.002, "required": true},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "description": "Rotation about center, 0 = first vertex on +X", "default": 0},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "For Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "RECTANGLE": {
+      "description": "Create a rectangle in one of 5 placement modes: corner (2 opposite corners), center (center+corner), 3-point corner, 3-point center, parallelogram (3 corners). Mode determines required input points and the resulting parametric constraints.",
+      "category": "Sketch_Rectangle",
+      "solidworks_command": "Sketch.Rectangle",
+      "solidworks_api": "ISketchManager.CreateCornerRectangle / CreateCenterRectangle / Create3PointCornerRectangle / Create3PointCenterRectangle / CreateParallelogram",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["corner", "center", "3point_corner", "3point_center", "parallelogram"], "default": "corner"},
+            {"name": "Corner 1", "type": "selection", "description": "First corner / center reference (mode-dependent)", "required": true},
+            {"name": "Corner 2", "type": "selection", "description": "Opposite or 3rd corner (mode-dependent)", "required": true},
+            {"name": "Corner 3", "type": "selection", "description": "Third corner (3-point and parallelogram modes only)"},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Rectangle width — auto from corner picks", "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Rectangle height", "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        }
+      }
+    },
+    "SLOT": {
+      "description": "Create a slot (rounded-end elongated shape) in one of 4 modes: centerpoint_straight (center + length + width), 3point_straight (3 points), centerpoint_arc (curved slot from arc center + radius), 3point_arc (3 points along arc). Construction toggle and add-dimensions toggle control downstream behavior.",
+      "category": "Sketch_Slot",
+      "solidworks_command": "Sketch.Slot",
+      "solidworks_api": "ISketchManager.CreateCenterPointSlot / CreateThreePointSlot / CreateCenterPointArcSlot / CreateThreePointArcSlot",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["centerpoint_straight", "3point_straight", "centerpoint_arc", "3point_arc"], "default": "centerpoint_straight"},
+            {"name": "Center", "type": "selection", "description": "Slot center (centerpoint modes)"},
+            {"name": "End Points", "type": "selection", "description": "Array of 2 or 3 endpoints (3-point modes)"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Centerline length", "min": 0.001},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Slot width (= 2 × end-cap radius)", "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Add Dimensions", "type": "checkbox", "description": "Auto-create length + width SmartDimensions", "default": true},
+            {"name": "For Construction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "ELLIPSE": {
+      "description": "Create a full ellipse by center + major axis endpoint + minor axis endpoint. Major and minor radii derive from the endpoints; eccentricity follows.",
+      "category": "Sketch_Ellipse",
+      "solidworks_command": "Sketch.Ellipse",
+      "solidworks_api": "ISketchManager.CreateEllipse",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center", "type": "selection", "description": "Ellipse center", "required": true},
+            {"name": "Major Axis Endpoint", "type": "selection", "description": "End of major axis (defines orientation + length)", "required": true},
+            {"name": "Minor Axis Endpoint", "type": "selection", "description": "End of minor axis", "required": true},
+            {"name": "Major Radius", "type": "numeric", "unit": "mm", "description": "Computed semi-major axis length", "min": 0.001},
+            {"name": "Minor Radius", "type": "numeric", "unit": "mm", "description": "Computed semi-minor axis length", "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        }
+      }
+    },
+    "PARTIAL_ELLIPSE": {
+      "description": "Create a partial ellipse (elliptical arc) by center, major + minor axis endpoints, start angle, and end angle. Reverse Direction toggles which arc segment is kept.",
+      "category": "Sketch_PartialEllipse",
+      "solidworks_command": "Sketch.PartialEllipse",
+      "solidworks_api": "ISketchManager.CreatePartialEllipse",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Center", "type": "selection", "description": "Ellipse center", "required": true},
+            {"name": "Major Axis Endpoint", "type": "selection", "required": true},
+            {"name": "Minor Axis Endpoint", "type": "selection", "required": true},
+            {"name": "Start Angle", "type": "numeric", "unit": "deg", "description": "Sweep start, 0 = +X axis of ellipse", "min": -360, "max": 360, "default": 0},
+            {"name": "End Angle", "type": "numeric", "unit": "deg", "description": "Sweep end", "min": -360, "max": 360, "default": 90},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CONIC": {
+      "description": "Create a conic section (parabola/ellipse/hyperbola) defined by start, end, apex (control vertex), and Rho parameter. Rho < 0.5 = ellipse, Rho = 0.5 = parabola, Rho > 0.5 = hyperbola. Used heavily in aerospace fairings and optical surfaces.",
+      "category": "Sketch_Conic",
+      "solidworks_command": "Sketch.Conic",
+      "solidworks_api": "ISketchManager.CreateConic",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Start Point", "type": "selection", "description": "Conic start", "required": true},
+            {"name": "End Point", "type": "selection", "description": "Conic end", "required": true},
+            {"name": "Apex", "type": "selection", "description": "Apex (control vertex) — together with start/end defines the shoulder", "required": true},
+            {"name": "Rho", "type": "numeric", "description": "Rho parameter: 0 < ρ < 0.5 ellipse, ρ = 0.5 parabola, 0.5 < ρ < 1 hyperbola", "min": 0.001, "max": 0.999, "default": 0.5},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "For Construction", "type": "checkbox", "default": false},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative"], "default": "positive"}
+          ]
+        }
+      }
+    },
+    "POINT": {
+      "description": "Insert a sketch point. Used as reference for parametric position, hole-pattern centers, dimension witness anchors, and curve-on-surface seeds.",
+      "category": "Sketch_Point",
+      "solidworks_command": "Sketch.Point",
+      "solidworks_api": "ISketchManager.CreatePoint",
+      "parameterCount": 3,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Position", "type": "selection", "description": "(X, Y) on sketch plane or pick on entity", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Visible Style", "type": "dropdown", "options": ["dot", "x", "plus", "asterisk", "small_circle"], "default": "dot"}
+          ]
+        }
+      }
+    },
+    "TEXT": {
+      "description": "Create sketch text either on a curve (path mode — text follows the curve) or as a straight block. Font, size, and spacing are configurable; the resulting outline geometry can be extruded/cut as a feature.",
+      "category": "Sketch_Text",
+      "solidworks_command": "Sketch.Text",
+      "solidworks_api": "ISketchManager.InsertSketchText",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Text String", "type": "string", "description": "The literal text to render", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["straight", "on_path"], "default": "straight"},
+            {"name": "Path Reference", "type": "selection", "description": "Curve to follow (on_path mode only)"},
+            {"name": "Font", "type": "string", "description": "Font family name", "default": "Century Gothic"},
+            {"name": "Size", "type": "numeric", "unit": "mm", "description": "Glyph height", "min": 0.1, "default": 4},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Spacing", "type": "numeric", "description": "Character spacing factor (1.0 = font default)", "min": 0.1, "max": 5, "default": 1}
+          ]
+        }
+      }
+    },
+    "SMART_DIMENSION": {
+      "description": "Add a parametric dimension using SolidWorks's auto-detect dimensioning. Mode controls which dimension type is applied (smart = infer from selection, or one of: horizontal / vertical / aligned / angular / radial / diametral / arc_length / baseline / ordinate / chamfer). Tolerance form supports limit/bilateral/symmetric/MIN/MAX/Fit/Fit-with-tolerance per ASME Y14.5.",
+      "category": "Sketch_Dimension",
+      "solidworks_command": "Sketch.SmartDimension",
+      "solidworks_api": "IModelDoc2.AddDimension2 / ClickDimension",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["smart", "horizontal", "vertical", "aligned", "angular", "radial", "diametral", "arc_length", "baseline", "ordinate"], "default": "smart"},
+            {"name": "Entity Selection", "type": "selection", "description": "1, 2, or 3 entities depending on mode (point-point, line, line-line, arc, etc.)", "required": true},
+            {"name": "Witness Line Position", "type": "selection", "description": "Where the witness line lands (XY position)", "required": true},
+            {"name": "Tolerance Form", "type": "dropdown", "options": ["none", "basic", "bilateral", "limit", "symmetric", "min", "max", "fit", "fit_with_tolerance"], "default": "none"},
+            {"name": "Tolerance Values", "type": "numeric", "description": "Plus/minus or limit values (mode-dependent)"},
+            {"name": "Precision", "type": "numeric", "description": "Decimal places shown on drawing", "min": 0, "max": 8, "default": 2},
+            {"name": "Override Value", "type": "numeric", "description": "Driven dimension value (drives the geometry instead of being driven by it)"}
+          ]
+        }
+      }
+    },
+    "ADD_RELATION": {
+      "description": "Apply a geometric relation between selected sketch entities. Relation type covers all 16 SolidWorks relation flavors: coincident, concentric, collinear, parallel, perpendicular, tangent, equal, equal_length, horizontal, vertical, midpoint, intersection, fix, symmetric, merge, pierce. Pierce relates a sketch point to a 3D edge passing through the sketch plane. Symmetric requires a centerline.",
+      "category": "Sketch_Relation",
+      "solidworks_command": "Sketch.AddRelation",
+      "solidworks_api": "ISketchRelationManager.AddRelation",
+      "parameterCount": 3,
+      "tabs": {
+        "Constraint": {
+          "parameters": [
+            {"name": "Selected Entities", "type": "selection", "description": "Array of 1..N sketch entities to relate", "required": true},
+            {"name": "Relation Type", "type": "dropdown", "options": ["coincident", "concentric", "collinear", "parallel", "perpendicular", "tangent", "equal", "equal_length", "horizontal", "vertical", "midpoint", "intersection", "fix", "symmetric", "merge", "pierce"], "required": true},
+            {"name": "Override Existing", "type": "checkbox", "description": "Replace conflicting relations rather than failing", "default": false}
+          ]
+        }
+      }
+    },
+    "SKETCH_FILLET": {
+      "description": "Round one or more sketch corners with a constant radius. Optionally keeps the constraint network attached at the original corner (Keep Constrained Corners) so design intent survives.",
+      "category": "Sketch_Modify",
+      "solidworks_command": "Sketch.Fillet",
+      "solidworks_api": "ISketchManager.CreateFillet",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Selected Vertices Or Lines", "type": "selection", "description": "Vertex (single corner), or 2 lines forming a corner; multi-select supported", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Fillet radius — applied to every selected corner", "min": 0.001, "required": true},
+            {"name": "Keep Constrained Corners", "type": "checkbox", "description": "Retain original corner constraints via virtual sharp", "default": true},
+            {"name": "Apply To Multiple Corners", "type": "checkbox", "description": "Run on every selected vertex/line-pair in one operation", "default": true},
+            {"name": "Dimension Each Fillet", "type": "checkbox", "description": "Auto-add a SmartDimension to each fillet arc", "default": false}
+          ]
+        }
+      }
+    },
+    "SKETCH_CHAMFER": {
+      "description": "Bevel one or more sketch corners. Three parameterizations: angle_distance (one distance + an angle), distance_distance (two independent distances), equal_distance (single distance applied symmetrically).",
+      "category": "Sketch_Modify",
+      "solidworks_command": "Sketch.Chamfer",
+      "solidworks_api": "ISketchManager.CreateChamfer",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Selected Vertices Or Lines", "type": "selection", "description": "Corners to bevel", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["angle_distance", "distance_distance", "equal_distance"], "default": "equal_distance"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "description": "Distance along first leg (or symmetric distance for equal_distance)", "min": 0.001, "required": true},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Distance along second leg (distance_distance mode only)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Chamfer angle (angle_distance mode only)", "min": 1, "max": 89, "default": 45},
+            {"name": "Apply To Multiple", "type": "checkbox", "description": "Run on every selected corner in one operation", "default": true}
+          ]
+        }
+      }
+    },
+    "TRIM_ENTITIES": {
+      "description": "Remove portions of sketch entities. Five modes: trim_to_closest (snip up to nearest intersection), corner (extend/trim two entities until they meet at a clean corner), power_trim (drag cursor through entities to slice), trim_inside (delete portions inside boundary), trim_outside (delete portions outside boundary).",
+      "category": "Sketch_Modify",
+      "solidworks_command": "Sketch.Trim",
+      "solidworks_api": "ISketchManager.SketchTrim",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["trim_to_closest", "corner", "power_trim", "trim_inside", "trim_outside"], "default": "trim_to_closest"},
+            {"name": "Boundary Selection", "type": "selection", "description": "Required for trim_inside / trim_outside modes"},
+            {"name": "Power Trim Cursor Path", "type": "selection", "description": "Polyline that the cursor swept (power_trim mode only)"},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Confirm", "type": "checkbox", "description": "Auto-confirm without preview", "default": false}
+          ]
+        }
+      }
+    },
+    "EXTEND_ENTITIES": {
+      "description": "Extend a sketch line/arc to the next intersection or to a specified boundary. Direction = auto chooses the nearest hit; forward/backward override the search direction.",
+      "category": "Sketch_Modify",
+      "solidworks_command": "Sketch.Extend",
+      "solidworks_api": "ISketchManager.SketchExtend",
+      "parameterCount": 3,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Selected Entity", "type": "selection", "description": "Line/arc to extend", "required": true},
+            {"name": "Boundary", "type": "selection", "description": "Optional explicit boundary; if unset, extend to nearest intersection"},
+            {"name": "Direction", "type": "dropdown", "options": ["auto", "forward", "backward"], "default": "auto"}
+          ]
+        }
+      }
+    },
+    "OFFSET_ENTITIES": {
+      "description": "Create a parallel offset of a chain of sketch entities at a specified distance. Side selector controls which side of the original the offset lands on. Add End Caps closes the offset back to the source for closed-shape offsets. Make Base Construction converts the source chain to construction geometry.",
+      "category": "Sketch_Modify",
+      "solidworks_command": "Sketch.OffsetEntities",
+      "solidworks_api": "ISketchManager.SketchOffset / SketchOffset2",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Selected Entities", "type": "selection", "description": "Chain (single or multiple connected entities)", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Offset distance (positive)", "min": 0.001, "required": true},
+            {"name": "Side", "type": "dropdown", "options": ["positive", "negative", "both"], "default": "positive"},
+            {"name": "Add End Caps", "type": "checkbox", "description": "Close the offset shape with arc/line caps", "default": false},
+            {"name": "Cap Type", "type": "dropdown", "options": ["arc", "line"], "default": "arc"},
+            {"name": "Make Base Construction", "type": "checkbox", "description": "Demote source chain to construction geometry", "default": false},
+            {"name": "Chain Selection", "type": "checkbox", "description": "Auto-extend selection along connected chain", "default": true}
+          ]
+        }
+      }
+    },
+    "MIRROR_ENTITIES": {
+      "description": "Mirror selected sketch entities about a centerline. Copy mode duplicates; Move mode flips in place. Add Symmetric Relation creates a live symmetric constraint so future edits to the original propagate to the mirror.",
+      "category": "Sketch_Modify",
+      "solidworks_command": "Sketch.Mirror",
+      "solidworks_api": "ISketchManager.SketchMirror",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Selected Entities", "type": "selection", "description": "Entities to mirror", "required": true},
+            {"name": "Mirror About Line", "type": "selection", "description": "Centerline (or any line) to mirror across", "required": true},
+            {"name": "Copy Or Move", "type": "dropdown", "options": ["copy", "move"], "default": "copy"},
+            {"name": "Add Symmetric Relation", "type": "checkbox", "description": "Insert live symmetric constraints between source and mirror", "default": true},
+            {"name": "Sketch Plane", "type": "selection", "required": true}
+          ]
+        }
+      }
+    }
+  }
+}

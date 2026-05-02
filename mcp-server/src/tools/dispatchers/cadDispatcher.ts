@@ -200,6 +200,12 @@ const ACTIONS = [
   "cad_mastercam_operations_by_category",
   // Mastercam discovery surface (U-CAD-FIDX-MC-01 — full discovery from day 1)
   "cad_mastercam_summary", "cad_mastercam_total_parameter_count", "cad_mastercam_load_errors",
+  // SolidWorks CAD Function Index (U-CAD-FIDX-SW-01..08 — sketch + part + surface + assembly + drawing + sheet_metal + weldment + evaluation)
+  "cad_solidworks_get_index", "cad_solidworks_list_modules", "cad_solidworks_list_operations",
+  "cad_solidworks_get_operation", "cad_solidworks_find_parameter", "cad_solidworks_search_parameters",
+  "cad_solidworks_operations_by_category",
+  // SolidWorks discovery surface (U-CAD-FIDX-SW-01 — full discovery from day 1)
+  "cad_solidworks_summary", "cad_solidworks_total_parameter_count", "cad_solidworks_load_errors",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2183,6 +2189,164 @@ Params vary by action — pass relevant fields in params object.`,
               "../../engines/MastercamCADFunctionIndexEngine.js"
             );
             const errors = MastercamCADFunctionIndexEngine.getLoadErrors();
+            result = { success: true, count: errors.length, errors };
+            break;
+          }
+          // ─── SolidWorks CAD Function Index (U-CAD-FIDX-SW-01..08) ───────────
+          case "cad_solidworks_get_index": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            result = { success: true, index: SolidWorksCADFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "cad_solidworks_list_modules": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const modules = SolidWorksCADFunctionIndexEngine.listModules();
+            result = { success: true, count: modules.length, modules };
+            break;
+          }
+          case "cad_solidworks_list_operations": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operations = moduleId
+              ? SolidWorksCADFunctionIndexEngine.listOperations(moduleId)
+              : SolidWorksCADFunctionIndexEngine.listAllOperations();
+            result = { success: true, count: operations.length, operations };
+            break;
+          }
+          case "cad_solidworks_get_operation": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_solidworks_get_operation requires module_id and operation_id",
+                action,
+                "prism_cad"
+              );
+            }
+            const op = SolidWorksCADFunctionIndexEngine.getOperation(moduleId, operationId);
+            result = op
+              ? { success: true, module_id: moduleId, operation_id: operationId, operation: op }
+              : { success: false, error: `Operation not found: ${moduleId}/${operationId}` };
+            break;
+          }
+          case "cad_solidworks_find_parameter": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const parameterName = (params.parameter_name ?? params.parameterName) as
+              | string
+              | undefined;
+            if (!moduleId || !operationId || !parameterName) {
+              return dispatcherError(
+                "cad_solidworks_find_parameter requires module_id, operation_id, and parameter_name",
+                action,
+                "prism_cad"
+              );
+            }
+            const found = SolidWorksCADFunctionIndexEngine.findParameter(
+              moduleId,
+              operationId,
+              parameterName
+            );
+            result = found
+              ? { success: true, ...found }
+              : { success: false, error: `Parameter not found: ${parameterName}` };
+            break;
+          }
+          case "cad_solidworks_search_parameters": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const query = params.query as string | undefined;
+            const limit = (params.limit as number | undefined) ?? 50;
+            if (!query) {
+              return dispatcherError(
+                "cad_solidworks_search_parameters requires a 'query' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const matches = SolidWorksCADFunctionIndexEngine.searchParameters(query, limit);
+            result = { success: true, query, count: matches.length, matches };
+            break;
+          }
+          case "cad_solidworks_operations_by_category": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const category = params.category as string | undefined;
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            if (!category) {
+              return dispatcherError(
+                "cad_solidworks_operations_by_category requires a 'category' string",
+                action,
+                "prism_cad"
+              );
+            }
+            const operations = SolidWorksCADFunctionIndexEngine.getOperationsByCategory(
+              category,
+              moduleId
+            );
+            result = { success: true, category, count: operations.length, operations };
+            break;
+          }
+          case "cad_solidworks_summary": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const index = SolidWorksCADFunctionIndexEngine.getIndex();
+            const allOps = SolidWorksCADFunctionIndexEngine.listAllOperations();
+            const totalParams = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
+            result = {
+              success: true,
+              system_id: index.system_id,
+              module_name: index.module_name,
+              total_modules: index.coverage_summary.total_modules,
+              total_operations: allOps.length,
+              total_parameters: totalParams,
+              estimated_parameter_total: index.coverage_summary.estimated_parameter_total,
+              coverage_state:
+                (index.coverage_summary.api_surface as { coverage_state?: string } | undefined)
+                  ?.coverage_state ?? "UNKNOWN",
+              modules: index.modules.map((m) => ({
+                module_id: m.module_id,
+                covered_units: m.covered_units,
+                parameter_count_estimate: m.parameter_count_estimate,
+              })),
+            };
+            break;
+          }
+          case "cad_solidworks_total_parameter_count": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
+            const declared = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary
+              .estimated_parameter_total;
+            result = {
+              success: true,
+              total_parameters: total,
+              declared_total: declared,
+              drift: total - declared,
+            };
+            break;
+          }
+          case "cad_solidworks_load_errors": {
+            const { SolidWorksCADFunctionIndexEngine } = await import(
+              "../../engines/SolidWorksCADFunctionIndexEngine.js"
+            );
+            const errors = SolidWorksCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
             break;
           }

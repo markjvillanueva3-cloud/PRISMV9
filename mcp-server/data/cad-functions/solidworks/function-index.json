@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "solidworks",
+  "module_id": "cad_function_index",
+  "module_name": "SolidWorks CAD Unified Function Index",
+  "description": "Top-level index for SolidWorks CAD authoring operations. SolidWorks is a feature-tree-based parametric CAD system with discrete environments (Part, Assembly, Drawing) and explicit Sheet Metal + Weldment modes. This index covers the full CAD authoring surface: sketch_operations (2D constraint solver + dimensions + relations), part_operations (features + bodies + patterns + boolean), surface_operations (lofted/swept/boundary/fill + knit/trim/extend), assembly_operations (16+ mate types + components + configurations), drawing_operations (views + dimensions + GD&T + BOM), sheet_metal_operations (flange/bend/unfold + K-factor), weldment_operations (structural members + cut list + welds), and evaluation_operations (measure/mass/interference/cost/sustainability). Consumed by SolidWorksCADFunctionIndexEngine for parameter discovery and AI orchestration of SolidWorks CAD authoring via SolidWorks API COM (ISldWorks/IModelDoc2/IPartDoc/IAssemblyDoc/IDrawingDoc), VBA macro execution, and VSTA add-ins. Mirrors Inventor (8 modules, 983 params) and Mastercam (8 modules, 815 params) parity.",
+  "indexed_at": "2026-05-02T04:00:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/solidworks/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-01"],
+      "parameter_count_estimate": 132,
+      "description": "2D sketching layer: 22 operations covering primitive geometry (line / centerline / circle / arc / spline / style_spline / polygon / rectangle / slot / ellipse / partial_ellipse / conic / point / text), constraints (smart_dimension across 10 modes + add_relation across 16 geometric relation types), and sketch modify ops (sketch_fillet / sketch_chamfer / trim_entities / extend_entities / offset_entities / mirror_entities). Bindings target SolidWorks API ISketchManager + IFeatureManager.InsertSketch. Foundation layer for part_operations (every extrude/revolve/sweep/loft starts from a sketch) and the lineage anchor for design-table-driven dimensional relationships.",
+      "dependencies": []
+    },
+    {
+      "module_id": "part_operations",
+      "path": "cad-functions/solidworks/part-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-02"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Solid feature layer: 4 sweep features + 4 cut variants, boundary, hole wizard (5 hole types × 4 termination modes), rib, dome, indent, flex/deform, fillet/chamfer/shell/draft, patterns (linear/circular/curve/sketch/table/fill), mirror, body operations (move/copy/scale/combine/split/intersect).",
+      "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/solidworks/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-03"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Surface layer: lofted / swept / boundary / fill / planar / ruled / offset / knit / trim / untrim / extend / replace_face / delete_face / thicken / knit_to_solid.",
+      "dependencies": ["sketch_operations", "part_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/solidworks/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-04"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Assembly layer: 16+ mate types (standard concentric/coincident/distance/angle/parallel/perpendicular/tangent/lock/limit + advanced symmetric/width/path/linear_coupler + mechanical cam/gear/screw/hinge/slot/universal_joint), components (insert/replace/configurations), patterns, mirror_components, exploded view, smart_fasteners, in_context_modeling.",
+      "dependencies": ["part_operations"]
+    },
+    {
+      "module_id": "drawing_operations",
+      "path": "cad-functions/solidworks/drawing-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-05"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Drawing layer: sheet/title_block, 9 view types (model/projected/auxiliary/section/detail/broken/break_out/crop/relative), 6 dimension types, GD&T (ASME Y14.5 14 characteristics), surface_finish, weld_symbols, BOM, revision_table, design_tables.",
+      "dependencies": ["part_operations", "assembly_operations"]
+    },
+    {
+      "module_id": "sheet_metal_operations",
+      "path": "cad-functions/solidworks/sheet-metal-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-06"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Sheet metal layer: base_flange / edge_flange / miter_flange / hem / jog / sketched_bend / lofted_bend / swept_flange / cross_break / gusset / vent / corner_relief / forming_tool, K-factor + bend tables + gauge tables, unfold/fold/flatten.",
+      "dependencies": ["part_operations"]
+    },
+    {
+      "module_id": "weldment_operations",
+      "path": "cad-functions/solidworks/weldment-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-07"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Weldment layer: structural_member (with profile library), trim_extend, gusset, end_cap, weld_bead, cut_list, weld_symbols, custom_profile, multi_body management.",
+      "dependencies": ["part_operations"]
+    },
+    {
+      "module_id": "evaluation_operations",
+      "path": "cad-functions/solidworks/evaluation-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-08"],
+      "parameter_count_estimate": 0,
+      "description": "(pending) Evaluation layer: measure, mass_properties, section_properties, interference_detection, collision_detection, clearance_verification, performance_evaluation, draft_analysis, undercut_analysis, deviation_analysis, thickness_analysis, symmetry_check, design_checker, costing, sustainability.",
+      "dependencies": ["part_operations", "assembly_operations"]
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "SKETCH_PARAMETRIC_2D",
+      "FEATURE_TREE_HISTORY",
+      "DIMENSIONAL_CONSTRAINT_SOLVER",
+      "GEOMETRIC_RELATION_NETWORK",
+      "DESIGN_TABLE_DRIVEN_CONFIGURATION",
+      "EQUATION_DRIVEN_DIMENSION",
+      "FEATURE_PARAMETRIC_REGENERATION",
+      "MULTI_BODY_PART_TOPOLOGY",
+      "MATE_DRIVEN_ASSEMBLY",
+      "IN_CONTEXT_REFERENCE",
+      "K_FACTOR_BEND_ALLOWANCE",
+      "WELDMENT_STRUCTURAL_PROFILE",
+      "ASME_Y14_5_GDT",
+      "SHEET_METAL_FLAT_PATTERN"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "SolidWorksCADFunctionIndexEngine",
+      "SolidWorksAutomationBridge",
+      "SolidWorksCodeGeneratorEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 8,
+    "total_units_covered": ["U-CAD-FIDX-SW-01"],
+    "estimated_parameter_total": 132,
+    "api_surface": {
+      "sw_api_com_items": 22,
+      "vba_macro_items": 22,
+      "vsta_addin_items": 22,
+      "solidworks_2024_compatible": true,
+      "solidworks_2025_compatible": true,
+      "coverage_state": "IN_PROGRESS",
+      "phase_1_target_modules": 8,
+      "phase_1_target_modules_remaining": 7,
+      "phase_1_modules_pending": [
+        "part_operations",
+        "surface_operations",
+        "assembly_operations",
+        "drawing_operations",
+        "sheet_metal_operations",
+        "weldment_operations",
+        "evaluation_operations"
+      ],
+      "solidworks_cad_8_of_8": false,
+      "inventor_parity": false
+    },
+    "pdf_sources_bound": [
+      "SolidWorks 2024 API Help — Sketch",
+      "SolidWorks API Reference — ISketchManager",
+      "SolidWorks API Reference — IFeatureManager.InsertSketch"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "sketch_authoring",
+      "feature_modeling",
+      "surface_modeling",
+      "assembly_mating",
+      "drawing_output",
+      "sheet_metal_design",
+      "weldment_design",
+      "design_evaluation"
+    ]
+  },
+  "platform_integration": {
+    "sw_api_com_enabled": true,
+    "vba_macro_enabled": true,
+    "vsta_addin_enabled": true,
+    "configurations": true,
+    "design_tables": true,
+    "equations": true,
+    "sketch_layer": true,
+    "part_layer": false,
+    "surface_layer": false,
+    "assembly_layer": false,
+    "drawing_layer": false,
+    "sheet_metal_layer": false,
+    "weldment_layer": false,
+    "evaluation_layer": false
+  },
+  "future_modules": []
+}
