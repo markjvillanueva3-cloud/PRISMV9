@@ -55,6 +55,12 @@ import {
   type RapidMove,
   type AxisKinematics,
 } from "./RapidRepositionOptEngine.js";
+import {
+  HSMDwellAtCornerEngine,
+  type CornerGeometry,
+  type MachineServo,
+  type HSMParameters,
+} from "./HSMDwellAtCornerEngine.js";
 
 /** Map ISO machinability group → coarse material name accepted by AutoSpeedFeed. */
 const ISO_GROUP_TO_AUTO_SF_MATERIAL: Record<ISOGroup, string> = {
@@ -243,6 +249,24 @@ export interface AdvancedPipelineSummary {
     air_cuts_count: number;
     air_cut_wasted_sec: number;
     total_saved_sec: number;
+    optimizations_count: number;
+  } | null;
+  /** HSMDwellAtCornerEngine pass output (PPG-WIRE-MS5/U-PPGW-HSMDwell-Wiring).
+   *  Analyzes corner geometry from MillOperation.coordinates and returns
+   *  per-program corner-dwell statistics + dedup'd recommendations. Sync
+   *  output.gcode is preserved byte-identical. Null when advanced pipeline
+   *  did not run. */
+  hsm_dwell: {
+    corners_analyzed: number;
+    high_dwell_count: number;
+    high_thermal_count: number;
+    tolerance_violation_count: number;
+    total_recommended_dwell_ms: number;
+    avg_dwell_ms: number;
+    max_dwell_ms: number;
+    avg_thermal_factor: number;
+    hsm_mode_used: "off" | "g05p1" | "g05p2" | "g187" | "cycle832";
+    recommendations: string[];
     optimizations_count: number;
   } | null;
 }
@@ -1026,6 +1050,29 @@ export class OkumaOSPMillMasterPostEngine {
         `total_saved=${rapidTotal.toFixed(2)}s`,
     );
 
+    // ── 3. PPG-WIRE-MS5/U-PPGW-HSMDwell-Wiring ─────────────────────────
+    // HSMDwellAtCornerEngine pass — analyzes corners detected in
+    // MillOperation.coordinates (linear/arc transitions only; rapids
+    // skipped). Sync `output.gcode` is preserved byte-identical; only
+    // advanced_summary.hsm_dwell is augmented with corner-dwell stats +
+    // dedup'd recommendations.
+    //
+    // Mode mapping: cfg.use_super_nurbs=true → "g05p1" (Okuma G05.1 Q1
+    // Super-NURBS / G131 nano-class smoothing collapses to the same dwell
+    // family for analysis purposes — both engage look-ahead smoothing).
+    // Default off — engine emits straight motion control dwell.
+    const hsmCorners = extractCornersFromOperations(operations);
+    const hsmServo: MachineServo = buildServoFromMachine(machine);
+    const hsmMode: HSMParameters["hsm_mode"] = cfg.use_super_nurbs ? "g05p1" : "off";
+    const hsmResults = runHSMDwellPass(hsmCorners, hsmServo, hsmMode);
+    enhancements.push("hsm_dwell_optimization");
+    log.info(
+      `[OkumaOSPMill] HSMDwell pass: corners=${hsmResults.corners_analyzed} ` +
+        `high_dwell=${hsmResults.high_dwell_count} thermal=${hsmResults.high_thermal_count} ` +
+        `tol_risk=${hsmResults.tolerance_violation_count} mode=${hsmResults.hsm_mode_used} ` +
+        `total_dwell=${hsmResults.total_recommended_dwell_ms.toFixed(1)}ms`,
+    );
+
     return {
       ...baseOutput,
       advanced_features_applied: enhancements,
@@ -1062,6 +1109,7 @@ export class OkumaOSPMillMasterPostEngine {
             retractsResult.optimizations.length +
             airCutsResult.detections.length,
         },
+        hsm_dwell: hsmResults,
       },
     };
   }
@@ -1174,4 +1222,202 @@ function buildAirCutSamples(operations: MillOperation[]) {
 
 function roundOkuma2(v: number): number {
   return Math.round(v * 100) / 100;
+}
+
+// ============================================================================
+// PPG-WIRE-MS5/U-PPGW-HSMDwell-Wiring — helpers
+// ============================================================================
+
+/** Minimum cutting points per operation needed to form one (prev,curr,next)
+ *  corner triple. Below this we cannot evaluate any corners. */
+const HSM_MIN_POINTS_FOR_CORNER = 3;
+/** Skip "corners" with interior angle ≥ this (i.e. near-straight motion).
+ *  180° is fully straight; we relax to 170° to absorb floating-point noise. */
+const HSM_NEAR_STRAIGHT_ANGLE_DEG = 170;
+/** Floor/ceiling for clamped angle_deg fed into the engine's Zod schema. */
+const HSM_ANGLE_DEG_MIN = 0;
+const HSM_ANGLE_DEG_MAX = 180;
+/** Per-corner dwell exceeding this counts as "high dwell" (engine's own
+ *  recommendation threshold — HSMDwellAtCornerEngine.ts:238). */
+const HSM_HIGH_DWELL_MS_THRESHOLD = 20;
+/** Per-corner thermal-accumulation factor exceeding this counts as "high
+ *  thermal" (engine's coolant-recommendation threshold — :244). */
+const HSM_HIGH_THERMAL_FACTOR_THRESHOLD = 1.15;
+/** Per-corner tolerance-violation risk in [0,1] — 0.5 = "reduce feed at
+ *  corner" recommendation (engine — :241). */
+const HSM_TOLERANCE_RISK_THRESHOLD = 0.5;
+/** Acceleration unit conversion: g → mm/s². */
+const G_TO_MM_S2 = 9810;
+/** Conservative servo acceleration fallback (mm/s²) when no machine context
+ *  is loaded. ~0.5 g — pessimistic for the unknown-machine case. */
+const HSM_DEFAULT_ACCEL_MM_S2 = 5000;
+
+/**
+ * Build a `MachineServo` from a `MachineProfile`. We override only the
+ * acceleration ceiling because that's the dominant input to the engine's
+ * trapezoidal-profile dwell formula. Other servo fields (jerk, bandwidth,
+ * look-ahead) fall back to engine defaults — see HSMDwellAtCornerEngine.
+ */
+function buildServoFromMachine(
+  machine: ReturnType<typeof machineStrategyConstraintEngine.getMachineById>,
+): MachineServo {
+  const accel = machine
+    ? machine.acceleration_g * G_TO_MM_S2
+    : HSM_DEFAULT_ACCEL_MM_S2;
+  return { max_acceleration_mm_s2: accel };
+}
+
+/**
+ * Walk linear/arc transitions in `MillOperation.coordinates` and emit
+ * `CornerGeometry` triples for each consecutive (prev, curr, next) where
+ * the direction change is large enough to count as a real corner.
+ *
+ * Rapids skipped (pre-positioning, not part of cut path). Duplicate points
+ * skipped (zero-length vector). Near-straight motion skipped. Hairpin
+ * reversals kept (worst-case dwells). NaN/Infinity throws.
+ *
+ * `angle_deg` semantics match the engine: 180=straight, 90=right turn,
+ * 0=hairpin. Computed as `180 − degrees(acos(approach·exit))` with the
+ * dot product clamped to [-1, +1] for floating-point safety.
+ */
+function extractCornersFromOperations(
+  operations: MillOperation[],
+): Array<{ corner: CornerGeometry; programmed_feed_mm_min: number }> {
+  const corners: Array<{ corner: CornerGeometry; programmed_feed_mm_min: number }> = [];
+
+  for (const op of operations) {
+    if (!op.coordinates || op.coordinates.length < HSM_MIN_POINTS_FOR_CORNER) continue;
+    const cutting = op.coordinates.filter(
+      (pt) => pt.type === "linear" || pt.type === "arc_cw" || pt.type === "arc_ccw",
+    );
+    if (cutting.length < HSM_MIN_POINTS_FOR_CORNER) continue;
+
+    for (let i = 1; i < cutting.length - 1; i++) {
+      const prev = cutting[i - 1];
+      const curr = cutting[i];
+      const next = cutting[i + 1];
+      for (const p of [prev, curr, next]) {
+        if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || !Number.isFinite(p.z)) {
+          throw new Error(
+            `[OkumaOSPMill/HSMDwell] Invalid coordinate (NaN or Infinity) at op tool=${op.tool_number}`,
+          );
+        }
+      }
+
+      const ax = curr.x - prev.x;
+      const ay = curr.y - prev.y;
+      const az = curr.z - prev.z;
+      const ex = next.x - curr.x;
+      const ey = next.y - curr.y;
+      const ez = next.z - curr.z;
+      const aLen = Math.hypot(ax, ay, az);
+      const eLen = Math.hypot(ex, ey, ez);
+      if (aLen === 0 || eLen === 0) continue;
+
+      const dot = (ax * ex + ay * ey + az * ez) / (aLen * eLen);
+      const dotClamped = Math.max(-1, Math.min(1, dot));
+      const angleBetweenRad = Math.acos(dotClamped);
+      const angleDeg = HSM_ANGLE_DEG_MAX - (angleBetweenRad * 180) / Math.PI;
+      if (angleDeg > HSM_NEAR_STRAIGHT_ANGLE_DEG) continue;
+
+      const clampedAngleDeg = Math.max(
+        HSM_ANGLE_DEG_MIN,
+        Math.min(HSM_ANGLE_DEG_MAX, angleDeg),
+      );
+      corners.push({
+        corner: {
+          angle_deg: clampedAngleDeg,
+          approach_vector: { x: ax / aLen, y: ay / aLen, z: az / aLen },
+          exit_vector: { x: ex / eLen, y: ey / eLen, z: ez / eLen },
+        },
+        programmed_feed_mm_min: op.feed_mm_min,
+      });
+    }
+  }
+
+  return corners;
+}
+
+/**
+ * Per-program HSM dwell aggregation. Calls `analyzeDwell` per corner,
+ * tallies high-dwell, high-thermal, and tolerance-violation-risk counts,
+ * dedups recommendations into a Set. Returns the empty/zero shape (with
+ * `hsm_mode_used` still surfaced) when no corners are present.
+ */
+function runHSMDwellPass(
+  corners: Array<{ corner: CornerGeometry; programmed_feed_mm_min: number }>,
+  servo: MachineServo,
+  hsmMode: HSMParameters["hsm_mode"],
+): {
+  corners_analyzed: number;
+  high_dwell_count: number;
+  high_thermal_count: number;
+  tolerance_violation_count: number;
+  total_recommended_dwell_ms: number;
+  avg_dwell_ms: number;
+  max_dwell_ms: number;
+  avg_thermal_factor: number;
+  hsm_mode_used: "off" | "g05p1" | "g05p2" | "g187" | "cycle832";
+  recommendations: string[];
+  optimizations_count: number;
+} {
+  const modeUsed = (hsmMode ?? "off") as
+    | "off"
+    | "g05p1"
+    | "g05p2"
+    | "g187"
+    | "cycle832";
+
+  if (corners.length === 0) {
+    return {
+      corners_analyzed: 0,
+      high_dwell_count: 0,
+      high_thermal_count: 0,
+      tolerance_violation_count: 0,
+      total_recommended_dwell_ms: 0,
+      avg_dwell_ms: 0,
+      max_dwell_ms: 0,
+      avg_thermal_factor: 1,
+      hsm_mode_used: modeUsed,
+      recommendations: [],
+      optimizations_count: 0,
+    };
+  }
+
+  let totalDwell = 0;
+  let maxDwell = 0;
+  let totalThermal = 0;
+  let highDwell = 0;
+  let highThermal = 0;
+  let toleranceViolations = 0;
+  const recsSet = new Set<string>();
+
+  for (const { corner, programmed_feed_mm_min } of corners) {
+    const params: HSMParameters = {
+      programmed_feed_mm_min,
+      hsm_mode: modeUsed,
+    };
+    const result = HSMDwellAtCornerEngine.analyzeDwell(corner, servo, params);
+    totalDwell += result.recommended_dwell_ms;
+    if (result.recommended_dwell_ms > maxDwell) maxDwell = result.recommended_dwell_ms;
+    totalThermal += result.thermal_accumulation_factor;
+    if (result.recommended_dwell_ms > HSM_HIGH_DWELL_MS_THRESHOLD) highDwell++;
+    if (result.thermal_accumulation_factor > HSM_HIGH_THERMAL_FACTOR_THRESHOLD) highThermal++;
+    if (result.tolerance_violation_risk > HSM_TOLERANCE_RISK_THRESHOLD) toleranceViolations++;
+    for (const r of result.recommendations) recsSet.add(r);
+  }
+
+  return {
+    corners_analyzed: corners.length,
+    high_dwell_count: highDwell,
+    high_thermal_count: highThermal,
+    tolerance_violation_count: toleranceViolations,
+    total_recommended_dwell_ms: roundOkuma2(totalDwell),
+    avg_dwell_ms: roundOkuma2(totalDwell / corners.length),
+    max_dwell_ms: roundOkuma2(maxDwell),
+    avg_thermal_factor: roundOkuma2(totalThermal / corners.length),
+    hsm_mode_used: modeUsed,
+    recommendations: Array.from(recsSet),
+    optimizations_count: corners.length,
+  };
 }
