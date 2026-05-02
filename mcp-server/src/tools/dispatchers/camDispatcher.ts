@@ -1643,6 +1643,8 @@ export const ACTIONS = [
   "cam_mastercam_grinding_plan", "cam_mastercam_grinding_wheel_rpm", "cam_mastercam_grinding_cycle_codes", "cam_mastercam_grinding_audit",
   // CAM-EXHAUST-MS0 U-CAM-MC-SI-01 — Mastercam surface integrity prediction (Ra/Rz + white-layer + residual stress)
   "cam_mastercam_si_predict", "cam_mastercam_si_validate", "cam_mastercam_si_audit",
+  // CAM-EXHAUST-MS0 U-CAM-MC-MOLD-01 — Mastercam mold cavity/core machining cycle planner
+  "cam_mastercam_mold_plan", "cam_mastercam_mold_needs_edm", "cam_mastercam_mold_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13260,6 +13262,25 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_mastercam_si_audit": {
             const { MastercamSurfaceIntegrityBridge } = await import("../../engines/MastercamSurfaceIntegrityBridge.js");
             result = MastercamSurfaceIntegrityBridge.auditEngine();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-MC-MOLD-01: Mastercam mold cavity/core cycle planner ──
+          case "cam_mastercam_mold_plan": {
+            const { MastercamMoldCycleEngine } = await import("../../engines/MastercamMoldCycleEngine.js");
+            const f = params.feature as Parameters<typeof MastercamMoldCycleEngine.plan>[0];
+            result = MastercamMoldCycleEngine.plan(f);
+            break;
+          }
+          case "cam_mastercam_mold_needs_edm": {
+            const { MastercamMoldCycleEngine } = await import("../../engines/MastercamMoldCycleEngine.js");
+            const f = params.feature as Parameters<typeof MastercamMoldCycleEngine.needsEdmFinishing>[0];
+            result = { needs_edm_finishing: MastercamMoldCycleEngine.needsEdmFinishing(f) };
+            break;
+          }
+          case "cam_mastercam_mold_audit": {
+            const { MastercamMoldCycleEngine } = await import("../../engines/MastercamMoldCycleEngine.js");
+            result = MastercamMoldCycleEngine.auditEngine();
             break;
           }
 
