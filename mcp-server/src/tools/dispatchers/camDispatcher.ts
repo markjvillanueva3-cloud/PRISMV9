@@ -1189,6 +1189,8 @@ export const ACTIONS = [
   "wedm_online_predict_v2", "wedm_reasoning_explain_v2", "wedm_progress_start_job",
   // WEDM-WIRE-MS0/Batch17: quote bridge + trace ledger + EDM feasibility (3 engines)
   "wedm_quote_to_line_items", "wedm_reasoning_trace_recent", "edm_feasibility_assess",
+  // WEDM-WIRE-MS0/Batch18: adaptive pass strategy + few-shot first cut + EDM CMM (3 engines)
+  "wedm_adaptive_pass_strategy", "wedm_fewshot_plan_first_cut", "edm_quality_plan_cmm",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6619,6 +6621,55 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = edmFeasibilityEngine.assess(
                 input as Parameters<typeof edmFeasibilityEngine.assess>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch18: adaptive pass + few-shot + EDM CMM
+          // ============================================================
+          case "wedm_adaptive_pass_strategy": {
+            const { wedmAdaptivePassEngine } = await import("../../engines/WEDMAdaptivePassEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (AdaptivePassInput)" }; break; }
+            try {
+              result = wedmAdaptivePassEngine.generateStrategy(
+                input as Parameters<typeof wedmAdaptivePassEngine.generateStrategy>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_fewshot_plan_first_cut": {
+            const { wedmFewShotEngine } = await import("../../engines/WEDMFewShotEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({features, target})" }; break; }
+            const features = input.features;
+            const target = input.target;
+            if (!features || typeof features !== "object" || !target || typeof target !== "object") {
+              result = { success: false, error: "input.features (UnknownMaterialFeatures) and input.target (WEDMCutTarget) required" };
+              break;
+            }
+            try {
+              result = wedmFewShotEngine.planFirstCut(
+                features as Parameters<typeof wedmFewShotEngine.planFirstCut>[0],
+                target as Parameters<typeof wedmFewShotEngine.planFirstCut>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "edm_quality_plan_cmm": {
+            const { edmQualityOrchestratorEngine } = await import("../../engines/EDMQualityOrchestratorEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (QualityVerificationInput)" }; break; }
+            try {
+              result = { success: true, probe_points: edmQualityOrchestratorEngine.planCMMRoutine(
+                input as Parameters<typeof edmQualityOrchestratorEngine.planCMMRoutine>[0],
+              ) };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

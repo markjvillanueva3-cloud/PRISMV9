@@ -397,4 +397,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   edm_feasibility_assess: z.object({
     input: z.record(z.string(), z.unknown()).describe("FeasibilityInput - geometry + material + machine constraints for EDMFeasibilityEngine.assess() — returns FeasibilityResult"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch18: adaptive pass strategy + few-shot first cut + EDM CMM
+  wedm_adaptive_pass_strategy: z.object({
+    input: z.record(z.string(), z.unknown()).describe("AdaptivePassInput - target Ra + tolerance + total offset for WEDMAdaptivePassEngine.generateStrategy() — returns AdaptivePassResult with per-pass offsets"),
+  }).passthrough(),
+  wedm_fewshot_plan_first_cut: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{features: UnknownMaterialFeatures, target: WEDMCutTarget} for WEDMFewShotEngine.planFirstCut() — k-NN-based conservative first cut recipe"),
+  }).passthrough(),
+  edm_quality_plan_cmm: z.object({
+    input: z.record(z.string(), z.unknown()).describe("QualityVerificationInput - features + tolerances for EDMQualityOrchestratorEngine.planCMMRoutine() — returns CMMProbePoint[]"),
+  }).passthrough(),
 };
