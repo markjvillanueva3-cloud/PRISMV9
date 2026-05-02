@@ -6,11 +6,11 @@
   "track": "PPG",
   "parent_roadmap": "PSAU-MASTER",
   "pillar": "P3-PPG-SFC-LEARNING-LOOP",
-  "status": "in_progress",
+  "status": "complete",
   "created_at": "2026-05-01T20:30:00.000Z",
-  "last_updated": "2026-05-01T20:30:00.000Z",
+  "last_updated": "2026-05-02T03:20:00.000Z",
   "total_units": 2,
-  "completed_units": 1,
+  "completed_units": 2,
   "description": "Closes the Okuma OSP-P*M mill gap left open after PPG-WIRE-MS0. The master_post_by_machine auto-router previously HARD-REJECTed OSP-P300M / OSP-P500M models because no Okuma-mill master post engine existed. MS5 ships the engine + dispatcher wiring + (separate sub-unit) tribal-knowledge mining from JM Die's archive.",
   "rationale": "PPG-WIRE-MS0 wired the three highest-volume JM Die machine families (Hurco V11 mill, Okuma B250 lathe, Mitsubishi MV1200R wire EDM). The Okuma OSP-P*M mill controllers (used on Okuma MB-V series and MU-V 5-axis mills) were the only branch that failed to route — every other machine family now flows through the sealed-sidecar contract established by U-PPGM07..M15. MS5 closes that gap so OSP-P300M / OSP-P500M can emit, seal, and verify alongside the rest.",
   "leverage_existing": [
@@ -45,16 +45,27 @@
         "Spindle ceiling: 12000 RPM (P300, MB-V default) / 15000 RPM (P500, MU-V default); configurable via max_spindle_rpm.",
         "P500 only: G05.1 Q1 Super-NURBS bracket emitted when use_super_nurbs=true; G05.1 Q0 cancel on program end."
       ]
-    }
-  ],
-  "open": [
+    },
     {
       "id": "U-PPGW-OkumaMill-Tribal",
-      "title": "Mine Okuma-mill tribal knowledge from JM Die / Okuma manuals",
-      "depends_on": ["U-PPGW-OkumaMill"],
-      "scope": "Currently the OkumaOSPMillMasterPostEngine ships with ~6 inline tips from OSP programming manuals + cross-referencing with the lathe-side dialect data. JM Die has no Okuma-mill source archive (Multus is mill-turn; CNC MILL is Haas). When customer engagement lands an Okuma mill program archive OR Okuma operator manuals are pdf-learned, expand the tribal pool with concrete shop-floor patterns. Promote stable tips from this expansion into prism_knowledge:tribal_capture with osp_family + iso_group gating."
+      "title": "JM Die tribal expansion + JM_DIE_PRESET config",
+      "shipped_at": "2026-05-02T03:20:00.000Z",
+      "summary": "Mines two authoritative posts from the JM Die archive — hyperMILL `OSPM_MT_TabAC_MUx_R01w_E03.def` (2023) and PRISM-modified Fusion 360 `OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps` (v8.9.x). Adds 14 new tribal tips (8→22 total) with .def/.cps file:line citations. Adds 4 optional config knobs (`tool_length_comp_mode`, `super_nurbs_code`, `tcp_mode`, `n_number_pad_digits`) all defaulting to current behavior. Exports `JM_DIE_PRESET: Partial<OkumaOSPMillPostConfig>` that flips them to JM Die canonical values: `G15 H15` work-offset, `G56 HA` tool-length comp, `G131 P1/P0` Super-NURBS (OSP-P300MA-H native), `G169/G170` TCP, `N0100` 4-digit zero-padded N-numbers.",
+      "files_modified": [
+        "mcp-server/src/engines/OkumaOSPMillMasterPostEngine.ts"
+      ],
+      "files_created": [
+        "mcp-server/src/__tests__/OkumaOSPMillMasterPostEngine.JMDiePreset.test.ts"
+      ],
+      "tests": "13 new preset/tribal cases + 93 existing cases = 106/106 across 4 OkumaOSP suites. Defaults preserved verbatim: `G43 H{n}`, unpadded `N100`, `G05.1 Q1/Q0` all unchanged when preset NOT applied (regression block).",
+      "notes": [
+        "Two source posts cross-validate: where they disagree (M51 = TSC vs chip-conveyor; A-axis +20 vs +10) the .cps wins (live in production, newer).",
+        "All 14 new tips carry `source: <file>:<line>` provenance so a shop-floor reader can grep back to the originating .def/.cps line.",
+        "Deferred to a future unit: CALL OO88 macro + fixture WCS 51 reservation, M206/M207 door codes, M50/M51 chip conveyor, spindle warm-up cycle, iMachining adaptive variable-feed emission, A-axis [-110,+10] range guard."
+      ]
     }
   ],
+  "open": [],
   "the_worked_example_that_proves_it": {
     "scenario": "Customer with an Okuma MB-V46 (OSP-P300M) loads a P20 mold cavity job — 4 ops: face mill, pocket rough, contour finish, drill grid.",
     "today_pre_ppg_wire_ms5": "POST /ppg/master/by-machine with machine_model='OSP-P300M' returns {success:false, error:'no Okuma mill master post engine exists yet'}. Customer falls back to manual G-code editing.",
