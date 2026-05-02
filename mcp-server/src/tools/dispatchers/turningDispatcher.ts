@@ -85,6 +85,8 @@ const ACTIONS = [
   "lathe_feature_recognize", "lathe_tolerance_stack_analyze", "lathe_toolpath_generate",
   // LATHE-WIRE-MS0/Batch12: workholding jaw + safety predicate verify + proof-carrying emit
   "lathe_workholding_jaw_select", "lathe_safety_predicate_verify", "lathe_proof_carrying_emit",
+  // LATHE-WIRE-MS0/Batch13: master post explain + ensemble cross-check + unified output
+  "lathe_masterpost_explain", "lathe_masterpost_ensemble", "lathe_masterpost_unified_output",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -917,6 +919,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = latheProofCarryingEmitEngine.emit(
                 input as Parameters<typeof latheProofCarryingEmitEngine.emit>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_explain": {
+            const { latheMasterPostDeepReasoningEngine } = await import("../../engines/LatheMasterPostDeepReasoningEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (DeepReasoningInput)" }; break; }
+            try {
+              result = latheMasterPostDeepReasoningEngine.explainSelection(
+                input as Parameters<typeof latheMasterPostDeepReasoningEngine.explainSelection>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_ensemble": {
+            const { latheMasterPostEnsembleCrossCheckEngine } = await import("../../engines/LatheMasterPostEnsembleCrossCheckEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (EnsembleInput)" }; break; }
+            try {
+              result = latheMasterPostEnsembleCrossCheckEngine.runEnsemble(
+                input as Parameters<typeof latheMasterPostEnsembleCrossCheckEngine.runEnsemble>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_unified_output": {
+            const { LatheMasterPostUnifiedOutputEngine } = await import("../../engines/LatheMasterPostUnifiedOutputEngine.js");
+            const config = (params as Record<string, unknown>).config;
+            if (!config || typeof config !== "object") { result = { success: false, error: "config required (UnifiedHeaderConfig)" }; break; }
+            try {
+              result = LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput(
+                config as Parameters<typeof LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

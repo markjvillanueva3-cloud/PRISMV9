@@ -438,4 +438,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_proof_carrying_emit: z.object({
     input: z.record(z.string(), z.unknown()).describe("ProofEmitInput — toolpath + safety predicate verdict + machine context for LatheProofCarryingEmitEngine.emit()"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch13: master post explain + ensemble cross-check + unified output
+  lathe_masterpost_explain: z.object({
+    input: z.record(z.string(), z.unknown()).describe("DeepReasoningInput — machineId + feature set for LatheMasterPostDeepReasoningEngine.explainSelection()"),
+  }).passthrough(),
+  lathe_masterpost_ensemble: z.object({
+    input: z.record(z.string(), z.unknown()).describe("EnsembleInput — machineId + sub-post candidates for LatheMasterPostEnsembleCrossCheckEngine.runEnsemble()"),
+  }).passthrough(),
+  lathe_masterpost_unified_output: z.object({
+    config: z.record(z.string(), z.unknown()).describe("UnifiedHeaderConfig (with optional footerConfig) for LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput() — class export, no singleton const"),
+  }).passthrough(),
 };
