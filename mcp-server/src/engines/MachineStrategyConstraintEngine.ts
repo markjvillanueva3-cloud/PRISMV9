@@ -54,6 +54,22 @@ export interface MachineCapabilities {
   axis_count: number;
   /** Optional tier override; auto-detected if omitted */
   tier?: "entry" | "mid_range" | "high_performance" | "ultra_high";
+
+  // ─── Compounding capability inputs (optional) ────────────────────────────
+  // These feed AutoSpeedFeedEngine + AdvancedPostProcessorEngine when computing
+  // physics-aware S/F. Combined with holder + insert + fixture + coolant they
+  // produce machine-specific recommendations rather than generic-tier defaults.
+
+  /** Way construction — affects rigidity-vs-speed tradeoff. */
+  ways_type?: "linear_rail" | "linear_roller" | "box_way" | "hardened_box" | "hand_scraped" | "hydrostatic";
+  /** Spindle drive topology — affects torque curve shape and HSM ceiling. */
+  spindle_type?: "belt_driven" | "geared" | "direct_drive" | "integral_motor";
+  /** Build-quality class — affects achievable surface finish and dimensional accuracy. */
+  build_quality?: "production" | "precision" | "high_precision" | "ultra_precision";
+  /** Rigidity class — feeds chatter-stability lobe lookup and DOC ceiling. */
+  rigidity_class?: "low" | "medium" | "high" | "ultra_high";
+  /** Mill-turn / lathe flag — selects different physics envelope (turning vs milling forces). */
+  machine_class?: "vmc_3axis" | "vmc_4axis" | "vmc_5axis_trunnion" | "vmc_5axis_swivel" | "lathe_2axis" | "lathe_y_axis" | "mill_turn" | "wedm" | "sinker_edm" | "grinder";
 }
 
 /** Strategy requirements from the machine. */
@@ -316,6 +332,61 @@ const DEFAULT_MACHINES: MachineCapabilities[] = [
     rapid_traverse_mm_min: 60000, tool_magazine_capacity: 33,
     spindle_taper: "HSK-E25", work_envelope_mm: { x: 600, y: 500, z: 300 },
     coolant_pressure_bar: 20, axis_count: 5, tier: "ultra_high",
+  },
+
+  // ─── JM Die Company production fleet ─────────────────────────────────────
+  // Confirmed ATC counts and machine class per JM Die (2026-05). These are
+  // the canonical entries the master post engines should query when emitting
+  // tool-magazine-aware programs.
+  {
+    machine_id: "jmdie_hurco_v11", name: "Hurco VMX30i (V11)", max_rpm: 12000,
+    spindle_power_kW: 18.5, acceleration_g: 0.5, jerk_m_s3: 60,
+    rapid_traverse_mm_min: 35000, tool_magazine_capacity: 24,
+    spindle_taper: "BBT-40", work_envelope_mm: { x: 762, y: 508, z: 508 },
+    coolant_pressure_bar: 20, axis_count: 3, tier: "mid_range",
+    ways_type: "linear_rail", spindle_type: "belt_driven",
+    build_quality: "precision", rigidity_class: "medium",
+    machine_class: "vmc_3axis",
+  },
+  {
+    machine_id: "jmdie_okuma_genos_m460v_5ax", name: "Okuma Genos M460V-5AX (OSP-P300MA-H)", max_rpm: 12000,
+    spindle_power_kW: 22, acceleration_g: 0.5, jerk_m_s3: 50,
+    rapid_traverse_mm_min: 40000, tool_magazine_capacity: 48,
+    spindle_taper: "BBT-40", work_envelope_mm: { x: 762, y: 460, z: 460 },
+    coolant_pressure_bar: 20, axis_count: 5, tier: "mid_range",
+    ways_type: "linear_rail", spindle_type: "belt_driven",
+    build_quality: "high_precision", rigidity_class: "high",
+    machine_class: "vmc_5axis_trunnion",
+  },
+  {
+    machine_id: "jmdie_haas_vf2", name: "Haas VF-2 (JM Die)", max_rpm: 8100,
+    spindle_power_kW: 22.4, acceleration_g: 0.25, jerk_m_s3: 100,
+    rapid_traverse_mm_min: 25400, tool_magazine_capacity: 20,
+    spindle_taper: "BT40", work_envelope_mm: { x: 762, y: 406, z: 508 },
+    coolant_pressure_bar: 7, axis_count: 3, tier: "entry",
+    ways_type: "linear_rail", spindle_type: "belt_driven",
+    build_quality: "production", rigidity_class: "medium",
+    machine_class: "vmc_3axis",
+  },
+  {
+    machine_id: "jmdie_okuma_lb250ii", name: "Okuma LB-250-II (B250II)", max_rpm: 5000,
+    spindle_power_kW: 22, acceleration_g: 0.4, jerk_m_s3: 50,
+    rapid_traverse_mm_min: 30000, tool_magazine_capacity: 60,
+    spindle_taper: "A2-6", work_envelope_mm: { x: 280, y: 0, z: 850 },
+    coolant_pressure_bar: 15, axis_count: 2, tier: "mid_range",
+    ways_type: "hardened_box", spindle_type: "geared",
+    build_quality: "high_precision", rigidity_class: "high",
+    machine_class: "lathe_2axis",
+  },
+  {
+    machine_id: "jmdie_rokuroku_hc658", name: "Roku-Roku HC-658", max_rpm: 30000,
+    spindle_power_kW: 11, acceleration_g: 0.7, jerk_m_s3: 25,
+    rapid_traverse_mm_min: 36000, tool_magazine_capacity: 30,
+    spindle_taper: "HSK-A50", work_envelope_mm: { x: 600, y: 500, z: 350 },
+    coolant_pressure_bar: 30, axis_count: 3, tier: "high_performance",
+    ways_type: "hand_scraped", spindle_type: "integral_motor",
+    build_quality: "ultra_precision", rigidity_class: "ultra_high",
+    machine_class: "vmc_3axis",
   },
 ];
 
@@ -683,6 +754,16 @@ export class MachineStrategyConstraintEngine {
       name: m.name,
       tier: m.tier ?? detectTier(m),
     }));
+  }
+
+  /** Look up a machine by id. Returns null when missing. */
+  getMachineById(machineId: string): MachineCapabilities | null {
+    return this.machines.find(m => m.machine_id === machineId) ?? null;
+  }
+
+  /** Filter machines by class — e.g. all `vmc_5axis_trunnion`. */
+  listByClass(klass: NonNullable<MachineCapabilities["machine_class"]>): MachineCapabilities[] {
+    return this.machines.filter(m => m.machine_class === klass);
   }
 }
 
