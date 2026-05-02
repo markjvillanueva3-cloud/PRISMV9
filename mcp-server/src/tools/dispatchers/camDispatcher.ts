@@ -1187,6 +1187,8 @@ export const ACTIONS = [
   "wedm_ra_predict", "wedm_recast_depth_predict", "wedm_pulse_limit_validate",
   // WEDM-WIRE-MS0/Batch16: online learning + reasoning + progress tracker (3 engines)
   "wedm_online_predict_v2", "wedm_reasoning_explain_v2", "wedm_progress_start_job",
+  // WEDM-WIRE-MS0/Batch17: quote bridge + trace ledger + EDM feasibility (3 engines)
+  "wedm_quote_to_line_items", "wedm_reasoning_trace_recent", "edm_feasibility_assess",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6570,6 +6572,53 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               : 30;
             try {
               result = wedmProgressTrackerEngine.startJob(job_id, total_stages);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch17: quote bridge + trace ledger + EDM feasibility
+          // ============================================================
+          case "wedm_quote_to_line_items": {
+            const { wedmQuoteBridgeEngine } = await import("../../engines/WEDMQuoteBridgeEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({cost, quantity?})" }; break; }
+            const cost = input.cost;
+            const quantity = typeof input.quantity === "number" && input.quantity > 0 ? input.quantity : 1;
+            if (!cost || typeof cost !== "object") {
+              result = { success: false, error: "input.cost (CostEstimate object) required" };
+              break;
+            }
+            try {
+              result = wedmQuoteBridgeEngine.toQuoteLineItems(
+                cost as Parameters<typeof wedmQuoteBridgeEngine.toQuoteLineItems>[0],
+                quantity,
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_reasoning_trace_recent": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const limit = (input && typeof input.limit === "number" && input.limit > 0) ? input.limit : 100;
+            try {
+              result = { success: true, traces: wedmReasoningTraceLedgerEngine.getRecent(limit) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "edm_feasibility_assess": {
+            const { edmFeasibilityEngine } = await import("../../engines/EDMFeasibilityEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (FeasibilityInput)" }; break; }
+            try {
+              result = edmFeasibilityEngine.assess(
+                input as Parameters<typeof edmFeasibilityEngine.assess>[0],
+              );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

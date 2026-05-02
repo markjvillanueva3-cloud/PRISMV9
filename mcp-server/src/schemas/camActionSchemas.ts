@@ -387,4 +387,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_progress_start_job: z.object({
     input: z.record(z.string(), z.unknown()).describe("StartJobInput - {job_id?, total_stages?=30} for WEDMProgressTrackerEngine.startJob() — initializes JobProgress ledger"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch17: quote bridge + trace ledger + EDM feasibility
+  wedm_quote_to_line_items: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{cost: CostEstimate, quantity?: number} for WEDMQuoteBridgeEngine.toQuoteLineItems() — returns WEDMQuoteLineItemsResult with per-category line items + uncertainty"),
+  }).passthrough(),
+  wedm_reasoning_trace_recent: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{limit?: number=100} for WEDMReasoningTraceLedgerEngine.getRecent() — returns recent ReasoningTraceEntry[]"),
+  }).passthrough(),
+  edm_feasibility_assess: z.object({
+    input: z.record(z.string(), z.unknown()).describe("FeasibilityInput - geometry + material + machine constraints for EDMFeasibilityEngine.assess() — returns FeasibilityResult"),
+  }).passthrough(),
 };
