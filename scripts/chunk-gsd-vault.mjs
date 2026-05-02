@@ -149,7 +149,16 @@ async function processSource(spec, args, stats) {
     if (!args.noEmbed) {
       const id = `gsd/${spec.label}/${slug}`;
       const text = `${spec.label} GSD — ${ch.heading}\n\n${ch.body}`.slice(0, MAX_EMBED_CHARS);
-      const e = await tryEmbed(id, text, { source: spec.label, section: ch.heading, slug });
+      // P4-U01-FOLLOWUP-2: emit body_preview so the retrieve hook does NOT have
+      // to parse the embed text by line position. The retrieve hook prefers this
+      // field when present and falls back to text-splitting otherwise.
+      const bodyPreview = ch.body.replace(/\s+/g, " ").trim().slice(0, 200);
+      const e = await tryEmbed(id, text, {
+        source: spec.label,
+        section: ch.heading,
+        slug,
+        body_preview: bodyPreview,
+      });
       if (e.ok) r.embedded++;
       else r.embedFailed++;
     }

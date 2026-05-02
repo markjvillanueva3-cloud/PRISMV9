@@ -14,9 +14,15 @@ import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
+import { fileURLToPath } from "node:url";
 
-const CHUNKER = "H:/prism/scripts/chunk-gsd-vault.mjs";
-const HOOK = "H:/prism/.claude/hooks/gsd-section-retrieve.mjs";
+// P4-U01-FOLLOWUP-2: resolve script + hook paths relative to THIS test's
+// location so the tests exercise the worktree's own copies (not whatever
+// version happens to live in canonical H:/prism). The chunker + hook still
+// read/write under H:/prism via their internal hardcoded paths — that's the
+// canonical knowledge vault, shared across all worktrees by design.
+const CHUNKER = fileURLToPath(new URL("../../../scripts/chunk-gsd-vault.mjs", import.meta.url));
+const HOOK = fileURLToPath(new URL("../../../.claude/hooks/gsd-section-retrieve.mjs", import.meta.url));
 const VAULT = "H:/prism/knowledge/gsd";
 const RATE_FILE = "H:/prism/.claude/cache/gsd-section-retrieve-last.json";
 const TIMEOUT_MS_TEST = 8_000;
@@ -251,5 +257,157 @@ describe("MEMORY_KIND surface — P4-U01 wiring", () => {
       limit: 3,
     });
     expect(r2.success).toBe(true);
+  });
+});
+
+// P4-U01-FOLLOWUP-2: dispatcher static-source assertions ensure the
+// `prism_memory:remember` action is wired (z.enum + switch case +
+// qdrantMemoryEngine.remember call). The cherry-picked test only validated
+// the Zod schema; without these, a missing dispatcher case would cause a
+// silent runtime "Invalid enum value" on the chunker's first live embed.
+describe("memoryDispatcher remember wiring — P4-U01-FOLLOWUP-2", () => {
+  it("z.enum action list includes 'remember'", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const url = new URL("../tools/dispatchers/memoryDispatcher.ts", import.meta.url);
+    const src = await readFile(url, "utf8");
+    const enumMatch = src.match(/action:\s*z\.enum\(\[([\s\S]*?)\]\)/);
+    expect(enumMatch).not.toBeNull();
+    const enumBody = enumMatch![1];
+    expect(enumBody).toContain('"remember"');
+    expect(enumBody).toContain('"semantic_search"');
+    // 14 actions total post-FOLLOWUP-2: 9 graph/consolidation + 3 pressure + 2 vector
+    const actionCount = (enumBody.match(/"[a-z_]+"/g) ?? []).length;
+    expect(actionCount).toBe(14);
+  });
+
+  it("switch has case 'remember' that calls qdrantMemoryEngine.remember", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const url = new URL("../tools/dispatchers/memoryDispatcher.ts", import.meta.url);
+    const src = await readFile(url, "utf8");
+    expect(src).toMatch(/case\s+"remember":/);
+    expect(src).toMatch(/qdrantMemoryEngine\.remember\(\s*\{\s*kind\s*,\s*id\s*,\s*text\s*,\s*metadata\s*\}/);
+    // Validates that all 4 schema fields flow from params to the engine call
+    // — drift from the Zod schema in memoryActionSchemas.ts gets caught.
+  });
+
+  it("default 'available' array advertises 'remember'", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const url = new URL("../tools/dispatchers/memoryDispatcher.ts", import.meta.url);
+    const src = await readFile(url, "utf8");
+    const m = src.match(/available:\s*\[([^\]]+)\]/);
+    expect(m).not.toBeNull();
+    const list = m![1];
+    expect(list).toContain("'remember'");
+    expect(list).toContain("'semantic_search'");
+    const itemCount = (list.match(/'[a-z_]+'/g) ?? []).length;
+    expect(itemCount).toBe(14);
+  });
+});
+
+// P4-U01-FOLLOWUP-2: hook prefers structural metadata.body_preview over
+// positional text.split(2). Both paths (preferred + fallback) are asserted.
+describe("gsd-section-retrieve snippet contract — P4-U01-FOLLOWUP-2", () => {
+  it("prefers metadata.body_preview when present", async () => {
+    stubItems = [
+      {
+        id: "gsd/dev_protocol/structural-snippet",
+        score: 0.85,
+        // text payload is intentionally weird — the hook should NOT parse it
+        // because metadata.body_preview is present and structural.
+        text: "TOTALLY UNRELATED HEADER PAYLOAD\nthis line should never appear in snippet",
+        metadata: {
+          source: "dev_protocol",
+          section: "Structural Snippet",
+          body_preview: "STRUCTURAL_PREVIEW_MARKER body content from chunker metadata field",
+        },
+      },
+    ];
+    const r = await runHookAsync({ prompt: "tell me about gsd dev protocol structural snippet behavior" }, true);
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout) as { hookSpecificOutput?: { additionalContext?: string } };
+    const ctx = out.hookSpecificOutput?.additionalContext ?? "";
+    expect(ctx).toContain("STRUCTURAL_PREVIEW_MARKER");
+    expect(ctx).not.toContain("UNRELATED HEADER PAYLOAD");
+    expect(ctx).not.toContain("this line should never appear");
+  });
+
+  it("falls back to text.split when body_preview missing (legacy embeds)", async () => {
+    stubItems = [
+      {
+        id: "gsd/legacy/x",
+        score: 0.78,
+        // legacy shape: ${source} GSD — ${heading}\n\n${body}
+        text: "gsd_quick GSD — Legacy\n\nLEGACY_BODY_MARKER older embedding body line one",
+        metadata: { source: "gsd_quick", section: "Legacy" }, // NO body_preview
+      },
+    ];
+    const r = await runHookAsync({ prompt: "explain the gsd legacy buffer equation evidence" }, true);
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout) as { hookSpecificOutput?: { additionalContext?: string } };
+    const ctx = out.hookSpecificOutput?.additionalContext ?? "";
+    expect(ctx).toContain("LEGACY_BODY_MARKER");
+    expect(ctx).toContain("[gsd_quick]");
+    expect(ctx).toContain("**Legacy**");
+  });
+
+  it("treats body_preview wrong type as missing and falls through to text.split", async () => {
+    stubItems = [
+      {
+        id: "gsd/wrong-type/x",
+        score: 0.82,
+        text: "gsd_micro GSD — Wrong Type\n\nFALLBACK_OK body when metadata field has wrong type",
+        // Adversarial: body_preview is a number, not a string — must be ignored
+        metadata: { source: "gsd_micro", section: "Wrong Type", body_preview: 42 as unknown as string },
+      },
+    ];
+    const r = await runHookAsync({ prompt: "gsd evidence buffer equation phase 1 protocol" }, true);
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout) as { hookSpecificOutput?: { additionalContext?: string } };
+    const ctx = out.hookSpecificOutput?.additionalContext ?? "";
+    expect(ctx).toContain("FALLBACK_OK");
+    expect(ctx).not.toContain("42");
+  });
+});
+
+// P4-U01-FOLLOWUP-2: chunker emits body_preview in the metadata payload sent
+// to prism_memory:remember. Static source-contract test — runtime capture
+// against live chunker is fragile because the chunker's idempotent skip
+// short-circuits when on-disk chunks match generated content (and the
+// chunker has hardcoded H:/prism paths so we can't easily fixture). Asserting
+// the script source structurally locks the contract: any drift from the
+// body_preview emission triggers a test failure that stays close to the
+// behavior change. Combined with the hook test (preferring body_preview)
+// the whole producer→Qdrant→consumer loop is covered.
+describe("chunk-gsd-vault body_preview contract — P4-U01-FOLLOWUP-2", () => {
+  it("script source computes body_preview from ch.body (whitespace-collapsed, ≤200 chars)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const url = new URL("../../../scripts/chunk-gsd-vault.mjs", import.meta.url);
+    const src = await readFile(url, "utf8");
+    // The exact derivation: collapse all whitespace runs to single spaces,
+    // trim, slice to 200 chars. Drift in any of these breaks the contract.
+    expect(src).toMatch(/const\s+bodyPreview\s*=\s*ch\.body\.replace\(\s*\/\\s\+\/g\s*,\s*"\s"\s*\)\.trim\(\)\.slice\(0,\s*200\)/);
+  });
+
+  it("script source emits body_preview in tryEmbed metadata alongside source/section/slug", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const url = new URL("../../../scripts/chunk-gsd-vault.mjs", import.meta.url);
+    const src = await readFile(url, "utf8");
+    // tryEmbed call must include all 4 metadata fields. Use a multiline match
+    // anchored at tryEmbed( and require body_preview after source/section/slug.
+    const tryEmbedMatch = src.match(/tryEmbed\(\s*id\s*,\s*text\s*,\s*\{([\s\S]*?)\}\s*\)/);
+    expect(tryEmbedMatch).not.toBeNull();
+    const metadataBody = tryEmbedMatch![1];
+    expect(metadataBody).toMatch(/source\s*:\s*spec\.label/);
+    expect(metadataBody).toMatch(/section\s*:\s*ch\.heading/);
+    expect(metadataBody).toMatch(/slug\s*,?/);
+    expect(metadataBody).toMatch(/body_preview\s*:\s*bodyPreview/);
+  });
+
+  it("script source still uses kind=gsd in tryEmbed (P4-U01 invariant)", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const url = new URL("../../../scripts/chunk-gsd-vault.mjs", import.meta.url);
+    const src = await readFile(url, "utf8");
+    expect(src).toMatch(/action:\s*"remember"/);
+    expect(src).toMatch(/kind:\s*"gsd"/);
   });
 });

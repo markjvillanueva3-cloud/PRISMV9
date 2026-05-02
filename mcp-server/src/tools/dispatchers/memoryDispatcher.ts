@@ -2,8 +2,8 @@
  * PRISM Memory Graph Dispatcher (#27)
  * =====================================
  *
- * prism_memory — 13 actions across MemoryGraph + MemoryConsolidation +
- * MemoryPressureMonitor + Qdrant vector recall.
+ * prism_memory — 14 actions across MemoryGraph + MemoryConsolidation +
+ * MemoryPressureMonitor + Qdrant vector recall/write.
  *
  * Graph (F2):
  *   get_health       — Graph stats, memory, integrity
@@ -25,6 +25,13 @@
  *                      Optional threshold filters out low-similarity hits
  *                      after the engine call.
  *
+ * Vector write (INTEL-OLLAMA-OBSIDIAN-MS0/P4-U01-FOLLOWUP-2):
+ *   remember         — Embed text via Ollama nomic-embed-text and write it
+ *                      to QdrantMemoryEngine under the requested kind. Validation
+ *                      mirrors ACTION_MEMORY_SCHEMAS.remember (max 32KB text,
+ *                      kind ∈ MEMORY_KINDS, id is string|number). Used by the
+ *                      P4-U01 chunker and P4-U02 directive summarizer.
+ *
  * @version 1.1.0
  * @feature F2 + INTEL-MS0
  */
@@ -36,6 +43,10 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_MEMORY_SCHEMAS } from "../../schemas/memoryActionSchemas.js";
+// INTEL-OLLAMA-OBSIDIAN-MS0/P4-U01-FOLLOWUP-2: type-only import widens the
+// `kind` cast in case "remember" to all 14 registered MEMORY_KINDS instead
+// of duplicating the union literal here (drift-prevention).
+import type { MemoryKind } from "../../engines/QdrantMemoryEngine.js";
 
 /** MCP server with dynamic tool registration — avoids bare `as any` on server calls */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,7 +63,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + Qdrant vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, pressure_record, pressure_get, pressure_recommend, semantic_search",
+    "Cross-session memory graph + Qdrant vector recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, pressure_record, pressure_get, pressure_recommend, semantic_search, remember",
     {
       action: z.enum([
         "get_health",
@@ -70,7 +81,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "pressure_recommend",
         // INTEL-OLLAMA-OBSIDIAN-MS0/P0-U02: Qdrant vector-similarity recall
         "semantic_search",
-      ]).describe("Memory graph + pressure monitor + Qdrant semantic search actions"),
+        // INTEL-OLLAMA-OBSIDIAN-MS0/P4-U01-FOLLOWUP-2: write to a Qdrant kind/collection
+        "remember",
+      ]).describe("Memory graph + pressure monitor + Qdrant semantic search/write actions"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -348,8 +361,42 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P4-U01-FOLLOWUP-2: write a chunk into a Qdrant
+          // kind/collection. Mirrors the Zod validation in
+          // memoryActionSchemas.ts.ACTION_MEMORY_SCHEMAS.remember (text length,
+          // kind enum, id type) — keep the two in sync if either changes.
+          // P4-U01's chunk-gsd-vault.mjs is the primary writer (kind="gsd"); the
+          // P4-U02 directive summarizer + P4-U04 wiki bridge will use this for
+          // their own kinds (directive, wiki).
+          case "remember": {
+            const kind = (typeof params.kind === "string" ? params.kind : "note") as MemoryKind;
+            const id = params.id ?? "";
+            const text = typeof params.text === "string" ? params.text : "";
+            if (!text || (typeof id !== "string" && typeof id !== "number") || id === "") {
+              result = { success: false, error: "remember requires non-empty 'kind', 'id', and 'text' parameters" };
+              break;
+            }
+            const metadata = (params.metadata && typeof params.metadata === "object")
+              ? (params.metadata as Record<string, unknown>)
+              : undefined;
+            const { qdrantMemoryEngine } = await import("../../engines/QdrantMemoryEngine.js");
+            const { ensureQdrantEmbedder } = await import("../../engines/OllamaEmbedderFactory.js");
+            try {
+              ensureQdrantEmbedder();
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              result = { success: false, error: `embedder install failed: ${msg}`, kind, id };
+              break;
+            }
+            const r = await qdrantMemoryEngine.remember({ kind, id, text, metadata });
+            result = r.ok
+              ? { success: true, data: { kind, id, indexed: true, textBytes: text.length } }
+              : { success: false, error: r.error ?? "remember failed", kind, id };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend', 'semantic_search'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend', 'semantic_search', 'remember'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -365,5 +412,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (13 actions)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (14 actions)");
 }

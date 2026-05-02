@@ -102,7 +102,15 @@ async function main() {
     const section = (typeof h.metadata?.section === "string" && h.metadata.section) || "(unknown)";
     const source = (typeof h.metadata?.source === "string" && h.metadata.source) || "gsd";
     const score = typeof h.score === "number" ? ` (${h.score.toFixed(2)})` : "";
-    const snippet = typeof h.text === "string" ? h.text.split(/\r?\n/).slice(2).join(" ").trim().slice(0, 180) : "";
+    // Snippet contract (P4-U01-FOLLOWUP-2):
+    //   1. Prefer `metadata.body_preview` when the chunker emits it (structural,
+    //      survives chunker text-format changes).
+    //   2. Fall back to `text.split(...).slice(2)` which assumes the legacy
+    //      embed shape `${source} GSD — ${heading}\n\n${body}` (positional).
+    //   3. Never throw on missing/wrong-typed fields — empty snippet is fine.
+    const preview = typeof h.metadata?.body_preview === "string" ? h.metadata.body_preview : "";
+    const fallback = typeof h.text === "string" ? h.text.split(/\r?\n/).slice(2).join(" ") : "";
+    const snippet = (preview || fallback).trim().slice(0, 180);
     lines.push(`  - [${source}] **${section}**${score}${snippet ? ` — ${snippet}` : ""}`);
   }
   console.log(JSON.stringify({
