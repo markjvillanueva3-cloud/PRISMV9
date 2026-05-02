@@ -347,4 +347,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_credit_cost_calc: z.object({
     input: z.record(z.string(), z.unknown()).describe("CreditCostInput - cycle time + power + dielectric usage for WEDMCreditCostEngine.calculate()"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch13: post Mitsubishi + Fanuc + Makino (controller-specific generate)
+  wedm_post_mitsubishi: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller-specific post for WEDMPostMitsubishiEngine.generate() — emits Mitsubishi-dialect G-code with E-code condition references"),
+  }).passthrough(),
+  wedm_post_fanuc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller-specific post for WEDMPostFanucEngine.generate() — emits Fanuc-dialect G-code with C-code condition labels"),
+  }).passthrough(),
+  wedm_post_makino: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller-specific post for WEDMPostMakinoEngine.generate() — emits Makino-dialect G-code"),
+  }).passthrough(),
 };

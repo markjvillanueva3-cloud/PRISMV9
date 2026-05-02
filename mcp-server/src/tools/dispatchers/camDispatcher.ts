@@ -1179,6 +1179,8 @@ export const ACTIONS = [
   "wedm_post_route", "wedm_power_density_validate", "wedm_program_compare",
   // WEDM-WIRE-MS0/Batch12: print-to-program (async) + overage approval + credit cost
   "wedm_print_to_program", "wedm_overage_request", "wedm_credit_cost_calc",
+  // WEDM-WIRE-MS0/Batch13: post Mitsubishi + Fanuc + Makino (controller-specific generate)
+  "wedm_post_mitsubishi", "wedm_post_fanuc", "wedm_post_makino",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6384,6 +6386,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmCreditCostEngine.calculate(
                 input as Parameters<typeof wedmCreditCostEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch13: post Mitsubishi + Fanuc + Makino (controller-specific generate) ──
+          case "wedm_post_mitsubishi": {
+            const { wedmPostMitsubishiEngine } = await import("../../engines/WEDMPostMitsubishiEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMPostInput)" }; break; }
+            try {
+              result = wedmPostMitsubishiEngine.generate(
+                input as Parameters<typeof wedmPostMitsubishiEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_post_fanuc": {
+            const { wedmPostFanucEngine } = await import("../../engines/WEDMPostFanucEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMPostInput)" }; break; }
+            try {
+              result = wedmPostFanucEngine.generate(
+                input as Parameters<typeof wedmPostFanucEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_post_makino": {
+            const { wedmPostMakinoEngine } = await import("../../engines/WEDMPostMakinoEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMPostInput)" }; break; }
+            try {
+              result = wedmPostMakinoEngine.generate(
+                input as Parameters<typeof wedmPostMakinoEngine.generate>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
