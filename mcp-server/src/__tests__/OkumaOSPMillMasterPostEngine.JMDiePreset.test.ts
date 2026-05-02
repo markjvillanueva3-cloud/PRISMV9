@@ -39,7 +39,8 @@ const FEED_TAP_MM_MIN = 1000;
 const AXIAL_DOC_MM = 2;
 const RADIAL_DOC_MM = 6;
 const PROGRAM_BASE = 1500;
-const TRIBAL_POOL_SIZE = 22; // 8 legacy + 14 new (.def + .cps mined)
+const TRIBAL_POOL_SIZE = 23; // 8 legacy + 14 .def/.cps + 1 OO88 fixture-macro tip
+const JM_DIE_FIXTURE_WCS = 51;
 const N_PAD_WIDTH = 4;
 const N_LABEL_LEN = 1 + N_PAD_WIDTH; // "N" + 4 digits
 
@@ -83,7 +84,7 @@ const surfaceOp: MillOperation = {
 // ---------------------------------------------------------------------------
 
 describe("JM_DIE_PRESET — exported constant", () => {
-  it("equals the JM Die canonical six-field shape", () => {
+  it("equals the JM Die canonical eight-field shape", () => {
     expect(JM_DIE_PRESET).toEqual({
       osp_family: JM_DIE_FAMILY,
       work_offset_index: JM_DIE_WORK_OFFSET,
@@ -91,17 +92,21 @@ describe("JM_DIE_PRESET — exported constant", () => {
       super_nurbs_code: JM_DIE_NURBS_CODE,
       tcp_mode: JM_DIE_TCP_MODE,
       n_number_pad_digits: JM_DIE_N_PAD,
+      use_call_oo88: true,
+      fixture_offset_wcs: JM_DIE_FIXTURE_WCS,
     });
   });
 
-  it("contains exactly six keys (Partial<> by contract — caller adds program_number)", () => {
+  it("contains exactly eight keys (Partial<> by contract — caller adds program_number)", () => {
     const keys = Object.keys(JM_DIE_PRESET).sort();
     expect(keys).toEqual([
+      "fixture_offset_wcs",
       "n_number_pad_digits",
       "osp_family",
       "super_nurbs_code",
       "tcp_mode",
       "tool_length_comp_mode",
+      "use_call_oo88",
       "work_offset_index",
     ]);
   });
@@ -275,5 +280,118 @@ describe("Tribal pool — merged 20-tip catalog", () => {
     );
     expect(jmDieTapTips.length).toBe(1);
     expect(jmDieTapTips[0]).toMatch(/JM Die default/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CALL OO88 fixture-offset macro emission (5-axis only on P500)
+// ---------------------------------------------------------------------------
+
+describe("CALL OO88 fixture-offset macro", () => {
+  it("emits OO88 + G15 H51 preamble for 3d_surface op on P500 with default A=C=0", () => {
+    const out = okumaOSPMillMasterPostEngine.generateProgram([surfaceOp], {
+      ...JM_DIE_PRESET,
+      osp_family: "P500",
+      program_number: PROGRAM_BASE + 300,
+    });
+    const oo88Lines = out.gcode.filter((l) => l.startsWith("CALL OO88 "));
+    expect(oo88Lines.length).toBe(1);
+    // Exact emission: PA=0.000 PC=0.000 PH=15 (from JM_DIE_PRESET work_offset) PP=51
+    expect(oo88Lines[0]).toBe(
+      "CALL OO88 PX=0.000 PY=0.000 PZ=0.000 PA=0.000 PC=0.000 PH=15 PP=51"
+    );
+    // The G15 H51 load must follow on a subsequent line
+    expect(out.gcode).toContain("G15 H51 (OO88 RECALCULATED OFFSET)");
+    // Two distinct entries with this category prefix:
+    //  (1) pool tip from applyTribalKnowledge (static description)
+    //  (2) dynamic emission marker pushed by the OO88 helper itself
+    // Filter to the dynamic marker only ("OO88 macro emitted for ...").
+    const dynamicMarkers = out.tribal_tips_applied.filter((t) =>
+      /\[jm_die_call_oo88\] OO88 macro emitted for/.test(t)
+    );
+    expect(dynamicMarkers.length).toBe(1);
+    expect(dynamicMarkers[0]).toMatch(/A=0\.0 C=0\.0 \(PP=51\)/);
+    // The static pool tip should also be present (from applyTribalKnowledge)
+    const staticTips = out.tribal_tips_applied.filter((t) =>
+      t.startsWith("[jm_die_call_oo88] 5-axis fixture-offset macro")
+    );
+    expect(staticTips.length).toBe(1);
+  });
+
+  it("emits OO88 with custom rotary_a_deg / rotary_c_deg for adaptive op on P500", () => {
+    const tiltedOp: MillOperation = {
+      ...surfaceOp,
+      operation_type: "adaptive",
+      rotary_a_deg: -45.5,
+      rotary_c_deg: 90.0,
+    };
+    const out = okumaOSPMillMasterPostEngine.generateProgram([tiltedOp], {
+      ...JM_DIE_PRESET,
+      osp_family: "P500",
+      program_number: PROGRAM_BASE + 301,
+    });
+    const oo88Lines = out.gcode.filter((l) => l.startsWith("CALL OO88 "));
+    expect(oo88Lines.length).toBe(1);
+    expect(oo88Lines[0]).toContain("PA=-45.500");
+    expect(oo88Lines[0]).toContain("PC=90.000");
+  });
+
+  it("does NOT emit OO88 for 3-axis ops (drill/tap/pocket) even on P500 with use_call_oo88", () => {
+    const drillOp: MillOperation = {
+      ...baseOp,
+      operation_type: "drill",
+      tool_number: 8,
+    };
+    const out = okumaOSPMillMasterPostEngine.generateProgram(
+      [drillOp, baseOp /* pocket */],
+      {
+        ...JM_DIE_PRESET,
+        osp_family: "P500",
+        program_number: PROGRAM_BASE + 302,
+      }
+    );
+    expect(out.gcode.filter((l) => l.startsWith("CALL OO88")).length).toBe(0);
+  });
+
+  it("does NOT emit OO88 on P300 even when use_call_oo88=true and op_type=3d_surface", () => {
+    const out = okumaOSPMillMasterPostEngine.generateProgram([surfaceOp], {
+      ...JM_DIE_PRESET, // osp_family default P300 from preset itself
+      program_number: PROGRAM_BASE + 303,
+    });
+    expect(out.gcode.filter((l) => l.startsWith("CALL OO88")).length).toBe(0);
+  });
+
+  it("does NOT emit OO88 by default (use_call_oo88 unset) on P500 surface op", () => {
+    const out = okumaOSPMillMasterPostEngine.generateProgram([surfaceOp], {
+      program_number: PROGRAM_BASE + 304,
+      osp_family: "P500",
+      use_super_nurbs: true,
+      // intentionally no use_call_oo88 → default false → no macro
+    });
+    expect(out.gcode.filter((l) => l.startsWith("CALL OO88")).length).toBe(0);
+  });
+
+  it("throws when work_offset_index collides with fixture_offset_wcs (51 reserved)", () => {
+    expect(() =>
+      okumaOSPMillMasterPostEngine.generateProgram([surfaceOp], {
+        ...JM_DIE_PRESET,
+        osp_family: "P500",
+        work_offset_index: 51, // collision with default fixture_offset_wcs
+        program_number: PROGRAM_BASE + 305,
+      })
+    ).toThrow(/work_offset_index=51 collides with fixture_offset_wcs=51/);
+  });
+
+  it("does NOT throw when use_call_oo88 is false even if indices collide", () => {
+    // Collision check is gated on use_call_oo88 — without the macro, WCS 51
+    // is not reserved, so the operator can use it as a normal offset.
+    expect(() =>
+      okumaOSPMillMasterPostEngine.generateProgram([baseOp], {
+        program_number: PROGRAM_BASE + 306,
+        osp_family: "P300",
+        work_offset_index: 51,
+        // use_call_oo88 unset → false → no collision
+      })
+    ).not.toThrow();
   });
 });
