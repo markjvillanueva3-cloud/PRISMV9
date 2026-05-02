@@ -477,4 +477,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_slug_tab_calc: z.object({
     input: z.record(z.string(), z.unknown()).describe("WEDMSlugTabRetentionInput - profile + slug constraints for WEDMSlugTabRetentionEngine.calculate() — returns WEDMSlugTabRetentionResult"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch27: citation check + complete orch + wire deflection
+  wedm_citation_check_engine: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{engineName: string} for WEDMCitationCheckEngine.checkEngine() — async returns {passed, issues: CitationIssue[]}"),
+  }).passthrough(),
+  wedm_complete_orch_program: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMOrchestrationInput - geometry + material + machine for WEDMCompleteOrchestrationEngine.generateCompleteProgram() (async) — returns WEDMOrchestrationResult"),
+  }).passthrough(),
+  wedm_wire_deflection_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa} for WEDMWireDeflectionEngine.calculateDeflection() — returns deflection in mm"),
+  }).passthrough(),
 };

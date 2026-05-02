@@ -1207,6 +1207,8 @@ export const ACTIONS = [
   "wedm_taper_error_budget", "wedm_weibull_failure_prob", "wedm_spark_erosion_calc",
   // WEDM-WIRE-MS0/Batch26: autonomy audit + benchmark tolerance + slug tab (3 engines)
   "wedm_autonomy_audit_recent", "wedm_benchmark_tolerance_classify", "wedm_slug_tab_calc",
+  // WEDM-WIRE-MS0/Batch27: citation check + complete orchestration + wire deflection (3 engines)
+  "wedm_citation_check_engine", "wedm_complete_orch_program", "wedm_wire_deflection_calc",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -7023,6 +7025,57 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               result = wedmSlugTabRetentionEngine.calculate(
                 input as Parameters<typeof wedmSlugTabRetentionEngine.calculate>[0],
               );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch27: citation check + complete orch + wire deflection
+          // ============================================================
+          case "wedm_citation_check_engine": {
+            const { wedmCitationCheckEngine } = await import("../../engines/WEDMCitationCheckEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const engineName = input && typeof input.engineName === "string" ? input.engineName : "";
+            if (!engineName) { result = { success: false, error: "input.engineName (string) required" }; break; }
+            try {
+              result = await wedmCitationCheckEngine.checkEngine(engineName);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_complete_orch_program": {
+            const { wedmCompleteOrchestrationEngine } = await import("../../engines/WEDMCompleteOrchestrationEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMOrchestrationInput)" }; break; }
+            try {
+              result = await wedmCompleteOrchestrationEngine.generateCompleteProgram(
+                input as Parameters<typeof wedmCompleteOrchestrationEngine.generateCompleteProgram>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_wire_deflection_calc": {
+            const { wedmWireDeflectionEngine } = await import("../../engines/WEDMWireDeflectionEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required ({discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa})" }; break; }
+            const discharge_force_N = typeof input.discharge_force_N === "number" ? input.discharge_force_N : NaN;
+            const wire_tension_N = typeof input.wire_tension_N === "number" ? input.wire_tension_N : NaN;
+            const span_mm = typeof input.span_mm === "number" ? input.span_mm : NaN;
+            const wire_diameter_mm = typeof input.wire_diameter_mm === "number" ? input.wire_diameter_mm : NaN;
+            const modulus_GPa = typeof input.modulus_GPa === "number" ? input.modulus_GPa : NaN;
+            if (![discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa].every(Number.isFinite)) {
+              result = { success: false, error: "all 5 input numerics required: discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa" };
+              break;
+            }
+            try {
+              result = {
+                success: true,
+                deflection_mm: wedmWireDeflectionEngine.calculateDeflection(discharge_force_N, wire_tension_N, span_mm, wire_diameter_mm, modulus_GPa),
+              };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
