@@ -109,6 +109,8 @@ const ACTIONS = [
   "lathe_lora_cadence_orch_active", "lathe_lora_ensemble_orch_stats", "lathe_lora_experiment_create",
   // LATHE-WIRE-MS0/Batch24: health monitor + model registry + safety evaluator (3 engines)
   "lathe_lora_health_alerts", "lathe_lora_model_registry_query", "lathe_lora_safety_evaluate",
+  // LATHE-WIRE-MS0/Batch25: model selector + verification + resource manager (3 engines)
+  "lathe_lora_model_selector_models", "lathe_lora_verification_history", "lathe_lora_resource_pools",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1441,6 +1443,43 @@ Actions: ${ACTIONS.join(", ")}.`,
             const context = (input && input.context && typeof input.context === "object") ? input.context as { operation?: string } : undefined;
             try {
               result = latheLoRASafetyEvaluatorEngine.evaluate(output, context);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch25: model selector + verification + resource manager
+          // ============================================================
+          case "lathe_lora_model_selector_models": {
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            try {
+              result = {
+                success: true,
+                models: latheLoRAModelSelectorEngine.getModels(),
+                stats: latheLoRAModelSelectorEngine.getStats(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_verification_history": {
+            const { latheLoRAVerificationEngine } = await import("../../engines/LatheLoRAVerificationEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const modelId = input && typeof input.modelId === "string" ? input.modelId : undefined;
+            const limit = input && typeof input.limit === "number" && input.limit > 0 ? input.limit : 10;
+            try {
+              result = { success: true, history: latheLoRAVerificationEngine.getHistory(modelId, limit) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_resource_pools": {
+            const { latheLoRAResourceManagerEngine } = await import("../../engines/LatheLoRAResourceManagerEngine.js");
+            try {
+              result = { success: true, pools: latheLoRAResourceManagerEngine.getPools() };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

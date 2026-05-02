@@ -540,4 +540,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_safety_evaluate: z.object({
     input: z.record(z.string(), z.unknown()).describe("{output: string, context?: {operation?}} for LatheLoRASafetyEvaluatorEngine.evaluate() — returns SafetyEvaluation"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch25: model selector + verification + resource manager
+  lathe_lora_model_selector_models: z.object({}).passthrough().describe("No input — returns LatheLoRAModelSelectorEngine.getModels() + getStats() — registered model descriptors + selector stats"),
+  lathe_lora_verification_history: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{modelId?: string, limit?: number=10} for LatheLoRAVerificationEngine.getHistory() — returns VerificationSuiteResult[]"),
+  }).passthrough(),
+  lathe_lora_resource_pools: z.object({}).passthrough().describe("No input — returns LatheLoRAResourceManagerEngine.getPools() — current ResourcePool[] with availability"),
 };
