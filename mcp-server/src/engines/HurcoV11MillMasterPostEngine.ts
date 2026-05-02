@@ -40,6 +40,7 @@ import {
   rapidRepositionOptEngine,
   type RapidMove,
   type AxisKinematics,
+  type FeaturePoint,
 } from "./RapidRepositionOptEngine.js";
 import {
   HSMDwellAtCornerEngine,
@@ -178,6 +179,23 @@ export interface HurcoAdvancedSummary {
     hsm_mode_used: "off" | "g05p1" | "g05p2" | "g187" | "cycle832";
     recommendations: string[];
     optimizations_count: number;
+  } | null;
+  /** Feature-sequencer (TSP) pass output (PPG-WIRE-MS5/U-PPGW-FeatureSequencer-Wiring).
+   *  Reorders operations to minimize total rapid travel between feature
+   *  centroids. Output is advisory — sync output.gcode is preserved
+   *  byte-identical and operation order is NOT mutated. Null when advanced
+   *  pipeline did not run. */
+  feature_sequence: {
+    features_count: number;
+    original_sequence: number[];
+    optimized_sequence: number[];
+    reorderings_count: number;
+    original_distance_mm: number;
+    optimized_distance_mm: number;
+    distance_saved_mm: number;
+    time_saved_sec: number;
+    improvement_pct: number;
+    method: string;
   } | null;
 }
 
@@ -783,6 +801,34 @@ export class HurcoV11MillMasterPostEngine {
         `total_dwell=${hsmResults.total_recommended_dwell_ms.toFixed(1)}ms`,
     );
 
+    // ── PPG-WIRE-MS5/U-PPGW-FeatureSequencer-Wiring ───────────────────
+    // sequenceFeatures (TSP nearest-neighbor + 2-opt) reorders features
+    // to minimize total rapid-travel distance between op centroids.
+    // Output is ADVISORY — operation order is not mutated and sync
+    // output.gcode is preserved byte-identical. The reordered sequence
+    // surfaces in advanced_summary.feature_sequence.optimized_sequence so
+    // a downstream CAM/setup planner can re-emit if desired.
+    const features = extractFeaturesFromOperations(operations);
+    const rapidRateMmin = machine
+      ? machine.rapid_traverse_mm_min / 1000
+      : FEATURE_DEFAULT_RAPID_M_MIN;
+    const seqResult = rapidRepositionOptEngine.sequenceFeatures({
+      features,
+      rapid_rate_m_min: rapidRateMmin,
+    });
+    const reorderingsCount = countReorderings(
+      seqResult.original_sequence,
+      seqResult.optimized_sequence,
+    );
+    enhancements.push("feature_sequence_optimization");
+    log.info(
+      `[HurcoV11] FeatureSequencer pass: features=${features.length} ` +
+        `reorderings=${reorderingsCount} ` +
+        `dist_saved=${seqResult.distance_saved_mm.toFixed(1)}mm ` +
+        `time_saved=${seqResult.time_saved_sec.toFixed(2)}s ` +
+        `(${seqResult.improvement_pct.toFixed(1)}%)`,
+    );
+
     return {
       ...baseOutput,
       advanced_features_applied: enhancements,
@@ -820,6 +866,18 @@ export class HurcoV11MillMasterPostEngine {
             airCutsResult.detections.length,
         },
         hsm_dwell: hsmResults,
+        feature_sequence: {
+          features_count: features.length,
+          original_sequence: seqResult.original_sequence,
+          optimized_sequence: seqResult.optimized_sequence,
+          reorderings_count: reorderingsCount,
+          original_distance_mm: seqResult.original_distance_mm,
+          optimized_distance_mm: seqResult.optimized_distance_mm,
+          distance_saved_mm: seqResult.distance_saved_mm,
+          time_saved_sec: seqResult.time_saved_sec,
+          improvement_pct: seqResult.improvement_pct,
+          method: seqResult.method,
+        },
       },
     };
   }
@@ -1153,6 +1211,73 @@ function runHSMDwellPass(
     recommendations: Array.from(recsSet),
     optimizations_count: corners.length,
   };
+}
+
+// ============================================================================
+// PPG-WIRE-MS5/U-PPGW-FeatureSequencer-Wiring — helpers
+// ============================================================================
+
+/** Default rapid traverse (m/min) when no MachineProfile is loaded. Matches
+ *  RapidRepositionOptEngine.DEFAULT_RAPID_M_MIN (30 m/min ≈ 1180 IPM —
+ *  conservative for a 3-axis VMC). Used only as a unit-conversion factor
+ *  to translate distance-saved into time-saved; does NOT affect the TSP
+ *  reordering itself (which is geometry-only). */
+const FEATURE_DEFAULT_RAPID_M_MIN = 30;
+
+/**
+ * Synthesize one `FeaturePoint` per `MillOperation` for TSP sequencing.
+ * The point is taken from the FIRST cutting (linear/arc) coordinate of
+ * the op, since that's where the rapid retracts to before the cut starts.
+ * Operations with zero cutting coordinates are skipped — they cannot be
+ * reordered meaningfully.
+ *
+ * `operation_index` is set to the original 0-based index in `operations`,
+ * so the optimized_sequence returned by the engine is directly mappable
+ * back to MillOperation[] for downstream re-emission if a planner chooses.
+ */
+function extractFeaturesFromOperations(
+  operations: MillOperation[],
+): FeaturePoint[] {
+  const features: FeaturePoint[] = [];
+  for (let i = 0; i < operations.length; i++) {
+    const op = operations[i];
+    if (!op.coordinates || op.coordinates.length === 0) continue;
+    const firstCut = op.coordinates.find(
+      (pt) => pt.type === "linear" || pt.type === "arc_cw" || pt.type === "arc_ccw",
+    );
+    if (!firstCut) continue;
+    if (
+      !Number.isFinite(firstCut.x) ||
+      !Number.isFinite(firstCut.y) ||
+      !Number.isFinite(firstCut.z)
+    ) {
+      // RapidReposition pass already guards this earlier; defense-in-depth
+      // here in case the pass order changes.
+      throw new Error(
+        `[HurcoV11/FeatureSequencer] Invalid coordinate (NaN or Infinity) at op tool=${op.tool_number}`,
+      );
+    }
+    features.push({
+      x: firstCut.x,
+      y: firstCut.y,
+      z: firstCut.z,
+      operation_index: i,
+      tool: op.tool_number.toString(),
+    });
+  }
+  return features;
+}
+
+/** Count positions where original_sequence[i] !== optimized_sequence[i].
+ *  This is the Hamming distance between the two permutations — a coarse
+ *  but useful proxy for "how much did the sequencer rearrange things". */
+function countReorderings(original: number[], optimized: number[]): number {
+  if (original.length !== optimized.length) return original.length;
+  let diff = 0;
+  for (let i = 0; i < original.length; i++) {
+    if (original[i] !== optimized[i]) diff++;
+  }
+  return diff;
 }
 
 // Singleton export
