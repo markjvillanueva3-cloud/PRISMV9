@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PPG-WIRE-MS5",
+  "version": "1.0.0",
+  "title": "PPG-WIRE-MS5 — Okuma OSP-P*M mill master post + tribal mining",
+  "track": "PPG",
+  "parent_roadmap": "PSAU-MASTER",
+  "pillar": "P3-PPG-SFC-LEARNING-LOOP",
+  "status": "in_progress",
+  "created_at": "2026-05-01T20:30:00.000Z",
+  "last_updated": "2026-05-01T20:30:00.000Z",
+  "total_units": 2,
+  "completed_units": 1,
+  "description": "Closes the Okuma OSP-P*M mill gap left open after PPG-WIRE-MS0. The master_post_by_machine auto-router previously HARD-REJECTed OSP-P300M / OSP-P500M models because no Okuma-mill master post engine existed. MS5 ships the engine + dispatcher wiring + (separate sub-unit) tribal-knowledge mining from JM Die's archive.",
+  "rationale": "PPG-WIRE-MS0 wired the three highest-volume JM Die machine families (Hurco V11 mill, Okuma B250 lathe, Mitsubishi MV1200R wire EDM). The Okuma OSP-P*M mill controllers (used on Okuma MB-V series and MU-V 5-axis mills) were the only branch that failed to route — every other machine family now flows through the sealed-sidecar contract established by U-PPGM07..M15. MS5 closes that gap so OSP-P300M / OSP-P500M can emit, seal, and verify alongside the rest.",
+  "leverage_existing": [
+    "ControllerDialectEngine — full OSP-P300/P500 mill dialect already authored (G15 H1 work offsets, G81/G83/G84/G85 canned cycles, G65 P88xx Renishaw probing, G05.1 Q1 Super-NURBS on P500, IJK incremental arcs, M98/M99 subprograms)",
+    "HurcoV11MillMasterPostEngine — canonical mill master post template; same MillOperation shape, BlockAnnotation flow, Kienzle/Taylor physics gate",
+    "sealMasterPostOutput (cps/sealMasterPostOutput.ts) — U-PPGM15 dispatcher-side helper that bridges engine output → sealed sidecar → optional tier gate",
+    "verifyBlockAnnotations (cps/verifyBlockAnnotations.ts) — tier-aware S/F gate; works unchanged on N100-style labels matching the new engine's spindle-start emission",
+    "PostPhysicsSidecar schema 1.1.0 — block_annotations[] field already shipped under U-PPGM07+08; new engine populates it from line 1"
+  ],
+  "shipped": [
+    {
+      "id": "U-PPGW-OkumaMill",
+      "title": "OkumaOSPMillMasterPostEngine + dispatcher wiring + HARD-REJECT replacement",
+      "shipped_at": "2026-05-01T20:30:00.000Z",
+      "summary": "Builds OkumaOSPMillMasterPostEngine consuming ControllerDialectEngine OSP-P300/P500 mill dialect; family flag selects 3-axis (P300M / MB-V) vs 5-axis (P500M / MU-V); BlockAnnotation flow + Kienzle physics gate matches HurcoV11. Wires master_post_okuma_osp action through sealMasterPostOutput. Replaces the OSP-P*M HARD-REJECT branch in master_post_by_machine with router-side family inference.",
+      "files_created": [
+        "mcp-server/src/engines/OkumaOSPMillMasterPostEngine.ts",
+        "mcp-server/src/__tests__/OkumaOSPMillMasterPostEngine.test.ts",
+        "mcp-server/src/__tests__/OkumaOSPMillMasterPostEngine.SidecarIntegration.test.ts",
+        "mcp-server/data/milestones/PPG-WIRE-MS5.json"
+      ],
+      "files_modified": [
+        "mcp-server/src/schemas/camActionSchemas.ts",
+        "mcp-server/src/tools/dispatchers/camDispatcher.ts",
+        "mcp-server/src/__tests__/integration/MasterPostByMachineExpanded.integration.test.ts",
+        "state/shared/RESUME_POSTS.md"
+      ],
+      "tests": "45 unit cases + 12 sidecar integration cases (engine specific) + 6 mirror-route cases flipped from HARD-REJECT → engine-route assertions; 217/217 across 9 PPG-related suites including 156/156 across 4 master_post integration suites. Zero regression.",
+      "notes": [
+        "Tribal mining intentionally deferred to U-PPGW-OkumaMill-Tribal — JM Die archive has no Okuma-mill source programs (Multus = mill-turn, mill side is Haas).",
+        "Engine ships with a small inline tribal pool (~6 tips: G15 H1 vs G54, [super_nurbs_hint] for P500, G65 P88xx probing IDs, T{n}+M6 two-line tool change, G94 feed/min stickiness, ISO-H/N material guidance).",
+        "Spindle ceiling: 12000 RPM (P300, MB-V default) / 15000 RPM (P500, MU-V default); configurable via max_spindle_rpm.",
+        "P500 only: G05.1 Q1 Super-NURBS bracket emitted when use_super_nurbs=true; G05.1 Q0 cancel on program end."
+      ]
+    }
+  ],
+  "open": [
+    {
+      "id": "U-PPGW-OkumaMill-Tribal",
+      "title": "Mine Okuma-mill tribal knowledge from JM Die / Okuma manuals",
+      "depends_on": ["U-PPGW-OkumaMill"],
+      "scope": "Currently the OkumaOSPMillMasterPostEngine ships with ~6 inline tips from OSP programming manuals + cross-referencing with the lathe-side dialect data. JM Die has no Okuma-mill source archive (Multus is mill-turn; CNC MILL is Haas). When customer engagement lands an Okuma mill program archive OR Okuma operator manuals are pdf-learned, expand the tribal pool with concrete shop-floor patterns. Promote stable tips from this expansion into prism_knowledge:tribal_capture with osp_family + iso_group gating."
+    }
+  ],
+  "the_worked_example_that_proves_it": {
+    "scenario": "Customer with an Okuma MB-V46 (OSP-P300M) loads a P20 mold cavity job — 4 ops: face mill, pocket rough, contour finish, drill grid.",
+    "today_pre_ppg_wire_ms5": "POST /ppg/master/by-machine with machine_model='OSP-P300M' returns {success:false, error:'no Okuma mill master post engine exists yet'}. Customer falls back to manual G-code editing.",
+    "should_be_post_ppg_wire_ms5": "POST master_post_by_machine routes to OkumaOSPMillMasterPostEngine (family=P300 inferred from model string), emits 4 N-labelled spindle-start blocks each carrying matched block_annotations[], seals a v1.1.0 sidecar, optionally runs the verifier at shop_floor tier — same single-call contract as Hurco/B250.",
+    "gap_now_closed": "OSP-P*M is the last mill family in the PPG router that produced a HARD-REJECT. With U-PPGW-OkumaMill shipped, every supported machine model in master_post_by_machine returns the unified {engine_output, sidecar, verify?} shape."
+  }
+}

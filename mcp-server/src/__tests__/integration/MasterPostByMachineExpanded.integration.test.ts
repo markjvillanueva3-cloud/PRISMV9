@@ -27,6 +27,7 @@ import { ACTIONS } from "../../tools/dispatchers/camDispatcher.js";
 
 type Routed =
   | { engine: "okuma"; reason: string }
+  | { engine: "okuma_osp_mill"; reason: string; ospFamily: "P300" | "P500" }
   | { engine: "mitsubishi"; reason: string }
   | { engine: "hurco"; reason: string; configOverrides?: Record<string, unknown> }
   | { engine: null; error: string };
@@ -37,14 +38,19 @@ function routeByMachine(
 ): Routed {
   const model = (machineModel ?? "").toUpperCase();
 
-  // U-PPGW12 — Okuma mill controller hard-reject (PRECEDES lathe match)
+  // U-PPGW-OkumaMill (PPG-WIRE-MS5) — OSP-P*M mill branch (PRECEDES the
+  // OKUMA-lathe match so a model name with both "OKUMA" and "OSP-P300M"
+  // still routes to the mill engine, not the lathe engine).
   if (
     model.includes("OSP-P300M") || model.includes("OSP_P300M") ||
     model.includes("OSP-P500M") || model.includes("OSP_P500M")
   ) {
+    const ospFamily: "P300" | "P500" =
+      (model.includes("OSP-P500") || model.includes("OSP_P500")) ? "P500" : "P300";
     return {
-      engine: null,
-      error: `Okuma mill controller "${machineModel}" detected; no Okuma mill master post engine exists yet. Track under PPG-WIRE-MS5/U-PPGW-OkumaMill. Use a Hurco mill or specify a different controller.`,
+      engine: "okuma_osp_mill",
+      reason: "OSP-P*M mill substring match",
+      ospFamily,
     };
   }
 
@@ -77,7 +83,7 @@ function routeByMachine(
 
   return {
     engine: null,
-    error: `Unknown machine model: ${machineModel}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION. Wire EDM: MITSUBISHI_MV1200R. Mill controllers OSP-P300M/P500M are explicitly NOT supported (no engine).`,
+    error: `Unknown machine model: ${machineModel}. Supported lathes: OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L. Supported mills: HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION; OKUMA OSP-P300M/OSP-P500M (PPG-WIRE-MS5/U-PPGW-OkumaMill). Wire EDM: MITSUBISHI_MV1200R.`,
   };
 }
 
@@ -133,45 +139,66 @@ describe("master_post_by_machine — U-PPGW12 Okuma lathe alias-expand", () => {
 });
 
 // ============================================================================
-// U-PPGW12 — Okuma mill controller hard-reject (precedes lathe match)
+// U-PPGW-OkumaMill (PPG-WIRE-MS5) — Okuma OSP-P*M routes to mill engine
 // ============================================================================
-
-describe("master_post_by_machine — U-PPGW12 Okuma mill controller rejection", () => {
-  it("rejects OSP-P300M (mill controller) with explicit error", () => {
+//
+// Replaces the previous U-PPGW12 HARD-REJECT block. OSP-P300M and OSP-P500M
+// now route to OkumaOSPMillMasterPostEngine via the new branch in
+// master_post_by_machine. The mill check still PRECEDES the OKUMA-lathe
+// branch so a model with both substrings does not mis-route to the lathe.
+//
+describe("master_post_by_machine — U-PPGW-OkumaMill OSP-P*M mill routing", () => {
+  it("routes OSP-P300M to OkumaOSPMillMasterPostEngine with family=P300", () => {
     const r = routeByMachine("OSP-P300M");
-    expect(r.engine).toBeNull();
-    if (r.engine === null) {
-      expect(r.error).toContain("Okuma mill controller");
-      expect(r.error).toContain("no Okuma mill master post engine exists yet");
+    expect(r.engine).toBe("okuma_osp_mill");
+    if (r.engine === "okuma_osp_mill") {
+      expect(r.ospFamily).toBe("P300");
     }
   });
 
-  it("rejects OSP_P300M (underscore variant)", () => {
+  it("routes OSP_P300M (underscore variant) with family=P300", () => {
     const r = routeByMachine("OSP_P300M");
-    expect(r.engine).toBeNull();
-  });
-
-  it("rejects OSP-P500M with explicit error", () => {
-    const r = routeByMachine("OSP-P500M");
-    expect(r.engine).toBeNull();
-    if (r.engine === null) {
-      expect(r.error).toContain("PPG-WIRE-MS5/U-PPGW-OkumaMill");
+    expect(r.engine).toBe("okuma_osp_mill");
+    if (r.engine === "okuma_osp_mill") {
+      expect(r.ospFamily).toBe("P300");
     }
   });
 
-  it("rejects OSP_P500M (underscore variant)", () => {
-    const r = routeByMachine("OSP_P500M");
-    expect(r.engine).toBeNull();
+  it("routes OSP-P500M to OkumaOSPMillMasterPostEngine with family=P500", () => {
+    const r = routeByMachine("OSP-P500M");
+    expect(r.engine).toBe("okuma_osp_mill");
+    if (r.engine === "okuma_osp_mill") {
+      expect(r.ospFamily).toBe("P500");
+    }
   });
 
-  it("does NOT mis-route OSP-P300M to the lathe engine — mill check precedes lathe match", () => {
-    // The lathe substring "OSP-P300L" doesn't match "OSP-P300M" (different
-    // suffix), but a naive implementation might use looser matching. This
-    // locks in the precedence: mill rejection fires before lathe acceptance.
+  it("routes OSP_P500M (underscore variant) with family=P500", () => {
+    const r = routeByMachine("OSP_P500M");
+    expect(r.engine).toBe("okuma_osp_mill");
+    if (r.engine === "okuma_osp_mill") {
+      expect(r.ospFamily).toBe("P500");
+    }
+  });
+
+  it("OSP-P300M PRECEDES the OKUMA-lathe branch even when 'OKUMA' is in the name", () => {
+    // Locks in branch precedence: a model name containing both "OKUMA"
+    // (lathe trigger) and "OSP-P300M" (mill trigger) must hit the mill
+    // branch — previously this was a hard-reject; now it routes to the
+    // mill engine. The lathe substring "OSP-P300L" does NOT match
+    // "OSP-P300M" (different suffix); precedence is a defence against
+    // naive looser matching in future refactors.
     const r = routeByMachine("OKUMA OSP-P300M MILL");
-    expect(r.engine).toBeNull();
-    if (r.engine === null) {
-      expect(r.error).toContain("mill controller");
+    expect(r.engine).toBe("okuma_osp_mill");
+    if (r.engine === "okuma_osp_mill") {
+      expect(r.ospFamily).toBe("P300");
+    }
+  });
+
+  it("case-insensitive: lowercase osp-p500m routes to mill (toUpperCase normalization)", () => {
+    const r = routeByMachine("osp-p500m");
+    expect(r.engine).toBe("okuma_osp_mill");
+    if (r.engine === "okuma_osp_mill") {
+      expect(r.ospFamily).toBe("P500");
     }
   });
 });
@@ -294,13 +321,15 @@ describe("master_post_by_machine — U-PPGW11 UltiMotion router-infer", () => {
 // ============================================================================
 
 describe("master_post_by_machine — branch precedence invariants", () => {
-  it("Okuma mill rejection precedes Okuma lathe acceptance (ambiguous OSP family)", () => {
-    // A model containing both substrings must hit the mill-reject branch
-    // first — proves the order Okuma-mill-reject > Okuma-lathe is wired.
+  it("Okuma mill engine precedes Okuma lathe acceptance (ambiguous OSP family)", () => {
+    // A model containing both substrings must hit the mill engine branch
+    // first — proves the order Okuma-mill-route > Okuma-lathe is wired.
+    // Pre-U-PPGW-OkumaMill this branch was a HARD-REJECT; now it routes
+    // to OkumaOSPMillMasterPostEngine. Precedence over the OKUMA-lathe
+    // accept branch must remain — otherwise a mill model with "OKUMA"
+    // in the name would mis-route to the lathe engine.
     const r = routeByMachine("OKUMA OSP-P300M LATHE STAND-IN");
-    // Even with "OKUMA" in the name, the OSP-P300M mill-reject check must
-    // fire before the OKUMA lathe accept branch.
-    expect(r.engine).toBeNull();
+    expect(r.engine).toBe("okuma_osp_mill");
   });
 
   it("Mitsubishi precedes Hurco when MV1200 + ULTIMOTION both present (Mitsubishi wins)", () => {
@@ -329,7 +358,11 @@ describe("master_post_by_machine — unknown machine + schema invariants", () =>
       expect(r.error).toContain("HURCO VMX/VM10/VM20/V11/MAX31/ULTIMAX/ULTIMOTION");
       expect(r.error).toContain("OKUMA_LB200/LB250/LB300, OSP-P300L, OSP-P500L");
       expect(r.error).toContain("MITSUBISHI_MV1200R");
-      expect(r.error).toContain("OSP-P300M/P500M are explicitly NOT supported");
+      // U-PPGW-OkumaMill (PPG-WIRE-MS5): OSP-P*M is now SUPPORTED — the
+      // supported-list copy advertises it, the "explicitly NOT supported"
+      // sentence is gone.
+      expect(r.error).toContain("OKUMA OSP-P300M/OSP-P500M");
+      expect(r.error).not.toContain("explicitly NOT supported");
     }
   });
 
