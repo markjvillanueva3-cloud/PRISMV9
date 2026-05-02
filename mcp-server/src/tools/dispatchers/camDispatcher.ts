@@ -1619,6 +1619,8 @@ export const ACTIONS = [
   "cam_regression_detect", "cam_regression_detect_against_golden", "cam_regression_load_golden", "cam_regression_promote_golden", "cam_regression_has_golden", "cam_regression_findings_by_severity", "cam_regression_findings_by_type", "cam_regression_audit",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-CYCLES-01 — Fusion 360 cycle catalog (52 cycles, 8 categories)
   "cam_fusion360_cycle_catalog_list", "cam_fusion360_cycle_catalog_list_by_category", "cam_fusion360_cycle_catalog_lookup", "cam_fusion360_cycle_catalog_search", "cam_fusion360_cycle_catalog_stats", "cam_fusion360_cycle_catalog_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-CTRL-01 — Fusion 360 controller catalog (16 families, 20+ post variants)
+  "cam_fusion360_controller_list", "cam_fusion360_controller_lookup", "cam_fusion360_controller_search", "cam_fusion360_controller_dialect", "cam_fusion360_controller_stats", "cam_fusion360_controller_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -12899,6 +12901,41 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_cycle_catalog_audit": {
             const { Fusion360CycleCatalogEngine } = await import("../../engines/Fusion360CycleCatalogEngine.js");
             result = Fusion360CycleCatalogEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-CTRL-01: Fusion 360 controller catalog ──
+          case "cam_fusion360_controller_list": {
+            const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
+            result = { families: Fusion360ControllerCatalogEngine.list() };
+            break;
+          }
+          case "cam_fusion360_controller_lookup": {
+            const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
+            const id = params.id as string;
+            result = { id, family: Fusion360ControllerCatalogEngine.lookup(id) };
+            break;
+          }
+          case "cam_fusion360_controller_search": {
+            const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
+            const query = params.query as string;
+            result = { query, families: Fusion360ControllerCatalogEngine.search(query) };
+            break;
+          }
+          case "cam_fusion360_controller_dialect": {
+            const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
+            const dialect = params.dialect as string;
+            result = { dialect, families: Fusion360ControllerCatalogEngine.listByDialect(dialect) };
+            break;
+          }
+          case "cam_fusion360_controller_stats": {
+            const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
+            result = Fusion360ControllerCatalogEngine.stats();
+            break;
+          }
+          case "cam_fusion360_controller_audit": {
+            const { Fusion360ControllerCatalogEngine } = await import("../../engines/Fusion360ControllerCatalogEngine.js");
+            result = Fusion360ControllerCatalogEngine.auditCatalog();
             break;
           }
 
