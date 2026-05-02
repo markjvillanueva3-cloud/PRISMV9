@@ -71,7 +71,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(Number.isNaN(d.getTime())).toBe(false);
     });
 
-    it("modules array contains all seven Fusion modules in shipping order (Phase 1 6/6 + Phase 2 sheet_metal)", () => {
+    it("modules array contains all eight Fusion modules in shipping order (Fusion CAD COMPLETE 8/8 — Inventor parity)", () => {
       const ids = Fusion360CADFunctionIndexEngine.getIndex().modules.map((m) => m.module_id);
       expect(ids).toEqual([
         "sketch_operations",
@@ -81,6 +81,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
         "mesh_operations",
         "assembly_operations",
         "sheet_metal_operations",
+        "drawing_operations",
       ]);
     });
 
@@ -105,7 +106,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("listModules / getModuleEntry", () => {
-    it("listModules returns all 7 shipped modules in order (Phase 1 6/6 + Phase 2 sheet_metal)", () => {
+    it("listModules returns all 8 shipped modules in order (Fusion CAD COMPLETE 8/8 — Inventor parity)", () => {
       expect(Fusion360CADFunctionIndexEngine.listModules()).toEqual([
         "sketch_operations",
         "feature_operations",
@@ -114,6 +115,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
         "mesh_operations",
         "assembly_operations",
         "sheet_metal_operations",
+        "drawing_operations",
       ]);
     });
 
@@ -196,7 +198,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals sum across all 7 modules (22+18+9+8+7+10+13 = 87)", () => {
+    it("listAllOperations equals sum across all 8 modules (22+18+9+8+7+10+13+18 = 105)", () => {
       const all = Fusion360CADFunctionIndexEngine.listAllOperations();
       const sketch = Fusion360CADFunctionIndexEngine.listOperations("sketch_operations");
       const feature = Fusion360CADFunctionIndexEngine.listOperations("feature_operations");
@@ -205,6 +207,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       const mesh = Fusion360CADFunctionIndexEngine.listOperations("mesh_operations");
       const assembly = Fusion360CADFunctionIndexEngine.listOperations("assembly_operations");
       const sheetMetal = Fusion360CADFunctionIndexEngine.listOperations("sheet_metal_operations");
+      const drawing = Fusion360CADFunctionIndexEngine.listOperations("drawing_operations");
       expect(sketch.length).toBe(22);
       expect(feature.length).toBe(18);
       expect(modify.length).toBe(9);
@@ -212,6 +215,7 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(mesh.length).toBe(7);
       expect(assembly.length).toBe(10);
       expect(sheetMetal.length).toBe(13);
+      expect(drawing.length).toBe(18);
       expect(all.length).toBe(
         sketch.length +
           feature.length +
@@ -219,9 +223,10 @@ describe("Fusion360CADFunctionIndexEngine", () => {
           surface.length +
           mesh.length +
           assembly.length +
-          sheetMetal.length,
+          sheetMetal.length +
+          drawing.length,
       );
-      expect(all.length).toBe(87);
+      expect(all.length).toBe(105);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -437,9 +442,9 @@ describe("Fusion360CADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 795 parameters across all 87 operations (115+206+101+74+66+112+121)", () => {
+    it("counts exactly 950 parameters across all 105 operations (115+206+101+74+66+112+121+155)", () => {
       const total = Fusion360CADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(795);
+      expect(total).toBe(950);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -478,6 +483,11 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(sheetMetalTotal).toBe(121);
       expect(sheetMetalDeclared).toBe(121);
 
+      const drawingTotal = sumParamsForModule("drawing_operations");
+      const drawingDeclared = (Fusion360CADFunctionIndexEngine.getModule("drawing_operations")?.metadata as { totalParameters?: number })?.totalParameters;
+      expect(drawingTotal).toBe(155);
+      expect(drawingDeclared).toBe(155);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(
         sketchTotal +
@@ -486,7 +496,8 @@ describe("Fusion360CADFunctionIndexEngine", () => {
           surfaceTotal +
           meshTotal +
           assemblyTotal +
-          sheetMetalTotal,
+          sheetMetalTotal +
+          drawingTotal,
       );
     });
   });
@@ -968,12 +979,12 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(Fusion360CADFunctionIndexEngine.findParameter("assembly_operations", "COMPONENT_GROUND", "Motion Type")).toBeNull();
     });
 
-    it("Fusion catalog total at completion: 7 modules / 87 ops / 795 params (Phase 1 + sheet_metal)", () => {
-      // Final integration check — confirms the entire Fusion catalog landed clean.
-      // Phase 1 6/6 + Phase 2 sheet_metal shipped; drawing pending as last Phase 2 module.
-      expect(Fusion360CADFunctionIndexEngine.listModules()).toHaveLength(7);
-      expect(Fusion360CADFunctionIndexEngine.listAllOperations()).toHaveLength(87);
-      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(795);
+    it("Fusion catalog total at completion: 8 modules / 105 ops / 950 params (Fusion CAD COMPLETE 8/8 — Inventor parity)", () => {
+      // Final integration check — confirms the entire Fusion CAD catalog landed clean.
+      // Phase 1 6/6 + Phase 2 2/2 (sheet_metal + drawing) = 8/8 truly exhausted.
+      expect(Fusion360CADFunctionIndexEngine.listModules()).toHaveLength(8);
+      expect(Fusion360CADFunctionIndexEngine.listAllOperations()).toHaveLength(105);
+      expect(Fusion360CADFunctionIndexEngine.getTotalParameterCount()).toBe(950);
       expect(Fusion360CADFunctionIndexEngine.getIndex().future_modules).toEqual([]);
     });
   });
@@ -1204,11 +1215,11 @@ describe("Fusion360CADFunctionIndexEngine", () => {
     });
   });
 
-  describe("coverage_summary — Phase 2 markers (sheet_metal shipped, drawing pending)", () => {
-    it("api_surface.phase_2_coverage_state is exactly 'PARTIAL' (1 of 2 Phase 2 modules done)", () => {
+  describe("coverage_summary — Phase 2 markers (Fusion CAD COMPLETE 8/8 — Inventor parity)", () => {
+    it("api_surface.phase_2_coverage_state is exactly 'COMPLETE' (2 of 2 Phase 2 modules done)", () => {
       const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_2_coverage_state).toBe("PARTIAL");
+      expect(apiSurface?.phase_2_coverage_state).toBe("COMPLETE");
     });
 
     it("api_surface.phase_2_target_modules equals 2 (sheet_metal + drawing)", () => {
@@ -1217,16 +1228,28 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_2_target_modules).toBe(2);
     });
 
-    it("api_surface.phase_2_target_modules_remaining is exactly 1 (drawing pending)", () => {
+    it("api_surface.phase_2_target_modules_remaining is exactly 0 (Phase 2 closed)", () => {
       const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_2_target_modules_remaining).toBe(1);
+      expect(apiSurface?.phase_2_target_modules_remaining).toBe(0);
     });
 
-    it("api_surface.phase_2_modules_pending is exactly ['drawing_operations']", () => {
+    it("api_surface.phase_2_modules_pending is empty array (no Phase 2 work pending)", () => {
       const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_2_modules_pending).toEqual(["drawing_operations"]);
+      expect(apiSurface?.phase_2_modules_pending).toEqual([]);
+    });
+
+    it("api_surface.fusion_cad_8_of_8 marker is true (true exhaustion flag)", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.fusion_cad_8_of_8).toBe(true);
+    });
+
+    it("api_surface.inventor_parity marker is true (parity guarantee)", () => {
+      const apiSurface = Fusion360CADFunctionIndexEngine.getIndex().coverage_summary
+        .api_surface as Record<string, unknown> | undefined;
+      expect(apiSurface?.inventor_parity).toBe(true);
     });
 
     it("phase_2 ledger is internally consistent (failure mode: target/remaining/pending drift)", () => {
@@ -1244,6 +1267,11 @@ describe("Fusion360CADFunctionIndexEngine", () => {
       expect(platform.sheet_metal_workspace).toBe(true);
     });
 
+    it("platform_integration.drawing_workspace is true (failure mode: drawing flag missing)", () => {
+      const platform = Fusion360CADFunctionIndexEngine.getIndex().platform_integration ?? {};
+      expect(platform.drawing_workspace).toBe(true);
+    });
+
     it("phase_2_target_modules cannot exceed modules.length (adversarial: over-promise)", () => {
       const idx = Fusion360CADFunctionIndexEngine.getIndex();
       const apiSurface = idx.coverage_summary.api_surface as Record<string, unknown> | undefined;
@@ -1256,6 +1284,237 @@ describe("Fusion360CADFunctionIndexEngine", () => {
         .api_surface as Record<string, unknown> | undefined;
       const remaining = apiSurface?.phase_2_target_modules_remaining as number;
       expect(remaining).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe("drawing_operations catalog (U-CAD-FIDX-FUS-08)", () => {
+    const KNOWN_DRAWING_OPS = [
+      "SHEET",
+      "BASE_VIEW",
+      "PROJECTED_VIEW",
+      "SECTION_VIEW",
+      "DETAIL_VIEW",
+      "AUXILIARY_VIEW",
+      "BREAK_VIEW",
+      "DIMENSION",
+      "GEOMETRIC_TOLERANCE",
+      "DATUM_FEATURE",
+      "CENTERLINE",
+      "CENTERMARK",
+      "TEXT",
+      "PARTS_LIST",
+      "HOLE_TABLE",
+      "TITLE_BLOCK",
+      "REVISION_TABLE",
+      "EXPORT",
+    ];
+
+    const VIEW_OPS = [
+      "BASE_VIEW",
+      "PROJECTED_VIEW",
+      "SECTION_VIEW",
+      "DETAIL_VIEW",
+      "AUXILIARY_VIEW",
+      "BREAK_VIEW",
+    ];
+
+    const ANNOTATION_OPS = [
+      "DIMENSION",
+      "GEOMETRIC_TOLERANCE",
+      "DATUM_FEATURE",
+      "CENTERLINE",
+      "CENTERMARK",
+      "TEXT",
+    ];
+
+    const TABLE_OPS = ["PARTS_LIST", "HOLE_TABLE", "REVISION_TABLE"];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = Fusion360CADFunctionIndexEngine.getModule("drawing_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-FUS-08'", () => {
+      const mod = Fusion360CADFunctionIndexEngine.getModule("drawing_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-FUS-08");
+    });
+
+    it("operations dict has exactly 18 entries", () => {
+      const mod = Fusion360CADFunctionIndexEngine.getModule("drawing_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(18);
+    });
+
+    it("listOperations returns exactly the 18 expected drawing ops", () => {
+      const ids = Fusion360CADFunctionIndexEngine.listOperations("drawing_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_DRAWING_OPS].sort());
+    });
+
+    it("every operation reports a Drawing_-prefixed category", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("drawing_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Drawing_")).toBe(true);
+      }
+    });
+
+    it("VIEW_OPS span all 6 view subcategories (Drawing_View_*)", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("drawing_operations");
+      const viewCategories = ops
+        .filter((op) => VIEW_OPS.includes(op.operation_id))
+        .map((op) => op.category);
+      expect(viewCategories.sort()).toEqual([
+        "Drawing_View_Auxiliary",
+        "Drawing_View_Base",
+        "Drawing_View_Break",
+        "Drawing_View_Detail",
+        "Drawing_View_Projected",
+        "Drawing_View_Section",
+      ]);
+    });
+
+    it("ANNOTATION_OPS all carry Drawing_Annotation_ category prefix", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("drawing_operations");
+      const annotationOps = ops.filter((op) => ANNOTATION_OPS.includes(op.operation_id));
+      expect(annotationOps.length).toBe(6);
+      for (const op of annotationOps) {
+        expect(op.category.startsWith("Drawing_Annotation_")).toBe(true);
+      }
+    });
+
+    it("TABLE_OPS all carry Drawing_Table_ category prefix", () => {
+      const ops = Fusion360CADFunctionIndexEngine.listOperations("drawing_operations");
+      const tableOps = ops.filter((op) => TABLE_OPS.includes(op.operation_id));
+      expect(tableOps.length).toBe(3);
+      for (const op of tableOps) {
+        expect(op.category.startsWith("Drawing_Table_")).toBe(true);
+      }
+    });
+
+    it("SHEET Format declares 11 size options (ANSI A..E + ISO A0..A4 + custom)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "SHEET");
+      const formatParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Format");
+      expect(formatParam?.options).toHaveLength(11);
+      expect(formatParam?.options).toContain("ANSI_A");
+      expect(formatParam?.options).toContain("ISO_A4");
+      expect(formatParam?.options).toContain("custom");
+    });
+
+    it("BASE_VIEW Orientation declares 11 view orientations (6 ortho + 4 iso + named)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "BASE_VIEW");
+      const orientationParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Orientation");
+      expect(orientationParam?.options).toHaveLength(11);
+      expect(orientationParam?.options).toContain("front");
+      expect(orientationParam?.options).toContain("iso_top_left");
+      expect(orientationParam?.options).toContain("named_view");
+    });
+
+    it("SECTION_VIEW Section Method supports the 6 ASME-standard section variants", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "SECTION_VIEW");
+      const methodParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Section Method");
+      expect(methodParam?.options).toEqual([
+        "full",
+        "half",
+        "aligned",
+        "offset",
+        "broken_out",
+        "revolved",
+      ]);
+    });
+
+    it("DIMENSION Type spans the 8 dimension subtypes (failure mode: missing dimension type)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "DIMENSION");
+      const typeParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual([
+        "linear",
+        "aligned",
+        "angular",
+        "radial",
+        "diameter",
+        "arc_length",
+        "jogged",
+        "ordinate",
+      ]);
+    });
+
+    it("DIMENSION Tolerance Type covers the 7 ASME tolerance forms (failure mode: tolerance completeness)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "DIMENSION");
+      const tolParam = op?.tabs?.Tolerance?.parameters?.find((p) => p.name === "Tolerance Type");
+      expect(tolParam?.options).toEqual([
+        "none",
+        "bilateral",
+        "limits",
+        "symmetric",
+        "MAX",
+        "MIN",
+        "single_limit",
+      ]);
+    });
+
+    it("GEOMETRIC_TOLERANCE Type lists exactly 14 ASME Y14.5 geometric characteristics (failure mode: GD&T completeness)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation(
+        "drawing_operations",
+        "GEOMETRIC_TOLERANCE",
+      );
+      const typeParam = op?.tabs?.Tolerance?.parameters?.find((p) => p.name === "Geometric Type");
+      expect(typeParam?.options).toHaveLength(14);
+      // ASME Y14.5 categories: form (3), orientation (3), location (3), profile (2), runout (2), straightness/circularity in form
+      expect(typeParam?.options).toContain("position");
+      expect(typeParam?.options).toContain("flatness");
+      expect(typeParam?.options).toContain("total_runout");
+      expect(typeParam?.options).toContain("profile_surface");
+    });
+
+    it("EXPORT Format covers all 6 multi-format outputs (PDF/DWG/DXF/PNG/JPG/SVG)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "EXPORT");
+      const formatParam = op?.tabs?.Output?.parameters?.find((p) => p.name === "Format");
+      expect(formatParam?.options).toEqual(["pdf", "dwg", "dxf", "png", "jpg", "svg"]);
+    });
+
+    it("CENTERLINE Type supports all 5 generation modes", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "CENTERLINE");
+      const typeParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual([
+        "bisector",
+        "two_lines",
+        "circular_pattern",
+        "projected",
+        "full_pattern",
+      ]);
+    });
+
+    it("REVISION_TABLE Revision Format includes letter_skip_reserved per ASME Y14.35 (failure mode: standard non-compliance)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation(
+        "drawing_operations",
+        "REVISION_TABLE",
+      );
+      const formatParam = op?.tabs?.Annotation?.parameters?.find(
+        (p) => p.name === "Revision Format",
+      );
+      expect(formatParam?.options).toContain("letter_skip_reserved");
+      expect(formatParam?.default).toBe("letter_skip_reserved");
+    });
+
+    it("returns null for unknown drawing op (adversarial: typo)", () => {
+      expect(
+        Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "TELEPORT_VIEW"),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Tolerance Value' on GEOMETRIC_TOLERANCE as required (adversarial: cross-tab param)", () => {
+      const loc = Fusion360CADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GEOMETRIC_TOLERANCE",
+        "Tolerance Value",
+      );
+      expect(loc?.parameter.name).toBe("Tolerance Value");
+      expect(loc?.parameter.required).toBe(true);
+    });
+
+    it("BREAK_VIEW Break Style supports 4 aesthetic options (adversarial: missing break style)", () => {
+      const op = Fusion360CADFunctionIndexEngine.getOperation("drawing_operations", "BREAK_VIEW");
+      const styleParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Break Style");
+      expect(styleParam?.options).toEqual(["straight", "curved", "zigzag", "step"]);
     });
   });
 });
