@@ -1,0 +1,367 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Drafting Operations — 2D drawing output",
+    "description": "Parameter catalog for the Mastercam CAD drafting layer. The drafting workspace produces 2D engineering drawings from 3D solid / surface bodies via 7 view types (Base / Projected / Section in 6 methods / Detail / Auxiliary / Break + sheet-internal Crop), dimensioning (8 subtypes + 7 ASME tolerance forms + inspection frame), GD&T (14 ASME Y14.5 geometric characteristics + datum reference), annotations (Leader, Note, Hatch, Surface Finish per ASME Y14.36 / ISO 1302, 2D Centerline), tables (Parts List BOM), and Title Block configuration. Bindings target Mastercam .NET-Hook API (Mastercam.Drawings namespace) and C-Hook ChooseAndPick.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-04",
+    "source": "Mastercam 2024 Reference — Drafting ribbon; Mastercam .NET-Hook API Reference (Mastercam.Drawings); ASME Y14.5-2018 (GD&T); ASME Y14.36-2018 (Surface Texture); ISO 1302:2002",
+    "totalParameters": 124,
+    "operationCount": 16,
+    "cad_concepts_used": [
+      "ORTHOGRAPHIC_PROJECTION",
+      "SECTION_HATCHING",
+      "DIMENSION_TOLERANCE",
+      "GEOMETRIC_TOLERANCE",
+      "DATUM_REFERENCE_FRAME",
+      "SURFACE_FINISH_SYMBOL",
+      "TITLE_BLOCK_FIELDS",
+      "HOLE_CALLOUT",
+      "PARTS_LIST_BOM",
+      "REVISION_LETTER_SEQUENCE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam drafting operations",
+    "tabs": ["Shape", "View", "Annotation", "Tolerance", "Output"]
+  },
+  "operations": {
+    "SHEET": {
+      "description": "Create or configure a drawing sheet. Format selects ANSI A..E or ISO A0..A4 with optional custom override. Title block template binds the sheet to a downstream title-block configuration.",
+      "category": "Drafting_Sheet",
+      "mastercam_command": "DraftingSheet",
+      "mastercam_api": "Mastercam.Drawings.DrawingSheet.Create",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Format", "type": "dropdown", "options": ["ANSI_A", "ANSI_B", "ANSI_C", "ANSI_D", "ANSI_E", "ISO_A0", "ISO_A1", "ISO_A2", "ISO_A3", "ISO_A4", "custom"], "default": "ANSI_B"},
+            {"name": "Size Override", "type": "string", "description": "Custom WxH (e.g., '300x200mm') used with format=custom"},
+            {"name": "Scale", "type": "numeric", "default": 1, "min": 0.0001},
+            {"name": "Title", "type": "string"},
+            {"name": "Sheet Number", "type": "string", "default": "1"},
+            {"name": "Total Sheets", "type": "integer", "default": 1, "min": 1},
+            {"name": "Orientation", "type": "dropdown", "options": ["landscape", "portrait"], "default": "landscape"},
+            {"name": "Border Style", "type": "dropdown", "options": ["standard", "minimal", "none"], "default": "standard"},
+            {"name": "Title Block Template", "type": "string", "description": "Template name (e.g., 'ANSI_Standard')"}
+          ]
+        }
+      }
+    },
+    "VIEW_BASE": {
+      "description": "Project a base orthographic view from a 3D source model onto the active sheet.",
+      "category": "Drafting_View_Base",
+      "mastercam_command": "DraftingViewBase",
+      "mastercam_api": "Mastercam.Drawings.View.AddBase",
+      "parameterCount": 9,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source Model", "type": "selection", "required": true},
+            {"name": "Orientation", "type": "dropdown", "options": ["front", "top", "right", "back", "bottom", "left", "iso_top_left", "iso_top_right", "iso_bottom_left", "iso_bottom_right", "named_view"], "default": "front"},
+            {"name": "Scale", "type": "numeric", "description": "Override sheet scale"},
+            {"name": "Display Style", "type": "dropdown", "options": ["shaded", "shaded_with_visible_edges", "visible_lines", "visible_and_hidden_lines", "wireframe"], "default": "visible_lines"},
+            {"name": "Edge Visibility", "type": "dropdown", "options": ["all", "visible_only", "hidden_dashed"], "default": "visible_only"},
+            {"name": "Hidden Lines", "type": "checkbox", "default": false},
+            {"name": "Tangent Edges", "type": "dropdown", "options": ["on", "off", "with_foreshortening"], "default": "off"},
+            {"name": "Position", "type": "selection", "description": "View origin on sheet"},
+            {"name": "Boundary Box", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "VIEW_PROJECTED": {
+      "description": "Project a derived view from an existing view (orthographic or isometric).",
+      "category": "Drafting_View_Projected",
+      "mastercam_command": "DraftingViewProjected",
+      "mastercam_api": "Mastercam.Drawings.View.AddProjected",
+      "parameterCount": 6,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["above", "below", "left", "right", "iso_above_left", "iso_above_right"], "default": "right"},
+            {"name": "Scale Override", "type": "numeric"},
+            {"name": "Auto-Align", "type": "checkbox", "default": true},
+            {"name": "Spacing", "type": "numeric", "unit": "mm", "default": 50},
+            {"name": "Display Style", "type": "dropdown", "options": ["inherit", "shaded", "visible_lines", "wireframe"], "default": "inherit"}
+          ]
+        }
+      }
+    },
+    "VIEW_SECTION": {
+      "description": "Cut-plane section view from a parent view. Section method controls full / half / aligned / offset / broken-out / revolved behavior. Hatch pattern auto-selects per material with manual override.",
+      "category": "Drafting_View_Section",
+      "mastercam_command": "DraftingViewSection",
+      "mastercam_api": "Mastercam.Drawings.View.AddSection",
+      "parameterCount": 10,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "required": true},
+            {"name": "Cutting Line", "type": "selection", "required": true},
+            {"name": "Section Method", "type": "dropdown", "options": ["full", "half", "aligned", "offset", "broken_out", "revolved"], "default": "full"},
+            {"name": "Section Depth", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Hatch Pattern", "type": "dropdown", "options": ["ANSI31", "ANSI32", "ANSI33", "ANSI34", "ANSI35", "ANSI36", "ANSI37", "ANSI38", "ISO_steel", "ISO_aluminum", "ISO_plastic", "solid", "auto_by_material"], "default": "auto_by_material"},
+            {"name": "Hatch Scale", "type": "numeric", "default": 1, "min": 0.01},
+            {"name": "Hatch Angle", "type": "numeric", "unit": "deg", "default": 45},
+            {"name": "Section Label", "type": "string", "description": "Letter (A, B, C…)"},
+            {"name": "Cut Line Style", "type": "dropdown", "options": ["thick_dash", "thin_dash", "phantom", "chain"], "default": "thick_dash"},
+            {"name": "Reverse", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "VIEW_DETAIL": {
+      "description": "Magnified detail callout on a parent view. Boundary geometry (circle / rectangle / spline) defines the region.",
+      "category": "Drafting_View_Detail",
+      "mastercam_command": "DraftingViewDetail",
+      "mastercam_api": "Mastercam.Drawings.View.AddDetail",
+      "parameterCount": 8,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "required": true},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["circle", "rectangle", "spline"], "default": "circle"},
+            {"name": "Boundary Center", "type": "selection", "required": true},
+            {"name": "Boundary Size", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Scale", "type": "numeric", "default": 2, "min": 0.1},
+            {"name": "Connection Style", "type": "dropdown", "options": ["circular", "rectangular", "jagged", "with_leader"], "default": "circular"},
+            {"name": "Detail Label", "type": "string"},
+            {"name": "Show Boundary", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "VIEW_AUXILIARY": {
+      "description": "Auxiliary view aligned to a specific edge (typically an oblique surface) on a source view.",
+      "category": "Drafting_View_Auxiliary",
+      "mastercam_command": "DraftingViewAuxiliary",
+      "mastercam_api": "Mastercam.Drawings.View.AddAuxiliary",
+      "parameterCount": 6,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "required": true},
+            {"name": "Reference Edge", "type": "selection", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["normal_to_edge", "along_edge"], "default": "normal_to_edge"},
+            {"name": "Scale Override", "type": "numeric"},
+            {"name": "Show Reference Line", "type": "checkbox", "default": true},
+            {"name": "Aligned", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "VIEW_BREAK": {
+      "description": "Break long views to compact the drawing. Break style controls aesthetic (straight / curved / zigzag / step).",
+      "category": "Drafting_View_Break",
+      "mastercam_command": "DraftingViewBreak",
+      "mastercam_api": "Mastercam.Drawings.View.AddBreak",
+      "parameterCount": 7,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "required": true},
+            {"name": "Break Lines", "type": "selection", "required": true},
+            {"name": "Break Style", "type": "dropdown", "options": ["straight", "curved", "zigzag", "step"], "default": "zigzag"},
+            {"name": "Break Gap", "type": "numeric", "unit": "mm", "default": 5, "min": 0.001},
+            {"name": "Break Direction", "type": "dropdown", "options": ["horizontal", "vertical"], "default": "horizontal"},
+            {"name": "Stretched Length", "type": "numeric", "unit": "mm"},
+            {"name": "Multi-Break", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "DIMENSION": {
+      "description": "8 dimension subtypes (linear / aligned / angular / radial / diameter / arc_length / jogged / ordinate) with 7 ASME-compliant tolerance forms and inspection-frame wrapping.",
+      "category": "Drafting_Annotation_Dimension",
+      "mastercam_command": "DraftingDimension",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddDimension",
+      "parameterCount": 11,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["linear", "aligned", "angular", "radial", "diameter", "arc_length", "jogged", "ordinate"], "default": "linear"},
+            {"name": "References", "type": "selection", "required": true},
+            {"name": "Position", "type": "selection"},
+            {"name": "Override Text", "type": "string"},
+            {"name": "Precision", "type": "integer", "default": 2, "min": 0, "max": 6},
+            {"name": "Reference Symbol", "type": "checkbox", "description": "Wrap with parentheses for reference dimension", "default": false},
+            {"name": "Suppress Leading Zeros", "type": "checkbox", "default": false}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "bilateral", "limits", "symmetric", "MAX", "MIN", "single_limit"], "default": "none"},
+            {"name": "Upper Tolerance", "type": "numeric"},
+            {"name": "Lower Tolerance", "type": "numeric"},
+            {"name": "Inspection Frame", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "LEADER": {
+      "description": "Leader line with arrow connecting an annotation to a source feature. Style controls straight / jogged / curved leader form.",
+      "category": "Drafting_Annotation_Leader",
+      "mastercam_command": "DraftingLeader",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddLeader",
+      "parameterCount": 6,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Source Position", "type": "selection", "required": true},
+            {"name": "Endpoint", "type": "selection", "required": true},
+            {"name": "Style", "type": "dropdown", "options": ["straight", "jogged", "curved"], "default": "straight"},
+            {"name": "Arrow Style", "type": "dropdown", "options": ["filled", "open", "dot", "tick", "none"], "default": "filled"},
+            {"name": "Multi-Segment", "type": "checkbox", "default": false},
+            {"name": "Bend Position", "type": "selection", "description": "Used with jogged style"}
+          ]
+        }
+      }
+    },
+    "NOTE": {
+      "description": "Free-text annotation. Attach mode controls floating placement vs leader-attached vs balloon-wrapped.",
+      "category": "Drafting_Annotation_Note",
+      "mastercam_command": "DraftingNote",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddNote",
+      "parameterCount": 7,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Text", "type": "string", "required": true},
+            {"name": "Position", "type": "selection"},
+            {"name": "Font", "type": "string", "default": "Arial"},
+            {"name": "Size", "type": "numeric", "unit": "mm", "default": 3.5, "min": 0.5},
+            {"name": "Justification", "type": "dropdown", "options": ["left", "center", "right", "full_justify"], "default": "left"},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Attach Mode", "type": "dropdown", "options": ["floating", "with_leader", "with_balloon"], "default": "floating"}
+          ]
+        }
+      }
+    },
+    "HATCH": {
+      "description": "Cross-hatch fill pattern within a closed boundary. Pattern selects from 12 ANSI / ISO patterns plus solid fill and material-auto.",
+      "category": "Drafting_Annotation_Hatch",
+      "mastercam_command": "DraftingHatch",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddHatch",
+      "parameterCount": 7,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Boundary", "type": "selection", "description": "Closed wireframe chain", "required": true},
+            {"name": "Pattern", "type": "dropdown", "options": ["ANSI31", "ANSI32", "ANSI33", "ANSI34", "ANSI35", "ANSI36", "ANSI37", "ANSI38", "ISO_steel", "ISO_aluminum", "ISO_plastic", "solid", "auto_by_material"], "default": "ANSI31"},
+            {"name": "Scale", "type": "numeric", "default": 1, "min": 0.01},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "default": 45},
+            {"name": "Origin", "type": "selection", "description": "Hatch origin point"},
+            {"name": "Multi-Boundary", "type": "checkbox", "description": "Hatch multiple closed regions in one operation", "default": false},
+            {"name": "Auto-Update", "type": "checkbox", "description": "Re-hatch on boundary edit", "default": true}
+          ]
+        }
+      }
+    },
+    "GDT_FRAME": {
+      "description": "GD&T feature control frame per ASME Y14.5. Geometric type covers the 14 ASME-defined characteristics: form (3) / orientation (3) / location (2) / runout (2) / profile (2) / position + concentricity + symmetry. Material modifiers: M (MMC) / L (LMC) / S (RFS).",
+      "category": "Drafting_Annotation_GDT",
+      "mastercam_command": "DraftingGDT",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddGDT",
+      "parameterCount": 11,
+      "tabs": {
+        "Tolerance": {
+          "parameters": [
+            {"name": "Geometric Type", "type": "dropdown", "options": ["position", "concentricity", "symmetry", "parallelism", "perpendicularity", "angularity", "circularity", "cylindricity", "flatness", "straightness", "profile_line", "profile_surface", "circular_runout", "total_runout"], "required": true},
+            {"name": "Tolerance Value", "type": "numeric", "unit": "mm", "required": true, "min": 0},
+            {"name": "Tolerance Modifier", "type": "dropdown", "options": ["none", "MMC_circle_M", "LMC_circle_L", "RFS_circle_S", "tangent_plane", "free_state"], "default": "none"},
+            {"name": "Diameter Indicator", "type": "checkbox", "default": false},
+            {"name": "Datum A", "type": "string"},
+            {"name": "Datum A Modifier", "type": "dropdown", "options": ["none", "MMC", "LMC", "RFS"], "default": "none"},
+            {"name": "Datum B", "type": "string"},
+            {"name": "Datum C", "type": "string"},
+            {"name": "Composite Frame", "type": "checkbox", "default": false},
+            {"name": "All-Around Symbol", "type": "checkbox", "default": false},
+            {"name": "Reference Geometry", "type": "selection", "required": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_FINISH": {
+      "description": "Surface finish symbol per ASME Y14.36 / ISO 1302. Symbol type controls basic / machined / unmachined; Ra value specifies arithmetic-average roughness (μm or μin).",
+      "category": "Drafting_Annotation_SurfaceFinish",
+      "mastercam_command": "DraftingSurfaceFinish",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddSurfaceFinish",
+      "parameterCount": 7,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Symbol Type", "type": "dropdown", "options": ["basic", "machined", "unmachined", "machined_with_addition", "unmachined_with_addition"], "default": "machined"},
+            {"name": "Ra Value", "type": "numeric", "unit": "um", "description": "Arithmetic-average roughness (Ra)"},
+            {"name": "Surface Texture", "type": "string", "description": "Texture descriptor (e.g., 'M' machined, 'P' polished)"},
+            {"name": "Lay Direction", "type": "dropdown", "options": ["parallel", "perpendicular", "crossed", "multi", "circular", "radial", "particulate"], "default": "perpendicular"},
+            {"name": "Position", "type": "selection"},
+            {"name": "Reference Geometry", "type": "selection", "required": true},
+            {"name": "Multi-Reference", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CENTERLINE_2D": {
+      "description": "2D centerline annotation for symmetric features in a drawing view. 5 generation modes: bisector / two_lines / circular_pattern / projected / full_pattern.",
+      "category": "Drafting_Annotation_Centerline",
+      "mastercam_command": "DraftingCenterline",
+      "mastercam_api": "Mastercam.Drawings.Annotation.AddCenterline",
+      "parameterCount": 5,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["bisector", "two_lines", "circular_pattern", "projected", "full_pattern"], "default": "bisector"},
+            {"name": "References", "type": "selection", "required": true},
+            {"name": "Extension", "type": "numeric", "unit": "mm", "default": 2},
+            {"name": "Linetype", "type": "dropdown", "options": ["chain", "phantom", "dashed"], "default": "chain"},
+            {"name": "Hash Spacing", "type": "numeric", "unit": "mm", "default": 5}
+          ]
+        }
+      }
+    },
+    "PARTS_LIST": {
+      "description": "Bill-of-Materials parts list for assembly drawings.",
+      "category": "Drafting_Table_PartsList",
+      "mastercam_command": "DraftingPartsList",
+      "mastercam_api": "Mastercam.Drawings.Table.AddPartsList",
+      "parameterCount": 8,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source Assembly", "type": "selection", "required": true},
+            {"name": "Format", "type": "dropdown", "options": ["default", "standard", "structured", "custom"], "default": "default"},
+            {"name": "Sort By", "type": "dropdown", "options": ["item_number", "part_number", "description", "qty_descending"], "default": "item_number"},
+            {"name": "Item Number Style", "type": "dropdown", "options": ["sequential", "ballooned"], "default": "sequential"},
+            {"name": "Columns", "type": "string", "default": "ITEM,PART_NUMBER,DESCRIPTION,QTY"},
+            {"name": "Custom Fields", "type": "string"},
+            {"name": "Bordering Style", "type": "dropdown", "options": ["full", "horizontal_only", "none"], "default": "full"},
+            {"name": "Multi-Page", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "TITLE_BLOCK": {
+      "description": "Configure title block fields on the drawing sheet.",
+      "category": "Drafting_Sheet_TitleBlock",
+      "mastercam_command": "DraftingTitleBlock",
+      "mastercam_api": "Mastercam.Drawings.Sheet.UpdateTitleBlock",
+      "parameterCount": 7,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Template Name", "type": "string", "required": true},
+            {"name": "Drawing Number", "type": "string"},
+            {"name": "Title", "type": "string"},
+            {"name": "Author", "type": "string"},
+            {"name": "Date", "type": "string", "description": "ISO-8601 date"},
+            {"name": "Revision", "type": "string"},
+            {"name": "Custom Fields", "type": "string", "description": "Comma-separated key=value overrides"}
+          ]
+        }
+      }
+    }
+  }
+}

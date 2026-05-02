@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 58 ops total at Phase 1 3/8 (wireframe + solid + surface)", () => {
+    it("listAllOperations equals 74 ops total at Phase 1 4/8 (wireframe + solid + surface + drafting)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(58);
+      expect(all.length).toBe(74);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,9 +344,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 403 parameters across all 58 ops (153 wireframe + 140 solid + 110 surface)", () => {
+    it("counts exactly 527 parameters across all 74 ops (153 wireframe + 140 solid + 110 surface + 124 drafting)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(403);
+      expect(total).toBe(527);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -377,15 +377,24 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(surfaceTotal).toBe(110);
       expect(surfaceDeclared).toBe(110);
 
+      const draftingTotal = sumParamsForModule("drafting_operations");
+      const draftingDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("drafting_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(draftingTotal).toBe(124);
+      expect(draftingDeclared).toBe(124);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
-        wireframeTotal + solidTotal + surfaceTotal,
+        wireframeTotal + solidTotal + surfaceTotal + draftingTotal,
       );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (3 of 8 modules shipped)", () => {
+    it("api_surface.coverage_state is exactly 'PARTIAL' (4 of 8 modules shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
@@ -397,17 +406,16 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 5 (3/8 shipped)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 4 (4/8 shipped — halfway)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(5);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(4);
     });
 
-    it("api_surface.phase_1_modules_pending lists the 5 unbuilt modules in shipping order", () => {
+    it("api_surface.phase_1_modules_pending lists the 4 unbuilt modules in shipping order", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.phase_1_modules_pending).toEqual([
-        "drafting_operations",
         "transformation_operations",
         "analysis_operations",
         "modify_operations",
@@ -431,7 +439,7 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(5);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(4);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -884,6 +892,256 @@ describe("MastercamCADFunctionIndexEngine", () => {
       );
       const sideParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Side");
       expect(sideParam?.options).toEqual(["outside", "inside", "both"]);
+    });
+  });
+
+  describe("drafting_operations catalog (U-CAD-FIDX-MC-04)", () => {
+    const KNOWN_DRAFTING_OPS = [
+      "SHEET",
+      "VIEW_BASE",
+      "VIEW_PROJECTED",
+      "VIEW_SECTION",
+      "VIEW_DETAIL",
+      "VIEW_AUXILIARY",
+      "VIEW_BREAK",
+      "DIMENSION",
+      "LEADER",
+      "NOTE",
+      "HATCH",
+      "GDT_FRAME",
+      "SURFACE_FINISH",
+      "CENTERLINE_2D",
+      "PARTS_LIST",
+      "TITLE_BLOCK",
+    ];
+
+    const VIEW_OPS = [
+      "VIEW_BASE",
+      "VIEW_PROJECTED",
+      "VIEW_SECTION",
+      "VIEW_DETAIL",
+      "VIEW_AUXILIARY",
+      "VIEW_BREAK",
+    ];
+
+    const ANNOTATION_OPS = [
+      "DIMENSION",
+      "LEADER",
+      "NOTE",
+      "HATCH",
+      "GDT_FRAME",
+      "SURFACE_FINISH",
+      "CENTERLINE_2D",
+    ];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("drafting_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-04'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("drafting_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-04");
+    });
+
+    it("operations dict has exactly 16 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("drafting_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(16);
+    });
+
+    it("listOperations returns exactly the 16 expected drafting ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("drafting_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_DRAFTING_OPS].sort());
+    });
+
+    it("every operation reports a Drafting_-prefixed category", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("drafting_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Drafting_")).toBe(true);
+      }
+    });
+
+    it("VIEW_OPS span all 6 view subcategories (Drafting_View_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("drafting_operations");
+      const viewCategories = ops
+        .filter((op) => VIEW_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(viewCategories).toEqual([
+        "Drafting_View_Auxiliary",
+        "Drafting_View_Base",
+        "Drafting_View_Break",
+        "Drafting_View_Detail",
+        "Drafting_View_Projected",
+        "Drafting_View_Section",
+      ]);
+    });
+
+    it("ANNOTATION_OPS all carry Drafting_Annotation_ category prefix", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("drafting_operations");
+      const annotationOps = ops.filter((op) => ANNOTATION_OPS.includes(op.operation_id));
+      expect(annotationOps.length).toBe(7);
+      for (const op of annotationOps) {
+        expect(op.category.startsWith("Drafting_Annotation_")).toBe(true);
+      }
+    });
+
+    it("SHEET Format declares 11 size options (ANSI A..E + ISO A0..A4 + custom)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "SHEET");
+      const formatParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Format");
+      expect(formatParam?.options).toHaveLength(11);
+      expect(formatParam?.options).toContain("ANSI_A");
+      expect(formatParam?.options).toContain("ISO_A4");
+      expect(formatParam?.options).toContain("custom");
+    });
+
+    it("VIEW_BASE Orientation declares 11 view orientations", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "drafting_operations",
+        "VIEW_BASE",
+      );
+      const orientParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Orientation");
+      expect(orientParam?.options).toHaveLength(11);
+      expect(orientParam?.options).toContain("front");
+      expect(orientParam?.options).toContain("iso_top_left");
+    });
+
+    it("VIEW_SECTION Section Method supports 6 ASME-standard variants", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "drafting_operations",
+        "VIEW_SECTION",
+      );
+      const methodParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Section Method");
+      expect(methodParam?.options).toEqual([
+        "full",
+        "half",
+        "aligned",
+        "offset",
+        "broken_out",
+        "revolved",
+      ]);
+    });
+
+    it("DIMENSION Type spans 8 dimension subtypes (failure mode: missing dimension type)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "DIMENSION");
+      const typeParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual([
+        "linear",
+        "aligned",
+        "angular",
+        "radial",
+        "diameter",
+        "arc_length",
+        "jogged",
+        "ordinate",
+      ]);
+    });
+
+    it("DIMENSION Tolerance Type covers 7 ASME tolerance forms (failure mode: tolerance completeness)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "DIMENSION");
+      const tolParam = op?.tabs?.Tolerance?.parameters?.find((p) => p.name === "Tolerance Type");
+      expect(tolParam?.options).toEqual([
+        "none",
+        "bilateral",
+        "limits",
+        "symmetric",
+        "MAX",
+        "MIN",
+        "single_limit",
+      ]);
+    });
+
+    it("GDT_FRAME Geometric Type lists exactly 14 ASME Y14.5 characteristics (failure mode: GD&T completeness)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "drafting_operations",
+        "GDT_FRAME",
+      );
+      const typeParam = op?.tabs?.Tolerance?.parameters?.find((p) => p.name === "Geometric Type");
+      expect(typeParam?.options).toHaveLength(14);
+      expect(typeParam?.options).toContain("position");
+      expect(typeParam?.options).toContain("flatness");
+      expect(typeParam?.options).toContain("total_runout");
+      expect(typeParam?.options).toContain("profile_surface");
+    });
+
+    it("SURFACE_FINISH Lay Direction covers 7 ASME Y14.36 lay symbols", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "drafting_operations",
+        "SURFACE_FINISH",
+      );
+      const layParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Lay Direction");
+      expect(layParam?.options).toEqual([
+        "parallel",
+        "perpendicular",
+        "crossed",
+        "multi",
+        "circular",
+        "radial",
+        "particulate",
+      ]);
+    });
+
+    it("HATCH Pattern covers all 12 ANSI/ISO patterns + solid + auto", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "HATCH");
+      const patternParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Pattern");
+      expect(patternParam?.options).toHaveLength(13);
+      expect(patternParam?.options).toContain("ANSI31");
+      expect(patternParam?.options).toContain("ISO_steel");
+      expect(patternParam?.options).toContain("auto_by_material");
+    });
+
+    it("CENTERLINE_2D Type supports all 5 generation modes", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "drafting_operations",
+        "CENTERLINE_2D",
+      );
+      const typeParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual([
+        "bisector",
+        "two_lines",
+        "circular_pattern",
+        "projected",
+        "full_pattern",
+      ]);
+    });
+
+    it("LEADER Style supports straight/jogged/curved (failure mode: missing leader style)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "LEADER");
+      const styleParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Style");
+      expect(styleParam?.options).toEqual(["straight", "jogged", "curved"]);
+    });
+
+    it("NOTE Attach Mode supports floating/with_leader/with_balloon", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "NOTE");
+      const attachParam = op?.tabs?.Annotation?.parameters?.find((p) => p.name === "Attach Mode");
+      expect(attachParam?.options).toEqual(["floating", "with_leader", "with_balloon"]);
+    });
+
+    it("returns null for unknown drafting op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation("drafting_operations", "TELEPORT_VIEW"),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Tolerance Value' on GDT_FRAME as required (adversarial: cross-tab GDT param)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "drafting_operations",
+        "GDT_FRAME",
+        "Tolerance Value",
+      );
+      expect(loc?.parameter.name).toBe("Tolerance Value");
+      expect(loc?.parameter.required).toBe(true);
+    });
+
+    it("VIEW_BREAK Break Style supports 4 aesthetic options (adversarial: break style)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "drafting_operations",
+        "VIEW_BREAK",
+      );
+      const styleParam = op?.tabs?.View?.parameters?.find((p) => p.name === "Break Style");
+      expect(styleParam?.options).toEqual(["straight", "curved", "zigzag", "step"]);
     });
   });
 });
