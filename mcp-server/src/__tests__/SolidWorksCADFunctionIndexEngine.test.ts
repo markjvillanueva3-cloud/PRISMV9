@@ -204,9 +204,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       ]);
     });
 
-    it("listAllOperations returns 98 ops total (sketch + part + surface + assembly shipped through U-04)", () => {
+    it("listAllOperations returns 122 ops total (sketch + part + surface + assembly + drawing shipped through U-05)", () => {
       const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
-      expect(all).toHaveLength(98);
+      expect(all).toHaveLength(122);
     });
 
     it("listOperations('part_operations') returns 30 (shipped in U-02)", () => {
@@ -225,8 +225,14 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       );
     });
 
-    it("listOperations('drawing_operations') returns 0 — module pending — failure mode", () => {
+    it("listOperations('drawing_operations') returns 24 (shipped in U-05)", () => {
       expect(SolidWorksCADFunctionIndexEngine.listOperations("drawing_operations")).toHaveLength(
+        24,
+      );
+    });
+
+    it("listOperations('sheet_metal_operations') returns 0 — module pending — failure mode", () => {
+      expect(SolidWorksCADFunctionIndexEngine.listOperations("sheet_metal_operations")).toHaveLength(
         0,
       );
     });
@@ -390,11 +396,13 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
 
     it("searchParameters('Mode') finds the operations with Mode-bearing parameters", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Mode");
-      // 10 sketch + 1 part + 2 surface (SURFACE_TRIM Selection Mode + SURFACE_DELETE_FACE Mode)
-      //   + 4 assembly (MATE_ADD Profile Center Mode + MIRROR_COMPONENTS Mode +
-      //                 SMART_FASTENER Length Mode + SMART_EXPLODE_LINE Route Mode) = 17 distinct ops.
+      // 10 sketch + 1 part + 2 surface + 4 assembly + 5 drawing = 22 distinct ops.
+      // Drawing contributors (substring 'mode' also matches 'Model'):
+      //   VIEW_MODEL (Model Path + Scale Mode) / VIEW_BREAK_OUT (Depth Mode) /
+      //   DIMENSION_SMART (Dimensioning Mode) / CENTER_MARK (Pattern Mode) /
+      //   DESIGN_TABLE_ATTACH (Source Model Path).
       const distinctOps = new Set(matches.map((m) => m.operation_id));
-      expect(distinctOps.size).toBe(17);
+      expect(distinctOps.size).toBe(22);
     });
 
     it("searchParameters returns [] for nonsense queries — failure mode", () => {
@@ -430,8 +438,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(empty).toHaveLength(0);
     });
 
-    it("getTotalParameterCount equals 644 (132 sketch + 190 part + 150 surface + 172 assembly)", () => {
-      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(644);
+    it("getTotalParameterCount equals 809 (132 sketch + 190 part + 150 surface + 172 assembly + 165 drawing)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(809);
     });
 
     it("declared estimated_parameter_total matches actual count (no drift)", () => {
@@ -439,12 +447,12 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
       const actual = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
       expect(declared).toBe(actual);
-      expect(declared).toBe(644);
+      expect(declared).toBe(809);
     });
   });
 
   describe("coverage_summary + platform_integration — phase 1 progress", () => {
-    it("coverage_state is IN_PROGRESS with 4 modules pending and the right pending list", () => {
+    it("coverage_state is IN_PROGRESS with 3 modules pending and the right pending list", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
         coverage_state?: string;
         phase_1_target_modules_remaining?: number;
@@ -453,9 +461,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         inventor_parity?: boolean;
       };
       expect(api.coverage_state).toBe("IN_PROGRESS");
-      expect(api.phase_1_target_modules_remaining).toBe(4);
+      expect(api.phase_1_target_modules_remaining).toBe(3);
       expect(api.phase_1_modules_pending).toEqual([
-        "drawing_operations",
         "sheet_metal_operations",
         "weldment_operations",
         "evaluation_operations",
@@ -464,13 +471,13 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(api.inventor_parity).toBe(false);
     });
 
-    it("platform_integration has sketch + part + surface + assembly layers enabled through U-04", () => {
+    it("platform_integration has all 5 authoring layers enabled through U-05 (sketch + part + surface + assembly + drawing)", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration ?? {};
       expect(pi.sketch_layer).toBe(true);
       expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(true);
-      expect(pi.drawing_layer).toBe(false);
+      expect(pi.drawing_layer).toBe(true);
       expect(pi.sheet_metal_layer).toBe(false);
       expect(pi.weldment_layer).toBe(false);
       expect(pi.evaluation_layer).toBe(false);
@@ -484,9 +491,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_2024_compatible?: boolean;
         solidworks_2025_compatible?: boolean;
       };
-      expect(api.sw_api_com_items).toBe(98);
-      expect(api.vba_macro_items).toBe(98);
-      expect(api.vsta_addin_items).toBe(98);
+      expect(api.sw_api_com_items).toBe(122);
+      expect(api.vba_macro_items).toBe(122);
+      expect(api.vsta_addin_items).toBe(122);
       expect(api.solidworks_2024_compatible).toBe(true);
       expect(api.solidworks_2025_compatible).toBe(true);
     });
@@ -783,52 +790,55 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
     });
   });
 
-  describe("part_operations — coverage rollup into the index (post-U-04)", () => {
-    it("coverage_summary.total_units_covered now lists U-01 through U-04", () => {
+  describe("part_operations — coverage rollup into the index (post-U-05)", () => {
+    it("coverage_summary.total_units_covered now lists U-01 through U-05", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
       expect(cs.total_units_covered).toEqual([
         "U-CAD-FIDX-SW-01",
         "U-CAD-FIDX-SW-02",
         "U-CAD-FIDX-SW-03",
         "U-CAD-FIDX-SW-04",
+        "U-CAD-FIDX-SW-05",
       ]);
     });
 
-    it("coverage_summary.estimated_parameter_total is 644 (132 sketch + 190 part + 150 surface + 172 assembly)", () => {
+    it("coverage_summary.estimated_parameter_total is 809 (132+190+150+172+165 across 5 modules)", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
-      expect(cs.estimated_parameter_total).toBe(644);
+      expect(cs.estimated_parameter_total).toBe(809);
     });
 
-    it("api_surface counts climb to 98 (22 sketch + 30 part + 20 surface + 26 assembly ops)", () => {
+    it("api_surface counts climb to 122 (22+30+20+26+24 ops across 5 modules)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.sw_api_com_items).toBe(98);
-      expect(api.vba_macro_items).toBe(98);
-      expect(api.vsta_addin_items).toBe(98);
+      expect(api.sw_api_com_items).toBe(122);
+      expect(api.vba_macro_items).toBe(122);
+      expect(api.vsta_addin_items).toBe(122);
     });
 
-    it("phase_1_target_modules_remaining drops from 5 to 4", () => {
+    it("phase_1_target_modules_remaining drops from 4 to 3", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_target_modules_remaining).toBe(4);
+      expect(api.phase_1_target_modules_remaining).toBe(3);
     });
 
-    it("phase_1_modules_pending no longer contains part / surface / assembly_operations", () => {
+    it("phase_1_modules_pending no longer contains part / surface / assembly / drawing_operations", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
       expect(api.phase_1_modules_pending).not.toContain("part_operations");
       expect(api.phase_1_modules_pending).not.toContain("surface_operations");
       expect(api.phase_1_modules_pending).not.toContain("assembly_operations");
-      expect(api.phase_1_modules_pending).toHaveLength(4);
+      expect(api.phase_1_modules_pending).not.toContain("drawing_operations");
+      expect(api.phase_1_modules_pending).toHaveLength(3);
     });
 
-    it("platform_integration.part / surface / assembly layers are now true", () => {
+    it("platform_integration.part / surface / assembly / drawing layers are now true", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration;
       expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(true);
+      expect(pi.drawing_layer).toBe(true);
     });
 
-    it("getTotalParameterCount() returns 644 across all 4 shipped modules", () => {
+    it("getTotalParameterCount() returns 809 across all 5 shipped modules", () => {
       const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(644);
+      expect(total).toBe(809);
     });
   });
 
@@ -2126,6 +2136,713 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       const param = loc!.parameter as { default?: number; min?: number; unit?: string };
       expect(param.default).toBe(0.001);
       expect(param.min).toBe(0);
+      expect(param.unit).toBe("mm");
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-05 — drawing_operations module
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const KNOWN_DRAWING_OPS_24 = [
+    "DRAWING_NEW",
+    "SHEET_ADD",
+    "SHEET_FORMAT_EDIT",
+    "VIEW_MODEL",
+    "VIEW_PROJECTED",
+    "VIEW_AUXILIARY",
+    "VIEW_SECTION",
+    "VIEW_DETAIL",
+    "VIEW_BROKEN",
+    "VIEW_BREAK_OUT",
+    "VIEW_CROP",
+    "DIMENSION_SMART",
+    "DIMENSION_BASELINE",
+    "DIMENSION_ORDINATE",
+    "GDT_ADD",
+    "DATUM_FEATURE",
+    "SURFACE_FINISH_SYMBOL",
+    "WELD_SYMBOL",
+    "CENTER_MARK",
+    "BOM_TABLE",
+    "REVISION_TABLE",
+    "GENERAL_TABLE",
+    "HOLE_TABLE",
+    "DESIGN_TABLE_ATTACH",
+  ];
+
+  // ASME Y14.5-2018 14 geometric characteristics in canonical SolidWorks order.
+  const ASME_Y14_5_GDT_SYMBOLS_14 = [
+    "straightness", "flatness", "circularity", "cylindricity",
+    "profile_of_a_line", "profile_of_a_surface",
+    "perpendicularity", "parallelism", "angularity",
+    "position", "concentricity", "symmetry",
+    "circular_runout", "total_runout",
+  ];
+
+  describe("drawing_operations — module catalog (U-CAD-FIDX-SW-05)", () => {
+    it("loads the drawing_operations catalog and reports schemaVersion '1.0.0'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("drawing_operations");
+      expect(cat).not.toBeNull();
+      expect(cat!.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.totalParameters is exactly 165 (matches index declaration)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("drawing_operations");
+      expect(cat!.metadata.totalParameters).toBe(165);
+    });
+
+    it("metadata.operationCount is exactly 24", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("drawing_operations");
+      expect(cat!.metadata.operationCount).toBe(24);
+    });
+
+    it("metadata.milestone is 'U-CAD-FIDX-SW-05'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("drawing_operations");
+      expect(cat!.metadata.milestone).toBe("U-CAD-FIDX-SW-05");
+    });
+
+    it("listOperations('drawing_operations') returns exactly 24 operations", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("drawing_operations");
+      expect(ops).toHaveLength(24);
+    });
+
+    it("listOperations contains every expected drawing op id", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("drawing_operations");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([...KNOWN_DRAWING_OPS_24].sort());
+    });
+
+    it("module_entry.parameter_count_estimate is 165 in the index header", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("drawing_operations");
+      expect(entry!.parameter_count_estimate).toBe(165);
+    });
+
+    it("module_entry.dependencies is exactly ['part_operations', 'assembly_operations']", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("drawing_operations");
+      expect(entry!.dependencies).toEqual(["part_operations", "assembly_operations"]);
+    });
+
+    it("sum of per-tab parameter arrays equals 165 (no count drift)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("drawing_operations");
+      let total = 0;
+      for (const opId of Object.keys(cat!.operations)) {
+        const op = (cat!.operations as Record<string, { tabs?: Record<string, { parameters?: unknown[] }> }>)[opId];
+        for (const tabName of Object.keys(op.tabs ?? {})) {
+          total += (op.tabs![tabName].parameters ?? []).length;
+        }
+      }
+      expect(total).toBe(165);
+    });
+  });
+
+  describe("drawing_operations — drawing document setup (DRAWING_NEW / SHEET_ADD / SHEET_FORMAT_EDIT)", () => {
+    it("DRAWING_NEW Projection requires first_angle vs third_angle (ISO/EU vs ANSI/US default)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DRAWING_NEW",
+        "Projection",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["first_angle", "third_angle"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("third_angle");
+    });
+
+    it("DRAWING_NEW Paper Size enumerates all 13 standard ANSI + ISO paper sizes plus Custom", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DRAWING_NEW",
+        "Paper Size",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "A_Landscape", "A_Portrait", "B", "C", "D", "E",
+        "A4_Landscape", "A4_Portrait", "A3", "A2", "A1", "A0",
+        "Custom",
+      ]);
+    });
+
+    it("SHEET_ADD Position Index uses -1 sentinel for append-to-end", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "SHEET_ADD",
+        "Position Index",
+      );
+      const param = loc!.parameter as { min?: number; default?: number };
+      expect(param.min).toBe(-1);
+      expect(param.default).toBe(-1);
+    });
+
+    it("getOperationsByCategory('Drawing_Document') returns the 3 setup ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_Document");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["DRAWING_NEW", "SHEET_ADD", "SHEET_FORMAT_EDIT"]);
+    });
+  });
+
+  describe("drawing_operations — 9 SolidWorks view types (model/projected/auxiliary/section/detail/broken/break_out/crop)", () => {
+    it("VIEW_MODEL Display Style covers all 5 SolidWorks display modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_MODEL",
+        "Display Style",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "wireframe",
+        "hidden_lines_visible",
+        "hidden_lines_removed",
+        "shaded_with_edges",
+        "shaded",
+      ]);
+    });
+
+    it("VIEW_MODEL Orientation lists 11 named orientations including 3 axonometric", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_MODEL",
+        "Orientation",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "front", "back", "top", "bottom", "left", "right",
+        "isometric", "trimetric", "dimetric",
+        "current_model_view", "named_view",
+      ]);
+    });
+
+    it("VIEW_MODEL Tangent Edges supports visible / phantom / hide (per ASME Y14.3)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_MODEL",
+        "Tangent Edges",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["visible", "phantom", "hide"]);
+    });
+
+    it("VIEW_PROJECTED Projection Direction requires left / right / top / bottom", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_PROJECTED",
+        "Projection Direction",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["left", "right", "top", "bottom"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("VIEW_SECTION Section Type covers planar / aligned / offset / unfolded", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_SECTION",
+        "Section Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["planar", "aligned", "offset", "unfolded"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("VIEW_DETAIL Boundary Type requires circle vs closed_profile, defaults circle (ASME Y14.3)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_DETAIL",
+        "Boundary Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["circle", "closed_profile"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("circle");
+    });
+
+    it("VIEW_BROKEN Break Type covers 5 standard break geometry styles", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_BROKEN",
+        "Break Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "zigzag", "straight", "small_zigzag", "curved", "structural",
+      ]);
+    });
+
+    it("VIEW_BREAK_OUT Depth Mode requires depth_value vs up_to_geometry", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_BREAK_OUT",
+        "Depth Mode",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["depth_value", "up_to_geometry"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("getOperationsByCategory('Drawing_View') returns exactly 8 view-creation ops (the 8 view types)", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_View");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "VIEW_AUXILIARY",
+        "VIEW_BREAK_OUT",
+        "VIEW_BROKEN",
+        "VIEW_CROP",
+        "VIEW_DETAIL",
+        "VIEW_MODEL",
+        "VIEW_PROJECTED",
+        "VIEW_SECTION",
+      ]);
+    });
+  });
+
+  describe("drawing_operations — dimensions (smart / baseline / ordinate)", () => {
+    it("DIMENSION_SMART Dimensioning Mode covers all 10 dimensioning modes (parity with sketch SMART_DIMENSION)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DIMENSION_SMART",
+        "Dimensioning Mode",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "smart", "horizontal", "vertical", "aligned", "angular",
+        "radial", "diametral", "arc_length", "baseline", "ordinate",
+      ]);
+    });
+
+    it("DIMENSION_SMART Tolerance Type covers all 8 ASME Y14.5 tolerance forms", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DIMENSION_SMART",
+        "Tolerance Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "none", "basic", "bilateral", "limit",
+        "symmetric", "min", "max", "fit",
+      ]);
+    });
+
+    it("DIMENSION_BASELINE Direction supports horizontal / vertical / aligned", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DIMENSION_BASELINE",
+        "Direction",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["horizontal", "vertical", "aligned"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("DIMENSION_ORDINATE Direction supports horizontal / vertical only (ordinate is single-axis)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DIMENSION_ORDINATE",
+        "Direction",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["horizontal", "vertical"]);
+    });
+
+    it("getOperationsByCategory('Drawing_Dimension') returns exactly 3 dimension ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_Dimension");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["DIMENSION_BASELINE", "DIMENSION_ORDINATE", "DIMENSION_SMART"]);
+    });
+  });
+
+  describe("drawing_operations — GD&T (ASME Y14.5-2018 with all 14 geometric characteristics)", () => {
+    it("GDT_ADD Symbol enumerates ALL 14 ASME Y14.5 geometric characteristics in canonical order", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GDT_ADD",
+        "Symbol",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(ASME_Y14_5_GDT_SYMBOLS_14);
+      expect(param.options!.length).toBe(14);
+      expect(param.required).toBe(true);
+    });
+
+    it("GDT_ADD Material Condition supports RFS (default) / MMC / LMC", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GDT_ADD",
+        "Material Condition",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["RFS", "MMC", "LMC"]);
+      expect(param.default).toBe("RFS");
+    });
+
+    it("GDT_ADD Tolerance Zone Modifier covers 7 modifier types per ASME Y14.5", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GDT_ADD",
+        "Tolerance Zone Modifier",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "none", "diameter", "spherical_diameter",
+        "projected", "tangent_plane", "free_state", "statistical",
+      ]);
+    });
+
+    it("GDT_ADD has datum chain (primary + secondary + tertiary) all with MMC/LMC/RFS modifiers", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("drawing_operations", "GDT_ADD");
+      const params = op!.tabs!["GD&T"].parameters ?? [];
+      const names = params.map((p) => p.name);
+      expect(names).toContain("Primary Datum");
+      expect(names).toContain("Primary Datum Modifier");
+      expect(names).toContain("Secondary Datum");
+      expect(names).toContain("Secondary Datum Modifier");
+      expect(names).toContain("Tertiary Datum");
+      expect(names).toContain("Tertiary Datum Modifier");
+      // Each modifier param exposes the same 3-option enum
+      for (const modName of ["Primary Datum Modifier", "Secondary Datum Modifier", "Tertiary Datum Modifier"]) {
+        const mod = params.find((p) => p.name === modName);
+        expect((mod as { options?: string[] }).options).toEqual(["RFS", "MMC", "LMC"]);
+      }
+    });
+
+    it("DATUM_FEATURE Frame Style covers square / circle / filled_triangle (ASME Y14.5 datum identifier styles)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DATUM_FEATURE",
+        "Frame Style",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["square", "circle", "filled_triangle"]);
+    });
+
+    it("getOperationsByCategory('Drawing_GDT') returns exactly GDT_ADD + DATUM_FEATURE", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_GDT");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["DATUM_FEATURE", "GDT_ADD"]);
+    });
+  });
+
+  describe("drawing_operations — annotation symbols (surface finish / weld / center mark)", () => {
+    it("SURFACE_FINISH_SYMBOL Symbol Type covers basic / machining_required / machining_prohibited / all_around", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "SURFACE_FINISH_SYMBOL",
+        "Symbol Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "basic", "machining_required", "machining_prohibited", "all_around",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SURFACE_FINISH_SYMBOL Lay Symbol covers all 8 ASME Y14.36 lay direction symbols", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "SURFACE_FINISH_SYMBOL",
+        "Lay Symbol",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "none", "parallel", "perpendicular", "crossed",
+        "multidirectional", "circular", "radial", "particulate",
+      ]);
+    });
+
+    it("SURFACE_FINISH_SYMBOL Roughness Standard covers ISO_metric / ASME_inch / JIS", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "SURFACE_FINISH_SYMBOL",
+        "Roughness Standard",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["ISO_metric", "ASME_inch", "JIS"]);
+    });
+
+    it("WELD_SYMBOL Weld Type enumerates all 12 AWS A2.4 standard weld types", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "WELD_SYMBOL",
+        "Weld Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "fillet", "groove_v", "groove_bevel", "groove_u", "groove_j",
+        "plug_slot", "spot", "seam", "stud", "edge", "back", "surfacing",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("WELD_SYMBOL exposes All-Around + Field Weld modifiers as checkboxes", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation("drawing_operations", "WELD_SYMBOL");
+      const params = op!.tabs!.Symbol.parameters ?? [];
+      const allAround = params.find((p) => p.name === "All-Around");
+      const field = params.find((p) => p.name === "Field Weld");
+      expect(allAround?.type).toBe("checkbox");
+      expect(allAround?.default).toBe(false);
+      expect(field?.type).toBe("checkbox");
+      expect(field?.default).toBe(false);
+    });
+
+    it("CENTER_MARK Pattern Mode supports single / linear / circular pattern application", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "CENTER_MARK",
+        "Pattern Mode",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["single", "linear_pattern", "circular_pattern"]);
+    });
+
+    it("getOperationsByCategory('Drawing_Symbol') returns exactly the 3 symbol ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_Symbol");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["CENTER_MARK", "SURFACE_FINISH_SYMBOL", "WELD_SYMBOL"]);
+    });
+  });
+
+  describe("drawing_operations — tables (BOM / revision / general / hole / design table)", () => {
+    it("BOM_TABLE BOM Type requires top_level_only / parts_only / indented", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "BOM_TABLE",
+        "BOM Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["top_level_only", "parts_only", "indented"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("BOM_TABLE Anchor Type covers all 4 sheet corners", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "BOM_TABLE",
+        "Anchor Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["top_left", "top_right", "bottom_left", "bottom_right"]);
+    });
+
+    it("REVISION_TABLE Letter Convention supports the ASME Y14.35 IQSOXZ-skip convention by default", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "REVISION_TABLE",
+        "Letter Convention",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual([
+        "alphabetic", "alphabetic_skip_iqsox", "numeric", "alphanumeric",
+      ]);
+      expect(param.default).toBe("alphabetic_skip_iqsox");
+    });
+
+    it("HOLE_TABLE Tag Convention supports all 3 hole-tagging schemes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "HOLE_TABLE",
+        "Tag Convention",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual([
+        "alphanumeric_by_size", "numeric_sequential", "by_diameter",
+      ]);
+    });
+
+    it("GENERAL_TABLE Column Count + Row Count have realistic bounds (1..100 cols, 1..999 rows)", () => {
+      const cols = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GENERAL_TABLE",
+        "Column Count",
+      );
+      const rows = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GENERAL_TABLE",
+        "Row Count",
+      );
+      const colsParam = cols!.parameter as { min?: number; max?: number; default?: number; required?: boolean };
+      const rowsParam = rows!.parameter as { min?: number; max?: number; default?: number; required?: boolean };
+      expect(colsParam.min).toBe(1);
+      expect(colsParam.max).toBe(100);
+      expect(colsParam.default).toBe(3);
+      expect(colsParam.required).toBe(true);
+      expect(rowsParam.min).toBe(1);
+      expect(rowsParam.max).toBe(999);
+      expect(rowsParam.default).toBe(5);
+      expect(rowsParam.required).toBe(true);
+    });
+
+    it("DESIGN_TABLE_ATTACH Configuration Set supports all / shown_only / specified", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "DESIGN_TABLE_ATTACH",
+        "Configuration Set",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["all", "shown_only", "specified"]);
+      expect(param.default).toBe("all");
+    });
+
+    it("getOperationsByCategory('Drawing_Table') returns exactly the 5 table ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_Table");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "BOM_TABLE",
+        "DESIGN_TABLE_ATTACH",
+        "GENERAL_TABLE",
+        "HOLE_TABLE",
+        "REVISION_TABLE",
+      ]);
+    });
+  });
+
+  describe("drawing_operations — concrete contract tables (api / category / required)", () => {
+    it("each of the 24 drawing ops binds to its IDrawingDoc / IModelDoc2 / IModelDocExtension API method", () => {
+      const apiBindings: Record<string, string> = {
+        DRAWING_NEW: "ISldWorks.NewDocument (DocumentType=swDocDRAWING)",
+        SHEET_ADD: "IDrawingDoc.NewSheet4",
+        SHEET_FORMAT_EDIT: "IDrawingDoc.EditTemplate",
+        VIEW_MODEL: "IDrawingDoc.CreateModelView",
+        VIEW_PROJECTED: "IDrawingDoc.CreateUnfoldedViewAt5",
+        VIEW_AUXILIARY: "IDrawingDoc.CreateAuxiliaryView2",
+        VIEW_SECTION: "IDrawingDoc.CreateSectionView5",
+        VIEW_DETAIL: "IDrawingDoc.CreateDetailViewAt4",
+        VIEW_BROKEN: "IDrawingDoc.CreateBrokenView",
+        VIEW_BREAK_OUT: "IDrawingDoc.CreateBreakOutSection",
+        VIEW_CROP: "IDrawingDoc.CreateCropView",
+        DIMENSION_SMART: "IModelDoc2.AddDimension2",
+        DIMENSION_BASELINE: "IDrawingDoc.AutoBaselineDimension",
+        DIMENSION_ORDINATE: "IDrawingDoc.InsertOrdinateDimension",
+        GDT_ADD: "IModelDocExtension.InsertGtol / IGtol.SetGtolValues",
+        DATUM_FEATURE: "IModelDocExtension.InsertDatumFeature",
+        SURFACE_FINISH_SYMBOL: "IModelDocExtension.InsertSurfaceFinishSymbol",
+        WELD_SYMBOL: "IModelDocExtension.InsertWeldSymbol",
+        CENTER_MARK: "IModelDocExtension.InsertCenterMark",
+        BOM_TABLE: "IDrawingDoc.InsertBomTable4",
+        REVISION_TABLE: "IDrawingDoc.InsertRevisionTable3",
+        GENERAL_TABLE: "IDrawingDoc.InsertTableAnnotation2",
+        HOLE_TABLE: "IDrawingDoc.InsertHoleTable",
+        DESIGN_TABLE_ATTACH: "IDrawingDoc.InsertDesignTable",
+      };
+      const expectedKeys = Object.keys(apiBindings).sort();
+      expect(expectedKeys).toEqual([...KNOWN_DRAWING_OPS_24].sort());
+      for (const [opId, expectedApi] of Object.entries(apiBindings)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("drawing_operations", opId);
+        expect(op).not.toBeNull();
+        expect(op!.solidworks_api).toBe(expectedApi);
+      }
+    });
+
+    it("each of the 24 drawing ops sits in its category bucket", () => {
+      const categories: Record<string, string> = {
+        DRAWING_NEW: "Drawing_Document",
+        SHEET_ADD: "Drawing_Document",
+        SHEET_FORMAT_EDIT: "Drawing_Document",
+        VIEW_MODEL: "Drawing_View",
+        VIEW_PROJECTED: "Drawing_View",
+        VIEW_AUXILIARY: "Drawing_View",
+        VIEW_SECTION: "Drawing_View",
+        VIEW_DETAIL: "Drawing_View",
+        VIEW_BROKEN: "Drawing_View",
+        VIEW_BREAK_OUT: "Drawing_View",
+        VIEW_CROP: "Drawing_View",
+        DIMENSION_SMART: "Drawing_Dimension",
+        DIMENSION_BASELINE: "Drawing_Dimension",
+        DIMENSION_ORDINATE: "Drawing_Dimension",
+        GDT_ADD: "Drawing_GDT",
+        DATUM_FEATURE: "Drawing_GDT",
+        SURFACE_FINISH_SYMBOL: "Drawing_Symbol",
+        WELD_SYMBOL: "Drawing_Symbol",
+        CENTER_MARK: "Drawing_Symbol",
+        BOM_TABLE: "Drawing_Table",
+        REVISION_TABLE: "Drawing_Table",
+        GENERAL_TABLE: "Drawing_Table",
+        HOLE_TABLE: "Drawing_Table",
+        DESIGN_TABLE_ATTACH: "Drawing_Table",
+      };
+      for (const [opId, expectedCategory] of Object.entries(categories)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("drawing_operations", opId);
+        expect(op!.category).toBe(expectedCategory);
+      }
+    });
+  });
+
+  describe("drawing_operations — adversarial inputs (NaN / Infinity / empty / oversize / unicode)", () => {
+    it("findParameter with empty-string parameter name returns null — adversarial empty", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter("drawing_operations", "GDT_ADD", ""),
+      ).toBeNull();
+    });
+
+    it("findParameter with 256-char oversize parameter name returns null — adversarial oversize", () => {
+      const oversize = "z".repeat(256);
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter("drawing_operations", "GDT_ADD", oversize),
+      ).toBeNull();
+    });
+
+    it("findParameter with NaN-shaped string returns null — adversarial NaN-shaped", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter("drawing_operations", "GDT_ADD", "NaN"),
+      ).toBeNull();
+    });
+
+    it("findParameter with Infinity-shaped string returns null — adversarial Infinity-shaped", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "drawing_operations",
+          "VIEW_DETAIL",
+          "Infinity",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with unicode parameter name returns null — adversarial unicode", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "drawing_operations",
+          "WELD_SYMBOL",
+          "🔧⚙️🛠",
+        ),
+      ).toBeNull();
+    });
+
+    it("getOperationsByCategory('Drawing_Nonexistent') returns empty array — failure mode", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Drawing_Nonexistent");
+      expect(ops).toEqual([]);
+    });
+
+    it("VIEW_DETAIL Radius numeric param has min=0.001 mm (no zero-radius detail circles)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_DETAIL",
+        "Radius",
+      );
+      const param = loc!.parameter as { min?: number; default?: number; unit?: string };
+      expect(param.min).toBe(0.001);
+      expect(param.default).toBe(25);
+      expect(param.unit).toBe("mm");
+    });
+
+    it("GDT_ADD Tolerance Value has min=0 (zero-tolerance is allowed for basic dimensions)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "GDT_ADD",
+        "Tolerance Value",
+      );
+      const param = loc!.parameter as { min?: number; default?: number; required?: boolean };
+      expect(param.min).toBe(0);
+      expect(param.default).toBe(0.1);
+      expect(param.required).toBe(true);
+    });
+
+    it("VIEW_BROKEN Gap Distance min=0.001 mm (no degenerate zero-gap broken views)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "drawing_operations",
+        "VIEW_BROKEN",
+        "Gap Distance",
+      );
+      const param = loc!.parameter as { min?: number; default?: number; unit?: string };
+      expect(param.min).toBe(0.001);
+      expect(param.default).toBe(10);
       expect(param.unit).toBe("mm");
     });
   });

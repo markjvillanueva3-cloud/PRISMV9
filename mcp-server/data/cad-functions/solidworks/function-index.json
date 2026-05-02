@@ -42,8 +42,8 @@
       "module_id": "drawing_operations",
       "path": "cad-functions/solidworks/drawing-operations.json",
       "covered_units": ["U-CAD-FIDX-SW-05"],
-      "parameter_count_estimate": 0,
-      "description": "(pending) Drawing layer: sheet/title_block, 9 view types (model/projected/auxiliary/section/detail/broken/break_out/crop/relative), 6 dimension types, GD&T (ASME Y14.5 14 characteristics), surface_finish, weld_symbols, BOM, revision_table, design_tables.",
+      "parameter_count_estimate": 165,
+      "description": "2D drawing authoring layer: 24 operations across drawing document (DRAWING_NEW / SHEET_ADD / SHEET_FORMAT_EDIT — first/third-angle projection + 13 standard paper sizes), 9 SolidWorks view types (VIEW_MODEL / VIEW_PROJECTED / VIEW_AUXILIARY / VIEW_SECTION / VIEW_DETAIL / VIEW_BROKEN / VIEW_BREAK_OUT / VIEW_CROP — covers full ASME Y14.3 view taxonomy), 3 dimension authoring ops (DIMENSION_SMART with 10 dimensioning modes / DIMENSION_BASELINE / DIMENSION_ORDINATE), GD&T (GDT_ADD with all 14 ASME Y14.5-2018 geometric characteristics + MMC/LMC/RFS material conditions + tolerance zone modifiers + tertiary datum chain / DATUM_FEATURE), 4 annotation symbols (SURFACE_FINISH_SYMBOL per ASME Y14.36 / WELD_SYMBOL per AWS A2.4 with 12 weld types / CENTER_MARK), and 5 table types (BOM_TABLE with top_level/parts_only/indented modes / REVISION_TABLE per ASME Y14.35 / GENERAL_TABLE / HOLE_TABLE / DESIGN_TABLE_ATTACH). Bindings target IDrawingDoc.CreateModelView / CreateUnfoldedViewAt5 / CreateAuxiliaryView2 / CreateSectionView5 / CreateDetailViewAt4 / CreateBrokenView / CreateBreakOutSection / CreateCropView · IModelDoc2.AddDimension2 · IModelDocExtension.InsertGtol / InsertDatumFeature / InsertSurfaceFinishSymbol / InsertWeldSymbol / InsertCenterMark · IDrawingDoc.InsertBomTable4 / InsertRevisionTable3 / InsertHoleTable / InsertDesignTable.",
       "dependencies": ["part_operations", "assembly_operations"]
     },
     {
@@ -97,19 +97,18 @@
   },
   "coverage_summary": {
     "total_modules": 8,
-    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04"],
-    "estimated_parameter_total": 644,
+    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05"],
+    "estimated_parameter_total": 809,
     "api_surface": {
-      "sw_api_com_items": 98,
-      "vba_macro_items": 98,
-      "vsta_addin_items": 98,
+      "sw_api_com_items": 122,
+      "vba_macro_items": 122,
+      "vsta_addin_items": 122,
       "solidworks_2024_compatible": true,
       "solidworks_2025_compatible": true,
       "coverage_state": "IN_PROGRESS",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 4,
+      "phase_1_target_modules_remaining": 3,
       "phase_1_modules_pending": [
-        "drawing_operations",
         "sheet_metal_operations",
         "weldment_operations",
         "evaluation_operations"
@@ -195,7 +194,7 @@
     "part_layer": true,
     "surface_layer": true,
     "assembly_layer": true,
-    "drawing_layer": false,
+    "drawing_layer": true,
     "sheet_metal_layer": false,
     "weldment_layer": false,
     "evaluation_layer": false
