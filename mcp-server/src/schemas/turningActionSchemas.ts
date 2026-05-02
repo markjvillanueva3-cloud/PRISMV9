@@ -530,4 +530,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_experiment_create: z.object({
     input: z.record(z.string(), z.unknown()).describe("{name: string, hyperparameters: object, tags?: string[]} for LatheLoRAExperimentTrackerEngine.createExperiment() — returns Experiment"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch24: health monitor + model registry + safety evaluator
+  lathe_lora_health_alerts: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{modelId?: string} for LatheLoRAHealthMonitorEngine.getActiveAlerts() — returns active Alert[] (filtered by modelId if provided)"),
+  }).passthrough(),
+  lathe_lora_model_registry_query: z.object({
+    input: z.record(z.string(), z.unknown()).describe("RegistryQuery - {parent_id?, status?, tags?} for LatheLoRAModelRegistryEngine.query() — returns RegisteredModel[]"),
+  }).passthrough(),
+  lathe_lora_safety_evaluate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{output: string, context?: {operation?}} for LatheLoRASafetyEvaluatorEngine.evaluate() — returns SafetyEvaluation"),
+  }).passthrough(),
 };

@@ -107,6 +107,8 @@ const ACTIONS = [
   "lathe_program_feature_infer_one", "lathe_sf_calculate", "lathe_sf_supported_materials",
   // LATHE-WIRE-MS0/Batch23: cadence orchestrator + ensemble orchestrator + experiment tracker (3 engines)
   "lathe_lora_cadence_orch_active", "lathe_lora_ensemble_orch_stats", "lathe_lora_experiment_create",
+  // LATHE-WIRE-MS0/Batch24: health monitor + model registry + safety evaluator (3 engines)
+  "lathe_lora_health_alerts", "lathe_lora_model_registry_query", "lathe_lora_safety_evaluate",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1401,6 +1403,44 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             try {
               result = latheLoRAExperimentTrackerEngine.createExperiment(name, hyperparameters, tags);
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch24: health monitor + model registry + safety evaluator
+          // ============================================================
+          case "lathe_lora_health_alerts": {
+            const { latheLoRAHealthMonitorEngine } = await import("../../engines/LatheLoRAHealthMonitorEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const modelId = input && typeof input.modelId === "string" ? input.modelId : undefined;
+            try {
+              result = { success: true, alerts: latheLoRAHealthMonitorEngine.getActiveAlerts(modelId) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_model_registry_query": {
+            const { latheLoRAModelRegistryEngine } = await import("../../engines/LatheLoRAModelRegistryEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            const filters = (input && typeof input === "object") ? input as Parameters<typeof latheLoRAModelRegistryEngine.query>[0] : {};
+            try {
+              result = { success: true, models: latheLoRAModelRegistryEngine.query(filters) };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_safety_evaluate": {
+            const { latheLoRASafetyEvaluatorEngine } = await import("../../engines/LatheLoRASafetyEvaluatorEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const output = input && typeof input.output === "string" ? input.output : "";
+            if (!output) { result = { success: false, error: "input.output (string) required" }; break; }
+            const context = (input && input.context && typeof input.context === "object") ? input.context as { operation?: string } : undefined;
+            try {
+              result = latheLoRASafetyEvaluatorEngine.evaluate(output, context);
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }
