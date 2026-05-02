@@ -1633,6 +1633,8 @@ export const ACTIONS = [
   "cam_fusion360_tool_parse", "cam_fusion360_tool_serialize", "cam_fusion360_tool_validate", "cam_fusion360_tool_stats",
   // CAM-EXHAUST-MS0 U-CAM-FUSION-MULTIAXIS-01 — Fusion 360 5-axis kinematic + indexed plane math
   "cam_fusion360_multiaxis_list", "cam_fusion360_multiaxis_lookup", "cam_fusion360_multiaxis_validate", "cam_fusion360_multiaxis_plane_matrix", "cam_fusion360_multiaxis_audit",
+  // CAM-EXHAUST-MS0 U-CAM-FUSION-MILLTURN-01 — Fusion 360 mill-turn archetypes + sub-spindle handoff
+  "cam_fusion360_millturn_list", "cam_fusion360_millturn_lookup", "cam_fusion360_millturn_validate_handoff", "cam_fusion360_millturn_thread_passes", "cam_fusion360_millturn_audit",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13120,6 +13122,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_fusion360_multiaxis_audit": {
             const { Fusion360MultiAxisEngine } = await import("../../engines/Fusion360MultiAxisEngine.js");
             result = Fusion360MultiAxisEngine.auditCatalog();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-FUSION-MILLTURN-01: Fusion 360 mill-turn ──
+          case "cam_fusion360_millturn_list": {
+            const { Fusion360MillTurnBridgeEngine } = await import("../../engines/Fusion360MillTurnBridgeEngine.js");
+            result = { archetypes: Fusion360MillTurnBridgeEngine.list() };
+            break;
+          }
+          case "cam_fusion360_millturn_lookup": {
+            const { Fusion360MillTurnBridgeEngine } = await import("../../engines/Fusion360MillTurnBridgeEngine.js");
+            const id = params.id as string;
+            result = { id, archetype: Fusion360MillTurnBridgeEngine.lookup(id) };
+            break;
+          }
+          case "cam_fusion360_millturn_validate_handoff": {
+            const { Fusion360MillTurnBridgeEngine } = await import("../../engines/Fusion360MillTurnBridgeEngine.js");
+            const args = params as Parameters<typeof Fusion360MillTurnBridgeEngine.validateHandoff>[0];
+            result = Fusion360MillTurnBridgeEngine.validateHandoff(args);
+            break;
+          }
+          case "cam_fusion360_millturn_thread_passes": {
+            const { Fusion360MillTurnBridgeEngine } = await import("../../engines/Fusion360MillTurnBridgeEngine.js");
+            const tcParams = params.params as Parameters<typeof Fusion360MillTurnBridgeEngine.threadPassSchedule>[0];
+            const numPasses = params.num_passes as number;
+            result = Fusion360MillTurnBridgeEngine.threadPassSchedule(tcParams, numPasses);
+            break;
+          }
+          case "cam_fusion360_millturn_audit": {
+            const { Fusion360MillTurnBridgeEngine } = await import("../../engines/Fusion360MillTurnBridgeEngine.js");
+            result = Fusion360MillTurnBridgeEngine.auditCatalog();
             break;
           }
 
