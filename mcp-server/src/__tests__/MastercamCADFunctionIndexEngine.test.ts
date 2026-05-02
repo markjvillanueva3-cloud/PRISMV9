@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 24 ops total at Phase 1 1/8 (only wireframe shipped)", () => {
+    it("listAllOperations equals 42 ops total at Phase 1 2/8 (wireframe + solid)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(24);
+      expect(all.length).toBe(42);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,12 +344,12 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 153 parameters across all 24 wireframe operations", () => {
+    it("counts exactly 293 parameters across all 42 ops (153 wireframe + 140 solid)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(153);
+      expect(total).toBe(293);
     });
 
-    it("module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
+    it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
       const wireframeTotal = sumParamsForModule("wireframe_operations");
       const wireframeDeclared = (
         MastercamCADFunctionIndexEngine.getModule("wireframe_operations")?.metadata as {
@@ -358,11 +358,25 @@ describe("MastercamCADFunctionIndexEngine", () => {
       )?.totalParameters;
       expect(wireframeTotal).toBe(153);
       expect(wireframeDeclared).toBe(153);
+
+      const solidTotal = sumParamsForModule("solid_operations");
+      const solidDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("solid_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(solidTotal).toBe(140);
+      expect(solidDeclared).toBe(140);
+
+      // Aggregate engine method must equal sum of per-module computed totals
+      expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
+        wireframeTotal + solidTotal,
+      );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (only 1 of 8 modules shipped)", () => {
+    it("api_surface.coverage_state is exactly 'PARTIAL' (2 of 8 modules shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
@@ -374,17 +388,16 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 7 (1/8 shipped)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 6 (2/8 shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(7);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(6);
     });
 
-    it("api_surface.phase_1_modules_pending lists the 7 unbuilt modules in shipping order", () => {
+    it("api_surface.phase_1_modules_pending lists the 6 unbuilt modules in shipping order", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.phase_1_modules_pending).toEqual([
-        "solid_operations",
         "surface_operations",
         "drafting_operations",
         "transformation_operations",
@@ -410,7 +423,7 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(7);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(6);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -451,6 +464,194 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const fresh = MastercamCADFunctionIndexEngine.getIndex();
       expect(fresh.system_id).toBe("mastercam");
       expect(MastercamCADFunctionIndexEngine.getLoadErrors()).toEqual([]);
+    });
+  });
+
+  describe("solid_operations catalog (U-CAD-FIDX-MC-02)", () => {
+    const KNOWN_SOLID_OPS = [
+      "EXTRUDE_SOLID",
+      "REVOLVE_SOLID",
+      "SWEEP_SOLID",
+      "LOFT_SOLID",
+      "EXTRUDE_CUT",
+      "REVOLVE_CUT",
+      "SWEEP_CUT",
+      "LOFT_CUT",
+      "BOOLEAN",
+      "FILLET_SOLID",
+      "CHAMFER_SOLID",
+      "SHELL",
+      "DRAFT",
+      "THICKEN_SURFACE",
+      "PRIMITIVE",
+      "HOLE",
+      "PATTERN_LINEAR",
+      "PATTERN_CIRCULAR",
+    ];
+
+    const SWEEP_OPS = ["EXTRUDE_SOLID", "REVOLVE_SOLID", "SWEEP_SOLID", "LOFT_SOLID"];
+    const CUT_OPS = ["EXTRUDE_CUT", "REVOLVE_CUT", "SWEEP_CUT", "LOFT_CUT"];
+    const MODIFY_OPS = ["FILLET_SOLID", "CHAMFER_SOLID", "SHELL", "DRAFT"];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("solid_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-02'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("solid_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-02");
+    });
+
+    it("operations dict has exactly 18 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("solid_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(18);
+    });
+
+    it("listOperations returns exactly the 18 expected solid ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("solid_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_SOLID_OPS].sort());
+    });
+
+    it("every operation reports a Solid_-prefixed category", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("solid_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Solid_")).toBe(true);
+      }
+    });
+
+    it("SWEEP_OPS span all 4 sweep subcategories (Solid_Sweep_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("solid_operations");
+      const sweepCategories = ops
+        .filter((op) => SWEEP_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(sweepCategories).toEqual([
+        "Solid_Sweep_Extrude",
+        "Solid_Sweep_Loft",
+        "Solid_Sweep_Revolve",
+        "Solid_Sweep_Sweep",
+      ]);
+    });
+
+    it("CUT_OPS span all 4 cut subcategories (Solid_Cut_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("solid_operations");
+      const cutCategories = ops
+        .filter((op) => CUT_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(cutCategories).toEqual([
+        "Solid_Cut_Extrude",
+        "Solid_Cut_Loft",
+        "Solid_Cut_Revolve",
+        "Solid_Cut_Sweep",
+      ]);
+    });
+
+    it("MODIFY_OPS span all 4 modify subcategories (Solid_Modify_*)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("solid_operations");
+      const modifyCategories = ops
+        .filter((op) => MODIFY_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(modifyCategories).toEqual([
+        "Solid_Modify_Chamfer",
+        "Solid_Modify_Draft",
+        "Solid_Modify_Fillet",
+        "Solid_Modify_Shell",
+      ]);
+    });
+
+    it("BOOLEAN Mode covers all 4 set operations (add/subtract/intersect/common)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "BOOLEAN");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["add", "subtract", "intersect", "common"]);
+    });
+
+    it("HOLE Type lists all 5 hole variants (failure mode: hole completeness)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "HOLE");
+      const typeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual([
+        "simple",
+        "counterbore",
+        "countersink",
+        "threaded",
+        "tapered",
+      ]);
+    });
+
+    it("HOLE Termination supports 4 modes (blind/through/up_to/up_to_offset)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "HOLE");
+      const termParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Termination");
+      expect(termParam?.options).toEqual(["blind", "through", "up_to", "up_to_offset"]);
+    });
+
+    it("HOLE Thread Standard covers 6 thread standards", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "HOLE");
+      const stdParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Thread Standard");
+      expect(stdParam?.options).toEqual(["ANSI", "ISO", "BSW", "BSF", "UNJ", "UNS"]);
+    });
+
+    it("PRIMITIVE Type covers 5 classical primitives (box/cylinder/cone/sphere/torus)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "PRIMITIVE");
+      const typeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Type");
+      expect(typeParam?.options).toEqual(["box", "cylinder", "cone", "sphere", "torus"]);
+    });
+
+    it("FILLET_SOLID Mode supports constant + variable + face_face (failure mode: fillet completeness)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "FILLET_SOLID");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["constant", "variable", "face_face"]);
+    });
+
+    it("FILLET_SOLID Continuity supports G1/G2/G3 fairing (failure mode: continuity span)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "FILLET_SOLID");
+      const contParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Continuity");
+      expect(contParam?.options).toEqual(["G1", "G2", "G3"]);
+    });
+
+    it("CHAMFER_SOLID Mode covers all 4 chamfer parameterizations", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "CHAMFER_SOLID");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual([
+        "distance",
+        "distance_distance",
+        "distance_angle",
+        "two_distances",
+      ]);
+    });
+
+    it("EXTRUDE_SOLID Operation supports create/add/cut polymorphism", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("solid_operations", "EXTRUDE_SOLID");
+      const opParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Operation");
+      expect(opParam?.options).toEqual(["create_new", "add_to_existing", "cut_existing"]);
+    });
+
+    it("returns null for unknown solid op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation("solid_operations", "TELEPORT_BODY"),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Tool Bodies' on BOOLEAN as required (adversarial: cross-tab param)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "solid_operations",
+        "BOOLEAN",
+        "Tool Bodies",
+      );
+      expect(loc?.parameter.name).toBe("Tool Bodies");
+      expect(loc?.parameter.required).toBe(true);
+    });
+
+    it("PATTERN_CIRCULAR Spacing supports equal + incremental (adversarial: missing spacing mode)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "solid_operations",
+        "PATTERN_CIRCULAR",
+      );
+      const spaceParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Spacing");
+      expect(spaceParam?.options).toEqual(["equal", "incremental"]);
     });
   });
 });
