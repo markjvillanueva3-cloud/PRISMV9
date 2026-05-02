@@ -1175,6 +1175,8 @@ export const ACTIONS = [
   "wedm_neighbor_nearest", "wedm_neural_formula_fuse", "wedm_ml_observe",
   // WEDM-WIRE-MS0/Batch10: learning loop recommend + batch process + lattice graph build
   "wedm_learning_recommend", "wedm_batch_process", "wedm_lattice_build",
+  // WEDM-WIRE-MS0/Batch11: post dialect route + power density guard + program compare
+  "wedm_post_route", "wedm_power_density_validate", "wedm_program_compare",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6295,6 +6297,51 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               const opts = (params as Record<string, unknown>).opts;
               result = wedmLatticeGraphEngine.build(
                 opts as Parameters<typeof wedmLatticeGraphEngine.build>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch11: post dialect route + power density guard + program compare ──
+          case "wedm_post_route": {
+            const { wedmPostDialectRouterEngine } = await import("../../engines/WEDMPostDialectRouterEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMPostInput)" }; break; }
+            try {
+              result = wedmPostDialectRouterEngine.route(
+                input as Parameters<typeof wedmPostDialectRouterEngine.route>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_power_density_validate": {
+            const { wedmPowerDensityGuardEngine } = await import("../../engines/WEDMPowerDensityGuardEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (PowerDensityInput)" }; break; }
+            try {
+              result = wedmPowerDensityGuardEngine.validate(
+                input as Parameters<typeof wedmPowerDensityGuardEngine.validate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_program_compare": {
+            const { wedmProgramComparisonEngine } = await import("../../engines/WEDMProgramComparisonEngine.js");
+            const refNc = (params as Record<string, unknown>).reference_nc;
+            const genNc = (params as Record<string, unknown>).generated_nc;
+            if (typeof refNc !== "string") { result = { success: false, error: "reference_nc string required" }; break; }
+            if (typeof genNc !== "string") { result = { success: false, error: "generated_nc string required" }; break; }
+            try {
+              const options = (params as Record<string, unknown>).options;
+              result = wedmProgramComparisonEngine.compare(
+                refNc,
+                genNc,
+                options as Parameters<typeof wedmProgramComparisonEngine.compare>[2],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

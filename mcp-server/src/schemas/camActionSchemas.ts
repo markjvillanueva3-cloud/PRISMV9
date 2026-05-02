@@ -325,4 +325,16 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_lattice_build: z.object({
     opts: z.record(z.string(), z.unknown()).optional().describe("BuildOptions - optional lattice build params (defaults supplied if omitted)"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch11: post dialect route + power density guard + program compare
+  wedm_post_route: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMPostInput - controller dialect + program context for WEDMPostDialectRouterEngine.route()"),
+  }).passthrough(),
+  wedm_power_density_validate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("PowerDensityInput - peak power + spark area for WEDMPowerDensityGuardEngine.validate()"),
+  }).passthrough(),
+  wedm_program_compare: z.object({
+    reference_nc: z.string().describe("Reference NC program text (golden master)"),
+    generated_nc: z.string().describe("Generated NC program text to compare against reference"),
+    options: z.record(z.string(), z.unknown()).optional().describe("Optional comparison options (filename hints, tolerance overrides)"),
+  }).passthrough(),
 };
