@@ -34,6 +34,19 @@
 import { log } from "../utils/Logger.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
 import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
+import { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
+import { machineStrategyConstraintEngine } from "./MachineStrategyConstraintEngine.js";
+
+const HURCO_ISO_TO_AUTO_SF_MATERIAL: Record<ISOGroup, string> = {
+  P: "steel", M: "stainless_steel", K: "cast_iron",
+  N: "aluminum", S: "superalloy", H: "hardened_steel",
+};
+
+function hurcoRigidityToAutoSF(r: string | undefined): "low" | "medium" | "high" {
+  if (r === "low") return "low";
+  if (r === "ultra_high" || r === "high") return "high";
+  return "medium";
+}
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -49,6 +62,13 @@ export interface HurcoPostConfig {
   units?: "metric" | "inch";
   safe_z_mm?: number;
   tool_change_position?: { x: number; y: number; z: number };
+  /** Enable post-emission AutoSpeedFeed advanced pipeline. See `generateProgramAdvanced`.
+   *  Default false — sync `generateProgram` is unchanged. */
+  use_advanced_features?: boolean;
+  /** Machine id (e.g. `jmdie_hurco_v11`) for compounding capability lookup. */
+  machine_id?: string;
+  /** AutoSpeedFeed aggressiveness (0.0 conservative → 1.0 push limits). Default 0.5. */
+  advanced_aggressiveness?: number;
 }
 
 export interface MillOperation {
@@ -94,6 +114,30 @@ export interface HurcoPostOutput {
    * post-publish time.
    */
   block_annotations: BlockAnnotation[];
+  /** Advanced-pipeline opt-in fields — populated only by `generateProgramAdvanced`
+   *  when `use_advanced_features: true`. Sync `generateProgram` returns these as null. */
+  advanced_features_applied?: string[];
+  optimized_gcode?: string[] | null;
+  advanced_summary?: HurcoAdvancedSummary | null;
+}
+
+export interface HurcoAdvancedSummary {
+  auto_speed_feed: {
+    lines_modified: number;
+    tools_processed: number;
+    avg_feed_change_pct: number;
+    time_savings_pct: number;
+    chip_thinning_adjustments: number;
+    corner_decelerations: number;
+  } | null;
+  machine_used: {
+    id: string;
+    name: string;
+    atc: number;
+    rigidity_class: string | undefined;
+    ways_type: string | undefined;
+    spindle_type: string | undefined;
+  } | null;
 }
 
 // ============================================================================
@@ -573,6 +617,98 @@ export class HurcoV11MillMasterPostEngine {
         "JM Die tribal knowledge",
         "Renishaw probe support"
       ]
+    };
+  }
+
+  /**
+   * Advanced-pipeline post-emission pass — mirrors OkumaOSPMillMasterPostEngine.
+   *
+   * Threads the base sync `generateProgram` output through PRISM's existing
+   * `autoSpeedFeedEngine.optimize()` so the Hurco V11 master post benefits
+   * from chip-thinning compensation, corner deceleration, plunge limits, and
+   * machine-rigidity-aware S/F. Compounding context is loaded from
+   * `MachineStrategyConstraintEngine` via `cfg.machine_id`.
+   *
+   * Sync `generateProgram` is unchanged. Opt-in via `use_advanced_features: true`.
+   *
+   * @milestone PPG-WIRE-MS5/U-PPGW-AdvancedWiring
+   */
+  async generateProgramAdvanced(
+    operations: MillOperation[],
+    config?: Partial<HurcoPostConfig>,
+  ): Promise<HurcoPostOutput> {
+    const baseOutput = this.generateProgram(operations, config);
+    const cfg: HurcoPostConfig = { ...this.defaultConfig, ...config };
+
+    if (!cfg.use_advanced_features) {
+      return {
+        ...baseOutput,
+        advanced_features_applied: [],
+        optimized_gcode: null,
+        advanced_summary: null,
+      };
+    }
+
+    const enhancements: string[] = [];
+
+    const machine = cfg.machine_id
+      ? machineStrategyConstraintEngine.getMachineById(cfg.machine_id)
+      : null;
+
+    const toolDefs = operations.map((op) => ({
+      tool_number: op.tool_number,
+      diameter_mm: op.tool_diameter_mm,
+      flutes: op.tool_flutes,
+      type: "endmill" as const,
+      material: "carbide" as const,
+    }));
+
+    const primaryIso = operations[0]?.material_iso ?? "P";
+    const sfResult = await autoSpeedFeedEngine.optimize({
+      gcode: baseOutput.gcode.join("\n"),
+      material: HURCO_ISO_TO_AUTO_SF_MATERIAL[primaryIso],
+      iso_group: primaryIso,
+      tools: toolDefs,
+      strategy: cfg.use_ultimotion ? "hsm" : "conventional",
+      coolant: "flood",
+      machine_power_kw: machine?.spindle_power_kW,
+      machine_max_rpm: machine?.max_rpm,
+      machine_rigidity: hurcoRigidityToAutoSF(machine?.rigidity_class),
+      optimize_for: "balanced",
+      aggressiveness: cfg.advanced_aggressiveness ?? 0.5,
+      preserve_rapids: true,
+    });
+    enhancements.push("auto_speed_feed_optimization");
+
+    log.info(
+      `[HurcoV11] AutoSpeedFeed pass: ${sfResult.stats.lines_modified}/${sfResult.stats.cutting_lines} cutting lines modified, ` +
+        `~${sfResult.stats.estimated_time_savings_pct.toFixed(1)}% time savings`,
+    );
+
+    return {
+      ...baseOutput,
+      advanced_features_applied: enhancements,
+      optimized_gcode: sfResult.gcode.split("\n"),
+      advanced_summary: {
+        auto_speed_feed: {
+          lines_modified: sfResult.stats.lines_modified,
+          tools_processed: sfResult.stats.tools_processed,
+          avg_feed_change_pct: sfResult.stats.average_feed_change_pct,
+          time_savings_pct: sfResult.stats.estimated_time_savings_pct,
+          chip_thinning_adjustments: sfResult.stats.chip_thinning_adjustments,
+          corner_decelerations: sfResult.stats.corner_decelerations,
+        },
+        machine_used: machine
+          ? {
+              id: machine.machine_id,
+              name: machine.name,
+              atc: machine.tool_magazine_capacity,
+              rigidity_class: machine.rigidity_class,
+              ways_type: machine.ways_type,
+              spindle_type: machine.spindle_type,
+            }
+          : null,
+      },
     };
   }
 }

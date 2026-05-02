@@ -5,6 +5,8 @@
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
 **Last touched:** 2026-05-01 (claude-b913f3b9)
 **Last commits on roadmap:**
+- `(pending) [MAIN] PPG-WIRE-MS5/U-PPGW-AdvancedWiring: AutoSpeedFeed pipeline wired into Okuma + Hurco master posts`
+- `91885d7c3 [MAIN] PPG-WIRE-MS5/U-PPGW-FleetProfiles: register JM Die fleet (5 machines) + capability schema`
 - `09f155d03 [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill-CallOO88: 5-axis fixture-offset macro + WCS 51 reservation`
 - `765c2102b [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill-Tribal: JM_DIE_PRESET + 14 .def/.cps tribal tips (PPG-WIRE-MS5 closes 2/2)`
 - `b60ec9260 [MAIN] PPG-WIRE-MS5/U-PPGW-OkumaMill: OkumaOSPMillMasterPostEngine + sidecar seal`
