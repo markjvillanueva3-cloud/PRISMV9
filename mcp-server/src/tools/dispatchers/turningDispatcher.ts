@@ -77,6 +77,8 @@ const ACTIONS = [
   "lathe_print_program_emit", "lathe_print_program_signoff", "lathe_print_ingest",
   // LATHE-WIRE-MS0/Batch8: customer order + ERP orchestrator + master post router
   "lathe_customer_order_create", "lathe_erp_full", "lathe_masterpost_route",
+  // LATHE-WIRE-MS0/Batch9: master post API (emit + validate + audit)
+  "lathe_masterpost_emit", "lathe_masterpost_validate", "lathe_masterpost_audit",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -737,6 +739,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = latheMasterPostRouterEngine.route(
                 input as Parameters<typeof latheMasterPostRouterEngine.route>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_emit": {
+            const { latheMasterPostAPIEngine } = await import("../../engines/LatheMasterPostAPIEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (EmitInput)" }; break; }
+            try {
+              result = latheMasterPostAPIEngine.emit(
+                input as Parameters<typeof latheMasterPostAPIEngine.emit>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_validate": {
+            const { latheMasterPostAPIEngine } = await import("../../engines/LatheMasterPostAPIEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (ValidateInput)" }; break; }
+            try {
+              result = latheMasterPostAPIEngine.validate(
+                input as Parameters<typeof latheMasterPostAPIEngine.validate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_masterpost_audit": {
+            const { latheMasterPostAPIEngine } = await import("../../engines/LatheMasterPostAPIEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (AuditInput)" }; break; }
+            try {
+              result = latheMasterPostAPIEngine.audit(
+                input as Parameters<typeof latheMasterPostAPIEngine.audit>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

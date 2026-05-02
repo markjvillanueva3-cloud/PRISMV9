@@ -392,4 +392,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_masterpost_route: z.object({
     input: z.record(z.string(), z.unknown()).describe("LatheRouteInput — controller + machine context for LatheMasterPostRouterEngine.route() to pick the right post"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch9: master post API (emit + validate + audit) — static methods on LatheMasterPostAPIEngine
+  lathe_masterpost_emit: z.object({
+    input: z.record(z.string(), z.unknown()).describe("EmitInput — toolpath + dialect context for LatheMasterPostAPIEngine.emit() to produce G-code"),
+  }).passthrough(),
+  lathe_masterpost_validate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("ValidateInput — emitted program + reference for LatheMasterPostAPIEngine.validate() to verify correctness"),
+  }).passthrough(),
+  lathe_masterpost_audit: z.object({
+    input: z.record(z.string(), z.unknown()).describe("AuditInput — context for LatheMasterPostAPIEngine.audit() to produce audit log entry"),
+  }).passthrough(),
 };
