@@ -113,6 +113,8 @@ const ACTIONS = [
   "lathe_lora_model_selector_models", "lathe_lora_verification_history", "lathe_lora_resource_pools",
   // LATHE-WIRE-MS0/Batch26: knowledge graph + quantization optimizer + reward shaping (3 engines)
   "lathe_lora_kg_top_connected", "lathe_lora_quant_formats", "lathe_lora_reward_config",
+  // LATHE-WIRE-MS0/Batch27: monitoring + training monitor + pipeline state (3 engines)
+  "lathe_lora_monitoring_alerts", "lathe_lora_training_progress", "lathe_lora_pipeline_state",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1518,6 +1520,49 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { latheLoRARewardShapingEngine } = await import("../../engines/LatheLoRARewardShapingEngine.js");
             try {
               result = { success: true, config: latheLoRARewardShapingEngine.getConfig() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // LATHE-WIRE-MS0/Batch27: monitoring + training monitor + pipeline state
+          // ============================================================
+          case "lathe_lora_monitoring_alerts": {
+            const { latheLoRAMonitoringEngine } = await import("../../engines/LatheLoRAMonitoringEngine.js");
+            try {
+              result = {
+                success: true,
+                active_alerts: latheLoRAMonitoringEngine.getActiveAlerts(),
+                stats: latheLoRAMonitoringEngine.getStats(),
+                deployments: latheLoRAMonitoringEngine.getMonitoredDeployments(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_training_progress": {
+            const { latheLoRATrainingMonitorEngine } = await import("../../engines/LatheLoRATrainingMonitorEngine.js");
+            try {
+              result = {
+                success: true,
+                progress: latheLoRATrainingMonitorEngine.getProgress(),
+                state: latheLoRATrainingMonitorEngine.getState(),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_lora_pipeline_state": {
+            const { latheLoRAPipelineEngine } = await import("../../engines/LatheLoRAPipelineEngine.js");
+            try {
+              result = {
+                success: true,
+                state: latheLoRAPipelineEngine.getState(),
+                config: latheLoRAPipelineEngine.getConfig(),
+              };
             } catch (err) {
               result = { success: false, error: (err as Error).message };
             }

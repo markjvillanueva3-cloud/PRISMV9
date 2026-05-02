@@ -552,4 +552,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   }).passthrough(),
   lathe_lora_quant_formats: z.object({}).passthrough().describe("No input — returns LatheLoRAQuantizationOptimizerEngine.getFormats() + getGGUFLevels() — quantization format catalog"),
   lathe_lora_reward_config: z.object({}).passthrough().describe("No input — returns LatheLoRARewardShapingEngine.getConfig() — current reward shaping config"),
+  // LATHE-WIRE-MS0/Batch27: monitoring + training monitor + pipeline state
+  lathe_lora_monitoring_alerts: z.object({}).passthrough().describe("No input — returns LatheLoRAMonitoringEngine.getActiveAlerts() + getStats() + getMonitoredDeployments()"),
+  lathe_lora_training_progress: z.object({}).passthrough().describe("No input — returns LatheLoRATrainingMonitorEngine.getProgress() + getState() — current training run snapshot"),
+  lathe_lora_pipeline_state: z.object({}).passthrough().describe("No input — returns LatheLoRAPipelineEngine.getState() + getConfig() — current pipeline snapshot"),
 };
