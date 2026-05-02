@@ -301,4 +301,17 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_calibration_report: z.object({
     input: z.record(z.string(), z.unknown()).describe("CalibrationInput - calibration measurements for WEDMCalibrationReportEngine.generate()"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch9: neighbor query + formula fusion + ML observation
+  wedm_neighbor_nearest: z.object({
+    cell: z.record(z.string(), z.unknown()).describe("CellQuery - lattice cell query (material/wire/dielectric/etc) for WEDMNeighborQueryEngine.nearestForCell()"),
+    opts: z.record(z.string(), z.unknown()).optional().describe("QueryOptions - optional k/distance overrides"),
+  }).passthrough(),
+  wedm_neural_formula_fuse: z.object({
+    estimators: z.array(z.record(z.string(), z.unknown())).min(1).describe("FormulaEstimate[] - estimator outputs to fuse via Neural ensemble"),
+    ctx: z.record(z.string(), z.unknown()).describe("FusionContext - material/dielectric/wire context for WEDMNeuralFormulaFusionEngine.fuse()"),
+  }).passthrough(),
+  wedm_ml_observe: z.object({
+    session_id: z.string().min(1).describe("ML optimization session ID (created by upstream session_init action)"),
+    observation: z.record(z.string(), z.unknown()).describe("WEDMObservation - measured outcome for the prior parameter suggestion"),
+  }).passthrough(),
 };

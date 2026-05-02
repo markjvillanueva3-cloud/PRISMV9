@@ -1171,6 +1171,8 @@ export const ACTIONS = [
   "wedm_job_cost_calc", "wedm_job_create", "wedm_job_outcome_record",
   // WEDM-WIRE-MS0/Batch8: DXF closure validate + drift detect + calibration report
   "wedm_dxf_closure_validate", "wedm_drift_detect", "wedm_calibration_report",
+  // WEDM-WIRE-MS0/Batch9: neighbor query + formula fusion + ML observation
+  "wedm_neighbor_nearest", "wedm_neural_formula_fuse", "wedm_ml_observe",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6204,6 +6206,54 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmCalibrationReportEngine.generate(
                 input as Parameters<typeof wedmCalibrationReportEngine.generate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ── WEDM-WIRE-MS0/Batch9: neighbor query + formula fusion + ML observation ──
+          case "wedm_neighbor_nearest": {
+            const { wedmNeighborQueryEngine } = await import("../../engines/WEDMNeighborQueryEngine.js");
+            const cell = (params as Record<string, unknown>).cell;
+            if (!cell || typeof cell !== "object") { result = { success: false, error: "cell required (CellQuery)" }; break; }
+            try {
+              const opts = (params as Record<string, unknown>).opts;
+              result = wedmNeighborQueryEngine.nearestForCell(
+                cell as Parameters<typeof wedmNeighborQueryEngine.nearestForCell>[0],
+                opts as Parameters<typeof wedmNeighborQueryEngine.nearestForCell>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_neural_formula_fuse": {
+            const { wedmNeuralFormulaFusionEngine } = await import("../../engines/WEDMNeuralFormulaFusionEngine.js");
+            const estimators = (params as Record<string, unknown>).estimators;
+            const ctx = (params as Record<string, unknown>).ctx;
+            if (!Array.isArray(estimators)) { result = { success: false, error: "estimators array required (FormulaEstimate[])" }; break; }
+            if (!ctx || typeof ctx !== "object") { result = { success: false, error: "ctx required (FusionContext)" }; break; }
+            try {
+              result = wedmNeuralFormulaFusionEngine.fuse(
+                estimators as Parameters<typeof wedmNeuralFormulaFusionEngine.fuse>[0],
+                ctx as Parameters<typeof wedmNeuralFormulaFusionEngine.fuse>[1],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_ml_observe": {
+            const { wedmMLParameterOptimizerEngine } = await import("../../engines/WEDMMLParameterOptimizerEngine.js");
+            const sessionId = (params as Record<string, unknown>).session_id;
+            const observation = (params as Record<string, unknown>).observation;
+            if (typeof sessionId !== "string" || sessionId.length === 0) { result = { success: false, error: "session_id non-empty string required" }; break; }
+            if (!observation || typeof observation !== "object") { result = { success: false, error: "observation required (WEDMObservation)" }; break; }
+            try {
+              result = wedmMLParameterOptimizerEngine.addObservation(
+                sessionId,
+                observation as Parameters<typeof wedmMLParameterOptimizerEngine.addObservation>[1],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
