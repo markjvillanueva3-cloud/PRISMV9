@@ -402,4 +402,15 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_masterpost_audit: z.object({
     input: z.record(z.string(), z.unknown()).describe("AuditInput — context for LatheMasterPostAPIEngine.audit() to produce audit log entry"),
   }).passthrough(),
+  // LATHE-WIRE-MS0/Batch10: AI sequence + auto quote + orchestration pipeline
+  lathe_ai_optimize_sequence: z.object({
+    operations: z.array(z.record(z.string(), z.unknown())).min(1).describe("Operation list (id, type, tool_type, priority?) for LatheAIReasoningEngine.optimizeSequence()"),
+  }).passthrough(),
+  lathe_auto_quote: z.object({
+    input: z.record(z.string(), z.unknown()).describe("AutoQuoteInput — print + customer + qty for LatheAutoQuoteFromPrintEngine.generateQuote()"),
+  }).passthrough(),
+  lathe_orchestrate: z.object({
+    input: z.record(z.string(), z.unknown()).describe("LatheOrchestrationInput — full pipeline input (features, material, tools, machine, etc.)"),
+    orch_action: z.string().optional().describe("Optional pipeline action tag (defaults to 'default'); first arg to LatheOrchestrationEngine.calculate()"),
+  }).passthrough(),
 };

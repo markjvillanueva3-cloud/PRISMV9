@@ -79,6 +79,8 @@ const ACTIONS = [
   "lathe_customer_order_create", "lathe_erp_full", "lathe_masterpost_route",
   // LATHE-WIRE-MS0/Batch9: master post API (emit + validate + audit)
   "lathe_masterpost_emit", "lathe_masterpost_validate", "lathe_masterpost_audit",
+  // LATHE-WIRE-MS0/Batch10: AI sequence + auto quote + orchestration pipeline
+  "lathe_ai_optimize_sequence", "lathe_auto_quote", "lathe_orchestrate",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -778,6 +780,48 @@ Actions: ${ACTIONS.join(", ")}.`,
             try {
               result = latheMasterPostAPIEngine.audit(
                 input as Parameters<typeof latheMasterPostAPIEngine.audit>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_ai_optimize_sequence": {
+            const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+            const operations = (params as Record<string, unknown>).operations;
+            if (!Array.isArray(operations)) { result = { success: false, error: "operations array required (id+type+tool_type+priority? per element)" }; break; }
+            try {
+              result = latheAIReasoningEngine.optimizeSequence(
+                operations as Parameters<typeof latheAIReasoningEngine.optimizeSequence>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_auto_quote": {
+            const { latheAutoQuoteFromPrintEngine } = await import("../../engines/LatheAutoQuoteFromPrintEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (AutoQuoteInput)" }; break; }
+            try {
+              result = latheAutoQuoteFromPrintEngine.generateQuote(
+                input as Parameters<typeof latheAutoQuoteFromPrintEngine.generateQuote>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "lathe_orchestrate": {
+            const { latheOrchestrationEngine } = await import("../../engines/LatheOrchestrationEngine.js");
+            const orchInput = (params as Record<string, unknown>).input;
+            const orchAction = (params as Record<string, unknown>).orch_action;
+            if (!orchInput || typeof orchInput !== "object") { result = { success: false, error: "input required (LatheOrchestrationInput)" }; break; }
+            try {
+              const actionTag = typeof orchAction === "string" ? orchAction : "default";
+              result = latheOrchestrationEngine.calculate(
+                actionTag,
+                orchInput as Parameters<typeof latheOrchestrationEngine.calculate>[1],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };
