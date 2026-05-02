@@ -194,6 +194,22 @@ const auto_fix_promote = z.object({
 }).passthrough();
 
 // ============================================================================
+// auto_chain — SI → AutoFix orchestrator (P9-U02)
+// ============================================================================
+
+const auto_chain_run = z.object({
+  auto_promote_min_priority: z.number().optional().describe(
+    "If set, auto-promote candidates whose source pattern priority is at or above this floor.",
+  ),
+  dry_run: z.boolean().optional().describe(
+    "When true, skip auto-promotion entirely (overrides auto_promote_min_priority).",
+  ),
+}).passthrough();
+
+const auto_chain_read = z.object({}).passthrough();
+const auto_chain_summary = z.object({}).passthrough();
+
+// ============================================================================
 // quality_dashboard — Quality metrics dashboard (AUTO-7)
 // ============================================================================
 
@@ -297,6 +313,9 @@ export const ACTION_DEV_SCHEMAS: ActionSchemaMap = {
   auto_fix_summary,
   auto_fix_approve,
   auto_fix_promote,
+  auto_chain_run,
+  auto_chain_read,
+  auto_chain_summary,
   quality_dashboard,
   quality_dashboard_read,
   quality_dashboard_summary,
