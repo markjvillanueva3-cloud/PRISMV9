@@ -1,0 +1,299 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Modify Operations — Wireframe modify layer",
+    "description": "Parameter catalog for Mastercam CAD wireframe-level modify operations: trim / extend / break / join / fillet (2D) / chamfer (2D) / blend / smooth / simplify / reverse / convert-to-spline / edit-spline / modify-length. These act on wireframe entities (curves, splines, lines, arcs) — distinct from solid_operations.modify which work on solid bodies. Critical pre-CAM workflow operations: most CAM toolpath chains require trimmed/joined gap-free wireframe. 14 operations / 86 parameters. Bindings target Mastercam .NET-Hook API (Mastercam.Modify namespace).",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-07",
+    "source": "Mastercam 2024 Reference — Modify ribbon; Mastercam .NET-Hook API Reference (Mastercam.Modify / Mastercam.Operations.Modify)",
+    "totalParameters": 86,
+    "operationCount": 14,
+    "cad_concepts_used": [
+      "WIREFRAME_TRIMMING",
+      "CURVE_EXTENSION",
+      "PARAMETRIC_BREAK",
+      "CHAIN_JOIN",
+      "FILLET_RADIUS",
+      "CHAMFER_DISTANCE",
+      "G0_G1_G2_G3_CONTINUITY",
+      "NURBS_REFIT",
+      "CURVE_SMOOTHING",
+      "CONTROL_POINT_EDITING"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam wireframe modify operations",
+    "tabs": ["Shape", "Continuity"]
+  },
+  "operations": {
+    "TRIM": {
+      "description": "Trim wireframe entities to a boundary curve. Mode controls trim-one / trim-both / divide (split at intersection without removing material). Power Trim uses cursor-path picking for batch trimming in one drag.",
+      "category": "Modify_Trim",
+      "mastercam_command": "ModifyTrim",
+      "mastercam_api": "Mastercam.Modify.Trim.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source", "type": "selection", "description": "Entities to trim", "required": true},
+            {"name": "Boundary", "type": "selection", "description": "Cutting boundary entity", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["trim_one", "trim_both", "divide"], "default": "trim_one"},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative", "both"], "default": "positive"},
+            {"name": "Auto-Update", "type": "checkbox", "default": true},
+            {"name": "Pick Path", "type": "selection", "description": "Cursor path for power-trim mode"},
+            {"name": "Power Trim", "type": "checkbox", "description": "Cursor-path-driven batch trim", "default": false}
+          ]
+        }
+      }
+    },
+    "EXTEND": {
+      "description": "Extend a wireframe entity beyond its current endpoint. Length mode selects fixed-distance / to-boundary / specified-curve. Continuity controls how the extension blends with the source curvature.",
+      "category": "Modify_Extend",
+      "mastercam_command": "ModifyExtend",
+      "mastercam_api": "Mastercam.Modify.Extend.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source", "type": "selection", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["start", "end", "both"], "default": "end"},
+            {"name": "Length Mode", "type": "dropdown", "options": ["fixed_distance", "to_boundary", "specified_curve"], "default": "fixed_distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Used with fixed_distance mode"},
+            {"name": "Continuity", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G1"},
+            {"name": "Reverse", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "BREAK_AT_POINT": {
+      "description": "Break an entity into two pieces at a specified point. Mode controls explicit-point / by-distance-from-endpoint / by-parametric-value selection.",
+      "category": "Modify_Break_AtPoint",
+      "mastercam_command": "ModifyBreakAtPoint",
+      "mastercam_api": "Mastercam.Modify.Break.AtPoint",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity", "type": "selection", "required": true},
+            {"name": "Break Point", "type": "selection", "description": "Used with at_point mode"},
+            {"name": "Mode", "type": "dropdown", "options": ["at_point", "by_distance", "by_parameter"], "default": "at_point"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Used with by_distance mode"},
+            {"name": "Parametric Position", "type": "numeric", "description": "0..1 along entity (by_parameter mode)", "min": 0, "max": 1}
+          ]
+        }
+      }
+    },
+    "BREAK_AT_INTERSECTION": {
+      "description": "Break entities at all detected intersections. Auto-Find Intersections scans the selection set and breaks every detected crossing within tolerance.",
+      "category": "Modify_Break_AtIntersection",
+      "mastercam_command": "ModifyBreakAtIntersection",
+      "mastercam_api": "Mastercam.Modify.Break.AtIntersection",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Auto-Find Intersections", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Show Intersections", "type": "checkbox", "default": true},
+            {"name": "Output Style", "type": "dropdown", "options": ["preserve_source", "active_color", "construction"], "default": "preserve_source"}
+          ]
+        }
+      }
+    },
+    "JOIN": {
+      "description": "Join wireframe entities into a single chain. Auto-Heal closes small gaps within tolerance. Reverse Detection auto-flips entity direction to match neighbor's endpoint.",
+      "category": "Modify_Join",
+      "mastercam_command": "ModifyJoin",
+      "mastercam_api": "Mastercam.Modify.Join.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Output As Chain", "type": "checkbox", "default": true},
+            {"name": "Auto-Heal", "type": "checkbox", "description": "Close small gaps within tolerance", "default": true},
+            {"name": "Continuity Check", "type": "checkbox", "description": "Verify G0/G1 between adjacent entities", "default": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["polyline", "spline", "preserve_individual"], "default": "polyline"},
+            {"name": "Reverse Detection", "type": "checkbox", "description": "Auto-flip entities to match neighbor", "default": true}
+          ]
+        }
+      }
+    },
+    "FILLET_2D": {
+      "description": "2D wireframe fillet between two intersecting entities. Mode controls trim-source-corners or no-trim (fillet added but original entities preserved). Multi-Corner applies the same radius to multiple corner pairs in one operation.",
+      "category": "Modify_Fillet_2D",
+      "mastercam_command": "ModifyFillet2D",
+      "mastercam_api": "Mastercam.Modify.Fillet2D.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "required": true},
+            {"name": "Entity 2", "type": "selection", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Mode", "type": "dropdown", "options": ["trim", "no_trim"], "default": "trim"},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative", "auto"], "default": "auto"},
+            {"name": "Mark Origin", "type": "checkbox", "description": "Mark fillet center with point entity", "default": false},
+            {"name": "Multi-Corner", "type": "checkbox", "description": "Apply to multiple corner pairs", "default": false}
+          ]
+        }
+      }
+    },
+    "CHAMFER_2D": {
+      "description": "2D wireframe chamfer between two intersecting entities. Modes: equal-distance (single distance both sides), distance-distance (different per side), or distance-angle (one distance + angle).",
+      "category": "Modify_Chamfer_2D",
+      "mastercam_command": "ModifyChamfer2D",
+      "mastercam_api": "Mastercam.Modify.Chamfer2D.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "required": true},
+            {"name": "Entity 2", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["equal_distance", "distance_distance", "distance_angle"], "default": "equal_distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Used with distance_distance"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Used with distance_angle", "min": 0.001, "max": 89.999},
+            {"name": "Trim Sources", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "BLEND_CURVES": {
+      "description": "Blend two curves with independent G0..G3 continuity per side. Bias controls the parametric weighting toward curve 1 vs curve 2. Tangent Strength multiplies the tangency magnitude.",
+      "category": "Modify_BlendCurves",
+      "mastercam_command": "ModifyBlendCurves",
+      "mastercam_api": "Mastercam.Modify.BlendCurves.Apply",
+      "parameterCount": 8,
+      "tabs": {
+        "Continuity": {
+          "parameters": [
+            {"name": "Curve 1", "type": "selection", "required": true},
+            {"name": "Curve 2", "type": "selection", "required": true},
+            {"name": "Continuity 1", "type": "dropdown", "options": ["G0", "G1", "G2", "G3"], "default": "G1"},
+            {"name": "Continuity 2", "type": "dropdown", "options": ["G0", "G1", "G2", "G3"], "default": "G1"},
+            {"name": "Bias", "type": "numeric", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Tangent Strength", "type": "numeric", "default": 1, "min": 0.01, "max": 10},
+            {"name": "Refit", "type": "checkbox", "default": false},
+            {"name": "Output Type", "type": "dropdown", "options": ["nurbs", "polyline"], "default": "nurbs"}
+          ]
+        }
+      }
+    },
+    "SMOOTH_CURVE": {
+      "description": "Smooth a noisy curve via iterative Laplacian smoothing. Strength controls per-iteration step size. Lock Endpoints keeps the start + end points fixed during smoothing.",
+      "category": "Modify_SmoothCurve",
+      "mastercam_command": "ModifySmoothCurve",
+      "mastercam_api": "Mastercam.Modify.SmoothCurve.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Curve", "type": "selection", "required": true},
+            {"name": "Smoothing Iterations", "type": "integer", "default": 5, "min": 1, "max": 100},
+            {"name": "Strength", "type": "numeric", "description": "Per-iteration step (0..1)", "default": 0.5, "min": 0.01, "max": 1},
+            {"name": "Lock Endpoints", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Output Type", "type": "dropdown", "options": ["nurbs", "polyline", "preserve_source_type"], "default": "preserve_source_type"}
+          ]
+        }
+      }
+    },
+    "SIMPLIFY_CURVE": {
+      "description": "Simplify a curve by reducing control point count. Mode controls reduce-points (preserve shape with fewer points), refit (NURBS refit to specified tolerance), or decimate (uniform sampling).",
+      "category": "Modify_SimplifyCurve",
+      "mastercam_command": "ModifySimplifyCurve",
+      "mastercam_api": "Mastercam.Modify.SimplifyCurve.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Curve", "type": "selection", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "min": 0.0001},
+            {"name": "Mode", "type": "dropdown", "options": ["reduce_points", "refit", "decimate"], "default": "reduce_points"},
+            {"name": "Lock Endpoints", "type": "checkbox", "default": true},
+            {"name": "Output Type", "type": "dropdown", "options": ["nurbs", "polyline", "arcs_and_lines"], "default": "nurbs"},
+            {"name": "Auto-Update", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REVERSE_DIRECTION": {
+      "description": "Reverse the parametric direction of a curve. Match-Pair mode flips one entity's direction to match its neighbor in a chain. Used to fix mis-directed entities before chaining for CAM toolpaths.",
+      "category": "Modify_ReverseDirection",
+      "mastercam_command": "ModifyReverseDirection",
+      "mastercam_api": "Mastercam.Modify.ReverseDirection.Apply",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["reverse", "match_pair"], "default": "reverse"},
+            {"name": "Show Arrow", "type": "checkbox", "description": "Display direction arrow on result", "default": true},
+            {"name": "Update Dependents", "type": "checkbox", "description": "Re-evaluate dependent operations", "default": true}
+          ]
+        }
+      }
+    },
+    "CONVERT_TO_SPLINE": {
+      "description": "Convert lines + arcs to NURBS spline form. Useful for downstream operations (CAM toolpaths, surface lofting) that prefer single-NURBS input over polylines.",
+      "category": "Modify_ConvertToSpline",
+      "mastercam_command": "ModifyConvertToSpline",
+      "mastercam_api": "Mastercam.Modify.ConvertToSpline.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Degree", "type": "integer", "default": 3, "min": 1, "max": 7},
+            {"name": "Continuity", "type": "dropdown", "options": ["C0", "C1", "C2"], "default": "C2"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Output Type", "type": "dropdown", "options": ["nurbs", "bezier"], "default": "nurbs"},
+            {"name": "Refit", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "EDIT_SPLINE": {
+      "description": "Interactive spline edit — move / insert / delete control points, edit weights (rational NURBS), or edit knot vector. Live Preview updates the result every drag frame.",
+      "category": "Modify_EditSpline",
+      "mastercam_command": "ModifyEditSpline",
+      "mastercam_api": "Mastercam.Modify.EditSpline.Begin",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Spline", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["move_point", "insert_point", "delete_point", "edit_weight", "edit_knot"], "default": "move_point"},
+            {"name": "Selected Point", "type": "selection", "description": "Control point or knot to edit"},
+            {"name": "New Position", "type": "selection", "description": "Used with move_point / insert_point"},
+            {"name": "Weight", "type": "numeric", "description": "Used with edit_weight (rational NURBS)", "default": 1, "min": 0.001},
+            {"name": "Knot Value", "type": "numeric", "description": "Used with edit_knot"},
+            {"name": "Live Preview", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MODIFY_LENGTH": {
+      "description": "Lengthen or shorten an entity by a delta or to a total length. From-End controls which endpoint moves (start / end / both).",
+      "category": "Modify_Length",
+      "mastercam_command": "ModifyLength",
+      "mastercam_api": "Mastercam.Modify.Length.Apply",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["lengthen", "shorten", "total_length"], "default": "lengthen"},
+            {"name": "Delta", "type": "numeric", "unit": "mm", "description": "Length change (or total length for total_length mode)", "required": true},
+            {"name": "From End", "type": "dropdown", "options": ["start", "end", "both"], "default": "end"},
+            {"name": "Auto-Update", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}

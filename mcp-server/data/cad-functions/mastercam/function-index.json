@@ -4,7 +4,7 @@
   "module_id": "cad_function_index",
   "module_name": "Mastercam CAD Unified Function Index",
   "description": "Top-level index for Mastercam CAD-side authoring operations. Mastercam combines a CAD authoring layer with its CAM-side toolpath engine; this index covers ONLY the CAD authoring surface (wireframe / solid / surface / drafting / transformation / analysis / modify / file_layer). The CAM-side toolpath catalogs live separately under cam-functions/mastercam/ and are owned by the dedicated CAM exhaust roadmap. Coverage spans 8 modules following the Inventor parity pattern. Consumed by MastercamCADFunctionIndexEngine for parameter discovery and AI orchestration of Mastercam CAD authoring via NET-Hook in-host execution and Mastercam ChooseAndPick C-Hook surface.",
-  "indexed_at": "2026-05-02T03:00:00Z",
+  "indexed_at": "2026-05-02T03:25:00Z",
   "modules": [
     {
       "module_id": "wireframe_operations",
@@ -53,6 +53,14 @@
       "parameter_count_estimate": 60,
       "description": "Geometry analysis layer: chain integrity (closed/open/gap detection — pre-flight for CAM toolpath chaining), distance (point-to-point with 3d_euclidean / projected_2d / axis_components, entity-to-entity closest/farthest), angle between lines (acute/reflex), area (closed planar profile with inner-loop subtraction, surface area with hole-boundary handling), volume of solid (with optional centroid + mass via density), entity inspection (basic/full/verbose detail levels), dynamic interactive measurement (distance/angle/area with snap modes), and validation (gaps/overlaps/self_intersect/manifold/small_features with optional auto-heal + severity-filtered reporting). 10 operations total.",
       "dependencies": ["wireframe_operations", "solid_operations", "surface_operations"]
+    },
+    {
+      "module_id": "modify_operations",
+      "path": "cad-functions/mastercam/modify-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-07"],
+      "parameter_count_estimate": 86,
+      "description": "Wireframe modify layer (distinct from solid_operations modify): TRIM (trim_one/trim_both/divide + power-trim cursor path), EXTEND (fixed_distance/to_boundary/specified_curve with G0/G1/G2 continuity), 2 break ops (at_point with 3 modes, at_intersection with auto-find), JOIN (chain assembly with auto-heal + reverse detection), 2D FILLET (radius with trim/no_trim modes + multi-corner), 2D CHAMFER (3 parameterizations), BLEND_CURVES (independent G0..G3 per side, bias 0..1, tangent strength), SMOOTH_CURVE (iterative Laplacian with locked endpoints), SIMPLIFY_CURVE (reduce_points/refit/decimate), REVERSE_DIRECTION (with match_pair for chain alignment), CONVERT_TO_SPLINE (NURBS degree 1..7), EDIT_SPLINE (5 interactive edit modes), MODIFY_LENGTH (lengthen/shorten/total_length). 14 operations total.",
+      "dependencies": ["wireframe_operations"]
     }
   ],
   "global_cross_references": {
@@ -80,26 +88,26 @@
     ]
   },
   "coverage_summary": {
-    "total_modules": 6,
+    "total_modules": 7,
     "total_units_covered": [
       "U-CAD-FIDX-MC-01",
       "U-CAD-FIDX-MC-02",
       "U-CAD-FIDX-MC-03",
       "U-CAD-FIDX-MC-04",
       "U-CAD-FIDX-MC-05",
-      "U-CAD-FIDX-MC-06"
+      "U-CAD-FIDX-MC-06",
+      "U-CAD-FIDX-MC-07"
     ],
-    "estimated_parameter_total": 662,
+    "estimated_parameter_total": 748,
     "api_surface": {
-      "net_hook_items": 94,
-      "c_hook_items": 94,
+      "net_hook_items": 108,
+      "c_hook_items": 108,
       "mastercam_2024_compatible": true,
       "mastercam_2025_compatible": true,
       "coverage_state": "PARTIAL",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 2,
+      "phase_1_target_modules_remaining": 1,
       "phase_1_modules_pending": [
-        "modify_operations",
         "file_layer_operations"
       ]
     },

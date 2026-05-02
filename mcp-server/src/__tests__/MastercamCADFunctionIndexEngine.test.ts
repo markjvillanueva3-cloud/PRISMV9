@@ -151,9 +151,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
       }
     });
 
-    it("listAllOperations equals 94 ops total at Phase 1 6/8 (+ analysis)", () => {
+    it("listAllOperations equals 108 ops total at Phase 1 7/8 (+ modify)", () => {
       const all = MastercamCADFunctionIndexEngine.listAllOperations();
-      expect(all.length).toBe(94);
+      expect(all.length).toBe(108);
     });
 
     it("listOperations on unknown module returns empty array (failure mode)", () => {
@@ -344,9 +344,9 @@ describe("MastercamCADFunctionIndexEngine", () => {
   });
 
   describe("getTotalParameterCount", () => {
-    it("counts exactly 662 parameters across all 94 ops (+ 60 analysis)", () => {
+    it("counts exactly 748 parameters across all 108 ops (+ 86 modify)", () => {
       const total = MastercamCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(662);
+      expect(total).toBe(748);
     });
 
     it("each module's per-engine computed total exactly equals its metadata.totalParameters declaration", () => {
@@ -404,6 +404,15 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(analysisTotal).toBe(60);
       expect(analysisDeclared).toBe(60);
 
+      const modifyTotal = sumParamsForModule("modify_operations");
+      const modifyDeclared = (
+        MastercamCADFunctionIndexEngine.getModule("modify_operations")?.metadata as {
+          totalParameters?: number;
+        }
+      )?.totalParameters;
+      expect(modifyTotal).toBe(86);
+      expect(modifyDeclared).toBe(86);
+
       // Aggregate engine method must equal sum of per-module computed totals
       expect(MastercamCADFunctionIndexEngine.getTotalParameterCount()).toBe(
         wireframeTotal +
@@ -411,13 +420,14 @@ describe("MastercamCADFunctionIndexEngine", () => {
           surfaceTotal +
           draftingTotal +
           transformTotal +
-          analysisTotal,
+          analysisTotal +
+          modifyTotal,
       );
     });
   });
 
   describe("coverage_summary — Phase 1 markers (Mastercam CAD exhaust starting)", () => {
-    it("api_surface.coverage_state is exactly 'PARTIAL' (6 of 8 modules shipped)", () => {
+    it("api_surface.coverage_state is exactly 'PARTIAL' (7 of 8 modules shipped — 1 to go)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
@@ -429,19 +439,16 @@ describe("MastercamCADFunctionIndexEngine", () => {
       expect(apiSurface?.phase_1_target_modules).toBe(8);
     });
 
-    it("api_surface.phase_1_target_modules_remaining is exactly 2 (6/8 shipped)", () => {
+    it("api_surface.phase_1_target_modules_remaining is exactly 1 (7/8 shipped)", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(2);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(1);
     });
 
-    it("api_surface.phase_1_modules_pending lists the 2 unbuilt modules in shipping order", () => {
+    it("api_surface.phase_1_modules_pending lists exactly file_layer_operations as last unbuilt module", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
-      expect(apiSurface?.phase_1_modules_pending).toEqual([
-        "modify_operations",
-        "file_layer_operations",
-      ]);
+      expect(apiSurface?.phase_1_modules_pending).toEqual(["file_layer_operations"]);
     });
 
     it("phase_1 ledger is internally consistent (failure mode: target/remaining/pending drift)", () => {
@@ -460,7 +467,7 @@ describe("MastercamCADFunctionIndexEngine", () => {
       const apiSurface = MastercamCADFunctionIndexEngine.getIndex().coverage_summary
         .api_surface as Record<string, unknown> | undefined;
       expect(apiSurface?.coverage_state).toBe("PARTIAL");
-      expect(apiSurface?.phase_1_target_modules_remaining).toBe(2);
+      expect(apiSurface?.phase_1_target_modules_remaining).toBe(1);
     });
 
     it("total_units_covered length matches shipped module count (failure mode: ledger drift)", () => {
@@ -1550,6 +1557,206 @@ describe("MastercamCADFunctionIndexEngine", () => {
       );
       expect(loc?.parameter.name).toBe("Tolerance");
       expect(loc?.parameter.unit).toBe("mm");
+    });
+  });
+
+  describe("modify_operations catalog (U-CAD-FIDX-MC-07)", () => {
+    const KNOWN_MODIFY_OPS = [
+      "TRIM",
+      "EXTEND",
+      "BREAK_AT_POINT",
+      "BREAK_AT_INTERSECTION",
+      "JOIN",
+      "FILLET_2D",
+      "CHAMFER_2D",
+      "BLEND_CURVES",
+      "SMOOTH_CURVE",
+      "SIMPLIFY_CURVE",
+      "REVERSE_DIRECTION",
+      "CONVERT_TO_SPLINE",
+      "EDIT_SPLINE",
+      "MODIFY_LENGTH",
+    ];
+
+    const BREAK_OPS = ["BREAK_AT_POINT", "BREAK_AT_INTERSECTION"];
+
+    it("schemaVersion is exactly '1.0.0'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("modify_operations");
+      expect(mod?.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.milestone is exactly 'U-CAD-FIDX-MC-07'", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("modify_operations");
+      expect(mod?.metadata?.milestone).toBe("U-CAD-FIDX-MC-07");
+    });
+
+    it("operations dict has exactly 14 entries", () => {
+      const mod = MastercamCADFunctionIndexEngine.getModule("modify_operations");
+      expect(Object.keys(mod?.operations ?? {})).toHaveLength(14);
+    });
+
+    it("listOperations returns exactly the 14 expected modify ops", () => {
+      const ids = MastercamCADFunctionIndexEngine.listOperations("modify_operations")
+        .map((o) => o.operation_id)
+        .sort();
+      expect(ids).toEqual([...KNOWN_MODIFY_OPS].sort());
+    });
+
+    it("every operation reports a Modify_-prefixed category", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("modify_operations");
+      for (const op of ops) {
+        expect(op.category.startsWith("Modify_")).toBe(true);
+      }
+    });
+
+    it("BREAK_OPS span both break subcategories (AtPoint + AtIntersection)", () => {
+      const ops = MastercamCADFunctionIndexEngine.listOperations("modify_operations");
+      const breakCategories = ops
+        .filter((op) => BREAK_OPS.includes(op.operation_id))
+        .map((op) => op.category)
+        .sort();
+      expect(breakCategories).toEqual([
+        "Modify_Break_AtIntersection",
+        "Modify_Break_AtPoint",
+      ]);
+    });
+
+    it("TRIM Mode supports trim_one/trim_both/divide", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("modify_operations", "TRIM");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["trim_one", "trim_both", "divide"]);
+    });
+
+    it("EXTEND Length Mode supports fixed_distance/to_boundary/specified_curve", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("modify_operations", "EXTEND");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Length Mode");
+      expect(modeParam?.options).toEqual([
+        "fixed_distance",
+        "to_boundary",
+        "specified_curve",
+      ]);
+    });
+
+    it("BREAK_AT_POINT Mode supports at_point/by_distance/by_parameter", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "BREAK_AT_POINT",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["at_point", "by_distance", "by_parameter"]);
+    });
+
+    it("FILLET_2D Mode supports trim/no_trim", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("modify_operations", "FILLET_2D");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["trim", "no_trim"]);
+    });
+
+    it("CHAMFER_2D Mode supports 3 parameterizations", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("modify_operations", "CHAMFER_2D");
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual([
+        "equal_distance",
+        "distance_distance",
+        "distance_angle",
+      ]);
+    });
+
+    it("BLEND_CURVES Continuity 1 + Continuity 2 each support G0/G1/G2/G3 independently", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "BLEND_CURVES",
+      );
+      const c1 = op?.tabs?.Continuity?.parameters?.find((p) => p.name === "Continuity 1");
+      const c2 = op?.tabs?.Continuity?.parameters?.find((p) => p.name === "Continuity 2");
+      expect(c1?.options).toEqual(["G0", "G1", "G2", "G3"]);
+      expect(c2?.options).toEqual(["G0", "G1", "G2", "G3"]);
+    });
+
+    it("BLEND_CURVES Bias bounded 0..1 with default 0.5 (failure mode: blend bias range)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "BLEND_CURVES",
+      );
+      const biasParam = op?.tabs?.Continuity?.parameters?.find((p) => p.name === "Bias");
+      expect(biasParam?.min).toBe(0);
+      expect(biasParam?.max).toBe(1);
+      expect(biasParam?.default).toBe(0.5);
+    });
+
+    it("SIMPLIFY_CURVE Mode supports reduce_points/refit/decimate", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "SIMPLIFY_CURVE",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["reduce_points", "refit", "decimate"]);
+    });
+
+    it("CONVERT_TO_SPLINE Degree bounded 1..7 (failure mode: NURBS degree range)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "CONVERT_TO_SPLINE",
+      );
+      const degParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Degree");
+      expect(degParam?.min).toBe(1);
+      expect(degParam?.max).toBe(7);
+      expect(degParam?.default).toBe(3);
+    });
+
+    it("EDIT_SPLINE Mode supports 5 interactive edit operations", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "EDIT_SPLINE",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual([
+        "move_point",
+        "insert_point",
+        "delete_point",
+        "edit_weight",
+        "edit_knot",
+      ]);
+    });
+
+    it("REVERSE_DIRECTION Mode supports reverse + match_pair (failure mode: chain alignment)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "REVERSE_DIRECTION",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["reverse", "match_pair"]);
+    });
+
+    it("MODIFY_LENGTH Mode supports lengthen/shorten/total_length", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation(
+        "modify_operations",
+        "MODIFY_LENGTH",
+      );
+      const modeParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Mode");
+      expect(modeParam?.options).toEqual(["lengthen", "shorten", "total_length"]);
+    });
+
+    it("JOIN Output Type supports polyline/spline/preserve_individual (adversarial: output flexibility)", () => {
+      const op = MastercamCADFunctionIndexEngine.getOperation("modify_operations", "JOIN");
+      const outputParam = op?.tabs?.Shape?.parameters?.find((p) => p.name === "Output Type");
+      expect(outputParam?.options).toEqual(["polyline", "spline", "preserve_individual"]);
+    });
+
+    it("returns null for unknown modify op (adversarial: typo)", () => {
+      expect(
+        MastercamCADFunctionIndexEngine.getOperation("modify_operations", "TELEPORT_CURVE"),
+      ).toBeNull();
+    });
+
+    it("findParameter locates 'Bias' on BLEND_CURVES in Continuity tab (adversarial: cross-tab)", () => {
+      const loc = MastercamCADFunctionIndexEngine.findParameter(
+        "modify_operations",
+        "BLEND_CURVES",
+        "Bias",
+      );
+      expect(loc?.parameter.name).toBe("Bias");
+      expect(loc?.tab_id).toBe("Continuity");
     });
   });
 });
