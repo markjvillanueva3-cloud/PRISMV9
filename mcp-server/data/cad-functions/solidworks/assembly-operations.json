@@ -1,0 +1,566 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Assembly Operations — Assembly authoring layer",
+    "description": "Parameter catalog for the SolidWorks CAD assembly authoring layer. Covers the full IAssemblyDoc / IFeatureManager / IComponent2 surface: mate authoring (26 mate types: 10 standard + 8 advanced + 8 mechanical), mate lifecycle (delete / edit / flip-alignment / suppress), component management (insert / delete / replace / fix-float / suppress-resolve-lightweight / smart-fasteners), component patterns (linear / circular / pattern-driven / mirror), sub-assembly authoring (insert sub / insert in-context / dissolve / flexible toggle), configurations (add / switch), exploded view + step (create view / add step / smart explode lines), and interference / clearance verification. Catalog covers 26 operations / 180 parameters. Bindings target SolidWorks API IAssemblyDoc.AddMate3 / AddComponent5 / FeatureLinearComponentPattern / FeatureCircularComponentPattern / FeatureMirrorComponent / EditAssembly / EditPart / FeatureManager.InsertExplodedView2 / InterferenceDetectionMgr.GetInterferences / ClearanceVerification.* — the canonical SolidWorks 2024 assembly authoring API.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-04",
+    "source": "SolidWorks 2024 API Help — Assemblies; SolidWorks API Reference — IAssemblyDoc / IComponent2 / IMate2 / IFeatureManager.InsertExplodedView2; SolidWorks 2024 Reference Manual — Assemblies / Mates / Patterns / Configurations / Exploded Views / Interference Detection",
+    "totalParameters": 172,
+    "operationCount": 26,
+    "cad_concepts_used": [
+      "MATE_DRIVEN_ASSEMBLY",
+      "STANDARD_MATE_KINEMATIC_PAIR",
+      "ADVANCED_MATE_LIMIT_AND_PATH",
+      "MECHANICAL_MATE_GEAR_CAM_SCREW",
+      "COMPONENT_PATTERN_PROPAGATION",
+      "MIRROR_COMPONENT_LEFT_RIGHT_PARITY",
+      "SUB_ASSEMBLY_RIGID_VS_FLEXIBLE",
+      "IN_CONTEXT_TOP_DOWN_REFERENCE",
+      "LIGHTWEIGHT_VS_RESOLVED_LOAD",
+      "SUPPRESSION_STATE_PROPAGATION",
+      "CONFIGURATION_DRIVEN_VARIANTS",
+      "EXPLODED_VIEW_TIMELINE_STEPS",
+      "SMART_FASTENER_HOLE_BASED_INFERENCE",
+      "INTERFERENCE_VOLUME_DETECTION",
+      "CLEARANCE_DISTANCE_VERIFICATION",
+      "MATE_OVER_DEFINED_REDUNDANCY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks assembly operations",
+    "tabs": ["Selections", "Mate", "Standard Mates", "Advanced Mates", "Mechanical Mates", "Pattern", "Configuration", "Options"]
+  },
+  "operations": {
+    "MATE_ADD": {
+      "description": "Add a mate between two component faces / edges / planes / axes / points. Mate Type selects from 26 SolidWorks mate types across 3 categories — Standard (10), Advanced (8), Mechanical (8). Each category exposes its specific options through dedicated tabs (Standard Mates / Advanced Mates / Mechanical Mates). Distance / Angle drive dimensional mates; Flip Alignment swaps the mate's directional sense; Lock Rotation suppresses any residual DOF; Use For Positioning Only sets the mate as a position-only constraint that does not solve at assembly resolution time.",
+      "category": "Assembly_Mate_Add",
+      "solidworks_command": "Insert > Mate",
+      "solidworks_api": "IAssemblyDoc.AddMate3",
+      "parameterCount": 25,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "description": "Face / edge / plane / axis / point on first component", "required": true},
+            {"name": "Entity 2", "type": "selection", "description": "Face / edge / plane / axis / point on second component", "required": true},
+            {"name": "Mate Type", "type": "dropdown", "options": [
+              "coincident", "concentric", "parallel", "perpendicular", "tangent",
+              "distance", "angle", "lock", "lock_distance", "profile_center",
+              "symmetric", "width", "path", "linear_coupler", "distance_limit",
+              "angle_limit", "hinge", "slot",
+              "cam", "gear", "screw", "universal_joint", "rack_pinion",
+              "belt_chain", "hinge_advanced", "slot_advanced"
+            ], "required": true, "default": "coincident"},
+            {"name": "Flip Alignment", "type": "checkbox", "default": false},
+            {"name": "Lock Rotation", "type": "checkbox", "default": false},
+            {"name": "Use For Positioning Only", "type": "checkbox", "default": false}
+          ]
+        },
+        "Standard Mates": {
+          "parameters": [
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Required when Mate Type = distance / lock_distance", "default": 0, "min": 0},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Required when Mate Type = angle", "default": 0, "min": -360, "max": 360},
+            {"name": "Profile Center Mode", "type": "dropdown", "options": ["centered", "offset"], "description": "profile_center alignment", "default": "centered"}
+          ]
+        },
+        "Advanced Mates": {
+          "parameters": [
+            {"name": "Symmetric About", "type": "selection", "description": "Plane / axis used for symmetric mate"},
+            {"name": "Width Constraint", "type": "dropdown", "options": ["centered", "free", "dimension", "percent"], "description": "width mate constraint mode", "default": "centered"},
+            {"name": "Path Constraint", "type": "dropdown", "options": ["free", "distance_along_path", "percent_along_path"], "description": "path mate constraint mode", "default": "free"},
+            {"name": "Linear Coupler Ratio", "type": "numeric", "description": "Numerator/denominator ratio for linear_coupler", "default": 1, "min": 0.001},
+            {"name": "Distance Limit Min", "type": "numeric", "unit": "mm", "description": "Lower limit for distance_limit mate", "default": 0},
+            {"name": "Distance Limit Max", "type": "numeric", "unit": "mm", "description": "Upper limit for distance_limit mate", "default": 100},
+            {"name": "Angle Limit Min", "type": "numeric", "unit": "deg", "default": -360, "min": -360, "max": 360},
+            {"name": "Angle Limit Max", "type": "numeric", "unit": "deg", "default": 360, "min": -360, "max": 360}
+          ]
+        },
+        "Mechanical Mates": {
+          "parameters": [
+            {"name": "Cam Path", "type": "selection", "description": "Required when Mate Type = cam"},
+            {"name": "Gear Ratio Numerator", "type": "numeric", "description": "Tooth-count or radius numerator", "default": 1, "min": 0.001},
+            {"name": "Gear Ratio Denominator", "type": "numeric", "description": "Tooth-count or radius denominator", "default": 1, "min": 0.001},
+            {"name": "Reverse Gear Direction", "type": "checkbox", "default": false},
+            {"name": "Screw Pitch", "type": "numeric", "unit": "mm", "description": "Lead per revolution for screw mate", "default": 1, "min": 0.001},
+            {"name": "Universal Joint Yoke Direction", "type": "selection", "description": "Reference direction for universal_joint mate"},
+            {"name": "Belt Chain Length", "type": "numeric", "unit": "mm", "description": "Driven by component spacing if 0 (auto)", "default": 0, "min": 0},
+            {"name": "Belt Chain Driver Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "clockwise"}
+          ]
+        }
+      }
+    },
+    "MATE_DELETE": {
+      "description": "Delete an existing mate by name or by selecting the mate in the FeatureManager tree.",
+      "category": "Assembly_Mate_Lifecycle",
+      "solidworks_command": "Delete (on Mate node)",
+      "solidworks_api": "IFeatureManager.DeleteFeatureByName",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Mate Name", "type": "string", "description": "Name of the mate feature to delete", "required": true},
+            {"name": "Confirm Delete", "type": "checkbox", "description": "Skip confirmation dialog", "default": true},
+            {"name": "Delete Dependent Mates", "type": "checkbox", "description": "Cascade-delete mates that depend on this one", "default": false},
+            {"name": "Update Tree", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MATE_EDIT": {
+      "description": "Edit an existing mate's value (distance / angle), entities, or alignment. Most common in design-table-driven assemblies and mid-cycle parameter sweeps.",
+      "category": "Assembly_Mate_Lifecycle",
+      "solidworks_command": "Edit Feature (on Mate node)",
+      "solidworks_api": "IMate2.MateEntity / IMate2.SetDistance / IMate2.SetAngle",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Mate Name", "type": "string", "required": true},
+            {"name": "New Distance", "type": "numeric", "unit": "mm", "description": "Optional new value (distance/lock_distance/distance_limit only)"},
+            {"name": "New Angle", "type": "numeric", "unit": "deg", "description": "Optional new value (angle/angle_limit only)"},
+            {"name": "Replace Entity 1", "type": "selection", "description": "Optional replacement geometry"},
+            {"name": "Replace Entity 2", "type": "selection", "description": "Optional replacement geometry"},
+            {"name": "Flip Alignment", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MATE_FLIP_ALIGNMENT": {
+      "description": "Flip a mate's directional alignment (anti-aligned ↔ aligned). Inverts which face normals are paired without rebuilding the mate.",
+      "category": "Assembly_Mate_Lifecycle",
+      "solidworks_command": "Flip Mate Alignment",
+      "solidworks_api": "IMate2.Alignment (set)",
+      "parameterCount": 3,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Mate Name", "type": "string", "required": true},
+            {"name": "New Alignment", "type": "dropdown", "options": ["aligned", "anti_aligned", "auto"], "default": "auto"},
+            {"name": "Update Tree", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MATE_SUPPRESS": {
+      "description": "Suppress / unsuppress a mate. Suppressed mates do not contribute degrees of freedom to the assembly solver — used to test under-constrained motion or temporarily allow free dragging.",
+      "category": "Assembly_Mate_Lifecycle",
+      "solidworks_command": "Suppress / Unsuppress (on Mate node)",
+      "solidworks_api": "IFeatureManager.EditSuppression2",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Mate Name", "type": "string", "required": true},
+            {"name": "State", "type": "dropdown", "options": ["suppressed", "unsuppressed"], "required": true, "default": "suppressed"},
+            {"name": "Apply To Configuration", "type": "dropdown", "options": ["this_configuration", "all_configurations", "specified"], "default": "this_configuration"},
+            {"name": "Configuration Names", "type": "string", "description": "Comma-separated list when Apply To Configuration = specified"}
+          ]
+        }
+      }
+    },
+    "INSERT_COMPONENT": {
+      "description": "Insert a part or sub-assembly into the active assembly. Position is initial location; subsequent mates constrain the component. Lightweight reduces memory at cost of editability; Envelope inserts a transparent reference body that does not contribute to mass / interference.",
+      "category": "Assembly_Component_Insert",
+      "solidworks_command": "Insert > Component > Existing Part/Assembly",
+      "solidworks_api": "IAssemblyDoc.AddComponent5",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "description": "Absolute or relative path to .sldprt / .sldasm", "required": true},
+            {"name": "Configuration", "type": "string", "description": "Configuration to instantiate (default: active)"},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Position Z", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Lightweight", "type": "checkbox", "default": false},
+            {"name": "Envelope", "type": "checkbox", "default": false},
+            {"name": "Use Configuration Specific Properties", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "DELETE_COMPONENT": {
+      "description": "Delete one or more component instances from the assembly. Cascade-deletes any mates that referenced the deleted component.",
+      "category": "Assembly_Component_Lifecycle",
+      "solidworks_command": "Delete (on Component node)",
+      "solidworks_api": "IModelDoc2.Extension.DeleteSelection2",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Component Names", "type": "string", "description": "Comma-separated list of component instance names", "required": true},
+            {"name": "Cascade Delete Mates", "type": "checkbox", "default": true},
+            {"name": "Delete From All Configurations", "type": "checkbox", "default": false},
+            {"name": "Confirm Delete", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REPLACE_COMPONENT": {
+      "description": "Replace a component with a different file, attempting to preserve mates that reference still-existing topology. Match Faces auto-remaps mates by topology hash.",
+      "category": "Assembly_Component_Lifecycle",
+      "solidworks_command": "Replace Component",
+      "solidworks_api": "IAssemblyDoc.ReplaceComponents2",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Component Name", "type": "string", "required": true},
+            {"name": "Replacement File Path", "type": "string", "required": true},
+            {"name": "Replacement Configuration", "type": "string", "description": "Configuration of replacement (default: active)"},
+            {"name": "Replace All Instances", "type": "checkbox", "description": "Apply to every instance of the original part", "default": false},
+            {"name": "Match Faces", "type": "checkbox", "description": "Auto-remap mate references by topology", "default": true},
+            {"name": "Re-Mate Failed References", "type": "checkbox", "description": "Open re-mate dialog for unresolved mates", "default": true}
+          ]
+        }
+      }
+    },
+    "COMPONENT_LINEAR_PATTERN": {
+      "description": "Pattern a component instance linearly along 1 or 2 directions. Skip Instances allows holes in the pattern grid for non-rectangular footprints.",
+      "category": "Assembly_Component_Pattern",
+      "solidworks_command": "Insert > Component Pattern > Linear",
+      "solidworks_api": "IAssemblyDoc.FeatureLinearComponentPattern",
+      "parameterCount": 9,
+      "tabs": {
+        "Pattern": {
+          "parameters": [
+            {"name": "Seed Components", "type": "string", "description": "Comma-separated list of seed component names", "required": true},
+            {"name": "Direction 1 Reference", "type": "selection", "description": "Edge / axis / linear sketch for direction 1", "required": true},
+            {"name": "Direction 1 Spacing", "type": "numeric", "unit": "mm", "required": true, "default": 50, "min": 0.001},
+            {"name": "Direction 1 Instances", "type": "numeric", "required": true, "default": 2, "min": 2, "max": 999},
+            {"name": "Direction 2 Reference", "type": "selection", "description": "Optional second-axis reference"},
+            {"name": "Direction 2 Spacing", "type": "numeric", "unit": "mm", "default": 50, "min": 0.001},
+            {"name": "Direction 2 Instances", "type": "numeric", "default": 1, "min": 1, "max": 999},
+            {"name": "Skip Instances", "type": "string", "description": "Comma-separated 'col,row' indices to skip"},
+            {"name": "Synchronize Movement Of Flexible Sub-Assemblies", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "COMPONENT_CIRCULAR_PATTERN": {
+      "description": "Pattern a component instance circularly about an axis. Equal Spacing distributes evenly across the angle range; otherwise Spacing controls per-instance step.",
+      "category": "Assembly_Component_Pattern",
+      "solidworks_command": "Insert > Component Pattern > Circular",
+      "solidworks_api": "IAssemblyDoc.FeatureCircularComponentPattern",
+      "parameterCount": 8,
+      "tabs": {
+        "Pattern": {
+          "parameters": [
+            {"name": "Seed Components", "type": "string", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Axis / circular edge / cylindrical face", "required": true},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Instances", "type": "numeric", "required": true, "default": 4, "min": 2, "max": 999},
+            {"name": "Equal Spacing", "type": "checkbox", "default": true},
+            {"name": "Spacing", "type": "numeric", "unit": "deg", "description": "Used only when Equal Spacing = false", "default": 90, "min": 0.001, "max": 360},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Skip Instances", "type": "string", "description": "Comma-separated 1-based indices to skip"}
+          ]
+        }
+      }
+    },
+    "COMPONENT_PATTERN_DRIVEN": {
+      "description": "Drive a component pattern from an existing feature pattern (typically a hole pattern) on a parent component — instances inherit the parent pattern's parametric updates.",
+      "category": "Assembly_Component_Pattern",
+      "solidworks_command": "Insert > Component Pattern > Pattern Driven",
+      "solidworks_api": "IAssemblyDoc.FeatureDerivedComponentPattern",
+      "parameterCount": 6,
+      "tabs": {
+        "Pattern": {
+          "parameters": [
+            {"name": "Seed Components", "type": "string", "required": true},
+            {"name": "Driving Pattern Feature", "type": "selection", "description": "Hole pattern / linear pattern / circular pattern on parent component", "required": true},
+            {"name": "Reference Position", "type": "selection", "description": "Which seed-component vertex to align with pattern origin"},
+            {"name": "Use Pattern Seed", "type": "checkbox", "description": "Include the pattern's seed instance position", "default": false},
+            {"name": "Skip Instances", "type": "string"},
+            {"name": "Synchronize With Parent", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MIRROR_COMPONENTS": {
+      "description": "Mirror selected components across a plane. Mode controls whether mirrored instances are referenced (rigid mirror) or new opposite-handed parts (genuine left/right pair).",
+      "category": "Assembly_Component_Pattern",
+      "solidworks_command": "Insert > Mirror Components",
+      "solidworks_api": "IAssemblyDoc.FeatureMirrorComponent",
+      "parameterCount": 7,
+      "tabs": {
+        "Pattern": {
+          "parameters": [
+            {"name": "Mirror Plane", "type": "selection", "required": true},
+            {"name": "Components To Mirror", "type": "string", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["instance_reference", "create_opposite_hand_versions"], "required": true, "default": "instance_reference"},
+            {"name": "Naming Convention", "type": "dropdown", "options": ["append_mirrored", "append_lh_rh", "custom"], "default": "append_mirrored"},
+            {"name": "Output Folder", "type": "string", "description": "Required when Mode = create_opposite_hand_versions"},
+            {"name": "Apply Material", "type": "checkbox", "description": "Inherit source material on mirrored part files", "default": true},
+            {"name": "Re-Use Existing Mates Where Possible", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FIX_COMPONENT": {
+      "description": "Toggle a component between Fixed (zero DOF — anchored to assembly origin) and Float (6 DOF — mate-driven). Fixed components are the reference frame for all mates.",
+      "category": "Assembly_Component_State",
+      "solidworks_command": "Fix / Float",
+      "solidworks_api": "IComponent2.Select4 + IModelDoc2.Extension.FixComponent / FloatComponent",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Component Names", "type": "string", "required": true},
+            {"name": "State", "type": "dropdown", "options": ["fixed", "float"], "required": true, "default": "fixed"},
+            {"name": "Fix Position", "type": "dropdown", "options": ["current_position", "assembly_origin"], "default": "current_position"},
+            {"name": "Apply To Configuration", "type": "dropdown", "options": ["this_configuration", "all_configurations"], "default": "this_configuration"}
+          ]
+        }
+      }
+    },
+    "SUPPRESS_COMPONENT": {
+      "description": "Set component load state across the suppress/resolve/lightweight/hidden axis. Suppressed components are removed from the solver; Lightweight loads geometry only (no feature tree); Hidden remains active but invisible.",
+      "category": "Assembly_Component_State",
+      "solidworks_command": "Suppress / Resolve / Set Lightweight / Hide",
+      "solidworks_api": "IComponent2.SetSuppression2",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Component Names", "type": "string", "required": true},
+            {"name": "State", "type": "dropdown", "options": ["suppressed", "resolved", "lightweight", "hidden"], "required": true, "default": "suppressed"},
+            {"name": "Apply To Configuration", "type": "dropdown", "options": ["this_configuration", "all_configurations", "specified"], "default": "this_configuration"},
+            {"name": "Configuration Names", "type": "string", "description": "Comma-separated when Apply To Configuration = specified"},
+            {"name": "Cascade To Children", "type": "checkbox", "description": "Apply state to nested sub-assembly children", "default": true}
+          ]
+        }
+      }
+    },
+    "SMART_FASTENER": {
+      "description": "Auto-insert fasteners (bolts / screws / nuts / washers) into hole-wizard holes per Toolbox standard. Stack defines optional washers / nuts; Length Mode selects automatic-length-from-hole-depth or fixed-length.",
+      "category": "Assembly_Component_Insert",
+      "solidworks_command": "Insert > Smart Fasteners",
+      "solidworks_api": "IAssemblyDoc.SmartFastener",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Hole Selections", "type": "string", "description": "Comma-separated list of hole-wizard feature names or 'all'", "required": true},
+            {"name": "Fastener Standard", "type": "dropdown", "options": ["ANSI_inch", "ANSI_metric", "ISO", "DIN", "JIS", "BSI", "GB"], "required": true, "default": "ANSI_metric"},
+            {"name": "Fastener Type", "type": "dropdown", "options": ["socket_head_cap", "hex_bolt", "flat_head", "button_head", "set_screw", "stud"], "required": true, "default": "socket_head_cap"},
+            {"name": "Length Mode", "type": "dropdown", "options": ["auto_from_hole_depth", "fixed"], "default": "auto_from_hole_depth"},
+            {"name": "Fixed Length", "type": "numeric", "unit": "mm", "description": "Required when Length Mode = fixed", "default": 20, "min": 1},
+            {"name": "Top Stack", "type": "string", "description": "Comma-separated washer/nut sequence above hole entry"},
+            {"name": "Bottom Stack", "type": "string", "description": "Comma-separated washer/nut sequence below hole exit"}
+          ]
+        }
+      }
+    },
+    "INSERT_SUBASSEMBLY": {
+      "description": "Insert an existing sub-assembly. Visualization controls whether the sub-assembly is loaded resolved or as a single rigid body for performance.",
+      "category": "Assembly_SubAssembly",
+      "solidworks_command": "Insert > Component > Existing Sub-Assembly",
+      "solidworks_api": "IAssemblyDoc.AddComponent5 (with sub-assembly path)",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "required": true},
+            {"name": "Configuration", "type": "string", "description": "Sub-assembly configuration to instantiate"},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Position Z", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Solve As", "type": "dropdown", "options": ["rigid", "flexible"], "default": "rigid"},
+            {"name": "Lightweight", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "INSERT_NEW_PART": {
+      "description": "Insert a new (empty) part directly into the assembly context — top-down design entry point. The new part is auto-mated to the selected face by default and inherits in-context references.",
+      "category": "Assembly_SubAssembly",
+      "solidworks_command": "Insert > Component > New Part",
+      "solidworks_api": "IAssemblyDoc.InsertNewVirtualPart",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Mounting Face", "type": "selection", "description": "Face on existing component — defines new part's reference plane", "required": true},
+            {"name": "Save As Virtual", "type": "checkbox", "description": "Embed inside assembly file (no external .sldprt)", "default": true},
+            {"name": "External File Path", "type": "string", "description": "Required when Save As Virtual = false"},
+            {"name": "Auto-Mate To Mounting Face", "type": "checkbox", "default": true},
+            {"name": "Configuration Name", "type": "string", "default": "Default"}
+          ]
+        }
+      }
+    },
+    "DISSOLVE_SUBASSEMBLY": {
+      "description": "Dissolve a sub-assembly — promote its child components into the parent assembly tree. Mates within the dissolved sub-assembly are rebound to the parent's mate group.",
+      "category": "Assembly_SubAssembly",
+      "solidworks_command": "Dissolve Sub-Assembly",
+      "solidworks_api": "IAssemblyDoc.Dissolve",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Sub-Assembly Name", "type": "string", "required": true},
+            {"name": "Preserve Mates", "type": "checkbox", "description": "Promote internal mates to parent (else discard)", "default": true},
+            {"name": "Preserve Folders", "type": "checkbox", "description": "Maintain folder grouping in parent tree", "default": false},
+            {"name": "Confirm Dissolve", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FLEXIBLE_SUBASSEMBLY": {
+      "description": "Toggle a sub-assembly between Rigid (single body — internal DOF frozen) and Flexible (internal mates solve at parent assembly resolution time, exposing kinematics).",
+      "category": "Assembly_SubAssembly",
+      "solidworks_command": "Make Flexible / Make Rigid",
+      "solidworks_api": "IComponent2.Solving (set)",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Sub-Assembly Name", "type": "string", "required": true},
+            {"name": "State", "type": "dropdown", "options": ["rigid", "flexible"], "required": true, "default": "rigid"},
+            {"name": "Apply To All Instances", "type": "checkbox", "default": false},
+            {"name": "Apply To Configuration", "type": "dropdown", "options": ["this_configuration", "all_configurations"], "default": "this_configuration"}
+          ]
+        }
+      }
+    },
+    "ADD_CONFIGURATION": {
+      "description": "Add a new configuration to the assembly. Suppression Inheritance controls whether new components added later are suppressed by default in this configuration.",
+      "category": "Assembly_Configuration",
+      "solidworks_command": "ConfigurationManager > Add Configuration",
+      "solidworks_api": "IConfigurationManager.AddConfiguration2",
+      "parameterCount": 7,
+      "tabs": {
+        "Configuration": {
+          "parameters": [
+            {"name": "Configuration Name", "type": "string", "required": true},
+            {"name": "Description", "type": "string"},
+            {"name": "Comment", "type": "string"},
+            {"name": "Parent Configuration", "type": "string", "description": "Inherit from this configuration (default: active)"},
+            {"name": "Display State", "type": "string", "description": "Display state to associate (default: linked to configuration)"},
+            {"name": "Suppression Inheritance", "type": "dropdown", "options": ["new_components_unsuppressed", "new_components_suppressed", "use_parent_setting"], "default": "use_parent_setting"},
+            {"name": "Use Configuration Specific Properties", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SWITCH_CONFIGURATION": {
+      "description": "Activate a different configuration. Triggers parametric regeneration across all components.",
+      "category": "Assembly_Configuration",
+      "solidworks_command": "ConfigurationManager > Show Configuration",
+      "solidworks_api": "IModelDoc2.ShowConfiguration2",
+      "parameterCount": 4,
+      "tabs": {
+        "Configuration": {
+          "parameters": [
+            {"name": "Configuration Name", "type": "string", "required": true},
+            {"name": "Force Rebuild", "type": "checkbox", "default": false},
+            {"name": "Update Display State", "type": "checkbox", "default": true},
+            {"name": "Activate Linked Display State", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "EXPLODE_VIEW_CREATE": {
+      "description": "Create an exploded view (named animation timeline) for the active configuration. Subsequent EXPLODED_STEP_ADD operations populate the timeline.",
+      "category": "Assembly_ExplodedView",
+      "solidworks_command": "Insert > Exploded View",
+      "solidworks_api": "IAssemblyDoc.CreateExplodedViewByConfig",
+      "parameterCount": 6,
+      "tabs": {
+        "Configuration": {
+          "parameters": [
+            {"name": "Exploded View Name", "type": "string", "required": true},
+            {"name": "Configuration Name", "type": "string", "description": "Configuration to attach the explode timeline to (default: active)"},
+            {"name": "Auto-Spacing", "type": "checkbox", "description": "Distribute selected components automatically", "default": false},
+            {"name": "Auto-Spacing Distance", "type": "numeric", "unit": "mm", "description": "Used when Auto-Spacing = true", "default": 50, "min": 0.001},
+            {"name": "Rotate Components", "type": "checkbox", "description": "Apply rotation steps as well as translation", "default": false},
+            {"name": "Lock Origin", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "EXPLODED_STEP_ADD": {
+      "description": "Add a step to an exploded view timeline — translate / rotate selected components by a delta along an axis. Steps replay sequentially during animation.",
+      "category": "Assembly_ExplodedView",
+      "solidworks_command": "Exploded View > Add Step",
+      "solidworks_api": "IExplodeStep.AddStep",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Exploded View Name", "type": "string", "required": true},
+            {"name": "Components", "type": "string", "description": "Comma-separated list of components to move", "required": true},
+            {"name": "Step Type", "type": "dropdown", "options": ["translate", "rotate"], "required": true, "default": "translate"},
+            {"name": "Direction Axis", "type": "selection", "description": "Edge / axis / vector defining motion direction", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Translate magnitude (Step Type = translate)", "default": 100},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Rotate magnitude (Step Type = rotate)", "default": 90},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Step Index", "type": "numeric", "description": "Insertion position in timeline (-1 = append)", "default": -1, "min": -1, "max": 999}
+          ]
+        }
+      }
+    },
+    "SMART_EXPLODE_LINE": {
+      "description": "Add a smart explode line — a 3D sketch curve connecting a component's pre-explode position to its post-explode position, used in exploded-view drawings to indicate motion path.",
+      "category": "Assembly_ExplodedView",
+      "solidworks_command": "Insert > Explode Line Sketch",
+      "solidworks_api": "IExplodeLineSketch.AddRoute",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Exploded View Name", "type": "string", "required": true},
+            {"name": "Component", "type": "string", "required": true},
+            {"name": "Anchor Vertex", "type": "selection", "description": "Vertex on component whose path to draw"},
+            {"name": "Route Mode", "type": "dropdown", "options": ["smart", "manual_jog", "straight"], "default": "smart"},
+            {"name": "Show Arrows", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "INTERFERENCE_DETECTION": {
+      "description": "Run interference detection across components. Treats each interfering volume pair as a result row. Treat Subassemblies As Components reduces noise from internal sub-assembly interference. Coincident Faces tolerance suppresses common-plane false positives.",
+      "category": "Assembly_Verification",
+      "solidworks_command": "Tools > Interference Detection",
+      "solidworks_api": "IInterferenceDetectionMgr.GetInterferences",
+      "parameterCount": 9,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Components To Check", "type": "string", "description": "Comma-separated, or 'all'", "required": true},
+            {"name": "Treat Subassemblies As Components", "type": "checkbox", "default": false},
+            {"name": "Coincident Faces Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0},
+            {"name": "Include Multibody Part Interferences", "type": "checkbox", "default": true},
+            {"name": "Include Hidden Bodies", "type": "checkbox", "default": false},
+            {"name": "Treat Coincidence As Interference", "type": "checkbox", "default": false},
+            {"name": "Show Ignored Interferences", "type": "checkbox", "default": false},
+            {"name": "Make Interfering Parts Transparent", "type": "checkbox", "default": true},
+            {"name": "Save Results To File", "type": "string", "description": "Optional .txt / .csv output path"}
+          ]
+        }
+      }
+    },
+    "CLEARANCE_VERIFICATION": {
+      "description": "Verify minimum clearance distance between selected components. Reports each pair whose closest-point distance falls below Minimum Acceptable Clearance.",
+      "category": "Assembly_Verification",
+      "solidworks_command": "Tools > Clearance Verification",
+      "solidworks_api": "IClearanceVerification.GetMinimumDistances",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Components A", "type": "string", "description": "First selection group (comma-separated)", "required": true},
+            {"name": "Components B", "type": "string", "description": "Second selection group (comma-separated)", "required": true},
+            {"name": "Minimum Acceptable Clearance", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0},
+            {"name": "Pair Strategy", "type": "dropdown", "options": ["between_groups", "within_groups", "all_pairs"], "default": "between_groups"},
+            {"name": "Include Sub-Assembly Children", "type": "checkbox", "default": true},
+            {"name": "Show Failing Pairs Only", "type": "checkbox", "default": true},
+            {"name": "Save Results To File", "type": "string", "description": "Optional .txt / .csv output path"}
+          ]
+        }
+      }
+    }
+  }
+}
