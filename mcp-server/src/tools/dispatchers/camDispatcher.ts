@@ -1205,6 +1205,8 @@ export const ACTIONS = [
   "wedm_tribal_runtime_select", "wedm_tribal_tip_pending", "wedm_transfer_learning_apply",
   // WEDM-WIRE-MS0/Batch25: taper error budget + Weibull wire life + spark erosion (3 engines)
   "wedm_taper_error_budget", "wedm_weibull_failure_prob", "wedm_spark_erosion_calc",
+  // WEDM-WIRE-MS0/Batch26: autonomy audit + benchmark tolerance + slug tab (3 engines)
+  "wedm_autonomy_audit_recent", "wedm_benchmark_tolerance_classify", "wedm_slug_tab_calc",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
@@ -6973,6 +6975,53 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             try {
               result = wedmSparkErosionModelEngine.calculate(
                 input as Parameters<typeof wedmSparkErosionModelEngine.calculate>[0],
+              );
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          // ============================================================
+          // WEDM-WIRE-MS0/Batch26: autonomy audit + benchmark tolerance + slug tab
+          // ============================================================
+          case "wedm_autonomy_audit_recent": {
+            const { wedmAutonomyAuditEngine } = await import("../../engines/WEDMAutonomyAuditEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const limit = input && typeof input.limit === "number" && input.limit > 0 ? input.limit : 100;
+            try {
+              result = { success: true, entries: wedmAutonomyAuditEngine.recent(limit), stats: wedmAutonomyAuditEngine.stats() };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_benchmark_tolerance_classify": {
+            const { wedmBenchmarkToleranceEngine } = await import("../../engines/WEDMBenchmarkToleranceEngine.js");
+            const input = (params as Record<string, unknown>).input as Record<string, unknown> | undefined;
+            const deviation_pct = input && typeof input.deviation_pct === "number" ? input.deviation_pct : NaN;
+            const key = input && typeof input.key === "string" ? input.key : "";
+            if (!Number.isFinite(deviation_pct) || !key) {
+              result = { success: false, error: "input.deviation_pct (number) and input.key (BenchmarkKey string) required" };
+              break;
+            }
+            try {
+              result = {
+                success: true,
+                classification: wedmBenchmarkToleranceEngine.classify(deviation_pct, key as Parameters<typeof wedmBenchmarkToleranceEngine.classify>[1]),
+                band: wedmBenchmarkToleranceEngine.getBand(key as Parameters<typeof wedmBenchmarkToleranceEngine.getBand>[0]),
+              };
+            } catch (err) {
+              result = { success: false, error: (err as Error).message };
+            }
+            break;
+          }
+          case "wedm_slug_tab_calc": {
+            const { wedmSlugTabRetentionEngine } = await import("../../engines/WEDMSlugTabRetentionEngine.js");
+            const input = (params as Record<string, unknown>).input;
+            if (!input || typeof input !== "object") { result = { success: false, error: "input required (WEDMSlugTabRetentionInput)" }; break; }
+            try {
+              result = wedmSlugTabRetentionEngine.calculate(
+                input as Parameters<typeof wedmSlugTabRetentionEngine.calculate>[0],
               );
             } catch (err) {
               result = { success: false, error: (err as Error).message };

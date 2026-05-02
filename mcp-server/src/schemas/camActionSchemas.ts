@@ -467,4 +467,14 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   wedm_spark_erosion_calc: z.object({
     input: z.record(z.string(), z.unknown()).describe("SparkErosionInput - material + pulse params for WEDMSparkErosionModelEngine.calculate() — returns SparkErosionResult"),
   }).passthrough(),
+  // WEDM-WIRE-MS0/Batch26: autonomy audit + benchmark tolerance + slug tab
+  wedm_autonomy_audit_recent: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{limit?: number=100} for WEDMAutonomyAuditEngine.recent() + stats() — returns AutonomyAuditEntry[] + audit stats"),
+  }).passthrough(),
+  wedm_benchmark_tolerance_classify: z.object({
+    input: z.record(z.string(), z.unknown()).describe("{deviation_pct: number, key: BenchmarkKey} for WEDMBenchmarkToleranceEngine.classify() + getBand() — returns ToleranceClass + band"),
+  }).passthrough(),
+  wedm_slug_tab_calc: z.object({
+    input: z.record(z.string(), z.unknown()).describe("WEDMSlugTabRetentionInput - profile + slug constraints for WEDMSlugTabRetentionEngine.calculate() — returns WEDMSlugTabRetentionResult"),
+  }).passthrough(),
 };
