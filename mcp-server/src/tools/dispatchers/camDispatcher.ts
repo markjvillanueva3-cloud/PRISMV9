@@ -1645,6 +1645,9 @@ export const ACTIONS = [
   "cam_mastercam_si_predict", "cam_mastercam_si_validate", "cam_mastercam_si_audit",
   // CAM-EXHAUST-MS0 U-CAM-MC-MOLD-01 — Mastercam mold cavity/core machining cycle planner
   "cam_mastercam_mold_plan", "cam_mastercam_mold_needs_edm", "cam_mastercam_mold_audit",
+  // CAM-EXHAUST-MS0 U-CAM-MC-PROBE-01 — Mastercam probing bridge (Renishaw/Heidenhain/Blum/M&H, 7 cycle types)
+  "cam_mastercam_probe_part_setup", "cam_mastercam_probe_create_cycle", "cam_mastercam_probe_gcode",
+  "cam_mastercam_probe_tool", "cam_mastercam_probe_verify", "cam_mastercam_probe_stats",
   // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
@@ -13281,6 +13284,52 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_mastercam_mold_audit": {
             const { MastercamMoldCycleEngine } = await import("../../engines/MastercamMoldCycleEngine.js");
             result = MastercamMoldCycleEngine.auditEngine();
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0 U-CAM-MC-PROBE-01: Mastercam probing bridge ──
+          case "cam_mastercam_probe_part_setup": {
+            const { mastercamProbingBridge } = await import("../../engines/MastercamProbingBridge.js");
+            const features = params.features as Parameters<typeof mastercamProbingBridge.generatePartSetup>[0];
+            const wcsNumber = (params.wcs_number as number | undefined) ?? 54;
+            result = mastercamProbingBridge.generatePartSetup(features, wcsNumber);
+            break;
+          }
+          case "cam_mastercam_probe_create_cycle": {
+            const { mastercamProbingBridge } = await import("../../engines/MastercamProbingBridge.js");
+            const cycleType = params.cycle_type as Parameters<typeof mastercamProbingBridge.createProbeCycle>[0];
+            const x = params.x as number;
+            const y = params.y as number;
+            const z = params.z as number;
+            const options = (params.options as Parameters<typeof mastercamProbingBridge.createProbeCycle>[4]) ?? {};
+            result = mastercamProbingBridge.createProbeCycle(cycleType, x, y, z, options);
+            break;
+          }
+          case "cam_mastercam_probe_gcode": {
+            const { mastercamProbingBridge } = await import("../../engines/MastercamProbingBridge.js");
+            const cycles = params.cycles as Parameters<typeof mastercamProbingBridge.generateGCode>[0];
+            const controller = (params.controller as Parameters<typeof mastercamProbingBridge.generateGCode>[1]) ?? "fanuc";
+            const probeSystem = (params.probe_system as Parameters<typeof mastercamProbingBridge.generateGCode>[2]) ?? "renishaw";
+            result = mastercamProbingBridge.generateGCode(cycles, controller, probeSystem);
+            break;
+          }
+          case "cam_mastercam_probe_tool": {
+            const { mastercamProbingBridge } = await import("../../engines/MastercamProbingBridge.js");
+            const tools = params.tools as Parameters<typeof mastercamProbingBridge.generateToolProbing>[0];
+            const controller = (params.controller as Parameters<typeof mastercamProbingBridge.generateToolProbing>[1]) ?? "fanuc";
+            result = { gcode_lines: mastercamProbingBridge.generateToolProbing(tools, controller) };
+            break;
+          }
+          case "cam_mastercam_probe_verify": {
+            const { mastercamProbingBridge } = await import("../../engines/MastercamProbingBridge.js");
+            const cycles = params.cycles as Parameters<typeof mastercamProbingBridge.simulateVerification>[0];
+            const measurementError = (params.measurement_error as number | undefined) ?? 0.0005;
+            result = { results: mastercamProbingBridge.simulateVerification(cycles, measurementError) };
+            break;
+          }
+          case "cam_mastercam_probe_stats": {
+            const { mastercamProbingBridge } = await import("../../engines/MastercamProbingBridge.js");
+            result = mastercamProbingBridge.getStats();
             break;
           }
 
