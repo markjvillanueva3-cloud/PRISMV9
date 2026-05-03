@@ -1,0 +1,341 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Weldment Operations — Multi-body weldment authoring layer",
+    "description": "Parameter catalog for the SolidWorks CAD weldment authoring layer. Weldments are multi-body parts where each body represents a structural member (tube / channel / angle / I-beam / custom profile) joined at corners with controllable trim/extend treatments. Catalog covers WELDMENT (the foundational multi-body marker), STRUCTURAL_MEMBER (sketch-driven member with profile library + 3 corner treatments + per-segment rotation/mirror), 3 trim/extend ops (TRIM_EXTEND / EXTEND_BY_PLANE / END_TRIM_TO_BODY), 3 reinforcement ops (END_CAP / GUSSET / FILLET_WELD_BEAD), 2 weld authoring ops (WELD_BEAD / SPOT_WELD), 2 cut/multi-body management ops (CUT_LIST_GENERATE / WELDMENT_BODY_RENAME), and 3 custom profile / cut-list refinement ops (CUSTOM_PROFILE_DEFINE / WELDMENT_BODY_PROPERTY / CUT_LIST_SUMMARY). 15 operations / 122 parameters total. Bindings target IFeatureManager.InsertWeldment / InsertWeldmentMember / InsertTrimExtend / InsertEndCap / InsertWeldmentGusset / InsertWeldBead / InsertSpotWeld / GenerateCutList — the canonical SolidWorks 2024 weldment authoring API.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-07",
+    "source": "SolidWorks 2024 API Help — Weldments; SolidWorks API Reference — IFeatureManager (weldment methods); SolidWorks 2024 Weldments toolbar / Insert > Weldments menu; AISC Steel Construction Manual (structural shapes); AWS A2.4 (weld symbols); ISO 657 (steel sections)",
+    "totalParameters": 104,
+    "operationCount": 15,
+    "cad_concepts_used": [
+      "MULTI_BODY_PART_TOPOLOGY",
+      "STRUCTURAL_PROFILE_LIBRARY",
+      "CORNER_TREATMENT_TRIMMED_BUTT_LAPPED",
+      "MEMBER_PATH_SEGMENTATION",
+      "WELDMENT_TRIM_TOOL_BODY",
+      "END_CAP_THICKNESS_OFFSET",
+      "GUSSET_TRIANGLE_POLYGON_MODE",
+      "WELD_BEAD_FILLET_GROOVE_PLUG",
+      "SPOT_WELD_RESISTANCE_NUGGET",
+      "CUT_LIST_AUTOMATION_QUANTITY",
+      "WELDMENT_BODY_CUSTOM_PROPERTIES",
+      "AWS_A24_WELD_SYMBOL_BINDING",
+      "AISC_STEEL_PROFILE_TAXONOMY"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks weldment operations",
+    "tabs": ["Selections", "Profile", "Corner Treatment", "Cut List", "Symbol"]
+  },
+  "operations": {
+    "WELDMENT": {
+      "description": "Weldment marker feature — promotes a part to a weldment (multi-body part with cut list automation). Adds the Cut-List-Item folder to the FeatureManager. First weldment feature in a part is typically auto-inserted by STRUCTURAL_MEMBER, but can be explicitly inserted to mark a multi-body part as a weldment without yet adding members.",
+      "category": "Weldment_Foundation",
+      "solidworks_command": "Insert > Weldments > Weldment",
+      "solidworks_api": "IFeatureManager.InsertWeldment",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Apply To Active Configuration Only", "type": "checkbox", "default": false},
+            {"name": "Auto-Generate Cut List", "type": "checkbox", "description": "Auto-create Cut-List-Item folder", "default": true},
+            {"name": "Update Custom Properties", "type": "checkbox", "description": "Refresh body custom properties on rebuild", "default": true},
+            {"name": "Use Material Definition", "type": "string", "description": "Optional default material name applied to all bodies"}
+          ]
+        }
+      }
+    },
+    "STRUCTURAL_MEMBER": {
+      "description": "Add a structural member by sweeping a profile from a library along sketch segments. Profile Library Path resolves to a SolidWorks profile catalog (e.g. ANSI inch / ANSI metric / ISO / DIN / JIS / Australian / Indian standards). Corner Treatment controls how adjacent members meet (trimmed_butt / coped / lapped). Per-segment Rotation Angle rotates the profile about the path; Mirror Profile flips the cross-section.",
+      "category": "Weldment_Member",
+      "solidworks_command": "Insert > Weldments > Structural Member",
+      "solidworks_api": "IFeatureManager.InsertWeldmentMember",
+      "parameterCount": 12,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Path Segments", "type": "selection", "description": "Comma-separated list of sketch segments (lines / arcs)", "required": true},
+            {"name": "Corner Treatment", "type": "dropdown", "options": ["trimmed_butt", "coped", "lapped"], "required": true, "default": "trimmed_butt"},
+            {"name": "Allow Cosmetic Welds", "type": "checkbox", "description": "Auto-add cosmetic weld beads at member intersections", "default": false}
+          ]
+        },
+        "Profile": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["ANSI_inch", "ANSI_metric", "ISO", "DIN", "JIS", "AS_AU", "IS_IN", "GB_CN", "Custom"], "required": true, "default": "ANSI_inch"},
+            {"name": "Profile Type", "type": "dropdown", "options": ["square_tube", "rectangular_tube", "round_tube", "c_channel", "angle", "i_beam", "wide_flange", "s_beam", "t_section", "z_section", "pipe", "custom"], "required": true, "default": "square_tube"},
+            {"name": "Size Designation", "type": "string", "description": "Catalog size string (e.g. '2x2x0.125', 'W8x21', 'C6x8.2')", "required": true},
+            {"name": "Custom Profile Path", "type": "string", "description": "Required when Profile Type = custom (path to .sldlfp profile file)"},
+            {"name": "Locate Profile", "type": "selection", "description": "Vertex on profile sketch used as the path-attachment point"},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -360, "max": 360},
+            {"name": "Mirror Profile", "type": "checkbox", "default": false}
+          ]
+        },
+        "Corner Treatment": {
+          "parameters": [
+            {"name": "Gap Between Members", "type": "numeric", "unit": "mm", "description": "Per-corner gap distance for trimmed_butt", "default": 0, "min": 0},
+            {"name": "Cope Allowance", "type": "numeric", "unit": "mm", "description": "Material allowance left at coped joint", "default": 0, "min": 0}
+          ]
+        }
+      }
+    },
+    "TRIM_EXTEND": {
+      "description": "Trim or extend a weldment body to a planar / face / body boundary. Action selects trim (remove material past boundary) vs extend (add material to reach boundary). Allow Extension is required when boundary is on the far side of the body's existing extent.",
+      "category": "Weldment_TrimExtend",
+      "solidworks_command": "Insert > Weldments > Trim/Extend",
+      "solidworks_api": "IFeatureManager.InsertTrimExtend",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bodies To Trim", "type": "string", "description": "Comma-separated list of weldment body names", "required": true},
+            {"name": "Trim Boundary Type", "type": "dropdown", "options": ["face_plane", "bodies"], "required": true, "default": "face_plane"},
+            {"name": "Trim Boundary Selection", "type": "selection", "description": "Face / plane (face_plane) or body list (bodies)", "required": true},
+            {"name": "Action", "type": "dropdown", "options": ["trim", "extend", "both"], "required": true, "default": "trim"},
+            {"name": "Allow Extension", "type": "checkbox", "default": true},
+            {"name": "Weld Gap", "type": "numeric", "unit": "mm", "description": "Optional gap to leave for weld fillet", "default": 0, "min": 0},
+            {"name": "Trim Direction", "type": "dropdown", "options": ["natural", "specified"], "default": "natural"}
+          ]
+        }
+      }
+    },
+    "EXTEND_BY_PLANE": {
+      "description": "Extend a weldment body to a reference plane without trimming the existing material. Used to add stub extensions to existing members for downstream cut/trim operations.",
+      "category": "Weldment_TrimExtend",
+      "solidworks_command": "Insert > Weldments > Extend by Plane",
+      "solidworks_api": "IFeatureManager.InsertExtendByPlane",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Body To Extend", "type": "string", "required": true},
+            {"name": "Reference Plane", "type": "selection", "required": true},
+            {"name": "End To Extend", "type": "dropdown", "options": ["positive_normal", "negative_normal", "both_directions"], "required": true, "default": "positive_normal"},
+            {"name": "Extend Past Plane", "type": "numeric", "unit": "mm", "description": "Optional overshoot distance past plane", "default": 0, "min": 0},
+            {"name": "Maintain Profile Orientation", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "END_TRIM_TO_BODY": {
+      "description": "Trim a weldment body's end against another body (e.g. a structural member ending at a perpendicular member). Coping Type selects how the trim shape conforms (face_to_face / weld_gap / nominal_butt).",
+      "category": "Weldment_TrimExtend",
+      "solidworks_command": "Insert > Weldments > End Trim to Body",
+      "solidworks_api": "IFeatureManager.InsertEndTrimToBody",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Body To Trim", "type": "string", "required": true},
+            {"name": "Reference Body", "type": "string", "required": true},
+            {"name": "Trim End", "type": "dropdown", "options": ["start", "end", "both"], "required": true, "default": "end"},
+            {"name": "Coping Type", "type": "dropdown", "options": ["face_to_face", "weld_gap", "nominal_butt"], "default": "face_to_face"},
+            {"name": "Weld Gap Distance", "type": "numeric", "unit": "mm", "default": 0, "min": 0}
+          ]
+        }
+      }
+    },
+    "END_CAP": {
+      "description": "Add a flat end cap to a hollow structural member (typically a tube or pipe). Thickness Direction selects inward (cap extends into tube) / outward (cap extends out from tube end) / centered (cap straddles the end face).",
+      "category": "Weldment_Reinforcement",
+      "solidworks_command": "Insert > Weldments > End Cap",
+      "solidworks_api": "IFeatureManager.InsertEndCap",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "End Faces", "type": "string", "description": "Comma-separated list of tube end faces", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "default": 3, "min": 0.001},
+            {"name": "Thickness Direction", "type": "dropdown", "options": ["inward", "outward", "centered"], "required": true, "default": "inward"},
+            {"name": "Offset From End", "type": "numeric", "unit": "mm", "description": "Recess cap from end face (Thickness Direction = inward only)", "default": 0, "min": 0},
+            {"name": "Use Tube Outer Wall Thickness", "type": "checkbox", "description": "Default cap thickness to host tube wall", "default": false},
+            {"name": "Add Chamfer", "type": "checkbox", "default": false},
+            {"name": "Chamfer Distance", "type": "numeric", "unit": "mm", "description": "Required when Add Chamfer = true", "default": 1, "min": 0.001},
+            {"name": "Chamfer Angle", "type": "numeric", "unit": "deg", "default": 45, "min": 0.001, "max": 89}
+          ]
+        }
+      }
+    },
+    "GUSSET": {
+      "description": "Triangular or polygonal weldment gusset between two structural members. Profile Type selects triangular (3-vertex) vs polygonal (4+ vertices). Distance 1 / Distance 2 control the gusset leg lengths along each member.",
+      "category": "Weldment_Reinforcement",
+      "solidworks_command": "Insert > Weldments > Gusset",
+      "solidworks_api": "IFeatureManager.InsertWeldmentGusset",
+      "parameterCount": 9,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Reference Face A", "type": "selection", "description": "Face on first member", "required": true},
+            {"name": "Reference Face B", "type": "selection", "description": "Face on second (perpendicular / angled) member", "required": true},
+            {"name": "Profile Type", "type": "dropdown", "options": ["triangular", "polygonal"], "required": true, "default": "triangular"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "required": true, "default": 25, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "required": true, "default": 25, "min": 0.001},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "default": 6, "min": 0.001},
+            {"name": "Thickness Side", "type": "dropdown", "options": ["both", "side_a", "side_b"], "default": "both"},
+            {"name": "Number of Gussets", "type": "numeric", "default": 1, "min": 1, "max": 99},
+            {"name": "Center Offset", "type": "numeric", "unit": "mm", "description": "Offset from corner intersection", "default": 0, "min": 0}
+          ]
+        }
+      }
+    },
+    "FILLET_WELD_BEAD": {
+      "description": "Cosmetic fillet weld bead — represents a fillet weld in CAD without adding actual material to the model. Bead Size sets the fillet leg length per AWS A2.4. Tack Weld Length / Pitch govern intermittent welds.",
+      "category": "Weldment_Reinforcement",
+      "solidworks_command": "Insert > Weldments > Fillet Bead",
+      "solidworks_api": "IFeatureManager.InsertFilletBead",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Face Set 1", "type": "string", "description": "Comma-separated list of faces on first body", "required": true},
+            {"name": "Face Set 2", "type": "string", "description": "Comma-separated list of faces on second body", "required": true},
+            {"name": "Bead Size", "type": "numeric", "unit": "mm", "required": true, "default": 5, "min": 0.001},
+            {"name": "Bead Type", "type": "dropdown", "options": ["full_length", "intermittent", "staggered_intermittent"], "required": true, "default": "full_length"},
+            {"name": "Tack Length", "type": "numeric", "unit": "mm", "description": "Required for intermittent / staggered_intermittent", "default": 25, "min": 0.001},
+            {"name": "Pitch", "type": "numeric", "unit": "mm", "description": "Center-to-center spacing for intermittent welds", "default": 100, "min": 0.001},
+            {"name": "All-Around", "type": "checkbox", "default": false},
+            {"name": "Field Weld", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "WELD_BEAD": {
+      "description": "Material-bearing weld bead (groove / fillet / plug / stud / spot per AWS A2.4) that adds visible material to the model and contributes to mass/COG. Distinct from FILLET_WELD_BEAD which is cosmetic-only.",
+      "category": "Weldment_Weld",
+      "solidworks_command": "Insert > Weldments > Weld Bead",
+      "solidworks_api": "IFeatureManager.InsertWeldBead",
+      "parameterCount": 9,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Joint Edges", "type": "string", "description": "Comma-separated list of edges defining the joint", "required": true},
+            {"name": "Weld Type", "type": "dropdown", "options": ["fillet", "groove_v", "groove_bevel", "groove_u", "groove_j", "plug", "spot", "stud", "back"], "required": true, "default": "fillet"},
+            {"name": "Material", "type": "string", "description": "Filler material spec (e.g. 'E70S-6', 'ER70S-2')", "required": true},
+            {"name": "Bead Size", "type": "numeric", "unit": "mm", "required": true, "default": 5, "min": 0.001},
+            {"name": "Other Side Size", "type": "numeric", "unit": "mm", "description": "0 = no other-side weld", "default": 0, "min": 0},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "0 = continuous along joint edges", "default": 0, "min": 0},
+            {"name": "Show in Cut List", "type": "checkbox", "default": true},
+            {"name": "Mass Contribution", "type": "checkbox", "description": "Include weld mass in part mass properties", "default": true},
+            {"name": "Process Reference", "type": "string", "description": "Optional AWS process code (e.g. 'GMAW', 'SMAW', 'GTAW', 'FCAW')"}
+          ]
+        }
+      }
+    },
+    "SPOT_WELD": {
+      "description": "Spot weld point feature — discrete resistance / projection welds typical in sheet metal weldments. Diameter sets the weld nugget diameter. Pattern Type drives spacing (single / linear / rectangular / circular grid).",
+      "category": "Weldment_Weld",
+      "solidworks_command": "Insert > Weldments > Spot Weld",
+      "solidworks_api": "IFeatureManager.InsertSpotWeld",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Weld Locations", "type": "string", "description": "Comma-separated list of point selections or sketch points", "required": true},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "required": true, "default": 6, "min": 0.001},
+            {"name": "Pattern Type", "type": "dropdown", "options": ["single", "linear", "rectangular", "circular"], "default": "single"},
+            {"name": "Pattern Pitch", "type": "numeric", "unit": "mm", "description": "Spacing between welds in pattern", "default": 25, "min": 0.001},
+            {"name": "Number of Welds", "type": "numeric", "default": 1, "min": 1, "max": 999},
+            {"name": "Process Reference", "type": "string", "description": "Optional AWS process code (e.g. 'RSW', 'PRW')", "default": "RSW"},
+            {"name": "Show in Cut List", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "CUT_LIST_GENERATE": {
+      "description": "Generate or update the Cut-List-Item folder — auto-groups identical bodies (same profile, same length within tolerance) and assigns quantity counts. Length Tolerance controls grouping — bodies within tolerance are treated as identical.",
+      "category": "Weldment_CutList",
+      "solidworks_command": "Update Cut List (right-click Cut List folder)",
+      "solidworks_api": "IFeatureManager.UpdateCutList",
+      "parameterCount": 7,
+      "tabs": {
+        "Cut List": {
+          "parameters": [
+            {"name": "Length Tolerance", "type": "numeric", "unit": "mm", "description": "Length difference at which 2 bodies are still considered the same item", "default": 0.5, "min": 0},
+            {"name": "Group By Material", "type": "checkbox", "description": "Separate same-profile bodies of different materials", "default": true},
+            {"name": "Group By Profile", "type": "checkbox", "default": true},
+            {"name": "Group By Custom Property", "type": "string", "description": "Optional custom property name to add to grouping key"},
+            {"name": "Sort By", "type": "dropdown", "options": ["item_number", "length", "quantity", "description", "material"], "default": "item_number"},
+            {"name": "Include Hidden Bodies", "type": "checkbox", "default": false},
+            {"name": "Auto-Update On Rebuild", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "WELDMENT_BODY_RENAME": {
+      "description": "Rename or reorder weldment bodies in the FeatureManager. Used to enforce shop-floor naming conventions (e.g. tag bodies by drawing item number) and stabilize cut-list ordering across rebuilds.",
+      "category": "Weldment_CutList",
+      "solidworks_command": "Rename Body (right-click)",
+      "solidworks_api": "IBody2.Name (set)",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Body Name", "type": "string", "required": true},
+            {"name": "New Name", "type": "string", "required": true},
+            {"name": "Move To Folder", "type": "string", "description": "Optional Cut-List-Item folder name"},
+            {"name": "Reorder Position", "type": "numeric", "description": "Position in folder (-1 = last)", "default": -1, "min": -1, "max": 999},
+            {"name": "Sync Custom Properties", "type": "checkbox", "description": "Update body's custom property name reference", "default": true}
+          ]
+        }
+      }
+    },
+    "WELDMENT_BODY_PROPERTY": {
+      "description": "Set custom properties on a weldment body (used for cut list column population). Standard properties include Description / Material / Quantity / Length / Item Number — but any custom property can be applied per body.",
+      "category": "Weldment_CutList",
+      "solidworks_command": "Properties (right-click Body)",
+      "solidworks_api": "IModelDocExtension.CustomPropertyManager.Add3 (per body)",
+      "parameterCount": 5,
+      "tabs": {
+        "Cut List": {
+          "parameters": [
+            {"name": "Body Name", "type": "string", "required": true},
+            {"name": "Property Name", "type": "string", "required": true},
+            {"name": "Property Value", "type": "string", "required": true},
+            {"name": "Property Type", "type": "dropdown", "options": ["text", "number", "date", "yes_no"], "default": "text"},
+            {"name": "Apply To All Configurations", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CUT_LIST_SUMMARY": {
+      "description": "Generate a summary report of the cut list (bodies / quantities / lengths / total weights / total cost). Output Format selects table layout for downstream BOM / drawing / inspection consumption.",
+      "category": "Weldment_CutList",
+      "solidworks_command": "Cut List > Summary",
+      "solidworks_api": "IFeatureManager.GenerateCutListSummary",
+      "parameterCount": 6,
+      "tabs": {
+        "Cut List": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["table", "csv", "xml", "drawing_annotation"], "required": true, "default": "table"},
+            {"name": "Output Path", "type": "string", "description": "Required for csv / xml output"},
+            {"name": "Include Mass", "type": "checkbox", "default": true},
+            {"name": "Include Cost", "type": "checkbox", "description": "Compute cost from material density x volume x material-cost custom property", "default": false},
+            {"name": "Cost Per Unit Mass Property", "type": "string", "description": "Body custom property name for cost per kg"},
+            {"name": "Total Cost Currency", "type": "string", "description": "Currency code (e.g. 'USD', 'EUR', 'GBP')", "default": "USD"}
+          ]
+        }
+      }
+    },
+    "CUSTOM_PROFILE_DEFINE": {
+      "description": "Define a custom weldment profile (.sldlfp library part). Used when shop-floor uses non-standard structural shapes not in the built-in catalog. Profile sketch must be a single closed contour for tube/solid sections, or include inner contours for hollow sections.",
+      "category": "Weldment_Profile",
+      "solidworks_command": "File > Save As Profile",
+      "solidworks_api": "IModelDoc2.SaveAsLibraryFeature (with weldment profile flag)",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "description": "Single closed sketch (or sketch with inner contours for hollow sections)", "required": true},
+            {"name": "Locate Point", "type": "selection", "description": "Vertex defining path-attachment origin", "required": true},
+            {"name": "Output Path", "type": "string", "description": "Path to save .sldlfp library profile file", "required": true},
+            {"name": "Standard Library", "type": "string", "description": "Standard name for catalog grouping (e.g. 'shop_custom', 'project_xyz')", "default": "Custom"},
+            {"name": "Profile Type Category", "type": "dropdown", "options": ["square_tube", "rectangular_tube", "round_tube", "c_channel", "angle", "i_beam", "wide_flange", "s_beam", "t_section", "z_section", "pipe", "custom"], "required": true, "default": "custom"},
+            {"name": "Size Designation", "type": "string", "description": "Size string under the profile category (e.g. '50x50x3')", "required": true},
+            {"name": "Mass Per Unit Length Override", "type": "numeric", "unit": "kg/m", "description": "Optional override of computed mass per unit length", "default": 0, "min": 0}
+          ]
+        }
+      }
+    }
+  }
+}

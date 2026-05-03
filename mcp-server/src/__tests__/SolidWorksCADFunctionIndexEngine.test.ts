@@ -204,9 +204,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       ]);
     });
 
-    it("listAllOperations returns 144 ops total (sketch + part + surface + assembly + drawing + sheet_metal shipped through U-06)", () => {
+    it("listAllOperations returns 159 ops total (7 modules shipped through U-07: sketch+part+surface+assembly+drawing+sheet_metal+weldment)", () => {
       const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
-      expect(all).toHaveLength(144);
+      expect(all).toHaveLength(159);
     });
 
     it("listOperations('part_operations') returns 30 (shipped in U-02)", () => {
@@ -237,8 +237,14 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       );
     });
 
-    it("listOperations('weldment_operations') returns 0 — module pending — failure mode", () => {
+    it("listOperations('weldment_operations') returns 15 (shipped in U-07)", () => {
       expect(SolidWorksCADFunctionIndexEngine.listOperations("weldment_operations")).toHaveLength(
+        15,
+      );
+    });
+
+    it("listOperations('evaluation_operations') returns 0 — final pending module — failure mode", () => {
+      expect(SolidWorksCADFunctionIndexEngine.listOperations("evaluation_operations")).toHaveLength(
         0,
       );
     });
@@ -443,8 +449,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(empty).toHaveLength(0);
     });
 
-    it("getTotalParameterCount equals 957 (132 sketch + 190 part + 150 surface + 172 assembly + 165 drawing + 148 sheet_metal)", () => {
-      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(957);
+    it("getTotalParameterCount equals 1061 (132+190+150+172+165+148+104 across 7 shipped modules)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(1061);
     });
 
     it("declared estimated_parameter_total matches actual count (no drift)", () => {
@@ -452,12 +458,12 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
       const actual = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
       expect(declared).toBe(actual);
-      expect(declared).toBe(957);
+      expect(declared).toBe(1061);
     });
   });
 
   describe("coverage_summary + platform_integration — phase 1 progress", () => {
-    it("coverage_state is IN_PROGRESS with 2 modules pending and the right pending list", () => {
+    it("coverage_state is IN_PROGRESS with 1 module pending (only evaluation_operations remains)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
         coverage_state?: string;
         phase_1_target_modules_remaining?: number;
@@ -466,16 +472,13 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         inventor_parity?: boolean;
       };
       expect(api.coverage_state).toBe("IN_PROGRESS");
-      expect(api.phase_1_target_modules_remaining).toBe(2);
-      expect(api.phase_1_modules_pending).toEqual([
-        "weldment_operations",
-        "evaluation_operations",
-      ]);
+      expect(api.phase_1_target_modules_remaining).toBe(1);
+      expect(api.phase_1_modules_pending).toEqual(["evaluation_operations"]);
       expect(api.solidworks_cad_8_of_8).toBe(false);
       expect(api.inventor_parity).toBe(false);
     });
 
-    it("platform_integration has 6 authoring layers enabled through U-06 (sketch + part + surface + assembly + drawing + sheet_metal)", () => {
+    it("platform_integration has 7 authoring layers enabled through U-07 (sketch + part + surface + assembly + drawing + sheet_metal + weldment)", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration ?? {};
       expect(pi.sketch_layer).toBe(true);
       expect(pi.part_layer).toBe(true);
@@ -483,7 +486,7 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(pi.assembly_layer).toBe(true);
       expect(pi.drawing_layer).toBe(true);
       expect(pi.sheet_metal_layer).toBe(true);
-      expect(pi.weldment_layer).toBe(false);
+      expect(pi.weldment_layer).toBe(true);
       expect(pi.evaluation_layer).toBe(false);
     });
 
@@ -495,9 +498,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_2024_compatible?: boolean;
         solidworks_2025_compatible?: boolean;
       };
-      expect(api.sw_api_com_items).toBe(144);
-      expect(api.vba_macro_items).toBe(144);
-      expect(api.vsta_addin_items).toBe(144);
+      expect(api.sw_api_com_items).toBe(159);
+      expect(api.vba_macro_items).toBe(159);
+      expect(api.vsta_addin_items).toBe(159);
       expect(api.solidworks_2024_compatible).toBe(true);
       expect(api.solidworks_2025_compatible).toBe(true);
     });
@@ -794,8 +797,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
     });
   });
 
-  describe("part_operations — coverage rollup into the index (post-U-06)", () => {
-    it("coverage_summary.total_units_covered now lists U-01 through U-06", () => {
+  describe("part_operations — coverage rollup into the index (post-U-07)", () => {
+    it("coverage_summary.total_units_covered now lists U-01 through U-07", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
       expect(cs.total_units_covered).toEqual([
         "U-CAD-FIDX-SW-01",
@@ -804,52 +807,48 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         "U-CAD-FIDX-SW-04",
         "U-CAD-FIDX-SW-05",
         "U-CAD-FIDX-SW-06",
+        "U-CAD-FIDX-SW-07",
       ]);
     });
 
-    it("coverage_summary.estimated_parameter_total is 957 (132+190+150+172+165+148 across 6 modules)", () => {
+    it("coverage_summary.estimated_parameter_total is 1061 (132+190+150+172+165+148+104 across 7 modules)", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
-      expect(cs.estimated_parameter_total).toBe(957);
+      expect(cs.estimated_parameter_total).toBe(1061);
     });
 
-    it("api_surface counts climb to 144 (22+30+20+26+24+22 ops across 6 modules)", () => {
+    it("api_surface counts climb to 159 (22+30+20+26+24+22+15 ops across 7 modules)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.sw_api_com_items).toBe(144);
-      expect(api.vba_macro_items).toBe(144);
-      expect(api.vsta_addin_items).toBe(144);
+      expect(api.sw_api_com_items).toBe(159);
+      expect(api.vba_macro_items).toBe(159);
+      expect(api.vsta_addin_items).toBe(159);
     });
 
-    it("phase_1_target_modules_remaining drops from 3 to 2", () => {
+    it("phase_1_target_modules_remaining drops from 2 to 1 — only evaluation_operations remains", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_target_modules_remaining).toBe(2);
+      expect(api.phase_1_target_modules_remaining).toBe(1);
     });
 
-    it("phase_1_modules_pending now has only weldment_operations and evaluation_operations", () => {
+    it("phase_1_modules_pending contains only evaluation_operations", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_modules_pending).not.toContain("part_operations");
-      expect(api.phase_1_modules_pending).not.toContain("surface_operations");
-      expect(api.phase_1_modules_pending).not.toContain("assembly_operations");
-      expect(api.phase_1_modules_pending).not.toContain("drawing_operations");
-      expect(api.phase_1_modules_pending).not.toContain("sheet_metal_operations");
-      expect(api.phase_1_modules_pending).toEqual([
-        "weldment_operations",
-        "evaluation_operations",
-      ]);
-      expect(api.phase_1_modules_pending).toHaveLength(2);
+      expect(api.phase_1_modules_pending).not.toContain("weldment_operations");
+      expect(api.phase_1_modules_pending).toEqual(["evaluation_operations"]);
+      expect(api.phase_1_modules_pending).toHaveLength(1);
     });
 
-    it("platform_integration.part / surface / assembly / drawing / sheet_metal layers are now true", () => {
+    it("platform_integration has 7 of 8 layers true (only evaluation_layer remains false)", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration;
       expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(true);
       expect(pi.drawing_layer).toBe(true);
       expect(pi.sheet_metal_layer).toBe(true);
+      expect(pi.weldment_layer).toBe(true);
+      expect(pi.evaluation_layer).toBe(false);
     });
 
-    it("getTotalParameterCount() returns 957 across all 6 shipped modules", () => {
+    it("getTotalParameterCount() returns 1061 across all 7 shipped modules", () => {
       const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(957);
+      expect(total).toBe(1061);
     });
   });
 
@@ -3421,6 +3420,537 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       const param = loc!.parameter as { min?: number; max?: number };
       expect(param.min).toBe(0);
       expect(param.max).toBe(1);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-07 — weldment_operations module
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const KNOWN_WELDMENT_OPS_15 = [
+    "WELDMENT",
+    "STRUCTURAL_MEMBER",
+    "TRIM_EXTEND",
+    "EXTEND_BY_PLANE",
+    "END_TRIM_TO_BODY",
+    "END_CAP",
+    "GUSSET",
+    "FILLET_WELD_BEAD",
+    "WELD_BEAD",
+    "SPOT_WELD",
+    "CUT_LIST_GENERATE",
+    "WELDMENT_BODY_RENAME",
+    "WELDMENT_BODY_PROPERTY",
+    "CUT_LIST_SUMMARY",
+    "CUSTOM_PROFILE_DEFINE",
+  ];
+
+  describe("weldment_operations — module catalog (U-CAD-FIDX-SW-07)", () => {
+    it("loads the weldment_operations catalog and reports schemaVersion '1.0.0'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("weldment_operations");
+      expect(cat).not.toBeNull();
+      expect(cat!.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.totalParameters is exactly 104 (matches index declaration)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("weldment_operations");
+      expect(cat!.metadata.totalParameters).toBe(104);
+    });
+
+    it("metadata.operationCount is exactly 15", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("weldment_operations");
+      expect(cat!.metadata.operationCount).toBe(15);
+    });
+
+    it("metadata.milestone is 'U-CAD-FIDX-SW-07'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("weldment_operations");
+      expect(cat!.metadata.milestone).toBe("U-CAD-FIDX-SW-07");
+    });
+
+    it("listOperations contains every expected weldment op id", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("weldment_operations");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([...KNOWN_WELDMENT_OPS_15].sort());
+    });
+
+    it("module_entry.parameter_count_estimate is 104", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("weldment_operations");
+      expect(entry!.parameter_count_estimate).toBe(104);
+    });
+
+    it("module_entry.dependencies is exactly ['part_operations']", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("weldment_operations");
+      expect(entry!.dependencies).toEqual(["part_operations"]);
+    });
+
+    it("sum of per-tab parameter arrays equals 104 (no count drift)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("weldment_operations");
+      let total = 0;
+      for (const opId of Object.keys(cat!.operations)) {
+        const op = (cat!.operations as Record<string, { tabs?: Record<string, { parameters?: unknown[] }> }>)[opId];
+        for (const tabName of Object.keys(op.tabs ?? {})) {
+          total += (op.tabs![tabName].parameters ?? []).length;
+        }
+      }
+      expect(total).toBe(104);
+    });
+  });
+
+  describe("weldment_operations — STRUCTURAL_MEMBER (profile library + corner treatment)", () => {
+    it("STRUCTURAL_MEMBER binds to IFeatureManager.InsertWeldmentMember", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+      );
+      expect(op!.solidworks_command).toBe("Insert > Weldments > Structural Member");
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertWeldmentMember");
+      expect(op!.category).toBe("Weldment_Member");
+    });
+
+    it("STRUCTURAL_MEMBER Standard enumerates all 9 international structural-shape standards", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+        "Standard",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "ANSI_inch", "ANSI_metric", "ISO", "DIN", "JIS",
+        "AS_AU", "IS_IN", "GB_CN", "Custom",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("STRUCTURAL_MEMBER Profile Type enumerates all 12 standard structural cross-sections", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+        "Profile Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "square_tube", "rectangular_tube", "round_tube",
+        "c_channel", "angle", "i_beam", "wide_flange",
+        "s_beam", "t_section", "z_section", "pipe", "custom",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("STRUCTURAL_MEMBER Corner Treatment requires trimmed_butt / coped / lapped", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+        "Corner Treatment",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["trimmed_butt", "coped", "lapped"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("trimmed_butt");
+    });
+
+    it("STRUCTURAL_MEMBER has 3 parameter tabs (Selections + Profile + Corner Treatment) summing 12 params", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+      );
+      expect(Object.keys(op!.tabs ?? {})).toEqual(["Selections", "Profile", "Corner Treatment"]);
+      let sum = 0;
+      for (const tab of Object.values(op!.tabs ?? {})) {
+        sum += (tab.parameters ?? []).length;
+      }
+      expect(sum).toBe(12);
+      expect(op!.parameterCount).toBe(12);
+    });
+
+    it("STRUCTURAL_MEMBER Rotation Angle is bounded (-360, +360) deg with default 0", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+        "Rotation Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string };
+      expect(param.min).toBe(-360);
+      expect(param.max).toBe(360);
+      expect(param.default).toBe(0);
+      expect(param.unit).toBe("deg");
+    });
+  });
+
+  describe("weldment_operations — trim/extend ops (TRIM_EXTEND / EXTEND_BY_PLANE / END_TRIM_TO_BODY)", () => {
+    it("TRIM_EXTEND Trim Boundary Type covers face_plane vs bodies", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "TRIM_EXTEND",
+        "Trim Boundary Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["face_plane", "bodies"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("TRIM_EXTEND Action covers trim / extend / both", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "TRIM_EXTEND",
+        "Action",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["trim", "extend", "both"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("EXTEND_BY_PLANE End To Extend covers positive / negative / both directions", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "EXTEND_BY_PLANE",
+        "End To Extend",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["positive_normal", "negative_normal", "both_directions"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("END_TRIM_TO_BODY Coping Type covers face_to_face / weld_gap / nominal_butt", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "END_TRIM_TO_BODY",
+        "Coping Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["face_to_face", "weld_gap", "nominal_butt"]);
+    });
+
+    it("getOperationsByCategory('Weldment_TrimExtend') returns the 3 trim/extend ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Weldment_TrimExtend");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["END_TRIM_TO_BODY", "EXTEND_BY_PLANE", "TRIM_EXTEND"]);
+    });
+  });
+
+  describe("weldment_operations — reinforcement ops (END_CAP / GUSSET / FILLET_WELD_BEAD)", () => {
+    it("END_CAP Thickness Direction requires inward / outward / centered", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "END_CAP",
+        "Thickness Direction",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["inward", "outward", "centered"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("END_CAP Chamfer Angle is bounded (0.001, 89) deg with default 45", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "END_CAP",
+        "Chamfer Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string };
+      expect(param.min).toBe(0.001);
+      expect(param.max).toBe(89);
+      expect(param.default).toBe(45);
+      expect(param.unit).toBe("deg");
+    });
+
+    it("GUSSET Profile Type requires triangular vs polygonal", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "GUSSET",
+        "Profile Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["triangular", "polygonal"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("GUSSET Thickness Side covers both / side_a / side_b application", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "GUSSET",
+        "Thickness Side",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["both", "side_a", "side_b"]);
+    });
+
+    it("FILLET_WELD_BEAD Bead Type requires full_length / intermittent / staggered_intermittent", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "FILLET_WELD_BEAD",
+        "Bead Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["full_length", "intermittent", "staggered_intermittent"]);
+      expect(param.required).toBe(true);
+    });
+  });
+
+  describe("weldment_operations — material weld ops (WELD_BEAD with 9 AWS types / SPOT_WELD)", () => {
+    it("WELD_BEAD Weld Type enumerates all 9 AWS A2.4 standard weld types", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "WELD_BEAD",
+        "Weld Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "fillet", "groove_v", "groove_bevel", "groove_u", "groove_j",
+        "plug", "spot", "stud", "back",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("WELD_BEAD Mass Contribution defaults true (real material adds to part mass)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "WELD_BEAD",
+        "Mass Contribution",
+      );
+      const param = loc!.parameter as { type?: string; default?: boolean };
+      expect(param.type).toBe("checkbox");
+      expect(param.default).toBe(true);
+    });
+
+    it("SPOT_WELD Pattern Type covers single / linear / rectangular / circular grids", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "SPOT_WELD",
+        "Pattern Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["single", "linear", "rectangular", "circular"]);
+    });
+
+    it("SPOT_WELD defaults to RSW process (resistance spot welding — most common)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "SPOT_WELD",
+        "Process Reference",
+      );
+      const param = loc!.parameter as { default?: string };
+      expect(param.default).toBe("RSW");
+    });
+
+    it("getOperationsByCategory('Weldment_Weld') returns exactly WELD_BEAD + SPOT_WELD", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Weldment_Weld");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["SPOT_WELD", "WELD_BEAD"]);
+    });
+  });
+
+  describe("weldment_operations — cut list + body management (CUT_LIST_GENERATE / WELDMENT_BODY_PROPERTY / CUT_LIST_SUMMARY)", () => {
+    it("CUT_LIST_GENERATE Sort By covers item_number / length / quantity / description / material", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "CUT_LIST_GENERATE",
+        "Sort By",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual([
+        "item_number", "length", "quantity", "description", "material",
+      ]);
+      expect(param.default).toBe("item_number");
+    });
+
+    it("CUT_LIST_GENERATE Length Tolerance defaults 0.5 mm (mid-precision grouping default)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "CUT_LIST_GENERATE",
+        "Length Tolerance",
+      );
+      const param = loc!.parameter as { default?: number; min?: number; unit?: string };
+      expect(param.default).toBe(0.5);
+      expect(param.min).toBe(0);
+      expect(param.unit).toBe("mm");
+    });
+
+    it("WELDMENT_BODY_PROPERTY Property Type covers text / number / date / yes_no", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "WELDMENT_BODY_PROPERTY",
+        "Property Type",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["text", "number", "date", "yes_no"]);
+    });
+
+    it("CUT_LIST_SUMMARY Output Format covers table / csv / xml / drawing_annotation", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "CUT_LIST_SUMMARY",
+        "Output Format",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["table", "csv", "xml", "drawing_annotation"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("CUSTOM_PROFILE_DEFINE Profile Type Category mirrors STRUCTURAL_MEMBER's 12 profile types", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "CUSTOM_PROFILE_DEFINE",
+        "Profile Type Category",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "square_tube", "rectangular_tube", "round_tube",
+        "c_channel", "angle", "i_beam", "wide_flange",
+        "s_beam", "t_section", "z_section", "pipe", "custom",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("getOperationsByCategory('Weldment_CutList') returns the 4 cut-list management ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Weldment_CutList");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "CUT_LIST_GENERATE",
+        "CUT_LIST_SUMMARY",
+        "WELDMENT_BODY_PROPERTY",
+        "WELDMENT_BODY_RENAME",
+      ]);
+    });
+  });
+
+  describe("weldment_operations — concrete contract tables (api / category) for all 15 ops", () => {
+    it("each of the 15 weldment ops binds to its IFeatureManager / IBody2 / IModelDoc2 API method", () => {
+      const apiBindings: Record<string, string> = {
+        WELDMENT: "IFeatureManager.InsertWeldment",
+        STRUCTURAL_MEMBER: "IFeatureManager.InsertWeldmentMember",
+        TRIM_EXTEND: "IFeatureManager.InsertTrimExtend",
+        EXTEND_BY_PLANE: "IFeatureManager.InsertExtendByPlane",
+        END_TRIM_TO_BODY: "IFeatureManager.InsertEndTrimToBody",
+        END_CAP: "IFeatureManager.InsertEndCap",
+        GUSSET: "IFeatureManager.InsertWeldmentGusset",
+        FILLET_WELD_BEAD: "IFeatureManager.InsertFilletBead",
+        WELD_BEAD: "IFeatureManager.InsertWeldBead",
+        SPOT_WELD: "IFeatureManager.InsertSpotWeld",
+        CUT_LIST_GENERATE: "IFeatureManager.UpdateCutList",
+        WELDMENT_BODY_RENAME: "IBody2.Name (set)",
+        WELDMENT_BODY_PROPERTY: "IModelDocExtension.CustomPropertyManager.Add3 (per body)",
+        CUT_LIST_SUMMARY: "IFeatureManager.GenerateCutListSummary",
+        CUSTOM_PROFILE_DEFINE: "IModelDoc2.SaveAsLibraryFeature (with weldment profile flag)",
+      };
+      const expectedKeys = Object.keys(apiBindings).sort();
+      expect(expectedKeys).toEqual([...KNOWN_WELDMENT_OPS_15].sort());
+      for (const [opId, expectedApi] of Object.entries(apiBindings)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("weldment_operations", opId);
+        expect(op).not.toBeNull();
+        expect(op!.solidworks_api).toBe(expectedApi);
+      }
+    });
+
+    it("each of the 15 weldment ops sits in its category bucket", () => {
+      const categories: Record<string, string> = {
+        WELDMENT: "Weldment_Foundation",
+        STRUCTURAL_MEMBER: "Weldment_Member",
+        TRIM_EXTEND: "Weldment_TrimExtend",
+        EXTEND_BY_PLANE: "Weldment_TrimExtend",
+        END_TRIM_TO_BODY: "Weldment_TrimExtend",
+        END_CAP: "Weldment_Reinforcement",
+        GUSSET: "Weldment_Reinforcement",
+        FILLET_WELD_BEAD: "Weldment_Reinforcement",
+        WELD_BEAD: "Weldment_Weld",
+        SPOT_WELD: "Weldment_Weld",
+        CUT_LIST_GENERATE: "Weldment_CutList",
+        WELDMENT_BODY_RENAME: "Weldment_CutList",
+        WELDMENT_BODY_PROPERTY: "Weldment_CutList",
+        CUT_LIST_SUMMARY: "Weldment_CutList",
+        CUSTOM_PROFILE_DEFINE: "Weldment_Profile",
+      };
+      for (const [opId, expectedCategory] of Object.entries(categories)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("weldment_operations", opId);
+        expect(op!.category).toBe(expectedCategory);
+      }
+    });
+  });
+
+  describe("weldment_operations — adversarial inputs (NaN / Infinity / empty / oversize / unicode / boundary)", () => {
+    it("findParameter with empty-string parameter name returns null — adversarial empty", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "weldment_operations",
+          "STRUCTURAL_MEMBER",
+          "",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with 256-char oversize parameter name returns null — adversarial oversize", () => {
+      const oversize = "w".repeat(256);
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "weldment_operations",
+          "STRUCTURAL_MEMBER",
+          oversize,
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with NaN-shaped string returns null — adversarial NaN", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter("weldment_operations", "WELD_BEAD", "NaN"),
+      ).toBeNull();
+    });
+
+    it("findParameter with Infinity-shaped string returns null — adversarial Infinity", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "weldment_operations",
+          "WELD_BEAD",
+          "Infinity",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with unicode parameter name returns null — adversarial unicode", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "weldment_operations",
+          "WELD_BEAD",
+          "🔥⚡️🛠",
+        ),
+      ).toBeNull();
+    });
+
+    it("getOperationsByCategory('Weldment_Nonexistent') returns empty array — failure mode", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Weldment_Nonexistent");
+      expect(ops).toEqual([]);
+    });
+
+    it("END_CAP Thickness must be > 0 (zero-thickness end cap is degenerate)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "END_CAP",
+        "Thickness",
+      );
+      const param = loc!.parameter as { min?: number; default?: number; required?: boolean };
+      expect(param.min).toBe(0.001);
+      expect(param.default).toBe(3);
+      expect(param.required).toBe(true);
+    });
+
+    it("GUSSET Number of Gussets bounded [1, 99] (cannot have 0 gussets in a gusset op)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "GUSSET",
+        "Number of Gussets",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(1);
+      expect(param.max).toBe(99);
+      expect(param.default).toBe(1);
+    });
+
+    it("STRUCTURAL_MEMBER Allow Cosmetic Welds defaults false (prefer explicit weld feature placement)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "weldment_operations",
+        "STRUCTURAL_MEMBER",
+        "Allow Cosmetic Welds",
+      );
+      const param = loc!.parameter as { type?: string; default?: boolean };
+      expect(param.type).toBe("checkbox");
+      expect(param.default).toBe(false);
     });
   });
 });

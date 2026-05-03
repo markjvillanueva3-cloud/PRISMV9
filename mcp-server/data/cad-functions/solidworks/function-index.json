@@ -58,8 +58,8 @@
       "module_id": "weldment_operations",
       "path": "cad-functions/solidworks/weldment-operations.json",
       "covered_units": ["U-CAD-FIDX-SW-07"],
-      "parameter_count_estimate": 0,
-      "description": "(pending) Weldment layer: structural_member (with profile library), trim_extend, gusset, end_cap, weld_bead, cut_list, weld_symbols, custom_profile, multi_body management.",
+      "parameter_count_estimate": 104,
+      "description": "Multi-body weldment authoring layer: 15 operations covering WELDMENT (foundational marker), STRUCTURAL_MEMBER (sketch-driven member with 9-standard profile library + 12 profile types + 3 corner treatments + per-segment rotation/mirror), 3 trim/extend ops (TRIM_EXTEND / EXTEND_BY_PLANE / END_TRIM_TO_BODY with face_to_face/weld_gap/nominal_butt coping), 3 reinforcement ops (END_CAP with inward/outward/centered thickness directions / GUSSET with triangular/polygonal profile / FILLET_WELD_BEAD with full_length/intermittent/staggered_intermittent bead types), 2 weld authoring ops (WELD_BEAD with 9 AWS A2.4 weld types / SPOT_WELD with 4 pattern types), and 5 cut-list / multi-body management ops (CUT_LIST_GENERATE / WELDMENT_BODY_RENAME / WELDMENT_BODY_PROPERTY / CUT_LIST_SUMMARY / CUSTOM_PROFILE_DEFINE). Bindings target IFeatureManager.InsertWeldment / InsertWeldmentMember / InsertTrimExtend / InsertExtendByPlane / InsertEndTrimToBody / InsertEndCap / InsertWeldmentGusset / InsertFilletBead / InsertWeldBead / InsertSpotWeld / UpdateCutList / GenerateCutListSummary - IBody2.Name (set) - IModelDocExtension.CustomPropertyManager.Add3 (per body) - IModelDoc2.SaveAsLibraryFeature.",
       "dependencies": ["part_operations"]
     },
     {
@@ -97,19 +97,18 @@
   },
   "coverage_summary": {
     "total_modules": 8,
-    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05", "U-CAD-FIDX-SW-06"],
-    "estimated_parameter_total": 957,
+    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05", "U-CAD-FIDX-SW-06", "U-CAD-FIDX-SW-07"],
+    "estimated_parameter_total": 1061,
     "api_surface": {
-      "sw_api_com_items": 144,
-      "vba_macro_items": 144,
-      "vsta_addin_items": 144,
+      "sw_api_com_items": 159,
+      "vba_macro_items": 159,
+      "vsta_addin_items": 159,
       "solidworks_2024_compatible": true,
       "solidworks_2025_compatible": true,
       "coverage_state": "IN_PROGRESS",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 2,
+      "phase_1_target_modules_remaining": 1,
       "phase_1_modules_pending": [
-        "weldment_operations",
         "evaluation_operations"
       ],
       "solidworks_cad_8_of_8": false,
@@ -195,7 +194,7 @@
     "assembly_layer": true,
     "drawing_layer": true,
     "sheet_metal_layer": true,
-    "weldment_layer": false,
+    "weldment_layer": true,
     "evaluation_layer": false
   },
   "future_modules": []
