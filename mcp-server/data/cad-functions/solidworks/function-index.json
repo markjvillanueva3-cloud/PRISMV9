@@ -66,8 +66,8 @@
       "module_id": "evaluation_operations",
       "path": "cad-functions/solidworks/evaluation-operations.json",
       "covered_units": ["U-CAD-FIDX-SW-08"],
-      "parameter_count_estimate": 0,
-      "description": "(pending) Evaluation layer: measure, mass_properties, section_properties, interference_detection, collision_detection, clearance_verification, performance_evaluation, draft_analysis, undercut_analysis, deviation_analysis, thickness_analysis, symmetry_check, design_checker, costing, sustainability.",
+      "parameter_count_estimate": 123,
+      "description": "Evaluation / verification / sustainability layer (FINAL module): 19 operations spanning measurement (MEASURE with 10-mode dispatch / MASS_PROPERTIES with material-density override / SECTION_PROPERTIES), assembly + part-body verification (INTERFERENCE_DETECTION_PART_LEVEL / CLEARANCE_VERIFICATION_PART_LEVEL / COLLISION_DETECTION with 3 sensitivity levels), part quality analyses (DRAFT_ANALYSIS / UNDERCUT_ANALYSIS / DEVIATION_ANALYSIS with 4 sample densities / THICKNESS_ANALYSIS / SYMMETRY_CHECK with 3 symmetry types / ZEBRA_STRIPES / CURVATURE_ANALYSIS with 5 curvature types), 3 quality-gate auditors (DESIGN_CHECKER with .swstd standards / DFM_CHECKER with 5 process scopes / PARAMETRIC_LINK_CHECK), PERFORMANCE_EVALUATION (large-assembly profiling), COSTING (7 manufacturing-process templates), and SUSTAINABILITY (ISO 14040 LCA across 7 regions x 4 end-of-life treatments). Bindings target IModelDocExtension.GetMeasureManager.Measure3 / CreateMassProperty2 / CreateSectionProperty / CheckInterference / SymmetryCheck / PerformanceEvaluation - IClearanceVerification.GetMinimumDistances - ICollisionDetectionMgr.SetCollisionDetection - IDraftAnalysis.AnalyzeDraft - IUndercutAnalysis.Analyze - IDeviationAnalysis.Analyze - IThickAnalysis.Analyze - IDesignChecker.RunCheck - IDFMXpressManager.RunCheck - ICostingManager.RunCostingCalculation - ISustainabilityManager.AnalyzeImpact - IModelDoc2.GetExternalReferences / SetupZebraStripes / SetupCurvatureDisplay.",
       "dependencies": ["part_operations", "assembly_operations"]
     }
   ],
@@ -97,22 +97,20 @@
   },
   "coverage_summary": {
     "total_modules": 8,
-    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05", "U-CAD-FIDX-SW-06", "U-CAD-FIDX-SW-07"],
-    "estimated_parameter_total": 1061,
+    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05", "U-CAD-FIDX-SW-06", "U-CAD-FIDX-SW-07", "U-CAD-FIDX-SW-08"],
+    "estimated_parameter_total": 1184,
     "api_surface": {
-      "sw_api_com_items": 159,
-      "vba_macro_items": 159,
-      "vsta_addin_items": 159,
+      "sw_api_com_items": 178,
+      "vba_macro_items": 178,
+      "vsta_addin_items": 178,
       "solidworks_2024_compatible": true,
       "solidworks_2025_compatible": true,
-      "coverage_state": "IN_PROGRESS",
+      "coverage_state": "COMPLETE",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 1,
-      "phase_1_modules_pending": [
-        "evaluation_operations"
-      ],
-      "solidworks_cad_8_of_8": false,
-      "inventor_parity": false
+      "phase_1_target_modules_remaining": 0,
+      "phase_1_modules_pending": [],
+      "solidworks_cad_8_of_8": true,
+      "inventor_parity": true
     },
     "pdf_sources_bound": [
       "SolidWorks 2024 API Help — Sketch",
@@ -195,7 +193,7 @@
     "drawing_layer": true,
     "sheet_metal_layer": true,
     "weldment_layer": true,
-    "evaluation_layer": false
+    "evaluation_layer": true
   },
   "future_modules": []
 }

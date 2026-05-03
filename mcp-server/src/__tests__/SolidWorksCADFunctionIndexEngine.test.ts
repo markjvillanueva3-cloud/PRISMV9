@@ -204,9 +204,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       ]);
     });
 
-    it("listAllOperations returns 159 ops total (7 modules shipped through U-07: sketch+part+surface+assembly+drawing+sheet_metal+weldment)", () => {
+    it("listAllOperations returns 178 ops total (FULL 8 of 8 modules shipped through U-08)", () => {
       const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
-      expect(all).toHaveLength(159);
+      expect(all).toHaveLength(178);
     });
 
     it("listOperations('part_operations') returns 30 (shipped in U-02)", () => {
@@ -243,9 +243,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       );
     });
 
-    it("listOperations('evaluation_operations') returns 0 — final pending module — failure mode", () => {
+    it("listOperations('evaluation_operations') returns 19 (FINAL module shipped in U-08)", () => {
       expect(SolidWorksCADFunctionIndexEngine.listOperations("evaluation_operations")).toHaveLength(
-        0,
+        19,
       );
     });
   });
@@ -408,12 +408,10 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
 
     it("searchParameters('Mode') finds the operations with Mode-bearing parameters", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Mode");
-      // 10 sketch + 1 part + 2 surface + 4 assembly + 5 drawing + 4 sheet_metal = 26 distinct ops.
-      // Sheet_metal contributors (substring 'mode' matches Mode-bearing params):
-      //   EDGE_FLANGE (Position Mode) / MITER_FLANGE (Position Mode) /
-      //   HEM (Position Mode) / SKETCHED_BEND (Bend Position).
+      // 10 sketch + 1 part + 2 surface + 4 assembly + 5 drawing + 4 sheet_metal +
+      //   4 evaluation = 30 distinct ops total across all 8 modules.
       const distinctOps = new Set(matches.map((m) => m.operation_id));
-      expect(distinctOps.size).toBe(26);
+      expect(distinctOps.size).toBe(30);
     });
 
     it("searchParameters returns [] for nonsense queries — failure mode", () => {
@@ -449,21 +447,21 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(empty).toHaveLength(0);
     });
 
-    it("getTotalParameterCount equals 1061 (132+190+150+172+165+148+104 across 7 shipped modules)", () => {
-      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(1061);
+    it("getTotalParameterCount equals 1184 (132+190+150+172+165+148+104+123 across ALL 8 modules)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(1184);
     });
 
-    it("declared estimated_parameter_total matches actual count (no drift)", () => {
+    it("declared estimated_parameter_total matches actual count (no drift, FULL CAD coverage)", () => {
       const declared =
         SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
       const actual = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
       expect(declared).toBe(actual);
-      expect(declared).toBe(1061);
+      expect(declared).toBe(1184);
     });
   });
 
   describe("coverage_summary + platform_integration — phase 1 progress", () => {
-    it("coverage_state is IN_PROGRESS with 1 module pending (only evaluation_operations remains)", () => {
+    it("coverage_state is COMPLETE with 0 modules pending (FULL 8 of 8 — solidworks_cad_8_of_8 = true, inventor_parity = true)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
         coverage_state?: string;
         phase_1_target_modules_remaining?: number;
@@ -471,14 +469,14 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_cad_8_of_8?: boolean;
         inventor_parity?: boolean;
       };
-      expect(api.coverage_state).toBe("IN_PROGRESS");
-      expect(api.phase_1_target_modules_remaining).toBe(1);
-      expect(api.phase_1_modules_pending).toEqual(["evaluation_operations"]);
-      expect(api.solidworks_cad_8_of_8).toBe(false);
-      expect(api.inventor_parity).toBe(false);
+      expect(api.coverage_state).toBe("COMPLETE");
+      expect(api.phase_1_target_modules_remaining).toBe(0);
+      expect(api.phase_1_modules_pending).toEqual([]);
+      expect(api.solidworks_cad_8_of_8).toBe(true);
+      expect(api.inventor_parity).toBe(true);
     });
 
-    it("platform_integration has 7 authoring layers enabled through U-07 (sketch + part + surface + assembly + drawing + sheet_metal + weldment)", () => {
+    it("platform_integration has ALL 8 authoring layers enabled (FULL CAD coverage 8/8)", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration ?? {};
       expect(pi.sketch_layer).toBe(true);
       expect(pi.part_layer).toBe(true);
@@ -487,7 +485,7 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(pi.drawing_layer).toBe(true);
       expect(pi.sheet_metal_layer).toBe(true);
       expect(pi.weldment_layer).toBe(true);
-      expect(pi.evaluation_layer).toBe(false);
+      expect(pi.evaluation_layer).toBe(true);
     });
 
     it("API surface flags COM + VBA + VSTA + 2024 + 2025 SolidWorks compatibility", () => {
@@ -498,9 +496,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_2024_compatible?: boolean;
         solidworks_2025_compatible?: boolean;
       };
-      expect(api.sw_api_com_items).toBe(159);
-      expect(api.vba_macro_items).toBe(159);
-      expect(api.vsta_addin_items).toBe(159);
+      expect(api.sw_api_com_items).toBe(178);
+      expect(api.vba_macro_items).toBe(178);
+      expect(api.vsta_addin_items).toBe(178);
       expect(api.solidworks_2024_compatible).toBe(true);
       expect(api.solidworks_2025_compatible).toBe(true);
     });
@@ -797,8 +795,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
     });
   });
 
-  describe("part_operations — coverage rollup into the index (post-U-07)", () => {
-    it("coverage_summary.total_units_covered now lists U-01 through U-07", () => {
+  describe("part_operations — coverage rollup into the index (post-U-08, FULL 8/8)", () => {
+    it("coverage_summary.total_units_covered now lists ALL 8 units (U-01 through U-08)", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
       expect(cs.total_units_covered).toEqual([
         "U-CAD-FIDX-SW-01",
@@ -808,47 +806,59 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         "U-CAD-FIDX-SW-05",
         "U-CAD-FIDX-SW-06",
         "U-CAD-FIDX-SW-07",
+        "U-CAD-FIDX-SW-08",
       ]);
     });
 
-    it("coverage_summary.estimated_parameter_total is 1061 (132+190+150+172+165+148+104 across 7 modules)", () => {
+    it("coverage_summary.estimated_parameter_total is 1184 (132+190+150+172+165+148+104+123 across ALL 8 modules)", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
-      expect(cs.estimated_parameter_total).toBe(1061);
+      expect(cs.estimated_parameter_total).toBe(1184);
     });
 
-    it("api_surface counts climb to 159 (22+30+20+26+24+22+15 ops across 7 modules)", () => {
+    it("api_surface counts climb to 178 (22+30+20+26+24+22+15+19 ops across ALL 8 modules)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.sw_api_com_items).toBe(159);
-      expect(api.vba_macro_items).toBe(159);
-      expect(api.vsta_addin_items).toBe(159);
+      expect(api.sw_api_com_items).toBe(178);
+      expect(api.vba_macro_items).toBe(178);
+      expect(api.vsta_addin_items).toBe(178);
     });
 
-    it("phase_1_target_modules_remaining drops from 2 to 1 — only evaluation_operations remains", () => {
+    it("phase_1_target_modules_remaining drops from 1 to 0 (FULL 8 of 8 closure)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_target_modules_remaining).toBe(1);
+      expect(api.phase_1_target_modules_remaining).toBe(0);
     });
 
-    it("phase_1_modules_pending contains only evaluation_operations", () => {
+    it("phase_1_modules_pending is empty array (no pending modules)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_modules_pending).not.toContain("weldment_operations");
-      expect(api.phase_1_modules_pending).toEqual(["evaluation_operations"]);
-      expect(api.phase_1_modules_pending).toHaveLength(1);
+      expect(api.phase_1_modules_pending).toEqual([]);
+      expect(api.phase_1_modules_pending).toHaveLength(0);
     });
 
-    it("platform_integration has 7 of 8 layers true (only evaluation_layer remains false)", () => {
+    it("platform_integration has ALL 8 of 8 layers true (FULL CAD coverage)", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration;
+      expect(pi.sketch_layer).toBe(true);
       expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(true);
       expect(pi.drawing_layer).toBe(true);
       expect(pi.sheet_metal_layer).toBe(true);
       expect(pi.weldment_layer).toBe(true);
-      expect(pi.evaluation_layer).toBe(false);
+      expect(pi.evaluation_layer).toBe(true);
     });
 
-    it("getTotalParameterCount() returns 1061 across all 7 shipped modules", () => {
+    it("getTotalParameterCount() returns 1184 across ALL 8 shipped modules (FULL coverage)", () => {
       const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(1061);
+      expect(total).toBe(1184);
+    });
+
+    it("solidworks_cad_8_of_8 = true AND inventor_parity = true (closure flags set)", () => {
+      const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
+        solidworks_cad_8_of_8?: boolean;
+        inventor_parity?: boolean;
+        coverage_state?: string;
+      };
+      expect(api.solidworks_cad_8_of_8).toBe(true);
+      expect(api.inventor_parity).toBe(true);
+      expect(api.coverage_state).toBe("COMPLETE");
     });
   });
 
@@ -3951,6 +3961,627 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       const param = loc!.parameter as { type?: string; default?: boolean };
       expect(param.type).toBe("checkbox");
       expect(param.default).toBe(false);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-08 — evaluation_operations module (FINAL — closes 8/8)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const KNOWN_EVALUATION_OPS_19 = [
+    "MEASURE",
+    "MASS_PROPERTIES",
+    "SECTION_PROPERTIES",
+    "INTERFERENCE_DETECTION_PART_LEVEL",
+    "CLEARANCE_VERIFICATION_PART_LEVEL",
+    "COLLISION_DETECTION",
+    "DRAFT_ANALYSIS",
+    "UNDERCUT_ANALYSIS",
+    "DEVIATION_ANALYSIS",
+    "THICKNESS_ANALYSIS",
+    "SYMMETRY_CHECK",
+    "ZEBRA_STRIPES",
+    "CURVATURE_ANALYSIS",
+    "DESIGN_CHECKER",
+    "DFM_CHECKER",
+    "PERFORMANCE_EVALUATION",
+    "COSTING",
+    "SUSTAINABILITY",
+    "PARAMETRIC_LINK_CHECK",
+  ];
+
+  describe("evaluation_operations — module catalog (U-CAD-FIDX-SW-08, FINAL)", () => {
+    it("loads the evaluation_operations catalog and reports schemaVersion '1.0.0'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("evaluation_operations");
+      expect(cat).not.toBeNull();
+      expect(cat!.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.totalParameters is exactly 123 (matches index declaration)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("evaluation_operations");
+      expect(cat!.metadata.totalParameters).toBe(123);
+    });
+
+    it("metadata.operationCount is exactly 19", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("evaluation_operations");
+      expect(cat!.metadata.operationCount).toBe(19);
+    });
+
+    it("metadata.milestone is 'U-CAD-FIDX-SW-08' (FINAL milestone)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("evaluation_operations");
+      expect(cat!.metadata.milestone).toBe("U-CAD-FIDX-SW-08");
+    });
+
+    it("listOperations contains every expected evaluation op id", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("evaluation_operations");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([...KNOWN_EVALUATION_OPS_19].sort());
+    });
+
+    it("module_entry.parameter_count_estimate is 123", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("evaluation_operations");
+      expect(entry!.parameter_count_estimate).toBe(123);
+    });
+
+    it("module_entry.dependencies is exactly ['part_operations', 'assembly_operations']", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("evaluation_operations");
+      expect(entry!.dependencies).toEqual(["part_operations", "assembly_operations"]);
+    });
+
+    it("sum of per-tab parameter arrays equals 123 (no count drift)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("evaluation_operations");
+      let total = 0;
+      for (const opId of Object.keys(cat!.operations)) {
+        const op = (cat!.operations as Record<string, { tabs?: Record<string, { parameters?: unknown[] }> }>)[opId];
+        for (const tabName of Object.keys(op.tabs ?? {})) {
+          total += (op.tabs![tabName].parameters ?? []).length;
+        }
+      }
+      expect(total).toBe(123);
+    });
+  });
+
+  describe("evaluation_operations — measurement (MEASURE / MASS_PROPERTIES / SECTION_PROPERTIES)", () => {
+    it("MEASURE Measure Type enumerates all 11 measurement modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "MEASURE",
+        "Measure Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "auto", "length", "angle", "radius", "diameter", "arc_length",
+        "distance_min", "distance_max", "distance_between_faces",
+        "perpendicular_distance", "center_to_center",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("MEASURE Units Override covers document-units default + 7 explicit unit options", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "MEASURE",
+        "Units Override",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual([
+        "use_document_units", "mm", "cm", "m", "inch", "feet", "deg", "rad",
+      ]);
+      expect(param.default).toBe("use_document_units");
+    });
+
+    it("MASS_PROPERTIES Custom Density default is steel (7850 kg/m^3)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "MASS_PROPERTIES",
+        "Custom Density",
+      );
+      const param = loc!.parameter as { default?: number; unit?: string; min?: number };
+      expect(param.default).toBe(7850);
+      expect(param.unit).toBe("kg/m^3");
+      expect(param.min).toBe(0.001);
+    });
+
+    it("MASS_PROPERTIES Show Output In supports scientific / engineering / engineering_with_inertia", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "MASS_PROPERTIES",
+        "Show Output In",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["scientific", "engineering", "engineering_with_inertia"]);
+      expect(param.default).toBe("engineering_with_inertia");
+    });
+
+    it("SECTION_PROPERTIES has Polar Moment + Radius Of Gyration toggles (default both true)", () => {
+      const polar = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "SECTION_PROPERTIES",
+        "Include Polar Moment",
+      );
+      const rog = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "SECTION_PROPERTIES",
+        "Include Radius Of Gyration",
+      );
+      expect((polar!.parameter as { type?: string; default?: boolean }).type).toBe("checkbox");
+      expect((polar!.parameter as { default?: boolean }).default).toBe(true);
+      expect((rog!.parameter as { default?: boolean }).default).toBe(true);
+    });
+
+    it("getOperationsByCategory('Evaluation_Measure') returns the 3 measurement ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Evaluation_Measure");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["MASS_PROPERTIES", "MEASURE", "SECTION_PROPERTIES"]);
+    });
+  });
+
+  describe("evaluation_operations — verification (interference / clearance / collision)", () => {
+    it("INTERFERENCE_DETECTION_PART_LEVEL Coincident Faces Tolerance defaults 0.001 mm (sub-micron)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "INTERFERENCE_DETECTION_PART_LEVEL",
+        "Coincident Faces Tolerance",
+      );
+      const param = loc!.parameter as { default?: number; min?: number; unit?: string };
+      expect(param.default).toBe(0.001);
+      expect(param.min).toBe(0);
+      expect(param.unit).toBe("mm");
+    });
+
+    it("CLEARANCE_VERIFICATION_PART_LEVEL Pair Strategy supports between/within/all_pairs", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "CLEARANCE_VERIFICATION_PART_LEVEL",
+        "Pair Strategy",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["between_groups", "within_groups", "all_pairs"]);
+    });
+
+    it("COLLISION_DETECTION Sensitivity covers low / medium / high", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "COLLISION_DETECTION",
+        "Sensitivity",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["low", "medium", "high"]);
+      expect(param.default).toBe("medium");
+    });
+
+    it("COLLISION_DETECTION Detection Mode covers these_components / all_others / all_dragged", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "COLLISION_DETECTION",
+        "Detection Mode",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["these_components", "all_others", "all_dragged"]);
+    });
+
+    it("getOperationsByCategory('Evaluation_Verification') returns the 3 verification ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Evaluation_Verification");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "CLEARANCE_VERIFICATION_PART_LEVEL",
+        "COLLISION_DETECTION",
+        "INTERFERENCE_DETECTION_PART_LEVEL",
+      ]);
+    });
+  });
+
+  describe("evaluation_operations — part-quality analyses (draft / undercut / deviation / thickness / symmetry)", () => {
+    it("DRAFT_ANALYSIS Required Draft Angle bounded (0, 89) deg with default 1 (industry minimum)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DRAFT_ANALYSIS",
+        "Required Draft Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string; required?: boolean };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(89);
+      expect(param.default).toBe(1);
+      expect(param.unit).toBe("deg");
+      expect(param.required).toBe(true);
+    });
+
+    it("DRAFT_ANALYSIS Number Of Color Bands bounded [2, 20] with default 5", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DRAFT_ANALYSIS",
+        "Number Of Color Bands",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(2);
+      expect(param.max).toBe(20);
+      expect(param.default).toBe(5);
+    });
+
+    it("DEVIATION_ANALYSIS Direction Mode covers normal_to_reference / shortest_distance / specified_axis", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DEVIATION_ANALYSIS",
+        "Direction Mode",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["normal_to_reference", "shortest_distance", "specified_axis"]);
+    });
+
+    it("DEVIATION_ANALYSIS Sample Density covers all 4 resolution levels", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DEVIATION_ANALYSIS",
+        "Sample Density",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["coarse", "medium", "fine", "very_fine"]);
+    });
+
+    it("THICKNESS_ANALYSIS has Minimum + Maximum Thickness bounds (paired range)", () => {
+      const min = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "THICKNESS_ANALYSIS",
+        "Minimum Thickness",
+      );
+      const max = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "THICKNESS_ANALYSIS",
+        "Maximum Thickness",
+      );
+      expect((min!.parameter as { default?: number; required?: boolean }).default).toBe(1);
+      expect((min!.parameter as { required?: boolean }).required).toBe(true);
+      expect((max!.parameter as { default?: number }).default).toBe(10);
+    });
+
+    it("SYMMETRY_CHECK Symmetry Type covers mirror_plane / rotational_axis / point_inversion", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "SYMMETRY_CHECK",
+        "Symmetry Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["mirror_plane", "rotational_axis", "point_inversion"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("getOperationsByCategory('Evaluation_PartQuality') returns the 5 part-quality ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("Evaluation_PartQuality");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([
+        "DEVIATION_ANALYSIS",
+        "DRAFT_ANALYSIS",
+        "SYMMETRY_CHECK",
+        "THICKNESS_ANALYSIS",
+        "UNDERCUT_ANALYSIS",
+      ]);
+    });
+  });
+
+  describe("evaluation_operations — surface continuity (zebra stripes / curvature)", () => {
+    it("ZEBRA_STRIPES Color Mode covers black_white / rainbow / user_defined", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "ZEBRA_STRIPES",
+        "Color Mode",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["black_white", "rainbow", "user_defined"]);
+      expect(param.default).toBe("black_white");
+    });
+
+    it("CURVATURE_ANALYSIS Curvature Type covers all 5 curvature measures", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "CURVATURE_ANALYSIS",
+        "Curvature Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual([
+        "gaussian", "mean", "principal_max", "principal_min", "absolute",
+      ]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("gaussian");
+    });
+
+    it("getOperationsByCategory('Evaluation_SurfaceContinuity') returns ZEBRA_STRIPES + CURVATURE_ANALYSIS", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory(
+        "Evaluation_SurfaceContinuity",
+      );
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["CURVATURE_ANALYSIS", "ZEBRA_STRIPES"]);
+    });
+  });
+
+  describe("evaluation_operations — quality gates (DESIGN_CHECKER / DFM_CHECKER / PARAMETRIC_LINK_CHECK)", () => {
+    it("DESIGN_CHECKER Severity Filter covers critical_only / warning_and_above / all", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DESIGN_CHECKER",
+        "Severity Filter",
+      );
+      const param = loc!.parameter as { options?: string[] };
+      expect(param.options).toEqual(["critical_only", "warning_and_above", "all"]);
+    });
+
+    it("DFM_CHECKER Process Selection covers all 5 fabrication processes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DFM_CHECKER",
+        "Process Selection",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["machined", "sheet_metal", "molded", "cast", "additive"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("DFM_CHECKER Aggressiveness covers lenient / default / strict", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DFM_CHECKER",
+        "Aggressiveness",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["lenient", "default", "strict"]);
+      expect(param.default).toBe("default");
+    });
+
+    it("PARAMETRIC_LINK_CHECK has 5 reference-type checkboxes (geometry / design_table / material / texture / properties)", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "evaluation_operations",
+        "PARAMETRIC_LINK_CHECK",
+      );
+      const params = op!.tabs!.Options.parameters ?? [];
+      const names = params.map((p) => p.name);
+      expect(names).toContain("Check External Geometry References");
+      expect(names).toContain("Check Design Table Sources");
+      expect(names).toContain("Check Material Library Refs");
+      expect(names).toContain("Check Texture / Decal Refs");
+      expect(names).toContain("Check Linked Custom Properties");
+    });
+
+    it("getOperationsByCategory('Evaluation_QualityGate') returns the 3 quality-gate ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory(
+        "Evaluation_QualityGate",
+      );
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["DESIGN_CHECKER", "DFM_CHECKER", "PARAMETRIC_LINK_CHECK"]);
+    });
+  });
+
+  describe("evaluation_operations — costing + sustainability + performance", () => {
+    it("COSTING Costing Template covers all 7 manufacturing-process databases", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "COSTING",
+        "Costing Template",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "machining", "sheet_metal", "mold", "cast", "weldment",
+        "additive_metal", "additive_polymer",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("COSTING Margin Percent default 30 with bounds [0, 1000]", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "COSTING",
+        "Margin Percent",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(1000);
+      expect(param.default).toBe(30);
+    });
+
+    it("SUSTAINABILITY Material Source Region covers 7 global regions", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "SUSTAINABILITY",
+        "Material Source Region",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "north_america", "europe", "asia", "australia", "africa",
+        "south_america", "global_average",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("SUSTAINABILITY End Of Life Treatment covers recycled / incinerated / landfilled / user_defined", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "SUSTAINABILITY",
+        "End Of Life Treatment",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["recycled", "incinerated", "landfilled", "user_defined"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("recycled");
+    });
+
+    it("SUSTAINABILITY Recyclable Content Percent bounded [0, 100]", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "SUSTAINABILITY",
+        "Recyclable Content Percent",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(100);
+      expect(param.default).toBe(0);
+    });
+
+    it("PERFORMANCE_EVALUATION Profile Mode covers rebuild_only / open_close / full_lifecycle", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "PERFORMANCE_EVALUATION",
+        "Profile Mode",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["rebuild_only", "open_close", "full_lifecycle"]);
+      expect(param.required).toBe(true);
+    });
+  });
+
+  describe("evaluation_operations — concrete contract tables (api / category) for all 19 ops", () => {
+    it("each of the 19 evaluation ops binds to its IModelDocExtension / IDraftAnalysis / etc API method", () => {
+      const apiBindings: Record<string, string> = {
+        MEASURE: "IModelDocExtension.GetMeasureManager.Measure3",
+        MASS_PROPERTIES: "IModelDocExtension.CreateMassProperty2",
+        SECTION_PROPERTIES: "IModelDocExtension.CreateSectionProperty",
+        INTERFERENCE_DETECTION_PART_LEVEL: "IModelDocExtension.CheckInterference",
+        CLEARANCE_VERIFICATION_PART_LEVEL: "IClearanceVerification.GetMinimumDistances (part-body mode)",
+        COLLISION_DETECTION: "ICollisionDetectionMgr.SetCollisionDetection",
+        DRAFT_ANALYSIS: "IDraftAnalysis.AnalyzeDraft",
+        UNDERCUT_ANALYSIS: "IUndercutAnalysis.Analyze",
+        DEVIATION_ANALYSIS: "IDeviationAnalysis.Analyze",
+        THICKNESS_ANALYSIS: "IThickAnalysis.Analyze",
+        SYMMETRY_CHECK: "IModelDocExtension.SymmetryCheck",
+        ZEBRA_STRIPES: "IModelDoc2.SetupZebraStripes",
+        CURVATURE_ANALYSIS: "IModelDoc2.SetupCurvatureDisplay",
+        DESIGN_CHECKER: "IDesignChecker.RunCheck",
+        DFM_CHECKER: "IDFMXpressManager.RunCheck",
+        PERFORMANCE_EVALUATION: "IModelDocExtension.PerformanceEvaluation",
+        COSTING: "ICostingManager.RunCostingCalculation",
+        SUSTAINABILITY: "ISustainabilityManager.AnalyzeImpact",
+        PARAMETRIC_LINK_CHECK: "IModelDoc2.GetExternalReferences",
+      };
+      const expectedKeys = Object.keys(apiBindings).sort();
+      expect(expectedKeys).toEqual([...KNOWN_EVALUATION_OPS_19].sort());
+      for (const [opId, expectedApi] of Object.entries(apiBindings)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("evaluation_operations", opId);
+        expect(op).not.toBeNull();
+        expect(op!.solidworks_api).toBe(expectedApi);
+      }
+    });
+
+    it("each of the 19 evaluation ops sits in its category bucket (Measure/Verification/PartQuality/SurfaceContinuity/QualityGate/Performance/Cost/Sustainability)", () => {
+      const categories: Record<string, string> = {
+        MEASURE: "Evaluation_Measure",
+        MASS_PROPERTIES: "Evaluation_Measure",
+        SECTION_PROPERTIES: "Evaluation_Measure",
+        INTERFERENCE_DETECTION_PART_LEVEL: "Evaluation_Verification",
+        CLEARANCE_VERIFICATION_PART_LEVEL: "Evaluation_Verification",
+        COLLISION_DETECTION: "Evaluation_Verification",
+        DRAFT_ANALYSIS: "Evaluation_PartQuality",
+        UNDERCUT_ANALYSIS: "Evaluation_PartQuality",
+        DEVIATION_ANALYSIS: "Evaluation_PartQuality",
+        THICKNESS_ANALYSIS: "Evaluation_PartQuality",
+        SYMMETRY_CHECK: "Evaluation_PartQuality",
+        ZEBRA_STRIPES: "Evaluation_SurfaceContinuity",
+        CURVATURE_ANALYSIS: "Evaluation_SurfaceContinuity",
+        DESIGN_CHECKER: "Evaluation_QualityGate",
+        DFM_CHECKER: "Evaluation_QualityGate",
+        PARAMETRIC_LINK_CHECK: "Evaluation_QualityGate",
+        PERFORMANCE_EVALUATION: "Evaluation_Performance",
+        COSTING: "Evaluation_Cost",
+        SUSTAINABILITY: "Evaluation_Sustainability",
+      };
+      for (const [opId, expectedCategory] of Object.entries(categories)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("evaluation_operations", opId);
+        expect(op!.category).toBe(expectedCategory);
+      }
+    });
+  });
+
+  describe("evaluation_operations — adversarial inputs + final 8/8 closure", () => {
+    it("findParameter with empty-string parameter name returns null — adversarial empty", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter("evaluation_operations", "MEASURE", ""),
+      ).toBeNull();
+    });
+
+    it("findParameter with 256-char oversize parameter name returns null — adversarial oversize", () => {
+      const oversize = "e".repeat(256);
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "evaluation_operations",
+          "COSTING",
+          oversize,
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with NaN-shaped string returns null — adversarial NaN", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter("evaluation_operations", "COSTING", "NaN"),
+      ).toBeNull();
+    });
+
+    it("findParameter with Infinity-shaped string returns null — adversarial Infinity", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "evaluation_operations",
+          "SUSTAINABILITY",
+          "Infinity",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with unicode parameter name returns null — adversarial unicode", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "evaluation_operations",
+          "DRAFT_ANALYSIS",
+          "📐📏🔍",
+        ),
+      ).toBeNull();
+    });
+
+    it("getOperationsByCategory('Evaluation_Nonexistent') returns empty array — failure mode", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory(
+        "Evaluation_Nonexistent",
+      );
+      expect(ops).toEqual([]);
+    });
+
+    it("DRAFT_ANALYSIS Required Draft Angle bounded (0, 89) deg — degenerate boundary protection", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "DRAFT_ANALYSIS",
+        "Required Draft Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(89);
+    });
+
+    it("CURVATURE_ANALYSIS Color Range Min vs Max can be negative-positive paired (signed Gaussian curvature)", () => {
+      const min = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "CURVATURE_ANALYSIS",
+        "Color Range Min",
+      );
+      const max = SolidWorksCADFunctionIndexEngine.findParameter(
+        "evaluation_operations",
+        "CURVATURE_ANALYSIS",
+        "Color Range Max",
+      );
+      expect((min!.parameter as { default?: number; unit?: string }).default).toBe(-0.1);
+      expect((min!.parameter as { unit?: string }).unit).toBe("1/mm");
+      expect((max!.parameter as { default?: number }).default).toBe(0.1);
+    });
+
+    it("FINAL CLOSURE: SolidWorks CAD function index is FULLY shipped (8/8 modules, 178 ops, 1184 params)", () => {
+      const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
+      const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
+      const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
+        coverage_state?: string;
+        solidworks_cad_8_of_8?: boolean;
+        inventor_parity?: boolean;
+        phase_1_target_modules_remaining?: number;
+        phase_1_modules_pending?: readonly string[];
+      };
+      expect(all).toHaveLength(178);
+      expect(total).toBe(1184);
+      expect(api.coverage_state).toBe("COMPLETE");
+      expect(api.solidworks_cad_8_of_8).toBe(true);
+      expect(api.inventor_parity).toBe(true);
+      expect(api.phase_1_target_modules_remaining).toBe(0);
+      expect(api.phase_1_modules_pending).toEqual([]);
     });
   });
 });
