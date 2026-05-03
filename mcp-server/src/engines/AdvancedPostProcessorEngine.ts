@@ -22,13 +22,24 @@ import { machiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
 // Types
 // ---------------------------------------------------------------------------
 
+/**
+ * Controllers supported by AdvancedPostProcessor's cross-software G-code
+ * injection. Each entry has corresponding rows in every dialect table below
+ * (SMOOTHING_CODES, NURBS_CODES, CORNER_ROUNDING, RTCP_ACTIVATE,
+ * RTCP_DEACTIVATE) plus per-controller branches in the inject* methods.
+ *
+ * Adding a controller requires populating ALL tables and audit branches —
+ * the TypeScript Record<AdvancedController, …> shape enforces this at
+ * compile time.
+ */
 export type AdvancedController =
   | "fanuc"
   | "haas"
   | "siemens"
   | "heidenhain"
   | "mazak"
-  | "okuma";
+  | "okuma"
+  | "hurco";
 
 export interface AdaptiveClearingConfig {
   optimal_load: number;          // % of tool diameter (e.g. 0.25 = 25%)
@@ -157,6 +168,18 @@ const SMOOTHING_CODES: Record<AdvancedController, Record<string, string>> = {
     ultra: "G08 P1",
     off: "G08 P0",
   },
+  // Hurco WinMax V11 / UltiMotion does NOT accept inline smoothing G-codes
+  // (no Fanuc G5.1 Q1, no Haas G187 P#). Smoothing tolerance is a control-
+  // panel parameter (Settings → Performance → Smoothing Tolerance / UltiMotion
+  // toggle). Emitting an inline G187 or G5.1 would surface as a parse error
+  // on V11. Emit comment annotations documenting the intended target so the
+  // operator sees it in the program; injectHSM also surfaces a warning.
+  hurco: {
+    rough: "(HURCO V11: smoothing tol target ~0.05mm — set in WinMax UI)",
+    finish: "(HURCO V11: smoothing tol target ~0.005mm — set in WinMax UI)",
+    ultra: "(HURCO V11: smoothing tol target ~0.001mm — set in WinMax UI)",
+    off: "(HURCO V11: UltiMotion off — verify in WinMax UI)",
+  },
 };
 
 const NURBS_CODES: Record<AdvancedController, { start: string; end: string } | null> = {
@@ -166,6 +189,7 @@ const NURBS_CODES: Record<AdvancedController, { start: string; end: string } | n
   heidenhain: null,                                        // Use spline blocks
   mazak: { start: "G06.2 P3 K1", end: "G01" },            // Mazak NURBS
   okuma: { start: "G06.2", end: "G01" },
+  hurco: null,                                             // V11 stock control has no inline NURBS interpolation
 };
 
 const CORNER_ROUNDING: Record<AdvancedController, (tol: number) => string> = {
@@ -175,6 +199,11 @@ const CORNER_ROUNDING: Record<AdvancedController, (tol: number) => string> = {
   heidenhain: (tol) => `TOLERANCE ${tol.toFixed(3)}\nM120 LA${(tol * 10).toFixed(1)}`,
   mazak: (tol) => `G62 P1\nG64 P${tol.toFixed(3)}`,
   okuma: (tol) => `G08 P1\nG64 P${tol.toFixed(3)}`,
+  // Hurco V11 supports plain G64 (continuous-path mode) but does NOT accept
+  // an inline tolerance argument like G64 P{tol}. Tolerance is set in the
+  // WinMax control panel. Emit bare G64 plus a comment documenting the
+  // requested tolerance for the operator.
+  hurco: (tol) => `(HURCO V11: corner blend tol=${tol.toFixed(3)}mm — set in WinMax UI)\nG64`,
 };
 
 const RTCP_ACTIVATE: Record<AdvancedController, Record<string, string>> = {
@@ -208,6 +237,15 @@ const RTCP_ACTIVATE: Record<AdvancedController, Record<string, string>> = {
     "G43.5": "G43.5 H#1",
     "G234": "G43.4 H#1",
   },
+  // Hurco 5-axis variants (e.g. VMX5x with WinMax V11) accept Fanuc-style
+  // G43.4/G43.5 H#1 RTCP. Stock Hurco VMX24 (3-axis) does NOT support RTCP —
+  // callers should gate this pass by axis count upstream. Hurco does not use
+  // the Haas-specific G234 form; alias it to G43.4 for compatibility.
+  hurco: {
+    "G43.4": "G43.4 H#1",
+    "G43.5": "G43.5 H#1",
+    "G234": "G43.4 H#1",
+  },
 };
 
 const RTCP_DEACTIVATE: Record<AdvancedController, string> = {
@@ -217,6 +255,7 @@ const RTCP_DEACTIVATE: Record<AdvancedController, string> = {
   heidenhain: "M129",
   mazak: "G49",
   okuma: "G49",
+  hurco: "G49",                      // Hurco V11 uses standard G49 to cancel tool-length comp / RTCP
 };
 
 // ---------------------------------------------------------------------------
@@ -475,6 +514,21 @@ export class AdvancedPostProcessorEngine {
     config: HSMConfig,
   ): { gcode: string; warnings: string[] } {
     const warnings: string[] = [];
+
+    // Hurco V11 / WinMax / UltiMotion has no inline smoothing G-code; the
+    // SMOOTHING_CODES.hurco entries emit operator-facing comments documenting
+    // the intended tolerance. Surface a structured warning so the caller
+    // can decide whether to also push a programmer note into the post output.
+    if (controller === "hurco" && config.smoothing_mode !== "off") {
+      warnings.push(
+        "Hurco V11 has no inline smoothing G-code; UltiMotion / smoothing tolerance is set in the WinMax control panel. Emitted comment annotations only.",
+      );
+    }
+    if (controller === "hurco" && config.nurbs_interpolation) {
+      // NURBS_CODES.hurco is null — the existing null-handler will push its
+      // own warning. We add nothing here to avoid duplicate warning text.
+    }
+
     const lines = gcode.split("\n");
     const enhanced: string[] = [];
 
@@ -746,7 +800,13 @@ export class AdvancedPostProcessorEngine {
 
     lines.push(`(TOOL LIFE CHECK - T${toolNum})`);
 
-    if (controller === "fanuc" || controller === "haas" || controller === "mazak" || controller === "okuma") {
+    if (
+      controller === "fanuc" ||
+      controller === "haas" ||
+      controller === "mazak" ||
+      controller === "okuma" ||
+      controller === "hurco"  // Hurco V11 supports Fanuc-style #500-series macros + IF [] GOTO syntax
+    ) {
       lines.push(`IF [${lifeVar} GE ${maxLife}] GOTO 9900`);
       lines.push(`(SISTER TOOL: T${sisterTool})`);
       // Jump target at end of program for sister tool swap
@@ -774,7 +834,17 @@ export class AdvancedPostProcessorEngine {
     lines.push(`(TOOL BREAK CHECK - T${toolNum} via ${method.toUpperCase()})`);
 
     if (method === "probe") {
-      if (controller === "fanuc" || controller === "haas" || controller === "mazak") {
+      if (
+        controller === "fanuc" ||
+        controller === "haas" ||
+        controller === "mazak" ||
+        controller === "okuma" ||
+        controller === "hurco"  // Hurco V11 + Renishaw OMP40 install macros under O9xxx slots; G65 P9xxx call form is identical to Fanuc
+      ) {
+        // P9023 is the conventional Renishaw tool-length-measure slot installed
+        // by Renishaw on most CNC controls (Fanuc/Haas/Hurco/Okuma). On Hurco
+        // installs the P-number can vary by Renishaw kit revision; operator
+        // should verify against the installed macro library.
         lines.push("G65 P9023 (TOOL LENGTH MEASURE)");
         lines.push(`IF [#182 LT #501] GOTO 9999 (BROKEN TOOL ALARM)`);
       } else if (controller === "siemens") {
@@ -825,7 +895,13 @@ export class AdvancedPostProcessorEngine {
       controller === "heidenhain" ? "Q199" : "#199";
 
     // Part counter logic
-    if (controller === "fanuc" || controller === "haas" || controller === "mazak" || controller === "okuma") {
+    if (
+      controller === "fanuc" ||
+      controller === "haas" ||
+      controller === "mazak" ||
+      controller === "okuma" ||
+      controller === "hurco"  // Hurco V11 supports #199 Fanuc-style macro variables + IF [] GOTO
+    ) {
       enhanced.push(`${counterVar}=${counterVar}+1`);
       enhanced.push(`IF [${counterVar} LT ${config.measure_every_n_parts}] GOTO 9800`);
       enhanced.push(`${counterVar}=0`);
