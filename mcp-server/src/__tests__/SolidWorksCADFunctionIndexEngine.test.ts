@@ -204,9 +204,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       ]);
     });
 
-    it("listAllOperations returns 122 ops total (sketch + part + surface + assembly + drawing shipped through U-05)", () => {
+    it("listAllOperations returns 144 ops total (sketch + part + surface + assembly + drawing + sheet_metal shipped through U-06)", () => {
       const all = SolidWorksCADFunctionIndexEngine.listAllOperations();
-      expect(all).toHaveLength(122);
+      expect(all).toHaveLength(144);
     });
 
     it("listOperations('part_operations') returns 30 (shipped in U-02)", () => {
@@ -231,8 +231,14 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       );
     });
 
-    it("listOperations('sheet_metal_operations') returns 0 — module pending — failure mode", () => {
+    it("listOperations('sheet_metal_operations') returns 22 (shipped in U-06)", () => {
       expect(SolidWorksCADFunctionIndexEngine.listOperations("sheet_metal_operations")).toHaveLength(
+        22,
+      );
+    });
+
+    it("listOperations('weldment_operations') returns 0 — module pending — failure mode", () => {
+      expect(SolidWorksCADFunctionIndexEngine.listOperations("weldment_operations")).toHaveLength(
         0,
       );
     });
@@ -379,11 +385,11 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
   });
 
   describe("searchParameters — substring search across operations", () => {
-    it("searchParameters('Sketch Plane') finds 19 operations across sketch + part + surface modules", () => {
+    it("searchParameters('Sketch Plane') finds 20 operations across sketch + part + surface + sheet_metal modules", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Sketch Plane");
-      // 16 sketch ops carry Sketch Plane + HOLE_WIZARD (part) references it for hole placement
-      //   + SURFACE_EXTRUDE + SURFACE_PLANAR (surface) reference it for sketch-driven surface creation = 19.
-      expect(matches.length).toBe(19);
+      // 16 sketch + HOLE_WIZARD (part) + SURFACE_EXTRUDE + SURFACE_PLANAR (surface)
+      //   + TAB (sheet_metal) = 20.
+      expect(matches.length).toBe(20);
       // First match must reference the sketch_operations module
       expect(matches[0]?.module_id).toBe("sketch_operations");
       expect(matches[0]?.parameter.name).toBe("Sketch Plane");
@@ -396,13 +402,12 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
 
     it("searchParameters('Mode') finds the operations with Mode-bearing parameters", () => {
       const matches = SolidWorksCADFunctionIndexEngine.searchParameters("Mode");
-      // 10 sketch + 1 part + 2 surface + 4 assembly + 5 drawing = 22 distinct ops.
-      // Drawing contributors (substring 'mode' also matches 'Model'):
-      //   VIEW_MODEL (Model Path + Scale Mode) / VIEW_BREAK_OUT (Depth Mode) /
-      //   DIMENSION_SMART (Dimensioning Mode) / CENTER_MARK (Pattern Mode) /
-      //   DESIGN_TABLE_ATTACH (Source Model Path).
+      // 10 sketch + 1 part + 2 surface + 4 assembly + 5 drawing + 4 sheet_metal = 26 distinct ops.
+      // Sheet_metal contributors (substring 'mode' matches Mode-bearing params):
+      //   EDGE_FLANGE (Position Mode) / MITER_FLANGE (Position Mode) /
+      //   HEM (Position Mode) / SKETCHED_BEND (Bend Position).
       const distinctOps = new Set(matches.map((m) => m.operation_id));
-      expect(distinctOps.size).toBe(22);
+      expect(distinctOps.size).toBe(26);
     });
 
     it("searchParameters returns [] for nonsense queries — failure mode", () => {
@@ -438,8 +443,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(empty).toHaveLength(0);
     });
 
-    it("getTotalParameterCount equals 809 (132 sketch + 190 part + 150 surface + 172 assembly + 165 drawing)", () => {
-      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(809);
+    it("getTotalParameterCount equals 957 (132 sketch + 190 part + 150 surface + 172 assembly + 165 drawing + 148 sheet_metal)", () => {
+      expect(SolidWorksCADFunctionIndexEngine.getTotalParameterCount()).toBe(957);
     });
 
     it("declared estimated_parameter_total matches actual count (no drift)", () => {
@@ -447,12 +452,12 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.estimated_parameter_total;
       const actual = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
       expect(declared).toBe(actual);
-      expect(declared).toBe(809);
+      expect(declared).toBe(957);
     });
   });
 
   describe("coverage_summary + platform_integration — phase 1 progress", () => {
-    it("coverage_state is IN_PROGRESS with 3 modules pending and the right pending list", () => {
+    it("coverage_state is IN_PROGRESS with 2 modules pending and the right pending list", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface as {
         coverage_state?: string;
         phase_1_target_modules_remaining?: number;
@@ -461,9 +466,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         inventor_parity?: boolean;
       };
       expect(api.coverage_state).toBe("IN_PROGRESS");
-      expect(api.phase_1_target_modules_remaining).toBe(3);
+      expect(api.phase_1_target_modules_remaining).toBe(2);
       expect(api.phase_1_modules_pending).toEqual([
-        "sheet_metal_operations",
         "weldment_operations",
         "evaluation_operations",
       ]);
@@ -471,14 +475,14 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(api.inventor_parity).toBe(false);
     });
 
-    it("platform_integration has all 5 authoring layers enabled through U-05 (sketch + part + surface + assembly + drawing)", () => {
+    it("platform_integration has 6 authoring layers enabled through U-06 (sketch + part + surface + assembly + drawing + sheet_metal)", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration ?? {};
       expect(pi.sketch_layer).toBe(true);
       expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(true);
       expect(pi.drawing_layer).toBe(true);
-      expect(pi.sheet_metal_layer).toBe(false);
+      expect(pi.sheet_metal_layer).toBe(true);
       expect(pi.weldment_layer).toBe(false);
       expect(pi.evaluation_layer).toBe(false);
     });
@@ -491,9 +495,9 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         solidworks_2024_compatible?: boolean;
         solidworks_2025_compatible?: boolean;
       };
-      expect(api.sw_api_com_items).toBe(122);
-      expect(api.vba_macro_items).toBe(122);
-      expect(api.vsta_addin_items).toBe(122);
+      expect(api.sw_api_com_items).toBe(144);
+      expect(api.vba_macro_items).toBe(144);
+      expect(api.vsta_addin_items).toBe(144);
       expect(api.solidworks_2024_compatible).toBe(true);
       expect(api.solidworks_2025_compatible).toBe(true);
     });
@@ -790,8 +794,8 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
     });
   });
 
-  describe("part_operations — coverage rollup into the index (post-U-05)", () => {
-    it("coverage_summary.total_units_covered now lists U-01 through U-05", () => {
+  describe("part_operations — coverage rollup into the index (post-U-06)", () => {
+    it("coverage_summary.total_units_covered now lists U-01 through U-06", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
       expect(cs.total_units_covered).toEqual([
         "U-CAD-FIDX-SW-01",
@@ -799,46 +803,53 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
         "U-CAD-FIDX-SW-03",
         "U-CAD-FIDX-SW-04",
         "U-CAD-FIDX-SW-05",
+        "U-CAD-FIDX-SW-06",
       ]);
     });
 
-    it("coverage_summary.estimated_parameter_total is 809 (132+190+150+172+165 across 5 modules)", () => {
+    it("coverage_summary.estimated_parameter_total is 957 (132+190+150+172+165+148 across 6 modules)", () => {
       const cs = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary;
-      expect(cs.estimated_parameter_total).toBe(809);
+      expect(cs.estimated_parameter_total).toBe(957);
     });
 
-    it("api_surface counts climb to 122 (22+30+20+26+24 ops across 5 modules)", () => {
+    it("api_surface counts climb to 144 (22+30+20+26+24+22 ops across 6 modules)", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.sw_api_com_items).toBe(122);
-      expect(api.vba_macro_items).toBe(122);
-      expect(api.vsta_addin_items).toBe(122);
+      expect(api.sw_api_com_items).toBe(144);
+      expect(api.vba_macro_items).toBe(144);
+      expect(api.vsta_addin_items).toBe(144);
     });
 
-    it("phase_1_target_modules_remaining drops from 4 to 3", () => {
+    it("phase_1_target_modules_remaining drops from 3 to 2", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
-      expect(api.phase_1_target_modules_remaining).toBe(3);
+      expect(api.phase_1_target_modules_remaining).toBe(2);
     });
 
-    it("phase_1_modules_pending no longer contains part / surface / assembly / drawing_operations", () => {
+    it("phase_1_modules_pending now has only weldment_operations and evaluation_operations", () => {
       const api = SolidWorksCADFunctionIndexEngine.getIndex().coverage_summary.api_surface;
       expect(api.phase_1_modules_pending).not.toContain("part_operations");
       expect(api.phase_1_modules_pending).not.toContain("surface_operations");
       expect(api.phase_1_modules_pending).not.toContain("assembly_operations");
       expect(api.phase_1_modules_pending).not.toContain("drawing_operations");
-      expect(api.phase_1_modules_pending).toHaveLength(3);
+      expect(api.phase_1_modules_pending).not.toContain("sheet_metal_operations");
+      expect(api.phase_1_modules_pending).toEqual([
+        "weldment_operations",
+        "evaluation_operations",
+      ]);
+      expect(api.phase_1_modules_pending).toHaveLength(2);
     });
 
-    it("platform_integration.part / surface / assembly / drawing layers are now true", () => {
+    it("platform_integration.part / surface / assembly / drawing / sheet_metal layers are now true", () => {
       const pi = SolidWorksCADFunctionIndexEngine.getIndex().platform_integration;
       expect(pi.part_layer).toBe(true);
       expect(pi.surface_layer).toBe(true);
       expect(pi.assembly_layer).toBe(true);
       expect(pi.drawing_layer).toBe(true);
+      expect(pi.sheet_metal_layer).toBe(true);
     });
 
-    it("getTotalParameterCount() returns 809 across all 5 shipped modules", () => {
+    it("getTotalParameterCount() returns 957 across all 6 shipped modules", () => {
       const total = SolidWorksCADFunctionIndexEngine.getTotalParameterCount();
-      expect(total).toBe(809);
+      expect(total).toBe(957);
     });
   });
 
@@ -2844,6 +2855,572 @@ describe("SolidWorksCADFunctionIndexEngine", () => {
       expect(param.min).toBe(0.001);
       expect(param.default).toBe(10);
       expect(param.unit).toBe("mm");
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-06 — sheet_metal_operations module
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const KNOWN_SHEET_METAL_OPS_22 = [
+    "BASE_FLANGE_TAB",
+    "EDGE_FLANGE",
+    "MITER_FLANGE",
+    "TAB",
+    "SWEPT_FLANGE",
+    "LOFTED_BEND",
+    "SKETCHED_BEND",
+    "HEM",
+    "JOG",
+    "CROSS_BREAK",
+    "CORNER_RELIEF",
+    "CLOSED_CORNER",
+    "GUSSET",
+    "VENT",
+    "FORMING_TOOL",
+    "RIP",
+    "UNFOLD",
+    "FOLD",
+    "FLATTEN",
+    "NO_BEND_REGION",
+    "SHEET_METAL_PARAMS",
+    "BEND_TABLE_ATTACH",
+  ];
+
+  describe("sheet_metal_operations — module catalog (U-CAD-FIDX-SW-06)", () => {
+    it("loads the sheet_metal_operations catalog and reports schemaVersion '1.0.0'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("sheet_metal_operations");
+      expect(cat).not.toBeNull();
+      expect(cat!.schemaVersion).toBe("1.0.0");
+    });
+
+    it("metadata.totalParameters is exactly 148 (matches index declaration)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("sheet_metal_operations");
+      expect(cat!.metadata.totalParameters).toBe(148);
+    });
+
+    it("metadata.operationCount is exactly 22", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("sheet_metal_operations");
+      expect(cat!.metadata.operationCount).toBe(22);
+    });
+
+    it("metadata.milestone is 'U-CAD-FIDX-SW-06'", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("sheet_metal_operations");
+      expect(cat!.metadata.milestone).toBe("U-CAD-FIDX-SW-06");
+    });
+
+    it("listOperations contains every expected sheet metal op id", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.listOperations("sheet_metal_operations");
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual([...KNOWN_SHEET_METAL_OPS_22].sort());
+    });
+
+    it("module_entry.parameter_count_estimate is 148", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("sheet_metal_operations");
+      expect(entry!.parameter_count_estimate).toBe(148);
+    });
+
+    it("module_entry.dependencies is exactly ['part_operations']", () => {
+      const entry = SolidWorksCADFunctionIndexEngine.getModuleEntry("sheet_metal_operations");
+      expect(entry!.dependencies).toEqual(["part_operations"]);
+    });
+
+    it("sum of per-tab parameter arrays equals 148 (no count drift)", () => {
+      const cat = SolidWorksCADFunctionIndexEngine.getModule("sheet_metal_operations");
+      let total = 0;
+      for (const opId of Object.keys(cat!.operations)) {
+        const op = (cat!.operations as Record<string, { tabs?: Record<string, { parameters?: unknown[] }> }>)[opId];
+        for (const tabName of Object.keys(op.tabs ?? {})) {
+          total += (op.tabs![tabName].parameters ?? []).length;
+        }
+      }
+      expect(total).toBe(148);
+    });
+  });
+
+  describe("sheet_metal_operations — base flange + bend allowance (foundational K-factor / bend table semantics)", () => {
+    it("BASE_FLANGE_TAB binds to IFeatureManager.InsertSheetMetalBaseFlange2", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+      );
+      expect(op!.solidworks_command).toBe("Insert > Sheet Metal > Base Flange/Tab");
+      expect(op!.solidworks_api).toBe("IFeatureManager.InsertSheetMetalBaseFlange2");
+      expect(op!.category).toBe("SheetMetal_Base");
+    });
+
+    it("BASE_FLANGE_TAB Bend Allowance Type covers k_factor / bend_allowance / bend_deduction / bend_table", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+        "Bend Allowance Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["k_factor", "bend_allowance", "bend_deduction", "bend_table"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("k_factor");
+    });
+
+    it("BASE_FLANGE_TAB K-Factor is bounded [0, 1] with default 0.5 (industry standard neutral-axis position)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+        "K-Factor",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(1);
+      expect(param.default).toBe(0.5);
+    });
+
+    it("BASE_FLANGE_TAB Auto Relief Type covers rectangular / obround / tear (3 standard relief geometries)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+        "Auto Relief Type",
+      );
+      const param = loc!.parameter as { options?: string[]; default?: string };
+      expect(param.options).toEqual(["rectangular", "obround", "tear"]);
+      expect(param.default).toBe("rectangular");
+    });
+
+    it("BASE_FLANGE_TAB has 4 parameter tabs (Selections + Sheet Metal Parameters + Bend Allowance + Auto Relief)", () => {
+      const op = SolidWorksCADFunctionIndexEngine.getOperation(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+      );
+      expect(Object.keys(op!.tabs ?? {})).toEqual([
+        "Selections",
+        "Sheet Metal Parameters",
+        "Bend Allowance",
+        "Auto Relief",
+      ]);
+    });
+
+    it("BASE_FLANGE_TAB Thickness is bounded (0.001, 50) mm — covers foil-stock through plate-stock", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+        "Thickness",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; required?: boolean };
+      expect(param.min).toBe(0.001);
+      expect(param.max).toBe(50);
+      expect(param.default).toBe(1);
+      expect(param.required).toBe(true);
+    });
+
+    it("BEND_TABLE_ATTACH Table Type covers all 4 lookup-table types", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "BEND_TABLE_ATTACH",
+        "Table Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["bend_allowance", "bend_deduction", "k_factor", "gauge"]);
+      expect(param.required).toBe(true);
+    });
+  });
+
+  describe("sheet_metal_operations — flange creators (edge / miter / tab / swept / lofted / sketched bend)", () => {
+    it("EDGE_FLANGE Length End Condition covers 5 termination modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "EDGE_FLANGE",
+        "Length End Condition",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "blind", "up_to_vertex", "up_to_edge", "up_to_surface", "offset_from_surface",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("EDGE_FLANGE Position Mode covers all 5 SolidWorks flange placement modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "EDGE_FLANGE",
+        "Position Mode",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "material_inside", "material_outside", "bend_outside", "bend_centered", "bend_from_virtual_sharp",
+      ]);
+      expect(param.required).toBe(true);
+    });
+
+    it("EDGE_FLANGE Flange Angle is bounded (0.001, 359.999) deg with default 90", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "EDGE_FLANGE",
+        "Flange Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string; required?: boolean };
+      expect(param.min).toBe(0.001);
+      expect(param.max).toBe(359.999);
+      expect(param.default).toBe(90);
+      expect(param.unit).toBe("deg");
+      expect(param.required).toBe(true);
+    });
+
+    it("MITER_FLANGE Continuous Propagation defaults true (auto-extend across tangent edges)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "MITER_FLANGE",
+        "Continuous Propagation",
+      );
+      const param = loc!.parameter as { type?: string; default?: boolean };
+      expect(param.type).toBe("checkbox");
+      expect(param.default).toBe(true);
+    });
+
+    it("LOFTED_BEND Forming Method requires bend (preserves manufacturable bend lines) vs formed (continuous deformation)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "LOFTED_BEND",
+        "Forming Method",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["bend", "formed"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("bend");
+    });
+
+    it("LOFTED_BEND Number of Bend Lines is bounded [2, 200] with default 8", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "LOFTED_BEND",
+        "Number of Bend Lines",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(2);
+      expect(param.max).toBe(200);
+      expect(param.default).toBe(8);
+    });
+
+    it("SKETCHED_BEND Bend Position covers all 4 positioning modes", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "SKETCHED_BEND",
+        "Bend Position",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual([
+        "bend_centerline", "material_inside", "material_outside", "bend_outside",
+      ]);
+      expect(param.required).toBe(true);
+    });
+  });
+
+  describe("sheet_metal_operations — bend lifecycle ops (hem / jog / cross_break / corner_relief / closed_corner)", () => {
+    it("HEM Hem Type enumerates 4 standard hem geometries", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "HEM",
+        "Hem Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["closed", "open", "tear_drop", "rolled"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("JOG Dimension Position requires outside_offset / inside_offset / overall_dimension", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "JOG",
+        "Dimension Position",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["outside_offset", "inside_offset", "overall_dimension"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("CROSS_BREAK Cross-Break Angle is bounded (0.001, 5) deg (cosmetic micro-deformation, not a true bend)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "CROSS_BREAK",
+        "Cross-Break Angle",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number; unit?: string };
+      expect(param.min).toBe(0.001);
+      expect(param.max).toBe(5);
+      expect(param.default).toBe(1);
+      expect(param.unit).toBe("deg");
+    });
+
+    it("CORNER_RELIEF Relief Type covers rectangular / obround / round / tear", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "CORNER_RELIEF",
+        "Relief Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["rectangular", "obround", "round", "tear"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("CLOSED_CORNER Corner Type covers overlap / underlap / butt", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "CLOSED_CORNER",
+        "Corner Type",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["overlap", "underlap", "butt"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("butt");
+    });
+
+    it("CLOSED_CORNER Overlap Ratio is bounded [0, 1] with default 0.5 (centered overlap)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "CLOSED_CORNER",
+        "Overlap Ratio",
+      );
+      const param = loc!.parameter as { min?: number; max?: number; default?: number };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(1);
+      expect(param.default).toBe(0.5);
+    });
+  });
+
+  describe("sheet_metal_operations — form features + flat pattern (gusset / vent / forming_tool / rip / unfold / fold / flatten)", () => {
+    it("GUSSET Form Method requires flat vs round forming", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "GUSSET",
+        "Form Method",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["flat", "round"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("VENT Pattern Style covers 4 ventilation pattern types", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "VENT",
+        "Pattern Style",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["circular", "rectangular", "louver", "diamond"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("FORMING_TOOL Link To Tool File defaults true (maintains catalog-link for future updates)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "FORMING_TOOL",
+        "Link To Tool File",
+      );
+      const param = loc!.parameter as { type?: string; default?: boolean };
+      expect(param.type).toBe("checkbox");
+      expect(param.default).toBe(true);
+    });
+
+    it("RIP Rip Direction covers both / positive_normal / negative_normal", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "RIP",
+        "Rip Direction",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean };
+      expect(param.options).toEqual(["both_directions", "positive_normal", "negative_normal"]);
+      expect(param.required).toBe(true);
+    });
+
+    it("FLATTEN State requires flatten vs fold (toggles full flat pattern)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "FLATTEN",
+        "State",
+      );
+      const param = loc!.parameter as { options?: string[]; required?: boolean; default?: string };
+      expect(param.options).toEqual(["flatten", "fold"]);
+      expect(param.required).toBe(true);
+      expect(param.default).toBe("flatten");
+    });
+
+    it("UNFOLD and FOLD share Fixed Face / Bends + are inverses (UNFOLD has 4 params, FOLD has 3)", () => {
+      const unfold = SolidWorksCADFunctionIndexEngine.getOperation(
+        "sheet_metal_operations",
+        "UNFOLD",
+      );
+      const fold = SolidWorksCADFunctionIndexEngine.getOperation("sheet_metal_operations", "FOLD");
+      const unfoldNames = (unfold!.tabs!.Selections.parameters ?? []).map((p) => p.name);
+      const foldNames = (fold!.tabs!.Selections.parameters ?? []).map((p) => p.name);
+      expect(unfoldNames).toContain("Fixed Face");
+      expect(unfoldNames).toContain("Bends To Unfold");
+      expect(foldNames).toContain("Fixed Face");
+      expect(foldNames).toContain("Bends To Fold");
+      expect(unfold!.parameterCount).toBe(4);
+      expect(fold!.parameterCount).toBe(3);
+    });
+
+    it("getOperationsByCategory('SheetMetal_FlatPattern') returns the 4 flat-pattern ops", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory(
+        "SheetMetal_FlatPattern",
+      );
+      const ids = ops.map((o) => o.operation_id).sort();
+      expect(ids).toEqual(["FLATTEN", "FOLD", "NO_BEND_REGION", "UNFOLD"]);
+    });
+  });
+
+  describe("sheet_metal_operations — concrete contract tables (api / category) for all 22 ops", () => {
+    it("each of the 22 sheet_metal ops binds to its IFeatureManager / IModelDoc2 API method", () => {
+      const apiBindings: Record<string, string> = {
+        BASE_FLANGE_TAB: "IFeatureManager.InsertSheetMetalBaseFlange2",
+        EDGE_FLANGE: "IFeatureManager.InsertSheetMetalEdgeFlange3",
+        MITER_FLANGE: "IFeatureManager.InsertSheetMetalMiterFlange",
+        TAB: "IFeatureManager.InsertSheetMetalTab",
+        SWEPT_FLANGE: "IFeatureManager.InsertSheetMetalSweptFlange",
+        LOFTED_BEND: "IFeatureManager.InsertSheetMetalLoftedBend",
+        SKETCHED_BEND: "IFeatureManager.InsertSketchedBend",
+        HEM: "IFeatureManager.InsertSheetMetalHem",
+        JOG: "IFeatureManager.InsertSheetMetalJog2",
+        CROSS_BREAK: "IFeatureManager.InsertSheetMetalCrossBreak",
+        CORNER_RELIEF: "IFeatureManager.InsertCornerRelief",
+        CLOSED_CORNER: "IFeatureManager.InsertClosedCorner",
+        GUSSET: "IFeatureManager.InsertSheetMetalGusset",
+        VENT: "IFeatureManager.InsertSheetMetalVent",
+        FORMING_TOOL: "IFeatureManager.InsertFormToolFromCatalog",
+        RIP: "IFeatureManager.InsertSheetMetalRip",
+        UNFOLD: "IFeatureManager.InsertSheetMetalUnfold",
+        FOLD: "IFeatureManager.InsertSheetMetalFold",
+        FLATTEN: "IModelDoc2.SheetMetalFlatten",
+        NO_BEND_REGION: "IFeatureManager.InsertSheetMetalNoBendRegion",
+        SHEET_METAL_PARAMS: "ISheetMetalFeatureData.* (set)",
+        BEND_TABLE_ATTACH: "IModelDocExtension.AddBendTable",
+      };
+      const expectedKeys = Object.keys(apiBindings).sort();
+      expect(expectedKeys).toEqual([...KNOWN_SHEET_METAL_OPS_22].sort());
+      for (const [opId, expectedApi] of Object.entries(apiBindings)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("sheet_metal_operations", opId);
+        expect(op).not.toBeNull();
+        expect(op!.solidworks_api).toBe(expectedApi);
+      }
+    });
+
+    it("each of the 22 sheet_metal ops sits in its category bucket (Base/Flange/Bend/Form/Modify/FlatPattern/Parameters)", () => {
+      const categories: Record<string, string> = {
+        BASE_FLANGE_TAB: "SheetMetal_Base",
+        EDGE_FLANGE: "SheetMetal_Flange",
+        MITER_FLANGE: "SheetMetal_Flange",
+        TAB: "SheetMetal_Flange",
+        SWEPT_FLANGE: "SheetMetal_Flange",
+        LOFTED_BEND: "SheetMetal_Flange",
+        SKETCHED_BEND: "SheetMetal_Bend",
+        HEM: "SheetMetal_Bend",
+        JOG: "SheetMetal_Bend",
+        CROSS_BREAK: "SheetMetal_Form",
+        CORNER_RELIEF: "SheetMetal_Modify",
+        CLOSED_CORNER: "SheetMetal_Modify",
+        GUSSET: "SheetMetal_Form",
+        VENT: "SheetMetal_Form",
+        FORMING_TOOL: "SheetMetal_Form",
+        RIP: "SheetMetal_Modify",
+        UNFOLD: "SheetMetal_FlatPattern",
+        FOLD: "SheetMetal_FlatPattern",
+        FLATTEN: "SheetMetal_FlatPattern",
+        NO_BEND_REGION: "SheetMetal_FlatPattern",
+        SHEET_METAL_PARAMS: "SheetMetal_Parameters",
+        BEND_TABLE_ATTACH: "SheetMetal_Parameters",
+      };
+      for (const [opId, expectedCategory] of Object.entries(categories)) {
+        const op = SolidWorksCADFunctionIndexEngine.getOperation("sheet_metal_operations", opId);
+        expect(op!.category).toBe(expectedCategory);
+      }
+    });
+  });
+
+  describe("sheet_metal_operations — adversarial inputs (NaN / Infinity / empty / oversize / unicode / boundary)", () => {
+    it("findParameter with empty-string parameter name returns null — adversarial empty", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "sheet_metal_operations",
+          "BASE_FLANGE_TAB",
+          "",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with 256-char oversize parameter name returns null — adversarial oversize", () => {
+      const oversize = "k".repeat(256);
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "sheet_metal_operations",
+          "BASE_FLANGE_TAB",
+          oversize,
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with NaN-shaped string returns null — adversarial NaN", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "sheet_metal_operations",
+          "EDGE_FLANGE",
+          "NaN",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with Infinity-shaped string returns null — adversarial Infinity", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "sheet_metal_operations",
+          "EDGE_FLANGE",
+          "Infinity",
+        ),
+      ).toBeNull();
+    });
+
+    it("findParameter with unicode parameter name returns null — adversarial unicode", () => {
+      expect(
+        SolidWorksCADFunctionIndexEngine.findParameter(
+          "sheet_metal_operations",
+          "FORMING_TOOL",
+          "🔩⚒️🪛",
+        ),
+      ).toBeNull();
+    });
+
+    it("getOperationsByCategory('SheetMetal_Nonexistent') returns empty array — failure mode", () => {
+      const ops = SolidWorksCADFunctionIndexEngine.getOperationsByCategory("SheetMetal_Nonexistent");
+      expect(ops).toEqual([]);
+    });
+
+    it("BASE_FLANGE_TAB Thickness must be > 0 (zero-thickness is degenerate sheet metal)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "BASE_FLANGE_TAB",
+        "Thickness",
+      );
+      const param = loc!.parameter as { min?: number };
+      expect(param.min).toBe(0.001);
+      expect(param.min).toBeGreaterThan(0);
+    });
+
+    it("LOFTED_BEND Number of Bend Lines bounded [2, 200] (lofted bend needs at least 2 to interpolate)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "LOFTED_BEND",
+        "Number of Bend Lines",
+      );
+      const param = loc!.parameter as { min?: number; max?: number };
+      expect(param.min).toBe(2);
+      expect(param.max).toBe(200);
+    });
+
+    it("CLOSED_CORNER Overlap Ratio bounded [0, 1] (cannot overlap more than 100%)", () => {
+      const loc = SolidWorksCADFunctionIndexEngine.findParameter(
+        "sheet_metal_operations",
+        "CLOSED_CORNER",
+        "Overlap Ratio",
+      );
+      const param = loc!.parameter as { min?: number; max?: number };
+      expect(param.min).toBe(0);
+      expect(param.max).toBe(1);
     });
   });
 });

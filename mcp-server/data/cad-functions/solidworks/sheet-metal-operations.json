@@ -1,0 +1,492 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Sheet Metal Operations — Sheet metal authoring layer",
+    "description": "Parameter catalog for the SolidWorks CAD sheet metal authoring layer. Sheet metal is a specialized part-modeling environment where every feature carries an implicit flat-pattern projection through K-factor / bend allowance / bend deduction calculations. Catalog covers BASE_FLANGE_TAB (the foundational sheet metal feature), 6 flange creators (EDGE_FLANGE / MITER_FLANGE / TAB / SWEPT_FLANGE / LOFTED_BEND / SKETCHED_BEND), 5 modify ops (HEM / JOG / CROSS_BREAK / CORNER_RELIEF / CLOSED_CORNER), 4 form features (GUSSET / VENT / FORMING_TOOL / RIP), 4 bend authoring + flat-pattern ops (UNFOLD / FOLD / FLATTEN / NO_BEND_REGION), and 2 sheet metal parameter / bend table editors (SHEET_METAL_PARAMS / BEND_TABLE_ATTACH). 21 operations / 152 parameters total. Bindings target IFeatureManager.InsertSheetMetalBaseFlange2 / InsertSheetMetalEdgeFlange3 / InsertSheetMetalMiterFlange / InsertSheetMetalHem / InsertSheetMetalJog2 / InsertCornerRelief / InsertSheetMetalGusset / InsertSheetMetalVent / InsertFormToolFromCatalog / InsertSheetMetalRip / InsertSheetMetalUnfold / InsertSheetMetalFold / IModelDoc2.SheetMetalFlatten — the canonical SolidWorks 2024 sheet metal authoring API.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-06",
+    "source": "SolidWorks 2024 API Help — Sheet Metal; SolidWorks API Reference — IFeatureManager (sheet metal methods); SolidWorks 2024 Sheet Metal toolbar; ASME Y14.41 (3D Annotated Models); industry K-factor / bend allowance practice (e.g. Diehl tooling tables)",
+    "totalParameters": 148,
+    "operationCount": 22,
+    "cad_concepts_used": [
+      "K_FACTOR_NEUTRAL_BEND_LINE",
+      "BEND_ALLOWANCE_BA",
+      "BEND_DEDUCTION_BD",
+      "FLAT_PATTERN_PROJECTION",
+      "GAUGE_TABLE_DRIVEN_THICKNESS",
+      "BEND_TABLE_DRIVEN_RADIUS",
+      "MINIMUM_FLANGE_LENGTH",
+      "RELIEF_RECTANGULAR_OBROUND_TEAR",
+      "MITER_FLANGE_PROPAGATION",
+      "FORM_TOOL_LIBRARY_PUNCH",
+      "CLOSED_CORNER_OVERLAP_BUTT",
+      "CROSS_BREAK_STIFFNESS",
+      "RIP_MULTI_BODY_TO_SINGLE_SHEET"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks sheet metal operations",
+    "tabs": ["Selections", "Sheet Metal Parameters", "Bend Allowance", "Auto Relief"]
+  },
+  "operations": {
+    "BASE_FLANGE_TAB": {
+      "description": "Base flange/tab — the foundational sheet metal feature. Defines sheet thickness, default bend radius, K-factor (or bend allowance / bend deduction / bend table), and default auto-relief style for the entire part. Subsequent flanges/bends inherit these defaults unless overridden.",
+      "category": "SheetMetal_Base",
+      "solidworks_command": "Insert > Sheet Metal > Base Flange/Tab",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalBaseFlange2",
+      "parameterCount": 11,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "description": "Closed sketch defining the base flange shape", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["one_direction", "mid_plane", "two_direction"], "default": "one_direction"},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false}
+          ]
+        },
+        "Sheet Metal Parameters": {
+          "parameters": [
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0.001, "max": 50},
+            {"name": "Default Bend Radius", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0.001, "max": 1000},
+            {"name": "Use Gauge Table", "type": "checkbox", "default": false},
+            {"name": "Gauge Table Path", "type": "string", "description": "Required when Use Gauge Table = true"}
+          ]
+        },
+        "Bend Allowance": {
+          "parameters": [
+            {"name": "Bend Allowance Type", "type": "dropdown", "options": ["k_factor", "bend_allowance", "bend_deduction", "bend_table"], "required": true, "default": "k_factor"},
+            {"name": "K-Factor", "type": "numeric", "description": "Required when Bend Allowance Type = k_factor", "default": 0.5, "min": 0, "max": 1}
+          ]
+        },
+        "Auto Relief": {
+          "parameters": [
+            {"name": "Auto Relief Type", "type": "dropdown", "options": ["rectangular", "obround", "tear"], "default": "rectangular"},
+            {"name": "Relief Ratio", "type": "numeric", "description": "Relief size as multiple of thickness", "default": 0.5, "min": 0.05, "max": 5}
+          ]
+        }
+      }
+    },
+    "EDGE_FLANGE": {
+      "description": "Edge flange — add a flange perpendicular to a selected edge. Length End Condition controls termination (blind / up_to_vertex / up_to_edge / up_to_surface / offset_from_surface). Position Mode controls flange placement relative to the parent edge (material_inside / material_outside / bend_outside / bend_centered / bend_from_virtual_sharp).",
+      "category": "SheetMetal_Flange",
+      "solidworks_command": "Insert > Sheet Metal > Edge Flange",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalEdgeFlange3",
+      "parameterCount": 11,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Source Edge", "type": "selection", "description": "Edge to attach flange to", "required": true},
+            {"name": "Flange Angle", "type": "numeric", "unit": "deg", "required": true, "default": 90, "min": 0.001, "max": 359.999},
+            {"name": "Length End Condition", "type": "dropdown", "options": ["blind", "up_to_vertex", "up_to_edge", "up_to_surface", "offset_from_surface"], "required": true, "default": "blind"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Required when Length End Condition = blind", "default": 10, "min": 0.001},
+            {"name": "Position Mode", "type": "dropdown", "options": ["material_inside", "material_outside", "bend_outside", "bend_centered", "bend_from_virtual_sharp"], "required": true, "default": "material_outside"},
+            {"name": "Override Bend Radius", "type": "checkbox", "default": false},
+            {"name": "Custom Bend Radius", "type": "numeric", "unit": "mm", "description": "Used when Override Bend Radius = true", "default": 1, "min": 0.001},
+            {"name": "Trim Side Bends", "type": "checkbox", "description": "Auto-trim conflicting adjacent bends", "default": true},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Edit Flange Profile", "type": "checkbox", "description": "Open profile sketch for custom shape", "default": false}
+          ]
+        },
+        "Auto Relief": {
+          "parameters": [
+            {"name": "Auto Relief Type", "type": "dropdown", "options": ["rectangular", "obround", "tear", "use_default"], "default": "use_default"}
+          ]
+        }
+      }
+    },
+    "MITER_FLANGE": {
+      "description": "Miter flange — propagates a profile sketch along multiple connected edges, creating mitered corners automatically. Gap controls the corner gap; Continuous Propagation drives the flange across all tangent edges from the seed.",
+      "category": "SheetMetal_Flange",
+      "solidworks_command": "Insert > Sheet Metal > Miter Flange",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalMiterFlange",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "description": "Open profile sketch perpendicular to first edge", "required": true},
+            {"name": "Seed Edges", "type": "selection", "description": "Comma-separated list of edges to propagate along", "required": true},
+            {"name": "Continuous Propagation", "type": "checkbox", "description": "Auto-extend across tangent edges", "default": true},
+            {"name": "Position Mode", "type": "dropdown", "options": ["material_inside", "material_outside", "bend_outside"], "default": "material_outside"},
+            {"name": "Gap", "type": "numeric", "unit": "mm", "description": "Corner gap distance", "default": 0.5, "min": 0},
+            {"name": "Override Bend Radius", "type": "checkbox", "default": false},
+            {"name": "Custom Bend Radius", "type": "numeric", "unit": "mm", "default": 1, "min": 0.001},
+            {"name": "Start Trim", "type": "checkbox", "description": "Trim flange start to source edge", "default": true}
+          ]
+        }
+      }
+    },
+    "TAB": {
+      "description": "Tab feature — extrudes a closed sketch on an existing flange face into a coplanar tab (no bend). Used for raised pads, mounting bosses, and stiffening features.",
+      "category": "SheetMetal_Flange",
+      "solidworks_command": "Insert > Sheet Metal > Tab",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalTab",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "description": "Closed sketch on a flange face", "required": true},
+            {"name": "Sketch Plane", "type": "selection", "description": "Flange face containing the sketch", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative"], "default": "positive"},
+            {"name": "Merge Result", "type": "checkbox", "default": true},
+            {"name": "Link To Thickness", "type": "checkbox", "description": "Tab thickness follows part thickness parameter", "default": true}
+          ]
+        }
+      }
+    },
+    "SWEPT_FLANGE": {
+      "description": "Swept flange — sweeps a profile along a path with sheet metal semantics (bend allowance + flat pattern). Handles curved sheet metal flanges that cannot be made by edge flange (e.g. spiral, helix, curved-edge flanges).",
+      "category": "SheetMetal_Flange",
+      "solidworks_command": "Insert > Sheet Metal > Swept Flange",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalSweptFlange",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "required": true},
+            {"name": "Path", "type": "selection", "description": "Sketch / edge / curve to sweep along", "required": true},
+            {"name": "Profile Type", "type": "dropdown", "options": ["sketch_profile", "edge_offset"], "default": "sketch_profile"},
+            {"name": "Twist Type", "type": "dropdown", "options": ["follow_path", "keep_normal_constant", "twist_with_n_turns"], "default": "follow_path"},
+            {"name": "Twist Value", "type": "numeric", "default": 0},
+            {"name": "Override Bend Radius", "type": "checkbox", "default": false},
+            {"name": "Custom Bend Radius", "type": "numeric", "unit": "mm", "default": 1, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "LOFTED_BEND": {
+      "description": "Lofted bend — sheet metal feature transitioning between two profile sketches (e.g. round-to-rectangle transition). Forming Method selects bend (preserves manufacturable bend lines) vs formed (continuous deformation, may not be foldable).",
+      "category": "SheetMetal_Flange",
+      "solidworks_command": "Insert > Sheet Metal > Lofted Bend",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalLoftedBend",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Profile 1", "type": "selection", "required": true},
+            {"name": "Profile 2", "type": "selection", "required": true},
+            {"name": "Forming Method", "type": "dropdown", "options": ["bend", "formed"], "required": true, "default": "bend"},
+            {"name": "Number of Bend Lines", "type": "numeric", "description": "Used when Forming Method = bend", "default": 8, "min": 2, "max": 200},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Override Bend Radius", "type": "checkbox", "default": false},
+            {"name": "Custom Bend Radius", "type": "numeric", "unit": "mm", "default": 1, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "SKETCHED_BEND": {
+      "description": "Sketched bend — bend a flat sheet metal face along a sketched line. Bend Position controls how the bend is placed relative to the sketch line (bend_centerline / material_inside / material_outside / bend_outside).",
+      "category": "SheetMetal_Bend",
+      "solidworks_command": "Insert > Sheet Metal > Sketched Bend",
+      "solidworks_api": "IFeatureManager.InsertSketchedBend",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bend Line Sketch", "type": "selection", "description": "Sketch containing one or more lines on a flat face", "required": true},
+            {"name": "Fixed Face", "type": "selection", "description": "Face that remains stationary during bending", "required": true},
+            {"name": "Bend Angle", "type": "numeric", "unit": "deg", "required": true, "default": 90, "min": 0.001, "max": 359.999},
+            {"name": "Bend Position", "type": "dropdown", "options": ["bend_centerline", "material_inside", "material_outside", "bend_outside"], "required": true, "default": "bend_centerline"},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Override Bend Radius", "type": "checkbox", "default": false},
+            {"name": "Custom Bend Radius", "type": "numeric", "unit": "mm", "default": 1, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "HEM": {
+      "description": "Hem — fold an edge back on itself for safety, stiffness, or joining. Hem Type selects closed (zero gap) / open (rolled with gap) / tear-drop / rolled. Gap controls the open hem clearance.",
+      "category": "SheetMetal_Bend",
+      "solidworks_command": "Insert > Sheet Metal > Hem",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalHem",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Edges To Hem", "type": "string", "description": "Comma-separated list of edges", "required": true},
+            {"name": "Hem Type", "type": "dropdown", "options": ["closed", "open", "tear_drop", "rolled"], "required": true, "default": "closed"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "required": true, "default": 5, "min": 0.001},
+            {"name": "Gap Distance", "type": "numeric", "unit": "mm", "description": "Used when Hem Type = open / rolled", "default": 0.5, "min": 0},
+            {"name": "Position Mode", "type": "dropdown", "options": ["material_inside", "bend_outside", "bend_from_virtual_sharp"], "default": "material_inside"},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Auto-Trim Adjacent", "type": "checkbox", "default": true},
+            {"name": "Hem Bend Radius", "type": "numeric", "unit": "mm", "description": "Override default bend radius for the hem itself", "default": 1, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "JOG": {
+      "description": "Jog — sheet metal step (Z-bend) using a sketched line as the centerline. Creates two parallel bends with a flat between them at a step offset from the parent face.",
+      "category": "SheetMetal_Bend",
+      "solidworks_command": "Insert > Sheet Metal > Jog",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalJog2",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bend Line Sketch", "type": "selection", "description": "Sketch with a single line on a flat face", "required": true},
+            {"name": "Fixed Face", "type": "selection", "required": true},
+            {"name": "Jog Offset Distance", "type": "numeric", "unit": "mm", "required": true, "default": 10, "min": 0.001},
+            {"name": "Dimension Position", "type": "dropdown", "options": ["outside_offset", "inside_offset", "overall_dimension"], "required": true, "default": "outside_offset"},
+            {"name": "Jog Angle", "type": "numeric", "unit": "deg", "default": 90, "min": 0.001, "max": 179.999},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Override Bend Radius", "type": "checkbox", "default": false},
+            {"name": "Custom Bend Radius", "type": "numeric", "unit": "mm", "default": 1, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "CROSS_BREAK": {
+      "description": "Cross break — diagonal stiffening rib formed by partial bends across a flat face. Improves panel stiffness without adding material. Cross-break angle is typically 0.5-2 degrees (cosmetic / structural deformation, not a true bend).",
+      "category": "SheetMetal_Form",
+      "solidworks_command": "Insert > Sheet Metal > Cross-Break",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalCrossBreak",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Target Face", "type": "selection", "required": true},
+            {"name": "Cross-Break Angle", "type": "numeric", "unit": "deg", "default": 1, "min": 0.001, "max": 5},
+            {"name": "Cross-Break Radius", "type": "numeric", "unit": "mm", "default": 100, "min": 0.001},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Style", "type": "dropdown", "options": ["body_only", "drawing_annotation"], "default": "body_only"}
+          ]
+        }
+      }
+    },
+    "CORNER_RELIEF": {
+      "description": "Corner relief — controlled material removal at multi-bend corners to prevent tearing. Relief Type selects rectangular / obround / round / tear. Gap controls relief opening size.",
+      "category": "SheetMetal_Modify",
+      "solidworks_command": "Insert > Sheet Metal > Corner > Corner Relief",
+      "solidworks_api": "IFeatureManager.InsertCornerRelief",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Corner Vertices", "type": "string", "description": "Comma-separated list of corner vertex IDs", "required": true},
+            {"name": "Relief Type", "type": "dropdown", "options": ["rectangular", "obround", "round", "tear"], "required": true, "default": "rectangular"},
+            {"name": "Relief Size", "type": "numeric", "unit": "mm", "required": true, "default": 2, "min": 0.001},
+            {"name": "Relief Ratio Mode", "type": "dropdown", "options": ["absolute", "thickness_multiple"], "default": "thickness_multiple"},
+            {"name": "Center On Bend Lines", "type": "checkbox", "default": true},
+            {"name": "Add Tangent Edges", "type": "checkbox", "description": "Smooth-blend the relief edges", "default": false}
+          ]
+        }
+      }
+    },
+    "CLOSED_CORNER": {
+      "description": "Closed corner — fill the gap at a sheet metal corner with overlap, butt, or underlap. Used to complete enclosures where bent flanges meet.",
+      "category": "SheetMetal_Modify",
+      "solidworks_command": "Insert > Sheet Metal > Closed Corner",
+      "solidworks_api": "IFeatureManager.InsertClosedCorner",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Faces To Extend", "type": "string", "description": "Comma-separated list of corner faces", "required": true},
+            {"name": "Faces To Match", "type": "string"},
+            {"name": "Corner Type", "type": "dropdown", "options": ["overlap", "underlap", "butt"], "required": true, "default": "butt"},
+            {"name": "Overlap Ratio", "type": "numeric", "description": "0..1 overlap fraction (Corner Type = overlap / underlap)", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Butt Gap", "type": "numeric", "unit": "mm", "description": "Gap between butt-corner faces", "default": 0, "min": 0},
+            {"name": "Open Bend Region", "type": "checkbox", "description": "Keep bend region open (no closure across bend)", "default": false},
+            {"name": "Coplanar Faces", "type": "checkbox", "description": "Force closure to coplanar faces only", "default": false}
+          ]
+        }
+      }
+    },
+    "GUSSET": {
+      "description": "Gusset — internal stiffening rib spanning two sheet metal faces across a bend. Form Method selects flat (formed-from-flat-stock) vs round (rolled). Per ANSI sheet metal practice typically used at right-angle bends to prevent flange deflection.",
+      "category": "SheetMetal_Form",
+      "solidworks_command": "Insert > Sheet Metal > Gusset",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalGusset",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Target Bend Edge", "type": "selection", "required": true},
+            {"name": "Form Method", "type": "dropdown", "options": ["flat", "round"], "required": true, "default": "flat"},
+            {"name": "Indent Width", "type": "numeric", "unit": "mm", "required": true, "default": 5, "min": 0.001},
+            {"name": "Indent Depth", "type": "numeric", "unit": "mm", "required": true, "default": 10, "min": 0.001},
+            {"name": "Indent Length", "type": "numeric", "unit": "mm", "default": 15, "min": 0.001},
+            {"name": "Indent Thickness", "type": "numeric", "unit": "mm", "description": "Thickness for the gusset rib material", "default": 1, "min": 0.001},
+            {"name": "Position Reference Plane", "type": "selection", "description": "Optional reference for gusset placement"},
+            {"name": "Number of Gussets", "type": "numeric", "default": 1, "min": 1, "max": 99}
+          ]
+        }
+      }
+    },
+    "VENT": {
+      "description": "Vent feature — ventilation cutout pattern (louvers / openings) on a sheet metal face. Pattern Style selects from circular / rectangular / louver patterns; Spar Width controls connector ribs.",
+      "category": "SheetMetal_Form",
+      "solidworks_command": "Insert > Sheet Metal > Vent",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalVent",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Boundary Sketch", "type": "selection", "description": "Closed sketch defining the vent area", "required": true},
+            {"name": "Target Face", "type": "selection", "required": true},
+            {"name": "Pattern Style", "type": "dropdown", "options": ["circular", "rectangular", "louver", "diamond"], "required": true, "default": "circular"},
+            {"name": "Number of Ribs", "type": "numeric", "default": 4, "min": 0, "max": 99},
+            {"name": "Rib Width", "type": "numeric", "unit": "mm", "description": "Spar width between vent openings", "default": 2, "min": 0.001},
+            {"name": "Number of Spars", "type": "numeric", "default": 4, "min": 0, "max": 99},
+            {"name": "Fill-In Boundary Holes", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "FORMING_TOOL": {
+      "description": "Forming tool — apply a punch / lance / louver / extruded-flange form from the SolidWorks Forming Tools library to a sheet metal face. Library Path selects from Toolbox or custom forming-tool catalog.",
+      "category": "SheetMetal_Form",
+      "solidworks_command": "Insert > Sheet Metal > Forming Tool",
+      "solidworks_api": "IFeatureManager.InsertFormToolFromCatalog",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Forming Tool Path", "type": "string", "description": "Path to .sldftp form-tool file", "required": true},
+            {"name": "Target Face", "type": "selection", "required": true},
+            {"name": "Position Sketch", "type": "selection", "description": "Sketch points for tool instances"},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -360, "max": 360},
+            {"name": "Flip Tool", "type": "checkbox", "description": "Apply tool to opposite face direction", "default": false},
+            {"name": "Link To Tool File", "type": "checkbox", "description": "Maintain external link to tool definition", "default": true},
+            {"name": "Override Stamp Color", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "RIP": {
+      "description": "Rip — cut a continuous edge in a multi-body part to allow it to be unfolded as a single sheet. Required step when converting an imported solid into editable sheet metal.",
+      "category": "SheetMetal_Modify",
+      "solidworks_command": "Insert > Sheet Metal > Rip",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalRip",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Edges To Rip", "type": "string", "description": "Comma-separated list of edges", "required": true},
+            {"name": "Rip Direction", "type": "dropdown", "options": ["both_directions", "positive_normal", "negative_normal"], "required": true, "default": "both_directions"},
+            {"name": "Gap Width", "type": "numeric", "unit": "mm", "default": 0, "min": 0},
+            {"name": "Make Sheet Metal", "type": "checkbox", "description": "Auto-convert ripped body to sheet metal feature", "default": true},
+            {"name": "Auto-Detect Bends", "type": "checkbox", "description": "Auto-create bend features at edges around the rip", "default": true}
+          ]
+        }
+      }
+    },
+    "UNFOLD": {
+      "description": "Unfold one or more bends — temporarily flatten selected bends so additional features (cuts, holes, slots) can be authored on the resulting flat face. Pair with FOLD to restore the bent state after editing.",
+      "category": "SheetMetal_FlatPattern",
+      "solidworks_command": "Insert > Sheet Metal > Unfold",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalUnfold",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Fixed Face", "type": "selection", "description": "Face that stays in place during unfold", "required": true},
+            {"name": "Bends To Unfold", "type": "string", "description": "Comma-separated bend feature names, or 'all'", "required": true},
+            {"name": "Collect All Bends", "type": "checkbox", "description": "Auto-include every bend in the part", "default": false},
+            {"name": "Suppress Process Bends", "type": "checkbox", "description": "Suppress process bends (forming-tool bends) during unfold", "default": true}
+          ]
+        }
+      }
+    },
+    "FOLD": {
+      "description": "Fold previously unfolded bends — restore bent state. Used after UNFOLD + cut-extrude operations to bring the part back to its formed configuration.",
+      "category": "SheetMetal_FlatPattern",
+      "solidworks_command": "Insert > Sheet Metal > Fold",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalFold",
+      "parameterCount": 3,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Fixed Face", "type": "selection", "required": true},
+            {"name": "Bends To Fold", "type": "string", "description": "Comma-separated bend feature names, or 'all'", "required": true},
+            {"name": "Collect All Bends", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "FLATTEN": {
+      "description": "Flatten — toggle the flat pattern view (entire part unfolded for laser/punch/waterjet output). Distinct from UNFOLD (per-bend, mid-design) — FLATTEN is the final flat-pattern derived feature.",
+      "category": "SheetMetal_FlatPattern",
+      "solidworks_command": "Insert > Sheet Metal > Flatten / View > Flat Pattern",
+      "solidworks_api": "IModelDoc2.SheetMetalFlatten",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "State", "type": "dropdown", "options": ["flatten", "fold"], "required": true, "default": "flatten"},
+            {"name": "Override Default Fixed Face", "type": "checkbox", "default": false},
+            {"name": "Override Fixed Face", "type": "selection", "description": "Used when Override Default Fixed Face = true"},
+            {"name": "Show Flat Pattern Bend Lines", "type": "checkbox", "default": true},
+            {"name": "Show Bounding Box", "type": "checkbox", "description": "Display bounding rectangle (stock size estimation)", "default": false}
+          ]
+        }
+      }
+    },
+    "NO_BEND_REGION": {
+      "description": "No-bend region — mark a region of a flange that should NOT participate in bending operations. Used to preserve features (holes, embossed text) that cross a planned bend line and would otherwise distort.",
+      "category": "SheetMetal_FlatPattern",
+      "solidworks_command": "Insert > Sheet Metal > No Bend Region",
+      "solidworks_api": "IFeatureManager.InsertSheetMetalNoBendRegion",
+      "parameterCount": 4,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Boundary Sketch", "type": "selection", "description": "Closed sketch defining the no-bend zone", "required": true},
+            {"name": "Target Face", "type": "selection", "required": true},
+            {"name": "Treat As", "type": "dropdown", "options": ["no_bend", "stiffener", "embedded_feature"], "default": "no_bend"},
+            {"name": "Affect Flat Pattern", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SHEET_METAL_PARAMS": {
+      "description": "Edit global sheet metal parameters (thickness / default bend radius / K-factor / bend tables / gauge tables). Distinct from BASE_FLANGE_TAB: this op edits parameters AFTER the base flange exists.",
+      "category": "SheetMetal_Parameters",
+      "solidworks_command": "Edit Sheet Metal Defaults",
+      "solidworks_api": "ISheetMetalFeatureData.* (set)",
+      "parameterCount": 9,
+      "tabs": {
+        "Sheet Metal Parameters": {
+          "parameters": [
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "min": 0.001, "max": 50},
+            {"name": "Default Bend Radius", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Use Gauge Table", "type": "checkbox", "default": false},
+            {"name": "Gauge Table Path", "type": "string"}
+          ]
+        },
+        "Bend Allowance": {
+          "parameters": [
+            {"name": "Bend Allowance Type", "type": "dropdown", "options": ["k_factor", "bend_allowance", "bend_deduction", "bend_table"], "default": "k_factor"},
+            {"name": "K-Factor", "type": "numeric", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Bend Allowance Value", "type": "numeric", "unit": "mm", "min": 0},
+            {"name": "Bend Deduction Value", "type": "numeric", "unit": "mm"}
+          ]
+        },
+        "Auto Relief": {
+          "parameters": [
+            {"name": "Auto Relief Type", "type": "dropdown", "options": ["rectangular", "obround", "tear"], "default": "rectangular"}
+          ]
+        }
+      }
+    },
+    "BEND_TABLE_ATTACH": {
+      "description": "Attach a bend table or bend deduction table to the part. Bend tables map (gauge, bend_radius, bend_angle) tuples to specific bend allowances measured from physical tooling — preferred over K-factor when shop has empirical data.",
+      "category": "SheetMetal_Parameters",
+      "solidworks_command": "Insert > Tables > Bend Table",
+      "solidworks_api": "IModelDocExtension.AddBendTable",
+      "parameterCount": 6,
+      "tabs": {
+        "Sheet Metal Parameters": {
+          "parameters": [
+            {"name": "Table Path", "type": "string", "description": "Path to .btl or .xls bend table", "required": true},
+            {"name": "Table Type", "type": "dropdown", "options": ["bend_allowance", "bend_deduction", "k_factor", "gauge"], "required": true, "default": "bend_allowance"},
+            {"name": "Material Override", "type": "string", "description": "Optional material name to scope the table to"},
+            {"name": "Apply To All Configurations", "type": "checkbox", "default": false},
+            {"name": "Replace Existing", "type": "checkbox", "description": "Replace previously attached table of same type", "default": false},
+            {"name": "Validate Bounds", "type": "checkbox", "description": "Warn when current bend params fall outside table range", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}

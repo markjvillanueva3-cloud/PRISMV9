@@ -131,18 +131,24 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       expect(r.count).toBe(24);
     });
 
-    it("returns 0 operations for the not-yet-shipped sheet_metal_operations module", async () => {
+    it("returns 22 operations for the sheet_metal_operations module (shipped in U-06)", async () => {
       const r = await invoke("cad_solidworks_list_operations", { module_id: "sheet_metal_operations" });
+      expect(r.success).toBe(true);
+      expect(r.count).toBe(22);
+    });
+
+    it("returns 0 operations for the not-yet-shipped weldment_operations module", async () => {
+      const r = await invoke("cad_solidworks_list_operations", { module_id: "weldment_operations" });
       expect(r.success).toBe(true);
       expect(r.count).toBe(0);
       // Note: slimResponse drops the empty `operations: []` array from the wire payload;
       // the count===0 assertion above is the canonical check.
     });
 
-    it("returns all 122 ops when no module_id is given (sketch + part + surface + assembly + drawing shipped through U-05)", async () => {
+    it("returns all 144 ops when no module_id is given (sketch + part + surface + assembly + drawing + sheet_metal shipped through U-06)", async () => {
       const r = await invoke("cad_solidworks_list_operations");
       expect(r.success).toBe(true);
-      expect(r.count).toBe(122);
+      expect(r.count).toBe(144);
     });
   });
 
@@ -223,12 +229,13 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
   });
 
   describe("cad_solidworks_search_parameters", () => {
-    it("finds 19 'Sketch Plane' parameter occurrences across sketch + part + surface", async () => {
+    it("finds 20 'Sketch Plane' parameter occurrences across sketch + part + surface + sheet_metal", async () => {
       const r = await invoke("cad_solidworks_search_parameters", { query: "Sketch Plane" });
       expect(r.success).toBe(true);
       expect(r.query).toBe("Sketch Plane");
-      // 16 sketch ops + HOLE_WIZARD (part) + SURFACE_EXTRUDE + SURFACE_PLANAR (surface) = 19.
-      expect(r.count).toBe(19);
+      // 16 sketch ops + HOLE_WIZARD (part) + SURFACE_EXTRUDE + SURFACE_PLANAR (surface)
+      //   + TAB (sheet_metal) = 20.
+      expect(r.count).toBe(20);
     });
 
     it("honors the limit parameter and caps results", async () => {
@@ -283,9 +290,9 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       expect(r.system_id).toBe("solidworks");
       expect(r.module_name).toBe("SolidWorks CAD Unified Function Index");
       expect(r.total_modules).toBe(8);
-      expect(r.total_operations).toBe(122);
-      expect(r.total_parameters).toBe(809);
-      expect(r.estimated_parameter_total).toBe(809);
+      expect(r.total_operations).toBe(144);
+      expect(r.total_parameters).toBe(957);
+      expect(r.estimated_parameter_total).toBe(957);
       expect(r.coverage_state).toBe("IN_PROGRESS");
       const modules = r.modules as Array<Record<string, unknown>>;
       expect(modules).toHaveLength(8);
@@ -299,15 +306,17 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       expect(modules[3].parameter_count_estimate).toBe(172);
       expect(modules[4].module_id).toBe("drawing_operations");
       expect(modules[4].parameter_count_estimate).toBe(165);
+      expect(modules[5].module_id).toBe("sheet_metal_operations");
+      expect(modules[5].parameter_count_estimate).toBe(148);
     });
   });
 
   describe("cad_solidworks_total_parameter_count", () => {
-    it("reports 809 total parameters with zero drift from declared total", async () => {
+    it("reports 957 total parameters with zero drift from declared total", async () => {
       const r = await invoke("cad_solidworks_total_parameter_count");
       expect(r.success).toBe(true);
-      expect(r.total_parameters).toBe(809);
-      expect(r.declared_total).toBe(809);
+      expect(r.total_parameters).toBe(957);
+      expect(r.declared_total).toBe(957);
       expect(r.drift).toBe(0);
     });
   });
@@ -331,12 +340,11 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       await invoke("cad_solidworks_list_operations"); // no module_id → iterate all 8
       const r = await invoke("cad_solidworks_load_errors");
       expect(r.success).toBe(true);
-      // 3 modules pending after U-05 (everything except sketch+part+surface+assembly+drawing)
-      expect(r.count).toBe(3);
+      // 2 modules pending after U-06 (only weldment + evaluation remain)
+      expect(r.count).toBe(2);
       const errors = r.errors as Array<{ module_id: string; error: string }>;
       expect(errors.map((e) => e.module_id).sort()).toEqual([
         "evaluation_operations",
-        "sheet_metal_operations",
         "weldment_operations",
       ]);
       expect(errors[0].error).toBe("File not found");

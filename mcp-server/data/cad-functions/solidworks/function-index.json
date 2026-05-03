@@ -50,8 +50,8 @@
       "module_id": "sheet_metal_operations",
       "path": "cad-functions/solidworks/sheet-metal-operations.json",
       "covered_units": ["U-CAD-FIDX-SW-06"],
-      "parameter_count_estimate": 0,
-      "description": "(pending) Sheet metal layer: base_flange / edge_flange / miter_flange / hem / jog / sketched_bend / lofted_bend / swept_flange / cross_break / gusset / vent / corner_relief / forming_tool, K-factor + bend tables + gauge tables, unfold/fold/flatten.",
+      "parameter_count_estimate": 148,
+      "description": "Sheet metal authoring layer: 22 operations covering BASE_FLANGE_TAB (foundational with thickness + K-factor + bend allowance type + auto-relief defaults), 6 flange creators (EDGE_FLANGE / MITER_FLANGE / TAB / SWEPT_FLANGE / LOFTED_BEND / SKETCHED_BEND), 5 bend lifecycle ops (HEM with 4 hem types / JOG / CROSS_BREAK / CORNER_RELIEF / CLOSED_CORNER), 4 form features (GUSSET / VENT / FORMING_TOOL / RIP), 4 flat-pattern ops (UNFOLD / FOLD / FLATTEN / NO_BEND_REGION), and 2 parameter editors (SHEET_METAL_PARAMS / BEND_TABLE_ATTACH). Carries the K-factor / bend allowance / bend deduction / bend table taxonomy throughout — every flange and bend op exposes Override Bend Radius for per-feature override of the part-level default. Bindings target IFeatureManager.InsertSheetMetalBaseFlange2 / InsertSheetMetalEdgeFlange3 / InsertSheetMetalMiterFlange / InsertSheetMetalHem / InsertSheetMetalJog2 / InsertSketchedBend / InsertSheetMetalLoftedBend / InsertSheetMetalSweptFlange / InsertSheetMetalTab / InsertSheetMetalCrossBreak / InsertCornerRelief / InsertClosedCorner / InsertSheetMetalGusset / InsertSheetMetalVent / InsertFormToolFromCatalog / InsertSheetMetalRip / InsertSheetMetalUnfold / InsertSheetMetalFold / InsertSheetMetalNoBendRegion / IModelDoc2.SheetMetalFlatten / ISheetMetalFeatureData / IModelDocExtension.AddBendTable.",
       "dependencies": ["part_operations"]
     },
     {
@@ -97,19 +97,18 @@
   },
   "coverage_summary": {
     "total_modules": 8,
-    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05"],
-    "estimated_parameter_total": 809,
+    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05", "U-CAD-FIDX-SW-06"],
+    "estimated_parameter_total": 957,
     "api_surface": {
-      "sw_api_com_items": 122,
-      "vba_macro_items": 122,
-      "vsta_addin_items": 122,
+      "sw_api_com_items": 144,
+      "vba_macro_items": 144,
+      "vsta_addin_items": 144,
       "solidworks_2024_compatible": true,
       "solidworks_2025_compatible": true,
       "coverage_state": "IN_PROGRESS",
       "phase_1_target_modules": 8,
-      "phase_1_target_modules_remaining": 3,
+      "phase_1_target_modules_remaining": 2,
       "phase_1_modules_pending": [
-        "sheet_metal_operations",
         "weldment_operations",
         "evaluation_operations"
       ],
@@ -195,7 +194,7 @@
     "surface_layer": true,
     "assembly_layer": true,
     "drawing_layer": true,
-    "sheet_metal_layer": false,
+    "sheet_metal_layer": true,
     "weldment_layer": false,
     "evaluation_layer": false
   },
