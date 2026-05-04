@@ -2,16 +2,16 @@
 
 **Purpose**: When a fresh chat receives the prompt "continue cam work", read this file FIRST to pick up where the prior session ended. Survives session-ID rotation (per-agent handoffs are session-pinned and unreachable across days).
 
-**Last Updated**: 2026-05-04T19:43Z by `claude-b93f4e4d`
+**Last Updated**: 2026-05-04T18:32Z by `claude-edc27fcd`
 **Branch**: `work/cam-exhaust-ms0`
 **Milestone**: CAM-EXHAUST-MS0
-**Last Commit**: `ecd554570` — U-CAM-HM-AC-TESTS-01 (ACConnectionManager + ACScriptExecutor — 37 GREEN)
+**Last Commit**: `fb4519bbd` — U-CAM-HM-EDM-FIX-01 (HyperMillEDMBridge rewire to real engines, 10 TSC errors → 0)
 
 ---
 
 ## STATE
 
-- HyperMill engine test coverage: **62 of 62 testable HM engines tested** (100%). All in-scope HM engines now have strict-legitimacy vitest coverage. Only HyperMillEDMBridge remains untested — DEFERRED because the engine itself is broken and needs a fix first (see DEFERRED list below). HyperMillSecondaryOpsSequencer was already covered earlier in the milestone (verify: `comm` against `__tests__/HyperMillSecondaryOpsSequencer.test.ts`).
+- HyperMill engine test coverage: **62 of 62 testable HM engines tested** (100%). HyperMillEDMBridge engine fix shipped in commit `fb4519bbd` (U-CAM-HM-EDM-FIX-01) — the engine was importing 7 phantom types and calling 3 phantom methods on EDMProgramAssemblerEngine; now rewired to compose PPWireEDMPostEngine + PPSinkerEDMPostEngine + MicroEDMEngine, 10 TSC errors → 0, reviewer PASS, scrutiny blockCount=0. The companion test file `HyperMillEDMBridge.test.ts` is claimed by peer chat MarkV-38160 (lane discipline — do NOT write the test from this chat). Once peer lands the test, HM coverage moves to 63/63. HyperMillSecondaryOpsSequencer was already covered earlier in the milestone (verify: `comm` against `__tests__/HyperMillSecondaryOpsSequencer.test.ts`).
 - Latest session shipped: 4 commits, 7 test files, 167 GREEN tests (vitest 4.1.2).
   - `acd48122a` — DataExtractionPipeline + Orchestrator (45 GREEN)
   - `4373e7184` — MillTurnBridge + SchemaUnifier (49 GREEN)
@@ -103,7 +103,7 @@ Already covered earlier (do NOT re-test):
 | HyperMillACConnectionManager | Peer claimed (rotating) |
 | HyperMillACScriptExecutor | Peer claimed (rotating) |
 | HyperMillPPPBridgeHooks | Peer claimed (rotating) |
-| HyperMillEDMBridge | Engine broken — needs eng fix first |
+| HyperMillEDMBridge | Engine fixed `fb4519bbd`; test file claimed by peer MarkV-38160 |
 | HyperMillMillTurnBridge | Transitive tungaloy ENOENT — `vi.mock("../engines/ToolCatalogEngine.js", () => ({ toolCatalogEngine: { search: () => [] } }))` works as workaround |
 | HyperMillSecondaryOpsSequencer | Peer-claimed in prior sessions |
 | HyperMillSchemaUnifier | Depends on 5 extractors — defer until extractors are tested |
