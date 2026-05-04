@@ -365,3 +365,134 @@ describe("HyperMillStrategyKnowledgeEngine — stats() + clear()", () => {
     expect(sum).toBe(s.strategyCount);
   });
 });
+
+describe("HyperMillStrategyKnowledgeEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const STRATKB_ACTIONS = [
+    "cam_hypermill_strategy_kb_list_all",
+    "cam_hypermill_strategy_kb_by_category",
+    "cam_hypermill_strategy_kb_get",
+    "cam_hypermill_strategy_kb_details",
+    "cam_hypermill_strategy_kb_recommend",
+    "cam_hypermill_strategy_kb_search",
+    "cam_hypermill_strategy_kb_for_geometry",
+    "cam_hypermill_strategy_kb_jm_die",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 8;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 8 cam_hypermill_strategy_kb_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(STRATKB_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of STRATKB_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _hmStrategyKB singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_hmStrategyKB\s*:\s*any/);
+  });
+
+  it("registers a hmStrategyKB case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"hmStrategyKB"\s*:\s*return\s+_hmStrategyKB\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillStrategyKnowledgeEngine\.js"\s*\)\)\.hyperMillStrategyKnowledgeEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of STRATKB_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"hmStrategyKB\")", async () => {
+    const src = await readDispatcher();
+    for (const action of STRATKB_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("hmStrategyKB"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("list_all case routes to getAllStrategies() and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_list_all"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getAllStrategies");
+    expect(body).toContain("count");
+  });
+
+  it("get case accepts id OR strategy_id OR strategyId fallback and reports found", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_get"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStrategy(");
+    expect(body).toMatch(/params\.id\s*\?\?\s*params\.strategy_id/);
+    expect(body).toContain("strategyId");
+    expect(body).toContain("found");
+  });
+
+  it("details case accepts name OR query fallback (fuzzy lookup)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_details"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStrategyDetails");
+    expect(body).toMatch(/params\.name\s*\?\?\s*params\.query/);
+  });
+
+  it("recommend case routes to recommendStrategy(geometry, material, goal, kinematics) with full param fallbacks", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_recommend"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("recommendStrategy");
+    expect(body).toMatch(/params\.material\s*\?\?\s*params\.iso_group/);
+    expect(body).toMatch(/params\.goal\s*\?\?\s*params\.operation_goal/);
+    expect(body).toMatch(/params\.kinematics\s*\?\?\s*params\.machine_kinematics/);
+    expect(body).toContain("recommendation");
+  });
+
+  it("search case routes to searchStrategies() with keyword OR query fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_search"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("searchStrategies");
+    expect(body).toMatch(/params\.keyword\s*\?\?\s*params\.query/);
+  });
+
+  it("for_geometry case routes to getStrategiesForGeometry() with params.geometry", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_for_geometry"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStrategiesForGeometry");
+    expect(body).toMatch(/params\.geometry/);
+  });
+
+  it("jm_die case routes to getJMDieStrategies() with no parameters", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_strategy_kb_jm_die"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getJMDieStrategies");
+    expect(body).toContain("count");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of STRATKB_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+});
