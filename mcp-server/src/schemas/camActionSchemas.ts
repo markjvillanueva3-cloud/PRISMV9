@@ -270,6 +270,7 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
       set_work_origin: z.boolean().optional().describe("Output G92 work origin block"),
       adaptive_control: z.boolean().optional().describe("Enable adaptive spark control"),
     }).optional().describe("Wire EDM post processor configuration"),
+    verify_tier: z.enum(["sim", "proven_out", "production", "shop_floor"]).optional().describe("PPG-WIRE-MS6/U-PPGM17d — when set, run verifyWEDMBlockAnnotations and attach the WEDMVerifyResult to the response. Tier semantics: sim ±20% drift / proven_out ±10% / production ±5% (HARD_BLOCK) / shop_floor ±2% + heat-soak invariant + servo voltage range gate."),
   }),
 
   /** Auto-route to correct master post engine by machine model */
