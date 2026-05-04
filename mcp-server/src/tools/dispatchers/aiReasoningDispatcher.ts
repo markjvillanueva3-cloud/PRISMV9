@@ -519,9 +519,16 @@ const ACTIONS = [
   // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P22-U01: Pre-Claude review orchestrator =====
   "pre_review",              // P22-U01 → PreReviewOrchestratorEngine.draftReview
   // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / OCTOPUS-CONSENSUS: Multi-model agreement =====
-  "consensus",               // → MultiModelConsensusEngine.ask (Claude+Codex+Grok+Ollama)
+  "consensus",               // → MultiModelConsensusEngine.ask (Claude+Codex+Grok+Gemini+Ollama)
   "codex_exec",              // → CodexClientEngine.exec (single-model gpt-5.5)
   "grok_exec",               // → GrokClientEngine.exec (single-model grok-4)
+  "gemini_exec",             // → GeminiClientEngine.exec (single-model gemini-2.0-flash-exp)
+  // ===== LAYER-3-FULL-INTEGRATION: cache + retrieval + neural feed + AI bridge =====
+  "consensus_recall_cache",  // → ConsensusRecallCacheEngine.recall
+  "wiki_retrieve",           // → WikiRetrievalContextEngine.retrieve
+  "neural_feed_record",      // → ConsensusNeuralFeedbackEngine.record
+  "neural_feed_recent",      // → ConsensusNeuralFeedbackEngine.recent
+  "consensus_bridge_reason", // → ConsensusAIBridgeEngine.reason (cache-first AI orchestrator entry)
 ] as const;
 
 function ok(data: any) {
@@ -6355,6 +6362,142 @@ export function registerAIReasoningDispatcher(server: any): void {
               return ok(result);
             } catch (e) {
               return ok({ error: `grok_exec: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-GEMINI — GeminiClientEngine.exec (single-model gemini-2.0-flash-exp entry)
+          // Required: prompt
+          // Optional: model, reasoningEffort (low|medium|high|xhigh), system, temperature, maxOutputTokens, timeoutMs.
+          // GEMINI_API_KEY env var or apiKey param required (free tier at https://aistudio.google.com/app/apikey).
+          case "gemini_exec": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "gemini_exec requires non-empty 'prompt' string" });
+            }
+            const { geminiClientEngine } = await import("../../engines/GeminiClientEngine.js");
+            try {
+              const result = await geminiClientEngine.exec({
+                prompt: params.prompt,
+                model: params.model,
+                apiKey: params.apiKey,
+                reasoningEffort: params.reasoningEffort,
+                system: params.system,
+                temperature: params.temperature,
+                maxOutputTokens: params.maxOutputTokens,
+                timeoutMs: params.timeoutMs,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `gemini_exec: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-RECALL-CACHE — ConsensusRecallCacheEngine.recall
+          // Required: prompt
+          // Optional: wiki_root, ttl_ms, enforce_ttl
+          // Returns null on miss; CachedConsensus on hit.
+          case "consensus_recall_cache": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "consensus_recall_cache requires non-empty 'prompt' string" });
+            }
+            const { consensusRecallCacheEngine } = await import("../../engines/ConsensusRecallCacheEngine.js");
+            try {
+              const result = consensusRecallCacheEngine.recall(params.prompt, {
+                wikiRoot: params.wiki_root ?? params.wikiRoot,
+                ttlMs: params.ttl_ms ?? params.ttlMs,
+                enforceTtl: params.enforce_ttl ?? params.enforceTtl,
+              });
+              if (result === null) {
+                return ok({ cached: false, hit: false });
+              }
+              return ok({ cached: true, hit: true, score: consensusRecallCacheEngine.scoreCached(result), ...result });
+            } catch (e) {
+              return ok({ error: `consensus_recall_cache: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-WIKI-RETRIEVAL — WikiRetrievalContextEngine.retrieve
+          // Required: prompt
+          // Optional: wiki_root, top_k, top_consensus, byte_budget, per_entry_bytes
+          case "wiki_retrieve": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "wiki_retrieve requires non-empty 'prompt' string" });
+            }
+            const { wikiRetrievalContextEngine } = await import("../../engines/WikiRetrievalContextEngine.js");
+            try {
+              const result = wikiRetrievalContextEngine.retrieve(params.prompt, {
+                wikiRoot: params.wiki_root ?? params.wikiRoot,
+                topK: params.top_k ?? params.topK,
+                topConsensus: params.top_consensus ?? params.topConsensus,
+                byteBudget: params.byte_budget ?? params.byteBudget,
+                perEntryBytes: params.per_entry_bytes ?? params.perEntryBytes,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `wiki_retrieve: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-NEURAL-FEED — ConsensusNeuralFeedbackEngine.record
+          // Required: prompt, result
+          // Optional: task_type, source_session, feed_path
+          case "neural_feed_record": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "neural_feed_record requires non-empty 'prompt' string" });
+            }
+            if (!params.result || typeof params.result !== "object") {
+              return ok({ error: "neural_feed_record requires 'result' object" });
+            }
+            const { consensusNeuralFeedbackEngine } = await import("../../engines/ConsensusNeuralFeedbackEngine.js");
+            try {
+              const result = consensusNeuralFeedbackEngine.record({
+                prompt: params.prompt,
+                taskType: params.task_type ?? params.taskType,
+                sourceSession: params.source_session ?? params.sourceSession,
+                result: params.result,
+                feedPath: params.feed_path ?? params.feedPath,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `neural_feed_record: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-NEURAL-FEED — ConsensusNeuralFeedbackEngine.recent
+          // Optional: limit (default 50), feed_path
+          case "neural_feed_recent": {
+            const { consensusNeuralFeedbackEngine } = await import("../../engines/ConsensusNeuralFeedbackEngine.js");
+            try {
+              const limit = typeof params.limit === "number" && params.limit > 0 ? params.limit : 50;
+              const entries = consensusNeuralFeedbackEngine.recent(limit, params.feed_path ?? params.feedPath);
+              return ok({ count: entries.length, entries });
+            } catch (e) {
+              return ok({ error: `neural_feed_recent: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-AI-BRIDGE — ConsensusAIBridgeEngine.reason (cache-first orchestrator entry)
+          // Required: prompt
+          // Optional: task_type (plan|build|review|decide|explain|extract|validate),
+          //           caller, force_live, vote_options, prism_context, include_claude, timeout_ms
+          case "consensus_bridge_reason": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "consensus_bridge_reason requires non-empty 'prompt' string" });
+            }
+            const { consensusAIBridgeEngine } = await import("../../engines/ConsensusAIBridgeEngine.js");
+            try {
+              const step = await consensusAIBridgeEngine.reason({
+                prompt: params.prompt,
+                taskType: params.task_type ?? params.taskType,
+                caller: params.caller,
+                forceLive: params.force_live ?? params.forceLive,
+                voteOptions: params.vote_options ?? params.voteOptions,
+                prismContext: params.prism_context ?? params.prismContext,
+                includeClaude: params.include_claude ?? params.includeClaude,
+                timeoutMs: params.timeout_ms ?? params.timeoutMs,
+              });
+              return ok(step);
+            } catch (e) {
+              return ok({ error: `consensus_bridge_reason: ${(e as Error).message}` });
             }
           }
 

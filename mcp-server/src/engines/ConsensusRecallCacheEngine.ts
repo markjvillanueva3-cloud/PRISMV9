@@ -57,7 +57,11 @@ export interface CachedConsensus {
 }
 
 const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-const DEFAULT_WIKI_ROOT = process.env.PRISM_WIKI_ROOT ?? "H:/prism/knowledge/wiki";
+
+/** Read env at CALL time (not module-load time) so tests can override after import. */
+function getDefaultWikiRoot(): string {
+  return process.env.PRISM_WIKI_ROOT ?? "H:/prism/knowledge/wiki";
+}
 
 export class ConsensusRecallCacheEngine {
   /**
@@ -67,7 +71,7 @@ export class ConsensusRecallCacheEngine {
   recall(prompt: string, opts: RecallOptions = {}): CachedConsensus | null {
     if (typeof prompt !== "string" || prompt.length === 0) return null;
 
-    const wikiRoot = opts.wikiRoot ?? DEFAULT_WIKI_ROOT;
+    const wikiRoot = opts.wikiRoot ?? getDefaultWikiRoot();
     const ttlMs = opts.ttlMs ?? DEFAULT_TTL_MS;
     const enforceTtl = opts.enforceTtl !== false;
 
