@@ -599,3 +599,137 @@ describe("U-CAMTEST01 — dispatcher round-trip (prism_cam)", () => {
     expect(() => ScenarioResultSchema.parse(resultFor(d, obs))).not.toThrow();
   });
 });
+
+describe("HyperMillInHostRunnerEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const INHOST_ACTIONS = [
+    "cam_hypermill_inhost_register",
+    "cam_hypermill_inhost_plan_scenario",
+    "cam_hypermill_inhost_frame_to_envelope",
+    "cam_hypermill_inhost_summarize",
+    "cam_hypermill_inhost_get_plan",
+    "cam_hypermill_inhost_get_stats",
+    "cam_hypermill_inhost_reset_session",
+    "cam_hypermill_inhost_reset_all",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 8;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 8 cam_hypermill_inhost_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(INHOST_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of INHOST_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of INHOST_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body imports HyperMillInHostRunnerEngine via the canonical path", async () => {
+    const src = await readDispatcher();
+    for (const action of INHOST_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?\\{\\s*HyperMillInHostRunnerEngine\\s*\\}\\s*=\\s*await\\s+import\\(\\s*"\\.\\.\\/\\.\\.\\/engines\\/HyperMillInHostRunnerEngine\\.js"\\s*\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("plan_scenario case wires session_id with sessionId fallback and reports frameCount", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_plan_scenario"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("planScenario");
+    expect(body).toMatch(/params\.session_id\s*\?\?\s*params\.sessionId/);
+    expect(body).toContain("frameCount");
+    expect(body).toContain("descriptor");
+  });
+
+  it("frame_to_envelope case is PURE — no session/state mutation, calls frameToEnvelope", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_frame_to_envelope"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("frameToEnvelope");
+    expect(body).toContain("payload");
+    // PURE — must NOT touch session_id
+    expect(body).not.toContain("sessionId");
+    expect(body).not.toContain("session_id");
+  });
+
+  it("summarize case accepts result OR scenario_result OR scenarioResult fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_summarize"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("summarize");
+    expect(body).toMatch(/params\.result\s*\?\?\s*params\.scenario_result/);
+    expect(body).toContain("scenarioResult");
+  });
+
+  it("get_plan case routes to getPlan(session_id, scenario_id) and reports found", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_get_plan"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getPlan");
+    expect(body).toMatch(/params\.scenario_id\s*\?\?\s*params\.scenarioId/);
+    expect(body).toContain("found");
+  });
+
+  it("reset_session case calls resetSession with session_id and surfaces reset:true", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_reset_session"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("resetSession");
+    expect(body).toContain("reset");
+    expect(body).toContain("session_id");
+  });
+
+  it("reset_all case calls resetAll() with no arguments and surfaces reset:true", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_reset_all"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("resetAll()");
+    expect(body).toContain("reset");
+    // resetAll has NO session-id parameter — guard against accidental drift
+    expect(body).not.toContain("resetAll(session");
+  });
+
+  it("get_stats case routes to getStats(session_id)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_get_stats"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStats");
+    expect(body).toMatch(/params\.session_id\s*\?\?\s*params\.sessionId/);
+  });
+
+  it("register case accepts plugin_id OR pluginId fallback and version override", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_inhost_register"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("register");
+    expect(body).toMatch(/params\.plugin_id\s*\?\?\s*params\.pluginId/);
+    expect(body).toContain("version");
+    expect(body).toContain("registration");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of INHOST_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+});

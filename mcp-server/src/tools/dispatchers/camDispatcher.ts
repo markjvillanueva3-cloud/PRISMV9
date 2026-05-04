@@ -1530,6 +1530,14 @@ export const ACTIONS = [
   "cam_hypermill_ac_server_validate_config",
   "cam_hypermill_ac_server_describe_config",
   "cam_hypermill_ac_server_get_defaults",
+  "cam_hypermill_inhost_register",
+  "cam_hypermill_inhost_plan_scenario",
+  "cam_hypermill_inhost_frame_to_envelope",
+  "cam_hypermill_inhost_summarize",
+  "cam_hypermill_inhost_get_plan",
+  "cam_hypermill_inhost_get_stats",
+  "cam_hypermill_inhost_reset_session",
+  "cam_hypermill_inhost_reset_all",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11098,6 +11106,103 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               routes: mod.AC_ROUTES,
               corsDefaults: mod.DEFAULT_AC_CORS_CONFIG,
             };
+            break;
+          }
+
+          case "cam_hypermill_inhost_register": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.register
+            // Registers the in-host Python runner as a CAMPluginCommunicationHub plugin.
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const pluginId = params.plugin_id ?? params.pluginId;
+            const version = params.version;
+            const registration = HyperMillInHostRunnerEngine.register(
+              pluginId !== undefined ? String(pluginId) : undefined,
+              version !== undefined ? String(version) : undefined,
+            );
+            result = { success: true, registration };
+            break;
+          }
+
+          case "cam_hypermill_inhost_plan_scenario": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.planScenario
+            // Expands a ScenarioDescriptor into the expected overlay frame plan (Zod-validated).
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const sessionId = String(params.session_id ?? params.sessionId ?? "");
+            const descriptor = params.descriptor ?? {};
+            const pluginId = params.plugin_id ?? params.pluginId;
+            const plan = HyperMillInHostRunnerEngine.planScenario(
+              sessionId,
+              descriptor as never,
+              pluginId !== undefined ? String(pluginId) : undefined,
+            );
+            result = { success: true, plan, frameCount: plan.expected_frames.length };
+            break;
+          }
+
+          case "cam_hypermill_inhost_frame_to_envelope": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.frameToEnvelope (PURE)
+            // Converts a PlannedFrame to a HubFrameEnvelope for routing.
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const frame = params.frame ?? {};
+            const payload = params.payload !== undefined ? String(params.payload) : undefined;
+            const envelope = HyperMillInHostRunnerEngine.frameToEnvelope(frame as never, payload);
+            result = { success: true, envelope };
+            break;
+          }
+
+          case "cam_hypermill_inhost_summarize": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.summarize
+            // Folds plan + result into a ScenarioSummary (assertion contract: latency p99, hard-stop budget, band transitions).
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const sessionId = String(params.session_id ?? params.sessionId ?? "");
+            const plan = params.plan ?? {};
+            const scenarioResult = params.result ?? params.scenario_result ?? params.scenarioResult ?? {};
+            const summary = HyperMillInHostRunnerEngine.summarize(
+              sessionId,
+              plan as never,
+              scenarioResult as never,
+            );
+            result = { success: true, summary };
+            break;
+          }
+
+          case "cam_hypermill_inhost_get_plan": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.getPlan
+            // Looks up a previously-planned ScenarioPlan by session+scenario id; null when missing.
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const sessionId = String(params.session_id ?? params.sessionId ?? "");
+            const scenarioId = String(params.scenario_id ?? params.scenarioId ?? "");
+            const plan = HyperMillInHostRunnerEngine.getPlan(sessionId, scenarioId);
+            result = { success: true, plan, found: plan !== null };
+            break;
+          }
+
+          case "cam_hypermill_inhost_get_stats": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.getStats
+            // Returns aggregated RunnerStats (scenarios planned/passed/failed) for a session.
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const sessionId = String(params.session_id ?? params.sessionId ?? "");
+            const stats = HyperMillInHostRunnerEngine.getStats(sessionId);
+            result = { success: true, stats };
+            break;
+          }
+
+          case "cam_hypermill_inhost_reset_session": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.resetSession
+            // Clears all in-memory state for one session id.
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            const sessionId = String(params.session_id ?? params.sessionId ?? "");
+            HyperMillInHostRunnerEngine.resetSession(sessionId);
+            result = { success: true, session_id: sessionId, reset: true };
+            break;
+          }
+
+          case "cam_hypermill_inhost_reset_all": {
+            // U-CAM-HM-INHOST-WIRE-01: HyperMillInHostRunnerEngine.resetAll
+            // Clears state for ALL sessions — intended for test isolation only.
+            const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
+            HyperMillInHostRunnerEngine.resetAll();
+            result = { success: true, reset: true };
             break;
           }
 
