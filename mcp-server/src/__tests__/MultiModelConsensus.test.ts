@@ -8,7 +8,7 @@
  * codex/claude/ollama clients to return fixed responses.
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   MultiModelConsensusEngine,
   multiModelConsensusEngine,
@@ -176,6 +176,115 @@ describe("MultiModelConsensusEngine — input validation", () => {
   });
 });
 
+describe("MultiModelConsensusEngine — dual-Ollama 4-way coverage (no XAI_API_KEY)", () => {
+  const ORIGINAL_KEY = process.env.XAI_API_KEY;
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    vi.spyOn(ollamaClientEngine, "isConnected").mockReturnValue(true);
+    delete process.env.XAI_API_KEY;
+  });
+
+  afterEach(() => {
+    if (ORIGINAL_KEY === undefined) delete process.env.XAI_API_KEY;
+    else process.env.XAI_API_KEY = ORIGINAL_KEY;
+    vi.restoreAllMocks();
+  });
+
+  it("auto-fires both Ollama models when Grok is unavailable (default)", async () => {
+    const calls: Array<{ model: string }> = [];
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      calls.push({ model: opts.model });
+      return { ok: true, value: "agree", error: null, wallMs: 1 };
+    });
+    vi.spyOn(codexClientEngine, "exec").mockResolvedValue({
+      ok: true, answer: "agree", tokens: 10, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "",
+    });
+
+    const r = await multiModelConsensusEngine.ask({ prompt: "Plan X", includeClaude: false });
+    expect(r.responses).toHaveLength(3); // codex + 2 ollama
+    const ollamaModelsCalled = calls.map((c) => c.model).sort();
+    expect(ollamaModelsCalled).toEqual(["deepseek-r1:14b", "qwen2.5-coder:14b"]);
+  });
+
+  it("only one Ollama call when dualOllama=false explicitly disabled", async () => {
+    const calls: Array<{ model: string }> = [];
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      calls.push({ model: opts.model });
+      return { ok: true, value: "agree", error: null, wallMs: 1 };
+    });
+    vi.spyOn(codexClientEngine, "exec").mockResolvedValue({
+      ok: true, answer: "agree", tokens: 10, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "",
+    });
+
+    const r = await multiModelConsensusEngine.ask({ prompt: "Plan X", includeClaude: false, dualOllama: false });
+    expect(r.responses).toHaveLength(2);
+    expect(calls.map((c) => c.model)).toEqual(["deepseek-r1:14b"]);
+  });
+
+  it("respects custom secondaryOllamaModel override", async () => {
+    const calls: Array<{ model: string }> = [];
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      calls.push({ model: opts.model });
+      return { ok: true, value: "agree", error: null, wallMs: 1 };
+    });
+    vi.spyOn(codexClientEngine, "exec").mockResolvedValue({
+      ok: true, answer: "agree", tokens: 10, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "",
+    });
+
+    const r = await multiModelConsensusEngine.ask({
+      prompt: "Plan X",
+      includeClaude: false,
+      secondaryOllamaModel: "llama3.2-vision:11b",
+    });
+    expect(r.responses).toHaveLength(3);
+    expect(calls.map((c) => c.model).sort()).toEqual(["deepseek-r1:14b", "llama3.2-vision:11b"]);
+  });
+
+  it("dualOllama suppressed when Grok is available (Grok takes the 4th slot)", async () => {
+    process.env.XAI_API_KEY = `synthetic-${process.pid}`;
+    const ollamaCalls: Array<{ model: string }> = [];
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      ollamaCalls.push({ model: opts.model });
+      return { ok: true, value: "agree", error: null, wallMs: 1 };
+    });
+    vi.spyOn(codexClientEngine, "exec").mockResolvedValue({
+      ok: true, answer: "agree", tokens: 10, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "",
+    });
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ choices: [{ message: { content: "agree" } }], usage: { total_tokens: 100 } }), { status: 200 }),
+    );
+
+    const r = await multiModelConsensusEngine.ask({ prompt: "Plan X", includeClaude: false });
+    expect(r.responses).toHaveLength(3); // codex + grok + 1 ollama (no dual)
+    expect(ollamaCalls).toHaveLength(1);
+    expect(ollamaCalls[0].model).toBe("deepseek-r1:14b");
+    const vendors = r.responses.map((x) => x.vendor).sort();
+    expect(vendors).toEqual(["ollama", "openai", "xai"]);
+  });
+
+  it("does not duplicate when secondaryOllamaModel === ollamaModel", async () => {
+    const calls: Array<{ model: string }> = [];
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      calls.push({ model: opts.model });
+      return { ok: true, value: "agree", error: null, wallMs: 1 };
+    });
+    vi.spyOn(codexClientEngine, "exec").mockResolvedValue({
+      ok: true, answer: "agree", tokens: 10, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "",
+    });
+
+    const r = await multiModelConsensusEngine.ask({
+      prompt: "Plan X",
+      includeClaude: false,
+      ollamaModel: "qwen2.5-coder:32b",
+      secondaryOllamaModel: "qwen2.5-coder:32b",
+    });
+    // dedup — only one ollama call even though dualOllama would normally add a second
+    expect(calls).toHaveLength(1);
+    expect(r.responses).toHaveLength(2);
+  });
+});
+
 describe("MultiModelConsensusEngine — orchestration with stubs", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -192,6 +301,7 @@ describe("MultiModelConsensusEngine — orchestration with stubs", () => {
     const r = await multiModelConsensusEngine.ask({
       prompt: "best answer to question",
       includeClaude: false,
+      dualOllama: false,
     });
     expect(r.responses).toHaveLength(2);
     expect(r.responses.map((x) => x.vendor).sort()).toEqual(["ollama", "openai"]);
@@ -208,7 +318,7 @@ describe("MultiModelConsensusEngine — orchestration with stubs", () => {
     vi.spyOn(ollamaClientEngine, "generate").mockResolvedValue({
       ok: true, value: "rename foo to bar", error: null, wallMs: 1,
     });
-    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false });
+    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false, dualOllama: false });
     expect(r.recommendation).toBe("accept");
   });
 
@@ -219,7 +329,7 @@ describe("MultiModelConsensusEngine — orchestration with stubs", () => {
     vi.spyOn(ollamaClientEngine, "generate").mockResolvedValue({
       ok: false, value: null, error: "ECONNREFUSED", wallMs: 1,
     });
-    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false });
+    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false, dualOllama: false });
     expect(r.successCount).toBe(0);
     expect(r.recommendation).toBe("escalate");
     expect(r.consensus).toBeNull();
@@ -233,7 +343,7 @@ describe("MultiModelConsensusEngine — orchestration with stubs", () => {
     vi.spyOn(ollamaClientEngine, "generate").mockResolvedValue({
       ok: true, value: "echo foxtrot golf hotel", error: null, wallMs: 1,
     });
-    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false });
+    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false, dualOllama: false });
     expect(r.recommendation).toBe("escalate");
     expect(r.agreementScore).toBe(0);
   });
@@ -245,7 +355,7 @@ describe("MultiModelConsensusEngine — orchestration with stubs", () => {
     vi.spyOn(ollamaClientEngine, "generate").mockResolvedValue({
       ok: true, value: "<think>let me reason step by step about totally unrelated stuff</think>the final answer", error: null, wallMs: 1,
     });
-    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false });
+    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false, dualOllama: false });
     // After stripping <think>, both answers match → high confidence
     expect(r.recommendation).toBe("accept");
     const ollama = r.responses.find((x) => x.vendor === "ollama");
@@ -278,7 +388,7 @@ describe("MultiModelConsensusEngine — orchestration with stubs", () => {
     vi.spyOn(codexClientEngine, "exec").mockResolvedValue({
       ok: true, answer: "from codex", tokens: 1, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "",
     });
-    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false });
+    const r = await multiModelConsensusEngine.ask({ prompt: "x", includeClaude: false, dualOllama: false });
     expect(r.successCount).toBe(1);
     const ollama = r.responses.find((x) => x.vendor === "ollama");
     expect(ollama!.ok).toBe(false);
