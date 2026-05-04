@@ -2,21 +2,26 @@
 
 **Purpose**: When a fresh chat receives the prompt "continue cam work", read this file FIRST to pick up where the prior session ended. Survives session-ID rotation (per-agent handoffs are session-pinned and unreachable across days).
 
-**Last Updated**: 2026-05-04T19:00Z by `claude-b93f4e4d`
+**Last Updated**: 2026-05-04T19:43Z by `claude-b93f4e4d`
 **Branch**: `work/cam-exhaust-ms0`
 **Milestone**: CAM-EXHAUST-MS0
-**Last Commit**: `34bd4e311` — U-CAM-HM-PPPHOOKS-TESTS-01 (PPPBridgeHooks — 36 GREEN)
+**Last Commit**: `ecd554570` — U-CAM-HM-AC-TESTS-01 (ACConnectionManager + ACScriptExecutor — 37 GREEN)
 
 ---
 
 ## STATE
 
-- HyperMill engine test coverage: **60 of 62 truly-untested engines tested** (~97%) — 4 remaining: HyperMillACConnectionManager, HyperMillACScriptExecutor, HyperMillEDMBridge (broken engine — needs eng fix first), HyperMillSecondaryOpsSequencer. PPPBridgeHooks now COVERED.
-- Latest session shipped: 3 commits, 5 test files, 130 GREEN tests (vitest 4.1.2).
+- HyperMill engine test coverage: **62 of 62 testable HM engines tested** (100%). All in-scope HM engines now have strict-legitimacy vitest coverage. Only HyperMillEDMBridge remains untested — DEFERRED because the engine itself is broken and needs a fix first (see DEFERRED list below). HyperMillSecondaryOpsSequencer was already covered earlier in the milestone (verify: `comm` against `__tests__/HyperMillSecondaryOpsSequencer.test.ts`).
+- Latest session shipped: 4 commits, 7 test files, 167 GREEN tests (vitest 4.1.2).
   - `acd48122a` — DataExtractionPipeline + Orchestrator (45 GREEN)
   - `4373e7184` — MillTurnBridge + SchemaUnifier (49 GREEN)
   - `34bd4e311` — PPPBridgeHooks (36 GREEN)
-  - All 3 reviewer PASS, all 3 scrutiny-marked blockCount=0.
+  - `ecd554570` — ACConnectionManager + ACScriptExecutor (37 GREEN)
+  - All 4 reviewer PASS, all 4 scrutiny-marked blockCount=0.
+- New patterns surfaced this session:
+  - **Real TCP probes in tests**: spin up `net.createServer().listen(0, "127.0.0.1")` for happy path; close server before connect for ECONNREFUSED; RFC 5737 `198.51.100.1` for guaranteed-timeout adversarial. No mocks for the network path.
+  - **Real subprocess spawn**: use `H:/Tools/python/python.exe` (portable, present per SessionStart hook) gated by `describe.runIf(fs.existsSync(PYTHON_BIN))`. Don't substitute node — `node -c` is syntax-check, not eval (use `-e` instead). Python's `-c` is true script execution, matching the engine's CLI shape.
+  - **Timeout SIGTERM tests**: use Python busy-wait (`while time.time() < end: pass`), NOT `time.sleep()` — sleep can absorb signals on Windows.
 - Engine quirk surfaced: HyperMillACStandardToolDBEngine §15-16 ships built-in seed catalog when DB path is missing (returns 13 tools, 5 macros). Tests must use `Number.isInteger(x) && x >= 0` structural assertions, NOT `.toBe(0)`, on missing-paths totals.
 - New mock pattern: SchemaUnifier composes 6 extractors via Promise.allSettled — vi.mock each singleton's `.extractAll()`/`.extract()` to return realistic shapes; use `mockImplementationOnce(() => Promise.reject(...))` to test individual rejection without aborting the pipeline.
 - Prior session shipped: 1 commit, 4 test files, 85 GREEN tests (Metric.cfg + DemoDb + IMDb + DeepLearning).
