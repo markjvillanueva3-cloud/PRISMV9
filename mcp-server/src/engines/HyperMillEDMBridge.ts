@@ -2,39 +2,63 @@
  * HyperMillEDMBridge — EDM workflow routing for hyperMILL electrode designs
  *
  * Routes hyperMILL electrode designs (from HyperMillMoldCycleEngine /
- * electrode extraction plans) to PRISM's EDMProgramAssemblerEngine.
+ * electrode extraction plans) to PRISM's process-specific EDM post engines:
+ *   - Wire EDM   → PPWireEDMPostEngine.generate
+ *   - Sinker EDM → PPSinkerEDMPostEngine.generate
+ *   - Micro EDM  → MicroEDMEngine.calculate
  *
  * EDM type auto-selection logic:
- *   - Wire EDM  → open contour profiles, through cuts, 2D/4-axis profiles
+ *   - Wire EDM   → open contour profiles, through cuts, 2D/4-axis profiles
  *   - Sinker EDM → closed cavities, blind pockets, mold impressions, ribs
  *   - Micro EDM  → features < 1mm, micro-holes, fine details
  *
  * Overcut allowance transfer:
  *   Electrode undersize from mold design (rough = 0.3mm, finish = 0.1mm)
- *   is transferred to SinkerElectrode.undersize_mm.
- *
- * Spark gap parameters sourced from EDMProgramAssemblerEngine's material DB
- * (EDM_MATERIALS), not hardcoded.
+ *   is transferred to the sinker stage `over_burn_mm` via the orbit_radius_mm
+ *   on each rough/finish operation.
  *
  * Sources:
  *   - McGeough, J.A. (1988) "Advanced Methods of Machining"
  *   - König & Klocke (1997) "Fertigungsverfahren 3: Abtragen, Generieren"
  *   - Jeong & Min (2007) Int. J. Mach. Tools Manuf. — micro-EDM
- *   - EDMProgramAssemblerEngine — canonical EDM parameters
+ *   - GF Machining Solutions Sinker EDM Application Guide
  *
- * HM-REV-MS6 / U-HMR34
+ * HM-REV-MS6 / U-HMR34 (rebuild 2026-05-04)
  */
 
 import {
-  EDMProgramAssemblerEngine,
-  type WireEDMPartProfile,
+  PPWireEDMPostEngine,
+  type WireEDMProgramInput,
   type WireEDMProgram,
-  type SinkerEDMPartProfile,
-  type SinkerEDMProgram,
-  type SinkerCavityFeature,
-  type MicroEDMPartProfile,
-  type MicroEDMProgram,
-} from "./EDMProgramAssemblerEngine.js";
+  type WireEDMOperation,
+} from "./PPWireEDMPostEngine.js";
+import {
+  PPSinkerEDMPostEngine,
+  type SinkerProgramInput,
+  type SinkerProgram,
+  type SinkerOperation,
+  type SinkerBurnStage,
+} from "./PPSinkerEDMPostEngine.js";
+import {
+  MicroEDMEngine,
+  type MicroEDMInput,
+  type MicroEDMResult,
+  type MicroEDMProcess,
+} from "./MicroEDMEngine.js";
+
+// Re-export downstream types so consumers can import them via this bridge.
+export type {
+  WireEDMProgram,
+  WireEDMProgramInput,
+  WireEDMOperation,
+  SinkerProgram,
+  SinkerProgramInput,
+  SinkerOperation,
+  SinkerBurnStage,
+  MicroEDMInput,
+  MicroEDMResult,
+  MicroEDMProcess,
+};
 
 // ============================================================================
 // Types
@@ -84,8 +108,8 @@ export interface EDMRouteInput {
   numSkimPasses?: number;
   /** Target surface finish [µm Ra] */
   targetRa_um?: number;
-  /** Controller dialect */
-  controller?: string;
+  /** Output units (forwarded to post engines) */
+  units?: "metric" | "imperial";
   /** Program number */
   programNumber?: number;
 }
@@ -98,9 +122,9 @@ export interface EDMRouteResult {
   /** Wire EDM program (if wire) */
   wireProgram?: WireEDMProgram;
   /** Sinker EDM program (if sinker) */
-  sinkerProgram?: SinkerEDMProgram;
-  /** Micro EDM program (if micro) */
-  microProgram?: MicroEDMProgram;
+  sinkerProgram?: SinkerProgram;
+  /** Micro EDM result (if micro) */
+  microResult?: MicroEDMResult;
   /** Electrode undersize values transferred from mold design */
   electrodeUndersize: { roughing_mm: number; finishing_mm: number };
   /** Estimated spark gap [mm per side] */
@@ -133,12 +157,17 @@ const WIRE_FEATURE_TYPES = new Set(["contour", "through_pocket", "slot"]);
 const DEFAULT_ROUGH_OVERCUT_MM  = 0.30; // Rough sinker — 0.3mm per side
 const DEFAULT_FINISH_OVERCUT_MM = 0.10; // Finish sinker — 0.1mm per side
 
+// Default wire diameter (mm) — Mitsubishi MV1200R standard brass
+const DEFAULT_WIRE_DIAMETER_MM = 0.25;
+
 // ============================================================================
 // Engine
 // ============================================================================
 
 export class HyperMillEDMBridge {
-  private readonly engine = new EDMProgramAssemblerEngine();
+  private readonly wireEngine = new PPWireEDMPostEngine();
+  private readonly sinkerEngine = new PPSinkerEDMPostEngine();
+  private readonly microEngine = new MicroEDMEngine();
 
   /**
    * Route hyperMILL electrode designs to the appropriate EDM process.
@@ -149,6 +178,10 @@ export class HyperMillEDMBridge {
    */
   calculate(input: EDMRouteInput): EDMRouteResult {
     const warnings: string[] = [];
+
+    if (!input.features || input.features.length === 0) {
+      throw new Error("HyperMillEDMBridge.calculate: features array must contain at least one feature");
+    }
 
     // ── 1. Select EDM type ────────────────────────────────────────────────────
     const { edmType, rationale } = this._selectEDMType(input.features);
@@ -166,15 +199,15 @@ export class HyperMillEDMBridge {
 
     // ── 3. Assemble EDM program ───────────────────────────────────────────────
     let wireProgram: WireEDMProgram | undefined;
-    let sinkerProgram: SinkerEDMProgram | undefined;
-    let microProgram: MicroEDMProgram | undefined;
+    let sinkerProgram: SinkerProgram | undefined;
+    let microResult: MicroEDMResult | undefined;
 
     if (edmType === "wire") {
-      wireProgram = this._assembleWire(input, warnings);
+      wireProgram = this._assembleWire(input);
     } else if (edmType === "micro") {
-      microProgram = this._assembleMicro(input, warnings);
+      microResult = this._assembleMicro(input, warnings);
     } else {
-      sinkerProgram = this._assembleSinker(input, electrodeUndersize, warnings);
+      sinkerProgram = this._assembleSinker(input, electrodeUndersize);
     }
 
     // ── 4. Validate electrode material compatibility ──────────────────────────
@@ -190,12 +223,12 @@ export class HyperMillEDMBridge {
       selectionRationale: rationale,
       wireProgram,
       sinkerProgram,
-      microProgram,
+      microResult,
       electrodeUndersize,
       estimatedSparkGap_mm,
       warnings,
       confidence,
-      source: "EDMProgramAssemblerEngine + McGeough-1988 + GF-Machining-sinker-guide",
+      source: "PPWireEDMPostEngine + PPSinkerEDMPostEngine + MicroEDMEngine + McGeough-1988 + GF-Machining-sinker-guide",
     };
   }
 
@@ -244,122 +277,147 @@ export class HyperMillEDMBridge {
     };
   }
 
-  private _assembleWire(
-    input: EDMRouteInput,
-    warnings: string[],
-  ): WireEDMProgram {
-    // Build wire profile from first wire feature
-    const wireFeature = input.features.find(f => WIRE_FEATURE_TYPES.has(f.type))
-      ?? input.features[0];
+  /**
+   * Build a wire EDM program from input features.
+   * Each wire-cuttable feature becomes a 4-pass operation set
+   * (rough + skim1 + skim2 + skim3, capped by input.numSkimPasses).
+   */
+  private _assembleWire(input: EDMRouteInput): WireEDMProgram {
+    const wireFeatures = input.features.filter(f => WIRE_FEATURE_TYPES.has(f.type));
+    const sourceFeatures = wireFeatures.length > 0 ? wireFeatures : [input.features[0]];
 
-    const perimeter = wireFeature.contourPerimeter_mm ?? wireFeature.size_mm * 4;
-    const halfSide = perimeter / 8; // approximate rectangular half-side
+    const numSkim = Math.max(0, Math.min(3, input.numSkimPasses ?? 2));
+    const passList: WireEDMOperation["pass"][] = ["rough"];
+    if (numSkim >= 1) passList.push("skim1");
+    if (numSkim >= 2) passList.push("skim2");
+    if (numSkim >= 3) passList.push("skim3");
 
-    // Simplified rectangular contour for program generation
-    const contour = [
-      { x_mm: 0,         y_mm: 0         },
-      { x_mm: halfSide,  y_mm: 0         },
-      { x_mm: halfSide,  y_mm: halfSide  },
-      { x_mm: 0,         y_mm: halfSide  },
-      { x_mm: 0,         y_mm: 0         },
-    ];
+    const operations: WireEDMOperation[] = [];
+    for (const feature of sourceFeatures) {
+      const perimeter = feature.contourPerimeter_mm ?? feature.size_mm * 4;
+      const halfSide = perimeter / 8; // approximate rectangular half-side
 
-    const profile: WireEDMPartProfile = {
-      part_name: input.partName,
+      const profilePoints = [
+        { x: 0,        y: 0        },
+        { x: halfSide, y: 0        },
+        { x: halfSide, y: halfSide },
+        { x: 0,        y: halfSide },
+        { x: 0,        y: 0        },
+      ];
+
+      for (const pass of passList) {
+        operations.push({
+          type: "profile",
+          pass,
+          start_x: feature.x_mm ?? 0,
+          start_y: feature.y_mm ?? 0,
+          profile_points: profilePoints,
+        });
+      }
+    }
+
+    const firstFeature = sourceFeatures[0];
+    const programInput: WireEDMProgramInput = {
+      program_number: String(input.programNumber ?? 1).padStart(4, "0"),
+      part_description: input.partName,
       material: input.material,
-      thickness_mm: wireFeature.thickness_mm ?? wireFeature.depth_mm,
-      contour,
-      wire_type: "brass",
-      wire_diameter_mm: 0.25,
-      num_skim_passes: input.numSkimPasses ?? 2,
-      target_Ra_um: input.targetRa_um ?? wireFeature.targetRa_um ?? 1.6,
-      target_tolerance_mm: 0.005,
-      controller: (input.controller ?? "fanuc_wedm") as any,
-      program_number: input.programNumber ?? 1,
+      thickness_mm: firstFeature.thickness_mm ?? firstFeature.depth_mm,
+      wire_diameter_mm: DEFAULT_WIRE_DIAMETER_MM,
+      operations,
+      units: input.units ?? "metric",
     };
 
-    return this.engine.assembleWireEDM(profile);
+    return this.wireEngine.generate(programInput);
   }
 
+  /**
+   * Build a sinker EDM program from input features.
+   * Each non-wire feature becomes a rough+finish stage pair, with the
+   * orbit_radius_mm seeded from the electrode undersize transfer.
+   */
   private _assembleSinker(
     input: EDMRouteInput,
     undersize: { roughing_mm: number; finishing_mm: number },
-    warnings: string[],
-  ): SinkerEDMProgram {
-    // Build sinker cavity features from input geometry
-    const features: SinkerCavityFeature[] = input.features
-      .filter(f => !WIRE_FEATURE_TYPES.has(f.type))
-      .map((f, i) => ({
-        type: f.type === "cavity" ? "blind_cavity" : f.type === "rib" ? "rib" : "radius_pocket",
-        name: f.name,
-        depth_mm: f.depth_mm,
-        area_mm2: f.area_mm2 ?? f.size_mm * f.size_mm,
-        volume_mm3: f.volume_mm3 ?? f.size_mm * f.size_mm * f.depth_mm * 0.7,
-        x_mm: f.x_mm ?? i * 50,
-        y_mm: f.y_mm ?? 0,
-        target_Ra_um: f.targetRa_um ?? input.targetRa_um ?? 1.6,
-      } as SinkerCavityFeature));
+  ): SinkerProgram {
+    const sinkerFeatures = input.features.filter(f => !WIRE_FEATURE_TYPES.has(f.type));
+    const sourceFeatures = sinkerFeatures.length > 0 ? sinkerFeatures : [input.features[0]];
 
-    if (features.length === 0) {
-      // Fallback: create a generic cavity from first feature
-      const f = input.features[0];
-      features.push({
-        type: "blind_cavity",
-        name: f.name,
-        depth_mm: f.depth_mm,
-        area_mm2: f.size_mm * f.size_mm,
-        volume_mm3: f.size_mm * f.size_mm * f.depth_mm * 0.7,
-        x_mm: 0,
-        y_mm: 0,
-        target_Ra_um: input.targetRa_um ?? 1.6,
+    const operations: SinkerOperation[] = [];
+    sourceFeatures.forEach((feature, idx) => {
+      const baseX = feature.x_mm ?? idx * 50;
+      const baseY = feature.y_mm ?? 0;
+
+      // Rough stage: undersize.roughing_mm becomes orbit radius (overburn)
+      operations.push({
+        stage: "rough",
+        start_x: baseX,
+        start_y: baseY,
+        target_depth_mm: feature.depth_mm,
+        electrode_number: idx + 1,
+        electrode_name: `${input.electrodeMaterial ?? "copper"}_rough_${feature.name}`,
+        over_burn_mm: undersize.roughing_mm,
+        orbit_radius_mm: undersize.roughing_mm,
       });
-    }
 
-    const profile: SinkerEDMPartProfile = {
-      part_name: input.partName,
+      // Finish stage: undersize.finishing_mm becomes spark-gap-sized orbit
+      operations.push({
+        stage: "finish",
+        start_x: baseX,
+        start_y: baseY,
+        target_depth_mm: feature.depth_mm,
+        electrode_number: idx + 1,
+        electrode_name: `${input.electrodeMaterial ?? "copper"}_finish_${feature.name}`,
+        over_burn_mm: undersize.finishing_mm,
+        orbit_radius_mm: undersize.finishing_mm,
+      });
+    });
+
+    const cavityDepth = Math.max(...sourceFeatures.map(f => f.depth_mm));
+
+    const programInput: SinkerProgramInput = {
+      program_number: String(input.programNumber ?? 1).padStart(4, "0"),
+      part_description: input.partName,
       material: input.material,
-      workpiece_height_mm: Math.max(...input.features.map(f => f.depth_mm)) * 2,
-      features,
-      electrode_material: input.electrodeMaterial ?? "copper",
-      target_Ra_um: input.targetRa_um ?? 1.6,
-      controller: (input.controller ?? "fanuc_wedm") as any,
-      program_number: input.programNumber ?? 1,
+      cavity_depth_mm: cavityDepth,
+      operations,
+      units: input.units ?? "metric",
     };
 
-    return this.engine.assembleSinkerEDM(profile);
+    return this.sinkerEngine.generate(programInput);
   }
 
+  /**
+   * Compute micro-EDM parameters for the smallest feature set.
+   * Features above the micro threshold are reported as warnings — the caller
+   * must split the job into a separate sinker pass for those features.
+   */
   private _assembleMicro(
     input: EDMRouteInput,
     warnings: string[],
-  ): MicroEDMProgram {
+  ): MicroEDMResult {
     const microFeatures = input.features.filter(f => f.size_mm < MICRO_EDM_SIZE_THRESHOLD_MM);
     const firstMicro = microFeatures[0] ?? input.features[0];
 
     if (microFeatures.length < input.features.length) {
       warnings.push(
-        `${input.features.length - microFeatures.length} features > 1mm excluded from micro-EDM — ` +
+        `${input.features.length - microFeatures.length} features > ${MICRO_EDM_SIZE_THRESHOLD_MM}mm excluded from micro-EDM — ` +
         `route to sinker EDM separately`,
       );
     }
 
-    const profile: MicroEDMPartProfile = {
-      part_name: input.partName,
-      material: input.material,
-      feature_type: "micro_hole",
-      diameter_um: firstMicro.size_mm * 1000, // mm → µm
+    const process: MicroEDMProcess =
+      firstMicro.type === "micro_hole" ? "micro_drill" : "micro_sinker";
+
+    const microInput: MicroEDMInput = {
+      process,
+      feature_size_um: firstMicro.size_mm * 1000, // mm → µm
       depth_um: firstMicro.depth_mm * 1000,
-      count: microFeatures.length,
-      positions: microFeatures.map(f => ({
-        x_mm: f.x_mm ?? 0,
-        y_mm: f.y_mm ?? 0,
-      })),
-      aspect_ratio: firstMicro.depth_mm / firstMicro.size_mm,
-      controller: (input.controller ?? "fanuc_wedm") as any,
-      program_number: input.programNumber ?? 1,
+      workpiece_material: input.material,
+      target_accuracy_um: 2,
+      target_surface_finish_Ra_um: input.targetRa_um ?? firstMicro.targetRa_um ?? 0.4,
     };
 
-    return this.engine.assembleMicroEDM(profile);
+    return this.microEngine.calculate(microInput);
   }
 }
 
