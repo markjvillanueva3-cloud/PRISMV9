@@ -1526,6 +1526,10 @@ export const ACTIONS = [
   "cam_hypermill_xml_parse_post_config",
   "cam_hypermill_xml_extract_post_config",
   "cam_hypermill_xml_extract_all",
+  "cam_hypermill_ac_server_build_config",
+  "cam_hypermill_ac_server_validate_config",
+  "cam_hypermill_ac_server_describe_config",
+  "cam_hypermill_ac_server_get_defaults",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11042,6 +11046,58 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               const engine = await getEngine("hmXmlExtractor");
               result = { success: true, ...(await engine.extract()) };
             }
+            break;
+          }
+
+          case "cam_hypermill_ac_server_build_config": {
+            // U-CAM-HM-ACSRVCFG-WIRE-01: HyperMillACServerConfig.buildACServerConfig
+            // Builds full AC companion HTTP-server config from partial overrides; loopback-only host default.
+            const { buildACServerConfig } = await import("../../engines/HyperMillACServerConfig.js");
+            const overrides = (params.overrides && typeof params.overrides === "object")
+              ? params.overrides
+              : {};
+            const config = buildACServerConfig(overrides);
+            result = { success: true, config };
+            break;
+          }
+
+          case "cam_hypermill_ac_server_validate_config": {
+            // U-CAM-HM-ACSRVCFG-WIRE-01: HyperMillACServerConfig.validateACServerConfig
+            // Returns array of validation errors. Critical: rejects host != "127.0.0.1" / "localhost".
+            const { validateACServerConfig, buildACServerConfig } = await import("../../engines/HyperMillACServerConfig.js");
+            const rawConfig = (params.config && typeof params.config === "object")
+              ? buildACServerConfig(params.config)
+              : buildACServerConfig({});
+            const errors = validateACServerConfig(rawConfig);
+            result = { success: true, errors, valid: errors.length === 0, errorCount: errors.length };
+            break;
+          }
+
+          case "cam_hypermill_ac_server_describe_config": {
+            // U-CAM-HM-ACSRVCFG-WIRE-01: HyperMillACServerConfig.describeACServerConfig
+            // Human-readable multi-line summary for log startup messages.
+            const { describeACServerConfig, buildACServerConfig } = await import("../../engines/HyperMillACServerConfig.js");
+            const rawConfig = (params.config && typeof params.config === "object")
+              ? buildACServerConfig(params.config)
+              : buildACServerConfig({});
+            const description = describeACServerConfig(rawConfig);
+            result = { success: true, description };
+            break;
+          }
+
+          case "cam_hypermill_ac_server_get_defaults": {
+            // U-CAM-HM-ACSRVCFG-WIRE-01: Surface canonical defaults + named constants + route map.
+            const mod = await import("../../engines/HyperMillACServerConfig.js");
+            result = {
+              success: true,
+              defaultConfig: mod.DEFAULT_AC_SERVER_CONFIG,
+              defaultPort: mod.AC_SERVER_DEFAULT_PORT,
+              bindHost: mod.AC_SERVER_BIND_HOST,
+              defaultTimeoutMs: mod.AC_SERVER_DEFAULT_TIMEOUT_MS,
+              maxConcurrent: mod.AC_SERVER_MAX_CONCURRENT,
+              routes: mod.AC_ROUTES,
+              corsDefaults: mod.DEFAULT_AC_CORS_CONFIG,
+            };
             break;
           }
 
