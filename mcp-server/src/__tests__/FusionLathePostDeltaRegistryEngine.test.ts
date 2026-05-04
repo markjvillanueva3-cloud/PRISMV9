@@ -263,3 +263,132 @@ describe("FusionLathePostDeltaRegistryEngine", () => {
     });
   });
 });
+
+describe("FusionLathePostDeltaRegistryEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const FUS_LATHEPOST_ACTIONS = [
+    "cam_fusion_lathe_post_scan_register",
+    "cam_fusion_lathe_post_save_registry",
+    "cam_fusion_lathe_post_get_registry",
+    "cam_fusion_lathe_post_lookup",
+    "cam_fusion_lathe_post_by_manufacturer",
+    "cam_fusion_lathe_post_by_controller",
+    "cam_fusion_lathe_post_summary",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 7;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 7 cam_fusion_lathe_post_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(FUS_LATHEPOST_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of FUS_LATHEPOST_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _fusLathePostDelta singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_fusLathePostDelta\s*:\s*any/);
+  });
+
+  it("registers a fusLathePostDelta case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"fusLathePostDelta"\s*:\s*return\s+_fusLathePostDelta\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/FusionLathePostDeltaRegistryEngine\.js"\s*\)\)\.fusionLathePostDeltaRegistryEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS_LATHEPOST_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"fusLathePostDelta\")", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS_LATHEPOST_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("fusLathePostDelta"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("scan_register case routes to scanAndRegister() and surfaces registration", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_scan_register"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("scanAndRegister()");
+    expect(body).toContain("registration");
+  });
+
+  it("save_registry case routes to saveRegistry() and reports saved:true", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_save_registry"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("saveRegistry()");
+    expect(body).toMatch(/saved:\s*true/);
+  });
+
+  it("get_registry case routes to getRegistry() and surfaces full registry payload", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_get_registry"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getRegistry()");
+    expect(body).toContain("registry");
+  });
+
+  it("lookup case Array.isArray-guards capabilities and accepts machine_type|machineType fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_lookup"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("lookupPost");
+    expect(body).toContain("Array.isArray(params.capabilities)");
+    expect(body).toMatch(/params\.machine_type/);
+    expect(body).toMatch(/params\.machineType/);
+    expect(body).toContain("found");
+  });
+
+  it("by_manufacturer case routes to getPostsByManufacturer() and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_by_manufacturer"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getPostsByManufacturer");
+    expect(body).toContain("count");
+  });
+
+  it("by_controller case accepts family|controller_family|controllerFamily fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_by_controller"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getPostsByController");
+    expect(body).toMatch(/params\.family\s*\?\?\s*params\.controller_family/);
+    expect(body).toContain("controllerFamily");
+  });
+
+  it("summary case routes to getSummary() and spreads roll-up", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_lathe_post_summary"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getSummary()");
+    expect(body).toMatch(/\.\.\.summary/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS_LATHEPOST_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+});

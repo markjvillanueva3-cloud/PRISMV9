@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -425,6 +425,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmStrategyKB": return _hmStrategyKB ??= (await import("../../engines/HyperMillStrategyKnowledgeEngine.js")).hyperMillStrategyKnowledgeEngine;
     case "hmDeepLearning": return _hmDeepLearning ??= (await import("../../engines/HyperMillDeepLearningEngine.js")).hyperMillDeepLearningEngine;
     case "hmAIOrch": return _hmAIOrch ??= (await import("../../engines/HyperMillAIOrchestrationEngine.js")).hyperMillAIOrchestrationEngine;
+    case "fusLathePostDelta": return _fusLathePostDelta ??= (await import("../../engines/FusionLathePostDeltaRegistryEngine.js")).fusionLathePostDeltaRegistryEngine;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1567,6 +1568,13 @@ export const ACTIONS = [
   "cam_fusion_tool_library_find_by_description",
   "cam_fusion_tool_library_filter_by_category",
   "cam_fusion_tool_library_audit",
+  "cam_fusion_lathe_post_scan_register",
+  "cam_fusion_lathe_post_save_registry",
+  "cam_fusion_lathe_post_get_registry",
+  "cam_fusion_lathe_post_lookup",
+  "cam_fusion_lathe_post_by_manufacturer",
+  "cam_fusion_lathe_post_by_controller",
+  "cam_fusion_lathe_post_summary",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11498,6 +11506,78 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
             const audit = await FusionToolLibraryEngine.audit();
             result = { success: true, ...audit };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_scan_register": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.scanAndRegister
+            // Walks Fusion BASIC POSTS + HSMWorks 2026/posts; classifies each .cps by manufacturer/controller/machine-type.
+            const engine = await getEngine("fusLathePostDelta");
+            const registration = engine.scanAndRegister();
+            result = { success: true, registration };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_save_registry": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.saveRegistry
+            // Persists the in-memory registry to data/post-processors/lathe-post-registry.json.
+            const engine = await getEngine("fusLathePostDelta");
+            engine.saveRegistry();
+            result = { success: true, saved: true };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_get_registry": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.getRegistry
+            // Returns the loaded LathePostRegistry (auto-loads from disk if absent).
+            const engine = await getEngine("fusLathePostDelta");
+            const registry = engine.getRegistry();
+            result = { success: true, registry };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_lookup": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.lookupPost
+            // Looks up the best post for a {manufacturer, controller, machineType, capabilities} query; null on miss.
+            const engine = await getEngine("fusLathePostDelta");
+            const query = {
+              manufacturer: params.manufacturer !== undefined ? String(params.manufacturer) : undefined,
+              controller: params.controller !== undefined ? String(params.controller) : undefined,
+              machineType: params.machine_type !== undefined ? String(params.machine_type)
+                : params.machineType !== undefined ? String(params.machineType) : undefined,
+              capabilities: Array.isArray(params.capabilities) ? params.capabilities.map(String) : undefined,
+            };
+            const post = engine.lookupPost(query as never);
+            result = { success: true, query, post: post ?? null, found: post !== null };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_by_manufacturer": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.getPostsByManufacturer
+            // All posts for a given manufacturer string (case-sensitive, matches registry's normalised keys).
+            const engine = await getEngine("fusLathePostDelta");
+            const manufacturer = String(params.manufacturer ?? "");
+            const posts = engine.getPostsByManufacturer(manufacturer);
+            result = { success: true, manufacturer, posts, count: posts.length };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_by_controller": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.getPostsByController
+            // All posts for a given ControllerFamily (haas, fanuc, mazak, okuma, doosan, dmg-mori, mitsubishi, generic).
+            const engine = await getEngine("fusLathePostDelta");
+            const family = String(params.family ?? params.controller_family ?? params.controllerFamily ?? "");
+            const posts = engine.getPostsByController(family);
+            result = { success: true, family, posts, count: posts.length };
+            break;
+          }
+
+          case "cam_fusion_lathe_post_summary": {
+            // U-CAM-FUS-LATHEPOST-WIRE-01: FusionLathePostDeltaRegistryEngine.getSummary
+            // Aggregate roll-up: totals by manufacturer / controller / machine type + verifiedCount.
+            const engine = await getEngine("fusLathePostDelta");
+            const summary = engine.getSummary();
+            result = { success: true, ...summary };
             break;
           }
 
