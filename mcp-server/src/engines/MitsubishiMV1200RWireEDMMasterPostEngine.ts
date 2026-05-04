@@ -429,7 +429,7 @@ const WIRE_OFFSETS: WireOffsetTable = {
   "0.30": { rough: 0.190, skim1: 0.165, skim2: 0.158, skim3: 0.156, skim4: 0.155 },
 };
 
-interface PassDefaults {
+export interface PassDefaults {
   power_factor: number;     // Multiplier vs rough power
   on_time_factor: number;   // Multiplier vs rough on_time
   off_time_factor: number;  // Multiplier vs rough off_time
@@ -440,7 +440,8 @@ interface PassDefaults {
   expected_ra_um: number;   // Typical Ra achieved
 }
 
-const PASS_DEFAULTS: Record<WireEDMPassType, PassDefaults> = {
+/** Canonical pass-factor table — exported for cps/verifyWEDMBlockAnnotations.ts. */
+export const PASS_DEFAULTS: Record<WireEDMPassType, PassDefaults> = {
   rough:  { power_factor: 1.0, on_time_factor: 1.0, off_time_factor: 1.0, wire_speed_m_min: 12, wire_tension_g: 1200, servo_v: 50, flushing: 10, expected_ra_um: 3.2 },
   skim1:  { power_factor: 0.5, on_time_factor: 0.5, off_time_factor: 0.6, wire_speed_m_min: 8,  wire_tension_g: 800,  servo_v: 40, flushing: 5,  expected_ra_um: 1.6 },
   skim2:  { power_factor: 0.25, on_time_factor: 0.25, off_time_factor: 0.4, wire_speed_m_min: 6,  wire_tension_g: 600,  servo_v: 35, flushing: 3,  expected_ra_um: 0.8 },
@@ -449,13 +450,14 @@ const PASS_DEFAULTS: Record<WireEDMPassType, PassDefaults> = {
 };
 
 // Base E-pack parameters (E-pack 12 = standard for tool steel)
-interface EPackParams {
+export interface EPackParams {
   on_time_us: number;
   off_time_us: number;
   peak_current_a: number;
 }
 
-const E_PACK_TABLE: Record<number, EPackParams> = {
+/** Canonical E-pack table — exported for cps/verifyWEDMBlockAnnotations.ts. */
+export const E_PACK_TABLE: Record<number, EPackParams> = {
   1:  { on_time_us: 0.5, off_time_us: 3,  peak_current_a: 2 },
   2:  { on_time_us: 0.8, off_time_us: 4,  peak_current_a: 3 },
   3:  { on_time_us: 1,   off_time_us: 5,  peak_current_a: 5 },
