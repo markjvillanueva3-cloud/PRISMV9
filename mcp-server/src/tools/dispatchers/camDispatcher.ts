@@ -1636,6 +1636,18 @@ export const ACTIONS = [
   "cam_inventor_automation_export_step",
   "cam_inventor_automation_get_mass_properties",
   "cam_inventor_automation_close",
+  "cam_inventor_camfn_get_summary",
+  "cam_inventor_camfn_category_breakdown",
+  "cam_inventor_camfn_canned_cycle_ref",
+  "cam_inventor_camfn_learning_path",
+  "cam_inventor_camfn_all_operations",
+  "cam_inventor_camfn_search_by_category",
+  "cam_inventor_camfn_multiaxis_ops",
+  "cam_inventor_camfn_probing_ops",
+  "cam_inventor_camfn_adaptive_ops",
+  "cam_inventor_camfn_list_sections",
+  "cam_inventor_camfn_get_section",
+  "cam_inventor_camfn_search_parameters",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -12160,6 +12172,107 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("invAutoBridge");
             const closed = await engine.close();
             result = { success: true, closed };
+            break;
+          }
+
+          case "cam_inventor_camfn_get_summary": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getSummary
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const summary = InventorCAMFunctionIndexEngine.getSummary();
+            result = { success: true, summary };
+            break;
+          }
+
+          case "cam_inventor_camfn_category_breakdown": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getCategoryBreakdown
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const categories = InventorCAMFunctionIndexEngine.getCategoryBreakdown();
+            result = { success: true, categories, count: categories.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_canned_cycle_ref": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getCannedCycleReference
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const reference = InventorCAMFunctionIndexEngine.getCannedCycleReference();
+            result = { success: true, reference };
+            break;
+          }
+
+          case "cam_inventor_camfn_learning_path": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getLearningPath
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const path = InventorCAMFunctionIndexEngine.getLearningPath();
+            result = { success: true, path, count: path.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_all_operations": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getAllOperations
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const operations = InventorCAMFunctionIndexEngine.getAllOperations();
+            result = { success: true, operations, count: operations.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_search_by_category": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.searchByCategory
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const category = String(params.category ?? "");
+            const operations = InventorCAMFunctionIndexEngine.searchByCategory(category);
+            result = { success: true, category, operations, count: operations.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_multiaxis_ops": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getMultiaxisOperations
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const ops = InventorCAMFunctionIndexEngine.getMultiaxisOperations();
+            result = { success: true, ops, count: ops.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_probing_ops": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getProbingOperations
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const ops = InventorCAMFunctionIndexEngine.getProbingOperations();
+            result = { success: true, ops, count: ops.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_adaptive_ops": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getAdaptiveOperations
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const ops = InventorCAMFunctionIndexEngine.getAdaptiveOperations();
+            result = { success: true, ops, count: ops.length };
+            break;
+          }
+
+          case "cam_inventor_camfn_list_sections": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.listSections
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const sections = InventorCAMFunctionIndexEngine.listSections();
+            result = { success: true, sections };
+            break;
+          }
+
+          case "cam_inventor_camfn_get_section": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.getSection
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const sectionKey = String(params.section_key ?? params.sectionKey ?? "");
+            const section = InventorCAMFunctionIndexEngine.getSection(sectionKey);
+            result = { success: true, section_key: sectionKey, section: section ?? null, found: section !== undefined && section !== null };
+            break;
+          }
+
+          case "cam_inventor_camfn_search_parameters": {
+            // U-CAM-INV-CAMFN-WIRE-01: InventorCAMFunctionIndexEngine.searchParameters
+            const { InventorCAMFunctionIndexEngine } = await import("../../engines/InventorCAMFunctionIndexEngine.js");
+            const query = String(params.query ?? "");
+            const limitRaw = Number(params.limit ?? 20);
+            const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 20;
+            const matches = InventorCAMFunctionIndexEngine.searchParameters(query, limit);
+            result = { success: true, query, limit, matches, count: matches.length };
             break;
           }
 

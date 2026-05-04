@@ -284,3 +284,116 @@ describe("InventorCAMFunctionIndexEngine", () => {
     });
   });
 });
+
+describe("InventorCAMFunctionIndexEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const INV_CAMFN_ACTIONS = [
+    "cam_inventor_camfn_get_summary",
+    "cam_inventor_camfn_category_breakdown",
+    "cam_inventor_camfn_canned_cycle_ref",
+    "cam_inventor_camfn_learning_path",
+    "cam_inventor_camfn_all_operations",
+    "cam_inventor_camfn_search_by_category",
+    "cam_inventor_camfn_multiaxis_ops",
+    "cam_inventor_camfn_probing_ops",
+    "cam_inventor_camfn_adaptive_ops",
+    "cam_inventor_camfn_list_sections",
+    "cam_inventor_camfn_get_section",
+    "cam_inventor_camfn_search_parameters",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 12;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 12 cam_inventor_camfn_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(INV_CAMFN_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of INV_CAMFN_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_CAMFN_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body imports InventorCAMFunctionIndexEngine via the canonical path", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_CAMFN_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?\\{\\s*InventorCAMFunctionIndexEngine\\s*\\}\\s*=\\s*await\\s+import\\(\\s*"\\.\\.\\/\\.\\.\\/engines\\/InventorCAMFunctionIndexEngine\\.js"\\s*\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("get_section case accepts section_key|sectionKey fallback and reports found", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_inventor_camfn_get_section"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getSection");
+    expect(body).toMatch(/params\.section_key\s*\?\?\s*params\.sectionKey/);
+    expect(body).toContain("found");
+  });
+
+  it("search_parameters case sanitises limit (Number.isFinite + > 0, default 20)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_inventor_camfn_search_parameters"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("searchParameters");
+    expect(body).toContain("Number.isFinite");
+    expect(body).toMatch(/limitRaw\s*>\s*0/);
+    expect(body).toContain("Math.floor");
+  });
+
+  it("search_by_category case routes to searchByCategory(category) and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_inventor_camfn_search_by_category"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("searchByCategory");
+    expect(body).toContain("count");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_CAMFN_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("multiaxis/probing/adaptive ops cases all surface count alongside ops array", async () => {
+    const src = await readDispatcher();
+    for (const action of [
+      "cam_inventor_camfn_multiaxis_ops",
+      "cam_inventor_camfn_probing_ops",
+      "cam_inventor_camfn_adaptive_ops",
+    ]) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      expect(body).toContain("count");
+      expect(body).toContain("ops");
+    }
+  });
+
+  it("PURE-method engine — every case is synchronous (no await on engine method)", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_CAMFN_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      // The only `await` in each case body should be on the import; not on InventorCAMFunctionIndexEngine.X
+      expect(body).not.toMatch(/await\s+InventorCAMFunctionIndexEngine\.[a-z]/);
+    }
+  });
+});
