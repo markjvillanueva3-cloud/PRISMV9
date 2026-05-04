@@ -214,6 +214,9 @@ const ACTIONS = [
   "cad_solidworks_summary", "cad_solidworks_total_parameter_count", "cad_solidworks_load_errors",
   // SolidWorks planning↔execution bridge (U-CAD-FIDX-SW-INT-01 — VBA macro emit)
   "cad_solidworks_plan_execution", "cad_solidworks_render_vba",
+  // 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01 — system-agnostic CAD plan↔exec)
+  "cad_route_detect_system", "cad_route_plan_execution",
+  "cad_route_find_operation", "cad_route_capabilities", "cad_route_supported_systems",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2536,6 +2539,89 @@ Params vary by action — pass relevant fields in params object.`,
             });
             const vba = SolidWorksCADExecutionBridge.renderVBAScaffold(plan);
             result = { success: true, plan, vba_macro: vba };
+            break;
+          }
+          // ─── 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01) ─────────────────
+          case "cad_route_supported_systems": {
+            const { CADSystemRouterEngine } = await import(
+              "../../engines/CADSystemRouterEngine.js"
+            );
+            result = { success: true, ...CADSystemRouterEngine.listSupportedSystems() };
+            break;
+          }
+          case "cad_route_detect_system": {
+            const { CADSystemRouterEngine } = await import(
+              "../../engines/CADSystemRouterEngine.js"
+            );
+            const sourceSystem = (params.source_system ?? params.sourceSystem) as
+              | string
+              | undefined;
+            const filePath = (params.file_path ?? params.filePath) as string | undefined;
+            const detected = CADSystemRouterEngine.detectSystem({ sourceSystem, filePath });
+            result = { success: true, detected_system: detected };
+            break;
+          }
+          case "cad_route_plan_execution": {
+            const { CADSystemRouterEngine } = await import(
+              "../../engines/CADSystemRouterEngine.js"
+            );
+            const explicitSystem = (params.system ?? params.systemId) as string | undefined;
+            const sourceSystem = (params.source_system ?? params.sourceSystem) as
+              | string
+              | undefined;
+            const filePath = (params.file_path ?? params.filePath) as string | undefined;
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            const detected =
+              explicitSystem ??
+              CADSystemRouterEngine.detectSystem({ sourceSystem, filePath }) ??
+              undefined;
+            if (!detected) {
+              return dispatcherError(
+                "cad_route_plan_execution requires `system` (or `source_system` / `file_path` from which the system can be detected)",
+                action,
+                "prism_cad",
+              );
+            }
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_route_plan_execution requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const routed = await CADSystemRouterEngine.planAndRender({
+              system: detected as Parameters<typeof CADSystemRouterEngine.planAndRender>[0]["system"],
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            result = { success: true, routed };
+            break;
+          }
+          case "cad_route_find_operation": {
+            const { CADSystemRouterEngine } = await import(
+              "../../engines/CADSystemRouterEngine.js"
+            );
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            if (!operationId) {
+              return dispatcherError(
+                "cad_route_find_operation requires operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const matches = await CADSystemRouterEngine.findOperationAcrossSystems(operationId);
+            result = { success: true, operation_id: operationId, count: matches.length, matches };
+            break;
+          }
+          case "cad_route_capabilities": {
+            const { CADSystemRouterEngine } = await import(
+              "../../engines/CADSystemRouterEngine.js"
+            );
+            const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
+            result = { success: true, ...matrix };
             break;
           }
 
