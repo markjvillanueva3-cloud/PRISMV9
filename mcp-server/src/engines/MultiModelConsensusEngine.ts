@@ -33,6 +33,7 @@ import { spawn } from "node:child_process";
 import { codexClientEngine, type CodexResult } from "./CodexClientEngine.js";
 import { grokClientEngine, type GrokResult } from "./GrokClientEngine.js";
 import { ollamaClientEngine } from "./OllamaClientEngine.js";
+import { prismContextInjectorEngine } from "./PRISMContextInjectorEngine.js";
 
 export interface ConsensusInput {
   prompt: string;
@@ -59,6 +60,15 @@ export interface ConsensusInput {
   timeoutMs?: number;               // per-model timeout, default 90s
   mode?: "compare" | "vote";
   voteOptions?: readonly string[];  // required when mode=vote
+  /**
+   * Auto-inject PRISM context (CLAUDE.md, GSD, master index, top-relevant
+   * engines) into each model's prompt so they reason WITH PRISM knowledge,
+   * not generic. Default true. Suppress with prismContext=false for tasks
+   * that don't need PRISM-aware reasoning (saves ~12K tokens per model).
+   */
+  prismContext?: boolean;
+  /** Per-model context budget cap. Default {claude:100k, codex:100k, grok:50k, ollama:24k}. */
+  contextBudgets?: { claude?: number; codex?: number; grok?: number; ollama?: number };
 }
 
 export interface ModelResponse {
@@ -104,11 +114,31 @@ export class MultiModelConsensusEngine {
   async ask(input: ConsensusInput): Promise<ConsensusResult> {
     this.validate(input);
     const start = Date.now();
-    const fullPrompt = input.context
-      ? `${input.prompt}\n\n=== CONTEXT ===\n${input.context}`
+    const userPrompt = input.context
+      ? `${input.prompt}\n\n=== CALLER CONTEXT ===\n${input.context}`
       : input.prompt;
     const timeoutMs = input.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     const includeClaude = input.includeClaude !== false;
+
+    // PRISM context injection — each external model gets a model-budgeted
+    // bundle of CLAUDE.md / GSD / master index / top-relevant engines so they
+    // reason WITH PRISM knowledge instead of generic.
+    const injectPrism = input.prismContext !== false;
+    const budgets = {
+      claude: input.contextBudgets?.claude ?? 100_000,
+      codex:  input.contextBudgets?.codex  ?? 100_000,
+      grok:   input.contextBudgets?.grok   ?? 50_000,
+      ollama: input.contextBudgets?.ollama ?? 24_000,
+    };
+    const buildPrompt = async (modelKey: keyof typeof budgets): Promise<string> => {
+      if (!injectPrism) return userPrompt;
+      try {
+        const ctx = await prismContextInjectorEngine.buildContext(input.prompt, { modelBudget: budgets[modelKey] });
+        return `${ctx.text}\n\n=== TASK ===\n${userPrompt}`;
+      } catch {
+        return userPrompt; // fail open — if injection fails, ship the raw prompt
+      }
+    };
 
     const includeGrok = input.includeGrok !== false && Boolean(process.env.XAI_API_KEY);
     // Dual-Ollama auto-fires when Grok is unavailable to keep the pool at 4 voices.
@@ -119,13 +149,15 @@ export class MultiModelConsensusEngine {
 
     // Each call returns ONE or MORE ModelResponses (dual-Ollama returns 2).
     // We flatten after Promise.all so the rest of the engine treats them uniformly.
+    // Per-model prompts are built lazily so each model gets a context sized to
+    // its own context window.
     const calls: Array<Promise<ModelResponse[]>> = [];
     if (includeClaude) {
-      calls.push(this.callClaude(fullPrompt, input.claudeBin ?? DEFAULT_CLAUDE_BIN, timeoutMs).then((r) => [r]));
+      calls.push(buildPrompt("claude").then((p) => this.callClaude(p, input.claudeBin ?? DEFAULT_CLAUDE_BIN, timeoutMs)).then((r) => [r]));
     }
-    calls.push(this.callCodex(fullPrompt, input.codexModel, input.codexEffort, timeoutMs).then((r) => [r]));
+    calls.push(buildPrompt("codex").then((p) => this.callCodex(p, input.codexModel, input.codexEffort, timeoutMs)).then((r) => [r]));
     if (includeGrok) {
-      calls.push(this.callGrok(fullPrompt, input.grokModel, input.grokReasoning, timeoutMs).then((r) => [r]));
+      calls.push(buildPrompt("grok").then((p) => this.callGrok(p, input.grokModel, input.grokReasoning, timeoutMs)).then((r) => [r]));
     }
     if (dualOllama && secondaryOllama !== primaryOllama) {
       // Ollama swaps models on demand; parallel requests to two different
@@ -133,12 +165,13 @@ export class MultiModelConsensusEngine {
       // the two Ollama calls inside a single Promise so they run in parallel
       // with codex/claude/grok but not with each other.
       calls.push((async (): Promise<ModelResponse[]> => {
-        const first = await this.callOllama(fullPrompt, primaryOllama, timeoutMs);
-        const second = await this.callOllama(fullPrompt, secondaryOllama, timeoutMs);
+        const ollamaPrompt = await buildPrompt("ollama");
+        const first = await this.callOllama(ollamaPrompt, primaryOllama, timeoutMs);
+        const second = await this.callOllama(ollamaPrompt, secondaryOllama, timeoutMs);
         return [first, second];
       })());
     } else {
-      calls.push(this.callOllama(fullPrompt, primaryOllama, timeoutMs).then((r) => [r]));
+      calls.push(buildPrompt("ollama").then((p) => this.callOllama(p, primaryOllama, timeoutMs)).then((r) => [r]));
     }
 
     const responses = (await Promise.all(calls)).flat();

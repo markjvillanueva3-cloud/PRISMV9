@@ -285,6 +285,99 @@ describe("MultiModelConsensusEngine — dual-Ollama 4-way coverage (no XAI_API_K
   });
 });
 
+describe("MultiModelConsensusEngine — PRISM context auto-injection", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    vi.spyOn(ollamaClientEngine, "isConnected").mockReturnValue(true);
+  });
+
+  it("default behavior: each model receives PRISM context prepended to the user prompt", async () => {
+    const promptsSeen: string[] = [];
+    vi.spyOn(codexClientEngine, "exec").mockImplementation(async (opts) => {
+      promptsSeen.push(`codex:${opts.prompt}`);
+      return { ok: true, answer: "ok", tokens: 1, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "" };
+    });
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      promptsSeen.push(`ollama:${opts.prompt}`);
+      return { ok: true, value: "ok", error: null, wallMs: 1 };
+    });
+
+    await multiModelConsensusEngine.ask({
+      prompt: "Plan how to add a new dispatcher action for cutting force lookups",
+      includeClaude: false,
+      dualOllama: false,
+    });
+    expect(promptsSeen).toHaveLength(2);
+    for (const p of promptsSeen) {
+      expect(p).toContain("=== PRISM CONTEXT");
+      expect(p).toContain("=== END PRISM CONTEXT ===");
+      expect(p).toContain("=== TASK ===");
+      expect(p).toContain("Plan how to add a new dispatcher action for cutting force lookups");
+    }
+  });
+
+  it("prismContext=false skips injection (each model gets raw user prompt)", async () => {
+    let codexPrompt = "";
+    vi.spyOn(codexClientEngine, "exec").mockImplementation(async (opts) => {
+      codexPrompt = opts.prompt;
+      return { ok: true, answer: "ok", tokens: 1, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "" };
+    });
+    vi.spyOn(ollamaClientEngine, "generate").mockResolvedValue({ ok: true, value: "ok", error: null, wallMs: 1 });
+
+    await multiModelConsensusEngine.ask({
+      prompt: "raw question",
+      includeClaude: false,
+      dualOllama: false,
+      prismContext: false,
+    });
+    expect(codexPrompt).toBe("raw question");
+    expect(codexPrompt).not.toContain("PRISM CONTEXT");
+  });
+
+  it("custom contextBudgets shrink Ollama prompt vs Codex prompt", async () => {
+    let codexPrompt = "";
+    let ollamaPrompt = "";
+    vi.spyOn(codexClientEngine, "exec").mockImplementation(async (opts) => {
+      codexPrompt = opts.prompt;
+      return { ok: true, answer: "ok", tokens: 1, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "" };
+    });
+    vi.spyOn(ollamaClientEngine, "generate").mockImplementation(async (opts) => {
+      ollamaPrompt = opts.prompt;
+      return { ok: true, value: "ok", error: null, wallMs: 1 };
+    });
+
+    await multiModelConsensusEngine.ask({
+      prompt: "Plan migration involving cutting force kienzle taylor and engine routing",
+      includeClaude: false,
+      dualOllama: false,
+      contextBudgets: { codex: 100_000, ollama: 800 }, // ollama tiny → trimmed
+    });
+    expect(ollamaPrompt.length).toBeLessThan(codexPrompt.length);
+    // Ollama context should be heavily truncated; Codex gets the full bundle
+    expect(codexPrompt).toContain("### TOP RELEVANT ENGINES");
+  });
+
+  it("user-supplied input.context is included as a CALLER CONTEXT block alongside PRISM context", async () => {
+    let codexPrompt = "";
+    vi.spyOn(codexClientEngine, "exec").mockImplementation(async (opts) => {
+      codexPrompt = opts.prompt;
+      return { ok: true, answer: "ok", tokens: 1, model: "gpt-5.5", latencyMs: 1, error: null, rawStderrTail: "" };
+    });
+    vi.spyOn(ollamaClientEngine, "generate").mockResolvedValue({ ok: true, value: "ok", error: null, wallMs: 1 });
+
+    await multiModelConsensusEngine.ask({
+      prompt: "review this code",
+      context: "function foo() { return 42; }",
+      includeClaude: false,
+      dualOllama: false,
+    });
+    expect(codexPrompt).toContain("=== PRISM CONTEXT");
+    expect(codexPrompt).toContain("=== CALLER CONTEXT ===");
+    expect(codexPrompt).toContain("function foo() { return 42; }");
+    expect(codexPrompt).toContain("review this code");
+  });
+});
+
 describe("MultiModelConsensusEngine — orchestration with stubs", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
