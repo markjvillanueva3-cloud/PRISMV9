@@ -378,3 +378,104 @@ describe("HyperMillXmlExtractor", () => {
     });
   });
 });
+
+describe("HyperMillXmlExtractor — dispatcher wiring (camDispatcher.ts)", () => {
+  const dispatcherPath = path.resolve(
+    process.cwd(),
+    "src/tools/dispatchers/camDispatcher.ts",
+  );
+
+  const XMLEXT_ACTIONS = [
+    "cam_hypermill_xml_parse_feature2job",
+    "cam_hypermill_xml_parse_post_config",
+    "cam_hypermill_xml_extract_post_config",
+    "cam_hypermill_xml_extract_all",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 4;
+
+  it("registers all 4 cam_hypermill_xml_* enum entries", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(XMLEXT_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of XMLEXT_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _hmXmlExtractor singleton", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(src).toMatch(/_hmXmlExtractor\s*:\s*any/);
+  });
+
+  it("registers a hmXmlExtractor case in the lazy getter switch", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re =
+      /case\s+"hmXmlExtractor"\s*:\s*return\s+_hmXmlExtractor\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillXmlExtractor\.js"\s*\)\)\.hyperMillXmlExtractor/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of XMLEXT_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("parse_feature2job case imports Feature2JobExtractor and calls parseFile", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_xml_parse_feature2job"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("Feature2JobExtractor");
+    expect(body).toContain("parseFile");
+    expect(body).toMatch(/params\.content\s*\?\?\s*params\.xml/);
+    expect(body).toContain("mappingCount");
+    expect(body).toContain("groupCount");
+  });
+
+  it("parse_post_config case imports PostConfigExtractor and calls parse (PURE, no I/O)", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_xml_parse_post_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("PostConfigExtractor");
+    expect(body).toContain(".parse(");
+    expect(body).toMatch(/params\.content\s*\?\?\s*params\.cfg/);
+    expect(body).toContain("count");
+  });
+
+  it("extract_post_config case routes to PostConfigExtractor.extract with file_path override support", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_xml_extract_post_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("PostConfigExtractor");
+    expect(body).toContain(".extract()");
+    expect(body).toMatch(/params\.file_path\s*\?\?\s*params\.filePath/);
+    expect(body).toContain("errors");
+  });
+
+  it("extract_all case uses singleton when no path overrides; instantiates fresh otherwise", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_xml_extract_all"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain('getEngine("hmXmlExtractor")');
+    expect(body).toContain("HyperMillXmlExtractor");
+    expect(body).toMatch(/params\.catalog_dir\s*\?\?\s*params\.catalogDir/);
+    expect(body).toMatch(/params\.post_config_path\s*\?\?\s*params\.postConfigPath/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of XMLEXT_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("imports Feature2JobExtractor and PostConfigExtractor as named exports (subclass usage)", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(src).toMatch(/\{\s*Feature2JobExtractor\s*\}\s*=\s*await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillXmlExtractor\.js"\s*\)/);
+    expect(src).toMatch(/\{\s*PostConfigExtractor\s*\}\s*=\s*await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillXmlExtractor\.js"\s*\)/);
+  });
+});
