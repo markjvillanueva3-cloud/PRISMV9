@@ -32,6 +32,7 @@
 import { spawn } from "node:child_process";
 import { codexClientEngine, type CodexResult } from "./CodexClientEngine.js";
 import { grokClientEngine, type GrokResult } from "./GrokClientEngine.js";
+import { geminiClientEngine, type GeminiResult } from "./GeminiClientEngine.js";
 import { ollamaClientEngine } from "./OllamaClientEngine.js";
 import { prismContextInjectorEngine } from "./PRISMContextInjectorEngine.js";
 import { consensusFactCheckerEngine, type FactCheckResult } from "./ConsensusFactCheckerEngine.js";
@@ -43,6 +44,12 @@ export interface ConsensusInput {
   includeClaude?: boolean;          // default true — set false when caller IS Claude
   /** Set false to skip Grok (e.g. when XAI_API_KEY isn't set). Default true. */
   includeGrok?: boolean;
+  /** Set false to skip Gemini (e.g. when GEMINI_API_KEY isn't set). Default true. */
+  includeGemini?: boolean;
+  /** Default `gemini-2.0-flash-exp`. Override to gemini-1.5-pro for deeper reasoning. */
+  geminiModel?: string;
+  /** low/medium/high/xhigh — maps to thinkingBudget. Default medium. */
+  geminiReasoning?: "low" | "medium" | "high" | "xhigh";
   /**
    * When Grok is unavailable (no XAI_API_KEY), automatically add a second
    * Ollama model (qwen2.5-coder:32b by default) so the consensus pool
@@ -86,7 +93,7 @@ export interface ConsensusInput {
 
 export interface ModelResponse {
   model: string;
-  vendor: "anthropic" | "openai" | "ollama" | "xai";
+  vendor: "anthropic" | "openai" | "ollama" | "xai" | "google";
   ok: boolean;
   answer: string;
   latencyMs: number;
@@ -160,9 +167,11 @@ export class MultiModelConsensusEngine {
     };
 
     const includeGrok = input.includeGrok !== false && Boolean(process.env.XAI_API_KEY);
-    // Dual-Ollama auto-fires when Grok is unavailable to keep the pool at 4 voices.
-    // Caller can force it on/off with includeGrok / dualOllama.
-    const dualOllama = input.dualOllama !== false && !includeGrok;
+    const includeGemini = input.includeGemini !== false && Boolean(process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY);
+    // Dual-Ollama auto-fires when neither Grok nor Gemini is available to keep
+    // the pool at ≥4 voices. With Gemini configured we already have 4-way
+    // (Claude + Codex + Gemini + Ollama) so we don't need the dual.
+    const dualOllama = input.dualOllama !== false && !includeGrok && !includeGemini;
     const primaryOllama = input.ollamaModel ?? DEFAULT_OLLAMA_MODEL;
     const secondaryOllama = input.secondaryOllamaModel ?? DEFAULT_SECONDARY_OLLAMA_MODEL;
 
@@ -177,6 +186,11 @@ export class MultiModelConsensusEngine {
     calls.push(buildPrompt("codex").then((p) => this.callCodex(p, input.codexModel, input.codexEffort, timeoutMs)).then((r) => [r]));
     if (includeGrok) {
       calls.push(buildPrompt("grok").then((p) => this.callGrok(p, input.grokModel, input.grokReasoning, timeoutMs)).then((r) => [r]));
+    }
+    if (includeGemini) {
+      // Gemini gets the codex-tier budget by default — it has 1M+ context so
+      // we don't need to compress for it. Reuses the codex budget bucket.
+      calls.push(buildPrompt("codex").then((p) => this.callGemini(p, input.geminiModel, input.geminiReasoning, timeoutMs)).then((r) => [r]));
     }
     if (dualOllama && secondaryOllama !== primaryOllama) {
       // Ollama swaps models on demand; parallel requests to two different
@@ -371,6 +385,29 @@ export class MultiModelConsensusEngine {
       };
     } catch (e) {
       return this.errResponse(model ?? DEFAULT_CODEX_MODEL, "openai", (e as Error).message);
+    }
+  }
+
+  private async callGemini(prompt: string, model?: string, reasoning?: "low" | "medium" | "high" | "xhigh", timeoutMs?: number): Promise<ModelResponse> {
+    const target = model ?? "gemini-2.0-flash-exp";
+    try {
+      const r: GeminiResult = await geminiClientEngine.exec({
+        prompt,
+        model: target,
+        reasoningEffort: reasoning ?? "medium",
+        timeoutMs,
+      });
+      return {
+        model: r.model || target,
+        vendor: "google",
+        ok: r.ok,
+        answer: r.answer,
+        latencyMs: r.latencyMs,
+        tokens: r.totalTokens,
+        error: r.error,
+      };
+    } catch (e) {
+      return this.errResponse(target, "google", (e as Error).message);
     }
   }
 
