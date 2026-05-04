@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -421,6 +421,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmSkillsBatch": return _hmSkillsBatch ??= (await import("../../engines/HyperMillSkillsBatchEngine.js")).hyperMillSkillsBatchEngine;
     case "hmSkillRegMap": return _hmSkillRegMap ??= (await import("../../engines/HyperMillSkillRegistryMap.js")).hyperMillSkillRegistryMap;
     case "hmMedMatProfiles": return _hmMedMatProfiles ??= (await import("../../engines/HyperMillMedicalMaterialProfiles.js")).hyperMillMedicalMaterialProfiles;
+    case "hmXmlExtractor": return _hmXmlExtractor ??= (await import("../../engines/HyperMillXmlExtractor.js")).hyperMillXmlExtractor;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1521,6 +1522,10 @@ export const ACTIONS = [
   "cam_hypermill_medical_get_profile",
   "cam_hypermill_medical_resolve_material",
   "cam_hypermill_medical_list_profiles",
+  "cam_hypermill_xml_parse_feature2job",
+  "cam_hypermill_xml_parse_post_config",
+  "cam_hypermill_xml_extract_post_config",
+  "cam_hypermill_xml_extract_all",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -10971,6 +10976,72 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("hmMedMatProfiles");
             const profiles = engine.listProfiles();
             result = { success: true, profiles, count: profiles.length };
+            break;
+          }
+
+          case "cam_hypermill_xml_parse_feature2job": {
+            // U-CAM-HM-XMLEXT-WIRE-01: Feature2JobExtractor.parseFile (PURE — no I/O)
+            // Parses an in-memory omFeature2JobCatalog*.xml content string into a Feature2JobCatalog.
+            const { Feature2JobExtractor } = await import("../../engines/HyperMillXmlExtractor.js");
+            const content = String(params.content ?? params.xml ?? "");
+            const sourceFile = String(params.source_file ?? params.sourceFile ?? "in-memory");
+            const extractor = new Feature2JobExtractor();
+            const catalog = extractor.parseFile(content, sourceFile);
+            result = {
+              success: true,
+              catalog,
+              mappingCount: catalog.mappings.length,
+              groupCount: catalog.groups.length,
+            };
+            break;
+          }
+
+          case "cam_hypermill_xml_parse_post_config": {
+            // U-CAM-HM-XMLEXT-WIRE-01: PostConfigExtractor.parse (PURE — no I/O)
+            // Parses in-memory omPPFC.cfg content string into PostConfigEntry[].
+            const { PostConfigExtractor } = await import("../../engines/HyperMillXmlExtractor.js");
+            const content = String(params.content ?? params.cfg ?? "");
+            const extractor = new PostConfigExtractor();
+            const entries = extractor.parse(content);
+            result = { success: true, entries, count: entries.length };
+            break;
+          }
+
+          case "cam_hypermill_xml_extract_post_config": {
+            // U-CAM-HM-XMLEXT-WIRE-01: PostConfigExtractor.extract (filesystem)
+            // Reads omPPFC.cfg from disk; missing file returns {entries:[], errors:[...]} (no throw).
+            const { PostConfigExtractor } = await import("../../engines/HyperMillXmlExtractor.js");
+            const filePath = params.file_path ?? params.filePath;
+            const extractor = filePath
+              ? new PostConfigExtractor(String(filePath))
+              : new PostConfigExtractor();
+            const extractResult = await extractor.extract();
+            result = {
+              success: true,
+              entries: extractResult.entries,
+              errors: extractResult.errors,
+              count: extractResult.entries.length,
+            };
+            break;
+          }
+
+          case "cam_hypermill_xml_extract_all": {
+            // U-CAM-HM-XMLEXT-WIRE-01: HyperMillXmlExtractor.extract (full orchestrator)
+            // Runs Feature2Job catalog discovery + parsing + post-config extraction in parallel.
+            // Uses default singleton when no path overrides; otherwise instantiates fresh.
+            const catalogDir = params.catalog_dir ?? params.catalogDir;
+            const postConfigPath = params.post_config_path ?? params.postConfigPath;
+            if (catalogDir || postConfigPath) {
+              const { HyperMillXmlExtractor } = await import("../../engines/HyperMillXmlExtractor.js");
+              const extractor = new HyperMillXmlExtractor(
+                catalogDir ? String(catalogDir) : undefined,
+                postConfigPath ? String(postConfigPath) : undefined,
+              );
+              result = { success: true, ...(await extractor.extract()) };
+            } else {
+              const engine = await getEngine("hmXmlExtractor");
+              result = { success: true, ...(await engine.extract()) };
+            }
             break;
           }
 
