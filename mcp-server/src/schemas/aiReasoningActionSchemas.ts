@@ -121,6 +121,9 @@ export const AI_REASONING_ACTIONS = [
   "exception_record_outcome",  // U-WIRE31 → finalize event outcome; success generates tribal tip + envelope proposal
   "exception_pending",         // U-WIRE31 → list captured events not yet recorded
   "exception_stats",           // U-WIRE31 → totalEvents, learnedCount, successRate, tipsGenerated, proposalsGenerated
+  // XPROC-AI-01: cross-process AI orchestration (mill+lathe+wedm)
+  "cross_process_ai_classify",     // classify intent → process (no engine invocation)
+  "cross_process_ai_orchestrate",  // classify + dispatch to mill/lathe/wedm orchestrator (or dry_run preview)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1115,4 +1118,7 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   }).passthrough(),
   exception_pending: z.object({}).passthrough(),
   exception_stats: z.object({}).passthrough(),
+  // XPROC-AI-01: bridge accepts opaque process-specific request bodies; passthrough.
+  cross_process_ai_classify: z.object({}).passthrough(),
+  cross_process_ai_orchestrate: z.object({}).passthrough(),
 };
