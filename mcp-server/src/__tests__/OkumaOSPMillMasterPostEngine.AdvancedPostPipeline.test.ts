@@ -81,7 +81,9 @@ describe("OkumaOSPMill.generateProgramAdvanced — AdvancedPost pass gating", ()
     expect(out.advanced_features_applied).not.toContain("advanced_post_processing");
     expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
     expect(out.advanced_features_applied).toContain("rapid_reposition_optimization");
-    expect(out.advanced_features_applied).toHaveLength(2);
+    expect(out.advanced_features_applied).toContain("hsm_dwell_optimization");
+    expect(out.advanced_features_applied).toContain("feature_sequence_optimization");
+    expect(out.advanced_features_applied).toHaveLength(4);
   }, 30_000);
 
   it("returns advanced_summary=null and empty enhancements when use_advanced_features=false", async () => {
@@ -94,7 +96,7 @@ describe("OkumaOSPMill.generateProgramAdvanced — AdvancedPost pass gating", ()
     expect(out.optimized_gcode).toBeNull();
   });
 
-  it("appends 'advanced_post_processing' as third enhancement when advanced_post supplied", async () => {
+  it("appends 'advanced_post_processing' as fifth enhancement when advanced_post supplied", async () => {
     const out = await okumaOSPMillMasterPostEngine.generateProgramAdvanced([baseOp], {
       program_number: PROGRAM_NUMBER + 2,
       osp_family: "P300",
@@ -104,6 +106,8 @@ describe("OkumaOSPMill.generateProgramAdvanced — AdvancedPost pass gating", ()
     expect(out.advanced_features_applied).toEqual([
       "auto_speed_feed_optimization",
       "rapid_reposition_optimization",
+      "hsm_dwell_optimization",
+      "feature_sequence_optimization",
       "advanced_post_processing",
     ]);
   });

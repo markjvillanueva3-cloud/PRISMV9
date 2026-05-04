@@ -82,7 +82,9 @@ describe("HurcoV11.generateProgramAdvanced — AdvancedPost pass gating", () => 
     expect(out.advanced_features_applied).not.toContain("advanced_post_processing");
     expect(out.advanced_features_applied).toContain("auto_speed_feed_optimization");
     expect(out.advanced_features_applied).toContain("rapid_reposition_optimization");
-    expect(out.advanced_features_applied).toHaveLength(2);
+    expect(out.advanced_features_applied).toContain("hsm_dwell_optimization");
+    expect(out.advanced_features_applied).toContain("feature_sequence_optimization");
+    expect(out.advanced_features_applied).toHaveLength(4);
   }, 30_000);
 
   it("returns advanced_summary=null and empty enhancements list in fully-disabled advanced mode", async () => {
@@ -94,7 +96,7 @@ describe("HurcoV11.generateProgramAdvanced — AdvancedPost pass gating", () => 
     expect(out.optimized_gcode).toBeNull();
   });
 
-  it("appends 'advanced_post_processing' as the third enhancement when advanced_post supplied", async () => {
+  it("appends 'advanced_post_processing' as the fifth enhancement when advanced_post supplied", async () => {
     const out = await hurcoV11MillMasterPostEngine.generateProgramAdvanced([baseOp], {
       program_number: PROGRAM_NUMBER + 2,
       use_advanced_features: true,
@@ -104,6 +106,8 @@ describe("HurcoV11.generateProgramAdvanced — AdvancedPost pass gating", () => 
     expect(out.advanced_features_applied).toEqual([
       "auto_speed_feed_optimization",
       "rapid_reposition_optimization",
+      "hsm_dwell_optimization",
+      "feature_sequence_optimization",
       "advanced_post_processing",
     ]);
   });

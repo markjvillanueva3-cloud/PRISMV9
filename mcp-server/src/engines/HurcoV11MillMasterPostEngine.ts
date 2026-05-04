@@ -48,6 +48,29 @@ import {
   type MachineServo,
   type HSMParameters,
 } from "./HSMDwellAtCornerEngine.js";
+import {
+  advancedPostProcessorEngine,
+  type AdaptiveClearingConfig,
+  type HSMConfig,
+  type FeedOptimizationConfig,
+  type MultiAxisConfig,
+  type InProcessMeasureConfig,
+  type ToolManagementConfig,
+} from "./AdvancedPostProcessorEngine.js";
+
+/**
+ * PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring — opt-in AdvancedPostProcessor pass.
+ * Hurco V11 dialect: comment-only smoothing, null NURBS, plain G64 corner-blend,
+ * G43.4 H#1 RTCP (5-axis variants only). multi_axis force-skipped on axis_count<4.
+ */
+export interface AdvancedPostFeaturesConfig {
+  adaptive_clearing?: AdaptiveClearingConfig;
+  hsm?: HSMConfig;
+  tool_management?: ToolManagementConfig;
+  in_process_measure?: InProcessMeasureConfig;
+  feed_optimization?: FeedOptimizationConfig;
+  multi_axis?: MultiAxisConfig;
+}
 
 const HURCO_ISO_TO_AUTO_SF_MATERIAL: Record<ISOGroup, string> = {
   P: "steel", M: "stainless_steel", K: "cast_iron",
@@ -81,6 +104,10 @@ export interface HurcoPostConfig {
   machine_id?: string;
   /** AutoSpeedFeed aggressiveness (0.0 conservative → 1.0 push limits). Default 0.5. */
   advanced_aggressiveness?: number;
+  /** Opt-in AdvancedPostProcessor pass (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
+   *  Threads post-AS/F G-code through `advancedPostProcessorEngine.enhance()`
+   *  with controller='hurco'. multi_axis force-skipped on axis_count<4. */
+  advanced_post?: AdvancedPostFeaturesConfig;
 }
 
 export interface MillOperation {
@@ -196,6 +223,16 @@ export interface HurcoAdvancedSummary {
     time_saved_sec: number;
     improvement_pct: number;
     method: string;
+  } | null;
+  /** AdvancedPostProcessor pass output (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
+   *  Null when caller omitted `advanced_post` config. */
+  advanced_post: {
+    controller_used: "hurco";
+    requested_features: string[];
+    enhancements_applied: string[];
+    warnings: string[];
+    estimated_time_savings_pct: number;
+    output_lines: number;
   } | null;
 }
 
@@ -710,6 +747,16 @@ export class HurcoV11MillMasterPostEngine {
 
     const enhancements: string[] = [];
 
+    const requestedAdvancedFeatures: string[] = [];
+    if (cfg.advanced_post) {
+      if (cfg.advanced_post.adaptive_clearing) requestedAdvancedFeatures.push("adaptive_clearing");
+      if (cfg.advanced_post.hsm) requestedAdvancedFeatures.push("hsm");
+      if (cfg.advanced_post.feed_optimization) requestedAdvancedFeatures.push("feed_optimization");
+      if (cfg.advanced_post.multi_axis) requestedAdvancedFeatures.push("multi_axis");
+      if (cfg.advanced_post.in_process_measure) requestedAdvancedFeatures.push("in_process_measure");
+      if (cfg.advanced_post.tool_management) requestedAdvancedFeatures.push("tool_management");
+    }
+
     const machine = cfg.machine_id
       ? machineStrategyConstraintEngine.getMachineById(cfg.machine_id)
       : null;
@@ -829,10 +876,43 @@ export class HurcoV11MillMasterPostEngine {
         `(${seqResult.improvement_pct.toFixed(1)}%)`,
     );
 
+    // PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring (step 5)
+    let finalGcode = sfResult.gcode;
+    let advancedPostSummary: HurcoAdvancedSummary["advanced_post"] = null;
+    if (cfg.advanced_post) {
+      const apFeatures: AdvancedPostFeaturesConfig = { ...cfg.advanced_post };
+      const preWarnings: string[] = [];
+      if (apFeatures.multi_axis && machine && machine.axis_count < 4) {
+        preWarnings.push(
+          `AdvancedPost: multi_axis (RTCP) skipped — resolved machine '${machine.machine_id}' is ${machine.axis_count}-axis; RTCP requires axis_count >= 4 (e.g. Hurco VMX5x).`,
+        );
+        apFeatures.multi_axis = undefined;
+      }
+      const apResult = advancedPostProcessorEngine.enhance({
+        controller: "hurco",
+        gcode: sfResult.gcode,
+        ...apFeatures,
+      });
+      finalGcode = apResult.gcode;
+      enhancements.push("advanced_post_processing");
+      advancedPostSummary = {
+        controller_used: "hurco",
+        requested_features: requestedAdvancedFeatures,
+        enhancements_applied: apResult.enhancements_applied,
+        warnings: [...preWarnings, ...apResult.warnings],
+        estimated_time_savings_pct: apResult.estimated_time_savings_pct,
+        output_lines: apResult.gcode.split("\n").length,
+      };
+      log.info(
+        `[HurcoV11] AdvancedPost pass: ${apResult.enhancements_applied.length} sub-features applied, ` +
+          `~${apResult.estimated_time_savings_pct.toFixed(1)}% time savings, ${apResult.warnings.length} warnings`,
+      );
+    }
+
     return {
       ...baseOutput,
       advanced_features_applied: enhancements,
-      optimized_gcode: sfResult.gcode.split("\n"),
+      optimized_gcode: finalGcode.split("\n"),
       advanced_summary: {
         auto_speed_feed: {
           lines_modified: sfResult.stats.lines_modified,
@@ -878,6 +958,7 @@ export class HurcoV11MillMasterPostEngine {
           improvement_pct: seqResult.improvement_pct,
           method: seqResult.method,
         },
+        advanced_post: advancedPostSummary,
       },
     };
   }
