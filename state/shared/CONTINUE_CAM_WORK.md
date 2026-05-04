@@ -2,19 +2,22 @@
 
 **Purpose**: When a fresh chat receives the prompt "continue cam work", read this file FIRST to pick up where the prior session ended. Survives session-ID rotation (per-agent handoffs are session-pinned and unreachable across days).
 
-**Last Updated**: 2026-05-04T18:30Z by `claude-b93f4e4d`
+**Last Updated**: 2026-05-04T18:48Z by `claude-b93f4e4d`
 **Branch**: `work/cam-exhaust-ms0`
 **Milestone**: CAM-EXHAUST-MS0
-**Last Commit**: `acd48122a` — U-CAM-HM-DATAEXT-PIPE-TESTS-01 (Pipeline + Orchestrator — 45 GREEN)
+**Last Commit**: `4373e7184` — U-CAM-HM-MILLTURN-UNIFIER-TESTS-01 (MillTurnBridge + SchemaUnifier — 49 GREEN)
 
 ---
 
 ## STATE
 
-- HyperMill engine test coverage: **57 of 64 engines tested** (~89%)
-- Latest session shipped: 1 commit, 2 test files, 45 GREEN tests (vitest 4.1.2). Reviewer PASS on all 5 strict-legitimacy criteria.
-- Note: HyperMILLAutomationBridge already had a pre-existing test (Apr 19) — discovered case-sensitive `comm` diff missed it; do NOT touch.
+- HyperMill engine test coverage: **59 of 62 truly-untested engines tested** (~95%) — 4 remaining: HyperMillACConnectionManager, HyperMillACScriptExecutor, HyperMillEDMBridge (broken engine), HyperMillPPPBridgeHooks, HyperMillSecondaryOpsSequencer (peer-claim risk). HyperMILLAutomationBridge has pre-existing `hyperMILLAutomationBridge.test.ts` (camelCase, Apr 19) — diff false-positive earlier.
+- Latest session shipped: 2 commits, 4 test files, 94 GREEN tests (vitest 4.1.2).
+  - `acd48122a` — DataExtractionPipeline + Orchestrator (45 GREEN)
+  - `4373e7184` — MillTurnBridge + SchemaUnifier (49 GREEN)
+  - Both reviewer PASS, both scrutiny-marked blockCount=0.
 - Engine quirk surfaced: HyperMillACStandardToolDBEngine §15-16 ships built-in seed catalog when DB path is missing (returns 13 tools, 5 macros). Tests must use `Number.isInteger(x) && x >= 0` structural assertions, NOT `.toBe(0)`, on missing-paths totals.
+- New mock pattern: SchemaUnifier composes 6 extractors via Promise.allSettled — vi.mock each singleton's `.extractAll()`/`.extract()` to return realistic shapes; use `mockImplementationOnce(() => Promise.reject(...))` to test individual rejection without aborting the pipeline.
 - Prior session shipped: 1 commit, 4 test files, 85 GREEN tests (Metric.cfg + DemoDb + IMDb + DeepLearning).
 - Prior session shipped: 1 commit, 4 test files, 127 GREEN tests (AIOrchestration/MultiAxisPhysics/JobMonitor/XmlExtractor)
 - Build: PASS as of `780fa4c09`
