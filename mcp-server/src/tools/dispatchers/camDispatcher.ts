@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _espCAM: any, _invAutoBridge: any, _invAIOrch: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _espCAM: any, _invAutoBridge: any, _invAIOrch: any, _swAutoBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -436,6 +436,7 @@ async function getEngine(name: string): Promise<any> {
     case "espCAM": return _espCAM ??= (await import("../../engines/EspritCAMBridgeEngine.js")).espritCAMBridgeEngine;
     case "invAutoBridge": return _invAutoBridge ??= (await import("../../engines/InventorAutomationBridge.js")).inventorAutomationBridge;
     case "invAIOrch": return _invAIOrch ??= (await import("../../engines/InventorCAMAIOrchestrationEngine.js")).inventorCAMAIOrchestrationEngine;
+    case "swAutoBridge": return _swAutoBridge ??= (await import("../../engines/SolidWorksAutomationBridge.js")).solidWorksAutomationBridge;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1652,6 +1653,12 @@ export const ACTIONS = [
   "cam_inventor_ai_orchestrate",
   "cam_inventor_ai_get_reasoning_modes",
   "cam_inventor_ai_get_stats",
+  "cam_solidworks_automation_open",
+  "cam_solidworks_automation_get_feature_tree",
+  "cam_solidworks_automation_export_step",
+  "cam_solidworks_automation_export_pdf",
+  "cam_solidworks_automation_get_bounding_box",
+  "cam_solidworks_automation_close",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -12301,6 +12308,57 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("invAIOrch");
             const stats = engine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_solidworks_automation_open": {
+            // U-CAM-SW-AUTOBRIDGE-WIRE-01: SolidWorksAutomationBridge.open
+            const engine = await getEngine("swAutoBridge");
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            const opened = await engine.open(filePath);
+            result = { success: true, opened };
+            break;
+          }
+
+          case "cam_solidworks_automation_get_feature_tree": {
+            // U-CAM-SW-AUTOBRIDGE-WIRE-01: SolidWorksAutomationBridge.getFeatureTree
+            const engine = await getEngine("swAutoBridge");
+            const tree = await engine.getFeatureTree();
+            result = { success: true, tree };
+            break;
+          }
+
+          case "cam_solidworks_automation_export_step": {
+            // U-CAM-SW-AUTOBRIDGE-WIRE-01: SolidWorksAutomationBridge.exportSTEP
+            const engine = await getEngine("swAutoBridge");
+            const outputPath = String(params.output_path ?? params.outputPath ?? "");
+            const exported = await engine.exportSTEP(outputPath);
+            result = { success: true, exported };
+            break;
+          }
+
+          case "cam_solidworks_automation_export_pdf": {
+            // U-CAM-SW-AUTOBRIDGE-WIRE-01: SolidWorksAutomationBridge.exportPDF
+            const engine = await getEngine("swAutoBridge");
+            const outputPath = String(params.output_path ?? params.outputPath ?? "");
+            const exported = await engine.exportPDF(outputPath);
+            result = { success: true, exported };
+            break;
+          }
+
+          case "cam_solidworks_automation_get_bounding_box": {
+            // U-CAM-SW-AUTOBRIDGE-WIRE-01: SolidWorksAutomationBridge.getBoundingBox
+            const engine = await getEngine("swAutoBridge");
+            const boundingBox = await engine.getBoundingBox();
+            result = { success: true, boundingBox };
+            break;
+          }
+
+          case "cam_solidworks_automation_close": {
+            // U-CAM-SW-AUTOBRIDGE-WIRE-01: SolidWorksAutomationBridge.close (idempotent)
+            const engine = await getEngine("swAutoBridge");
+            const closed = await engine.close();
+            result = { success: true, closed };
             break;
           }
 
