@@ -226,6 +226,12 @@ export interface WireEDMOperation {
   // Offset
   offset_direction: "left" | "right" | "center";
   offset_override_mm?: number;    // Override auto-calculated offset
+
+  /** Per-operation override for the WEDM block annotation's safety_margin.
+   *  When omitted, defaults to 1.0 for non-operator_override blocks (and is
+   *  hard-pinned to 1.0 by schema invariants when physics_basis bypasses
+   *  source constants). PPG-WIRE-MS6/U-PPGM17c. Range (0, 1.5]. */
+  safety_margin?: number;
 }
 
 export interface WireEDMPostOutput {
@@ -456,6 +462,23 @@ export interface EPackParams {
   peak_current_a: number;
 }
 
+/** PPG-WIRE-MS6/U-PPGM17c — confidence per declared physics_basis.
+ *  Higher confidence → annotation derives from a tighter source-of-truth
+ *  (canonical E-pack table beats pass-factor multiplier beats empirical
+ *  fallback). operator_override is the caller's authority — confidence
+ *  reports 1.0 because the caller is the source-of-truth, not the engine. */
+export const CONFIDENCE_BY_BASIS: Record<WEDMBlockAnnotation["physics_basis"], number> = {
+  epack_lookup: 0.90,
+  pass_factor_table: 0.85,
+  empirical_table: 0.80,
+  operator_override: 1.0,
+};
+
+/** Default safety_margin for non-overridden ops. Matches the WEDMBlockAnnotation
+ *  schema's permitted (0, 1.5] band; values >1.0 represent OEM-grade margin
+ *  beyond canonical tables (rare but valid for lights-out / unattended cuts). */
+export const DEFAULT_SAFETY_MARGIN = 1.0;
+
 /** Canonical E-pack table — exported for cps/verifyWEDMBlockAnnotations.ts. */
 export const E_PACK_TABLE: Record<number, EPackParams> = {
   1:  { on_time_us: 0.5, off_time_us: 3,  peak_current_a: 2 },
@@ -633,6 +656,14 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
           : blockPhysicsBasis === "epack_lookup"
             ? [`E_PACK_TABLE[${ePack}]`]
             : [`PASS_DEFAULTS["${op.pass}"]`, `E_PACK_TABLE[${ePack}]`];
+      // PPG-WIRE-MS6/U-PPGM17c — confidence is now derived from
+      // physics_basis (canonical-table lookups are higher-confidence than
+      // empirical-table fallback); operator_override stays at 1.0 because
+      // the caller asserts authority. safety_margin accepts an optional
+      // per-op override; default 1.0 matches prior behavior and the
+      // schema's (0, 1.5] band.
+      const blockConfidence = CONFIDENCE_BY_BASIS[blockPhysicsBasis];
+      const blockSafetyMargin = op.safety_margin ?? DEFAULT_SAFETY_MARGIN;
       blockAnnotations.push({
         block_id: `OP${i + 1}_${op.pass}`,
         op_id: op.op_id ?? `OP${i + 1}_${op.pass}`,
@@ -641,8 +672,8 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
         thickness_mm: op.thickness_mm,
         emitted,
         physics_basis: blockPhysicsBasis,
-        confidence: blockPhysicsBasis === "operator_override" ? 1.0 : 0.85,
-        safety_margin: 1.0,
+        confidence: blockConfidence,
+        safety_margin: blockSafetyMargin,
         source_constants: sourceConstants,
       });
 

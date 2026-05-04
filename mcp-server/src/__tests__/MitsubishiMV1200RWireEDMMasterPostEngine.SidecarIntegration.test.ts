@@ -273,6 +273,54 @@ describe("MitsubishiMV1200R — emitted parameter integrity", () => {
     expect(out.block_annotations.every(b => b.safety_margin === 1.0)).toBe(true);
   });
 
+  // ──────────────────────────────────────────────────────────────────────
+  // PPG-WIRE-MS6/U-PPGM17c — confidence per physics_basis + safety_margin override
+  // ──────────────────────────────────────────────────────────────────────
+
+  it("confidence varies per physics_basis: rough(epack_lookup)=0.90, skim(pass_factor_table)=0.85", () => {
+    const out = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+      [roughOp(D2), roughOp(D2, { pass: "skim1" }), roughOp(D2, { pass: "skim4" })],
+      { program_number: PROGRAM_NUM },
+    );
+    // Index 0: rough → epack_lookup → 0.90
+    expect(out.block_annotations[0].physics_basis).toBe("epack_lookup");
+    expect(out.block_annotations[0].confidence).toBe(0.90);
+    // Index 1: skim1 → pass_factor_table → 0.85
+    expect(out.block_annotations[1].physics_basis).toBe("pass_factor_table");
+    expect(out.block_annotations[1].confidence).toBe(0.85);
+    // Index 2: skim4 → pass_factor_table → 0.85
+    expect(out.block_annotations[2].physics_basis).toBe("pass_factor_table");
+    expect(out.block_annotations[2].confidence).toBe(0.85);
+  });
+
+  it("operator_override stays at confidence=1.0 even when other ops use derived basis", () => {
+    const out = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+      [
+        roughOp(D2),                                                       // epack_lookup
+        roughOp(D2, { on_time_us: 9.5, off_time_us: 24, servo_voltage_v: 48 }), // operator_override
+      ],
+      { program_number: PROGRAM_NUM },
+    );
+    expect(out.block_annotations[0].physics_basis).toBe("epack_lookup");
+    expect(out.block_annotations[0].confidence).toBe(0.90);
+    expect(out.block_annotations[1].physics_basis).toBe("operator_override");
+    expect(out.block_annotations[1].confidence).toBe(1.0);
+  });
+
+  it("op.safety_margin overrides the default 1.0 for the overriding op only", () => {
+    const out = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+      [
+        roughOp(D2),                              // default safety_margin
+        roughOp(D2, { pass: "skim1", safety_margin: 1.25 }), // op-overridden
+        roughOp(D2, { pass: "skim4" }),           // default again
+      ],
+      { program_number: PROGRAM_NUM },
+    );
+    expect(out.block_annotations[0].safety_margin).toBe(1.0);
+    expect(out.block_annotations[1].safety_margin).toBe(1.25);
+    expect(out.block_annotations[2].safety_margin).toBe(1.0);
+  });
+
   it("thickness_mm threads through from operation to annotation verbatim", () => {
     const out = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
       [roughOp(D2, { thickness_mm: 80 })],
