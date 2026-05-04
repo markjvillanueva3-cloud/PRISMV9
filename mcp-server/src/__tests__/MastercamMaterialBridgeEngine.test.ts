@@ -155,3 +155,156 @@ describe("MastercamMaterialBridgeEngine", () => {
     });
   });
 });
+
+describe("MastercamMaterialBridgeEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const MC_MAT_ACTIONS = [
+    "cam_mastercam_material_find",
+    "cam_mastercam_material_get_physics",
+    "cam_mastercam_material_map_to_iso",
+    "cam_mastercam_material_calculate_force",
+    "cam_mastercam_material_estimate_tool_life",
+    "cam_mastercam_material_list",
+    "cam_mastercam_material_list_by_iso",
+    "cam_mastercam_material_get_stats",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 8;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 8 cam_mastercam_material_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(MC_MAT_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of MC_MAT_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _mcMatBridge singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_mcMatBridge\s*:\s*any/);
+  });
+
+  it("registers an mcMatBridge case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"mcMatBridge"\s*:\s*return\s+_mcMatBridge\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/MastercamMaterialBridgeEngine\.js"\s*\)\)\.mastercamMaterialBridgeEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_MAT_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"mcMatBridge\")", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_MAT_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("mcMatBridge"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("find case routes to findMaterial() with query|material fallback and reports found", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_find"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("findMaterial");
+    expect(body).toMatch(/params\.query\s*\?\?\s*params\.material/);
+    expect(body).toContain("found");
+  });
+
+  it("get_physics case routes to getPhysicsProfile() with material_id|materialId fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_get_physics"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getPhysicsProfile");
+    expect(body).toMatch(/params\.material_id\s*\?\?\s*params\.materialId/);
+  });
+
+  it("map_to_iso case accepts mastercam_class|mastercamClass|class triple fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_map_to_iso"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("mapToISO");
+    expect(body).toMatch(/params\.mastercam_class/);
+    expect(body).toContain("mastercamClass");
+    expect(body).toMatch(/params\.class/);
+  });
+
+  it("calculate_force case Number.isFinite-guards ap and fz, clamps to >= 0, accepts triple fallback names", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_calculate_force"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("calculateCuttingForce");
+    expect(body).toContain("Number.isFinite");
+    expect(body).toContain("Math.max");
+    expect(body).toMatch(/params\.axial_depth_mm/);
+    expect(body).toMatch(/params\.feed_per_tooth_mm/);
+    expect(body).toMatch(/params\.ap_mm/);
+    expect(body).toMatch(/params\.fz_mm/);
+  });
+
+  it("estimate_tool_life case rejects vc <= 0 (returns null without engine call) and accepts vc fallbacks", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_estimate_tool_life"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("estimateToolLife");
+    expect(body).toContain("Number.isFinite");
+    expect(body).toMatch(/vcRaw\s*>\s*0/);
+    expect(body).toMatch(/params\.cutting_speed_m_min/);
+    expect(body).toMatch(/params\.vc_m_min/);
+  });
+
+  it("list_by_iso case defaults iso to \"P\" and accepts triple fallback names", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_list_by_iso"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("listByISO");
+    expect(body).toMatch(/params\.iso\s*\?\?\s*params\.iso_group/);
+    expect(body).toContain("isoGroup");
+    expect(body).toContain('"P"');
+  });
+
+  it("get_stats case routes to getStats() and spreads roll-up", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_material_get_stats"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStats()");
+    expect(body).toMatch(/\.\.\.stats/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_MAT_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("dispatcher imports physics ONLY through the engine — no inline Kienzle/Taylor constants in cases", async () => {
+    const src = await readDispatcher();
+    // Sanity check: case bodies must not contain literal kc1.1 = ... or Taylor C/n inline values
+    for (const action of ["cam_mastercam_material_calculate_force", "cam_mastercam_material_estimate_tool_life"]) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      // No inline Kienzle constants (kc1.1 numeric literals like 1800, 2100, 2800)
+      expect(body).not.toMatch(/kc1_1\s*=\s*\d/);
+      expect(body).not.toMatch(/kc1\.1\s*=\s*\d/);
+      // No inline Taylor constants
+      expect(body).not.toMatch(/taylorC\s*=\s*\d/);
+    }
+  });
+});
