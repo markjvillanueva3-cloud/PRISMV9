@@ -14,6 +14,8 @@
  */
 
 import { describe, it, expect } from "vitest";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import {
   HyperMillMedicalMaterialProfiles,
   hyperMillMedicalMaterialProfiles,
@@ -264,5 +266,113 @@ describe("HyperMillMedicalMaterialProfiles — listProfiles()", () => {
     const list = hyperMillMedicalMaterialProfiles.listProfiles();
     const peek = list.find((p) => p.key === "peek");
     expect(peek!.isoGroup).toBe("N");
+  });
+});
+
+describe("HyperMillMedicalMaterialProfiles — dispatcher wiring (camDispatcher.ts)", () => {
+  const dispatcherPath = path.resolve(
+    process.cwd(),
+    "src/tools/dispatchers/camDispatcher.ts",
+  );
+
+  const MEDMAT_ACTIONS = [
+    "cam_hypermill_medical_get_profile",
+    "cam_hypermill_medical_resolve_material",
+    "cam_hypermill_medical_list_profiles",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 3;
+
+  it("registers all 3 cam_hypermill_medical_* enum entries", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(MEDMAT_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of MEDMAT_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _hmMedMatProfiles singleton", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(src).toMatch(/_hmMedMatProfiles\s*:\s*any/);
+  });
+
+  it("registers a hmMedMatProfiles case in the lazy getter switch", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re =
+      /case\s+"hmMedMatProfiles"\s*:\s*return\s+_hmMedMatProfiles\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillMedicalMaterialProfiles\.js"\s*\)\)\.hyperMillMedicalMaterialProfiles/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of MEDMAT_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"hmMedMatProfiles\")", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of MEDMAT_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("hmMedMatProfiles"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("get_profile case routes to getProfile() with material_key fallback to materialKey", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_medical_get_profile"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("getProfile");
+    expect(body).toMatch(/params\.material_key\s*\?\?\s*params\.materialKey/);
+  });
+
+  it("get_profile case narrows operation_goal to roughing|finishing|semi_finishing", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_medical_get_profile"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain('"finishing"');
+    expect(body).toContain('"semi_finishing"');
+    expect(body).toContain('"roughing"');
+  });
+
+  it("get_profile case clamps wornToolFactor to [0,1] and rejects NaN/Infinity", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_medical_get_profile"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("Number.isFinite");
+    expect(body).toContain("Math.min");
+    expect(body).toContain("Math.max");
+  });
+
+  it("resolve_material case routes to resolveMaterialKey() with params.material", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_medical_resolve_material"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("resolveMaterialKey");
+    expect(body).toMatch(/params\.material/);
+    expect(body).toContain("resolved");
+  });
+
+  it("list_profiles case routes to listProfiles() and reports count", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_medical_list_profiles"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("listProfiles");
+    expect(body).toContain("count");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of MEDMAT_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
   });
 });
