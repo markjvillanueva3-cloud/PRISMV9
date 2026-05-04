@@ -2,17 +2,20 @@
 
 **Purpose**: When a fresh chat receives the prompt "continue cam work", read this file FIRST to pick up where the prior session ended. Survives session-ID rotation (per-agent handoffs are session-pinned and unreachable across days).
 
-**Last Updated**: 2026-05-04T16:23Z by `claude-b93f4e4d`
+**Last Updated**: 2026-05-04T18:30Z by `claude-b93f4e4d`
 **Branch**: `work/cam-exhaust-ms0`
 **Milestone**: CAM-EXHAUST-MS0
-**Last Commit**: `780fa4c09` — U-CAM-HM-EXTRACTOR-DL-TESTS-01 (Metric.cfg + DemoDb + IMDb + DeepLearning — 85 GREEN)
+**Last Commit**: `acd48122a` — U-CAM-HM-DATAEXT-PIPE-TESTS-01 (Pipeline + Orchestrator — 45 GREEN)
 
 ---
 
 ## STATE
 
-- HyperMill engine test coverage: **55 of 64 engines tested** (~86%)
-- Latest session shipped: 1 commit, 4 test files, 85 GREEN tests (vitest 4.1.2). Reviewer PASS on 5 strict-legitimacy criteria; scrutiny ledger blockCount=0.
+- HyperMill engine test coverage: **57 of 64 engines tested** (~89%)
+- Latest session shipped: 1 commit, 2 test files, 45 GREEN tests (vitest 4.1.2). Reviewer PASS on all 5 strict-legitimacy criteria.
+- Note: HyperMILLAutomationBridge already had a pre-existing test (Apr 19) — discovered case-sensitive `comm` diff missed it; do NOT touch.
+- Engine quirk surfaced: HyperMillACStandardToolDBEngine §15-16 ships built-in seed catalog when DB path is missing (returns 13 tools, 5 macros). Tests must use `Number.isInteger(x) && x >= 0` structural assertions, NOT `.toBe(0)`, on missing-paths totals.
+- Prior session shipped: 1 commit, 4 test files, 85 GREEN tests (Metric.cfg + DemoDb + IMDb + DeepLearning).
 - Prior session shipped: 1 commit, 4 test files, 127 GREEN tests (AIOrchestration/MultiAxisPhysics/JobMonitor/XmlExtractor)
 - Build: PASS as of `780fa4c09`
 - Branch is in sync with `origin/work/cam-exhaust-ms0`
@@ -66,17 +69,21 @@ Continue HyperMill test backfill on CAM-EXHAUST-MS0. Pick the **next 3-4 engines
 
 ## NEXT BATCH CANDIDATES (priority order — re-check chat bus before opening)
 
-| Engine | Notes |
-|---|---|
-| HyperMillDataExtractionPipeline | Composes the 4 extractors just tested — vi.mock the extractor singletons or pass fake instances; pipeline orchestrator does not own fs |
-| HyperMillDataExtractionOrchestrator | Higher-level over Pipeline — same mocking pattern |
-| HyperMILLAutomationBridge | Top-level automation entry point — likely depends on multiple bridges |
+Run the case-sensitive-aware engine-vs-test diff before picking:
+```bash
+ls src/engines/HyperMill*.ts src/engines/HyperMILL*.ts | sed 's|src/engines/||;s|.ts$||' | sort -u > /tmp/eng.txt
+ls src/__tests__/HyperMill*.test.ts src/__tests__/HyperMILL*.test.ts | sed 's|src/__tests__/||;s|.test.ts$||' | sort -u > /tmp/tst.txt
+comm -23 /tmp/eng.txt /tmp/tst.txt
+```
+(Pure `HyperMill*` glob misses `HyperMILL*` files — verified `HyperMILLAutomationBridge.test.ts` was hidden this way.)
 
-Already covered as of `780fa4c09` (this session):
-- HyperMillDeepLearningEngine
-- HyperMillDemoDbExtractor
-- HyperMillIMDbExtractor
-- HyperMillMetricCfgExtractorEngine
+Already covered as of `acd48122a` (this session):
+- HyperMillDataExtractionPipeline (26 tests)
+- HyperMillDataExtractionOrchestrator (19 tests)
+
+Already covered earlier (do NOT re-test):
+- HyperMILLAutomationBridge (pre-existing Apr 19 test, uses legacy `.toBeDefined()` — leave alone)
+- HyperMillDeepLearningEngine, HyperMillDemoDbExtractor, HyperMillIMDbExtractor, HyperMillMetricCfgExtractorEngine
 
 ---
 
