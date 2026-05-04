@@ -6271,6 +6271,7 @@ export function registerAIReasoningDispatcher(server: any): void {
                 needsChainOfThought: params.needsChainOfThought,
                 domain: params.domain,
                 forceTier: params.forceTier,
+                consensus: params.consensus,
               });
               return ok(decision);
             } catch (e) {

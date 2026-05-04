@@ -250,26 +250,34 @@ export class MultiModelConsensusEngine {
         return { model, vendor: "ollama", ok: false, answer: "", latencyMs: Date.now() - start, tokens: null, error: `connect: ${conn.error}` };
       }
     }
-    // wrap generate in a timeout race
-    const gen = ollamaClientEngine.generate({
-      model,
-      prompt,
-      system: "Answer concisely. If you need to think, wrap reasoning in <think>...</think> and put the final answer below.",
-      temperature: 0.2,
-      maxTokens: 1024,
-    });
-    const timer = new Promise<{ ok: false; error: "timeout" }>((resolve) =>
-      setTimeout(() => resolve({ ok: false, error: "timeout" } as const), timeoutMs),
-    );
-    const r = await Promise.race([gen, timer]);
-    if (!("value" in r) || !r.ok) {
-      const err = "error" in r ? r.error : "unknown";
-      return { model, vendor: "ollama", ok: false, answer: "", latencyMs: Date.now() - start, tokens: null, error: String(err) };
+
+    // Race the generate call against a timer; if timer wins, abort the
+    // underlying daemon request via the running model's load (best we can do
+    // without a request-cancel API on the ollama client). The clearTimeout
+    // in finally ensures we don't leak the timer when generate wins.
+    let timerHandle: ReturnType<typeof setTimeout> | null = null;
+    try {
+      const gen = ollamaClientEngine.generate({
+        model,
+        prompt,
+        system: "Answer concisely. If you need to think, wrap reasoning in <think>...</think> and put the final answer below.",
+        temperature: 0.2,
+        maxTokens: 1024,
+      });
+      const timer = new Promise<{ ok: false; error: "timeout" }>((resolve) => {
+        timerHandle = setTimeout(() => resolve({ ok: false, error: "timeout" } as const), timeoutMs);
+      });
+      const r = await Promise.race([gen, timer]);
+      if (!("value" in r) || !r.ok) {
+        const err = "error" in r ? r.error : "unknown";
+        return { model, vendor: "ollama", ok: false, answer: "", latencyMs: Date.now() - start, tokens: null, error: String(err) };
+      }
+      const raw = String(r.value ?? "");
+      const stripped = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim() || raw.trim();
+      return { model, vendor: "ollama", ok: true, answer: stripped, latencyMs: r.wallMs, tokens: null, error: null };
+    } finally {
+      if (timerHandle !== null) clearTimeout(timerHandle);
     }
-    // Strip <think>...</think> for fair comparison; keep final answer
-    const raw = String(r.value ?? "");
-    const stripped = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim() || raw.trim();
-    return { model, vendor: "ollama", ok: true, answer: stripped, latencyMs: r.wallMs, tokens: null, error: null };
   }
 
   private callClaude(prompt: string, claudeBin: string, timeoutMs: number): Promise<ModelResponse> {

@@ -107,11 +107,17 @@ describe("aiReasoningDispatcher / model_route round-trip", () => {
     expect(r.kind).toBe("vision");
   });
 
-  it("escalates safety domain to tier 5 (claude)", async () => {
+  it("AUTO-routes safety/physics domain to tier 6 (consensus) by default", async () => {
     const r = await callAction(tool, "model_route", { kind: "reason", domain: "physics" });
+    expect(r.tier).toBe(6);
+    expect(r.model).toBe("consensus");
+    expect(r.kind).toBe("consensus");
+  });
+
+  it("safety domain with consensus=false falls back to tier 5 (claude-only)", async () => {
+    const r = await callAction(tool, "model_route", { kind: "reason", domain: "physics", consensus: false });
     expect(r.tier).toBe(5);
     expect(r.model).toBe("claude");
-    expect(r.kind).toBe("escalate");
   });
 
   it("routes needsChainOfThought=true to tier 3 (deepseek-r1)", async () => {
