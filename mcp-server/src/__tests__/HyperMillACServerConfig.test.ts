@@ -253,3 +253,107 @@ describe("HyperMillACServerConfig — DEFAULT_AC_SERVER_CONFIG", () => {
     expect(validateACServerConfig(DEFAULT_AC_SERVER_CONFIG)).toEqual([]);
   });
 });
+
+describe("HyperMillACServerConfig — dispatcher wiring (camDispatcher.ts)", () => {
+  const ACSRV_ACTIONS = [
+    "cam_hypermill_ac_server_build_config",
+    "cam_hypermill_ac_server_validate_config",
+    "cam_hypermill_ac_server_describe_config",
+    "cam_hypermill_ac_server_get_defaults",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 4;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 4 cam_hypermill_ac_server_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(ACSRV_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of ACSRV_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of ACSRV_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("imports buildACServerConfig from the canonical engine path in build_config case", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_build_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("buildACServerConfig");
+    expect(body).toContain('"../../engines/HyperMillACServerConfig.js"');
+    expect(body).toMatch(/params\.overrides/);
+  });
+
+  it("validate_config case calls validateACServerConfig and reports valid + errorCount", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_validate_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("validateACServerConfig");
+    expect(body).toContain("valid");
+    expect(body).toContain("errorCount");
+    expect(body).toMatch(/errors\.length\s*===\s*0/);
+  });
+
+  it("describe_config case calls describeACServerConfig and returns description string", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_describe_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("describeACServerConfig");
+    expect(body).toContain("description");
+  });
+
+  it("get_defaults case surfaces canonical constants (port, host, routes, corsDefaults)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_get_defaults"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("DEFAULT_AC_SERVER_CONFIG");
+    expect(body).toContain("AC_SERVER_DEFAULT_PORT");
+    expect(body).toContain("AC_SERVER_BIND_HOST");
+    expect(body).toContain("AC_ROUTES");
+    expect(body).toContain("DEFAULT_AC_CORS_CONFIG");
+  });
+
+  it("validate_config case rebuilds via buildACServerConfig (sanitises arbitrary params.config input)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_validate_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("buildACServerConfig");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of ACSRV_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("build_config case rejects non-object overrides (typeof guard against array/null/string)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_build_config"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/typeof\s+params\.overrides\s*===\s*"object"/);
+  });
+
+  it("get_defaults case wires AC_SERVER_DEFAULT_TIMEOUT_MS and AC_SERVER_MAX_CONCURRENT", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ac_server_get_defaults"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("AC_SERVER_DEFAULT_TIMEOUT_MS");
+    expect(body).toContain("AC_SERVER_MAX_CONCURRENT");
+  });
+});
