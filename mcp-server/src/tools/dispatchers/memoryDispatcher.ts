@@ -83,7 +83,11 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "semantic_search",
         // INTEL-OLLAMA-OBSIDIAN-MS0/P4-U01-FOLLOWUP-2: write to a Qdrant kind/collection
         "remember",
-      ]).describe("Memory graph + pressure monitor + Qdrant semantic search/write actions"),
+        // INTEL-OLLAMA-OBSIDIAN-MS0/LAYER-3-OBSIDIAN-PERSIST: consensus second-brain
+        "consensus_persist",
+        "consensus_recall",
+        "consensus_recent",
+      ]).describe("Memory graph + pressure monitor + Qdrant semantic search/write + consensus second-brain actions"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -395,8 +399,94 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // INTEL-OLLAMA-OBSIDIAN-MS0/LAYER-3-OBSIDIAN-PERSIST: persist a
+          // ConsensusResult into the wiki second-brain. Caller passes the
+          // raw result + prompt; engine handles atomic write, log, index,
+          // and optional Obsidian vault mirror.
+          case "consensus_persist": {
+            const prompt = typeof params.prompt === "string" ? params.prompt : "";
+            const consensusResult = params.result;
+            if (!prompt || !consensusResult || typeof consensusResult !== "object") {
+              result = { success: false, error: "consensus_persist requires non-empty 'prompt' and 'result' params" };
+              break;
+            }
+            const { consensusObsidianPersistenceEngine } = await import("../../engines/ConsensusObsidianPersistenceEngine.js");
+            const r = consensusObsidianPersistenceEngine.persist({
+              prompt,
+              taskType: typeof params.task_type === "string" ? params.task_type : params.taskType,
+              sourceSession: typeof params.source_session === "string" ? params.source_session : params.sourceSession,
+              result: consensusResult as Parameters<typeof consensusObsidianPersistenceEngine.persist>[0]["result"],
+              wikiRoot: typeof params.wiki_root === "string" ? params.wiki_root : params.wikiRoot,
+              obsidianVaultRoot: params.obsidian_vault_root ?? params.obsidianVaultRoot ?? undefined,
+            });
+            result = r.ok
+              ? { success: true, data: r }
+              : { success: false, error: r.error ?? "persist failed", data: r };
+            break;
+          }
+
+          // Recall the canonical consensus artifact for an exact prompt.
+          // Returns the markdown body so callers can re-use the previous
+          // consensus answer instead of paying for a fresh fan-out.
+          case "consensus_recall": {
+            const prompt = typeof params.prompt === "string" ? params.prompt : "";
+            if (!prompt) {
+              result = { success: false, error: "consensus_recall requires 'prompt' param" };
+              break;
+            }
+            const { consensusObsidianPersistenceEngine } = await import("../../engines/ConsensusObsidianPersistenceEngine.js");
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const wikiRoot = (typeof params.wiki_root === "string" ? params.wiki_root : params.wikiRoot) ?? process.env.PRISM_WIKI_ROOT ?? "H:/prism/knowledge/wiki";
+            const promptHash = consensusObsidianPersistenceEngine.hashPrompt(prompt);
+            const sha8 = promptHash.slice(0, 8);
+            const wikiPath = path.join(wikiRoot, "consensus", `${sha8}.md`);
+            if (!fs.existsSync(wikiPath)) {
+              result = { success: false, error: "no consensus artifact for this prompt", promptHash, sha8, wikiPath };
+              break;
+            }
+            const body = fs.readFileSync(wikiPath, "utf-8");
+            result = { success: true, data: { promptHash, sha8, wikiPath, body, sizeBytes: body.length } };
+            break;
+          }
+
+          // List the most recent consensus runs from the consensus index.
+          // Default limit 20. Each entry is one parsed line from index.md.
+          case "consensus_recent": {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const wikiRoot = (typeof params.wiki_root === "string" ? params.wiki_root : params.wikiRoot) ?? process.env.PRISM_WIKI_ROOT ?? "H:/prism/knowledge/wiki";
+            const limit = typeof params.limit === "number" && params.limit > 0 ? Math.min(params.limit, 200) : 20;
+            const indexPath = path.join(wikiRoot, "consensus", "index.md");
+            if (!fs.existsSync(indexPath)) {
+              result = { success: true, data: { entries: [], indexPath, count: 0 } };
+              break;
+            }
+            const raw = fs.readFileSync(indexPath, "utf-8");
+            const lines = raw.split("\n").filter((l) => l.startsWith("- [["));
+            const recent = lines.slice(-limit).reverse();
+            const entries = recent.map((line) => {
+              const sha8Match = line.match(/\[\[([0-9a-f]{8})\]\]/);
+              const tsMatch = line.match(/· (\d{4}-\d{2}-\d{2}T[\d:.]+Z) ·/);
+              const taskMatch = line.match(/task:(\S+)/);
+              const recMatch = line.match(/rec:(\S+)/);
+              const agreementMatch = line.match(/agreement:(\S+)/);
+              const votersMatch = line.match(/voters:(\d+)/);
+              return {
+                sha8: sha8Match?.[1] ?? null,
+                ts: tsMatch?.[1] ?? null,
+                task_type: taskMatch?.[1] ?? null,
+                recommendation: recMatch?.[1] ?? null,
+                agreement_score: agreementMatch ? Number(agreementMatch[1]) : null,
+                voter_count: votersMatch ? Number(votersMatch[1]) : null,
+              };
+            });
+            result = { success: true, data: { entries, indexPath, count: entries.length } };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend', 'semantic_search', 'remember'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend', 'semantic_search', 'remember', 'consensus_persist', 'consensus_recall', 'consensus_recent'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -412,5 +502,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (14 actions)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (17 actions)");
 }

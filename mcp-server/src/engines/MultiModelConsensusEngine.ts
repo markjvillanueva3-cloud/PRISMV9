@@ -35,6 +35,7 @@ import { grokClientEngine, type GrokResult } from "./GrokClientEngine.js";
 import { ollamaClientEngine } from "./OllamaClientEngine.js";
 import { prismContextInjectorEngine } from "./PRISMContextInjectorEngine.js";
 import { consensusFactCheckerEngine, type FactCheckResult } from "./ConsensusFactCheckerEngine.js";
+import { consensusObsidianPersistenceEngine } from "./ConsensusObsidianPersistenceEngine.js";
 
 export interface ConsensusInput {
   prompt: string;
@@ -70,6 +71,17 @@ export interface ConsensusInput {
   prismContext?: boolean;
   /** Per-model context budget cap. Default {claude:100k, codex:100k, grok:50k, ollama:24k}. */
   contextBudgets?: { claude?: number; codex?: number; grok?: number; ollama?: number };
+  /**
+   * Persist the ConsensusResult to the wiki second-brain after computing it.
+   * Default true — every consensus run becomes a permanent memory the next
+   * session can recall via prism_memory:consensus_recall. Suppress with
+   * persist=false for ephemeral / one-shot calls (e.g. internal probes).
+   */
+  persist?: boolean;
+  /** Optional task-type tag (e.g. "plan", "build", "review") forwarded to persistence. */
+  taskType?: string;
+  /** Source session id forwarded to persistence (default: process.env.CLAUDE_SESSION_ID or "unknown"). */
+  sourceSession?: string;
 }
 
 export interface ModelResponse {
@@ -212,7 +224,7 @@ export class MultiModelConsensusEngine {
       : agreementScore >= REVIEW_THRESHOLD ? "review"
       : "escalate";
 
-    return {
+    const finalResult: ConsensusResult = {
       ok: successCount > 0,
       mode,
       responses,
@@ -223,6 +235,25 @@ export class MultiModelConsensusEngine {
       totalLatencyMs: Date.now() - start,
       factCheck,
     };
+
+    // Persist to the wiki second-brain. Fire-and-forget — persistence failure
+    // must NEVER break consensus delivery. The next session can recall this
+    // exact prompt's answer via prism_memory:consensus_recall instead of
+    // re-paying the 4-way fan-out cost.
+    if (input.persist !== false && finalResult.ok) {
+      try {
+        consensusObsidianPersistenceEngine.persist({
+          prompt: input.prompt,
+          taskType: input.taskType,
+          sourceSession: input.sourceSession ?? process.env.CLAUDE_SESSION_ID ?? "unknown",
+          result: finalResult,
+        });
+      } catch {
+        // swallowed — see fire-and-forget contract above
+      }
+    }
+
+    return finalResult;
   }
 
   // ---- consensus scoring ----
