@@ -508,6 +508,27 @@ const ACTIONS = [
   "milling_deep_harden", "milling_deep_validate", "milling_deep_optimize",
   // MillingMachineIntelligenceEngine (4 actions) — MILL-AI-MS4
   "milling_machine_profile", "milling_machine_select", "milling_machine_compare", "milling_machine_capability",
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P5: Orphan reasoning engines wired (4 actions) =====
+  "creative_solve",          // P5-U01 → PRISMCreativeReasoningEngine.explore
+  "causal_analyze",          // P5-U02 → CausalReasoningEngine.traceImpact|rootCauses
+  "counterfactual_predict",  // P5-U03 → CounterfactualReasoningEngine.generateCounterfactual
+  "scientific_reason",       // P5-U04 → ScientificReasoningEngine.reason
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P20-U03: Multi-model tiered routing =====
+  "model_route",             // P20-U03 → ModelRouterEngine.routeForTask
+  "model_route_thresholds",  // P20-U03 → ModelRouterEngine.{getThresholds,setThresholds,resetThresholds}
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P22-U01: Pre-Claude review orchestrator =====
+  "pre_review",              // P22-U01 → PreReviewOrchestratorEngine.draftReview
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / OCTOPUS-CONSENSUS: Multi-model agreement =====
+  "consensus",               // → MultiModelConsensusEngine.ask (Claude+Codex+Grok+Gemini+Ollama)
+  "codex_exec",              // → CodexClientEngine.exec (single-model gpt-5.5)
+  "grok_exec",               // → GrokClientEngine.exec (single-model grok-4)
+  "gemini_exec",             // → GeminiClientEngine.exec (single-model gemini-2.0-flash-exp)
+  // ===== LAYER-3-FULL-INTEGRATION: cache + retrieval + neural feed + AI bridge =====
+  "consensus_recall_cache",  // → ConsensusRecallCacheEngine.recall
+  "wiki_retrieve",           // → WikiRetrievalContextEngine.retrieve
+  "neural_feed_record",      // → ConsensusNeuralFeedbackEngine.record
+  "neural_feed_recent",      // → ConsensusNeuralFeedbackEngine.recent
+  "consensus_bridge_reason", // → ConsensusAIBridgeEngine.reason (cache-first AI orchestrator entry)
 ] as const;
 
 function ok(data: any) {
@@ -6112,6 +6133,421 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "milling_machine_capability": {
             const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
             return ok(millingMachineIntelligenceEngine.checkCapability?.(params as any) ?? millingMachineIntelligenceEngine.getCapabilities?.(params as any));
+          }
+
+          // ============================================================
+          // INTEL-OLLAMA-OBSIDIAN-MS0 / P5-U01..U04: orphan reasoning engines
+          // Each was previously built but had NO dispatcher wiring (5-agent
+          // forge-audit finding). These four bring them online; P5-U05
+          // (DiagnosticReasoningEngine) lives on intelligenceDispatcher
+          // since the engine targets shop-floor diagnosis.
+          // ============================================================
+
+          // P5-U01 — PRISMCreativeReasoningEngine.explore
+          // Required: domain, objective, desiredOutcome, flexibility
+          // Optional: constraints[], currentApproach, mode (default: "exploratory")
+          case "creative_solve": {
+            const required = ["domain", "objective", "desiredOutcome", "flexibility"] as const;
+            const missing = required.filter((k) => params[k] === undefined || params[k] === null);
+            if (missing.length > 0) {
+              return ok({ error: `creative_solve missing required params: ${missing.join(", ")}` });
+            }
+            const validFlex = ["strict", "moderate", "flexible", "maximum"];
+            if (!validFlex.includes(String(params.flexibility))) {
+              return ok({ error: `creative_solve flexibility must be one of ${validFlex.join("|")}` });
+            }
+            const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+            const result = prismCreativeReasoningEngine.explore(
+              {
+                domain: params.domain,
+                objective: String(params.objective),
+                constraints: Array.isArray(params.constraints) ? params.constraints.map(String) : [],
+                currentApproach: typeof params.currentApproach === "string" ? params.currentApproach : undefined,
+                desiredOutcome: String(params.desiredOutcome),
+                flexibility: params.flexibility,
+              },
+              typeof params.mode === "string" ? (params.mode as any) : "exploratory",
+            );
+            return ok(result);
+          }
+
+          // P5-U02 — CausalReasoningEngine
+          // Mode 1: traceImpact — required: source, optional: maxHops (default 3)
+          // Mode 2: rootCauses  — required: target, optional: maxHops (default 3)
+          // Optional: edges[] to seed the graph before tracing.
+          case "causal_analyze": {
+            const hasSource = typeof params.source === "string" && params.source.length > 0;
+            const hasTarget = typeof params.target === "string" && params.target.length > 0;
+            if (!hasSource && !hasTarget) {
+              return ok({ error: "causal_analyze requires either 'source' (traceImpact) or 'target' (rootCauses)" });
+            }
+            if (hasSource && hasTarget) {
+              return ok({ error: "causal_analyze: pass either source OR target, not both" });
+            }
+            const maxHopsRaw = params.maxHops;
+            const maxHops = Number.isFinite(maxHopsRaw) && Number(maxHopsRaw) > 0 ? Math.min(20, Math.floor(Number(maxHopsRaw))) : 3;
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            // Seed edges only if explicitly requested. The caller takes
+            // responsibility for not corrupting the shared singleton.
+            // CausalEdge shape (per CausalReasoningEngine.ts): {from, to, confidence ∈ [0,1], polarity, reason?}.
+            if (Array.isArray(params.edges)) {
+              const validPolarities = ["positive", "negative", "unknown"];
+              for (const e of params.edges as Array<{ from: string; to: string; confidence?: number; polarity?: string; reason?: string }>) {
+                if (typeof e?.from !== "string" || typeof e?.to !== "string") continue;
+                if (e.from === e.to) continue;
+                const confidence = typeof e.confidence === "number" && Number.isFinite(e.confidence) ? Math.max(0, Math.min(1, e.confidence)) : 0.7;
+                const polarity = validPolarities.includes(String(e.polarity)) ? (e.polarity as any) : "positive";
+                causalReasoningEngine.addEdge({
+                  from: e.from,
+                  to: e.to,
+                  confidence,
+                  polarity,
+                  reason: typeof e.reason === "string" ? e.reason : undefined,
+                });
+              }
+            }
+            if (hasSource) {
+              return ok({ mode: "traceImpact", source: params.source, maxHops, report: causalReasoningEngine.traceImpact(params.source, maxHops) });
+            }
+            return ok({ mode: "rootCauses", target: params.target, maxHops, causes: causalReasoningEngine.rootCauses(params.target, maxHops) });
+          }
+
+          // P5-U03 — CounterfactualReasoningEngine
+          // Required: variables[], variable, counterfactual_value
+          // Optional: domain (default "machining")
+          case "counterfactual_predict": {
+            if (!Array.isArray(params.variables) || params.variables.length === 0) {
+              return ok({ error: "counterfactual_predict requires 'variables[]' (CausalVariable[])" });
+            }
+            if (typeof params.variable !== "string" || params.variable.length === 0) {
+              return ok({ error: "counterfactual_predict requires 'variable' (target name) string" });
+            }
+            if (params.counterfactual_value === undefined || params.counterfactual_value === null) {
+              return ok({ error: "counterfactual_predict requires 'counterfactual_value' (number|string|boolean)" });
+            }
+            const validDomains = ["machining", "edm", "grinding", "custom"];
+            const domain = validDomains.includes(String(params.domain)) ? params.domain : "machining";
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            const graph = counterfactualReasoningEngine.createCausalGraph(params.variables as any, domain as any);
+            const counterfactual = counterfactualReasoningEngine.generateCounterfactual(
+              graph.id,
+              params.variable,
+              params.counterfactual_value as number | string | boolean,
+            );
+            if (counterfactual === null) {
+              return ok({ error: `counterfactual_predict: variable '${params.variable}' not found in graph`, graphId: graph.id });
+            }
+            return ok({ graphId: graph.id, domain, counterfactual });
+          }
+
+          // P5-U04 — ScientificReasoningEngine.reason
+          // Required: problem (string), inputs (Record<string, PhysicalQuantity>),
+          //           calculationType (string)
+          case "scientific_reason": {
+            if (typeof params.problem !== "string" || params.problem.length === 0) {
+              return ok({ error: "scientific_reason requires non-empty 'problem' string" });
+            }
+            if (!params.inputs || typeof params.inputs !== "object") {
+              return ok({ error: "scientific_reason requires 'inputs' (Record<string, PhysicalQuantity>)" });
+            }
+            if (typeof params.calculationType !== "string" || params.calculationType.length === 0) {
+              return ok({ error: "scientific_reason requires non-empty 'calculationType' string" });
+            }
+            const { scientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+            const reasoning = scientificReasoningEngine.reason(
+              params.problem,
+              params.inputs as any,
+              params.calculationType,
+            );
+            return ok(reasoning);
+          }
+
+          // P20-U03 — ModelRouterEngine.routeForTask
+          // Required: kind (TaskKind enum)
+          // Optional: complexity, promptTokens, hasImage, needsChainOfThought, domain, forceTier
+          case "model_route": {
+            if (typeof params.kind !== "string" || params.kind.length === 0) {
+              return ok({ error: "model_route requires 'kind' string (embed|code|reason|vision|review|general)" });
+            }
+            const { modelRouterEngine } = await import("../../engines/ModelRouterEngine.js");
+            try {
+              const decision = modelRouterEngine.routeForTask({
+                kind: params.kind,
+                complexity: params.complexity,
+                promptTokens: params.promptTokens,
+                hasImage: params.hasImage,
+                needsChainOfThought: params.needsChainOfThought,
+                domain: params.domain,
+                forceTier: params.forceTier,
+                consensus: params.consensus,
+              });
+              return ok(decision);
+            } catch (e) {
+              return ok({ error: `model_route: ${(e as Error).message}` });
+            }
+          }
+
+          // OCTOPUS-CONSENSUS — MultiModelConsensusEngine.ask
+          // Required: prompt
+          // Optional: context, includeClaude, ollamaModel, codexModel, codexEffort,
+          //           timeoutMs, mode (compare|vote), voteOptions[]
+          case "consensus": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "consensus requires non-empty 'prompt' string" });
+            }
+            const { multiModelConsensusEngine } = await import("../../engines/MultiModelConsensusEngine.js");
+            try {
+              const result = await multiModelConsensusEngine.ask({
+                prompt: params.prompt,
+                context: params.context,
+                includeClaude: params.includeClaude !== false,
+                ollamaModel: params.ollamaModel,
+                codexModel: params.codexModel,
+                codexEffort: params.codexEffort,
+                timeoutMs: params.timeoutMs,
+                mode: params.mode,
+                voteOptions: params.voteOptions,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `consensus: ${(e as Error).message}` });
+            }
+          }
+
+          // OCTOPUS-CONSENSUS — CodexClientEngine.exec (single-model gpt-5.5 entry)
+          // Required: prompt
+          // Optional: model (default gpt-5.5), reasoningEffort (default xhigh),
+          //           sandbox (default read-only), timeoutMs (default 120s)
+          case "codex_exec": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "codex_exec requires non-empty 'prompt' string" });
+            }
+            const { codexClientEngine } = await import("../../engines/CodexClientEngine.js");
+            try {
+              const result = await codexClientEngine.exec({
+                prompt: params.prompt,
+                model: params.model,
+                reasoningEffort: params.reasoningEffort,
+                sandbox: params.sandbox,
+                timeoutMs: params.timeoutMs,
+                workdir: params.workdir,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `codex_exec: ${(e as Error).message}` });
+            }
+          }
+
+          // OCTOPUS-CONSENSUS — GrokClientEngine.exec (single-model grok-4 entry)
+          // Required: prompt
+          // Optional: model (default grok-4), reasoningEffort (low|medium|high, default medium),
+          //           system, temperature, maxTokens, timeoutMs (default 60s).
+          // XAI_API_KEY env var is required (or pass apiKey explicitly via params.apiKey).
+          case "grok_exec": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "grok_exec requires non-empty 'prompt' string" });
+            }
+            const { grokClientEngine } = await import("../../engines/GrokClientEngine.js");
+            try {
+              const result = await grokClientEngine.exec({
+                prompt: params.prompt,
+                model: params.model,
+                apiKey: params.apiKey,
+                reasoningEffort: params.reasoningEffort,
+                system: params.system,
+                temperature: params.temperature,
+                maxTokens: params.maxTokens,
+                timeoutMs: params.timeoutMs,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `grok_exec: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-GEMINI — GeminiClientEngine.exec (single-model gemini-2.0-flash-exp entry)
+          // Required: prompt
+          // Optional: model, reasoningEffort (low|medium|high|xhigh), system, temperature, maxOutputTokens, timeoutMs.
+          // GEMINI_API_KEY env var or apiKey param required (free tier at https://aistudio.google.com/app/apikey).
+          case "gemini_exec": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "gemini_exec requires non-empty 'prompt' string" });
+            }
+            const { geminiClientEngine } = await import("../../engines/GeminiClientEngine.js");
+            try {
+              const result = await geminiClientEngine.exec({
+                prompt: params.prompt,
+                model: params.model,
+                apiKey: params.apiKey,
+                reasoningEffort: params.reasoningEffort,
+                system: params.system,
+                temperature: params.temperature,
+                maxOutputTokens: params.maxOutputTokens,
+                timeoutMs: params.timeoutMs,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `gemini_exec: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-RECALL-CACHE — ConsensusRecallCacheEngine.recall
+          // Required: prompt
+          // Optional: wiki_root, ttl_ms, enforce_ttl
+          // Returns null on miss; CachedConsensus on hit.
+          case "consensus_recall_cache": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "consensus_recall_cache requires non-empty 'prompt' string" });
+            }
+            const { consensusRecallCacheEngine } = await import("../../engines/ConsensusRecallCacheEngine.js");
+            try {
+              const result = consensusRecallCacheEngine.recall(params.prompt, {
+                wikiRoot: params.wiki_root ?? params.wikiRoot,
+                ttlMs: params.ttl_ms ?? params.ttlMs,
+                enforceTtl: params.enforce_ttl ?? params.enforceTtl,
+              });
+              if (result === null) {
+                return ok({ cached: false, hit: false });
+              }
+              return ok({ cached: true, hit: true, score: consensusRecallCacheEngine.scoreCached(result), ...result });
+            } catch (e) {
+              return ok({ error: `consensus_recall_cache: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-WIKI-RETRIEVAL — WikiRetrievalContextEngine.retrieve
+          // Required: prompt
+          // Optional: wiki_root, top_k, top_consensus, byte_budget, per_entry_bytes
+          case "wiki_retrieve": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "wiki_retrieve requires non-empty 'prompt' string" });
+            }
+            const { wikiRetrievalContextEngine } = await import("../../engines/WikiRetrievalContextEngine.js");
+            try {
+              const result = wikiRetrievalContextEngine.retrieve(params.prompt, {
+                wikiRoot: params.wiki_root ?? params.wikiRoot,
+                topK: params.top_k ?? params.topK,
+                topConsensus: params.top_consensus ?? params.topConsensus,
+                byteBudget: params.byte_budget ?? params.byteBudget,
+                perEntryBytes: params.per_entry_bytes ?? params.perEntryBytes,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `wiki_retrieve: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-NEURAL-FEED — ConsensusNeuralFeedbackEngine.record
+          // Required: prompt, result
+          // Optional: task_type, source_session, feed_path
+          case "neural_feed_record": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "neural_feed_record requires non-empty 'prompt' string" });
+            }
+            if (!params.result || typeof params.result !== "object") {
+              return ok({ error: "neural_feed_record requires 'result' object" });
+            }
+            const { consensusNeuralFeedbackEngine } = await import("../../engines/ConsensusNeuralFeedbackEngine.js");
+            try {
+              const result = consensusNeuralFeedbackEngine.record({
+                prompt: params.prompt,
+                taskType: params.task_type ?? params.taskType,
+                sourceSession: params.source_session ?? params.sourceSession,
+                result: params.result,
+                feedPath: params.feed_path ?? params.feedPath,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `neural_feed_record: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-NEURAL-FEED — ConsensusNeuralFeedbackEngine.recent
+          // Optional: limit (default 50), feed_path
+          case "neural_feed_recent": {
+            const { consensusNeuralFeedbackEngine } = await import("../../engines/ConsensusNeuralFeedbackEngine.js");
+            try {
+              const limit = typeof params.limit === "number" && params.limit > 0 ? params.limit : 50;
+              const entries = consensusNeuralFeedbackEngine.recent(limit, params.feed_path ?? params.feedPath);
+              return ok({ count: entries.length, entries });
+            } catch (e) {
+              return ok({ error: `neural_feed_recent: ${(e as Error).message}` });
+            }
+          }
+
+          // LAYER-3-AI-BRIDGE — ConsensusAIBridgeEngine.reason (cache-first orchestrator entry)
+          // Required: prompt
+          // Optional: task_type (plan|build|review|decide|explain|extract|validate),
+          //           caller, force_live, vote_options, prism_context, include_claude, timeout_ms
+          case "consensus_bridge_reason": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "consensus_bridge_reason requires non-empty 'prompt' string" });
+            }
+            const { consensusAIBridgeEngine } = await import("../../engines/ConsensusAIBridgeEngine.js");
+            try {
+              const step = await consensusAIBridgeEngine.reason({
+                prompt: params.prompt,
+                taskType: params.task_type ?? params.taskType,
+                caller: params.caller,
+                forceLive: params.force_live ?? params.forceLive,
+                voteOptions: params.vote_options ?? params.voteOptions,
+                prismContext: params.prism_context ?? params.prismContext,
+                includeClaude: params.include_claude ?? params.includeClaude,
+                timeoutMs: params.timeout_ms ?? params.timeoutMs,
+              });
+              return ok(step);
+            } catch (e) {
+              return ok({ error: `consensus_bridge_reason: ${(e as Error).message}` });
+            }
+          }
+
+          // P22-U01 — PreReviewOrchestratorEngine.draftReview
+          // Required: prompt (string)
+          // Optional: context, domain, promptTokens, maxTokens, temperature
+          case "pre_review": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "pre_review requires non-empty 'prompt' string" });
+            }
+            const { preReviewOrchestratorEngine } = await import("../../engines/PreReviewOrchestratorEngine.js");
+            try {
+              const result = await preReviewOrchestratorEngine.draftReview({
+                prompt: params.prompt,
+                context: params.context,
+                domain: params.domain,
+                promptTokens: params.promptTokens,
+                maxTokens: params.maxTokens,
+                temperature: params.temperature,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `pre_review: ${(e as Error).message}` });
+            }
+          }
+
+          // P20-U03 — ModelRouterEngine threshold control (read | write | reset)
+          // op="get" → returns thresholds; op="set" → setThresholds(payload); op="reset" → resetThresholds
+          case "model_route_thresholds": {
+            const { modelRouterEngine } = await import("../../engines/ModelRouterEngine.js");
+            const op = params.op ?? "get";
+            if (op === "get") {
+              return ok(modelRouterEngine.getThresholds());
+            }
+            if (op === "reset") {
+              modelRouterEngine.resetThresholds();
+              return ok(modelRouterEngine.getThresholds());
+            }
+            if (op === "set") {
+              try {
+                modelRouterEngine.setThresholds({
+                  largeContextTokens: params.largeContextTokens,
+                  complexContextTokens: params.complexContextTokens,
+                });
+                return ok(modelRouterEngine.getThresholds());
+              } catch (e) {
+                return ok({ error: `model_route_thresholds: ${(e as Error).message}` });
+              }
+            }
+            return ok({ error: `model_route_thresholds: invalid op '${op}', expected get|set|reset` });
           }
 
           default:

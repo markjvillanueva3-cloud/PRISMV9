@@ -546,8 +546,15 @@ export class QualityDashboardEngine {
       if (systemQ > 0 && existing.system_Q > 0 && systemQ < existing.system_Q - 0.05) {
         alerts.push({ severity: "critical", category: "regression", message: `System Q dropped from ${existing.system_Q} to ${systemQ}`, timestamp: now });
       }
-      if (psiPct > 0 && existing.svi.psi_pct > 0 && psiPct < existing.svi.psi_pct - 1) {
-        alerts.push({ severity: "high", category: "regression", message: `Psi dropped from ${existing.svi.psi_pct}% to ${psiPct}%`, timestamp: now });
+      // Guard: persisted snapshots from older schema versions may lack svi.* fields
+      const existingPsi = existing.svi?.psi_pct;
+      if (
+        psiPct > 0 &&
+        typeof existingPsi === "number" &&
+        existingPsi > 0 &&
+        psiPct < existingPsi - 1
+      ) {
+        alerts.push({ severity: "high", category: "regression", message: `Psi dropped from ${existingPsi}% to ${psiPct}%`, timestamp: now });
       }
     }
 

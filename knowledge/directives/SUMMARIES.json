@@ -1,0 +1,166 @@
+{
+  "schemaVersion": "1.0.0",
+  "built_at": "2026-05-02T13:19:16.279Z",
+  "total_files": 10,
+  "ollama_used": 0,
+  "heuristic_used": 10,
+  "summaries": [
+    {
+      "file_name": "CLAUDE-CODEX-COMMAND-AWARENESS-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-COMMAND-AWARENESS-DIRECTIVE.md",
+      "title": "Claude-Codex Command Awareness Directive",
+      "summary_lines": [
+        "| `/dedup` | duplicate, before creating, check existing, already exists | MANDATORY duplicate check |",
+        "NEVER create engines without checking duplication first",
+        "These commands MUST be suggested when ANY of their triggers are detected in user input:",
+        "Do NOT process PDFs manually — use the AI extraction pipeline",
+        "Do NOT describe videos manually — use the AI extraction pipeline"
+      ],
+      "source_bytes": 4286,
+      "source_mtime": "2026-05-01T22:55:19.276Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.275Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-COMMAND-BRIDGE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-COMMAND-BRIDGE.md",
+      "title": "Claude/Codex Command Bridge",
+      "summary_lines": [
+        "Global commands: `C:\\Users\\Mark Villanueva\\.claude\\commands`",
+        "Read `H:\\PRISM\\state\\shared\\claude-codex-command-registry.json` for the full inventory.",
+        "If a command is missing from the registry, treat it as a potential built-in and verify before mirroring it.",
+        "Generated: 2026-04-14T01:10:12.181Z",
+        "This is the canonical shared bridge for Claude and Codex command behavior inside PRISM."
+      ],
+      "source_bytes": 3483,
+      "source_mtime": "2026-05-01T22:55:19.277Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.275Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+      "title": "Claude/Codex Coordination Directive",
+      "summary_lines": [
+        "any short chat-style notes or blockers that should be visible across sessions",
+        "Claude may use a native slash-command macro when available. Codex should mirror the same behavior whenever the user types `/chat ...`, even though Codex does not have Claude's slash-command runtime.",
+        "The helper should auto-detect both `family` and per-terminal `instance` whenever possible so multiple Claude terminals and future multiple Codex terminals can coordinate concurrently without stomping...",
+        "Claude sessions may auto-poll unseen updates through hooks. Codex should mirror the same behavior by consulting the shared workboard/chat before re-planning or whenever the user sends `/chat ...`.",
+        "The coordination watcher should stay active whenever PRISM sessions are active:"
+      ],
+      "source_bytes": 7268,
+      "source_mtime": "2026-05-01T22:56:25.443Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.276Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-MCP-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-MCP-DIRECTIVE.md",
+      "title": "Claude/Codex MCP Unified Directive (Compact)",
+      "summary_lines": [
+        "Use `prism_dev` and `prism_session` MCP actions instead of ad-hoc shell commands. 79 dispatchers, 3,898+ actions available.",
+        "Every formula must define: formula_id, domain, inputs, units, constants, constraints, output semantics, target consumers, provenance.",
+        "| `auto_checkpoint` | Every 5-10 tool calls |",
+        "| `route_health_audit` | Check route/dispatcher wiring |",
+        "**Replaces**: MCP-FULL-UTILIZATION-DIRECTIVE (690 lines), MCP-FULL-POWER-PLAYBOOK (278 lines), MCP-DEVELOPMENT-DIRECTIVE (122 lines) — consolidated into ~120 lines."
+      ],
+      "source_bytes": 3034,
+      "source_mtime": "2026-05-01T22:55:19.280Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.276Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-RGS-SYNC-PROTOCOL.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-RGS-SYNC-PROTOCOL.md",
+      "title": "Claude/Codex `/rgs-sync` Protocol",
+      "summary_lines": [
+        "Codex should mirror the same behavior whenever the user types `/rgs-sync`.",
+        "`status`: short lifecycle label such as `active`, `blocked`, `ready-for-convergence`, or `stable`",
+        "`blockers`: direct blockers for this lane",
+        "check the current roadmap gate",
+        "Both agents should use the same helper and the same response shape."
+      ],
+      "source_bytes": 4419,
+      "source_mtime": "2026-05-01T22:55:19.281Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.277Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md",
+      "title": "Claude/Codex Roadmap Execution Directive",
+      "summary_lines": [
+        "**Check existing claims** to avoid working on claimed milestones:",
+        "Read `roadmap-index.json` and check `claimed_by` fields",
+        "Includes collision warning: `DO NOT work on: YYY-MSN (claimed by other terminals)`",
+        "Use `/rgs-sync status` to check gate state",
+        "Each terminal should claim different milestones"
+      ],
+      "source_bytes": 4034,
+      "source_mtime": "2026-05-01T22:55:19.282Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.277Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md",
+      "title": "Claude/Codex Search + Token Directive",
+      "summary_lines": [
+        "Both agents should prefer shared PRISM indexes, digests, and bridge files before broad repo sweeps.",
+        "Both agents should avoid redundant broad repo sweeps when the shared indexes already provide orientation.",
+        "This is the canonical shared directive for how Claude and Codex should handle",
+        "Do not default to wide filesystem search when a shared index can answer the navigation question first.",
+        "Both agents should use the same shared directives, bridge files, and indexes."
+      ],
+      "source_bytes": 3093,
+      "source_mtime": "2026-05-01T22:55:19.283Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.278Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md",
+      "title": "Claude/Codex Spawned Agent Directive",
+      "summary_lines": [
+        "Claude subagents should receive this bundle automatically through the `SubagentStart` hook.",
+        "Codex spawned agents should receive the same bundle automatically through Codex’s global spawn-agent rule and the `prism-spawn-awareness` skill.",
+        "prefer `fork_context: true` unless there is a specific reason not to",
+        "Spawned agents should inherit the same shared operating context as their parent session instead of acting like blank, isolated terminals.",
+        "The spawned-agent awareness bundle should include:"
+      ],
+      "source_bytes": 1962,
+      "source_mtime": "2026-05-01T22:55:19.284Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.278Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-SVI-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-SVI-DIRECTIVE.md",
+      "title": "Claude/Codex Shared SVI Directive",
+      "summary_lines": [
+        "Do not hide disconnected systems behind page-local state or isolated workflows.",
+        "the server starts an always-on SVI watch loop",
+        "Use one of these whenever available:",
+        "Both agents should use this directive as the shared source of truth instead of relying on one-off prompts.",
+        "`H:/prism/state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md`"
+      ],
+      "source_bytes": 3028,
+      "source_mtime": "2026-05-01T22:55:19.285Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.279Z"
+    },
+    {
+      "file_name": "CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md",
+      "source_path": "H:\\prism-iooms0\\state\\shared\\CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md",
+      "title": "Task Queue Directive",
+      "summary_lines": [
+        "Agent: compacting | current=unknown | next=unknown",
+        "{}\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000..."
+      ],
+      "source_bytes": 2440,
+      "source_mtime": "2026-05-01T22:56:25.444Z",
+      "mode": "heuristic",
+      "built_at": "2026-05-02T13:19:16.279Z"
+    }
+  ]
+}

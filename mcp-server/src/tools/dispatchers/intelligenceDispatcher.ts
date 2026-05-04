@@ -109,6 +109,8 @@ const ACTIONS = [
   "machine_recommend",
   "what_if",
   "failure_diagnose",
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P5-U05: orphan reasoning engine wired
+  "diagnose_failure",  // → DiagnosticReasoningEngine.diagnose (alarm-driven)
   "parameter_optimize",
   "cycle_time_estimate",
   "quality_predict",
@@ -650,6 +652,38 @@ export function registerIntelligenceDispatcher(server: any): void {
           }
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ...saResult }) }],
+          };
+        }
+
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/P5-U05: DiagnosticReasoningEngine wire
+        //
+        // Distinct from the existing `failure_diagnose` (which routes through
+        // the legacy intelligence engine via CORE_ROUTING). `diagnose_failure`
+        // calls DiagnosticReasoningEngine directly: alarm-pattern matching +
+        // Bayesian symptom update + repair-action plan + safety warnings.
+        // ============================================================
+        if (action === "diagnose_failure") {
+          const alarm = params.alarm as Record<string, unknown> | undefined;
+          if (!alarm || typeof alarm !== "object") {
+            return {
+              content: [{ type: "text" as const, text: JSON.stringify({ action, error: "diagnose_failure requires 'alarm' object (alarm_code, message, severity, timestamp, machine_id, machine_type, controller)" }) }],
+            };
+          }
+          const requiredAlarmFields = ["alarm_code", "message", "severity", "timestamp", "machine_id", "machine_type", "controller"];
+          const missing = requiredAlarmFields.filter((k) => alarm[k] === undefined || alarm[k] === null);
+          if (missing.length > 0) {
+            return {
+              content: [{ type: "text" as const, text: JSON.stringify({ action, error: `diagnose_failure 'alarm' missing fields: ${missing.join(", ")}` }) }],
+            };
+          }
+          const additionalSymptoms = Array.isArray(params.additionalSymptoms)
+            ? (params.additionalSymptoms as Array<Record<string, unknown>>).filter((s) => s && typeof s === "object")
+            : [];
+          const { DiagnosticReasoningEngine } = await import("../../engines/DiagnosticReasoningEngine.js");
+          const diagnosis = DiagnosticReasoningEngine.diagnose(alarm as never, additionalSymptoms as never);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, diagnosis }) }],
           };
         }
 

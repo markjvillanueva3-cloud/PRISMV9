@@ -183,7 +183,59 @@ W7: ✅ COMPLETE (GSD consolidation to v22.0)
 F1-F8: ✅ COMPLETE (PFP, MemGraph, Telemetry, Certs, MultiTenant, NL Hooks, Bridge, Compliance)
 W5: PENDING P3 (Knowledge recovery — registry loading fix)
 
+## Multi-Model Consensus Pipeline (added 2026-05-04, INTEL-OLLAMA-OBSIDIAN-MS0)
+
+PRISM now ships a multi-model consensus pipeline that fans high-stakes prompts to 3-4 independent reasoners in parallel and scores their agreement. Use it for: roadmap drafting, architecture decisions, bug-cause hypotheses, gap analysis, test scrutiny, build/release validation, anywhere a single model's blind spots are unacceptable.
+
+### Voices in the pool
+- **Claude** (this session — when called from outside via `claude -p` subprocess; skip with `includeClaude:false` if caller IS Claude)
+- **gpt-5.5** (Codex CLI, ChatGPT auth, default reasoning_effort=xhigh — drop to medium/low for routine drafts to save tokens)
+- **Grok-4** (xAI HTTP — only fans out when `XAI_API_KEY` env var is set; auto-skipped otherwise)
+- **Ollama deepseek-r1:14b** (local CoT) + **Ollama qwen2.5-coder:14b** (auto-added 4th voice when Grok is unavailable — keeps the pool at 4 for $0)
+
+### How to invoke
+```jsonc
+// Direct dispatcher action — full result with factCheck + recommendation
+{ "tool": "prism_ai", "action": "consensus", "params": {
+    "prompt": "Draft a 3-phase roadmap for X with units, dependencies, exit conditions",
+    "includeClaude": false,
+    "codexEffort": "medium"
+}}
+// Or auto-fire via TaskInput.consensus + ModelRouter
+{ "kind": "code", "consensus": true }                    // → tier 6 explicit
+{ "kind": "code", "domain": "physics" }                  // → tier 6 (auto for safety/Kienzle/Taylor/etc)
+```
+
+### Auto-injected PRISM context (Layer 1)
+Every consensus model now reasons WITH PRISM knowledge — `PRISMContextInjectorEngine` auto-prepends CLAUDE.md essentials, PRISM-INVENTORY, GSD_QUICK, DEV_PROTOCOL, omega-thresholds, 6-terminal protocol, plus top-K relevance-ranked engines from ENGINE_DIGEST. Per-model context budget (Claude/Codex 100K, Grok 50K, Ollama 24K). Suppress with `prismContext:false`.
+
+### Auto fact-check (Layer 3)
+`ConsensusFactCheckerEngine` scans every model answer for engine names + dispatcher actions and validates them against the live ENGINE_DIGEST + caller-supplied dispatcher allowlist. Hallucinations land in `result.factCheck[modelName].hallucinations` with closest-match suggestions (Levenshtein-1). `factualityScore = verified/total`. **Treat any answer with hallucinations as suspect — likely it's also wrong about something less detectable.**
+
+### 6-terminal coordination (already wired)
+`ConsensusCoordinatorEngine` enforces: 1 in-flight per terminal, 3 globally, 500K daily Codex token budget, atomic cross-process file lock, 1-hour result cache by sha256(prompt+taskType+context), graceful degrade on rate-limit / budget-exhausted.
+
+### Cost guidance
+| Model | ~tokens/call | Latency | When |
+|---|---|---|---|
+| gpt-5.5 xhigh | 40-60K | 1-3 min | Code review, architecture decisions |
+| gpt-5.5 medium | 5-15K | 30-90s | Roadmap drafting, gap analysis |
+| gpt-5.5 low | 2-8K | 10-30s | Routine multi-eyes drafts |
+| Grok-4 medium | 3-10K | 5-30s | Cross-vendor sanity check |
+| Ollama 14b | 0 | 1-90s | Cheap independent voice |
+| Claude (subprocess) | session tokens | 10-60s | Self-review or outside-of-session call |
+
+### Failure modes
+- `recommendation: "escalate"` — models disagreed wildly OR all failed; escalate to human
+- `recommendation: "review"` — partial agreement (40-70% Jaccard); treat as a hypothesis
+- `recommendation: "accept"` — ≥70% agreement; safe to refine and adopt
+- `kind: "rate-limited"` — peer terminal is consensusing; retry in 5-10s
+- `kind: "budget-exceeded"` — hit daily cap; degrade to claude-only or wait 24h
+
+Full reference: `state/shared/CONSENSUS-USAGE.md`.
+
 ## Changelog
+- 2026-05-04: Multi-Model Consensus Pipeline added — Codex (gpt-5.5) + Grok (HTTP, optional) + Dual-Ollama + auto-PRISM-context-injection + auto-fact-check + 6-terminal-safe coordinator. 314/314 tests across 13 files green. INTEL-OLLAMA-OBSIDIAN-MS0 commits 9cef312b0 → 2adc384d2.
 - 2026-02-13: v7.2 — F1-F8 complete. 31 dispatchers, 368 actions, 37 engines. Updated roadmap.
 - 2026-02-11: v7.1 — Updated roadmap (W2-W4/W6 complete). Verified 324 actions across 27 dispatchers.
 - 2026-02-10: v7.0 — Content-optimized. Decision trees, quality tiers, when-to-use-what guide.
