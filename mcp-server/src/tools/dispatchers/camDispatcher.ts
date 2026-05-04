@@ -1561,6 +1561,12 @@ export const ACTIONS = [
   "cam_hypermill_ai_get_reasoning_modes",
   "cam_hypermill_ai_get_stats",
   "cam_hypermill_demo_db_extract",
+  "cam_fusion_tool_library_get_sources",
+  "cam_fusion_tool_library_harvest",
+  "cam_fusion_tool_library_parse_csv",
+  "cam_fusion_tool_library_find_by_description",
+  "cam_fusion_tool_library_filter_by_category",
+  "cam_fusion_tool_library_audit",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11431,6 +11437,67 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               const { hyperMillDemoDbExtractor } = await import("../../engines/HyperMillDemoDbExtractor.js");
               result = { success: true, ...(await hyperMillDemoDbExtractor.extract()) };
             }
+            break;
+          }
+
+          case "cam_fusion_tool_library_get_sources": {
+            // U-CAM-FUS-TOOLLIB-WIRE-01: FusionToolLibraryEngine.getSources (PURE)
+            // Returns the canonical Fusion 360 tool library root path + expected counts (7 CSV files / 218 tools).
+            const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
+            const sources = FusionToolLibraryEngine.getSources();
+            result = { success: true, ...sources };
+            break;
+          }
+
+          case "cam_fusion_tool_library_harvest": {
+            // U-CAM-FUS-TOOLLIB-WIRE-01: FusionToolLibraryEngine.harvest (filesystem; never-throw)
+            // Reads all 7 CSV files from JM Die Fusion 360 tool crib; aggregates by category/type/material/vendor/file.
+            // Missing directory returns an empty result with structurally-valid keys.
+            const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
+            const harvest = await FusionToolLibraryEngine.harvest();
+            result = { success: true, ...harvest };
+            break;
+          }
+
+          case "cam_fusion_tool_library_parse_csv": {
+            // U-CAM-FUS-TOOLLIB-WIRE-01: FusionToolLibraryEngine.parseCsv (PURE — no I/O)
+            // Parses an in-memory Fusion 360 CSV string into FusionTool[] (category inferred from sourceFile).
+            const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
+            const content = String(params.content ?? params.csv ?? "");
+            const sourceFile = String(params.source_file ?? params.sourceFile ?? "in-memory.csv");
+            const tools = FusionToolLibraryEngine.parseCsv(content, sourceFile);
+            result = { success: true, source_file: sourceFile, tools, count: tools.length };
+            break;
+          }
+
+          case "cam_fusion_tool_library_find_by_description": {
+            // U-CAM-FUS-TOOLLIB-WIRE-01: FusionToolLibraryEngine.findByDescription (PURE)
+            // Substring filter (case-insensitive) over a tools[] payload.
+            const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
+            const tools = Array.isArray(params.tools) ? params.tools : [];
+            const query = String(params.query ?? params.description ?? "");
+            const matches = FusionToolLibraryEngine.findByDescription(tools as never, query);
+            result = { success: true, query, tools: matches, count: matches.length };
+            break;
+          }
+
+          case "cam_fusion_tool_library_filter_by_category": {
+            // U-CAM-FUS-TOOLLIB-WIRE-01: FusionToolLibraryEngine.filterByCategory (PURE)
+            // Filters a tools[] payload to a single category (turning|boring_rough|boring_finish|insert_drill|twist_drill|end_mill|unknown).
+            const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
+            const tools = Array.isArray(params.tools) ? params.tools : [];
+            const category = String(params.category ?? "unknown");
+            const matches = FusionToolLibraryEngine.filterByCategory(tools as never, category as never);
+            result = { success: true, category, tools: matches, count: matches.length };
+            break;
+          }
+
+          case "cam_fusion_tool_library_audit": {
+            // U-CAM-FUS-TOOLLIB-WIRE-01: FusionToolLibraryEngine.audit (filesystem)
+            // Roll-up of harvest() — total tool count + byCategory + byMaterial + file/vendor counts.
+            const { FusionToolLibraryEngine } = await import("../../engines/FusionToolLibraryEngine.js");
+            const audit = await FusionToolLibraryEngine.audit();
+            result = { success: true, ...audit };
             break;
           }
 
