@@ -516,3 +516,124 @@ describe("prism_cad dispatcher - fusion360 actions (direct engine)", () => {
     expect(script.body).toContain("rootComp");
   });
 });
+
+describe("Fusion360CodeGeneratorEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const FUS360_CODEGEN_ACTIONS = [
+    "cam_fusion360_code_gen_get_capabilities",
+    "cam_fusion360_code_gen_build_script",
+    "cam_fusion360_code_gen_execute_script",
+    "cam_fusion360_code_gen_validate_output",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 4;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 4 cam_fusion360_code_gen_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(FUS360_CODEGEN_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of FUS360_CODEGEN_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _fus360CodeGen singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_fus360CodeGen\s*:\s*any/);
+  });
+
+  it("registers a fus360CodeGen case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"fus360CodeGen"\s*:\s*return\s+_fus360CodeGen\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/Fusion360CodeGeneratorEngine\.js"\s*\)\)\.fusion360CodeGeneratorEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS360_CODEGEN_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"fus360CodeGen\")", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS360_CODEGEN_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("fus360CodeGen"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("get_capabilities case routes to getCapabilities() (sync, no await on engine method)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion360_code_gen_get_capabilities"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getCapabilities()");
+    expect(body).not.toMatch(/await\s+engine\.getCapabilities/);
+    expect(body).toContain("capabilities");
+  });
+
+  it("build_script case Array.isArray-guards ops, accepts ctx|context fallback, reports opCount", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion360_code_gen_build_script"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("buildScript");
+    expect(body).toContain("Array.isArray(params.ops)");
+    expect(body).toMatch(/params\.ctx/);
+    expect(body).toMatch(/params\.context/);
+    expect(body).toContain("opCount");
+  });
+
+  it("execute_script case awaits the async executeScript() (subprocess/COM)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion360_code_gen_execute_script"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("await engine.executeScript(");
+    expect(body).toContain("execution");
+  });
+
+  it("validate_output case routes to validateOutput() with result|executionResult fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion360_code_gen_validate_output"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("validateOutput");
+    expect(body).toMatch(/params\.result\s*\?\?\s*params\.executionResult/);
+    expect(body).toContain("report");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS360_CODEGEN_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("execute_script is the only async-await case (others are synchronous)", async () => {
+    const src = await readDispatcher();
+    const execRe = /case\s+"cam_fusion360_code_gen_execute_script"\s*:[\s\S]*?break;/;
+    const execBody = src.match(execRe)?.[0] ?? "";
+    expect(execBody).toContain("await engine.executeScript");
+
+    const SYNC_ACTIONS = [
+      "cam_fusion360_code_gen_get_capabilities",
+      "cam_fusion360_code_gen_build_script",
+      "cam_fusion360_code_gen_validate_output",
+    ];
+    for (const action of SYNC_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      expect(body).not.toMatch(/await\s+engine\.(getCapabilities|buildScript|validateOutput)/);
+    }
+  });
+});
