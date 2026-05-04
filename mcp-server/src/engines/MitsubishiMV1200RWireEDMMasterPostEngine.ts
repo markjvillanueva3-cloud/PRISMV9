@@ -44,6 +44,26 @@
  */
 
 import { log } from "../utils/Logger.js";
+import type {
+  WEDMBlockAnnotation,
+  EmittedWEDM,
+} from "../schemas/postPhysicsSidecarSchema.js";
+
+/**
+ * Wire EDM workpiece material classes used for sidecar annotations
+ * (PPG-WIRE-MS6/U-PPGM16). These mirror the tribal-knowledge
+ * `material_class` enums but as a typed union so emit code stays honest.
+ */
+export type WEDMMaterialClass =
+  | "tool_steel"
+  | "carbide"
+  | "graphite"
+  | "aluminum"
+  | "copper"
+  | "brass"
+  | "titanium"
+  | "inconel"
+  | "ceramic";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -164,6 +184,12 @@ export interface WireEDMOperation {
   operation_type: "profile" | "taper" | "no_core" | "open_path" | "start_hole";
   pass: WireEDMPassType;
 
+  /** Operation identifier for sidecar annotation (defaults to OP{i+1}_{pass}). */
+  op_id?: string;
+  /** Workpiece material class — drives sidecar annotation. Inferred from
+   *  material.name when omitted. Required for sealed-sidecar emit. */
+  material_class?: WEDMMaterialClass;
+
   // Geometry
   start_x: number;
   start_y: number;
@@ -224,6 +250,14 @@ export interface WireEDMPostOutput {
     skim_power: number[];
     total_energy_kj: number;
   };
+  /**
+   * Per-operation Wire EDM block annotations (PPG-WIRE-MS6/U-PPGM16).
+   * One entry per operation, keyed by the op-derived block_id (e.g. "OP1_rough").
+   * Caller passes verbatim into `PhysicsSidecarBuilderEngine.buildAndSeal({
+   * wedm_block_annotations })` to seal the post-emit telemetry alongside the
+   * canonical sidecar. Sidecar schema 1.2.0+.
+   */
+  block_annotations: WEDMBlockAnnotation[];
 }
 
 // ============================================================================
@@ -472,6 +506,7 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
     const warnings: string[] = [];
     const physicsChecks: WireEDMPostOutput["physics_checks"] = [];
     const tribalTipsApplied: string[] = [];
+    const blockAnnotations: WEDMBlockAnnotation[] = [];
     let totalWireConsumed = 0;
     let roughTime = 0;
     let totalTime = 0;
@@ -557,6 +592,57 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
       // Generate EDM parameters
       const edmParams = this.generateEDMParameters(op, cfg, ePack);
       gcode.push(...edmParams);
+
+      // PPG-WIRE-MS6/U-PPGM16 — emit per-op block annotation under the
+      // sealed-sidecar contract. Block_id is `OP{i+1}_{pass}` (matches the
+      // OPERATION header comment two lines above generateEDMParameters output).
+      // Source-of-truth values are pulled from the same PASS_DEFAULTS +
+      // E_PACK_TABLE + op-overrides that generateEDMParameters consumed.
+      const passDefaultsForBlock = PASS_DEFAULTS[op.pass];
+      const ePackParamsForBlock = E_PACK_TABLE[ePack];
+      const blockOnTime = op.on_time_us
+        ?? Math.round(ePackParamsForBlock.on_time_us * passDefaultsForBlock.on_time_factor * 10) / 10;
+      const blockOffTime = op.off_time_us
+        ?? Math.round(ePackParamsForBlock.off_time_us * passDefaultsForBlock.off_time_factor * 10) / 10;
+      const blockWireSpeed = op.wire?.speed_m_min ?? passDefaultsForBlock.wire_speed_m_min;
+      const blockWireTension = op.wire?.tension_g ?? passDefaultsForBlock.wire_tension_g;
+      const blockServoV = op.servo_voltage_v ?? passDefaultsForBlock.servo_v;
+      const blockFlushing = op.flushing_pressure
+        ?? this.calculateFlushingPressure(op, passDefaultsForBlock.flushing);
+      const blockPhysicsBasis: WEDMBlockAnnotation["physics_basis"] =
+        op.on_time_us !== undefined || op.off_time_us !== undefined || op.servo_voltage_v !== undefined
+          ? "operator_override"
+          : op.pass === "rough"
+            ? "epack_lookup"
+            : "pass_factor_table";
+      const emitted: EmittedWEDM = {
+        power_setting: ePack,
+        on_time_us: blockOnTime,
+        off_time_us: blockOffTime,
+        servo_voltage_v: blockServoV,
+        wire_speed_m_min: blockWireSpeed,
+        wire_tension_g: blockWireTension,
+        flushing_pressure: blockFlushing,
+        pass_type: op.pass,
+      };
+      const sourceConstants =
+        blockPhysicsBasis === "operator_override"
+          ? []
+          : blockPhysicsBasis === "epack_lookup"
+            ? [`E_PACK_TABLE[${ePack}]`]
+            : [`PASS_DEFAULTS["${op.pass}"]`, `E_PACK_TABLE[${ePack}]`];
+      blockAnnotations.push({
+        block_id: `OP${i + 1}_${op.pass}`,
+        op_id: op.op_id ?? `OP${i + 1}_${op.pass}`,
+        material_class: op.material_class ?? this.classifyMaterial(op.material.name),
+        wire_diameter_mm: op.wire?.diameter_mm ?? cfg.wire_diameter_mm ?? 0.25,
+        thickness_mm: op.thickness_mm,
+        emitted,
+        physics_basis: blockPhysicsBasis,
+        confidence: blockPhysicsBasis === "operator_override" ? 1.0 : 0.85,
+        safety_margin: 1.0,
+        source_constants: sourceConstants,
+      });
 
       // Wire thread if first operation
       if (i === 0 || op.operation_type === "start_hole") {
@@ -657,8 +743,33 @@ export class MitsubishiMV1200RWireEDMMasterPostEngine {
         rough_power: baseEPack,
         skim_power: skimPowers,
         total_energy_kj: Math.round(totalEnergy * 10) / 10
-      }
+      },
+      block_annotations: blockAnnotations,
     };
+  }
+
+  /**
+   * Classify a workpiece material name string into the WEDM material
+   * class used by sidecar annotations. Falls back to "tool_steel" for
+   * unrecognized names — JM Die's most common WEDM workpiece is D2/A2/M2,
+   * so the default is the safe-side guess. Caller can always pass
+   * `op.material_class` explicitly to override.
+   */
+  private classifyMaterial(name: string): WEDMMaterialClass {
+    const n = name.toLowerCase();
+    // Order matters: titanium "Ti-6Al-4V" contains the substring "al" so
+    // titanium MUST be tested before aluminum. Same for inconel before
+    // generic tool_steel fallback. Carbide/graphite/brass/copper are
+    // unambiguous by token boundary.
+    if (/(carbide|wc|tungsten\s*carbide|pcd)/.test(n)) return "carbide";
+    if (/graphite/.test(n)) return "graphite";
+    if (/titanium|ti-?6al-?4v/.test(n)) return "titanium";
+    if (/(brass|cu[\s-]?zn)/.test(n)) return "brass";
+    if (/(copper|cu\b)/.test(n)) return "copper";
+    if (/(aluminum|aluminium|6061|7075|2024|5052|al\b)/.test(n)) return "aluminum";
+    if (/(inconel|718|625|nimonic|hastelloy|waspaloy)/.test(n)) return "inconel";
+    if (/(ceramic|alumina|zirconia|silicon\s*nitride)/.test(n)) return "ceramic";
+    return "tool_steel";
   }
 
   /**
