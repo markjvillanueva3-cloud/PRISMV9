@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -432,6 +432,7 @@ async function getEngine(name: string): Promise<any> {
     case "mcMatPhys": return _mcMatPhys ??= (await import("../../engines/MastercamMaterialPhysicsBridge.js")).mastercamMaterialPhysicsBridge;
     case "mcFAI": return _mcFAI ??= (await import("../../engines/MastercamFAIBridge.js")).mastercamFAIBridge;
     case "mcSPC": return _mcSPC ??= (await import("../../engines/MastercamSPCBridge.js")).mastercamSPCBridge;
+    case "mcAutoBridge": return _mcAutoBridge ??= (await import("../../engines/MastercamAutomationBridge.js")).mastercamAutomationBridge;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1610,6 +1611,12 @@ export const ACTIONS = [
   "cam_mastercam_spc_calculate_capability",
   "cam_mastercam_spc_analyze_job",
   "cam_mastercam_spc_get_stats",
+  "cam_mastercam_automation_open",
+  "cam_mastercam_automation_get_geometry",
+  "cam_mastercam_automation_get_toolpaths",
+  "cam_mastercam_automation_get_operation_tree",
+  "cam_mastercam_automation_export_step",
+  "cam_mastercam_automation_close",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11933,6 +11940,64 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("mcSPC");
             const stats = engine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_mastercam_automation_open": {
+            // U-CAM-MC-AUTOBRIDGE-WIRE-01: MastercamAutomationBridge.open
+            // Spawns Mastercam.exe + connects via NET-Hook IPC pipe; mock-mode bypasses spawn.
+            // File extensions auto-detected (.MCX | .mcam | .mcx-8). Returns AtomicValue with pid + format.
+            const engine = await getEngine("mcAutoBridge");
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            const opts = (params.opts && typeof params.opts === "object") ? params.opts : {};
+            const opened = await engine.open(filePath, opts);
+            result = { success: true, opened };
+            break;
+          }
+
+          case "cam_mastercam_automation_get_geometry": {
+            // U-CAM-MC-AUTOBRIDGE-WIRE-01: MastercamAutomationBridge.getGeometry
+            // Extracts all geometry entities (lines, arcs, splines, surfaces) from the open file.
+            const engine = await getEngine("mcAutoBridge");
+            const geometry = await engine.getGeometry();
+            result = { success: true, geometry };
+            break;
+          }
+
+          case "cam_mastercam_automation_get_toolpaths": {
+            // U-CAM-MC-AUTOBRIDGE-WIRE-01: MastercamAutomationBridge.getToolpaths
+            // Returns operation list with toolpath geometry, tool refs, and parameter envelopes.
+            const engine = await getEngine("mcAutoBridge");
+            const toolpaths = await engine.getToolpaths();
+            result = { success: true, toolpaths };
+            break;
+          }
+
+          case "cam_mastercam_automation_get_operation_tree": {
+            // U-CAM-MC-AUTOBRIDGE-WIRE-01: MastercamAutomationBridge.getOperationTree
+            // Hierarchical view of operations (groups, parents, dependencies).
+            const engine = await getEngine("mcAutoBridge");
+            const tree = await engine.getOperationTree();
+            result = { success: true, tree };
+            break;
+          }
+
+          case "cam_mastercam_automation_export_step": {
+            // U-CAM-MC-AUTOBRIDGE-WIRE-01: MastercamAutomationBridge.exportSTEP
+            // Exports current geometry to STEP AP242 at the requested output path.
+            const engine = await getEngine("mcAutoBridge");
+            const outputPath = String(params.output_path ?? params.outputPath ?? "");
+            const exported = await engine.exportSTEP(outputPath);
+            result = { success: true, exported };
+            break;
+          }
+
+          case "cam_mastercam_automation_close": {
+            // U-CAM-MC-AUTOBRIDGE-WIRE-01: MastercamAutomationBridge.close
+            // Disconnects pipe + cleans up bridge state. Idempotent; safe to call without prior open.
+            const engine = await getEngine("mcAutoBridge");
+            const closed = await engine.close();
+            result = { success: true, closed };
             break;
           }
 
