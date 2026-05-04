@@ -2,10 +2,37 @@
 
 **Purpose**: When a fresh chat receives the prompt "continue cam work", read this file FIRST to pick up where the prior session ended. Survives session-ID rotation (per-agent handoffs are session-pinned and unreachable across days).
 
-**Last Updated**: 2026-05-04T18:32Z by `claude-edc27fcd`
+**Last Updated**: 2026-05-04T19:11Z by `claude-33c70c0d`
 **Branch**: `work/cam-exhaust-ms0`
 **Milestone**: CAM-EXHAUST-MS0
-**Last Commit**: `fb4519bbd` — U-CAM-HM-EDM-FIX-01 (HyperMillEDMBridge rewire to real engines, 10 TSC errors → 0)
+**Last Commit**: `fc960eeb1` — U-CAM-UTILS-TESTS-01 (4 generic CAM utility engine tests, 99 GREEN)
+
+## NEW THIS SESSION (claude-33c70c0d)
+Backfilled tests for the previously-untested generic CAM utility engines:
+- `CAMResultCacheEngine` — 24 tests (LRU + TTL + FNV-1a key)
+- `CAMExportEngine` — 24 tests (12-system × 8-format APT/CL-Data/JSON/XML)
+- `CAMAnalyzeEngine` — 25 tests (metrics + engagement + issues + score + compare)
+- `CAMToolLibraryEngine` — 26 tests (library CRUD + material-aware params + exports)
+
+99/99 GREEN under vitest 4.1.2. Reviewer PASS after typeof-as-function fix
+(replaced redundant `expect(typeof X.method).toBe("function")` with behavioral
+end-to-end assertions in each "class shape" describe). Scrutiny marked, blockCount=0.
+
+Engines remaining untested under the generic CAM* + vendor families (do NOT
+re-test the four above):
+- CAM*: AddInFramework, DeepLearning, Integration, Kernel*, Phase5Stubs,
+  PluginSDK, Recommend, ToolGet, knowledge-portability, Profile, etc.
+- Mastercam*: 5Axis, AIOrchestration, ControllerCatalog, CycleCatalog,
+  MillTurnBridge, MultiAxis, SafetyHooks, Strategy, ToolExport
+- NXCAM*: AIOrchestration, CodeGenerator, Strategy
+- PowerMill*: AIOrchestration, CodeGenerator, Strategy
+- SolidCAM*: AIOrchestration, CodeGenerator, SafetyHooks, Strategy
+- CATIA*: CodeGenerator, MachiningAIOrchestration, Strategy
+- Inventor*: CAMCodeGenerator, CAMStrategy, CAMToolExport
+- SolidWorksAutomationBridge — test file currently being written by peer chat
+
+Re-run the engine-vs-test diff before claiming any of the above; vendor sets
+are large (~1000 lines each) so plan smaller batches (2-3 per session).
 
 ---
 
