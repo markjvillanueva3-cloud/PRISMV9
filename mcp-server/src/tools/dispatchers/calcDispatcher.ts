@@ -882,6 +882,8 @@ const ACTIONS = [
   // -- USF-MS0: Speed/Feed Orchestrator + Tool Library + Geometry Pipeline --
   "sf_orchestrate", "sf_quick", "sf_resolve_machine", "sf_resolve_tool",
   "sf_resolve_material", "sf_stochastic", "sf_compare", "sf_optimize",
+  // -- XPROC-SFC-01: cross-process speed/feed (mill+lathe+wedm) --
+  "cross_process_sf_recommend", "cross_process_sf_capabilities",
   "tool_library_add", "tool_library_import_csv", "tool_library_filter",
   "tool_library_stats", "geometry_job_plan",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
@@ -6369,6 +6371,22 @@ export function registerCalcDispatcher(server: any): void {
           case "sf_optimize": {
             const sfo5 = await import("../../engines/SpeedFeedOrchestratorEngine.js");
             result = sfo5.optimizeFn(sfo5.speedFeedOrchestratorEngine, params as ValidatedParams, params.objectives as string[]);
+            break;
+          }
+
+          // ── XPROC-SFC-01: Cross-Process Speed/Feed Bridge ──
+          case "cross_process_sf_recommend": {
+            const { CrossProcessSpeedFeedBridge } = await import(
+              "../../engines/CrossProcessSpeedFeedBridge.js"
+            );
+            result = await CrossProcessSpeedFeedBridge.recommend(params as Parameters<typeof CrossProcessSpeedFeedBridge.recommend>[0]);
+            break;
+          }
+          case "cross_process_sf_capabilities": {
+            const { CrossProcessSpeedFeedBridge } = await import(
+              "../../engines/CrossProcessSpeedFeedBridge.js"
+            );
+            result = { capabilities: CrossProcessSpeedFeedBridge.listProcessSupport() };
             break;
           }
 
