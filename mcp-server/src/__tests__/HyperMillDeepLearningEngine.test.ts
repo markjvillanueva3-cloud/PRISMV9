@@ -316,3 +316,139 @@ describe("HyperMillDeepLearningEngine", () => {
     });
   });
 });
+
+describe("HyperMillDeepLearningEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const DL_ACTIONS = [
+    "cam_hypermill_dl_select_strategy",
+    "cam_hypermill_dl_recommend_automation",
+    "cam_hypermill_dl_validate_toolpath",
+    "cam_hypermill_dl_explain_strategy",
+    "cam_hypermill_dl_recognize_feature",
+    "cam_hypermill_dl_get_strategies_by_category",
+    "cam_hypermill_dl_get_sql_table_schema",
+    "cam_hypermill_dl_get_virtual_machining_features",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 8;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 8 cam_hypermill_dl_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(DL_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of DL_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _hmDeepLearning singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_hmDeepLearning\s*:\s*any/);
+  });
+
+  it("registers a hmDeepLearning case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"hmDeepLearning"\s*:\s*return\s+_hmDeepLearning\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillDeepLearningEngine\.js"\s*\)\)\.hyperMillDeepLearningEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of DL_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"hmDeepLearning\")", async () => {
+    const src = await readDispatcher();
+    for (const action of DL_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("hmDeepLearning"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("validate_toolpath case accepts strategy_name OR strategyName fallback and Array.isArray-guards constraints", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_dl_validate_toolpath"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("validateToolpath");
+    expect(body).toMatch(/params\.strategy_name\s*\?\?\s*params\.strategyName/);
+    expect(body).toContain("Array.isArray(params.constraints)");
+  });
+
+  it("explain_strategy case routes to explainStrategy(strategy_name) with strategyName fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_dl_explain_strategy"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("explainStrategy");
+    expect(body).toMatch(/params\.strategy_name\s*\?\?\s*params\.strategyName/);
+  });
+
+  it("recognize_feature case Array.isArray-guards both geometry_signals and geometrySignals fallbacks", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_dl_recognize_feature"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("recognizeFeature");
+    expect(body).toContain("Array.isArray(params.geometry_signals)");
+    expect(body).toContain("Array.isArray(params.geometrySignals)");
+    expect(body).toContain(".map(String)");
+  });
+
+  it("get_sql_table_schema case routes to getSQLTableSchema with table_name fallback and reports found", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_dl_get_sql_table_schema"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getSQLTableSchema");
+    expect(body).toMatch(/params\.table_name\s*\?\?\s*params\.tableName/);
+    expect(body).toContain("found");
+  });
+
+  it("get_virtual_machining_features case has no params and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_dl_get_virtual_machining_features"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getVirtualMachiningFeatures()");
+    expect(body).toContain("count");
+  });
+
+  it("select_strategy and recommend_automation pass-through params (engine validates internally)", async () => {
+    const src = await readDispatcher();
+    for (const action of ["cam_hypermill_dl_select_strategy", "cam_hypermill_dl_recommend_automation"]) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      expect(body).toContain("recommendation");
+      expect(body).toContain("params as never");
+    }
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of DL_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("8 actions span the full DL surface (strategy + automation + validation + explanation + recognition + categorization + schema + features)", async () => {
+    expect(DL_ACTIONS).toHaveLength(ACTION_COUNT_EXPECTED);
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_select_strategy");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_recommend_automation");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_validate_toolpath");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_explain_strategy");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_recognize_feature");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_get_strategies_by_category");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_get_sql_table_schema");
+    expect(DL_ACTIONS).toContain("cam_hypermill_dl_get_virtual_machining_features");
+  });
+});
