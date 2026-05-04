@@ -292,3 +292,117 @@ describe("MastercamMaterialPhysicsBridge", () => {
     });
   });
 });
+
+describe("MastercamMaterialPhysicsBridge — dispatcher wiring (camDispatcher.ts)", () => {
+  const MC_PHYS_ACTIONS = [
+    "cam_mastercam_physics_calculate_milling",
+    "cam_mastercam_physics_calculate_turning",
+    "cam_mastercam_physics_get_summary",
+    "cam_mastercam_physics_compare_materials",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 4;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 4 cam_mastercam_physics_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(MC_PHYS_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of MC_PHYS_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _mcMatPhys singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_mcMatPhys\s*:\s*any/);
+  });
+
+  it("registers an mcMatPhys case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"mcMatPhys"\s*:\s*return\s+_mcMatPhys\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/MastercamMaterialPhysicsBridge\.js"\s*\)\)\.mastercamMaterialPhysicsBridge/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_PHYS_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"mcMatPhys\")", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_PHYS_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("mcMatPhys"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("calculate_milling case routes to calculateMillingPhysics() with pass-through params and reports found", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_physics_calculate_milling"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("calculateMillingPhysics");
+    expect(body).toContain("params as never");
+    expect(body).toContain("found");
+  });
+
+  it("calculate_turning case routes to calculateTurningPhysics() with pass-through params", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_physics_calculate_turning"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("calculateTurningPhysics");
+    expect(body).toContain("params as never");
+    expect(body).toContain("found");
+  });
+
+  it("get_summary case accepts material_id|materialId fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_physics_get_summary"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getMaterialPhysicsSummary");
+    expect(body).toMatch(/params\.material_id\s*\?\?\s*params\.materialId/);
+  });
+
+  it("compare_materials case Array.isArray-guards both material_ids and materialIds; defaults to []", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_physics_compare_materials"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("compareMaterials");
+    expect(body).toContain("Array.isArray(params.material_ids)");
+    expect(body).toContain("Array.isArray(params.materialIds)");
+    expect(body).toContain(".map(String)");
+    expect(body).toContain("count");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_PHYS_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("dispatcher cases inline ZERO physics constants — Kienzle/Taylor sourced through engine only", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_PHYS_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      expect(body).not.toMatch(/kc1_1\s*=\s*\d/);
+      expect(body).not.toMatch(/kc1\.1\s*=\s*\d/);
+      expect(body).not.toMatch(/taylorC\s*=\s*\d/);
+    }
+  });
+});
