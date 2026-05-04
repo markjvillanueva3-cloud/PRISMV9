@@ -34,6 +34,7 @@ import { codexClientEngine, type CodexResult } from "./CodexClientEngine.js";
 import { grokClientEngine, type GrokResult } from "./GrokClientEngine.js";
 import { ollamaClientEngine } from "./OllamaClientEngine.js";
 import { prismContextInjectorEngine } from "./PRISMContextInjectorEngine.js";
+import { consensusFactCheckerEngine, type FactCheckResult } from "./ConsensusFactCheckerEngine.js";
 
 export interface ConsensusInput {
   prompt: string;
@@ -94,6 +95,12 @@ export interface ConsensusResult {
   } | null;
   recommendation: "accept" | "review" | "escalate";
   totalLatencyMs: number;
+  /**
+   * Per-model fact-check against the live PRISM knowledge base. Catches
+   * hallucinated engine names + dispatcher actions. Each entry is keyed by
+   * the model name. Empty when factCheck is not loaded or input.factCheck=false.
+   */
+  factCheck: Record<string, FactCheckResult>;
 }
 
 const DEFAULT_TIMEOUT_MS = 90_000;
@@ -175,6 +182,22 @@ export class MultiModelConsensusEngine {
     }
 
     const responses = (await Promise.all(calls)).flat();
+
+    // Fact-check each successful answer against PRISM truth — flags
+    // hallucinated engines / dispatcher actions before they propagate into
+    // a roadmap or refactor. Only runs if a knowledge base has been loaded
+    // (caller responsibility — caller usually does it once at startup).
+    const factCheck: Record<string, FactCheckResult> = {};
+    if (consensusFactCheckerEngine.getKnowledgeBase() !== null) {
+      for (const r of responses) {
+        if (!r.ok || r.answer.length === 0) continue;
+        try {
+          factCheck[r.model] = consensusFactCheckerEngine.check(r.answer, r.model);
+        } catch {
+          // never let fact-check failure break consensus delivery
+        }
+      }
+    }
     const successCount = responses.filter((r) => r.ok).length;
     const mode = input.mode ?? "compare";
 
@@ -198,6 +221,7 @@ export class MultiModelConsensusEngine {
       consensus,
       recommendation,
       totalLatencyMs: Date.now() - start,
+      factCheck,
     };
   }
 
