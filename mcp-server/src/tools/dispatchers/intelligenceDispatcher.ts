@@ -235,6 +235,8 @@ const DIAGNOSIS_FWD = [
   "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get",
   "sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant",
   "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get",
+  // XPROC-ROUTER-01: top-level cross-process pipeline router
+  "process_route", "process_full_pipeline", "process_pipeline_stages",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -579,6 +581,92 @@ export function registerIntelligenceDispatcher(server: any): void {
                 action,
               }),
             }],
+          };
+        }
+
+        // === XPROC-ROUTER-01: Cross-process pipeline router ===
+        // Handle these actions inline before deprecation/core routing —
+        // ProcessIntelligenceRouterEngine has its own request shape and
+        // doesn't fit the IntelligenceEngine action map.
+        if (action === "process_pipeline_stages") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          const stages = ProcessIntelligenceRouterEngine.listSupportedStages();
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result: { stages } } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: stages.length, stages }) }],
+          };
+        }
+        if (action === "process_route") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          const intent = params.intent as string | undefined;
+          if (typeof intent !== "string") {
+            return dispatcherError(
+              "process_route requires `intent` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const routed = await ProcessIntelligenceRouterEngine.route({
+            intent,
+            process: params.process as ("mill" | "lathe" | "wedm") | undefined,
+            features: params.features as string[] | undefined,
+            material: params.material as string | undefined,
+          });
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result: routed } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...routed }) }],
+          };
+        }
+        if (action === "process_full_pipeline") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          const intent = params.intent as string | undefined;
+          if (typeof intent !== "string") {
+            return dispatcherError(
+              "process_full_pipeline requires `intent` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const result = await ProcessIntelligenceRouterEngine.fullPipeline({
+            intent,
+            process: params.process as ("mill" | "lathe" | "wedm") | undefined,
+            features: params.features as string[] | undefined,
+            material: params.material as string | undefined,
+            feature_request: params.feature_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["feature_request"],
+            sf_request: params.sf_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["sf_request"],
+            post_request: params.post_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["post_request"],
+            ai_request: params.ai_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["ai_request"],
+            stages: params.stages as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["stages"],
+            force_ai_dry_run: params.force_ai_dry_run as boolean | undefined,
+          });
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...result }) }],
           };
         }
 

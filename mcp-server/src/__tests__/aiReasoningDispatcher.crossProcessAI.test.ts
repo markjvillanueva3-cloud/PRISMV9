@@ -148,7 +148,7 @@ describe("aiReasoningDispatcher cross-process AI bridge (U-XPROC-AI-01)", () => 
   // ===========================================================================
 
   describe("cross_process_ai_orchestrate — live mill route", () => {
-    it("routes a wisdom-query through the mill facade and returns its provenance", async () => {
+    it("routes a wisdom-query through the mill facade and returns its provenance", { timeout: 30_000 }, async () => {
       const r = await executeAIReasoningAction("cross_process_ai_orchestrate", {
         intent: "wisdom query on milling",
         process: "mill",

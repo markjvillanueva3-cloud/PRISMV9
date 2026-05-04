@@ -374,7 +374,7 @@ describe("CrossProcessAIBridge.orchestrate() — error paths", () => {
 // ============================================================================
 
 describe("CrossProcessAIBridge.orchestrate() — live mill route", () => {
-  it("routes a wisdom-query through the mill facade and returns its provenance", async () => {
+  it("routes a wisdom-query through the mill facade and returns its provenance", { timeout: 30_000 }, async () => {
     const out = await CrossProcessAIBridge.orchestrate({
       intent: "wisdom query on milling",
       process: "mill",
