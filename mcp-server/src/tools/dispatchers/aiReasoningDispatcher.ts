@@ -518,6 +518,9 @@ const ACTIONS = [
   "model_route_thresholds",  // P20-U03 → ModelRouterEngine.{getThresholds,setThresholds,resetThresholds}
   // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P22-U01: Pre-Claude review orchestrator =====
   "pre_review",              // P22-U01 → PreReviewOrchestratorEngine.draftReview
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / OCTOPUS-CONSENSUS: Multi-model agreement =====
+  "consensus",               // → MultiModelConsensusEngine.ask (Claude+Codex+Ollama)
+  "codex_exec",              // → CodexClientEngine.exec (single-model gpt-5.5)
 ] as const;
 
 function ok(data: any) {
@@ -6272,6 +6275,57 @@ export function registerAIReasoningDispatcher(server: any): void {
               return ok(decision);
             } catch (e) {
               return ok({ error: `model_route: ${(e as Error).message}` });
+            }
+          }
+
+          // OCTOPUS-CONSENSUS — MultiModelConsensusEngine.ask
+          // Required: prompt
+          // Optional: context, includeClaude, ollamaModel, codexModel, codexEffort,
+          //           timeoutMs, mode (compare|vote), voteOptions[]
+          case "consensus": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "consensus requires non-empty 'prompt' string" });
+            }
+            const { multiModelConsensusEngine } = await import("../../engines/MultiModelConsensusEngine.js");
+            try {
+              const result = await multiModelConsensusEngine.ask({
+                prompt: params.prompt,
+                context: params.context,
+                includeClaude: params.includeClaude !== false,
+                ollamaModel: params.ollamaModel,
+                codexModel: params.codexModel,
+                codexEffort: params.codexEffort,
+                timeoutMs: params.timeoutMs,
+                mode: params.mode,
+                voteOptions: params.voteOptions,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `consensus: ${(e as Error).message}` });
+            }
+          }
+
+          // OCTOPUS-CONSENSUS — CodexClientEngine.exec (single-model gpt-5.5 entry)
+          // Required: prompt
+          // Optional: model (default gpt-5.5), reasoningEffort (default xhigh),
+          //           sandbox (default read-only), timeoutMs (default 120s)
+          case "codex_exec": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "codex_exec requires non-empty 'prompt' string" });
+            }
+            const { codexClientEngine } = await import("../../engines/CodexClientEngine.js");
+            try {
+              const result = await codexClientEngine.exec({
+                prompt: params.prompt,
+                model: params.model,
+                reasoningEffort: params.reasoningEffort,
+                sandbox: params.sandbox,
+                timeoutMs: params.timeoutMs,
+                workdir: params.workdir,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `codex_exec: ${(e as Error).message}` });
             }
           }
 
