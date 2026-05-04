@@ -170,6 +170,61 @@ describe("master_post_mitsubishi_mv1200r dispatcher wiring", () => {
   it("master_post_by_machine action exists for auto-routing", () => {
     expect(ACTIONS).toContain("master_post_by_machine");
   });
+
+  // ──────────────────────────────────────────────────────────────────────
+  // PPG-WIRE-MS6/U-PPGM17d — verify_tier passes through dispatcher schema
+  // ──────────────────────────────────────────────────────────────────────
+
+  it("schema accepts each verify_tier value (sim/proven_out/production/shop_floor)", () => {
+    const schema = ACTION_CAM_SCHEMAS.master_post_mitsubishi_mv1200r;
+    const baseInput = {
+      operations: [
+        {
+          operation_type: "profile",
+          pass: "rough",
+          start_x: 0,
+          start_y: 0,
+          profile_points: [
+            { x: 10, y: 0, type: "line" },
+            { x: 10, y: 10, type: "line" },
+            { x: 0, y: 10, type: "line" },
+            { x: 0, y: 0, type: "line" },
+          ],
+          material: { name: "D2 Tool Steel", hardness_hrc: 62 },
+          thickness_mm: 25,
+          offset_direction: "left",
+        },
+      ],
+    };
+    for (const tier of ["sim", "proven_out", "production", "shop_floor"] as const) {
+      const result = schema.safeParse({ ...baseInput, verify_tier: tier });
+      expect(result.success).toBe(true);
+    }
+  });
+
+  it("schema rejects unknown verify_tier value with descriptive Zod error", () => {
+    const schema = ACTION_CAM_SCHEMAS.master_post_mitsubishi_mv1200r;
+    const result = schema.safeParse({
+      operations: [
+        {
+          operation_type: "profile",
+          pass: "rough",
+          start_x: 0,
+          start_y: 0,
+          profile_points: [{ x: 1, y: 1, type: "line" }, { x: 0, y: 0, type: "line" }],
+          material: { name: "D2 Tool Steel" },
+          thickness_mm: 25,
+          offset_direction: "left",
+        },
+      ],
+      verify_tier: "bogus",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issues = result.error.issues;
+      expect(issues.some((i) => i.path.includes("verify_tier"))).toBe(true);
+    }
+  });
 });
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Engine Behavior Tests Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
