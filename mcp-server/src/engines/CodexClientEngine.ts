@@ -155,6 +155,12 @@ export class CodexClientEngine {
   private buildArgs(opts: CodexExecOptions): string[] {
     const args: string[] = ["exec"];
     if (opts.skipGitCheck !== false) args.push("--skip-git-repo-check");
+    // --ignore-user-config: bypass $CODEX_HOME/config.toml so plugin-injected
+    // url-based MCP servers don't break codex with "url is not supported for
+    // stdio" errors. Auth still loads from CODEX_HOME. We pass model and
+    // reasoning effort explicitly via -m / -c below, so config defaults are
+    // not needed.
+    args.push("--ignore-user-config");
     args.push("--sandbox", opts.sandbox ?? DEFAULT_SANDBOX ?? "read-only");
     if (opts.model) {
       args.push("-m", opts.model);
