@@ -1488,6 +1488,52 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ── XPROC-AI-01: Cross-Process AI Bridge (separate from xproc_* fleet) ──
+      case "cross_process_ai_classify": {
+        const { CrossProcessAIBridge } = await import(
+          "../../engines/CrossProcessAIBridge.js"
+        );
+        const intent = params.intent as string | undefined;
+        if (typeof intent !== "string") {
+          return dispatcherError(
+            "cross_process_ai_classify requires `intent` (non-empty string)",
+            action,
+            "prism_ai",
+          );
+        }
+        const context = {
+          process: params.process as ("mill" | "lathe" | "wedm") | undefined,
+          features: params.features as string[] | undefined,
+          material: params.material as string | undefined,
+        };
+        result = CrossProcessAIBridge.classify(intent, context);
+        break;
+      }
+      case "cross_process_ai_orchestrate": {
+        const { CrossProcessAIBridge } = await import(
+          "../../engines/CrossProcessAIBridge.js"
+        );
+        const intent = params.intent as string | undefined;
+        if (typeof intent !== "string") {
+          return dispatcherError(
+            "cross_process_ai_orchestrate requires `intent` (non-empty string)",
+            action,
+            "prism_ai",
+          );
+        }
+        result = await CrossProcessAIBridge.orchestrate({
+          intent,
+          process: params.process as ("mill" | "lathe" | "wedm") | undefined,
+          features: params.features as string[] | undefined,
+          material: params.material as string | undefined,
+          mill_request: params.mill_request as Record<string, unknown> | undefined,
+          lathe_request: params.lathe_request as Record<string, unknown> | undefined,
+          wedm_request: params.wedm_request as Record<string, unknown> | undefined,
+          dry_run: params.dry_run as boolean | undefined,
+        });
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

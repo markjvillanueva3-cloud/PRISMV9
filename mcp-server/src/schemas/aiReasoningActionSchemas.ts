@@ -121,6 +121,9 @@ export const AI_REASONING_ACTIONS = [
   "exception_record_outcome",  // U-WIRE31 → finalize event outcome; success generates tribal tip + envelope proposal
   "exception_pending",         // U-WIRE31 → list captured events not yet recorded
   "exception_stats",           // U-WIRE31 → totalEvents, learnedCount, successRate, tipsGenerated, proposalsGenerated
+  // XPROC-AI-01: cross-process AI orchestration (mill+lathe+wedm)
+  "cross_process_ai_classify",     // classify intent → process (no engine invocation)
+  "cross_process_ai_orchestrate",  // classify + dispatch to mill/lathe/wedm orchestrator (or dry_run preview)
   // INFRA-NEURAL-LEDGER-MS1/U-XPROC-T10-PRISM-AI-WIRE: dual-wire 4 Tier 10 fusion engines into prism_ai
   // Per CLAUDE.md "wire to all consumers" mandate: reasoning engines belong on both prism_intelligence AND prism_ai.
   // T10-01 — CrossProcessVisionTabularFusionEngine (concat + projection)
@@ -1271,6 +1274,9 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   }).passthrough(),
   exception_pending: z.object({}).passthrough(),
   exception_stats: z.object({}).passthrough(),
+  // XPROC-AI-01: bridge accepts opaque process-specific request bodies; passthrough.
+  cross_process_ai_classify: z.object({}).passthrough(),
+  cross_process_ai_orchestrate: z.object({}).passthrough(),
   // U-XPROC-T10-PRISM-AI-WIRE — Tier 10 fusion engines.
   // Each engine performs its own Zod validation inside its static method (Cross-Process*Engine.fuse/segment/...).
   // The dispatcher schema is intentionally a passthrough so we don't duplicate the engine's strict shape checks.
