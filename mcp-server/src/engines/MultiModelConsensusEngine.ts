@@ -40,6 +40,16 @@ export interface ConsensusInput {
   includeClaude?: boolean;          // default true — set false when caller IS Claude
   /** Set false to skip Grok (e.g. when XAI_API_KEY isn't set). Default true. */
   includeGrok?: boolean;
+  /**
+   * When Grok is unavailable (no XAI_API_KEY), automatically add a second
+   * Ollama model (qwen2.5-coder:32b by default) so the consensus pool
+   * still gets 4-way independent coverage. Costs $0 — different model
+   * trained by a different team gives genuine independent signal.
+   * Default: true.
+   */
+  dualOllama?: boolean;
+  /** Default qwen2.5-coder:32b — secondary Ollama voice when dualOllama=true. */
+  secondaryOllamaModel?: string;
   claudeBin?: string;               // override claude CLI path
   ollamaModel?: string;             // default deepseek-r1:14b
   codexModel?: string;              // default gpt-5.5
@@ -78,6 +88,11 @@ export interface ConsensusResult {
 
 const DEFAULT_TIMEOUT_MS = 90_000;
 const DEFAULT_OLLAMA_MODEL = "deepseek-r1:14b";
+// 14b chosen over 32b so deepseek-r1:14b (9GB) + qwen-coder:14b (9GB) can
+// coexist in memory on machines with ~24GB. The 32b variant (20GB) caused
+// HTTP 500 OOM on the smoke test machine when paired with deepseek-r1.
+// Override via secondaryOllamaModel option for hosts with more memory.
+const DEFAULT_SECONDARY_OLLAMA_MODEL = "qwen2.5-coder:14b";
 const DEFAULT_CODEX_MODEL = "gpt-5.5";
 const DEFAULT_CODEX_EFFORT = "xhigh" as const;
 const DEFAULT_CLAUDE_BIN = process.env.PRISM_CLAUDE_BIN ?? "claude";
@@ -96,18 +111,37 @@ export class MultiModelConsensusEngine {
     const includeClaude = input.includeClaude !== false;
 
     const includeGrok = input.includeGrok !== false && Boolean(process.env.XAI_API_KEY);
+    // Dual-Ollama auto-fires when Grok is unavailable to keep the pool at 4 voices.
+    // Caller can force it on/off with includeGrok / dualOllama.
+    const dualOllama = input.dualOllama !== false && !includeGrok;
+    const primaryOllama = input.ollamaModel ?? DEFAULT_OLLAMA_MODEL;
+    const secondaryOllama = input.secondaryOllamaModel ?? DEFAULT_SECONDARY_OLLAMA_MODEL;
 
-    const calls: Array<Promise<ModelResponse>> = [];
+    // Each call returns ONE or MORE ModelResponses (dual-Ollama returns 2).
+    // We flatten after Promise.all so the rest of the engine treats them uniformly.
+    const calls: Array<Promise<ModelResponse[]>> = [];
     if (includeClaude) {
-      calls.push(this.callClaude(fullPrompt, input.claudeBin ?? DEFAULT_CLAUDE_BIN, timeoutMs));
+      calls.push(this.callClaude(fullPrompt, input.claudeBin ?? DEFAULT_CLAUDE_BIN, timeoutMs).then((r) => [r]));
     }
-    calls.push(this.callCodex(fullPrompt, input.codexModel, input.codexEffort, timeoutMs));
+    calls.push(this.callCodex(fullPrompt, input.codexModel, input.codexEffort, timeoutMs).then((r) => [r]));
     if (includeGrok) {
-      calls.push(this.callGrok(fullPrompt, input.grokModel, input.grokReasoning, timeoutMs));
+      calls.push(this.callGrok(fullPrompt, input.grokModel, input.grokReasoning, timeoutMs).then((r) => [r]));
     }
-    calls.push(this.callOllama(fullPrompt, input.ollamaModel ?? DEFAULT_OLLAMA_MODEL, timeoutMs));
+    if (dualOllama && secondaryOllama !== primaryOllama) {
+      // Ollama swaps models on demand; parallel requests to two different
+      // models trigger OOM/HTTP 500 on memory-constrained hosts. Serialize
+      // the two Ollama calls inside a single Promise so they run in parallel
+      // with codex/claude/grok but not with each other.
+      calls.push((async (): Promise<ModelResponse[]> => {
+        const first = await this.callOllama(fullPrompt, primaryOllama, timeoutMs);
+        const second = await this.callOllama(fullPrompt, secondaryOllama, timeoutMs);
+        return [first, second];
+      })());
+    } else {
+      calls.push(this.callOllama(fullPrompt, primaryOllama, timeoutMs).then((r) => [r]));
+    }
 
-    const responses = await Promise.all(calls);
+    const responses = (await Promise.all(calls)).flat();
     const successCount = responses.filter((r) => r.ok).length;
     const mode = input.mode ?? "compare";
 
