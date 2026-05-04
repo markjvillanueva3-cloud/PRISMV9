@@ -217,6 +217,8 @@ const ACTIONS = [
   // 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01 — system-agnostic CAD plan↔exec)
   "cad_route_detect_system", "cad_route_plan_execution",
   "cad_route_find_operation", "cad_route_capabilities", "cad_route_supported_systems",
+  // XPROC-FEAT-01: cross-process feature routing (mill+lathe+wedm) with CAD coverage
+  "cross_process_feature_route", "cross_process_feature_options", "cross_process_feature_known",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2622,6 +2624,58 @@ Params vary by action — pass relevant fields in params object.`,
             );
             const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
             result = { success: true, ...matrix };
+            break;
+          }
+
+          // ── XPROC-FEAT-01: Cross-Process Feature Bridge ──
+          case "cross_process_feature_route": {
+            const { CrossProcessFeatureBridge } = await import(
+              "../../engines/CrossProcessFeatureBridge.js"
+            );
+            const feature = (params.feature ?? params.featureId) as string | undefined;
+            if (!feature) {
+              return dispatcherError(
+                "cross_process_feature_route requires `feature` (e.g. \"pocket_2d\", \"groove_external\")",
+                action,
+                "prism_cad",
+              );
+            }
+            const processes = (params.processes ?? params.processFilter) as
+              | Array<"mill" | "lathe" | "wedm">
+              | undefined;
+            const cadOpId = (params.cad_operation_id ?? params.cadOperationId) as
+              | string
+              | undefined;
+            const routed = await CrossProcessFeatureBridge.route({
+              feature,
+              processes,
+              cad_operation_id: cadOpId,
+            });
+            result = { success: true, ...routed };
+            break;
+          }
+          case "cross_process_feature_options": {
+            const { CrossProcessFeatureBridge } = await import(
+              "../../engines/CrossProcessFeatureBridge.js"
+            );
+            const feature = (params.feature ?? params.featureId) as string | undefined;
+            if (!feature) {
+              return dispatcherError(
+                "cross_process_feature_options requires `feature`",
+                action,
+                "prism_cad",
+              );
+            }
+            const options = CrossProcessFeatureBridge.listFeatureOptions(feature);
+            result = { success: true, feature, options };
+            break;
+          }
+          case "cross_process_feature_known": {
+            const { CrossProcessFeatureBridge } = await import(
+              "../../engines/CrossProcessFeatureBridge.js"
+            );
+            const features = CrossProcessFeatureBridge.listKnownFeatures();
+            result = { success: true, count: features.length, features };
             break;
           }
 
