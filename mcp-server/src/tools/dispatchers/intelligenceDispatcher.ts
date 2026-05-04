@@ -237,6 +237,9 @@ const DIAGNOSIS_FWD = [
   "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get",
   // XPROC-ROUTER-01: top-level cross-process pipeline router
   "process_route", "process_full_pipeline", "process_pipeline_stages",
+  // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
+  "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
+  "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -627,6 +630,64 @@ export function registerIntelligenceDispatcher(server: any): void {
             content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...routed }) }],
           };
         }
+        // === XPROC-NEURAL-T1-01: Outcome store ===
+        if (action === "xproc_outcome_record") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const id = crossProcessOutcomeStore.record({
+            bridge: params.bridge as Parameters<typeof crossProcessOutcomeStore.record>[0]["bridge"],
+            process: params.process as Parameters<typeof crossProcessOutcomeStore.record>[0]["process"],
+            request_summary: params.request_summary as Parameters<typeof crossProcessOutcomeStore.record>[0]["request_summary"],
+            response_summary: params.response_summary as Parameters<typeof crossProcessOutcomeStore.record>[0]["response_summary"],
+            outcome: params.outcome as Parameters<typeof crossProcessOutcomeStore.record>[0]["outcome"],
+            operator: params.operator as Parameters<typeof crossProcessOutcomeStore.record>[0]["operator"],
+          });
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, id }) }] };
+        }
+        if (action === "xproc_outcome_record_outcome") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const id = params.id as string | undefined;
+          const outcome = params.outcome as Parameters<typeof crossProcessOutcomeStore.recordOutcome>[1];
+          if (!id) {
+            return dispatcherError("xproc_outcome_record_outcome requires `id`", action, "prism_intelligence");
+          }
+          const ok = crossProcessOutcomeStore.recordOutcome(id, outcome);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, updated: ok }) }] };
+        }
+        if (action === "xproc_outcome_query") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const records = crossProcessOutcomeStore.query(params as Parameters<typeof crossProcessOutcomeStore.query>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: records.length, records }) }] };
+        }
+        if (action === "xproc_outcome_retrieve_similar") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const k = (params.k as number | undefined) ?? 5;
+          const ctx = (params.context ?? params) as Parameters<typeof crossProcessOutcomeStore.retrieveSimilar>[0];
+          const results = crossProcessOutcomeStore.retrieveSimilar(ctx, k);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: results.length, results }) }] };
+        }
+        if (action === "xproc_outcome_stats") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const stats = crossProcessOutcomeStore.stats();
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...stats }) }] };
+        }
+        if (action === "xproc_outcome_clear") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          crossProcessOutcomeStore.clear();
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true }) }] };
+        }
+
         if (action === "process_full_pipeline") {
           const { ProcessIntelligenceRouterEngine } = await import(
             "../../engines/ProcessIntelligenceRouterEngine.js"
