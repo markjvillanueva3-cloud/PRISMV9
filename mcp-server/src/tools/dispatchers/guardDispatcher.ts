@@ -791,7 +791,7 @@ export function registerGuardDispatcher(server: any): void {
             const sig = typeof params?.signature === "string" ? params.signature
               : typeof params?.query === "string" ? params.query
               : "";
-            if (!sig) return ok({ error: "Missing 'signature' or 'query' parameter", hits: [] });
+            if (!sig) return ok({ error: "Missing 'signature' or 'query' parameter", hits: [], count: 0 });
             const limit = typeof params?.limit === "number" ? params.limit : 3;
             const hits = await e4.recallSimilar(sig, limit);
             return ok({ hits, count: hits.length });
