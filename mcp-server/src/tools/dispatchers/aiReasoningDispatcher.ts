@@ -513,6 +513,11 @@ const ACTIONS = [
   "causal_analyze",          // P5-U02 → CausalReasoningEngine.traceImpact|rootCauses
   "counterfactual_predict",  // P5-U03 → CounterfactualReasoningEngine.generateCounterfactual
   "scientific_reason",       // P5-U04 → ScientificReasoningEngine.reason
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P20-U03: Multi-model tiered routing =====
+  "model_route",             // P20-U03 → ModelRouterEngine.routeForTask
+  "model_route_thresholds",  // P20-U03 → ModelRouterEngine.{getThresholds,setThresholds,resetThresholds}
+  // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P22-U01: Pre-Claude review orchestrator =====
+  "pre_review",              // P22-U01 → PreReviewOrchestratorEngine.draftReview
 ] as const;
 
 function ok(data: any) {
@@ -6244,6 +6249,79 @@ export function registerAIReasoningDispatcher(server: any): void {
               params.calculationType,
             );
             return ok(reasoning);
+          }
+
+          // P20-U03 — ModelRouterEngine.routeForTask
+          // Required: kind (TaskKind enum)
+          // Optional: complexity, promptTokens, hasImage, needsChainOfThought, domain, forceTier
+          case "model_route": {
+            if (typeof params.kind !== "string" || params.kind.length === 0) {
+              return ok({ error: "model_route requires 'kind' string (embed|code|reason|vision|review|general)" });
+            }
+            const { modelRouterEngine } = await import("../../engines/ModelRouterEngine.js");
+            try {
+              const decision = modelRouterEngine.routeForTask({
+                kind: params.kind,
+                complexity: params.complexity,
+                promptTokens: params.promptTokens,
+                hasImage: params.hasImage,
+                needsChainOfThought: params.needsChainOfThought,
+                domain: params.domain,
+                forceTier: params.forceTier,
+              });
+              return ok(decision);
+            } catch (e) {
+              return ok({ error: `model_route: ${(e as Error).message}` });
+            }
+          }
+
+          // P22-U01 — PreReviewOrchestratorEngine.draftReview
+          // Required: prompt (string)
+          // Optional: context, domain, promptTokens, maxTokens, temperature
+          case "pre_review": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "pre_review requires non-empty 'prompt' string" });
+            }
+            const { preReviewOrchestratorEngine } = await import("../../engines/PreReviewOrchestratorEngine.js");
+            try {
+              const result = await preReviewOrchestratorEngine.draftReview({
+                prompt: params.prompt,
+                context: params.context,
+                domain: params.domain,
+                promptTokens: params.promptTokens,
+                maxTokens: params.maxTokens,
+                temperature: params.temperature,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `pre_review: ${(e as Error).message}` });
+            }
+          }
+
+          // P20-U03 — ModelRouterEngine threshold control (read | write | reset)
+          // op="get" → returns thresholds; op="set" → setThresholds(payload); op="reset" → resetThresholds
+          case "model_route_thresholds": {
+            const { modelRouterEngine } = await import("../../engines/ModelRouterEngine.js");
+            const op = params.op ?? "get";
+            if (op === "get") {
+              return ok(modelRouterEngine.getThresholds());
+            }
+            if (op === "reset") {
+              modelRouterEngine.resetThresholds();
+              return ok(modelRouterEngine.getThresholds());
+            }
+            if (op === "set") {
+              try {
+                modelRouterEngine.setThresholds({
+                  largeContextTokens: params.largeContextTokens,
+                  complexContextTokens: params.complexContextTokens,
+                });
+                return ok(modelRouterEngine.getThresholds());
+              } catch (e) {
+                return ok({ error: `model_route_thresholds: ${(e as Error).message}` });
+              }
+            }
+            return ok({ error: `model_route_thresholds: invalid op '${op}', expected get|set|reset` });
           }
 
           default:

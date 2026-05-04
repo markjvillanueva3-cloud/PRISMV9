@@ -1,0 +1,286 @@
+/**
+ * ModelRouterEngine — tier classification + routing decision tests
+ * Milestone: INTEL-OLLAMA-OBSIDIAN-MS0 / P20-U03
+ */
+
+import { describe, it, expect, beforeEach } from "vitest";
+import {
+  ModelRouterEngine,
+  modelRouterEngine,
+  type TaskInput,
+} from "../engines/ModelRouterEngine.js";
+
+describe("ModelRouterEngine — tier classification", () => {
+  let r: ModelRouterEngine;
+
+  beforeEach(() => {
+    r = new ModelRouterEngine();
+  });
+
+  it("routes embed kind to tier 0 (nomic-embed-text)", () => {
+    const d = r.routeForTask({ kind: "embed" });
+    expect(d).toEqual({
+      tier: 0,
+      model: "nomic-embed-text",
+      kind: "embed",
+      reason: "kind=embed",
+      fallback: null,
+    });
+  });
+
+  it("routes embed even when complexity=complex (kind dominates)", () => {
+    const d = r.routeForTask({ kind: "embed", complexity: "complex", promptTokens: 99999 });
+    expect(d.tier).toBe(0);
+    expect(d.model).toBe("nomic-embed-text");
+  });
+
+  it("routes vision kind to tier 4 (llama3.2-vision)", () => {
+    const d = r.routeForTask({ kind: "vision" });
+    expect(d.tier).toBe(4);
+    expect(d.model).toBe("llama3.2-vision:11b");
+    expect(d.kind).toBe("vision");
+  });
+
+  it("routes hasImage=true to tier 4 regardless of declared kind", () => {
+    const d = r.routeForTask({ kind: "code", hasImage: true });
+    expect(d.tier).toBe(4);
+    expect(d.reason).toContain("hasImage=true");
+  });
+
+  it("escalates safety domain to tier 5 (claude)", () => {
+    const d = r.routeForTask({ kind: "reason", domain: "safety" });
+    expect(d).toEqual({
+      tier: 5,
+      model: "claude",
+      kind: "escalate",
+      reason: "domain=safety (safety/physics)",
+      fallback: null,
+    });
+  });
+
+  it("escalates physics/kienzle/taylor/deflection/thermal/compliance domains", () => {
+    for (const dom of ["physics", "kienzle", "taylor", "deflection", "thermal", "compliance", "manufacturing-novel"]) {
+      const d = r.routeForTask({ kind: "code", domain: dom });
+      expect(d.tier).toBe(5);
+      expect(d.model).toBe("claude");
+    }
+  });
+
+  it("safety domain match is case-insensitive", () => {
+    const d = r.routeForTask({ kind: "code", domain: "SAFETY" });
+    expect(d.tier).toBe(5);
+  });
+
+  it("non-safety domains do NOT escalate", () => {
+    const d = r.routeForTask({ kind: "code", domain: "marketing" });
+    expect(d.tier).toBe(1);
+  });
+
+  it("routes needsChainOfThought=true to tier 3 (deepseek-r1)", () => {
+    const d = r.routeForTask({ kind: "reason", needsChainOfThought: true });
+    expect(d.tier).toBe(3);
+    expect(d.model).toBe("deepseek-r1:14b");
+    expect(d.fallback).toBe("qwen2.5-coder:32b");
+  });
+
+  it("routes complexity=complex to tier 3", () => {
+    const d = r.routeForTask({ kind: "code", complexity: "complex" });
+    expect(d.tier).toBe(3);
+    expect(d.reason).toBe("complexity=complex");
+  });
+
+  it("routes promptTokens > 6000 to tier 3 (large-context override)", () => {
+    const d = r.routeForTask({ kind: "code", promptTokens: 6500 });
+    expect(d.tier).toBe(3);
+    expect(d.reason).toContain("6000");
+  });
+
+  it("routes complexity=medium to tier 2", () => {
+    const d = r.routeForTask({ kind: "code", complexity: "medium" });
+    expect(d.tier).toBe(2);
+    expect(d.model).toBe("qwen2.5-coder:14b");
+  });
+
+  it("routes promptTokens > 3000 (but <= 6000) to tier 2", () => {
+    const d = r.routeForTask({ kind: "code", promptTokens: 3500 });
+    expect(d.tier).toBe(2);
+  });
+
+  it("routes simple/general task to tier 1 (qwen-7b default)", () => {
+    const d = r.routeForTask({ kind: "general" });
+    expect(d.tier).toBe(1);
+    expect(d.model).toBe("qwen2.5-coder:7b");
+    expect(d.fallback).toBe("qwen2.5-coder:14b");
+  });
+
+  it("routes review kind with no signals to tier 1", () => {
+    const d = r.routeForTask({ kind: "review" });
+    expect(d.tier).toBe(1);
+  });
+});
+
+describe("ModelRouterEngine — forceTier override", () => {
+  it("respects forceTier=0 even for code kind", () => {
+    const r = new ModelRouterEngine();
+    const d = r.routeForTask({ kind: "code", forceTier: 0 });
+    expect(d.tier).toBe(0);
+    expect(d.model).toBe("nomic-embed-text");
+    expect(d.reason).toBe("forceTier=0");
+  });
+
+  it("respects forceTier=5 for embed kind", () => {
+    const r = new ModelRouterEngine();
+    const d = r.routeForTask({ kind: "embed", forceTier: 5 });
+    expect(d.tier).toBe(5);
+    expect(d.model).toBe("claude");
+  });
+
+  it("rejects forceTier=-1", () => {
+    const r = new ModelRouterEngine();
+    expect(() => r.routeForTask({ kind: "code", forceTier: -1 })).toThrow(/forceTier/);
+  });
+
+  it("rejects forceTier=6", () => {
+    const r = new ModelRouterEngine();
+    expect(() => r.routeForTask({ kind: "code", forceTier: 6 })).toThrow(/forceTier/);
+  });
+
+  it("rejects non-integer forceTier", () => {
+    const r = new ModelRouterEngine();
+    expect(() => r.routeForTask({ kind: "code", forceTier: 2.5 })).toThrow(/forceTier/);
+  });
+});
+
+describe("ModelRouterEngine — adjustable thresholds (P23 hook)", () => {
+  let r: ModelRouterEngine;
+
+  beforeEach(() => {
+    r = new ModelRouterEngine();
+  });
+
+  it("default thresholds are 3000/6000", () => {
+    expect(r.getThresholds()).toEqual({ largeContextTokens: 3000, complexContextTokens: 6000 });
+  });
+
+  it("setThresholds tunes routing — tier-2 boundary at custom largeContextTokens", () => {
+    r.setThresholds({ largeContextTokens: 1000, complexContextTokens: 2000 });
+    const below = r.routeForTask({ kind: "code", promptTokens: 999 });
+    const above = r.routeForTask({ kind: "code", promptTokens: 1500 });
+    expect(below.tier).toBe(1);
+    expect(above.tier).toBe(2);
+  });
+
+  it("setThresholds tunes routing — tier-3 boundary at custom complexContextTokens", () => {
+    r.setThresholds({ largeContextTokens: 1000, complexContextTokens: 2000 });
+    const above = r.routeForTask({ kind: "code", promptTokens: 2500 });
+    expect(above.tier).toBe(3);
+  });
+
+  it("rejects non-positive largeContextTokens", () => {
+    expect(() => r.setThresholds({ largeContextTokens: 0 })).toThrow(/largeContextTokens/);
+    expect(() => r.setThresholds({ largeContextTokens: -1 })).toThrow(/largeContextTokens/);
+  });
+
+  it("rejects complexContextTokens <= largeContextTokens", () => {
+    expect(() => r.setThresholds({ largeContextTokens: 5000, complexContextTokens: 5000 }))
+      .toThrow(/complexContextTokens must exceed largeContextTokens/);
+  });
+
+  it("resetThresholds restores defaults", () => {
+    r.setThresholds({ largeContextTokens: 100, complexContextTokens: 200 });
+    r.resetThresholds();
+    expect(r.getThresholds()).toEqual({ largeContextTokens: 3000, complexContextTokens: 6000 });
+  });
+
+  it("getThresholds returns a copy (no aliasing)", () => {
+    const t1 = r.getThresholds();
+    t1.largeContextTokens = 99999;
+    expect(r.getThresholds().largeContextTokens).toBe(3000);
+  });
+});
+
+describe("ModelRouterEngine — input validation", () => {
+  let r: ModelRouterEngine;
+
+  beforeEach(() => {
+    r = new ModelRouterEngine();
+  });
+
+  it("rejects missing input", () => {
+    expect(() => r.routeForTask(null as unknown as TaskInput)).toThrow(/TaskInput required/);
+  });
+
+  it("rejects unknown kind", () => {
+    expect(() => r.routeForTask({ kind: "unknown" as TaskInput["kind"] })).toThrow(/invalid kind/);
+  });
+
+  it("rejects unknown complexity", () => {
+    expect(() => r.routeForTask({ kind: "code", complexity: "extreme" as TaskInput["complexity"] }))
+      .toThrow(/invalid complexity/);
+  });
+
+  it("rejects negative promptTokens", () => {
+    expect(() => r.routeForTask({ kind: "code", promptTokens: -1 })).toThrow(/promptTokens/);
+  });
+
+  it("rejects non-finite promptTokens", () => {
+    expect(() => r.routeForTask({ kind: "code", promptTokens: Number.NaN })).toThrow(/promptTokens/);
+    expect(() => r.routeForTask({ kind: "code", promptTokens: Number.POSITIVE_INFINITY })).toThrow(/promptTokens/);
+  });
+});
+
+describe("ModelRouterEngine — selection precedence", () => {
+  let r: ModelRouterEngine;
+
+  beforeEach(() => {
+    r = new ModelRouterEngine();
+  });
+
+  it("forceTier beats every other signal", () => {
+    const d = r.routeForTask({
+      kind: "embed",
+      hasImage: true,
+      domain: "safety",
+      needsChainOfThought: true,
+      complexity: "complex",
+      promptTokens: 99999,
+      forceTier: 1,
+    });
+    expect(d.tier).toBe(1);
+  });
+
+  it("embed beats vision when both present (kind=embed wins because rule 2 < rule 3)", () => {
+    const d = r.routeForTask({ kind: "embed", hasImage: true });
+    expect(d.tier).toBe(0);
+  });
+
+  it("vision beats safety domain (image extraction is task-shaped, not semantic)", () => {
+    const d = r.routeForTask({ kind: "code", hasImage: true, domain: "safety" });
+    expect(d.tier).toBe(4);
+  });
+
+  it("safety beats CoT (escalate wins over reasoning tier)", () => {
+    const d = r.routeForTask({ kind: "reason", domain: "physics", needsChainOfThought: true });
+    expect(d.tier).toBe(5);
+  });
+
+  it("CoT beats large-token complexity bump", () => {
+    const d = r.routeForTask({ kind: "code", needsChainOfThought: true, promptTokens: 5000 });
+    expect(d.tier).toBe(3);
+    expect(d.reason).toContain("needsChainOfThought");
+  });
+});
+
+describe("ModelRouterEngine — singleton + helper", () => {
+  it("modelRouterEngine singleton works identically to fresh instance", () => {
+    const a = modelRouterEngine.routeForTask({ kind: "code" });
+    const b = new ModelRouterEngine().routeForTask({ kind: "code" });
+    expect(a).toEqual(b);
+  });
+
+  it("classifyTier returns same tier as routeForTask", () => {
+    const r = new ModelRouterEngine();
+    const input: TaskInput = { kind: "reason", needsChainOfThought: true };
+    expect(r.classifyTier(input)).toBe(r.routeForTask(input).tier);
+  });
+});
