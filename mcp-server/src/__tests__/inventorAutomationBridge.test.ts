@@ -269,3 +269,112 @@ describe("AtomicValue contract", () => {
     }
   });
 });
+
+describe("InventorAutomationBridge — dispatcher wiring (camDispatcher.ts)", () => {
+  const INV_AUTO_ACTIONS = [
+    "cam_inventor_automation_open",
+    "cam_inventor_automation_get_parameters",
+    "cam_inventor_automation_get_model_tree",
+    "cam_inventor_automation_export_step",
+    "cam_inventor_automation_get_mass_properties",
+    "cam_inventor_automation_close",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 6;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 6 cam_inventor_automation_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(INV_AUTO_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of INV_AUTO_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _invAutoBridge singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_invAutoBridge\s*:\s*any/);
+  });
+
+  it("registers an invAutoBridge case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"invAutoBridge"\s*:\s*return\s+_invAutoBridge\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/InventorAutomationBridge\.js"\s*\)\)\.inventorAutomationBridge/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_AUTO_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"invAutoBridge\")", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_AUTO_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("invAutoBridge"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body awaits the async engine call", async () => {
+    const src = await readDispatcher();
+    const ASYNC_PATTERNS: Record<string, RegExp> = {
+      "cam_inventor_automation_open": /await\s+engine\.open\(/,
+      "cam_inventor_automation_get_parameters": /await\s+engine\.getParameters\(/,
+      "cam_inventor_automation_get_model_tree": /await\s+engine\.getModelTree\(/,
+      "cam_inventor_automation_export_step": /await\s+engine\.exportSTEP\(/,
+      "cam_inventor_automation_get_mass_properties": /await\s+engine\.getMassProperties\(/,
+      "cam_inventor_automation_close": /await\s+engine\.close\(/,
+    };
+    for (const [action, pattern] of Object.entries(ASYNC_PATTERNS)) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      expect(body).toMatch(pattern);
+    }
+  });
+
+  it("open case accepts file_path|filePath fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_inventor_automation_open"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/params\.file_path\s*\?\?\s*params\.filePath/);
+    expect(body).toContain("opened");
+  });
+
+  it("export_step case accepts output_path|outputPath fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_inventor_automation_export_step"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/params\.output_path\s*\?\?\s*params\.outputPath/);
+    expect(body).toContain("exported");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of INV_AUTO_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("close case is idempotent — has no required parameters", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_inventor_automation_close"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("await engine.close()");
+    expect(body).toContain("closed");
+  });
+});
