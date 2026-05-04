@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -427,6 +427,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmAIOrch": return _hmAIOrch ??= (await import("../../engines/HyperMillAIOrchestrationEngine.js")).hyperMillAIOrchestrationEngine;
     case "fusLathePostDelta": return _fusLathePostDelta ??= (await import("../../engines/FusionLathePostDeltaRegistryEngine.js")).fusionLathePostDeltaRegistryEngine;
     case "fusAIOrch": return _fusAIOrch ??= (await import("../../engines/FusionAIOrchestrationEngine.js")).fusionAIOrchestrationEngine;
+    case "fus360CodeGen": return _fus360CodeGen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1579,6 +1580,10 @@ export const ACTIONS = [
   "cam_fusion_ai_orchestrate",
   "cam_fusion_ai_get_reasoning_modes",
   "cam_fusion_ai_get_stats",
+  "cam_fusion360_code_gen_get_capabilities",
+  "cam_fusion360_code_gen_build_script",
+  "cam_fusion360_code_gen_execute_script",
+  "cam_fusion360_code_gen_validate_output",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11610,6 +11615,50 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("fusAIOrch");
             const stats = engine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_fusion360_code_gen_get_capabilities": {
+            // U-CAM-FUS360-CODEGEN-WIRE-01: Fusion360CodeGeneratorEngine.getCapabilities
+            // Returns the CADCapabilityMatrix (cadSystem=fusion360, version, supportedOps, maxComplexity).
+            const engine = await getEngine("fus360CodeGen");
+            const capabilities = engine.getCapabilities();
+            result = { success: true, capabilities };
+            break;
+          }
+
+          case "cam_fusion360_code_gen_build_script": {
+            // U-CAM-FUS360-CODEGEN-WIRE-01: Fusion360CodeGeneratorEngine.buildScript
+            // Generates a Fusion 360 Python script (adsk.core/fusion/cam) from CADOperation[].
+            // Throws UnsupportedCapabilityError when an op kind isn't in the matrix.
+            const engine = await getEngine("fus360CodeGen");
+            const ops = Array.isArray(params.ops) ? params.ops : [];
+            const ctx = (params.ctx && typeof params.ctx === "object")
+              ? params.ctx
+              : (params.context && typeof params.context === "object")
+              ? params.context
+              : undefined;
+            const script = engine.buildScript(ops as never, ctx as never);
+            result = { success: true, script, opCount: ops.length };
+            break;
+          }
+
+          case "cam_fusion360_code_gen_execute_script": {
+            // U-CAM-FUS360-CODEGEN-WIRE-01: Fusion360CodeGeneratorEngine.executeScript (async; subprocess/COM)
+            const engine = await getEngine("fus360CodeGen");
+            const script = params.script ?? {};
+            const execution = await engine.executeScript(script as never);
+            result = { success: true, execution };
+            break;
+          }
+
+          case "cam_fusion360_code_gen_validate_output": {
+            // U-CAM-FUS360-CODEGEN-WIRE-01: Fusion360CodeGeneratorEngine.validateOutput
+            // Returns CADValidationReport with structural + semantic checks on a CADExecutionResult.
+            const engine = await getEngine("fus360CodeGen");
+            const executionResult = params.result ?? params.executionResult ?? {};
+            const report = engine.validateOutput(executionResult as never);
+            result = { success: true, report };
             break;
           }
 
