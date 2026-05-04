@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -428,6 +428,7 @@ async function getEngine(name: string): Promise<any> {
     case "fusLathePostDelta": return _fusLathePostDelta ??= (await import("../../engines/FusionLathePostDeltaRegistryEngine.js")).fusionLathePostDeltaRegistryEngine;
     case "fusAIOrch": return _fusAIOrch ??= (await import("../../engines/FusionAIOrchestrationEngine.js")).fusionAIOrchestrationEngine;
     case "fus360CodeGen": return _fus360CodeGen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
+    case "mcMatBridge": return _mcMatBridge ??= (await import("../../engines/MastercamMaterialBridgeEngine.js")).mastercamMaterialBridgeEngine;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1584,6 +1585,14 @@ export const ACTIONS = [
   "cam_fusion360_code_gen_build_script",
   "cam_fusion360_code_gen_execute_script",
   "cam_fusion360_code_gen_validate_output",
+  "cam_mastercam_material_find",
+  "cam_mastercam_material_get_physics",
+  "cam_mastercam_material_map_to_iso",
+  "cam_mastercam_material_calculate_force",
+  "cam_mastercam_material_estimate_tool_life",
+  "cam_mastercam_material_list",
+  "cam_mastercam_material_list_by_iso",
+  "cam_mastercam_material_get_stats",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11659,6 +11668,106 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const executionResult = params.result ?? params.executionResult ?? {};
             const report = engine.validateOutput(executionResult as never);
             result = { success: true, report };
+            break;
+          }
+
+          case "cam_mastercam_material_find": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.findMaterial
+            // Looks up a Mastercam material by query string (id, name, or alias).
+            const engine = await getEngine("mcMatBridge");
+            const query = String(params.query ?? params.material ?? "");
+            const material = engine.findMaterial(query);
+            result = { success: true, query, material: material ?? null, found: material !== null };
+            break;
+          }
+
+          case "cam_mastercam_material_get_physics": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.getPhysicsProfile
+            // Returns the per-material Kienzle (kc1.1, mc) + Taylor (C, n) + thermal profile.
+            // Constants are sourced from the engine's material catalog (no inline physics in dispatcher).
+            const engine = await getEngine("mcMatBridge");
+            const materialId = String(params.material_id ?? params.materialId ?? "");
+            const profile = engine.getPhysicsProfile(materialId);
+            result = { success: true, material_id: materialId, profile: profile ?? null, found: profile !== null };
+            break;
+          }
+
+          case "cam_mastercam_material_map_to_iso": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.mapToISO
+            // Maps a Mastercam material class string to the canonical ISO group (P/M/K/N/S/H).
+            const engine = await getEngine("mcMatBridge");
+            const mastercamClass = String(params.mastercam_class ?? params.mastercamClass ?? params.class ?? "");
+            const iso = engine.mapToISO(mastercamClass);
+            result = { success: true, mastercam_class: mastercamClass, iso };
+            break;
+          }
+
+          case "cam_mastercam_material_calculate_force": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.calculateCuttingForce
+            // Kienzle Fc = kc1.1 * ap * fz^(1-mc); kc constants from per-material profile (NOT inline).
+            // Returns null when material profile is missing — caller must check.
+            const engine = await getEngine("mcMatBridge");
+            const materialId = String(params.material_id ?? params.materialId ?? "");
+            const apRaw = Number(params.axial_depth_mm ?? params.axialDepth_mm ?? params.ap_mm ?? NaN);
+            const fzRaw = Number(params.feed_per_tooth_mm ?? params.feedPerTooth_mm ?? params.fz_mm ?? NaN);
+            const ap = Number.isFinite(apRaw) ? Math.max(0, apRaw) : 0;
+            const fz = Number.isFinite(fzRaw) ? Math.max(0, fzRaw) : 0;
+            const force = engine.calculateCuttingForce(materialId, ap, fz);
+            result = {
+              success: true,
+              material_id: materialId,
+              axial_depth_mm: ap,
+              feed_per_tooth_mm: fz,
+              force: force ?? null,
+              found: force !== null,
+            };
+            break;
+          }
+
+          case "cam_mastercam_material_estimate_tool_life": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.estimateToolLife
+            // Taylor T = (C/Vc)^(1/n); Taylor constants from per-material profile (NOT inline).
+            // Returns null when material profile is missing.
+            const engine = await getEngine("mcMatBridge");
+            const materialId = String(params.material_id ?? params.materialId ?? "");
+            const vcRaw = Number(params.cutting_speed_m_min ?? params.cuttingSpeed_m_min ?? params.vc_m_min ?? NaN);
+            const vc = Number.isFinite(vcRaw) && vcRaw > 0 ? vcRaw : 0;
+            const lifeResult = vc > 0 ? engine.estimateToolLife(materialId, vc) : null;
+            result = {
+              success: true,
+              material_id: materialId,
+              cutting_speed_m_min: vc,
+              life: lifeResult ?? null,
+              found: lifeResult !== null,
+            };
+            break;
+          }
+
+          case "cam_mastercam_material_list": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.listMaterials
+            // Returns the full Mastercam material catalog (defensive copy).
+            const engine = await getEngine("mcMatBridge");
+            const materials = engine.listMaterials();
+            result = { success: true, materials, count: materials.length };
+            break;
+          }
+
+          case "cam_mastercam_material_list_by_iso": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.listByISO
+            // Filters the catalog to one ISO group (P/M/K/N/S/H).
+            const engine = await getEngine("mcMatBridge");
+            const iso = String(params.iso ?? params.iso_group ?? params.isoGroup ?? "P");
+            const materials = engine.listByISO(iso as never);
+            result = { success: true, iso, materials, count: materials.length };
+            break;
+          }
+
+          case "cam_mastercam_material_get_stats": {
+            // U-CAM-MC-MATBRIDGE-WIRE-01: MastercamMaterialBridgeEngine.getStats
+            // Aggregate roll-up: total materials, by-ISO counts, source attributions.
+            const engine = await getEngine("mcMatBridge");
+            const stats = engine.getStats();
+            result = { success: true, ...stats };
             break;
           }
 
