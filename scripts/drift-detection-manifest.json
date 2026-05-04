@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0/P19-U01",
+  "description": "Canonical schedule for the 6 drift-detection scripts identified by Agent 2. Read by scripts/install-drift-detection-cron.ps1 (Windows Task Scheduler) and by .claude/hooks/drift-alert-surface.mjs (alert reader). Scripts that don't exist on disk are skipped by the installer with a warning — no errors so the manifest can also act as a TODO for missing scripts.",
+  "log_file": "mcp-server/data/state/cron-runs.jsonl",
+  "log_max_bytes": 1048576,
+  "drift_alert_threshold_pct": 5,
+  "tasks": [
+    {
+      "id": "drift-update-prism-inventory",
+      "title": "PRISM inventory daily refresh",
+      "script_path": "scripts/update-prism-inventory.mjs",
+      "interpreter": "node",
+      "schedule": {
+        "kind": "daily",
+        "time": "06:00"
+      },
+      "schtasks_args": ["/SC", "DAILY", "/ST", "06:00"],
+      "rationale": "PRISM-INVENTORY-LATEST.md drifts from reality between SessionStart fires (one-per-Claude-session is too sparse for a 24/7 multi-machine setup)."
+    },
+    {
+      "id": "drift-orphan-audit",
+      "title": "Nightly orphan-engine audit",
+      "script_path": "scripts/run-orphan-audit.ts",
+      "interpreter": "tsx",
+      "schedule": {
+        "kind": "daily",
+        "time": "23:00"
+      },
+      "schtasks_args": ["/SC", "DAILY", "/ST", "23:00"],
+      "rationale": "Detect engines without dispatcher wiring; flag for next session.",
+      "skip_if_missing": true,
+      "missing_note": "Source script not yet present on this branch — installer will skip and log."
+    },
+    {
+      "id": "drift-inventory-delta",
+      "title": "Hourly inventory delta",
+      "script_path": "scripts/inventory-delta-report.ts",
+      "interpreter": "tsx",
+      "schedule": {
+        "kind": "hourly",
+        "modifier": 1
+      },
+      "schtasks_args": ["/SC", "HOURLY", "/MO", "1"],
+      "rationale": "Alert if inventory drifts >5% in an hour (mass deletion, broken extraction, etc.).",
+      "skip_if_missing": true,
+      "missing_note": "Source script not yet present on this branch — installer will skip and log."
+    },
+    {
+      "id": "drift-rebuild-awareness-cache",
+      "title": "Awareness cache rebuild (debounced)",
+      "script_path": "scripts/rebuild-awareness-cache.mjs",
+      "interpreter": "node",
+      "schedule": {
+        "kind": "event",
+        "trigger": "PreEdit",
+        "debounce_seconds": 300
+      },
+      "schtasks_args": null,
+      "rationale": "Awareness cache must regenerate after edits, but only every 5min to avoid thrash. Not a Task Scheduler entry — wired via .claude/hooks/.",
+      "skip_if_missing": true,
+      "missing_note": "Source script not yet present; hook integration deferred until the rebuild script lands."
+    },
+    {
+      "id": "drift-self-awareness-manifest",
+      "title": "Self-awareness manifest regen on SessionEnd",
+      "script_path": "mcp-server/scripts/generate-self-awareness-manifest.mjs",
+      "interpreter": "node",
+      "schedule": {
+        "kind": "event",
+        "trigger": "SessionEnd"
+      },
+      "schtasks_args": null,
+      "rationale": "Manifest captures what's reachable per session; regenerate on every Stop hook fire.",
+      "wired_via": ".claude/hooks/"
+    },
+    {
+      "id": "drift-populate-skill-triggers",
+      "title": "Skill trigger population on post-build",
+      "script_path": "mcp-server/scripts/populate_skill_triggers.py",
+      "interpreter": "python",
+      "schedule": {
+        "kind": "event",
+        "trigger": "post-build"
+      },
+      "schtasks_args": null,
+      "rationale": "Skill trigger map drifts when new skills land; runs as a postbuild npm hook."
+    }
+  ],
+  "notes": [
+    "Tasks with schtasks_args=null are event-triggered, not clock-scheduled. The .ps1 installer only registers tasks where schtasks_args is non-null.",
+    "Scripts marked skip_if_missing are skipped with a warning when the source file isn't present — the manifest entry stays as a TODO for the milestone owner.",
+    "Removal: schtasks /Delete /TN \"PRISM-{id}\" /F per task, or run install-drift-detection-cron.ps1 -Uninstall."
+  ]
+}
