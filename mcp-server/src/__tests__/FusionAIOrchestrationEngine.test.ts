@@ -197,3 +197,117 @@ describe("FusionAIOrchestrationEngine", () => {
     });
   });
 });
+
+describe("FusionAIOrchestrationEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const FUS_AIORCH_ACTIONS = [
+    "cam_fusion_ai_orchestrate",
+    "cam_fusion_ai_get_reasoning_modes",
+    "cam_fusion_ai_get_stats",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 3;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 3 cam_fusion_ai_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(FUS_AIORCH_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of FUS_AIORCH_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _fusAIOrch singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_fusAIOrch\s*:\s*any/);
+  });
+
+  it("registers a fusAIOrch case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"fusAIOrch"\s*:\s*return\s+_fusAIOrch\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/FusionAIOrchestrationEngine\.js"\s*\)\)\.fusionAIOrchestrationEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS_AIORCH_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"fusAIOrch\")", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS_AIORCH_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("fusAIOrch"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("orchestrate case awaits the async pipeline and pass-throughs params", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_ai_orchestrate"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("await engine.orchestrate(");
+    expect(body).toContain("params as never");
+    expect(body).toContain("response");
+  });
+
+  it("get_reasoning_modes case routes to getReasoningModes() and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_ai_get_reasoning_modes"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getReasoningModes()");
+    expect(body).toContain("count");
+  });
+
+  it("get_stats case routes to getStats() and spreads the result", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_fusion_ai_get_stats"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStats()");
+    expect(body).toMatch(/\.\.\.stats/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of FUS_AIORCH_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("orchestrate is the only async-await case (modes + stats are synchronous)", async () => {
+    const src = await readDispatcher();
+    const orchRe = /case\s+"cam_fusion_ai_orchestrate"\s*:[\s\S]*?break;/;
+    const orchBody = src.match(orchRe)?.[0] ?? "";
+    expect(orchBody).toContain("await engine.orchestrate");
+
+    const modesRe = /case\s+"cam_fusion_ai_get_reasoning_modes"\s*:[\s\S]*?break;/;
+    const modesBody = modesRe.exec(src)?.[0] ?? "";
+    expect(modesBody).not.toMatch(/await\s+engine\.getReasoningModes/);
+
+    const statsRe = /case\s+"cam_fusion_ai_get_stats"\s*:[\s\S]*?break;/;
+    const statsBody = statsRe.exec(src)?.[0] ?? "";
+    expect(statsBody).not.toMatch(/await\s+engine\.getStats/);
+  });
+
+  it("dispatcher uses the canonical engine path (../../engines/FusionAIOrchestrationEngine.js)", async () => {
+    const src = await readDispatcher();
+    const re = /await\s+import\(\s*"\.\.\/\.\.\/engines\/FusionAIOrchestrationEngine\.js"\s*\)/g;
+    const matches = src.match(re);
+    expect(matches !== null).toBe(true);
+    // 1 import in the lazy-getter switch case for fusAIOrch
+    expect(matches!.length).toBeGreaterThanOrEqual(1);
+  });
+});
