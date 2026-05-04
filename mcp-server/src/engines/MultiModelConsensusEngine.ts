@@ -37,6 +37,7 @@ import { ollamaClientEngine } from "./OllamaClientEngine.js";
 import { prismContextInjectorEngine } from "./PRISMContextInjectorEngine.js";
 import { consensusFactCheckerEngine, type FactCheckResult } from "./ConsensusFactCheckerEngine.js";
 import { consensusObsidianPersistenceEngine } from "./ConsensusObsidianPersistenceEngine.js";
+import { consensusModelPerformanceEngine } from "./ConsensusModelPerformanceEngine.js";
 
 export interface ConsensusInput {
   prompt: string;
@@ -46,7 +47,7 @@ export interface ConsensusInput {
   includeGrok?: boolean;
   /** Set false to skip Gemini (e.g. when GEMINI_API_KEY isn't set). Default true. */
   includeGemini?: boolean;
-  /** Default `gemini-2.0-flash-exp`. Override to gemini-1.5-pro for deeper reasoning. */
+  /** Default `gemini-3-pro-preview` (env override `PRISM_GEMINI_MODEL`). Falls back to `gemini-2.5-flash` for unpaid API tier. */
   geminiModel?: string;
   /** low/medium/high/xhigh — maps to thinkingBudget. Default medium. */
   geminiReasoning?: "low" | "medium" | "high" | "xhigh";
@@ -89,6 +90,15 @@ export interface ConsensusInput {
   taskType?: string;
   /** Source session id forwarded to persistence (default: process.env.CLAUDE_SESSION_ID or "unknown"). */
   sourceSession?: string;
+  /**
+   * Consult ConsensusModelPerformanceEngine to skip vendors with low historical
+   * reward EMA on this taskType. Always keeps a floor of 2 vendors so consensus
+   * can never collapse to a single voice. Default false (legacy fan-out-everyone
+   * behavior). Setting true requires `taskType` to be meaningful.
+   */
+  usePerformanceWeights?: boolean;
+  /** Override performance-engine state file (tests). */
+  performanceStateFilePath?: string;
 }
 
 export interface ModelResponse {
@@ -166,8 +176,35 @@ export class MultiModelConsensusEngine {
       }
     };
 
-    const includeGrok = input.includeGrok !== false && Boolean(process.env.XAI_API_KEY);
-    const includeGemini = input.includeGemini !== false && Boolean(process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY);
+    let includeGrok = input.includeGrok !== false && Boolean(process.env.XAI_API_KEY);
+    let includeGemini = input.includeGemini !== false && Boolean(process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY);
+    let weightedClaude = includeClaude;
+
+    // Performance-weighted vendor filtering — opt-in via usePerformanceWeights.
+    // Drops vendors with historically low reward EMA on this task_type while
+    // preserving a floor of 2 vendors so consensus never collapses to a single
+    // voice. The full pool is still considered "available"; we only down-select.
+    if (input.usePerformanceWeights === true && typeof input.taskType === "string" && input.taskType.length > 0) {
+      const available: string[] = [];
+      if (weightedClaude) available.push("anthropic");
+      available.push("openai"); // codex always in pool
+      if (includeGrok) available.push("xai");
+      if (includeGemini) available.push("google");
+      available.push("ollama"); // primary ollama always in pool
+      try {
+        const perfState = consensusModelPerformanceEngine.loadState(input.performanceStateFilePath);
+        const rec = consensusModelPerformanceEngine.recommendVendors(perfState, input.taskType, available, { floor: 2 });
+        const keep = new Set(rec.ranked.map((r) => r.vendor));
+        if (!keep.has("anthropic")) weightedClaude = false;
+        if (!keep.has("xai")) includeGrok = false;
+        if (!keep.has("google")) includeGemini = false;
+        // Note: openai (codex) and ollama-primary are always called regardless;
+        // dropping them would require a deeper refactor of the call sites below.
+      } catch {
+        // Fail open — bad state file should never break consensus delivery.
+      }
+    }
+
     // Dual-Ollama auto-fires when neither Grok nor Gemini is available to keep
     // the pool at ≥4 voices. With Gemini configured we already have 4-way
     // (Claude + Codex + Gemini + Ollama) so we don't need the dual.
@@ -180,7 +217,7 @@ export class MultiModelConsensusEngine {
     // Per-model prompts are built lazily so each model gets a context sized to
     // its own context window.
     const calls: Array<Promise<ModelResponse[]>> = [];
-    if (includeClaude) {
+    if (weightedClaude) {
       calls.push(buildPrompt("claude").then((p) => this.callClaude(p, input.claudeBin ?? DEFAULT_CLAUDE_BIN, timeoutMs)).then((r) => [r]));
     }
     calls.push(buildPrompt("codex").then((p) => this.callCodex(p, input.codexModel, input.codexEffort, timeoutMs)).then((r) => [r]));
@@ -389,7 +426,7 @@ export class MultiModelConsensusEngine {
   }
 
   private async callGemini(prompt: string, model?: string, reasoning?: "low" | "medium" | "high" | "xhigh", timeoutMs?: number): Promise<ModelResponse> {
-    const target = model ?? "gemini-2.0-flash-exp";
+    const target = model ?? process.env.PRISM_GEMINI_MODEL ?? "gemini-3-pro-preview";
     try {
       const r: GeminiResult = await geminiClientEngine.exec({
         prompt,
