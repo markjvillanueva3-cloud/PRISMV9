@@ -202,6 +202,8 @@ const ACTIONS = [
   "cad_mastercam_operations_by_category",
   // Mastercam discovery surface (U-CAD-FIDX-MC-01 — full discovery from day 1)
   "cad_mastercam_summary", "cad_mastercam_total_parameter_count", "cad_mastercam_load_errors",
+  // Mastercam planning↔execution bridge (U-CAD-FIDX-MC-INT-01 — C# NET-Hook emit)
+  "cad_mastercam_plan_execution", "cad_mastercam_render_csharp",
   // SolidWorks CAD Function Index (U-CAD-FIDX-SW-01..08 — sketch + part + surface + assembly + drawing + sheet_metal + weldment + evaluation)
   "cad_solidworks_get_index", "cad_solidworks_list_modules", "cad_solidworks_list_operations",
   "cad_solidworks_get_operation", "cad_solidworks_find_parameter", "cad_solidworks_search_parameters",
@@ -2239,6 +2241,51 @@ Params vary by action — pass relevant fields in params object.`,
             );
             const errors = MastercamCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
+            break;
+          }
+          case "cad_mastercam_plan_execution": {
+            const { MastercamCADExecutionBridge } = await import(
+              "../../engines/MastercamCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_mastercam_plan_execution requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await MastercamCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            result = { success: true, plan };
+            break;
+          }
+          case "cad_mastercam_render_csharp": {
+            const { MastercamCADExecutionBridge } = await import(
+              "../../engines/MastercamCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_mastercam_render_csharp requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await MastercamCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            const csharp = MastercamCADExecutionBridge.renderNETHookScaffold(plan);
+            result = { success: true, plan, csharp_scaffold: csharp };
             break;
           }
           // ─── SolidWorks CAD Function Index (U-CAD-FIDX-SW-01..08) ───────────
