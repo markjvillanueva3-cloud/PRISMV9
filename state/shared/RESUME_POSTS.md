@@ -3,8 +3,11 @@
 **Trigger phrase:** `continue posts` (any chat, any session)
 **Roadmap:** `PPG-WIRE-MS0` — Post Processor Generator (sidecar bridge + dialect branches)
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
-**Last touched:** 2026-05-02 (claude-40932463 — resumed after claude-b913f3b9 crash)
+**Last touched:** 2026-05-03 (claude-12483457 — re-applied AdvancedPost wiring after multi-chat stash drift)
 **Last commits on roadmap:**
+- `a9a6e961c [CAM-EXHAUST-MS0] PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring: AdvancedPostProcessor pipeline → Hurco + Okuma (step 5)`
+- `ee95658a1 [MAIN] PPG-WIRE-MS5/U-PPGW-FeatureSequencer-Wiring: sequenceFeatures TSP pipeline → Hurco + Okuma`
+- `971b6c19d [MAIN] PPG-WIRE-MS5/U-PPGW-HSMDwell-Wiring: HSMDwellAtCornerEngine pipeline → Hurco + Okuma`
 - `01b44110d [MAIN] PPG-WIRE-MS5/U-PPGW-RapidReposition-Wiring: RapidRepositionOptEngine pipeline → Hurco + Okuma`
 - `4ca5d71cc [MAIN] PPG-WIRE-MS5/U-PPGW-AdvancedWiring: AutoSpeedFeed pipeline wired into Okuma + Hurco master posts`
 - `91885d7c3 [MAIN] PPG-WIRE-MS5/U-PPGW-FleetProfiles: register JM Die fleet (5 machines) + capability schema`
@@ -97,6 +100,24 @@ Shipped 2026-05-01 (claude-b913f3b9). 4 files created, 4 modified:
 ---
 
 ## NEXT ACTIONS (continue here)
+
+### ✓ DONE — PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring (2026-05-03, commit a9a6e961c)
+Wires `advancedPostProcessorEngine.enhance()` into `generateProgramAdvanced()`
+of both Hurco V11 and Okuma OSP master posts as **step 5**, after the existing
+4 passes (AS/F + RapidReposition + HSMDwell + FeatureSequencer). Re-applies
+531f7f81c (work/ppg-advancedpost worktree) on top of HSMDwell + FeatureSequencer
+which both landed after the original attempt.
+
+- **Controller dispatch**: Hurco V11 uses comment-only smoothing (no inline G187/G5.1),
+  null NURBS, plain G64 corner-blend, G43.4 H#1 RTCP (5-axis variants only).
+  Okuma OSP uses G08 P1 high-speed, G06.2 NURBS, G43.4 H#1 RTCP.
+- **Safety gates**: Hurco multi_axis force-skipped on machine.axis_count<4
+  (stock VMX24 is 3-axis); Okuma multi_axis force-skipped on cfg.osp_family==="P300".
+- **6 sub-features** all opt-in independently: hsm/feed_optimization/multi_axis/
+  in_process_measure/tool_management/adaptive_clearing.
+- **243/243** wired pipeline + **144/144** integration tests GREEN. Pre-existing
+  30/66 failures in `HurcoV11MillMasterPostEngine.test.ts` (sync generateProgram
+  G-code emission bugs) verified NOT caused by this unit — separate PPG-HARDEN.
 
 **Successor candidates — both genuinely open:**
 
