@@ -37,6 +37,7 @@ const mkResult = (override: Partial<ConsensusResult> = {}): ConsensusResult => (
   consensus: { answer: "the answer", voters: ["claude", "gpt-5.5", "deepseek-r1:14b"], confidence: 1 },
   recommendation: "accept",
   totalLatencyMs: 2100,
+  factCheck: {},
   ...override,
 });
 
