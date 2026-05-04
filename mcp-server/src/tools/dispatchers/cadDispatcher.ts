@@ -194,6 +194,8 @@ const ACTIONS = [
   "cad_inventor_operations_by_category",
   // Inventor discovery surface (U-CAD-FIDX-INV-01 — full discovery from day 1)
   "cad_inventor_summary", "cad_inventor_total_parameter_count", "cad_inventor_load_errors",
+  // Inventor planning↔execution bridge (U-CAD-FIDX-INV-INT-01 — iLogic VB.NET emit)
+  "cad_inventor_plan_execution", "cad_inventor_render_ilogic",
   // Mastercam CAD Function Index (U-CAD-FIDX-MC-01..08 — CAD-side authoring; CAM lives in cam-functions/)
   "cad_mastercam_get_index", "cad_mastercam_list_modules", "cad_mastercam_list_operations",
   "cad_mastercam_get_operation", "cad_mastercam_find_parameter", "cad_mastercam_search_parameters",
@@ -2034,6 +2036,51 @@ Params vary by action — pass relevant fields in params object.`,
             );
             const errors = InventorCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
+            break;
+          }
+          case "cad_inventor_plan_execution": {
+            const { InventorCADExecutionBridge } = await import(
+              "../../engines/InventorCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_inventor_plan_execution requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await InventorCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            result = { success: true, plan };
+            break;
+          }
+          case "cad_inventor_render_ilogic": {
+            const { InventorCADExecutionBridge } = await import(
+              "../../engines/InventorCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_inventor_render_ilogic requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await InventorCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            const ilogic = InventorCADExecutionBridge.renderILogicScaffold(plan);
+            result = { success: true, plan, ilogic_snippet: ilogic };
             break;
           }
           // ─── Mastercam CAD Function Index (U-CAD-FIDX-MC-01..08) ────────────
