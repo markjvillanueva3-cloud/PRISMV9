@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmTurningCfgIngester: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -419,6 +419,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
     case "hmMillTurnStrat": return _hmMillTurnStrat ??= (await import("../../engines/HyperMillMillTurnStrategyEngine.js")).hyperMillMillTurnStrategyEngine;
     case "hmSkillsBatch": return _hmSkillsBatch ??= (await import("../../engines/HyperMillSkillsBatchEngine.js")).hyperMillSkillsBatchEngine;
+    case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
     case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
     case "multiCam": return _multiCam ??= (await import("../../engines/MultiCamStrategyEngine.js")).multiCamStrategyEngine;
@@ -1500,6 +1501,10 @@ export const ACTIONS = [
   "cam_hypermill_skill_list_phase",
   "cam_hypermill_skill_validate",
   "cam_hypermill_skill_batch_resolve",
+  "cam_hypermill_turning_config_parse_cycturn",
+  "cam_hypermill_turning_config_parse_stocklist",
+  "cam_hypermill_turning_config_ingest_dir",
+  "cam_hypermill_turning_config_stats",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -10746,6 +10751,43 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("hmSkillsBatch");
             const slugs = Array.isArray(params.slugs) ? params.slugs.map(String) : [];
             result = engine.batchResolve(slugs);
+            break;
+          }
+
+          case "cam_hypermill_turning_config_parse_cycturn": {
+            // U-CAM-HM-TURNCFG-WIRE-01: HyperMillTurningConfigIngesterEngine.parseCycTurnText
+            // Parses hyperMILL cycTurn.def text → cycle defs with id/description/parameters.
+            const engine = await getEngine("hmTurningCfgIngester");
+            const content = String(params.content ?? params.text ?? "");
+            const sourceName = String(params.source_name ?? params.sourceName ?? "in-memory");
+            result = engine.parseCycTurnText(content, sourceName);
+            break;
+          }
+
+          case "cam_hypermill_turning_config_parse_stocklist": {
+            // U-CAM-HM-TURNCFG-WIRE-01: HyperMillTurningConfigIngesterEngine.parseStocklistText
+            // Parses hyperMILL Stocklist CSV/TSV text → stock entries with hardness/density/kc11/etc.
+            const engine = await getEngine("hmTurningCfgIngester");
+            const content = String(params.content ?? params.text ?? "");
+            const sourceName = String(params.source_name ?? params.sourceName ?? "in-memory");
+            result = engine.parseStocklistText(content, sourceName);
+            break;
+          }
+
+          case "cam_hypermill_turning_config_ingest_dir": {
+            // U-CAM-HM-TURNCFG-WIRE-01: HyperMillTurningConfigIngesterEngine.ingestDirectory
+            // Reads cycTurn.def + Stocklist.csv from a directory; returns combined config result.
+            const engine = await getEngine("hmTurningCfgIngester");
+            const dirPath = String(params.dir_path ?? params.dirPath ?? "");
+            result = engine.ingestDirectory(dirPath);
+            break;
+          }
+
+          case "cam_hypermill_turning_config_stats": {
+            // U-CAM-HM-TURNCFG-WIRE-01: HyperMillTurningConfigIngesterEngine.getStats
+            // Reports supported file types + inferred stock fields.
+            const engine = await getEngine("hmTurningCfgIngester");
+            result = { success: true, ...engine.getStats() };
             break;
           }
 
