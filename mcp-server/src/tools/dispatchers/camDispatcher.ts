@@ -1560,6 +1560,7 @@ export const ACTIONS = [
   "cam_hypermill_ai_orchestrate",
   "cam_hypermill_ai_get_reasoning_modes",
   "cam_hypermill_ai_get_stats",
+  "cam_hypermill_demo_db_extract",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11412,6 +11413,24 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("hmAIOrch");
             const stats = engine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_hypermill_demo_db_extract": {
+            // U-CAM-HM-DEMODB-WIRE-01: HyperMillDemoDbExtractor.extract
+            // Extracts the hyperMILL v33.0 demo.db SQLite (29 geometry classes, 547 tools,
+            // 2706 technologies, 13 workpiece materials).
+            // Never throws — returns status="missing"|"error"|"success" gracefully.
+            // Uses default singleton when no db_path provided; otherwise instantiates fresh.
+            const dbPath = params.db_path ?? params.dbPath;
+            if (dbPath) {
+              const { HyperMillDemoDbExtractor } = await import("../../engines/HyperMillDemoDbExtractor.js");
+              const extractor = new HyperMillDemoDbExtractor(String(dbPath));
+              result = { success: true, ...(await extractor.extract()) };
+            } else {
+              const { hyperMillDemoDbExtractor } = await import("../../engines/HyperMillDemoDbExtractor.js");
+              result = { success: true, ...(await hyperMillDemoDbExtractor.extract()) };
+            }
             break;
           }
 
