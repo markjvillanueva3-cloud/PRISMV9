@@ -284,3 +284,60 @@ describe("ModelRouterEngine — singleton + helper", () => {
     expect(r.classifyTier(input)).toBe(r.routeForTask(input).tier);
   });
 });
+
+describe("ModelRouterEngine — loadFromState (P23-U02 wiring)", () => {
+  it("returns false when file is missing (defaults remain)", async () => {
+    const r = new ModelRouterEngine();
+    const ok = await r.loadFromState("H:/prism-iooms0/no-such-file-here.json");
+    expect(ok).toBe(false);
+    expect(r.getThresholds()).toEqual({ largeContextTokens: 3000, complexContextTokens: 6000 });
+  });
+
+  it("loads and applies valid persisted thresholds", async () => {
+    const { promises: fs } = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "prism-router-"));
+    const file = path.join(dir, "router-thresholds.json");
+    await fs.writeFile(file, JSON.stringify({ largeContextTokens: 1500, complexContextTokens: 4500 }));
+
+    const r = new ModelRouterEngine();
+    const ok = await r.loadFromState(file);
+    expect(ok).toBe(true);
+    expect(r.getThresholds()).toEqual({ largeContextTokens: 1500, complexContextTokens: 4500 });
+
+    await fs.rm(dir, { recursive: true, force: true });
+  });
+
+  it("rejects file with invariant violation (complex<=large) and keeps current state", async () => {
+    const { promises: fs } = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "prism-router-"));
+    const file = path.join(dir, "bad.json");
+    await fs.writeFile(file, JSON.stringify({ largeContextTokens: 5000, complexContextTokens: 5000 }));
+
+    const r = new ModelRouterEngine();
+    const ok = await r.loadFromState(file);
+    expect(ok).toBe(false);
+    expect(r.getThresholds()).toEqual({ largeContextTokens: 3000, complexContextTokens: 6000 });
+
+    await fs.rm(dir, { recursive: true, force: true });
+  });
+
+  it("returns false on corrupt JSON and keeps defaults", async () => {
+    const { promises: fs } = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "prism-router-"));
+    const file = path.join(dir, "corrupt.json");
+    await fs.writeFile(file, "{not valid");
+
+    const r = new ModelRouterEngine();
+    const ok = await r.loadFromState(file);
+    expect(ok).toBe(false);
+    expect(r.getThresholds()).toEqual({ largeContextTokens: 3000, complexContextTokens: 6000 });
+
+    await fs.rm(dir, { recursive: true, force: true });
+  });
+});
