@@ -2,19 +2,19 @@
 
 **Purpose**: When a fresh chat receives the prompt "continue cam work", read this file FIRST to pick up where the prior session ended. Survives session-ID rotation (per-agent handoffs are session-pinned and unreachable across days).
 
-**Last Updated**: 2026-05-04T02:05Z by `claude-6d83f198`
+**Last Updated**: 2026-05-04T13:26Z by `claude-8dfff4cf`
 **Branch**: `work/cam-exhaust-ms0`
 **Milestone**: CAM-EXHAUST-MS0
-**Last Commit**: `e13b1107b` — HyperMillPPPFileWriter + HyperMillACStandardToolDBEngine tests
+**Last Commit**: `eae9cc998` — U-CAM-HM-AIORCH-PHY-MON-XML-TESTS-01 (AIOrchestration + MultiAxisPhysicsPipeline + JobMonitor + XmlExtractor — 127 GREEN)
 
 ---
 
 ## STATE
 
-- HyperMill engine test coverage: **47 of 64 engines tested** (~73%)
-- Today's session shipped: **10 commits, 22 test files, ~922 GREEN tests** across HyperMill engines
-- Last commit added 89 GREEN tests in 265ms (vitest 4.1.4)
-- Build: PASS as of `e13b1107b`
+- HyperMill engine test coverage: **51 of 64 engines tested** (~80%)
+- Latest session shipped: 1 commit, 4 test files, 127 GREEN tests (vitest 4.1.2). Reviewer PASS on 7 strict-legitimacy criteria; scrutiny ledger recorded.
+- Prior session shipped: 10 commits, 22 test files, ~922 GREEN tests
+- Build: PASS as of `eae9cc998`
 - Branch is in sync with `origin/work/cam-exhaust-ms0`
 
 ---
@@ -68,16 +68,13 @@ Continue HyperMill test backfill on CAM-EXHAUST-MS0. Pick the **next 3-4 engines
 
 | Engine | Notes |
 |---|---|
-| HyperMillAIOrchestrationEngine | AI routing layer — pure logic |
 | HyperMillDeepLearningEngine | Likely model wrapper — check for fs reads |
-| HyperMillMultiAxisPhysicsPipeline | Pure physics — easy assertions |
-| HyperMillJobMonitor | State tracking — check for timer dependencies |
 | HyperMillDemoDbExtractor | XML extractor — use vi.mock if file deps are heavy |
 | HyperMillIMDbExtractor | XML extractor — same pattern |
-| HyperMillXmlExtractor | Generic XML — straightforward |
 | HyperMillMetricCfgExtractorEngine | INI/CFG parser — use os.tmpdir for fixtures |
 | HyperMillDataExtractionPipeline | Composes extractors — may need vi.mock for inputs |
 | HyperMillDataExtractionOrchestrator | Higher-level — depends on extractors |
+| HyperMILLAutomationBridge | Top-level automation entry point |
 
 ---
 
@@ -159,7 +156,8 @@ These chats run in their own worktrees — generally safe but cross-claims happe
 ## REFERENCE — PRIOR COMMITS (today, work/cam-exhaust-ms0)
 
 ```
-e13b1107b  PPPFileWriter + ACStandardToolDBEngine tests (89 GREEN)        [this session]
+eae9cc998  AIOrchestration + MultiAxisPhysics + JobMonitor + XmlExtractor (127 GREEN)  [latest]
+e13b1107b  PPPFileWriter + ACStandardToolDBEngine tests (89 GREEN)
 920f082b4  OmCyclesExtractor wiring + 20-test suite                        [peer]
 e818affe7  TurningConfigIngesterEngine wiring + 7 dispatcher tests         [peer]
 1de57e6fd  SkillsBatchEngine dispatcher wiring                             [peer]
