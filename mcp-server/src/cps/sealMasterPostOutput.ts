@@ -25,6 +25,7 @@
 import type {
   BlockAnnotation,
   PostPhysicsSidecar,
+  WEDMBlockAnnotation,
 } from "../schemas/postPhysicsSidecarSchema.js";
 import { PhysicsSidecarBuilderEngine } from "../engines/PhysicsSidecarBuilderEngine.js";
 import {
@@ -113,4 +114,80 @@ export function sealMasterPostOutput<
   }
 
   return out;
+}
+
+// ============================================================================
+// WEDM VARIANT — PPG-WIRE-MS6/U-PPGM17a
+// ============================================================================
+
+/**
+ * Result envelope returned by sealWEDMMasterPostOutput. Parallel to
+ * SealedMasterPostResult but carries WEDM-shaped block annotations.
+ *
+ * NOTE: Unlike the milling/turning variant, this helper does NOT run the
+ * verifyBlockAnnotations gate — that gate is hardcoded for milling/turning
+ * S/F per-block parameters and would mis-fire on WEDM (which carries
+ * power_setting / on_time_us / off_time_us, not S/F). When a tier-aware
+ * WEDM verifier ships (separate roadmap unit), wire it here symmetrically.
+ */
+export interface SealedWEDMMasterPostResult<
+  T extends { gcode: string[]; block_annotations: WEDMBlockAnnotation[] },
+> {
+  /** Original engine output passed through verbatim. */
+  engine_output: T;
+  /**
+   * Sealed sidecar (schema 1.2.0) carrying the engine's block_annotations
+   * stored under the schema's `wedm_block_annotations` field — sealing
+   * coverage matches milling/turning so any tamper invalidates the SHA.
+   */
+  sidecar: PostPhysicsSidecar;
+}
+
+/**
+ * Seal a sidecar from a Wire EDM master-post engine output. Pure function —
+ * no I/O, no global state. The Mitsubishi engine emits its annotations on a
+ * field still called `block_annotations` (typed as WEDMBlockAnnotation[]);
+ * this helper routes them into the schema's `wedm_block_annotations` slot.
+ *
+ * Throws on:
+ *   - non-object / null engineOutput
+ *   - missing/non-array gcode field
+ *   - missing/non-array block_annotations field (WEDM engines must populate
+ *     it; if no annotations apply, pass [])
+ *   - downstream throws from buildAndSeal (schema validation incl.
+ *     duplicate block_id, operator_override empty-source-constants
+ *     invariant, off_time/on_time heat-soak invariant)
+ */
+export function sealWEDMMasterPostOutput<
+  T extends { gcode: string[]; block_annotations: WEDMBlockAnnotation[] },
+>(engineOutput: T, opts: SealMasterPostOptions): SealedWEDMMasterPostResult<T> {
+  if (!engineOutput || typeof engineOutput !== "object") {
+    throw new Error("sealWEDMMasterPostOutput: engineOutput must be a non-null object");
+  }
+  if (!Array.isArray(engineOutput.gcode)) {
+    throw new Error("sealWEDMMasterPostOutput: engineOutput.gcode must be an array of strings");
+  }
+  if (!Array.isArray(engineOutput.block_annotations)) {
+    throw new Error(
+      "sealWEDMMasterPostOutput: engineOutput.block_annotations must be an array (pass [] for engines that do not annotate per-block)",
+    );
+  }
+  if (!opts || typeof opts !== "object") {
+    throw new Error("sealWEDMMasterPostOutput: opts is required");
+  }
+  if (!opts.source_engine_versions || typeof opts.source_engine_versions !== "object") {
+    throw new Error("sealWEDMMasterPostOutput: opts.source_engine_versions must be an object");
+  }
+
+  const sealed = PhysicsSidecarBuilderEngine.buildAndSeal({
+    source_engine_versions: opts.source_engine_versions,
+    constants_source: opts.constants_source,
+    generated_at: opts.generated_at,
+    wedm_block_annotations: engineOutput.block_annotations,
+  });
+
+  return {
+    engine_output: engineOutput,
+    sidecar: sealed,
+  };
 }

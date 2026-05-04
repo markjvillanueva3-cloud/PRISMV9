@@ -29,6 +29,7 @@ import {
   POST_PHYSICS_SIDECAR_SCHEMA_VERSION,
   type PostPhysicsSidecar,
   type BlockAnnotation,
+  type WEDMBlockAnnotation,
 } from "../schemas/postPhysicsSidecarSchema.js";
 
 // ============================================================================
@@ -50,6 +51,13 @@ export interface BuildSidecarOptions {
    * a block annotation invalidates verification.
    */
   block_annotations?: BlockAnnotation[];
+  /**
+   * Optional per-block WEDM annotations (PPG-WIRE-MS6/U-PPGM16, schema 1.2.0).
+   * Mutually exclusive with `block_annotations` — milling/turning posts emit
+   * `block_annotations`, Wire EDM posts emit `wedm_block_annotations`. Same
+   * SHA-seal coverage so any tamper invalidates verification.
+   */
+  wedm_block_annotations?: WEDMBlockAnnotation[];
 }
 
 export interface VerifyResult {
@@ -129,12 +137,22 @@ export class PhysicsSidecarBuilderEngine {
       source_engine_versions: { ...opts.source_engine_versions },
       constants_source,
     };
+    if (opts.block_annotations !== undefined && opts.wedm_block_annotations !== undefined) {
+      throw new Error(
+        "PhysicsSidecarBuilder.buildAndSeal: block_annotations and wedm_block_annotations are mutually exclusive — milling/turning vs Wire EDM emit shapes differ",
+      );
+    }
     // Attach optional per-block annotations BEFORE SHA computation so any
-    // tamper to a block entry invalidates verification (U-PPGM08).
-    const payloadWithBlocks: Omit<PostPhysicsSidecar, "meta"> =
-      opts.block_annotations !== undefined
-        ? { ...payload, block_annotations: structuredClone(opts.block_annotations) }
-        : payload;
+    // tamper to a block entry invalidates verification (U-PPGM08, U-PPGM16).
+    let payloadWithBlocks: Omit<PostPhysicsSidecar, "meta"> = payload;
+    if (opts.block_annotations !== undefined) {
+      payloadWithBlocks = { ...payload, block_annotations: structuredClone(opts.block_annotations) };
+    } else if (opts.wedm_block_annotations !== undefined) {
+      payloadWithBlocks = {
+        ...payload,
+        wedm_block_annotations: structuredClone(opts.wedm_block_annotations),
+      };
+    }
     const sealable = { ...payloadWithBlocks, _meta_without_sha: metaWithoutSha };
     const sha256 = PhysicsSidecarBuilderEngine.computeSha256(
       PhysicsSidecarBuilderEngine.canonicalize(sealable),
