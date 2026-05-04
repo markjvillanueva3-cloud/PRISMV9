@@ -3,8 +3,9 @@
 **Trigger phrase:** `continue posts` (any chat, any session)
 **Roadmap:** `PPG-WIRE-MS0` — Post Processor Generator (sidecar bridge + dialect branches)
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
-**Last touched:** 2026-05-03 (claude-12483457 — re-applied AdvancedPost wiring after multi-chat stash drift)
+**Last touched:** 2026-05-04 (claude-12483457 — shipped U-PPGM16 WEDM sidecar extension)
 **Last commits on roadmap:**
+- `777fdbbe3 [CAM-EXHAUST-MS0] PPG-WIRE-MS6/U-PPGM16: WEDM block_annotations — schema 1.2.0`
 - `a9a6e961c [CAM-EXHAUST-MS0] PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring: AdvancedPostProcessor pipeline → Hurco + Okuma (step 5)`
 - `ee95658a1 [MAIN] PPG-WIRE-MS5/U-PPGW-FeatureSequencer-Wiring: sequenceFeatures TSP pipeline → Hurco + Okuma`
 - `971b6c19d [MAIN] PPG-WIRE-MS5/U-PPGW-HSMDwell-Wiring: HSMDwellAtCornerEngine pipeline → Hurco + Okuma`
@@ -100,6 +101,30 @@ Shipped 2026-05-01 (claude-b913f3b9). 4 files created, 4 modified:
 ---
 
 ## NEXT ACTIONS (continue here)
+
+### ✓ DONE — PPG-WIRE-MS6/U-PPGM16 — WEDM block_annotations schema 1.2.0 (2026-05-04, commit 777fdbbe3)
+Brings Mitsubishi MV1200R Wire EDM under the same sealed-sidecar contract
+that already covers HurcoV11 + OkumaB250 + OkumaOSPMill. Wire EDM physics
+doesn't fit S_rpm/F_mmpm so the unified shape adds a parallel
+`wedm_block_annotations[]` field at schema 1.2.0 carrying E-pack +
+pulse on/off + servo voltage + wire feed + tension + flushing per block.
+
+- **Schema (postPhysicsSidecarSchema.ts +169 LOC)**: `emittedWEDMSchema`,
+  `wedmBlockAnnotationSchema`, `wedmMaterialClassSchema` (9 classes:
+  tool_steel/carbide/graphite/aluminum/copper/brass/titanium/inconel/ceramic),
+  `wedmPhysicsBasisSchema` (4 paths). Cross-cutting refinements: duplicate
+  block_id rejection + operator_override invariant + thermal heat-soak
+  rule (off_time ≥ 20% of on_time, catches forgotten pass-factor scaling).
+- **Engine (Mitsubishi +113 LOC)**: `WireEDMOperation` gains optional
+  `op_id` + `material_class`. `generateProgram()` populates
+  `block_annotations[]` from the same PASS_DEFAULTS + E_PACK_TABLE the
+  EDM-parameter emit consumes. `classifyMaterial()` maps material name
+  strings to WEDMMaterialClass (titanium tested before aluminum to avoid
+  Ti-6Al-4V false-positive on `\bal\b`).
+- **Tests**: 29 schema + 28 engine integration = 57/57 GREEN. Full
+  sidecar suite (incl. pre-existing PostPhysicsSidecar.integration +
+  PostPhysicsSidecarSchema + PhysicsSidecarBuilder + the version-bump
+  fix in PostPhysicsSidecarBlockAnnotations) **161/161 GREEN**. tsc clean.
 
 ### ✓ DONE — PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring (2026-05-03, commit a9a6e961c)
 Wires `advancedPostProcessorEngine.enhance()` into `generateProgramAdvanced()`
