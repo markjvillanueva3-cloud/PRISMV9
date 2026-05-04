@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -431,6 +431,7 @@ async function getEngine(name: string): Promise<any> {
     case "mcMatBridge": return _mcMatBridge ??= (await import("../../engines/MastercamMaterialBridgeEngine.js")).mastercamMaterialBridgeEngine;
     case "mcMatPhys": return _mcMatPhys ??= (await import("../../engines/MastercamMaterialPhysicsBridge.js")).mastercamMaterialPhysicsBridge;
     case "mcFAI": return _mcFAI ??= (await import("../../engines/MastercamFAIBridge.js")).mastercamFAIBridge;
+    case "mcSPC": return _mcSPC ??= (await import("../../engines/MastercamSPCBridge.js")).mastercamSPCBridge;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1605,6 +1606,10 @@ export const ACTIONS = [
   "cam_mastercam_fai_export_json",
   "cam_mastercam_fai_generate_balloon_data",
   "cam_mastercam_fai_get_stats",
+  "cam_mastercam_spc_create_xbar_r_chart",
+  "cam_mastercam_spc_calculate_capability",
+  "cam_mastercam_spc_analyze_job",
+  "cam_mastercam_spc_get_stats",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11884,6 +11889,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.getStats
             // Aggregate roll-up: total reports, characteristic counts, pass/fail rates.
             const engine = await getEngine("mcFAI");
+            const stats = engine.getStats();
+            result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_mastercam_spc_create_xbar_r_chart": {
+            // U-CAM-MC-SPC-WIRE-01: MastercamSPCBridge.createXBarRChart
+            // X-bar/R chart with control limits derived from A2/D3/D4 factors per subgroup size.
+            const engine = await getEngine("mcSPC");
+            const feature = (params.feature && typeof params.feature === "object") ? params.feature : {};
+            const measurements = Array.isArray(params.measurements) ? params.measurements : [];
+            const subgroupSizeRaw = Number(params.subgroup_size ?? params.subgroupSize ?? 5);
+            const subgroupSize = Number.isFinite(subgroupSizeRaw) && subgroupSizeRaw >= 2
+              ? Math.floor(subgroupSizeRaw)
+              : 5;
+            const chart = engine.createXBarRChart(feature as never, measurements as never, subgroupSize);
+            result = { success: true, chart, subgroup_size: subgroupSize };
+            break;
+          }
+
+          case "cam_mastercam_spc_calculate_capability": {
+            // U-CAM-MC-SPC-WIRE-01: MastercamSPCBridge.calculateCapability
+            // Cp / Cpk capability indices from feature spec + measurements.
+            const engine = await getEngine("mcSPC");
+            const capability = engine.calculateCapability(params as never);
+            result = { success: true, capability };
+            break;
+          }
+
+          case "cam_mastercam_spc_analyze_job": {
+            // U-CAM-MC-SPC-WIRE-01: MastercamSPCBridge.analyzeJob
+            // Full SPC roll-up: per-feature charts + capability + Nelson-rule flags.
+            const engine = await getEngine("mcSPC");
+            const analysis = engine.analyzeJob(params as never);
+            result = { success: true, analysis };
+            break;
+          }
+
+          case "cam_mastercam_spc_get_stats": {
+            // U-CAM-MC-SPC-WIRE-01: MastercamSPCBridge.getStats
+            // Engine surface metadata: features_supported, nelson_rules count, capability_indices count.
+            const engine = await getEngine("mcSPC");
             const stats = engine.getStats();
             result = { success: true, ...stats };
             break;

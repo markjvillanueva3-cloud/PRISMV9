@@ -189,3 +189,115 @@ describe("MastercamSPCBridge", () => {
     });
   });
 });
+
+describe("MastercamSPCBridge — dispatcher wiring (camDispatcher.ts)", () => {
+  const MC_SPC_ACTIONS = [
+    "cam_mastercam_spc_create_xbar_r_chart",
+    "cam_mastercam_spc_calculate_capability",
+    "cam_mastercam_spc_analyze_job",
+    "cam_mastercam_spc_get_stats",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 4;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 4 cam_mastercam_spc_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(MC_SPC_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of MC_SPC_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _mcSPC singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_mcSPC\s*:\s*any/);
+  });
+
+  it("registers an mcSPC case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"mcSPC"\s*:\s*return\s+_mcSPC\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/MastercamSPCBridge\.js"\s*\)\)\.mastercamSPCBridge/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_SPC_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"mcSPC\")", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_SPC_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("mcSPC"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("create_xbar_r_chart case typeof-guards feature, Array.isArray-guards measurements, sanitises subgroup_size", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_spc_create_xbar_r_chart"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("createXBarRChart");
+    expect(body).toMatch(/typeof\s+params\.feature\s*===\s*"object"/);
+    expect(body).toContain("Array.isArray(params.measurements)");
+    expect(body).toMatch(/params\.subgroup_size\s*\?\?\s*params\.subgroupSize/);
+    expect(body).toContain("Number.isFinite");
+    expect(body).toContain("Math.floor");
+  });
+
+  it("create_xbar_r_chart case clamps subgroup_size to >= 2 (min for X-bar/R math) and defaults to 5", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_spc_create_xbar_r_chart"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/subgroupSizeRaw\s*>=\s*2/);
+    expect(body).toMatch(/\?\?\s*5/);
+  });
+
+  it("calculate_capability case routes to calculateCapability() with pass-through params", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_spc_calculate_capability"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("calculateCapability");
+    expect(body).toContain("params as never");
+    expect(body).toContain("capability");
+  });
+
+  it("analyze_job case routes to analyzeJob() with pass-through params", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_spc_analyze_job"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("analyzeJob");
+    expect(body).toContain("params as never");
+    expect(body).toContain("analysis");
+  });
+
+  it("get_stats case routes to getStats() and spreads roll-up", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_spc_get_stats"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStats()");
+    expect(body).toMatch(/\.\.\.stats/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_SPC_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+});
