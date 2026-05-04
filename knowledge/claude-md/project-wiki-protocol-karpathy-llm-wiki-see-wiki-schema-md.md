@@ -2,7 +2,7 @@
 source: project
 section: WIKI PROTOCOL (Karpathy LLM-Wiki — see `WIKI_SCHEMA.md`)
 slug: wiki-protocol-karpathy-llm-wiki-see-wiki-schema-md
-indexed_at: 2026-04-28T00:49:50.553Z
+indexed_at: 2026-05-02T20:38:22.507Z
 ---
 
 ## WIKI PROTOCOL (Karpathy LLM-Wiki — see `WIKI_SCHEMA.md`)

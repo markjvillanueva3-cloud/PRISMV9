@@ -2,7 +2,7 @@
 source: project
 section: SAFETY
 slug: safety
-indexed_at: 2026-04-28T00:49:50.557Z
+indexed_at: 2026-05-02T20:38:22.529Z
 ---
 
 ## SAFETY

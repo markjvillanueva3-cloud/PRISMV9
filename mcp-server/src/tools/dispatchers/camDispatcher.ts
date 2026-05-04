@@ -1121,6 +1121,8 @@ export const ACTIONS = [
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
   // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0
   "master_post_hurco_v11", "master_post_okuma_b250", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
+  // XPROC-POST-01 — cross-process post bridge (mill+lathe+wedm unified emission)
+  "cross_process_post_emit", "cross_process_post_capabilities",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -5440,6 +5442,23 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             } else {
               result = { success: false, error: `Unknown machine model: ${params.machine_model}. Supported: OKUMA_LB250, MITSUBISHI_MV1200R` };
             }
+            break;
+          }
+          // ── XPROC-POST-01: Cross-Process Post Bridge ──
+          case "cross_process_post_emit": {
+            const { CrossProcessPostBridge } = await import(
+              "../../engines/CrossProcessPostBridge.js"
+            );
+            result = await CrossProcessPostBridge.emit(
+              params as Parameters<typeof CrossProcessPostBridge.emit>[0],
+            );
+            break;
+          }
+          case "cross_process_post_capabilities": {
+            const { CrossProcessPostBridge } = await import(
+              "../../engines/CrossProcessPostBridge.js"
+            );
+            result = CrossProcessPostBridge.listProcessSupport();
             break;
           }
           case "cnc_simulate": {

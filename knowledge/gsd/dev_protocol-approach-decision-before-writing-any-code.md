@@ -2,7 +2,7 @@
 source: dev_protocol
 section: Approach Decision — Before Writing Any Code
 slug: approach-decision-before-writing-any-code
-indexed_at: 2026-04-28T02:50:03.663Z
+indexed_at: 2026-05-02T23:44:16.641Z
 ---
 
 ## Approach Decision — Before Writing Any Code

@@ -2,7 +2,7 @@
 source: project
 section: TEST SHOP — JM Die Company
 slug: test-shop-jm-die-company
-indexed_at: 2026-04-28T00:49:50.552Z
+indexed_at: 2026-05-02T20:38:22.501Z
 ---
 
 ## TEST SHOP — JM Die Company

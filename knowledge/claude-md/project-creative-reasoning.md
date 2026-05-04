@@ -2,7 +2,7 @@
 source: project
 section: CREATIVE REASONING
 slug: creative-reasoning
-indexed_at: 2026-04-28T00:49:50.554Z
+indexed_at: 2026-05-02T20:38:22.515Z
 ---
 
 ## CREATIVE REASONING

@@ -416,9 +416,15 @@ export class HurcoV11MillMasterPostEngine {
       limit: maxFz
     });
 
-    // Depth of cut check (Kienzle force consideration)
-    const kc = CANONICAL_KIENZLE.kc1_1[op.material_iso];
-    const Fc = kc * op.axial_depth_mm * Math.pow(fz, 1 - 0.25);
+    // Depth of cut check (Kienzle force consideration).
+    // CANONICAL_KIENZLE is Record<ISOGroup, {kc1_1, mc}> — index by ISO group
+    // first then read kc1_1/mc fields. The reverse-axis form
+    // CANONICAL_KIENZLE.kc1_1[op.material_iso] threw TypeError because kc1_1
+    // is not a top-level key on the constant.
+    const kienzleEntry = CANONICAL_KIENZLE[op.material_iso];
+    const kc = kienzleEntry?.kc1_1 ?? 1800; // fallback to ISO P (steel) midpoint
+    const mc = kienzleEntry?.mc ?? 0.25;
+    const Fc = kc * op.axial_depth_mm * Math.pow(fz, 1 - mc);
     const maxForce = 2000; // N, rough limit for VMX24
     checks.push({
       line: startLine,

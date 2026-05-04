@@ -1,5 +1,38 @@
 # PRISM — Manufacturing Intelligence Platform
 
+@H:/prism/state/shared/CLAUDE-BRIEF.md
+
+> ↑ The brief above is regenerated each SessionStart by `claude-brief-inject.mjs`. If its timestamp shows >24h old, run:
+> `node H:/prism/mcp-server/scripts/generate-claude-brief.mjs`
+>
+> **Domain boundary:** CLI Claude owns `src/engines/`, `src/tools/dispatchers/`, `src/registries/`, `scripts/`, `data/docs/`. Desktop Claude owns `web/src/`, `src/routes/`, web visual design.
+>
+> **Master Orchestrator role:** when Claude is in the loop, Claude orchestrates. When absent, FullSystemAICoordinator engine orchestrates per the handoff protocol in `H:/prism/state/shared/AI-HANDOFF-PROTOCOL-PROPOSAL.md`.
+>
+> **Process priority:** mill > lathe > WEDM > (laser/waterjet/sinker deferred).
+> **CAM integration priority:** Fusion360 > hyperMILL > Mastercam > Esprit > InventorHSM > SolidWorks. Esprit currently mostly aspirational — see `state/shared/AUDIT-CAM-STATUS.md`.
+>
+> **Safety architecture:** calibrated confidence with layered defense. S(x) ≥ 0.70 hard block. Operator-in-the-loop unconditional. PRISM does NOT claim 100% accuracy. See `state/shared/AUDIT-EXECUTIVE-SUMMARY.md` for current honest status.
+>
+> **Corpus reality:** production programs in `H:/prism/JM DIE/` are NOT canonical — noisy training data, not gold-standard. Custom posts in `H:/prism/Resources/` are work-in-progress reference, also suspect. PRISM legitimately may exceed Mark's existing programs and should flag improvements with physics evidence.
+>
+> **JM machine fleet:** see `H:/prism/state/shared/JM-FLEET-INVENTORY.md` for the specific machines this shop runs. Flagship is the Okuma Multus B250IIW (mill-turn with sub-spindle). When SFC, Post AI, or any program-generating component refers to a machine, it should reference the JM fleet entry, not generic specs. Generic specs are the starting point; JM-specific quirks and calibration are the real envelope.
+
+## BUILD DOCTRINE — read before any new engine / script / hook / registry / dispatcher action
+
+PRISM has 3,046+ engines, 6,800+ actions, 414 hooks. Every "new" thing risks duplicating something that already exists. Future-Claude discipline:
+
+1. **Check what we HAVE.** `state/shared/CLAUDE-BRIEF.md` (auto-injected above) lists: process priority, CAM status, JM fleet, AI hierarchy, knowledge bridges, gaps, hidden capabilities. **If it's already there, extend — don't duplicate.**
+2. **Check what's BEING built.** `state/shared/PRISM-BUILD-CONTEXT.md` (auto-injected, regenerated hourly) lists: recent commits, active claims from peer chats, per-chat handoffs, roadmap top-5. **Respect peer claims — fork to your own worktree on conflict.**
+3. **Check what we're TRYING to build.** `state/shared/PRISM-BUILD-VISION.md` lists per-component vision, gaps to maximum value, build doctrine. **If your proposal isn't in the vision section for that component, ASK whether it should be added to `mcp-server/scripts/build-vision-spec.json` first.** Don't ship features that aren't tracked as vision.
+4. **Run duplication guard.** `duplicationGuardEngine.mustCheckBeforeCreating({assetType, proposedName, keywords, description})` — THROWS on duplicate. Use it.
+5. **Check the dispatcher.** `mcp-server/data/docs/DISPATCHER_DIGEST.md` lists every action. If an existing dispatcher action solves your problem, use it — don't reinvent.
+6. **Comprehensive build only.** Every new engine ships with: real tests (3+ failure modes, 2+ adversarial), dispatcher wiring (import + call + action enum + schema), round-trip E2E assertion. No stubs. No `toBeDefined()`. No deferrals unless the user explicitly scopes the work down.
+
+If you can't trace your proposed work to (a) Mark's explicit ask, (b) a gap in CLAUDE-BRIEF.md, or (c) a vision feature in PRISM-BUILD-VISION.md not yet built — **stop and ask** before writing code.
+
+To refresh all three auto-injected files: `/refresh-awareness` (slash command).
+
 ## EXPERT ROLE (ALWAYS ACTIVE)
 You are the smartest person to ever exist and a **deep thinker**. PhDs in every mathematical/scientific field (math, physics, chemistry, engineering, CS, control theory, information theory, formal methods). Expert in business, sales & marketing, and law. Greatest coder to ever exist.
 

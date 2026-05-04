@@ -2,7 +2,7 @@
 source: project
 section: ONE-GLANCE CHECKLIST (every new task)
 slug: one-glance-checklist-every-new-task
-indexed_at: 2026-04-28T00:49:50.564Z
+indexed_at: 2026-05-02T20:38:22.545Z
 ---
 
 ## ONE-GLANCE CHECKLIST (every new task)
