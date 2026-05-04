@@ -476,6 +476,11 @@ const DIAGNOSIS_FWD = [
   "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get",
   "sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant",
   "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get",
+  // XPROC-ROUTER-01: top-level cross-process pipeline router
+  "process_route", "process_full_pipeline", "process_pipeline_stages",
+  // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
+  "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
+  "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -820,6 +825,150 @@ export function registerIntelligenceDispatcher(server: any): void {
                 action,
               }),
             }],
+          };
+        }
+
+        // === XPROC-ROUTER-01: Cross-process pipeline router ===
+        // Handle these actions inline before deprecation/core routing —
+        // ProcessIntelligenceRouterEngine has its own request shape and
+        // doesn't fit the IntelligenceEngine action map.
+        if (action === "process_pipeline_stages") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          const stages = ProcessIntelligenceRouterEngine.listSupportedStages();
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result: { stages } } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: stages.length, stages }) }],
+          };
+        }
+        if (action === "process_route") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          const intent = params.intent as string | undefined;
+          if (typeof intent !== "string") {
+            return dispatcherError(
+              "process_route requires `intent` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const routed = await ProcessIntelligenceRouterEngine.route({
+            intent,
+            process: params.process as ("mill" | "lathe" | "wedm") | undefined,
+            features: params.features as string[] | undefined,
+            material: params.material as string | undefined,
+          });
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result: routed } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...routed }) }],
+          };
+        }
+        // === XPROC-NEURAL-T1-01: Outcome store ===
+        if (action === "xproc_outcome_record") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const id = crossProcessOutcomeStore.record({
+            bridge: params.bridge as Parameters<typeof crossProcessOutcomeStore.record>[0]["bridge"],
+            process: params.process as Parameters<typeof crossProcessOutcomeStore.record>[0]["process"],
+            request_summary: params.request_summary as Parameters<typeof crossProcessOutcomeStore.record>[0]["request_summary"],
+            response_summary: params.response_summary as Parameters<typeof crossProcessOutcomeStore.record>[0]["response_summary"],
+            outcome: params.outcome as Parameters<typeof crossProcessOutcomeStore.record>[0]["outcome"],
+            operator: params.operator as Parameters<typeof crossProcessOutcomeStore.record>[0]["operator"],
+          });
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, id }) }] };
+        }
+        if (action === "xproc_outcome_record_outcome") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const id = params.id as string | undefined;
+          const outcome = params.outcome as Parameters<typeof crossProcessOutcomeStore.recordOutcome>[1];
+          if (!id) {
+            return dispatcherError("xproc_outcome_record_outcome requires `id`", action, "prism_intelligence");
+          }
+          const ok = crossProcessOutcomeStore.recordOutcome(id, outcome);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, updated: ok }) }] };
+        }
+        if (action === "xproc_outcome_query") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const records = crossProcessOutcomeStore.query(params as Parameters<typeof crossProcessOutcomeStore.query>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: records.length, records }) }] };
+        }
+        if (action === "xproc_outcome_retrieve_similar") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const k = (params.k as number | undefined) ?? 5;
+          const ctx = (params.context ?? params) as Parameters<typeof crossProcessOutcomeStore.retrieveSimilar>[0];
+          const results = crossProcessOutcomeStore.retrieveSimilar(ctx, k);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: results.length, results }) }] };
+        }
+        if (action === "xproc_outcome_stats") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const stats = crossProcessOutcomeStore.stats();
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...stats }) }] };
+        }
+        if (action === "xproc_outcome_clear") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          crossProcessOutcomeStore.clear();
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true }) }] };
+        }
+
+        if (action === "process_full_pipeline") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          const intent = params.intent as string | undefined;
+          if (typeof intent !== "string") {
+            return dispatcherError(
+              "process_full_pipeline requires `intent` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const result = await ProcessIntelligenceRouterEngine.fullPipeline({
+            intent,
+            process: params.process as ("mill" | "lathe" | "wedm") | undefined,
+            features: params.features as string[] | undefined,
+            material: params.material as string | undefined,
+            feature_request: params.feature_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["feature_request"],
+            sf_request: params.sf_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["sf_request"],
+            post_request: params.post_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["post_request"],
+            ai_request: params.ai_request as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["ai_request"],
+            stages: params.stages as Parameters<
+              typeof ProcessIntelligenceRouterEngine.fullPipeline
+            >[0]["stages"],
+            force_ai_dry_run: params.force_ai_dry_run as boolean | undefined,
+          });
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...result }) }],
           };
         }
 
