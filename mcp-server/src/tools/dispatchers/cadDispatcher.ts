@@ -206,6 +206,8 @@ const ACTIONS = [
   "cad_solidworks_operations_by_category",
   // SolidWorks discovery surface (U-CAD-FIDX-SW-01 — full discovery from day 1)
   "cad_solidworks_summary", "cad_solidworks_total_parameter_count", "cad_solidworks_load_errors",
+  // SolidWorks planning↔execution bridge (U-CAD-FIDX-SW-INT-01 — VBA macro emit)
+  "cad_solidworks_plan_execution", "cad_solidworks_render_vba",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2348,6 +2350,51 @@ Params vary by action — pass relevant fields in params object.`,
             );
             const errors = SolidWorksCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
+            break;
+          }
+          case "cad_solidworks_plan_execution": {
+            const { SolidWorksCADExecutionBridge } = await import(
+              "../../engines/SolidWorksCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_solidworks_plan_execution requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await SolidWorksCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            result = { success: true, plan };
+            break;
+          }
+          case "cad_solidworks_render_vba": {
+            const { SolidWorksCADExecutionBridge } = await import(
+              "../../engines/SolidWorksCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_solidworks_render_vba requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await SolidWorksCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            const vba = SolidWorksCADExecutionBridge.renderVBAScaffold(plan);
+            result = { success: true, plan, vba_macro: vba };
             break;
           }
 

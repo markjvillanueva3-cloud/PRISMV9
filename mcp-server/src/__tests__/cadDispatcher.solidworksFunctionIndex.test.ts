@@ -353,4 +353,110 @@ describe("cadDispatcher SolidWorks Function Index integration (U-CAD-FIDX-SW-01)
       // count===0 above is the canonical 8/8-closure assertion.
     });
   });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // U-CAD-FIDX-SW-INT-01 — planning↔execution bridge actions
+  // ──────────────────────────────────────────────────────────────────────────
+
+  describe("cad_solidworks_plan_execution", () => {
+    it("plans EXTRUDE_BOSS and returns a structured SolidWorksExecutionPlan", async () => {
+      const r = await invoke("cad_solidworks_plan_execution", {
+        module_id: "part_operations",
+        operation_id: "EXTRUDE_BOSS",
+        params: { Sketch: "Sketch1", Depth: 25 },
+      });
+      expect(r.success).toBe(true);
+      const plan = r.plan as Record<string, unknown>;
+      expect(plan.module_id).toBe("part_operations");
+      expect(plan.operation_id).toBe("EXTRUDE_BOSS");
+      expect(plan.solidworks_command).toBe("Insert.Boss.Extrude");
+      expect(plan.solidworks_api).toBe("IFeatureManager.FeatureExtrusion3");
+      expect(plan.category).toBe("Part_Sweep_Boss");
+      expect(plan.preselect_required).toEqual(["Sketch"]);
+    });
+
+    it("returns dispatcherError when module_id is omitted", async () => {
+      const r = await invoke("cad_solidworks_plan_execution", {
+        operation_id: "EXTRUDE_BOSS",
+        params: {},
+      });
+      expect(r.success).toBe(false);
+      expect(String(r.error)).toContain("requires module_id and operation_id");
+    });
+
+    it("returns dispatcherError when operation_id is omitted", async () => {
+      const r = await invoke("cad_solidworks_plan_execution", {
+        module_id: "part_operations",
+        params: {},
+      });
+      expect(r.success).toBe(false);
+      expect(String(r.error)).toContain("requires module_id and operation_id");
+    });
+
+    it("propagates the engine's catalog-not-found message via dispatcherError envelope", async () => {
+      const r = await invoke("cad_solidworks_plan_execution", {
+        module_id: "part_operations",
+        operation_id: "OP_THAT_DOES_NOT_EXIST",
+        params: {},
+      });
+      expect(r.success).toBe(false);
+      expect(String(r.error)).toContain("operation not found");
+      expect(String(r.error)).toContain("part_operations/OP_THAT_DOES_NOT_EXIST");
+    });
+
+    it("accepts the parameters alias for params payload (camel/snake tolerance)", async () => {
+      const r = await invoke("cad_solidworks_plan_execution", {
+        moduleId: "part_operations",
+        operationId: "EXTRUDE_BOSS",
+        parameters: { Sketch: "S1", Depth: 12 },
+      });
+      expect(r.success).toBe(true);
+      const plan = r.plan as Record<string, unknown>;
+      expect((plan.provided_params as Record<string, unknown>).Depth).toBe(12);
+    });
+  });
+
+  describe("cad_solidworks_render_vba", () => {
+    it("plans + renders a VBA macro string for EXTRUDE_BOSS", async () => {
+      const r = await invoke("cad_solidworks_render_vba", {
+        module_id: "part_operations",
+        operation_id: "EXTRUDE_BOSS",
+        params: { Sketch: "Sketch1", Depth: 25, "End Condition": "blind" },
+      });
+      expect(r.success).toBe(true);
+      const vba = r.vba_macro as string;
+      expect(typeof vba).toBe("string");
+      expect(vba).toContain("Sub main()");
+      expect(vba).toContain("Set swApp = Application.SldWorks");
+      expect(vba).toContain("' API: IFeatureManager.FeatureExtrusion3");
+      expect(vba).toContain(`' Sketch = "Sketch1"`);
+      expect(vba).toContain("' Depth = 25");
+      expect(vba).toContain("Set feature = swFeatureMgr.FeatureExtrusion3(");
+      expect(vba).toContain("End Sub");
+    });
+
+    it("returns dispatcherError when module_id is omitted", async () => {
+      const r = await invoke("cad_solidworks_render_vba", {
+        operation_id: "EXTRUDE_BOSS",
+        params: {},
+      });
+      expect(r.success).toBe(false);
+      expect(String(r.error)).toContain("requires module_id and operation_id");
+    });
+
+    it("includes both the structured plan and the rendered VBA in the response", async () => {
+      const r = await invoke("cad_solidworks_render_vba", {
+        module_id: "sketch_operations",
+        operation_id: "CIRCLE",
+        params: { "Sketch Plane": "Front" },
+      });
+      expect(r.success).toBe(true);
+      const plan = r.plan as Record<string, unknown>;
+      expect(plan.module_id).toBe("sketch_operations");
+      expect(plan.operation_id).toBe("CIRCLE");
+      const vba = r.vba_macro as string;
+      expect(vba.length).toBeGreaterThan(100);
+      expect(vba).toContain("' Operation: sketch_operations/CIRCLE");
+    });
+  });
 });
