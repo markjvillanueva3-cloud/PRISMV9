@@ -520,11 +520,20 @@ export class HurcoV11MillMasterPostEngine {
     }
 
     // Coolant
+    // PPG-HARDEN/U-PPGH01: TSC (through-spindle coolant) was previously
+    // accepted by the type-level enum but silently dropped in emit. JM Die's
+    // VMX24 is documented as not supporting TSC (see tribal tip categorized
+    // "coolant"), but Hurco V11 controllers across the wider VMX/VM line
+    // accept M88 — and a programmer who explicitly requests TSC needs the
+    // M88 emitted so the operator can see and reject it at machine setup.
+    // Silently dropping the request was the worst of all worlds.
     const coolant = op.coolant || cfg.coolant_mode;
     if (coolant === "flood") {
       lines.push("M08 (FLOOD COOLANT)");
     } else if (coolant === "mist") {
       lines.push("M07 (MIST COOLANT)");
+    } else if (coolant === "tsc") {
+      lines.push("M88 (THROUGH-SPINDLE COOLANT)");
     }
 
     return lines;
