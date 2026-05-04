@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -419,6 +419,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
     case "hmMillTurnStrat": return _hmMillTurnStrat ??= (await import("../../engines/HyperMillMillTurnStrategyEngine.js")).hyperMillMillTurnStrategyEngine;
     case "hmSkillsBatch": return _hmSkillsBatch ??= (await import("../../engines/HyperMillSkillsBatchEngine.js")).hyperMillSkillsBatchEngine;
+    case "hmSkillRegMap": return _hmSkillRegMap ??= (await import("../../engines/HyperMillSkillRegistryMap.js")).hyperMillSkillRegistryMap;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1509,6 +1510,13 @@ export const ACTIONS = [
   "cam_hypermill_om_cycles_extract",
   "cam_hypermill_om_cycles_parse_line",
   "cam_hypermill_om_cycles_categorize",
+  "cam_hypermill_skill_registry_list",
+  "cam_hypermill_skill_registry_get",
+  "cam_hypermill_skill_registry_engine_map",
+  "cam_hypermill_skill_registry_by_category",
+  "cam_hypermill_skill_registry_by_engine",
+  "cam_hypermill_skill_registry_by_effort",
+  "cam_hypermill_skill_registry_stats",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -5557,14 +5565,14 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             );
             // PPG-WIRE-MS6/U-PPGM17a — route through sealWEDMMasterPostOutput
             // so block_annotations land in sidecar.wedm_block_annotations and
-            // the SHA seals over the canonical 1.2.0 payload. verify_tier
-            // intentionally NOT exercised here — verifyBlockAnnotations is a
-            // milling/turning S/F gate that does not match the WEDM emit
-            // shape (power_setting / on_time_us / off_time_us). A WEDM-shaped
-            // verifier ships in a separate roadmap unit.
+            // the SHA seals over the canonical 1.2.0 payload.
+            // PPG-WIRE-MS6/U-PPGM17b — verify_tier now exercises the WEDM
+            // verifier (verifyWEDMBlockAnnotations) which reasons over
+            // PASS_DEFAULTS / E_PACK_TABLE, NOT milling/turning S/F.
             const { sealWEDMMasterPostOutput: sealWEDM } = await import("../../cps/sealMasterPostOutput.js");
             result = sealWEDM(wedmEngineOutput, {
               source_engine_versions: { "MitsubishiMV1200RWireEDMMasterPostEngine": "1.0.0" },
+              verify_tier: p.verify_tier,
             });
             break;
           }
@@ -5632,12 +5640,13 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 (params as any).config
               );
               // PPG-WIRE-MS6/U-PPGM17a — auto-router seals the WEDM sidecar
-              // symmetrically with the Hurco/Okuma branches. WEDM-shaped
-              // verify gate not yet implemented (separate unit) so we omit
-              // verify_tier; sidecar still carries SHA-sealed annotations.
+              // symmetrically with the Hurco/Okuma branches.
+              // PPG-WIRE-MS6/U-PPGM17b — verify_tier now wires through to the
+              // WEDM verifier (PASS_DEFAULTS / E_PACK_TABLE consistency).
               const { sealWEDMMasterPostOutput: sealWEDMRouter } = await import("../../cps/sealMasterPostOutput.js");
               result = sealWEDMRouter(wedmRouterOutput, {
                 source_engine_versions: { "MitsubishiMV1200RWireEDMMasterPostEngine": "1.0.0" },
+                verify_tier: (params as any).verify_tier,
               });
             } else if (
               model.includes("HURCO") || model.includes("VMX24") || model.includes("VM30I") || model.includes("V11") ||
@@ -10851,6 +10860,77 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const mappings = Array.isArray(params.mappings) ? params.mappings : [];
             const categories = engine.categorize(mappings);
             result = { success: true, categories, total: mappings.length };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_list": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.listSkills
+            // Returns the full 15-entry skill registry (8 core + 7 operational).
+            const engine = await getEngine("hmSkillRegMap");
+            const skills = engine.listSkills();
+            result = { success: true, skills, count: skills.length };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_get": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.getSkill
+            // Looks up one skill entry by its slug (e.g. "hypermill-material-lookup").
+            const engine = await getEngine("hmSkillRegMap");
+            const name = String(params.name ?? params.skill_name ?? params.skillName ?? "");
+            const skill = engine.getSkill(name);
+            result = { success: true, name, skill, found: skill !== null };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_engine_map": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.getEngineMap
+            // Returns Record<skillName, engineDependencies[]> across the entire registry.
+            const engine = await getEngine("hmSkillRegMap");
+            const engineMap = engine.getEngineMap();
+            result = { success: true, engineMap, skillCount: Object.keys(engineMap).length };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_by_category": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.byCategory
+            // Filters to "core" or "operational" skills (rejects unknown categories).
+            const engine = await getEngine("hmSkillRegMap");
+            const rawCategory = String(params.category ?? "core");
+            const category: "core" | "operational" =
+              rawCategory === "operational" ? "operational" : "core";
+            const skills = engine.byCategory(category);
+            result = { success: true, category, skills, count: skills.length };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_by_engine": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.byEngine
+            // Returns skills depending on the named engine (case-insensitive substring match).
+            const engine = await getEngine("hmSkillRegMap");
+            const engineName = String(params.engine_name ?? params.engineName ?? params.engine ?? "");
+            const skills = engine.byEngine(engineName);
+            result = { success: true, engineName, skills, count: skills.length };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_by_effort": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.byEffort
+            // Filters by effort tier — LOW | MEDIUM | HIGH (rejects unknown tiers).
+            const engine = await getEngine("hmSkillRegMap");
+            const rawEffort = String(params.effort ?? "LOW").toUpperCase();
+            const effort: "LOW" | "MEDIUM" | "HIGH" =
+              rawEffort === "HIGH" ? "HIGH" : rawEffort === "MEDIUM" ? "MEDIUM" : "LOW";
+            const skills = engine.byEffort(effort);
+            result = { success: true, effort, skills, count: skills.length };
+            break;
+          }
+
+          case "cam_hypermill_skill_registry_stats": {
+            // U-CAM-HM-SKILLREG-WIRE-01: HyperMillSkillRegistryMap.stats
+            // Reports total/core/operational counts and effort-tier breakdown.
+            const engine = await getEngine("hmSkillRegMap");
+            const stats = engine.stats();
+            result = { success: true, ...stats };
             break;
           }
 

@@ -15,6 +15,8 @@
  */
 
 import { describe, it, expect } from "vitest";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import {
   HyperMillSkillRegistryMap,
   hyperMillSkillRegistryMap,
@@ -200,5 +202,147 @@ describe("HyperMillSkillRegistryMap — stats()", () => {
       expect(s.byEffort[e]).toBeGreaterThanOrEqual(0);
       expect(Number.isInteger(s.byEffort[e])).toBe(true);
     });
+  });
+});
+
+describe("HyperMillSkillRegistryMap — dispatcher wiring (camDispatcher.ts)", () => {
+  const dispatcherPath = path.resolve(
+    process.cwd(),
+    "src/tools/dispatchers/camDispatcher.ts",
+  );
+
+  const SKILLREG_ACTIONS = [
+    "cam_hypermill_skill_registry_list",
+    "cam_hypermill_skill_registry_get",
+    "cam_hypermill_skill_registry_engine_map",
+    "cam_hypermill_skill_registry_by_category",
+    "cam_hypermill_skill_registry_by_engine",
+    "cam_hypermill_skill_registry_by_effort",
+    "cam_hypermill_skill_registry_stats",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 7;
+
+  it("registers all 7 cam_hypermill_skill_registry_* enum entries", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(SKILLREG_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of SKILLREG_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _hmSkillRegMap singleton", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    expect(src).toMatch(/_hmSkillRegMap\s*:\s*any/);
+  });
+
+  it("registers a hmSkillRegMap case in the lazy getter switch", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re =
+      /case\s+"hmSkillRegMap"\s*:\s*return\s+_hmSkillRegMap\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillSkillRegistryMap\.js"\s*\)\)\.hyperMillSkillRegistryMap/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of SKILLREG_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"hmSkillRegMap\")", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of SKILLREG_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("hmSkillRegMap"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("list case routes to listSkills() and reports count", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_list"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("listSkills");
+    expect(body).toContain("count");
+  });
+
+  it("get case routes to getSkill() and accepts name OR skill_name OR skillName", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_get"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("getSkill");
+    expect(body).toMatch(/params\.name\s*\?\?\s*params\.skill_name/);
+    expect(body).toContain("skillName");
+  });
+
+  it("engine_map case routes to getEngineMap() and reports skillCount", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_engine_map"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("getEngineMap");
+    expect(body).toContain("skillCount");
+  });
+
+  it("by_category case routes to byCategory() and narrows to core|operational", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_by_category"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("byCategory");
+    expect(body).toContain('"operational"');
+    expect(body).toContain('"core"');
+  });
+
+  it("by_engine case routes to byEngine() and accepts engine_name OR engineName OR engine", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_by_engine"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("byEngine");
+    expect(body).toMatch(/params\.engine_name\s*\?\?\s*params\.engineName/);
+  });
+
+  it("by_effort case routes to byEffort() and uppercases the tier (LOW|MEDIUM|HIGH)", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_by_effort"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("byEffort");
+    expect(body).toContain("toUpperCase");
+    expect(body).toContain('"HIGH"');
+    expect(body).toContain('"MEDIUM"');
+    expect(body).toContain('"LOW"');
+  });
+
+  it("stats case routes to stats() and spreads the counts object", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    const re = /case\s+"cam_hypermill_skill_registry_stats"\s*:[\s\S]*?break;/;
+    const match = src.match(re);
+    expect(match === null).toBe(false);
+    const body = match ? match[0] : "";
+    expect(body).toContain("stats");
+    expect(body).toMatch(/\.\.\.stats/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await fs.readFile(dispatcherPath, "utf-8");
+    for (const action of SKILLREG_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
   });
 });
