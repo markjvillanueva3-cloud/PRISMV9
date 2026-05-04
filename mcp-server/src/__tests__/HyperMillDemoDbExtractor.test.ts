@@ -167,3 +167,71 @@ describe("HyperMillDemoDbExtractor", () => {
     });
   });
 });
+
+describe("HyperMillDemoDbExtractor — dispatcher wiring (camDispatcher.ts)", () => {
+  const ACTION = "cam_hypermill_demo_db_extract";
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers the cam_hypermill_demo_db_extract enum entry", async () => {
+    const src = await readDispatcher();
+    expect(src).toContain(`"${ACTION}"`);
+  });
+
+  it("declares the matching case statement", async () => {
+    const src = await readDispatcher();
+    const re = new RegExp(`case\\s+"${ACTION}"\\s*:`);
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("case body branches: singleton when no db_path; fresh HyperMillDemoDbExtractor otherwise", async () => {
+    const src = await readDispatcher();
+    const re = new RegExp(`case\\s+"${ACTION}"\\s*:[\\s\\S]*?break;`);
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("hyperMillDemoDbExtractor");
+    expect(body).toContain("HyperMillDemoDbExtractor");
+    expect(body).toMatch(/params\.db_path\s*\?\?\s*params\.dbPath/);
+    expect(body).toContain(".extract()");
+  });
+
+  it("case lazy-imports from the canonical engine path (HyperMillDemoDbExtractor.js)", async () => {
+    const src = await readDispatcher();
+    const re = new RegExp(`case\\s+"${ACTION}"\\s*:[\\s\\S]*?break;`);
+    const body = src.match(re)?.[0] ?? "";
+    const importRe = /await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillDemoDbExtractor\.js"\s*\)/g;
+    const matches = body.match(importRe);
+    expect(matches !== null).toBe(true);
+    // 2 branches each get a destructure-import
+    expect(matches!.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("case sets result.success=true and spreads the engine extract() result", async () => {
+    const src = await readDispatcher();
+    const successRe = new RegExp(`case\\s+"${ACTION}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`);
+    expect(successRe.test(src)).toBe(true);
+    const spreadRe = new RegExp(
+      `case\\s+"${ACTION}"\\s*:[\\s\\S]*?\\.\\.\\.\\(await[\\s\\S]*?\\.extract\\(\\)\\)[\\s\\S]*?break;`,
+    );
+    expect(spreadRe.test(src)).toBe(true);
+  });
+
+  it("case honours graceful-failure contract (no try/catch — engine returns status itself)", async () => {
+    const src = await readDispatcher();
+    const re = new RegExp(`case\\s+"${ACTION}"\\s*:[\\s\\S]*?break;`);
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).not.toContain("try {");
+    expect(body).not.toContain("} catch");
+  });
+
+  it("case awaits the async extract() (must not return the Promise unresolved)", async () => {
+    const src = await readDispatcher();
+    const re = new RegExp(`case\\s+"${ACTION}"\\s*:[\\s\\S]*?break;`);
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/await[\s\S]*?\.extract\(\)/);
+  });
+});
