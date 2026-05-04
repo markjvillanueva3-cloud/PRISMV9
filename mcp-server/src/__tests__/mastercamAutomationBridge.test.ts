@@ -424,3 +424,113 @@ describe("Instance isolation", () => {
     expect(ops2.value.length).toBeGreaterThan(0);
   });
 });
+
+describe("MastercamAutomationBridge — dispatcher wiring (camDispatcher.ts)", () => {
+  const MC_AUTO_ACTIONS = [
+    "cam_mastercam_automation_open",
+    "cam_mastercam_automation_get_geometry",
+    "cam_mastercam_automation_get_toolpaths",
+    "cam_mastercam_automation_get_operation_tree",
+    "cam_mastercam_automation_export_step",
+    "cam_mastercam_automation_close",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 6;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 6 cam_mastercam_automation_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(MC_AUTO_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of MC_AUTO_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _mcAutoBridge singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_mcAutoBridge\s*:\s*any/);
+  });
+
+  it("registers an mcAutoBridge case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"mcAutoBridge"\s*:\s*return\s+_mcAutoBridge\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/MastercamAutomationBridge\.js"\s*\)\)\.mastercamAutomationBridge/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_AUTO_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"mcAutoBridge\")", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_AUTO_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("mcAutoBridge"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body awaits the async engine call (full bridge surface is async)", async () => {
+    const src = await readDispatcher();
+    const ASYNC_PATTERNS: Record<string, RegExp> = {
+      "cam_mastercam_automation_open": /await\s+engine\.open\(/,
+      "cam_mastercam_automation_get_geometry": /await\s+engine\.getGeometry\(/,
+      "cam_mastercam_automation_get_toolpaths": /await\s+engine\.getToolpaths\(/,
+      "cam_mastercam_automation_get_operation_tree": /await\s+engine\.getOperationTree\(/,
+      "cam_mastercam_automation_export_step": /await\s+engine\.exportSTEP\(/,
+      "cam_mastercam_automation_close": /await\s+engine\.close\(/,
+    };
+    for (const [action, pattern] of Object.entries(ASYNC_PATTERNS)) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:[\\s\\S]*?break;`);
+      const body = src.match(re)?.[0] ?? "";
+      expect(body).toMatch(pattern);
+    }
+  });
+
+  it("open case accepts file_path|filePath fallback and typeof-object guards opts", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_automation_open"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/params\.file_path\s*\?\?\s*params\.filePath/);
+    expect(body).toMatch(/typeof\s+params\.opts\s*===\s*"object"/);
+    expect(body).toContain("opened");
+  });
+
+  it("export_step case accepts output_path|outputPath fallback", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_automation_export_step"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toMatch(/params\.output_path\s*\?\?\s*params\.outputPath/);
+    expect(body).toContain("exported");
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_AUTO_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("close case is idempotent — has no required parameters", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_automation_close"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("await engine.close()");
+    expect(body).toContain("closed");
+  });
+});
