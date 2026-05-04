@@ -188,6 +188,8 @@ const ACTIONS = [
   "cad_hypercad_operations_by_category",
   // hyperCAD-S discovery surface (U-CAD-FIDX-HCAD-DISCOVERY)
   "cad_hypercad_summary", "cad_hypercad_total_parameter_count", "cad_hypercad_load_errors",
+  // HyperCAD-S planning↔execution bridge (U-CAD-FIDX-HC-INT-01 — macro emit)
+  "cad_hypercad_plan_execution", "cad_hypercad_render_macro",
   // Autodesk Inventor CAD Function Index (U-CAD-FIDX-INV-01)
   "cad_inventor_get_index", "cad_inventor_list_modules", "cad_inventor_list_operations",
   "cad_inventor_get_operation", "cad_inventor_find_parameter", "cad_inventor_search_parameters",
@@ -1878,6 +1880,51 @@ Params vary by action — pass relevant fields in params object.`,
             );
             const errors = HyperCADCADFunctionIndexEngine.getLoadErrors();
             result = { success: true, count: errors.length, errors };
+            break;
+          }
+          case "cad_hypercad_plan_execution": {
+            const { HyperCADCADExecutionBridge } = await import(
+              "../../engines/HyperCADCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_hypercad_plan_execution requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await HyperCADCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            result = { success: true, plan };
+            break;
+          }
+          case "cad_hypercad_render_macro": {
+            const { HyperCADCADExecutionBridge } = await import(
+              "../../engines/HyperCADCADExecutionBridge.js"
+            );
+            const moduleId = (params.module_id ?? params.moduleId) as string | undefined;
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                "cad_hypercad_render_macro requires module_id and operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await HyperCADCADExecutionBridge.plan({
+              moduleId,
+              operationId,
+              params: opParams,
+            });
+            const macro = HyperCADCADExecutionBridge.renderMacroScaffold(plan);
+            result = { success: true, plan, macro_scaffold: macro };
             break;
           }
           // ─── Autodesk Inventor CAD Function Index (U-CAD-FIDX-INV-01) ─────
