@@ -243,7 +243,7 @@ export interface HurcoAdvancedSummary {
 const HURCO_V11_TRIBAL_KNOWLEDGE = [
   {
     category: "ultimotion",
-    tip: "Enable UltiMotion (G187 P3) for 3D surfacing — 20% faster cycle times on complex geometry",
+    tip: "Enable UltiMotion in WinMax control panel (Settings → Performance → UltiMotion ON, Smoothing Tolerance ~0.005mm for finish) for 3D surfacing — 20% faster cycle times on complex geometry. NOTE: Hurco V11 has NO inline UltiMotion G-code; G187 is Haas dialect and would parse-error on V11.",
     applies_to: ["3d_surface", "pocket"],
     confidence: 0.94
   },
@@ -360,10 +360,16 @@ export class HurcoV11MillMasterPostEngine {
     gcode.push(...safeStart);
     tribalTipsApplied.push("JM Die standard safe start applied");
 
-    // UltiMotion enable if requested
+    // UltiMotion is a Hurco WinMax CONTROL-PANEL parameter — there is no
+    // inline G-code for it. The previous emission of `G187 P3` was wrong
+    // (G187 is Haas dialect; V11 would parse-error on it). Now we emit a
+    // comment annotation only, matching the AdvancedPostProcessorEngine
+    // hurco-controller dialect row (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
+    // The operator must verify UltiMotion + Smoothing Tolerance in the
+    // WinMax UI before run-up.
     if (cfg.use_ultimotion) {
-      gcode.push("G187 P3 (ULTIMOTION HIGH ACCURACY MODE)");
-      tribalTipsApplied.push("UltiMotion enabled for smoother motion");
+      gcode.push("(HURCO V11 UltiMotion: enable in WinMax UI - Settings → Performance → UltiMotion ON, Smoothing Tolerance ~0.005mm for finish)");
+      tribalTipsApplied.push("UltiMotion intent recorded as comment annotation (Hurco V11 has no inline UltiMotion G-code)");
     }
 
     // Process each operation
