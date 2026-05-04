@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -429,6 +429,7 @@ async function getEngine(name: string): Promise<any> {
     case "fusAIOrch": return _fusAIOrch ??= (await import("../../engines/FusionAIOrchestrationEngine.js")).fusionAIOrchestrationEngine;
     case "fus360CodeGen": return _fus360CodeGen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
     case "mcMatBridge": return _mcMatBridge ??= (await import("../../engines/MastercamMaterialBridgeEngine.js")).mastercamMaterialBridgeEngine;
+    case "mcMatPhys": return _mcMatPhys ??= (await import("../../engines/MastercamMaterialPhysicsBridge.js")).mastercamMaterialPhysicsBridge;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1593,6 +1594,10 @@ export const ACTIONS = [
   "cam_mastercam_material_list",
   "cam_mastercam_material_list_by_iso",
   "cam_mastercam_material_get_stats",
+  "cam_mastercam_physics_calculate_milling",
+  "cam_mastercam_physics_calculate_turning",
+  "cam_mastercam_physics_get_summary",
+  "cam_mastercam_physics_compare_materials",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11768,6 +11773,50 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("mcMatBridge");
             const stats = engine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_mastercam_physics_calculate_milling": {
+            // U-CAM-MC-MATPHYS-WIRE-01: MastercamMaterialPhysicsBridge.calculateMillingPhysics
+            // Full milling physics solve (force, power, deflection, MRR) from MillingPhysicsInput.
+            // Engine pulls Kienzle/Taylor constants from material profile — no inline physics here.
+            // Returns null when material profile is missing.
+            const engine = await getEngine("mcMatPhys");
+            const physics = engine.calculateMillingPhysics(params as never);
+            result = { success: true, physics: physics ?? null, found: physics !== null };
+            break;
+          }
+
+          case "cam_mastercam_physics_calculate_turning": {
+            // U-CAM-MC-MATPHYS-WIRE-01: MastercamMaterialPhysicsBridge.calculateTurningPhysics
+            // Full turning physics solve from TurningPhysicsInput; null on missing profile.
+            const engine = await getEngine("mcMatPhys");
+            const physics = engine.calculateTurningPhysics(params as never);
+            result = { success: true, physics: physics ?? null, found: physics !== null };
+            break;
+          }
+
+          case "cam_mastercam_physics_get_summary": {
+            // U-CAM-MC-MATPHYS-WIRE-01: MastercamMaterialPhysicsBridge.getMaterialPhysicsSummary
+            // Material-level physics roll-up (ISO group + Kienzle range + Taylor exponent).
+            const engine = await getEngine("mcMatPhys");
+            const materialId = String(params.material_id ?? params.materialId ?? "");
+            const summary = engine.getMaterialPhysicsSummary(materialId);
+            result = { success: true, material_id: materialId, summary };
+            break;
+          }
+
+          case "cam_mastercam_physics_compare_materials": {
+            // U-CAM-MC-MATPHYS-WIRE-01: MastercamMaterialPhysicsBridge.compareMaterials
+            // Side-by-side comparison of physics properties for an arbitrary material list.
+            const engine = await getEngine("mcMatPhys");
+            const materialIds = Array.isArray(params.material_ids)
+              ? params.material_ids.map(String)
+              : Array.isArray(params.materialIds)
+              ? params.materialIds.map(String)
+              : [];
+            const comparison = engine.compareMaterials(materialIds);
+            result = { success: true, material_ids: materialIds, comparison, count: comparison.length };
             break;
           }
 
