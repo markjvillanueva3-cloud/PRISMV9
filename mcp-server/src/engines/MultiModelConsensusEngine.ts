@@ -31,16 +31,21 @@
 
 import { spawn } from "node:child_process";
 import { codexClientEngine, type CodexResult } from "./CodexClientEngine.js";
+import { grokClientEngine, type GrokResult } from "./GrokClientEngine.js";
 import { ollamaClientEngine } from "./OllamaClientEngine.js";
 
 export interface ConsensusInput {
   prompt: string;
   context?: string;
   includeClaude?: boolean;          // default true — set false when caller IS Claude
+  /** Set false to skip Grok (e.g. when XAI_API_KEY isn't set). Default true. */
+  includeGrok?: boolean;
   claudeBin?: string;               // override claude CLI path
   ollamaModel?: string;             // default deepseek-r1:14b
   codexModel?: string;              // default gpt-5.5
   codexEffort?: "low" | "medium" | "high" | "xhigh";  // default xhigh
+  grokModel?: string;               // default grok-4
+  grokReasoning?: "low" | "medium" | "high";  // default medium
   timeoutMs?: number;               // per-model timeout, default 90s
   mode?: "compare" | "vote";
   voteOptions?: readonly string[];  // required when mode=vote
@@ -48,7 +53,7 @@ export interface ConsensusInput {
 
 export interface ModelResponse {
   model: string;
-  vendor: "anthropic" | "openai" | "ollama";
+  vendor: "anthropic" | "openai" | "ollama" | "xai";
   ok: boolean;
   answer: string;
   latencyMs: number;
@@ -90,11 +95,16 @@ export class MultiModelConsensusEngine {
     const timeoutMs = input.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     const includeClaude = input.includeClaude !== false;
 
+    const includeGrok = input.includeGrok !== false && Boolean(process.env.XAI_API_KEY);
+
     const calls: Array<Promise<ModelResponse>> = [];
     if (includeClaude) {
       calls.push(this.callClaude(fullPrompt, input.claudeBin ?? DEFAULT_CLAUDE_BIN, timeoutMs));
     }
     calls.push(this.callCodex(fullPrompt, input.codexModel, input.codexEffort, timeoutMs));
+    if (includeGrok) {
+      calls.push(this.callGrok(fullPrompt, input.grokModel, input.grokReasoning, timeoutMs));
+    }
     calls.push(this.callOllama(fullPrompt, input.ollamaModel ?? DEFAULT_OLLAMA_MODEL, timeoutMs));
 
     const responses = await Promise.all(calls);
@@ -239,6 +249,29 @@ export class MultiModelConsensusEngine {
       };
     } catch (e) {
       return this.errResponse(model ?? DEFAULT_CODEX_MODEL, "openai", (e as Error).message);
+    }
+  }
+
+  private async callGrok(prompt: string, model?: string, reasoning?: "low" | "medium" | "high", timeoutMs?: number): Promise<ModelResponse> {
+    const target = model ?? "grok-4";
+    try {
+      const r: GrokResult = await grokClientEngine.exec({
+        prompt,
+        model: target,
+        reasoningEffort: reasoning ?? "medium",
+        timeoutMs,
+      });
+      return {
+        model: r.model || target,
+        vendor: "xai",
+        ok: r.ok,
+        answer: r.answer,
+        latencyMs: r.latencyMs,
+        tokens: r.totalTokens,
+        error: r.error,
+      };
+    } catch (e) {
+      return this.errResponse(target, "xai", (e as Error).message);
     }
   }
 

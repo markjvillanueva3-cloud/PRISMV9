@@ -519,8 +519,9 @@ const ACTIONS = [
   // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / P22-U01: Pre-Claude review orchestrator =====
   "pre_review",              // P22-U01 → PreReviewOrchestratorEngine.draftReview
   // ===== INTEL-OLLAMA-OBSIDIAN-MS0 / OCTOPUS-CONSENSUS: Multi-model agreement =====
-  "consensus",               // → MultiModelConsensusEngine.ask (Claude+Codex+Ollama)
+  "consensus",               // → MultiModelConsensusEngine.ask (Claude+Codex+Grok+Ollama)
   "codex_exec",              // → CodexClientEngine.exec (single-model gpt-5.5)
+  "grok_exec",               // → GrokClientEngine.exec (single-model grok-4)
 ] as const;
 
 function ok(data: any) {
@@ -6327,6 +6328,33 @@ export function registerAIReasoningDispatcher(server: any): void {
               return ok(result);
             } catch (e) {
               return ok({ error: `codex_exec: ${(e as Error).message}` });
+            }
+          }
+
+          // OCTOPUS-CONSENSUS — GrokClientEngine.exec (single-model grok-4 entry)
+          // Required: prompt
+          // Optional: model (default grok-4), reasoningEffort (low|medium|high, default medium),
+          //           system, temperature, maxTokens, timeoutMs (default 60s).
+          // XAI_API_KEY env var is required (or pass apiKey explicitly via params.apiKey).
+          case "grok_exec": {
+            if (typeof params.prompt !== "string" || params.prompt.length === 0) {
+              return ok({ error: "grok_exec requires non-empty 'prompt' string" });
+            }
+            const { grokClientEngine } = await import("../../engines/GrokClientEngine.js");
+            try {
+              const result = await grokClientEngine.exec({
+                prompt: params.prompt,
+                model: params.model,
+                apiKey: params.apiKey,
+                reasoningEffort: params.reasoningEffort,
+                system: params.system,
+                temperature: params.temperature,
+                maxTokens: params.maxTokens,
+                timeoutMs: params.timeoutMs,
+              });
+              return ok(result);
+            } catch (e) {
+              return ok({ error: `grok_exec: ${(e as Error).message}` });
             }
           }
 
