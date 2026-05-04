@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmTurningCfgIngester: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -420,6 +420,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmMillTurnStrat": return _hmMillTurnStrat ??= (await import("../../engines/HyperMillMillTurnStrategyEngine.js")).hyperMillMillTurnStrategyEngine;
     case "hmSkillsBatch": return _hmSkillsBatch ??= (await import("../../engines/HyperMillSkillsBatchEngine.js")).hyperMillSkillsBatchEngine;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
+    case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
     case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
     case "multiCam": return _multiCam ??= (await import("../../engines/MultiCamStrategyEngine.js")).multiCamStrategyEngine;
@@ -1505,6 +1506,9 @@ export const ACTIONS = [
   "cam_hypermill_turning_config_parse_stocklist",
   "cam_hypermill_turning_config_ingest_dir",
   "cam_hypermill_turning_config_stats",
+  "cam_hypermill_om_cycles_extract",
+  "cam_hypermill_om_cycles_parse_line",
+  "cam_hypermill_om_cycles_categorize",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -10788,6 +10792,44 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             // Reports supported file types + inferred stock fields.
             const engine = await getEngine("hmTurningCfgIngester");
             result = { success: true, ...engine.getStats() };
+            break;
+          }
+
+          case "cam_hypermill_om_cycles_extract": {
+            // U-CAM-HM-OMCYC-WIRE-01: HyperMillOmCyclesExtractor.extract
+            // Reads omCycles.txt (display name → canonical cycle ID mappings).
+            // Uses default singleton when no file_path provided; otherwise instantiates fresh.
+            const filePath = params.file_path ?? params.filePath;
+            if (filePath) {
+              const { HyperMillOmCyclesExtractor } = await import(
+                "../../engines/HyperMillOmCyclesExtractor.js"
+              );
+              const extractor = new HyperMillOmCyclesExtractor(String(filePath));
+              result = await extractor.extract();
+            } else {
+              const engine = await getEngine("hmOmCycles");
+              result = await engine.extract();
+            }
+            break;
+          }
+
+          case "cam_hypermill_om_cycles_parse_line": {
+            // U-CAM-HM-OMCYC-WIRE-01: HyperMillOmCyclesExtractor.parseLine
+            // Parses a single omCycles.txt line; returns CycleMapping or null on skip.
+            const engine = await getEngine("hmOmCycles");
+            const line = String(params.line ?? "");
+            const mapping = engine.parseLine(line);
+            result = { success: true, mapping, parsed: mapping !== null };
+            break;
+          }
+
+          case "cam_hypermill_om_cycles_categorize": {
+            // U-CAM-HM-OMCYC-WIRE-01: HyperMillOmCyclesExtractor.categorize
+            // Groups CycleMapping[] by category key (DR/2D/TP/3D/5X/MT/NC/3L/5L).
+            const engine = await getEngine("hmOmCycles");
+            const mappings = Array.isArray(params.mappings) ? params.mappings : [];
+            const categories = engine.categorize(mappings);
+            result = { success: true, categories, total: mappings.length };
             break;
           }
 
