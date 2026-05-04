@@ -130,6 +130,42 @@ export interface HurcoPostConfig {
    * applies regardless of this flag.
    */
   optimize_feeds?: boolean;
+  /**
+   * Sync-path prove-out mode (PPG-HARDEN/U-PPGH03). Operator-friendly
+   * first-article / new-setup safety pass:
+   *   - Multiplies every op's feed by `feed_factor` (default 0.5 = half-feed)
+   *   - Emits `M01 (OPTIONAL STOP - PROVE OUT)` between operations so the
+   *     operator can step through one op at a time on the WinMax UI
+   *   - Sets `result.prove_out_mode === true` so downstream telemetry can
+   *     filter out prove-out runs from production cycle-time stats
+   * When omitted or `enabled: false`, sync emission is byte-identical to
+   * prior behavior. Prove-out OVERRIDES `aggressiveness` (an operator who
+   * dialed prove-out wants caution, not the L1..L5 aggressiveness scale).
+   */
+  prove_out?: HurcoProveOutConfig;
+}
+
+/**
+ * Prove-out mode config (PPG-HARDEN/U-PPGH03). Independent of the
+ * aggressiveness L1..L5 stepping — operators reach for prove-out during
+ * first-article runs, post-crash recovery, or new-fixture validation.
+ */
+export interface HurcoProveOutConfig {
+  /** Master switch. When false/omitted, prove-out has no effect. */
+  enabled: boolean;
+  /**
+   * Feed multiplier applied to every op's feed_mm_min. Default 0.5
+   * (half-feed). Clamped to [0, 1]; values above 1 would INCREASE feed
+   * during prove-out (semantically wrong) so they clamp to 1.
+   * NaN / undefined / non-numeric → fall back to 0.5.
+   */
+  feed_factor?: number;
+  /**
+   * Emit `M01 (OPTIONAL STOP - PROVE OUT)` between operations. Default
+   * true. Set false to keep continuous run while still using the
+   * reduced feed (e.g. operator watching a closed-door cycle).
+   */
+  add_optional_stops?: boolean;
 }
 
 export interface MillOperation {
@@ -184,11 +220,19 @@ export interface HurcoPostOutput {
   aggressiveness_applied?: number;
   /**
    * Per-operation feed-multiplier audit. Empty array unless caller passed
-   * `cfg.aggressiveness`; one entry per operation otherwise. Block ID
-   * matches the `Nxxx` label on the spindle-start line so this audit
-   * lines up with `block_annotations[]` for downstream verification.
+   * `cfg.aggressiveness` or `cfg.prove_out.enabled`; one entry per
+   * operation otherwise. Block ID matches the `Nxxx` label on the
+   * spindle-start line so this audit lines up with `block_annotations[]`
+   * for downstream verification.
    */
   feed_optimizations: HurcoFeedOptimization[];
+  /**
+   * Prove-out mode flag (PPG-HARDEN/U-PPGH03). True when the caller
+   * passed `cfg.prove_out.enabled = true`; false otherwise. Downstream
+   * telemetry can filter prove-out runs out of production cycle-time
+   * statistics so they don't depress the median.
+   */
+  prove_out_mode: boolean;
   /** Advanced-pipeline opt-in fields — populated only by `generateProgramAdvanced`
    *  when `use_advanced_features: true`. Sync `generateProgram` returns these as null. */
   advanced_features_applied?: string[];
@@ -428,6 +472,70 @@ function resolveAggressivenessLevel(
 }
 
 // ============================================================================
+// PROVE-OUT MODE — sync-path first-article / post-crash safety pass (U-PPGH03)
+// ============================================================================
+//
+// Independent of the aggressiveness L1..L5 stepping. Operators dial prove-out
+// during first-article runs, post-crash recovery, post-fixture-change
+// validation, or any scenario where they want to step through the program
+// op-by-op at reduced feed. When prove-out is enabled, it OVERRIDES
+// aggressiveness — the operator's caution intent wins.
+//
+export const PROVE_OUT_DEFAULT_FEED_FACTOR = 0.5;
+export const PROVE_OUT_FEED_FACTOR_MIN = 0;
+export const PROVE_OUT_FEED_FACTOR_MAX = 1;
+export const PROVE_OUT_LABEL = "PROVE-OUT";
+/** Sentinel level used in HurcoFeedOptimization rows produced by prove-out
+ *  (vs. L1..L5 produced by aggressiveness). Lets downstream consumers
+ *  discriminate the two paths without a discriminated-union type change. */
+export const PROVE_OUT_LEVEL_SENTINEL = 0;
+
+/** Internal resolved prove-out entry. `feedFactor` is already clamped to
+ *  [0, 1] and NaN-normalized; `addOptionalStops` defaults to true. */
+interface ProveOutEntry {
+  readonly enabled: true;
+  readonly feedFactor: number;
+  readonly addOptionalStops: boolean;
+}
+
+/**
+ * Normalize caller-supplied prove_out config to a resolved entry, or null
+ * when prove-out is not requested (off / undefined / `enabled: false`).
+ *
+ * Adversarial inputs are normalized:
+ *  - undefined / null               → null  (no behavior change)
+ *  - { enabled: false }             → null  (no behavior change)
+ *  - feed_factor = NaN              → defaults to 0.5
+ *  - feed_factor = ±Infinity        → clamped to nearest extreme [0, 1]
+ *  - feed_factor < 0 or > 1         → clamped to [0, 1]
+ *  - non-numeric feed_factor        → defaults to 0.5
+ *  - add_optional_stops omitted     → defaults to true
+ */
+function resolveProveOutEntry(
+  raw: HurcoProveOutConfig | undefined,
+): ProveOutEntry | null {
+  if (!raw || raw.enabled !== true) return null;
+
+  let factor: number;
+  const requested = raw.feed_factor;
+  if (typeof requested !== "number" || Number.isNaN(requested)) {
+    factor = PROVE_OUT_DEFAULT_FEED_FACTOR;
+  } else if (requested === Infinity || requested > PROVE_OUT_FEED_FACTOR_MAX) {
+    factor = PROVE_OUT_FEED_FACTOR_MAX;
+  } else if (requested === -Infinity || requested < PROVE_OUT_FEED_FACTOR_MIN) {
+    factor = PROVE_OUT_FEED_FACTOR_MIN;
+  } else {
+    factor = requested;
+  }
+
+  return {
+    enabled: true,
+    feedFactor: factor,
+    addOptionalStops: raw.add_optional_stops !== false,
+  };
+}
+
+// ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
@@ -458,6 +566,7 @@ export class HurcoV11MillMasterPostEngine {
     const toolsUsed = new Set<number>();
     const feedOptimizations: HurcoFeedOptimization[] = [];
     const aggressivenessEntry = resolveAggressivenessLevel(cfg.aggressiveness);
+    const proveOutEntry = resolveProveOutEntry(cfg.prove_out);
 
     log.info(`[HurcoV11] Generating program O${cfg.program_number} with ${operations.length} operations`);
 
@@ -465,10 +574,18 @@ export class HurcoV11MillMasterPostEngine {
     gcode.push(`O${cfg.program_number} (${cfg.program_comment || "PRISM GENERATED"})`);
     gcode.push(`(MACHINE: HURCO VMX24 - WINMAX V11)`);
     gcode.push(`(GENERATED: ${new Date().toISOString()})`);
-    if (aggressivenessEntry) {
+    if (aggressivenessEntry && !proveOutEntry) {
       // U-PPGH02: emit aggressiveness header only when explicitly requested
       // so legacy programs (no aggressiveness param) stay byte-identical.
+      // U-PPGH03: prove-out OVERRIDES aggressiveness — only one of the two
+      // multiplier headers ever appears. Operator caution wins.
       gcode.push(`(AGGRESSIVENESS: ${aggressivenessEntry.label} L${aggressivenessEntry.level}/5)`);
+    }
+    if (proveOutEntry) {
+      // U-PPGH03: prove-out header — explicit so the operator sees the
+      // mode at top of program before manually stepping through cycles.
+      const stopsTag = proveOutEntry.addOptionalStops ? "ON" : "OFF";
+      gcode.push(`(PROVE-OUT MODE: feed_factor=${proveOutEntry.feedFactor.toFixed(2)}, optional_stops=${stopsTag})`);
     }
     gcode.push("");
 
@@ -494,15 +611,40 @@ export class HurcoV11MillMasterPostEngine {
     const blockAnnotations: BlockAnnotation[] = [];
     for (let i = 0; i < operations.length; i++) {
       const op = operations[i];
+
+      // U-PPGH03: prove-out emits an M01 BETWEEN operations (never before
+      // the first op or after the last) so the operator can step through
+      // one op at a time on the WinMax UI. Suppressed when caller passes
+      // `add_optional_stops: false`. Independent of feed multiplication —
+      // an operator can run continuous-but-slow or stop-but-nominal.
+      if (proveOutEntry && proveOutEntry.addOptionalStops && i > 0) {
+        gcode.push("");
+        gcode.push("M01 (OPTIONAL STOP - PROVE OUT)");
+      }
+
       toolsUsed.add(op.tool_number);
 
       // U-PPGH02: clone op with multiplied feed when aggressiveness was
       // requested. Physics checks run on the EFFECTIVE feed (what actually
       // executes on the machine) so the L5 1.1× ceiling can still trip a
       // chip-load violation that the original feed would have passed.
+      // U-PPGH03: prove-out OVERRIDES aggressiveness when both are set.
+      // Operator dialed caution; prove-out feed_factor wins. Only one
+      // entry per op lands in feed_optimizations[].
       const blockId = "N" + (100 + i * 10);
       let effectiveOp = op;
-      if (aggressivenessEntry) {
+      if (proveOutEntry) {
+        const optimizedFeed = Math.round(op.feed_mm_min * proveOutEntry.feedFactor);
+        effectiveOp = { ...op, feed_mm_min: optimizedFeed };
+        feedOptimizations.push({
+          block_id: blockId,
+          level: PROVE_OUT_LEVEL_SENTINEL,
+          label: PROVE_OUT_LABEL,
+          multiplier: proveOutEntry.feedFactor,
+          original_feed_mm_min: op.feed_mm_min,
+          optimized_feed_mm_min: optimizedFeed,
+        });
+      } else if (aggressivenessEntry) {
         const optimizedFeed = Math.round(op.feed_mm_min * aggressivenessEntry.multiplier);
         effectiveOp = { ...op, feed_mm_min: optimizedFeed };
         feedOptimizations.push({
@@ -601,6 +743,7 @@ export class HurcoV11MillMasterPostEngine {
       block_annotations: blockAnnotations,
       aggressiveness_applied: aggressivenessEntry?.level,
       feed_optimizations: feedOptimizations,
+      prove_out_mode: proveOutEntry !== null,
       physics_checks: physicsChecks,
       tribal_tips_applied: tribalTipsApplied
     };
