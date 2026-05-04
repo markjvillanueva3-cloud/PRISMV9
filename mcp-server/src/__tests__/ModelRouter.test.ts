@@ -140,9 +140,18 @@ describe("ModelRouterEngine — forceTier override", () => {
     expect(() => r.routeForTask({ kind: "code", forceTier: -1 })).toThrow(/forceTier/);
   });
 
-  it("rejects forceTier=6", () => {
+  it("rejects forceTier=7", () => {
     const r = new ModelRouterEngine();
-    expect(() => r.routeForTask({ kind: "code", forceTier: 6 })).toThrow(/forceTier/);
+    expect(() => r.routeForTask({ kind: "code", forceTier: 7 })).toThrow(/forceTier/);
+  });
+
+  it("forceTier=6 routes to consensus tier", () => {
+    const r = new ModelRouterEngine();
+    const d = r.routeForTask({ kind: "code", forceTier: 6 });
+    expect(d.tier).toBe(6);
+    expect(d.model).toBe("consensus");
+    expect(d.kind).toBe("consensus");
+    expect(d.fallback).toBe("claude");
   });
 
   it("rejects non-integer forceTier", () => {
@@ -268,6 +277,58 @@ describe("ModelRouterEngine — selection precedence", () => {
     const d = r.routeForTask({ kind: "code", needsChainOfThought: true, promptTokens: 5000 });
     expect(d.tier).toBe(3);
     expect(d.reason).toContain("needsChainOfThought");
+  });
+});
+
+describe("ModelRouterEngine — consensus flag (tier-6 multi-model)", () => {
+  let r: ModelRouterEngine;
+
+  beforeEach(() => {
+    r = new ModelRouterEngine();
+  });
+
+  it("consensus=true routes to tier 6 even on simple code task", () => {
+    const d = r.routeForTask({ kind: "code", consensus: true });
+    expect(d).toEqual({
+      tier: 6,
+      model: "consensus",
+      kind: "consensus",
+      reason: "consensus=true (multi-model)",
+      fallback: "claude",
+    });
+  });
+
+  it("consensus=true outranks safety domain (multi-eyes wins over single-Claude)", () => {
+    const d = r.routeForTask({ kind: "code", consensus: true, domain: "safety" });
+    expect(d.tier).toBe(6);
+  });
+
+  it("consensus=true outranks needsChainOfThought", () => {
+    const d = r.routeForTask({ kind: "reason", consensus: true, needsChainOfThought: true });
+    expect(d.tier).toBe(6);
+  });
+
+  it("consensus=false (or omitted) does NOT route to tier 6", () => {
+    const d1 = r.routeForTask({ kind: "code", consensus: false });
+    const d2 = r.routeForTask({ kind: "code" });
+    expect(d1.tier).toBe(1);
+    expect(d2.tier).toBe(1);
+  });
+
+  it("forceTier overrides consensus flag", () => {
+    const d = r.routeForTask({ kind: "code", consensus: true, forceTier: 1 });
+    expect(d.tier).toBe(1);
+    expect(d.reason).toBe("forceTier=1");
+  });
+
+  it("vision wins over consensus (image extraction is task-shaped)", () => {
+    const d = r.routeForTask({ kind: "code", hasImage: true, consensus: true });
+    expect(d.tier).toBe(4);
+  });
+
+  it("embed wins over consensus (cheap embedding never needs 3 models)", () => {
+    const d = r.routeForTask({ kind: "embed", consensus: true });
+    expect(d.tier).toBe(0);
   });
 });
 

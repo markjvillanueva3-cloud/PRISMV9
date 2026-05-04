@@ -29,10 +29,10 @@
  * @module engines/ModelRouterEngine
  */
 
-export type ModelTier = 0 | 1 | 2 | 3 | 4 | 5;
+export type ModelTier = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const MIN_TIER = 0 as const;
-const MAX_TIER = 5 as const;
+const MAX_TIER = 6 as const;
 
 export type TaskKind = "embed" | "code" | "reason" | "vision" | "review" | "general";
 
@@ -46,12 +46,18 @@ export interface TaskInput {
   needsChainOfThought?: boolean;
   domain?: string;
   forceTier?: number;
+  /**
+   * Set true to escalate this task to multi-model consensus (Claude + Codex/gpt-5.5 +
+   * Ollama-deepseek-r1) instead of single Claude. Useful for high-stakes safety/physics
+   * tasks where cross-vendor agreement is the goal.
+   */
+  consensus?: boolean;
 }
 
 export interface RoutingDecision {
   tier: ModelTier;
   model: string;
-  kind: "embed" | "chat" | "vision" | "escalate";
+  kind: "embed" | "chat" | "vision" | "escalate" | "consensus";
   reason: string;
   fallback: string | null;
 }
@@ -84,6 +90,7 @@ const TIER_TABLE: ReadonlyArray<{ tier: ModelTier; model: string; kind: RoutingD
   { tier: 3, model: "deepseek-r1:14b",      kind: "chat",     fallback: "qwen2.5-coder:32b" },
   { tier: 4, model: "llama3.2-vision:11b",  kind: "vision",   fallback: null },
   { tier: 5, model: "claude",               kind: "escalate", fallback: null },
+  { tier: 6, model: "consensus",            kind: "consensus", fallback: "claude" },
 ]);
 
 const DEFAULT_THRESHOLDS_FILE = "H:/prism/mcp-server/data/state/router-thresholds.json";
@@ -169,7 +176,12 @@ export class ModelRouterEngine {
       return this.decisionFor(4, input.hasImage ? "hasImage=true" : "kind=vision");
     }
 
-    // 4. Safety / physics / manufacturing → escalate to Claude
+    // 4a. Explicit consensus request → tier 6 (multi-model)
+    if (input.consensus === true) {
+      return this.decisionFor(6, "consensus=true (multi-model)");
+    }
+
+    // 4b. Safety / physics / manufacturing → escalate to Claude
     if (input.domain && SAFETY_DOMAINS.has(input.domain.toLowerCase())) {
       return this.decisionFor(5, `domain=${input.domain} (safety/physics)`);
     }
