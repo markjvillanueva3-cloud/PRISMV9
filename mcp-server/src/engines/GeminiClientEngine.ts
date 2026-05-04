@@ -30,8 +30,9 @@
  *   high   → thinkingBudget: 24576 (extended thinking)
  *   xhigh  → thinkingBudget: -1    (dynamic, model decides)
  *
- * Default model `gemini-2.0-flash-exp` for cheap+fast, override to
- * `gemini-1.5-pro` or `gemini-2.0-flash-thinking-exp` for harder problems.
+ * Default model `gemini-3-pro-preview` (env override `PRISM_GEMINI_MODEL`).
+ * Free-tier API keys are limit:0 on Pro models — switch to `gemini-2.5-flash`
+ * for unpaid keys, or use Gemini Advanced subscription via OAuth/CLI path.
  *
  * @module engines/GeminiClientEngine
  */
@@ -66,7 +67,7 @@ export interface GeminiResult {
   thinkingBudgetUsed: number;
 }
 
-const DEFAULT_MODEL = "gemini-2.0-flash-exp";
+const DEFAULT_MODEL = process.env.PRISM_GEMINI_MODEL ?? "gemini-3-pro-preview";
 const DEFAULT_TIMEOUT_MS = 60_000;
 const DEFAULT_TEMPERATURE = 0.2;
 const DEFAULT_MAX_OUTPUT_TOKENS = 4096;
