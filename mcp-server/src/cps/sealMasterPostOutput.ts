@@ -33,6 +33,11 @@ import {
   type Tier,
   type VerifyResult,
 } from "./verifyBlockAnnotations.js";
+import {
+  verifyWEDMBlockAnnotations,
+  type WEDMTier,
+  type WEDMVerifyResult,
+} from "./verifyWEDMBlockAnnotations.js";
 
 export interface SealMasterPostOptions {
   /** Map of source engine name -> version/git-SHA. Required, may be empty. */
@@ -121,14 +126,24 @@ export function sealMasterPostOutput<
 // ============================================================================
 
 /**
+ * Options envelope for sealWEDMMasterPostOutput. Same shape as the milling
+ * variant's SealMasterPostOptions but the `verify_tier` accepts the WEDM
+ * tier alias (currently structurally identical — sim/proven_out/production/
+ * shop_floor — but kept separate so the two domains can diverge without a
+ * cross-cut refactor).
+ */
+export interface SealWEDMMasterPostOptions {
+  source_engine_versions: Record<string, string>;
+  generated_at?: string;
+  /** When set, run verifyWEDMBlockAnnotations and attach the result. */
+  verify_tier?: WEDMTier;
+  constants_source?: string;
+}
+
+/**
  * Result envelope returned by sealWEDMMasterPostOutput. Parallel to
- * SealedMasterPostResult but carries WEDM-shaped block annotations.
- *
- * NOTE: Unlike the milling/turning variant, this helper does NOT run the
- * verifyBlockAnnotations gate — that gate is hardcoded for milling/turning
- * S/F per-block parameters and would mis-fire on WEDM (which carries
- * power_setting / on_time_us / off_time_us, not S/F). When a tier-aware
- * WEDM verifier ships (separate roadmap unit), wire it here symmetrically.
+ * SealedMasterPostResult but carries WEDM-shaped block annotations and
+ * (when opts.verify_tier is provided) a WEDMVerifyResult.
  */
 export interface SealedWEDMMasterPostResult<
   T extends { gcode: string[]; block_annotations: WEDMBlockAnnotation[] },
@@ -141,6 +156,12 @@ export interface SealedWEDMMasterPostResult<
    * coverage matches milling/turning so any tamper invalidates the SHA.
    */
   sidecar: PostPhysicsSidecar;
+  /**
+   * Gate verdict when verify_tier was provided. Reasons over the
+   * sidecar's wedm_block_annotations[] against PASS_DEFAULTS /
+   * E_PACK_TABLE source-of-truth (PPG-WIRE-MS6/U-PPGM17b).
+   */
+  verify?: WEDMVerifyResult;
 }
 
 /**
@@ -160,7 +181,7 @@ export interface SealedWEDMMasterPostResult<
  */
 export function sealWEDMMasterPostOutput<
   T extends { gcode: string[]; block_annotations: WEDMBlockAnnotation[] },
->(engineOutput: T, opts: SealMasterPostOptions): SealedWEDMMasterPostResult<T> {
+>(engineOutput: T, opts: SealWEDMMasterPostOptions): SealedWEDMMasterPostResult<T> {
   if (!engineOutput || typeof engineOutput !== "object") {
     throw new Error("sealWEDMMasterPostOutput: engineOutput must be a non-null object");
   }
@@ -186,8 +207,17 @@ export function sealWEDMMasterPostOutput<
     wedm_block_annotations: engineOutput.block_annotations,
   });
 
-  return {
+  const out: SealedWEDMMasterPostResult<T> = {
     engine_output: engineOutput,
     sidecar: sealed,
   };
+
+  if (opts.verify_tier) {
+    out.verify = verifyWEDMBlockAnnotations(
+      sealed as unknown as Record<string, unknown>,
+      { tier: opts.verify_tier },
+    );
+  }
+
+  return out;
 }
