@@ -23,7 +23,9 @@ const ACTIONS = [
   "extraction_enforce", "extraction_enforce_check", "extraction_enforce_autofix",
   "routing_run", "routing_status", "routing_upgrades", "routing_consumers",
   "wiring_process", "wiring_stats", "wiring_queue",
-  "ai_reason", "ai_classify", "ai_route", "ai_suggest_upgrades", "ai_feedback", "ai_stats"
+  "ai_reason", "ai_classify", "ai_route", "ai_suggest_upgrades", "ai_feedback", "ai_stats",
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P9-U04 — Quality dashboard audit consumer
+  "audit"
 ] as const;
 
 function ok(data: any) {
@@ -179,6 +181,22 @@ export function registerHookDispatcher(server: any): void {
           case "reactive_chains": {
             const chains = eventBus.getReactiveChains();
             return ok({ count: chains.length, chains });
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P9-U04: hook audit calls QualityDashboardEngine ──
+          case "audit": {
+            const { qualityDashboardEngine } = await import("../../engines/QualityDashboardEngine.js");
+            const snap = qualityDashboardEngine.compute();
+            return ok({
+              system_Q: snap.system_Q,
+              mean_Q: snap.mean_Q,
+              engines_below_70: snap.engines_below_70,
+              schema_coverage_pct: snap.schema_coverage?.coverage_pct ?? 0,
+              tests_pass_rate: snap.tests?.pass_rate ?? 0,
+              alerts: snap.alerts ?? [],
+              alert_count: (snap.alerts ?? []).length,
+              critical_alerts: (snap.alerts ?? []).filter((a: any) => a.severity === "critical").length,
+              timestamp: snap.timestamp,
+            });
           }
           // === Extraction Ingestion Actions ===
           case "run_ingestion": {
