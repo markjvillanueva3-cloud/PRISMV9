@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -430,6 +430,7 @@ async function getEngine(name: string): Promise<any> {
     case "fus360CodeGen": return _fus360CodeGen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
     case "mcMatBridge": return _mcMatBridge ??= (await import("../../engines/MastercamMaterialBridgeEngine.js")).mastercamMaterialBridgeEngine;
     case "mcMatPhys": return _mcMatPhys ??= (await import("../../engines/MastercamMaterialPhysicsBridge.js")).mastercamMaterialPhysicsBridge;
+    case "mcFAI": return _mcFAI ??= (await import("../../engines/MastercamFAIBridge.js")).mastercamFAIBridge;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1598,6 +1599,12 @@ export const ACTIONS = [
   "cam_mastercam_physics_calculate_turning",
   "cam_mastercam_physics_get_summary",
   "cam_mastercam_physics_compare_materials",
+  "cam_mastercam_fai_extract_characteristics",
+  "cam_mastercam_fai_generate_report",
+  "cam_mastercam_fai_apply_measurements",
+  "cam_mastercam_fai_export_json",
+  "cam_mastercam_fai_generate_balloon_data",
+  "cam_mastercam_fai_get_stats",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11817,6 +11824,68 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               : [];
             const comparison = engine.compareMaterials(materialIds);
             result = { success: true, material_ids: materialIds, comparison, count: comparison.length };
+            break;
+          }
+
+          case "cam_mastercam_fai_extract_characteristics": {
+            // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.extractCharacteristics
+            // Converts MastercamFeatureExtraction[] → FAICharacteristic[] (AS9102 Rev C compliant).
+            const engine = await getEngine("mcFAI");
+            const features = Array.isArray(params.features) ? params.features : [];
+            const characteristics = engine.extractCharacteristics(features);
+            result = { success: true, characteristics, count: characteristics.length };
+            break;
+          }
+
+          case "cam_mastercam_fai_generate_report": {
+            // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.generateReport
+            // Builds a complete FAIReport (form1 + form2 + form3 + status + AS9102_Rev_C compliance tag).
+            const engine = await getEngine("mcFAI");
+            const form1 = (params.form1 && typeof params.form1 === "object") ? params.form1 : {};
+            const form2 = (params.form2 && typeof params.form2 === "object") ? params.form2 : {};
+            const characteristics = Array.isArray(params.characteristics) ? params.characteristics : [];
+            const report = engine.generateReport(form1 as never, form2 as never, characteristics);
+            result = { success: true, report };
+            break;
+          }
+
+          case "cam_mastercam_fai_apply_measurements": {
+            // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.applyMeasurements
+            // Folds CMM/inspection readings into FAICharacteristic[] — sets PASS/FAIL per balloon-number tolerance.
+            const engine = await getEngine("mcFAI");
+            const characteristics = Array.isArray(params.characteristics) ? params.characteristics : [];
+            const measurements = Array.isArray(params.measurements) ? params.measurements : [];
+            const updated = engine.applyMeasurements(characteristics, measurements as never);
+            result = { success: true, characteristics: updated, count: updated.length };
+            break;
+          }
+
+          case "cam_mastercam_fai_export_json": {
+            // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.exportJSON
+            // Serialises an FAIReport to JSON string (for AS9102 system-of-record handoff).
+            const engine = await getEngine("mcFAI");
+            const report = (params.report && typeof params.report === "object") ? params.report : {};
+            const json = engine.exportJSON(report as never);
+            result = { success: true, json, byteLength: typeof json === "string" ? json.length : 0 };
+            break;
+          }
+
+          case "cam_mastercam_fai_generate_balloon_data": {
+            // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.generateBalloonData
+            // Drawing-balloon overlay data for the FAI characteristic set.
+            const engine = await getEngine("mcFAI");
+            const characteristics = Array.isArray(params.characteristics) ? params.characteristics : [];
+            const balloons = engine.generateBalloonData(characteristics);
+            result = { success: true, balloons, count: balloons.length };
+            break;
+          }
+
+          case "cam_mastercam_fai_get_stats": {
+            // U-CAM-MC-FAI-WIRE-01: MastercamFAIBridge.getStats
+            // Aggregate roll-up: total reports, characteristic counts, pass/fail rates.
+            const engine = await getEngine("mcFAI");
+            const stats = engine.getStats();
+            result = { success: true, ...stats };
             break;
           }
 

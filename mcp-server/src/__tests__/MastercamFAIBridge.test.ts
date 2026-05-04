@@ -214,3 +214,125 @@ describe("MastercamFAIBridge", () => {
     });
   });
 });
+
+describe("MastercamFAIBridge — dispatcher wiring (camDispatcher.ts)", () => {
+  const MC_FAI_ACTIONS = [
+    "cam_mastercam_fai_extract_characteristics",
+    "cam_mastercam_fai_generate_report",
+    "cam_mastercam_fai_apply_measurements",
+    "cam_mastercam_fai_export_json",
+    "cam_mastercam_fai_generate_balloon_data",
+    "cam_mastercam_fai_get_stats",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 6;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 6 cam_mastercam_fai_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(MC_FAI_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of MC_FAI_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _mcFAI singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_mcFAI\s*:\s*any/);
+  });
+
+  it("registers an mcFAI case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"mcFAI"\s*:\s*return\s+_mcFAI\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/MastercamFAIBridge\.js"\s*\)\)\.mastercamFAIBridge/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_FAI_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"mcFAI\")", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_FAI_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("mcFAI"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("extract_characteristics case Array.isArray-guards features and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_fai_extract_characteristics"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("extractCharacteristics");
+    expect(body).toContain("Array.isArray(params.features)");
+    expect(body).toContain("count");
+  });
+
+  it("generate_report case typeof-guards form1+form2 to objects, Array.isArray-guards characteristics", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_fai_generate_report"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("generateReport");
+    expect(body).toMatch(/typeof\s+params\.form1\s*===\s*"object"/);
+    expect(body).toMatch(/typeof\s+params\.form2\s*===\s*"object"/);
+    expect(body).toContain("Array.isArray(params.characteristics)");
+  });
+
+  it("apply_measurements case Array.isArray-guards both characteristics and measurements", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_fai_apply_measurements"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("applyMeasurements");
+    expect(body).toContain("Array.isArray(params.characteristics)");
+    expect(body).toContain("Array.isArray(params.measurements)");
+  });
+
+  it("export_json case typeof-guards report, returns json string + byteLength", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_fai_export_json"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("exportJSON");
+    expect(body).toMatch(/typeof\s+params\.report\s*===\s*"object"/);
+    expect(body).toContain("byteLength");
+  });
+
+  it("generate_balloon_data case Array.isArray-guards characteristics and reports count", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_fai_generate_balloon_data"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("generateBalloonData");
+    expect(body).toContain("Array.isArray(params.characteristics)");
+    expect(body).toContain("count");
+  });
+
+  it("get_stats case routes to getStats() and spreads roll-up", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_mastercam_fai_get_stats"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStats()");
+    expect(body).toMatch(/\.\.\.stats/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of MC_FAI_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+});
