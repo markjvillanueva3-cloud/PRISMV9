@@ -3,8 +3,9 @@
 **Trigger phrase:** `continue posts` (any chat, any session)
 **Roadmap:** `PPG-WIRE-MS0` — Post Processor Generator (sidecar bridge + dialect branches)
 **Branch / worktree:** `work/cam-exhaust-ms0` on `H:/prism`
-**Last touched:** 2026-05-04 (claude-12483457 — shipped U-PPGM16 WEDM sidecar extension)
+**Last touched:** 2026-05-04 (claude-12483457 — shipped U-PPGW-Hurco-Tribal-Fix removing wrong G187 emission)
 **Last commits on roadmap:**
+- `839220a3b [CAM-EXHAUST-MS0] PPG-WIRE-MS5/U-PPGW-Hurco-Tribal-Fix: remove wrong G187 P3 emission`
 - `777fdbbe3 [CAM-EXHAUST-MS0] PPG-WIRE-MS6/U-PPGM16: WEDM block_annotations — schema 1.2.0`
 - `a9a6e961c [CAM-EXHAUST-MS0] PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring: AdvancedPostProcessor pipeline → Hurco + Okuma (step 5)`
 - `ee95658a1 [MAIN] PPG-WIRE-MS5/U-PPGW-FeatureSequencer-Wiring: sequenceFeatures TSP pipeline → Hurco + Okuma`
@@ -101,6 +102,27 @@ Shipped 2026-05-01 (claude-b913f3b9). 4 files created, 4 modified:
 ---
 
 ## NEXT ACTIONS (continue here)
+
+### ✓ DONE — PPG-WIRE-MS5/U-PPGW-Hurco-Tribal-Fix — wrong G187 emission removed (2026-05-04, commit 839220a3b)
+The HurcoV11 engine emitted `G187 P3` when use_ultimotion=true. G187 is Haas
+dialect (G187 P3 E0.005 — Haas SmoothControl); Hurco V11 WinMax does NOT
+accept it — feeding it to a real V11 produces a parse error before the cut
+starts. Same root cause infected the `HURCO_V11_TRIBAL_KNOWLEDGE` ultimotion
+tip ("Enable UltiMotion (G187 P3)").
+
+- **Fix**: engine now emits a parser-safe comment annotation only — wrapped
+  in `( ... )`, includes the WinMax UI navigation breadcrumb (Settings →
+  Performance → UltiMotion + Smoothing Tolerance ~0.005mm). Mirrors the
+  AdvancedPostProcessor.hurco dialect row (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
+- **Tribal tip rewrite**: cites WinMax control panel + flags G187 as Haas
+  dialect with explicit parse-error warning (negative attribution informs
+  operators why the wrong code was historically there).
+- **Tests** (HurcoTribalFix.test.ts +236 LOC, 9 cases): G187 emitted ZERO
+  times in any form (with/without P-value, with/without whitespace, with/
+  without Haas E-tolerance arg) across sync + async paths; tribal_tips_applied
+  G187-free in positive recommendation form (negative attribution with
+  "G187 is Haas" + "parse-error" allowed); annotation parser-safety verified.
+  85/85 across 6 Hurco test files GREEN.
 
 ### ✓ DONE — PPG-WIRE-MS6/U-PPGM16 — WEDM block_annotations schema 1.2.0 (2026-05-04, commit 777fdbbe3)
 Brings Mitsubishi MV1200R Wire EDM under the same sealed-sidecar contract
