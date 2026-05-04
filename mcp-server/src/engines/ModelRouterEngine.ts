@@ -86,8 +86,40 @@ const TIER_TABLE: ReadonlyArray<{ tier: ModelTier; model: string; kind: RoutingD
   { tier: 5, model: "claude",               kind: "escalate", fallback: null },
 ]);
 
+const DEFAULT_THRESHOLDS_FILE = "H:/prism/mcp-server/data/state/router-thresholds.json";
+
 export class ModelRouterEngine {
   private thresholds: TierThresholds = { ...DEFAULT_THRESHOLDS };
+
+  /**
+   * Load persisted thresholds from disk (written by adapt-router-thresholds.mjs).
+   * Returns true if a file existed and parsed; false if defaults are still in use.
+   * Errors swallow → defaults remain — never throw on this path so MCP boot is unblocked.
+   */
+  async loadFromState(filePath: string = DEFAULT_THRESHOLDS_FILE): Promise<boolean> {
+    try {
+      const { promises: fs } = await import("node:fs");
+      const raw = await fs.readFile(filePath, "utf-8");
+      const j: unknown = JSON.parse(raw);
+      if (!j || typeof j !== "object") return false;
+      const obj = j as Record<string, unknown>;
+      const candidate: Partial<TierThresholds> = {};
+      if (typeof obj.largeContextTokens === "number") candidate.largeContextTokens = obj.largeContextTokens;
+      if (typeof obj.complexContextTokens === "number") candidate.complexContextTokens = obj.complexContextTokens;
+      if (candidate.largeContextTokens === undefined && candidate.complexContextTokens === undefined) return false;
+      // setThresholds enforces invariants — if the file was tampered, we keep current values
+      const before = { ...this.thresholds };
+      try {
+        this.setThresholds(candidate);
+        return true;
+      } catch {
+        this.thresholds = before;
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
 
   setThresholds(t: Partial<TierThresholds>): void {
     if (t.largeContextTokens !== undefined) {

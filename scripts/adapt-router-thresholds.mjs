@@ -64,7 +64,7 @@ async function main() {
   const windowMs = (args.windowDays ?? 7) * MS_PER_DAY;
   const cutoff = Date.now() - windowMs;
   const records = await readTelemetry(cutoff);
-  const decision = decide(records);
+  const decision = await decide(records);
 
   const adjustment = {
     ts: new Date().toISOString(),
