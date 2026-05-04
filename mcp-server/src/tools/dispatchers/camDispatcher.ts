@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _espCAM: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -433,6 +433,7 @@ async function getEngine(name: string): Promise<any> {
     case "mcFAI": return _mcFAI ??= (await import("../../engines/MastercamFAIBridge.js")).mastercamFAIBridge;
     case "mcSPC": return _mcSPC ??= (await import("../../engines/MastercamSPCBridge.js")).mastercamSPCBridge;
     case "mcAutoBridge": return _mcAutoBridge ??= (await import("../../engines/MastercamAutomationBridge.js")).mastercamAutomationBridge;
+    case "espCAM": return _espCAM ??= (await import("../../engines/EspritCAMBridgeEngine.js")).espritCAMBridgeEngine;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1617,6 +1618,17 @@ export const ACTIONS = [
   "cam_mastercam_automation_get_operation_tree",
   "cam_mastercam_automation_export_step",
   "cam_mastercam_automation_close",
+  "cam_esprit_connect",
+  "cam_esprit_get_status",
+  "cam_esprit_disconnect",
+  "cam_esprit_extract_project",
+  "cam_esprit_parse_apt",
+  "cam_esprit_parse_nc",
+  "cam_esprit_get_tools",
+  "cam_esprit_get_operations",
+  "cam_esprit_push_parameters",
+  "cam_esprit_sync_tools",
+  "cam_esprit_check_version",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11998,6 +12010,99 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("mcAutoBridge");
             const closed = await engine.close();
             result = { success: true, closed };
+            break;
+          }
+
+          case "cam_esprit_connect": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.connect
+            const engine = await getEngine("espCAM");
+            const connection = await engine.connect(params as never);
+            result = { success: true, connection };
+            break;
+          }
+
+          case "cam_esprit_get_status": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.getStatus
+            const engine = await getEngine("espCAM");
+            const status = await engine.getStatus();
+            result = { success: true, status };
+            break;
+          }
+
+          case "cam_esprit_disconnect": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.disconnect
+            const engine = await getEngine("espCAM");
+            const disconnected = await engine.disconnect();
+            result = { success: true, ...disconnected };
+            break;
+          }
+
+          case "cam_esprit_extract_project": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.extractProject (full project pull)
+            const engine = await getEngine("espCAM");
+            const project = await engine.extractProject(params as never);
+            result = { success: true, project };
+            break;
+          }
+
+          case "cam_esprit_parse_apt": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.parseAPT (PURE — no I/O)
+            const engine = await getEngine("espCAM");
+            const content = String(params.content ?? params.apt ?? "");
+            const sourceFile = String(params.source_file ?? params.sourceFile ?? "in-memory.apt");
+            const apt = engine.parseAPT(content, sourceFile);
+            result = { success: true, source_file: sourceFile, apt };
+            break;
+          }
+
+          case "cam_esprit_parse_nc": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.parseNC (PURE — no I/O)
+            const engine = await getEngine("espCAM");
+            const content = String(params.content ?? params.nc ?? "");
+            const sourceFile = String(params.source_file ?? params.sourceFile ?? "in-memory.nc");
+            const nc = engine.parseNC(content, sourceFile);
+            result = { success: true, source_file: sourceFile, nc };
+            break;
+          }
+
+          case "cam_esprit_get_tools": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.getTools
+            const engine = await getEngine("espCAM");
+            const tools = await engine.getTools();
+            result = { success: true, ...tools };
+            break;
+          }
+
+          case "cam_esprit_get_operations": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.getOperations
+            const engine = await getEngine("espCAM");
+            const operations = await engine.getOperations();
+            result = { success: true, ...operations };
+            break;
+          }
+
+          case "cam_esprit_push_parameters": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.pushParameters (write to Esprit)
+            const engine = await getEngine("espCAM");
+            const pushed = await engine.pushParameters(params as never);
+            result = { success: true, pushed };
+            break;
+          }
+
+          case "cam_esprit_sync_tools": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.syncTools (bidirectional tool sync)
+            const engine = await getEngine("espCAM");
+            const synced = await engine.syncTools(params as never);
+            result = { success: true, synced };
+            break;
+          }
+
+          case "cam_esprit_check_version": {
+            // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.checkVersionCompatibility (sync, PURE)
+            const engine = await getEngine("espCAM");
+            const version = String(params.version ?? "");
+            const compat = engine.checkVersionCompatibility(version);
+            result = { success: true, version, ...compat };
             break;
           }
 
