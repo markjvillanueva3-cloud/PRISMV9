@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _espCAM: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmDeepLearning: any, _hmAIOrch: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _fusLathePostDelta: any, _fusAIOrch: any, _fus360CodeGen: any, _mcMatBridge: any, _mcMatPhys: any, _mcFAI: any, _mcSPC: any, _mcAutoBridge: any, _espCAM: any, _invAutoBridge: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -434,6 +434,7 @@ async function getEngine(name: string): Promise<any> {
     case "mcSPC": return _mcSPC ??= (await import("../../engines/MastercamSPCBridge.js")).mastercamSPCBridge;
     case "mcAutoBridge": return _mcAutoBridge ??= (await import("../../engines/MastercamAutomationBridge.js")).mastercamAutomationBridge;
     case "espCAM": return _espCAM ??= (await import("../../engines/EspritCAMBridgeEngine.js")).espritCAMBridgeEngine;
+    case "invAutoBridge": return _invAutoBridge ??= (await import("../../engines/InventorAutomationBridge.js")).inventorAutomationBridge;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1629,6 +1630,12 @@ export const ACTIONS = [
   "cam_esprit_push_parameters",
   "cam_esprit_sync_tools",
   "cam_esprit_check_version",
+  "cam_inventor_automation_open",
+  "cam_inventor_automation_get_parameters",
+  "cam_inventor_automation_get_model_tree",
+  "cam_inventor_automation_export_step",
+  "cam_inventor_automation_get_mass_properties",
+  "cam_inventor_automation_close",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -12103,6 +12110,56 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const version = String(params.version ?? "");
             const compat = engine.checkVersionCompatibility(version);
             result = { success: true, version, ...compat };
+            break;
+          }
+
+          case "cam_inventor_automation_open": {
+            // U-CAM-INV-AUTOBRIDGE-WIRE-01: InventorAutomationBridge.open
+            const engine = await getEngine("invAutoBridge");
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            const opened = await engine.open(filePath);
+            result = { success: true, opened };
+            break;
+          }
+
+          case "cam_inventor_automation_get_parameters": {
+            // U-CAM-INV-AUTOBRIDGE-WIRE-01: InventorAutomationBridge.getParameters
+            const engine = await getEngine("invAutoBridge");
+            const parameters = await engine.getParameters();
+            result = { success: true, parameters };
+            break;
+          }
+
+          case "cam_inventor_automation_get_model_tree": {
+            // U-CAM-INV-AUTOBRIDGE-WIRE-01: InventorAutomationBridge.getModelTree
+            const engine = await getEngine("invAutoBridge");
+            const tree = await engine.getModelTree();
+            result = { success: true, tree };
+            break;
+          }
+
+          case "cam_inventor_automation_export_step": {
+            // U-CAM-INV-AUTOBRIDGE-WIRE-01: InventorAutomationBridge.exportSTEP
+            const engine = await getEngine("invAutoBridge");
+            const outputPath = String(params.output_path ?? params.outputPath ?? "");
+            const exported = await engine.exportSTEP(outputPath);
+            result = { success: true, exported };
+            break;
+          }
+
+          case "cam_inventor_automation_get_mass_properties": {
+            // U-CAM-INV-AUTOBRIDGE-WIRE-01: InventorAutomationBridge.getMassProperties
+            const engine = await getEngine("invAutoBridge");
+            const massProperties = await engine.getMassProperties();
+            result = { success: true, massProperties };
+            break;
+          }
+
+          case "cam_inventor_automation_close": {
+            // U-CAM-INV-AUTOBRIDGE-WIRE-01: InventorAutomationBridge.close (idempotent)
+            const engine = await getEngine("invAutoBridge");
+            const closed = await engine.close();
+            result = { success: true, closed };
             break;
           }
 
