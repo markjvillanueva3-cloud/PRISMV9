@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmXmlExtractor: any, _hmStrategyKB: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -422,6 +422,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmSkillRegMap": return _hmSkillRegMap ??= (await import("../../engines/HyperMillSkillRegistryMap.js")).hyperMillSkillRegistryMap;
     case "hmMedMatProfiles": return _hmMedMatProfiles ??= (await import("../../engines/HyperMillMedicalMaterialProfiles.js")).hyperMillMedicalMaterialProfiles;
     case "hmXmlExtractor": return _hmXmlExtractor ??= (await import("../../engines/HyperMillXmlExtractor.js")).hyperMillXmlExtractor;
+    case "hmStrategyKB": return _hmStrategyKB ??= (await import("../../engines/HyperMillStrategyKnowledgeEngine.js")).hyperMillStrategyKnowledgeEngine;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1538,6 +1539,14 @@ export const ACTIONS = [
   "cam_hypermill_inhost_get_stats",
   "cam_hypermill_inhost_reset_session",
   "cam_hypermill_inhost_reset_all",
+  "cam_hypermill_strategy_kb_list_all",
+  "cam_hypermill_strategy_kb_by_category",
+  "cam_hypermill_strategy_kb_get",
+  "cam_hypermill_strategy_kb_details",
+  "cam_hypermill_strategy_kb_recommend",
+  "cam_hypermill_strategy_kb_search",
+  "cam_hypermill_strategy_kb_for_geometry",
+  "cam_hypermill_strategy_kb_jm_die",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -11203,6 +11212,81 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { HyperMillInHostRunnerEngine } = await import("../../engines/HyperMillInHostRunnerEngine.js");
             HyperMillInHostRunnerEngine.resetAll();
             result = { success: true, reset: true };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_list_all": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.getAllStrategies
+            const engine = await getEngine("hmStrategyKB");
+            const strategies = engine.getAllStrategies();
+            result = { success: true, strategies, count: strategies.length };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_by_category": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.getStrategiesByCategory
+            const engine = await getEngine("hmStrategyKB");
+            const category = String(params.category ?? "");
+            const strategies = engine.getStrategiesByCategory(category);
+            result = { success: true, category, strategies, count: strategies.length };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_get": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.getStrategy (exact id lookup)
+            const engine = await getEngine("hmStrategyKB");
+            const id = String(params.id ?? params.strategy_id ?? params.strategyId ?? "");
+            const strategy = engine.getStrategy(id);
+            result = { success: true, id, strategy: strategy ?? null, found: strategy !== undefined };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_details": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.getStrategyDetails (fuzzy by name)
+            const engine = await getEngine("hmStrategyKB");
+            const name = String(params.name ?? params.query ?? "");
+            const strategy = engine.getStrategyDetails(name);
+            result = { success: true, name, strategy: strategy ?? null, found: strategy !== undefined };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_recommend": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.recommendStrategy
+            // Recommends an optimal strategy from geometry+material+goal+kinematics; returns alternatives + warnings + parameter suggestions.
+            const engine = await getEngine("hmStrategyKB");
+            const geometry = String(params.geometry ?? "");
+            const material = String(params.material ?? params.iso_group ?? params.isoGroup ?? "P");
+            const goal = String(params.goal ?? params.operation_goal ?? params.operationGoal ?? "roughing");
+            const kinematics = String(params.kinematics ?? params.machine_kinematics ?? params.machineKinematics ?? "3axis");
+            const recommendation = engine.recommendStrategy(geometry, material, goal, kinematics);
+            result = { success: true, recommendation };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_search": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.searchStrategies (keyword)
+            const engine = await getEngine("hmStrategyKB");
+            const keyword = String(params.keyword ?? params.query ?? "");
+            const strategies = engine.searchStrategies(keyword);
+            result = { success: true, keyword, strategies, count: strategies.length };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_for_geometry": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.getStrategiesForGeometry
+            const engine = await getEngine("hmStrategyKB");
+            const geometry = String(params.geometry ?? "");
+            const strategies = engine.getStrategiesForGeometry(geometry);
+            result = { success: true, geometry, strategies, count: strategies.length };
+            break;
+          }
+
+          case "cam_hypermill_strategy_kb_jm_die": {
+            // U-CAM-HM-STRATKB-WIRE-01: HyperMillStrategyKnowledgeEngine.getJMDieStrategies
+            // Surfaces strategies tagged for the JM Die test shop.
+            const engine = await getEngine("hmStrategyKB");
+            const strategies = engine.getJMDieStrategies();
+            result = { success: true, strategies, count: strategies.length };
             break;
           }
 
