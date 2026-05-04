@@ -311,6 +311,154 @@ function validateBlockAnnotationsArray(
 }
 
 // ============================================================================
+// WIRE EDM BLOCK ANNOTATIONS — PPG-WIRE-MS6/U-PPGM16
+// ----------------------------------------------------------------------------
+// Wire EDM physics doesn't fit the S_rpm/F_mmpm shape used by milling/turning
+// (no spindle, no chip-load feed). Instead each emitted block is parameterized
+// by E-pack power setting, pulse on/off times, gap voltage, wire feed, wire
+// tension, and flushing — sourced from MitsubishiMV1200R E-pack tables (1-20).
+// This parallel shape lets WEDM posts seal under the same sidecar contract
+// as Hurco/Okuma/B250 without hijacking the milling/turning emit field.
+//
+// Schema bumps to 1.2.0 (additive — both block_annotations and
+// wedm_block_annotations are optional; pre-1.2.0 sidecars stay valid).
+// ============================================================================
+
+const wedmPassTypeSchema = z.enum([
+  "rough",
+  "skim1",
+  "skim2",
+  "skim3",
+  "skim4",
+]);
+
+/** WEDM workpiece material class — distinct from milling ISO groups (P/M/K/N/S/H).
+ *  Mirrors WireEDMMaterial.material_class in MitsubishiMV1200R engine. */
+const wedmMaterialClassSchema = z.enum([
+  "tool_steel",
+  "carbide",
+  "graphite",
+  "aluminum",
+  "copper",
+  "brass",
+  "titanium",
+  "inconel",
+  "ceramic",
+]);
+
+const emittedWEDMSchema = z.object({
+  /** E-pack power setting (1-20 on Mitsubishi MV1200R / M700V). */
+  power_setting: z
+    .number()
+    .int()
+    .refine((v) => v >= 1 && v <= 20, {
+      message: "power_setting must be integer in [1, 20]",
+    }),
+  /** Pulse on-time, microseconds. */
+  on_time_us: finitePositive,
+  /** Pulse off-time, microseconds. */
+  off_time_us: finitePositive,
+  /** Servo gap voltage, volts (typical range 25-60V on the MV1200R). */
+  servo_voltage_v: finitePositive,
+  /** Wire speed, m/min (Mitsubishi rough = 12, skim4 = 4). */
+  wire_speed_m_min: finitePositive,
+  /** Wire tension, grams (Mitsubishi rough = 1200, skim4 = 450). */
+  wire_tension_g: finitePositive,
+  /** Flushing pressure, 0-15 scale. */
+  flushing_pressure: finiteNonNegative,
+  /** Pass classification (rough / skim1..skim4). */
+  pass_type: wedmPassTypeSchema,
+});
+export type EmittedWEDM = z.infer<typeof emittedWEDMSchema>;
+
+const wedmPhysicsBasisSchema = z.enum([
+  "epack_lookup",       // E-pack table lookup (CANONICAL_WEDM_EPACK_TABLE)
+  "pass_factor_table",  // Skim pass factor multiplier on rough baseline
+  "empirical_table",    // Material-class wire feed / tension lookup
+  "operator_override",  // Manual override — not physics-derived
+]);
+export type WEDMPhysicsBasis = z.infer<typeof wedmPhysicsBasisSchema>;
+
+export const wedmBlockAnnotationSchema = z.object({
+  /** Block identifier matching the post output (e.g., "N100"). Unique per sidecar. */
+  block_id: z.string().min(1),
+  /** Operation identifier from the caller's CAM job. */
+  op_id: z.string().min(1),
+  /** Workpiece material class — drives wire/voltage/feed defaults. */
+  material_class: wedmMaterialClassSchema,
+  /** Wire diameter, mm (Mitsubishi MV1200R supports 0.10 – 0.30 mm). */
+  wire_diameter_mm: finitePositive,
+  /** Workpiece thickness, mm — drives on-time scaling. */
+  thickness_mm: finitePositive,
+  /** Emitted EDM parameters for this block. */
+  emitted: emittedWEDMSchema,
+  /** Which physics chain produced the emitted values. */
+  physics_basis: wedmPhysicsBasisSchema,
+  /** Confidence in [0, 1]. operator_override should report 1.0. */
+  confidence: z
+    .number()
+    .refine((v) => Number.isFinite(v) && v >= 0 && v <= 1, {
+      message: "confidence must be in [0, 1]",
+    }),
+  /** Multiplicative safety margin in (0, 1.5]. */
+  safety_margin: z
+    .number()
+    .refine((v) => Number.isFinite(v) && v > 0 && v <= 1.5, {
+      message: "safety_margin must be in (0, 1.5]",
+    }),
+  /** Names of canonical constants pulled from src/physics/constants.ts that
+   *  drove this block's values. Empty array iff physics_basis === "operator_override". */
+  source_constants: z.array(z.string().min(1)),
+});
+export type WEDMBlockAnnotation = z.infer<typeof wedmBlockAnnotationSchema>;
+
+/**
+ * Validate wedm_block_annotations array as a whole — duplicate block_id +
+ * operator_override invariant (must have empty source_constants).
+ */
+function validateWEDMBlockAnnotationsArray(
+  arr: WEDMBlockAnnotation[],
+  ctx: z.RefinementCtx,
+): void {
+  const seen = new Set<string>();
+  for (let i = 0; i < arr.length; i++) {
+    const a = arr[i];
+    if (seen.has(a.block_id)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "block_id"],
+        message: `duplicate block_id "${a.block_id}" — block_ids must be unique within wedm_block_annotations`,
+      });
+    }
+    seen.add(a.block_id);
+    if (a.physics_basis === "operator_override" && a.source_constants.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "source_constants"],
+        message: "operator_override blocks must have empty source_constants (override bypasses physics)",
+      });
+    }
+    if (a.physics_basis !== "operator_override" && a.source_constants.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "source_constants"],
+        message: `physics_basis "${a.physics_basis}" requires at least one source constant reference`,
+      });
+    }
+    if (a.emitted.off_time_us < a.emitted.on_time_us * 0.2) {
+      // WEDM thermal-recovery rule: off-time must be ≥20% of on-time or wire
+      // breaks from heat soak. Catches mis-emitted blocks where the engine
+      // forgot to apply pass-factor scaling.
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [i, "emitted", "off_time_us"],
+        message: `off_time_us (${a.emitted.off_time_us}) must be ≥ 20% of on_time_us (${a.emitted.on_time_us}); wire-break risk from heat soak`,
+      });
+    }
+  }
+}
+
+// ============================================================================
 // EDM PHYSICS — verbatim subtree from EDM_PHYSICS (passthrough — verified by SHA)
 // ============================================================================
 
@@ -374,6 +522,24 @@ export const postPhysicsSidecarSchema = z
       .array(blockAnnotationSchema)
       .superRefine(validateBlockAnnotationsArray)
       .optional(),
+    /**
+     * Per-block Wire EDM annotations (PPG-WIRE-MS6/U-PPGM16, schema 1.2.0).
+     * Optional and additive — pre-1.2.0 sidecars omit this field. Used by
+     * MitsubishiMV1200RWireEDMMasterPostEngine to emit per-pass E-pack +
+     * pulse + wire telemetry under the same sealed-sidecar contract that
+     * already covers Hurco V11 / Okuma B250 / Okuma OSP.
+     *
+     * Note: a single sidecar should populate EITHER `block_annotations` OR
+     * `wedm_block_annotations` for a given emit, not both — the two shapes
+     * carry physics from disjoint domains. The schema does not refuse the
+     * intersection (since a future CAM-side combined cycle could conceivably
+     * include both), but `verifyBlockAnnotations` only audits one shape per
+     * call and post-emit consumers must pick the right one.
+     */
+    wedm_block_annotations: z
+      .array(wedmBlockAnnotationSchema)
+      .superRefine(validateWEDMBlockAnnotationsArray)
+      .optional(),
   });
 
 export type PostPhysicsSidecar = z.infer<typeof postPhysicsSidecarSchema>;
@@ -383,9 +549,10 @@ export type PostPhysicsSidecar = z.infer<typeof postPhysicsSidecarSchema>;
 // ----------------------------------------------------------------------------
 // 1.0.0 — initial sealed sidecar (kienzle/taylor/EDM/canonical S+F tables)
 // 1.1.0 — additive: optional block_annotations[] (MS0/U-PPGM07)
+// 1.2.0 — additive: optional wedm_block_annotations[] (PPG-WIRE-MS6/U-PPGM16)
 // ============================================================================
 
-export const POST_PHYSICS_SIDECAR_SCHEMA_VERSION = "1.1.0";
+export const POST_PHYSICS_SIDECAR_SCHEMA_VERSION = "1.2.0";
 
 // ============================================================================
 // CANONICAL BUILDER — pulls from src/physics/constants.ts (no inlining)

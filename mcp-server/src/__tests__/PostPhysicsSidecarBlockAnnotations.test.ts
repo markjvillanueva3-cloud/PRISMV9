@@ -259,8 +259,8 @@ describe("blockAnnotations[] superRefine (U-PPGM07) — array-level invariants",
 // ============================================================================
 
 describe("PhysicsSidecarBuilder + block_annotations (U-PPGM08) — seal integration", () => {
-  it("schema version reports 1.1.0 after the additive bump", () => {
-    expect(POST_PHYSICS_SIDECAR_SCHEMA_VERSION).toBe("1.1.0");
+  it("schema version reports 1.2.0 after the additive bumps (block_annotations 1.1.0, wedm_block_annotations 1.2.0)", () => {
+    expect(POST_PHYSICS_SIDECAR_SCHEMA_VERSION).toBe("1.2.0");
   });
 
   it("threads block_annotations into the sealed payload verbatim", () => {
