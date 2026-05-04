@@ -23,7 +23,10 @@ import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_gate", "pre_write_diff", "pre_call_validate", "autohook_status", "autohook_test",
   // D3: Learning & Pattern Detection — Python module wiring
-  "pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score"
+  "pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score",
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U03: UnifiedErrorLedgerEngine surface
+  "error_ledger_append", "error_ledger_append_and_embed",
+  "error_ledger_recent", "error_ledger_recall_similar",
 ] as const;
 
 function ok(data: any) {
@@ -749,6 +752,49 @@ export function registerGuardDispatcher(server: any): void {
             if (params.target && !isNaN(Number(params.target))) pyArgs.push("--target", String(params.target));
             const output = runPythonScript("priority_scorer.py", pyArgs);
             try { return ok(JSON.parse(output)); } catch { return ok({ raw: output }); }
+          }
+
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U03: UnifiedErrorLedgerEngine surface
+          case "error_ledger_append": {
+            const { unifiedErrorLedgerEngine } = await import("../../engines/UnifiedErrorLedgerEngine.js");
+            return ok(unifiedErrorLedgerEngine.append({
+              source: params?.source,
+              tool: params?.tool,
+              errorClass: params?.errorClass ?? params?.error_class,
+              message: params?.message,
+              context: params?.context,
+              ts: params?.ts,
+              id: params?.id,
+            }));
+          }
+          case "error_ledger_append_and_embed": {
+            const { unifiedErrorLedgerEngine: e2 } = await import("../../engines/UnifiedErrorLedgerEngine.js");
+            const r = await e2.appendAndEmbed({
+              source: params?.source,
+              tool: params?.tool,
+              errorClass: params?.errorClass ?? params?.error_class,
+              message: params?.message,
+              context: params?.context,
+              ts: params?.ts,
+              id: params?.id,
+            });
+            return ok(r);
+          }
+          case "error_ledger_recent": {
+            const { unifiedErrorLedgerEngine: e3 } = await import("../../engines/UnifiedErrorLedgerEngine.js");
+            const limit = typeof params?.limit === "number" ? params.limit : 50;
+            const sourceFilter = typeof params?.source === "string" ? params.source : undefined;
+            return ok({ entries: e3.getRecent(limit, sourceFilter as any) });
+          }
+          case "error_ledger_recall_similar": {
+            const { unifiedErrorLedgerEngine: e4 } = await import("../../engines/UnifiedErrorLedgerEngine.js");
+            const sig = typeof params?.signature === "string" ? params.signature
+              : typeof params?.query === "string" ? params.query
+              : "";
+            if (!sig) return ok({ error: "Missing 'signature' or 'query' parameter", hits: [] });
+            const limit = typeof params?.limit === "number" ? params.limit : 3;
+            const hits = await e4.recallSimilar(sig, limit);
+            return ok({ hits, count: hits.length });
           }
 
           default:
