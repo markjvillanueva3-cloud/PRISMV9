@@ -62,6 +62,29 @@ import {
   type MachineServo,
   type HSMParameters,
 } from "./HSMDwellAtCornerEngine.js";
+import {
+  advancedPostProcessorEngine,
+  type AdaptiveClearingConfig,
+  type HSMConfig,
+  type FeedOptimizationConfig,
+  type MultiAxisConfig,
+  type InProcessMeasureConfig,
+  type ToolManagementConfig,
+} from "./AdvancedPostProcessorEngine.js";
+
+/**
+ * PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring — opt-in AdvancedPostProcessor pass.
+ * Controller='okuma' table row carries OSP-correct codes (G08 P1, G06.2 NURBS,
+ * G43.4 H#1 RTCP). multi_axis force-skipped on P300 (3-axis MB-V family).
+ */
+export interface AdvancedPostFeaturesConfig {
+  adaptive_clearing?: AdaptiveClearingConfig;
+  hsm?: HSMConfig;
+  tool_management?: ToolManagementConfig;
+  in_process_measure?: InProcessMeasureConfig;
+  feed_optimization?: FeedOptimizationConfig;
+  multi_axis?: MultiAxisConfig;
+}
 
 /** Map ISO machinability group → coarse material name accepted by AutoSpeedFeed. */
 const ISO_GROUP_TO_AUTO_SF_MATERIAL: Record<ISOGroup, string> = {
@@ -152,6 +175,9 @@ export interface OkumaOSPMillPostConfig {
   /** Aggressiveness for the AutoSpeedFeed pass. 0.0 (conservative) → 1.0 (push limits).
    *  Default 0.5. Ignored unless `use_advanced_features` is true. */
   advanced_aggressiveness?: number;
+  /** Opt-in AdvancedPostProcessor pass (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
+   *  multi_axis force-skipped on P300 (3-axis); pushed warning surfaces. */
+  advanced_post?: AdvancedPostFeaturesConfig;
 }
 
 /**
@@ -285,6 +311,15 @@ export interface AdvancedPipelineSummary {
     time_saved_sec: number;
     improvement_pct: number;
     method: string;
+  } | null;
+  /** AdvancedPostProcessor pass output (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring). */
+  advanced_post: {
+    controller_used: "okuma";
+    requested_features: string[];
+    enhancements_applied: string[];
+    warnings: string[];
+    estimated_time_savings_pct: number;
+    output_lines: number;
   } | null;
 }
 
@@ -989,6 +1024,16 @@ export class OkumaOSPMillMasterPostEngine {
       };
     }
 
+    const requestedAdvancedFeatures: string[] = [];
+    if (cfg.advanced_post) {
+      if (cfg.advanced_post.adaptive_clearing) requestedAdvancedFeatures.push("adaptive_clearing");
+      if (cfg.advanced_post.hsm) requestedAdvancedFeatures.push("hsm");
+      if (cfg.advanced_post.feed_optimization) requestedAdvancedFeatures.push("feed_optimization");
+      if (cfg.advanced_post.multi_axis) requestedAdvancedFeatures.push("multi_axis");
+      if (cfg.advanced_post.in_process_measure) requestedAdvancedFeatures.push("in_process_measure");
+      if (cfg.advanced_post.tool_management) requestedAdvancedFeatures.push("tool_management");
+    }
+
     const enhancements: string[] = [];
 
     // ── Resolve compounding machine context (optional — falls back to defaults) ──
@@ -1118,10 +1163,43 @@ export class OkumaOSPMillMasterPostEngine {
         `(${seqResult.improvement_pct.toFixed(1)}%)`,
     );
 
+    // PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring (step 5)
+    let finalGcode = sfResult.gcode;
+    let advancedPostSummary: AdvancedPipelineSummary["advanced_post"] = null;
+    if (cfg.advanced_post) {
+      const apFeatures: AdvancedPostFeaturesConfig = { ...cfg.advanced_post };
+      const preWarnings: string[] = [];
+      if (apFeatures.multi_axis && cfg.osp_family === "P300") {
+        preWarnings.push(
+          "AdvancedPost: multi_axis (RTCP) skipped — P300 family is 3-axis MB-V, RTCP requires P500 (5-axis MU-V).",
+        );
+        apFeatures.multi_axis = undefined;
+      }
+      const apResult = advancedPostProcessorEngine.enhance({
+        controller: "okuma",
+        gcode: sfResult.gcode,
+        ...apFeatures,
+      });
+      finalGcode = apResult.gcode;
+      enhancements.push("advanced_post_processing");
+      advancedPostSummary = {
+        controller_used: "okuma",
+        requested_features: requestedAdvancedFeatures,
+        enhancements_applied: apResult.enhancements_applied,
+        warnings: [...preWarnings, ...apResult.warnings],
+        estimated_time_savings_pct: apResult.estimated_time_savings_pct,
+        output_lines: apResult.gcode.split("\n").length,
+      };
+      log.info(
+        `[OkumaOSPMill] AdvancedPost pass: ${apResult.enhancements_applied.length} sub-features applied, ` +
+          `~${apResult.estimated_time_savings_pct.toFixed(1)}% time savings, ${apResult.warnings.length} warnings`,
+      );
+    }
+
     return {
       ...baseOutput,
       advanced_features_applied: enhancements,
-      optimized_gcode: sfResult.gcode.split("\n"),
+      optimized_gcode: finalGcode.split("\n"),
       advanced_summary: {
         auto_speed_feed: {
           lines_modified: sfResult.stats.lines_modified,
@@ -1167,6 +1245,7 @@ export class OkumaOSPMillMasterPostEngine {
           improvement_pct: seqResult.improvement_pct,
           method: seqResult.method,
         },
+        advanced_post: advancedPostSummary,
       },
     };
   }
