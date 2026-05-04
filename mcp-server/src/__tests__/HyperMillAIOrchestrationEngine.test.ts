@@ -277,15 +277,18 @@ describe("HyperMillAIOrchestrationEngine", () => {
       expect(r.physics_analysis).toBe(undefined);
     });
 
-    it("physics path skipped when tool_diameter_mm missing", async () => {
-      // Note: use material_iso (cheap path) instead of material_id to avoid
-      // triggering the optional HyperMillMaterialBridgeEngine lookup.
+    it("physics path skipped when tool_diameter_mm missing (material_id present)", async () => {
+      // Exercises the now-fixed HyperMillMaterialBridgeEngine.getPhysicsProfile
+      // path: material_id triggers the bridge lookup (non-null because "1.0711"
+      // is in the catalog), but physics_analysis still stays undefined because
+      // the physics block requires tool_diameter_mm too.
       const r = await engine.orchestrate({
         request_type: "physics",
         include_physics: true,
-        material_iso: "M",
+        material_id: "1.0711",
       });
       expect(r.physics_analysis).toBe(undefined);
+      expect(r.engines_invoked).toContain("HyperMillMaterialBridgeEngine");
     });
 
     it("unknown feature maps to closed_pocket fallback in mapFeatureType", async () => {
@@ -354,19 +357,22 @@ describe("HyperMillAIOrchestrationEngine", () => {
       expect(r.engines_invoked.length).toBeGreaterThan(0);
     });
 
-    it("zero tool_flutes tolerated (default applied internally)", async () => {
-      // Use diagnose path with material_iso so the orchestrator does not call
-      // the optional HyperMillMaterialBridgeEngine; the assertion is that
-      // tool_flutes=0 is tolerated downstream regardless.
+    it("zero tool_flutes tolerated when MaterialBridge resolves catalog id", async () => {
+      // Drives the orchestrator through the bridge lookup
+      // (HyperMillMaterialBridgeEngine.getPhysicsProfile, restored after the
+      // missing-singleton fix). The physics block is intentionally NOT
+      // exercised here: a separate pre-existing wiring bug
+      // (HyperMillMaterialPhysicsBridge has resolve(), not calculateMillingPhysics)
+      // would crash the call. That bug is out of scope for this unit.
       const r = await engine.orchestrate({
-        request_type: "diagnose",
-        material_iso: "S",
+        request_type: "physics",
+        material_id: "1.0711",
         tool_diameter_mm: 10,
         tool_flutes: 0,
       });
       expect(r.processing_time_ms).toBeGreaterThanOrEqual(0);
-      expect(r.request_type).toBe("diagnose");
-      expect(r.engines_invoked).toContain("HyperMillAIOrchestrationEngine");
+      expect(r.request_type).toBe("physics");
+      expect(r.engines_invoked).toContain("HyperMillMaterialBridgeEngine");
     });
 
     it("rapid concurrent orchestrate calls return independent responses", async () => {
@@ -384,5 +390,110 @@ describe("HyperMillAIOrchestrationEngine", () => {
       expect(results[2].five_axis_optimization!.strategy).toBe("5-Axis Flowline");
       expect(results[3].five_axis_optimization!.strategy).toBe("5-Axis Contouring");
     });
+  });
+});
+
+describe("HyperMillAIOrchestrationEngine — dispatcher wiring (camDispatcher.ts)", () => {
+  const AIORCH_ACTIONS = [
+    "cam_hypermill_ai_orchestrate",
+    "cam_hypermill_ai_get_reasoning_modes",
+    "cam_hypermill_ai_get_stats",
+  ] as const;
+
+  const ACTION_COUNT_EXPECTED = 3;
+
+  const dispatcherPath = `${process.cwd()}/src/tools/dispatchers/camDispatcher.ts`.replace(/\\/g, "/");
+
+  const readDispatcher = async (): Promise<string> => {
+    const fs = await import("node:fs/promises");
+    return fs.readFile(dispatcherPath, "utf-8");
+  };
+
+  it("registers all 3 cam_hypermill_ai_* enum entries", async () => {
+    const src = await readDispatcher();
+    expect(AIORCH_ACTIONS.length).toBe(ACTION_COUNT_EXPECTED);
+    for (const action of AIORCH_ACTIONS) {
+      expect(src).toContain(`"${action}"`);
+    }
+  });
+
+  it("declares the _hmAIOrch singleton", async () => {
+    const src = await readDispatcher();
+    expect(src).toMatch(/_hmAIOrch\s*:\s*any/);
+  });
+
+  it("registers a hmAIOrch case in the lazy getter switch", async () => {
+    const src = await readDispatcher();
+    const re =
+      /case\s+"hmAIOrch"\s*:\s*return\s+_hmAIOrch\s*\?\?=\s*\(await\s+import\(\s*"\.\.\/\.\.\/engines\/HyperMillAIOrchestrationEngine\.js"\s*\)\)\.hyperMillAIOrchestrationEngine/;
+    expect(re.test(src)).toBe(true);
+  });
+
+  it("declares matching case statements for every action", async () => {
+    const src = await readDispatcher();
+    for (const action of AIORCH_ACTIONS) {
+      const re = new RegExp(`case\\s+"${action}"\\s*:`);
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("every case body resolves the engine via getEngine(\"hmAIOrch\")", async () => {
+    const src = await readDispatcher();
+    for (const action of AIORCH_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?getEngine\\("hmAIOrch"\\)[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("orchestrate case awaits the async pipeline and pass-throughs params", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ai_orchestrate"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("await engine.orchestrate(");
+    expect(body).toContain("params as never");
+    expect(body).toContain("response");
+  });
+
+  it("get_reasoning_modes case routes to getReasoningModes() and reports count (8 modes)", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ai_get_reasoning_modes"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getReasoningModes()");
+    expect(body).toContain("count");
+  });
+
+  it("get_stats case routes to getStats() and spreads the result", async () => {
+    const src = await readDispatcher();
+    const re = /case\s+"cam_hypermill_ai_get_stats"\s*:[\s\S]*?break;/;
+    const body = src.match(re)?.[0] ?? "";
+    expect(body).toContain("getStats()");
+    expect(body).toMatch(/\.\.\.stats/);
+  });
+
+  it("each case sets result.success to true (consistent dispatcher contract)", async () => {
+    const src = await readDispatcher();
+    for (const action of AIORCH_ACTIONS) {
+      const re = new RegExp(
+        `case\\s+"${action}"\\s*:[\\s\\S]*?success:\\s*true[\\s\\S]*?break;`,
+      );
+      expect(re.test(src)).toBe(true);
+    }
+  });
+
+  it("orchestrate is the only async-await case (modes + stats are synchronous)", async () => {
+    const src = await readDispatcher();
+    const orchRe = /case\s+"cam_hypermill_ai_orchestrate"\s*:[\s\S]*?break;/;
+    const orchBody = src.match(orchRe)?.[0] ?? "";
+    expect(orchBody).toContain("await engine.orchestrate");
+
+    const modesRe = /case\s+"cam_hypermill_ai_get_reasoning_modes"\s*:[\s\S]*?break;/;
+    const modesBody = modesRe.exec(src)?.[0] ?? "";
+    expect(modesBody).not.toMatch(/await\s+engine\.getReasoningModes/);
+
+    const statsRe = /case\s+"cam_hypermill_ai_get_stats"\s*:[\s\S]*?break;/;
+    const statsBody = statsRe.exec(src)?.[0] ?? "";
+    expect(statsBody).not.toMatch(/await\s+engine\.getStats/);
   });
 });
