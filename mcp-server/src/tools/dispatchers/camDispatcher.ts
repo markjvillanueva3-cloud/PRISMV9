@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _hmSkillsBatch: any, _hmSkillRegMap: any, _hmMedMatProfiles: any, _hmTurningCfgIngester: any, _hmOmCycles: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -420,6 +420,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmMillTurnStrat": return _hmMillTurnStrat ??= (await import("../../engines/HyperMillMillTurnStrategyEngine.js")).hyperMillMillTurnStrategyEngine;
     case "hmSkillsBatch": return _hmSkillsBatch ??= (await import("../../engines/HyperMillSkillsBatchEngine.js")).hyperMillSkillsBatchEngine;
     case "hmSkillRegMap": return _hmSkillRegMap ??= (await import("../../engines/HyperMillSkillRegistryMap.js")).hyperMillSkillRegistryMap;
+    case "hmMedMatProfiles": return _hmMedMatProfiles ??= (await import("../../engines/HyperMillMedicalMaterialProfiles.js")).hyperMillMedicalMaterialProfiles;
     case "hmTurningCfgIngester": return _hmTurningCfgIngester ??= (await import("../../engines/HyperMillTurningConfigIngesterEngine.js")).hyperMillTurningConfigIngesterEngine;
     case "hmOmCycles": return _hmOmCycles ??= (await import("../../engines/HyperMillOmCyclesExtractor.js")).hyperMillOmCyclesExtractor;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
@@ -1517,6 +1518,9 @@ export const ACTIONS = [
   "cam_hypermill_skill_registry_by_engine",
   "cam_hypermill_skill_registry_by_effort",
   "cam_hypermill_skill_registry_stats",
+  "cam_hypermill_medical_get_profile",
+  "cam_hypermill_medical_resolve_material",
+  "cam_hypermill_medical_list_profiles",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -10931,6 +10935,42 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const engine = await getEngine("hmSkillRegMap");
             const stats = engine.stats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          case "cam_hypermill_medical_get_profile": {
+            // U-CAM-HM-MEDMAT-WIRE-01: HyperMillMedicalMaterialProfiles.getProfile
+            // Physics-validated cutting params for medical/implant materials (CoCr, PEEK, Ti-Gr5/Gr23, zirconia).
+            // Uses CANONICAL_KIENZLE constants — kc1.1 sourced from src/physics/constants.ts.
+            const engine = await getEngine("hmMedMatProfiles");
+            const materialKey = String(params.material_key ?? params.materialKey ?? "");
+            const rawGoal = String(params.operation_goal ?? params.operationGoal ?? "roughing");
+            const operationGoal: "roughing" | "finishing" | "semi_finishing" =
+              rawGoal === "finishing" ? "finishing" : rawGoal === "semi_finishing" ? "semi_finishing" : "roughing";
+            const wornToolFactorRaw = Number(params.worn_tool_factor ?? params.wornToolFactor ?? 0);
+            const wornToolFactor = Number.isFinite(wornToolFactorRaw)
+              ? Math.min(1, Math.max(0, wornToolFactorRaw))
+              : 0;
+            result = { success: true, ...engine.getProfile(materialKey, operationGoal, wornToolFactor) };
+            break;
+          }
+
+          case "cam_hypermill_medical_resolve_material": {
+            // U-CAM-HM-MEDMAT-WIRE-01: HyperMillMedicalMaterialProfiles.resolveMaterialKey
+            // Resolves common material aliases (cocr, co-cr, cobalt_chrome, ti6al4v_eli, etc.) to canonical key.
+            const engine = await getEngine("hmMedMatProfiles");
+            const material = String(params.material ?? "");
+            const key = engine.resolveMaterialKey(material);
+            result = { success: true, material, key, resolved: key !== null };
+            break;
+          }
+
+          case "cam_hypermill_medical_list_profiles": {
+            // U-CAM-HM-MEDMAT-WIRE-01: HyperMillMedicalMaterialProfiles.listProfiles
+            // Returns the catalog (key, displayName, isoGroup) for all medical material profiles.
+            const engine = await getEngine("hmMedMatProfiles");
+            const profiles = engine.listProfiles();
+            result = { success: true, profiles, count: profiles.length };
             break;
           }
 
