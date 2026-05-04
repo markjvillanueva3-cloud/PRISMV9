@@ -186,7 +186,7 @@ import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchem
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords } from "./awarenessMiddleware.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _hmMillTurnStrat: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 // CAMX-MS3 U01 singletons
@@ -417,6 +417,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmController": return _hmController ??= (await import("../../engines/HyperMillControllerCatalogEngine.js")).hyperMillControllerCatalogEngine;
     case "hmCycleDefaults": return _hmCycleDefaults ??= (await import("../../engines/HyperMillCycleDefaultsEngine.js")).hyperMillCycleDefaultsEngine;
     case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
+    case "hmMillTurnStrat": return _hmMillTurnStrat ??= (await import("../../engines/HyperMillMillTurnStrategyEngine.js")).hyperMillMillTurnStrategyEngine;
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
     case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
     case "multiCam": return _multiCam ??= (await import("../../engines/MultiCamStrategyEngine.js")).multiCamStrategyEngine;
@@ -1491,6 +1492,9 @@ export const ACTIONS = [
   "cam_hypermill_secondary_ops_sequence",
   "cam_hypermill_millturn_strategy",
   "cam_hypermill_millturn_multichannel",
+  "cam_hypermill_css_rpm_check",
+  "cam_hypermill_caxis_indexing",
+  "cam_hypermill_millturn_full_strategy",
   "cam_hypermill_dental_route",
   // HM-REV-MS0: HyperCAD-S CAD Automation + Mock Layer
   "cam_feature_to_strategy",
@@ -10653,6 +10657,52 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             } else {
               result = { error: `Unknown sub_action: ${subAction} — use spindle_handoff, simultaneous_ops, or bar_feed_sequence` };
             }
+            break;
+          }
+
+          case "cam_hypermill_css_rpm_check": {
+            // U-CAM-HM-MILLTURN-WIRE-01: HyperMillMillTurnStrategyEngine.checkCSSLimit
+            // Validates G96 CSS against machine RPM limit at minimum diameter.
+            // Formula: RPM = (1000*Vc) / (pi*D_min). Sandvik Coromant + ISO 6983-1.
+            const engine = await getEngine("hmMillTurnStrat");
+            result = engine.checkCSSLimit({
+              vcDesired_m_min: params.vc_desired_m_min ?? params.vcDesired_m_min ?? params.vcDesiredMMin ?? 0,
+              minDiameter_mm:  params.min_diameter_mm  ?? params.minDiameter_mm  ?? params.minDiameterMm  ?? 0,
+              machineMaxRpm:   params.machine_max_rpm  ?? params.machineMaxRpm   ?? 0,
+              isoGroup:        params.iso_group        ?? params.isoGroup,
+            });
+            break;
+          }
+
+          case "cam_hypermill_caxis_indexing": {
+            // U-CAM-HM-MILLTURN-WIRE-01: HyperMillMillTurnStrategyEngine.calculateCAxisSync
+            // Generates C-axis indexed positions + live-tool effective Vc for cross-hole / cross-slot / off-center features.
+            // Reference: DMG MORI NTX/NLX programming manual + Mazak Integrex.
+            const engine = await getEngine("hmMillTurnStrat");
+            result = engine.calculateCAxisSync({
+              syncType:              params.sync_type             ?? params.syncType             ?? "cross_hole",
+              cAngle_deg:            params.c_angle_deg           ?? params.cAngle_deg           ?? params.cAngleDeg           ?? 0,
+              liveToolRpm:           params.live_tool_rpm         ?? params.liveToolRpm          ?? 0,
+              liveToolDiameter_mm:   params.live_tool_diameter_mm ?? params.liveToolDiameter_mm  ?? params.liveToolDiameterMm  ?? 0,
+              workpieceSpindleRpm:   params.workpiece_spindle_rpm ?? params.workpieceSpindleRpm,
+              featureCount:          params.feature_count         ?? params.featureCount         ?? 1,
+            });
+            break;
+          }
+
+          case "cam_hypermill_millturn_full_strategy": {
+            // U-CAM-HM-MILLTURN-WIRE-01: HyperMillMillTurnStrategyEngine.calculateMillTurnStrategy
+            // Combined CSS check + optional C-axis sync + optional multi-channel sync; pulls Kienzle from physics/constants.
+            const engine = await getEngine("hmMillTurnStrat");
+            result = engine.calculateMillTurnStrategy({
+              strategyGeometry: params.strategy_geometry ?? params.strategyGeometry ?? "od_profile",
+              isoGroup:         params.iso_group         ?? params.isoGroup         ?? "P",
+              vcDesired_m_min:  params.vc_desired_m_min  ?? params.vcDesired_m_min  ?? 0,
+              minDiameter_mm:   params.min_diameter_mm   ?? params.minDiameter_mm   ?? 0,
+              machineMaxRpm:    params.machine_max_rpm   ?? params.machineMaxRpm    ?? 0,
+              cAxisConfig:      params.c_axis_config     ?? params.cAxisConfig,
+              multiChannelConfig: params.multi_channel_config ?? params.multiChannelConfig,
+            });
             break;
           }
 
