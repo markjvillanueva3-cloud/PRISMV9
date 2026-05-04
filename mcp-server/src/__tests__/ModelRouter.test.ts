@@ -47,28 +47,32 @@ describe("ModelRouterEngine — tier classification", () => {
     expect(d.reason).toContain("hasImage=true");
   });
 
-  it("escalates safety domain to tier 5 (claude)", () => {
+  it("AUTO-routes safety domain to tier 6 (consensus) by default", () => {
     const d = r.routeForTask({ kind: "reason", domain: "safety" });
-    expect(d).toEqual({
-      tier: 5,
-      model: "claude",
-      kind: "escalate",
-      reason: "domain=safety (safety/physics)",
-      fallback: null,
-    });
+    expect(d.tier).toBe(6);
+    expect(d.model).toBe("consensus");
+    expect(d.kind).toBe("consensus");
+    expect(d.reason).toContain("AUTO-CONSENSUS");
   });
 
-  it("escalates physics/kienzle/taylor/deflection/thermal/compliance domains", () => {
+  it("safety domain with consensus=false falls back to tier 5 (claude-only)", () => {
+    const d = r.routeForTask({ kind: "reason", domain: "safety", consensus: false });
+    expect(d.tier).toBe(5);
+    expect(d.model).toBe("claude");
+    expect(d.reason).toContain("consensus=false");
+  });
+
+  it("AUTO-consensus fires for physics/kienzle/taylor/deflection/thermal/compliance/manufacturing-novel", () => {
     for (const dom of ["physics", "kienzle", "taylor", "deflection", "thermal", "compliance", "manufacturing-novel"]) {
       const d = r.routeForTask({ kind: "code", domain: dom });
-      expect(d.tier).toBe(5);
-      expect(d.model).toBe("claude");
+      expect(d.tier).toBe(6);
+      expect(d.model).toBe("consensus");
     }
   });
 
-  it("safety domain match is case-insensitive", () => {
+  it("safety domain match is case-insensitive (auto-consensus still fires)", () => {
     const d = r.routeForTask({ kind: "code", domain: "SAFETY" });
-    expect(d.tier).toBe(5);
+    expect(d.tier).toBe(6);
   });
 
   it("non-safety domains do NOT escalate", () => {
@@ -268,8 +272,13 @@ describe("ModelRouterEngine — selection precedence", () => {
     expect(d.tier).toBe(4);
   });
 
-  it("safety beats CoT (escalate wins over reasoning tier)", () => {
+  it("safety AUTO-consensus beats CoT (multi-eyes wins over single reasoning tier)", () => {
     const d = r.routeForTask({ kind: "reason", domain: "physics", needsChainOfThought: true });
+    expect(d.tier).toBe(6);
+  });
+
+  it("safety with consensus=false beats CoT (claude-only escalate)", () => {
+    const d = r.routeForTask({ kind: "reason", domain: "physics", needsChainOfThought: true, consensus: false });
     expect(d.tier).toBe(5);
   });
 

@@ -78,13 +78,14 @@ export class PreReviewOrchestratorEngine {
       return this.fail(start, "router error", `routing failed: ${(e as Error).message}`);
     }
 
-    // If router escalates to Claude (tier 5) we skip pre-review — Claude
-    // already leads on safety/physics tasks; drafting first wastes tokens.
+    // If router escalates to Claude (tier 5) or auto-consensus (tier 6) we
+    // skip pre-review — those paths already cover the reasoning we'd draft.
     if (decision.tier >= 5) {
+      const why = decision.tier === 6 ? "auto-consensus owns this" : "Claude leads";
       return {
         ok: true,
         used: false,
-        reason: `router escalated to tier ${decision.tier} (${decision.reason}); pre-review skipped — Claude leads`,
+        reason: `router escalated to tier ${decision.tier} (${decision.reason}); pre-review skipped — ${why}`,
         tier: decision.tier,
         model: decision.model,
         draft: null,

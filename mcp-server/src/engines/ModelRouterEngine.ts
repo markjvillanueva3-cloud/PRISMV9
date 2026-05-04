@@ -181,9 +181,15 @@ export class ModelRouterEngine {
       return this.decisionFor(6, "consensus=true (multi-model)");
     }
 
-    // 4b. Safety / physics / manufacturing → escalate to Claude
+    // 4b. Safety / physics / manufacturing → AUTO-CONSENSUS (tier 6) unless
+    //     caller explicitly opts out with consensus=false. This is the policy
+    //     change: high-stakes domains earn cross-vendor cross-architecture
+    //     review by default. Pass consensus=false to fall back to single-Claude.
     if (input.domain && SAFETY_DOMAINS.has(input.domain.toLowerCase())) {
-      return this.decisionFor(5, `domain=${input.domain} (safety/physics)`);
+      if (input.consensus === false) {
+        return this.decisionFor(5, `domain=${input.domain} (safety/physics, consensus=false → claude-only)`);
+      }
+      return this.decisionFor(6, `domain=${input.domain} (safety/physics → AUTO-CONSENSUS)`);
     }
 
     // 5. Explicit chain-of-thought signal → reasoning tier

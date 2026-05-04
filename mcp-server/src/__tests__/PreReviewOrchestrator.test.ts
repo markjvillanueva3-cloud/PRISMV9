@@ -90,7 +90,7 @@ describe("PreReviewOrchestratorEngine — routing + escalation", () => {
     vi.restoreAllMocks();
   });
 
-  it("escalates safety domain to Claude (skips R1, used=false)", async () => {
+  it("safety domain auto-routes to tier-6 consensus (skips R1, used=false)", async () => {
     const engine = new PreReviewOrchestratorEngine();
     const r = await engine.draftReview({
       prompt: "Validate Kienzle force calculation for AISI 4340 at 200m/min",
@@ -98,17 +98,17 @@ describe("PreReviewOrchestratorEngine — routing + escalation", () => {
     });
     expect(r.ok).toBe(true);
     expect(r.used).toBe(false);
-    expect(r.tier).toBe(5);
-    expect(r.model).toBe("claude");
+    expect(r.tier).toBe(6);
+    expect(r.model).toBe("consensus");
     expect(r.draft).toBeNull();
-    expect(r.reason).toContain("Claude leads");
+    expect(r.reason).toContain("auto-consensus owns this");
   });
 
-  it("escalates physics domain to Claude", async () => {
+  it("physics domain auto-routes to tier-6 consensus", async () => {
     const engine = new PreReviewOrchestratorEngine();
     const r = await engine.draftReview({ prompt: "Refactor toolpath optimizer", domain: "physics" });
     expect(r.used).toBe(false);
-    expect(r.tier).toBe(5);
+    expect(r.tier).toBe(6);
   });
 
   it("returns error result (not throws) when Ollama connect fails", async () => {
