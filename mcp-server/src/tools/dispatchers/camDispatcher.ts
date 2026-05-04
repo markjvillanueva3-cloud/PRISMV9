@@ -5533,6 +5533,8 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 set_work_origin?: boolean;
                 adaptive_control?: boolean;
               };
+              /** PPG-WIRE-MS6/U-PPGM17a — seal sidecar carrying wedm_block_annotations[]. */
+              verify_tier?: "sim" | "proven_out" | "production" | "shop_floor";
             };
             // Map schema types to engine types
             const ops = p.operations.map(op => ({
@@ -5549,10 +5551,21 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               flushing_pressure: op.flushing_pressure === "low" ? 3 : op.flushing_pressure === "medium" ? 8 : op.flushing_pressure === "high" ? 12 : undefined,
               power_setting: op.power_setting ? parseInt(op.power_setting.replace(/[^0-9]/g, ""), 10) : undefined,
             }));
-            result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+            const wedmEngineOutput = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
               ops as any,
               p.config
             );
+            // PPG-WIRE-MS6/U-PPGM17a — route through sealWEDMMasterPostOutput
+            // so block_annotations land in sidecar.wedm_block_annotations and
+            // the SHA seals over the canonical 1.2.0 payload. verify_tier
+            // intentionally NOT exercised here — verifyBlockAnnotations is a
+            // milling/turning S/F gate that does not match the WEDM emit
+            // shape (power_setting / on_time_us / off_time_us). A WEDM-shaped
+            // verifier ships in a separate roadmap unit.
+            const { sealWEDMMasterPostOutput: sealWEDM } = await import("../../cps/sealMasterPostOutput.js");
+            result = sealWEDM(wedmEngineOutput, {
+              source_engine_versions: { "MitsubishiMV1200RWireEDMMasterPostEngine": "1.0.0" },
+            });
             break;
           }
           case "master_post_by_machine": {
@@ -5614,10 +5627,18 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                   conductivity: op.material?.conductivity_relative ?? 0.1,
                 },
               }));
-              result = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
+              const wedmRouterOutput = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
                 ops as any,
                 (params as any).config
               );
+              // PPG-WIRE-MS6/U-PPGM17a — auto-router seals the WEDM sidecar
+              // symmetrically with the Hurco/Okuma branches. WEDM-shaped
+              // verify gate not yet implemented (separate unit) so we omit
+              // verify_tier; sidecar still carries SHA-sealed annotations.
+              const { sealWEDMMasterPostOutput: sealWEDMRouter } = await import("../../cps/sealMasterPostOutput.js");
+              result = sealWEDMRouter(wedmRouterOutput, {
+                source_engine_versions: { "MitsubishiMV1200RWireEDMMasterPostEngine": "1.0.0" },
+              });
             } else if (
               model.includes("HURCO") || model.includes("VMX24") || model.includes("VM30I") || model.includes("V11") ||
               // U-PPGW11 — Hurco alias-expand: catches VMX42/VMX60i/VM10/VM20i,
