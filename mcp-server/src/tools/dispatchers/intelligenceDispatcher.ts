@@ -486,6 +486,10 @@ const DIAGNOSIS_FWD = [
   "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
   // XPROC-NEURAL-T1-03: transfer learning across material clusters
   "xproc_transfer_classify", "xproc_transfer_pairs", "xproc_transfer_check",
+  // XPROC-NEURAL-T1-04: LIME + ECE + L1 anomaly attention/explain
+  "xproc_attention_explain", "xproc_attention_ece",
+  "xproc_attention_baseline_add", "xproc_attention_anomaly",
+  "xproc_attention_baseline_get", "xproc_attention_baseline_reset",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -1143,6 +1147,139 @@ export function registerIntelligenceDispatcher(server: any): void {
                 targetCluster,
                 trusted,
               }),
+            }],
+          };
+        }
+
+        // === XPROC-NEURAL-T1-04: LIME + ECE + L1 anomaly attention/explain ===
+        // All actions use the in-process T1-02 singleton as the donor model.
+        if (action === "xproc_attention_explain") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const { crossProcessAttentionExplainEngine } = await import(
+            "../../engines/CrossProcessAttentionExplainEngine.js"
+          );
+          const record = params.record as Parameters<
+            typeof crossProcessNeuralLearningEngine.featurize
+          >[0] | undefined;
+          if (!record) {
+            return dispatcherError(
+              "xproc_attention_explain requires `record`",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const opts = (params.opts as Parameters<
+            typeof crossProcessAttentionExplainEngine.explainPrediction
+          >[2]) ?? undefined;
+          const out = crossProcessAttentionExplainEngine.explainPrediction(
+            crossProcessNeuralLearningEngine,
+            record,
+            opts,
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...out }),
+            }],
+          };
+        }
+        if (action === "xproc_attention_ece") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const { crossProcessAttentionExplainEngine } = await import(
+            "../../engines/CrossProcessAttentionExplainEngine.js"
+          );
+          const records = (params.records as Parameters<
+            typeof crossProcessAttentionExplainEngine.computeECE
+          >[1]) ?? [];
+          const numBins = params.numBins as number | undefined;
+          const out = crossProcessAttentionExplainEngine.computeECE(
+            crossProcessNeuralLearningEngine,
+            records,
+            numBins,
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...out }),
+            }],
+          };
+        }
+        if (action === "xproc_attention_baseline_add") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const { crossProcessAttentionExplainEngine } = await import(
+            "../../engines/CrossProcessAttentionExplainEngine.js"
+          );
+          const records = (params.records as Parameters<
+            typeof crossProcessAttentionExplainEngine.registerBaseline
+          >[1]) ?? [];
+          const out = crossProcessAttentionExplainEngine.registerBaseline(
+            crossProcessNeuralLearningEngine,
+            records,
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...out }),
+            }],
+          };
+        }
+        if (action === "xproc_attention_anomaly") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const { crossProcessAttentionExplainEngine } = await import(
+            "../../engines/CrossProcessAttentionExplainEngine.js"
+          );
+          const record = params.record as Parameters<
+            typeof crossProcessAttentionExplainEngine.scoreAnomaly
+          >[1] | undefined;
+          if (!record) {
+            return dispatcherError(
+              "xproc_attention_anomaly requires `record`",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const threshold = params.threshold as number | undefined;
+          const out = crossProcessAttentionExplainEngine.scoreAnomaly(
+            crossProcessNeuralLearningEngine,
+            record,
+            threshold,
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...out }),
+            }],
+          };
+        }
+        if (action === "xproc_attention_baseline_get") {
+          const { crossProcessAttentionExplainEngine } = await import(
+            "../../engines/CrossProcessAttentionExplainEngine.js"
+          );
+          const out = crossProcessAttentionExplainEngine.getBaseline();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...out }),
+            }],
+          };
+        }
+        if (action === "xproc_attention_baseline_reset") {
+          const { crossProcessAttentionExplainEngine } = await import(
+            "../../engines/CrossProcessAttentionExplainEngine.js"
+          );
+          crossProcessAttentionExplainEngine.resetBaseline();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true }),
             }],
           };
         }
