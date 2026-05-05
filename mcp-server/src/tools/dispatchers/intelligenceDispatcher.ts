@@ -481,6 +481,9 @@ const DIAGNOSIS_FWD = [
   // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
   "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
   "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
+  // XPROC-NEURAL-T1-02: pure-JS MLP 32→16→3 over CrossProcessOutcomeStore
+  "xproc_neural_train", "xproc_neural_predict", "xproc_neural_evaluate",
+  "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -927,6 +930,130 @@ export function registerIntelligenceDispatcher(server: any): void {
           );
           crossProcessOutcomeStore.clear();
           return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true }) }] };
+        }
+
+        // === XPROC-NEURAL-T1-02: MLP classifier over OutcomeStore ===
+        if (action === "xproc_neural_train") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const records = (params.records as Parameters<
+            typeof crossProcessNeuralLearningEngine.train
+          >[0]) ?? [];
+          const opts = (params.opts as Parameters<
+            typeof crossProcessNeuralLearningEngine.train
+          >[1]) ?? undefined;
+          const result = crossProcessNeuralLearningEngine.train(records, opts);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...result }),
+            }],
+          };
+        }
+        if (action === "xproc_neural_predict") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const record = params.record as Parameters<
+            typeof crossProcessNeuralLearningEngine.predictFromRecord
+          >[0] | undefined;
+          if (!record) {
+            return dispatcherError(
+              "xproc_neural_predict requires `record`",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const result = crossProcessNeuralLearningEngine.predictFromRecord(record);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...result }),
+            }],
+          };
+        }
+        if (action === "xproc_neural_evaluate") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const records = (params.records as Parameters<
+            typeof crossProcessNeuralLearningEngine.evaluate
+          >[0]) ?? [];
+          const result = crossProcessNeuralLearningEngine.evaluate(records);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...result }),
+            }],
+          };
+        }
+        if (action === "xproc_neural_save") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const filePath = params.path as string | undefined;
+          if (typeof filePath !== "string" || filePath.length === 0) {
+            return dispatcherError(
+              "xproc_neural_save requires `path` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          crossProcessNeuralLearningEngine.saveTo(filePath);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, path: filePath }),
+            }],
+          };
+        }
+        if (action === "xproc_neural_load") {
+          const { CrossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const filePath = params.path as string | undefined;
+          if (typeof filePath !== "string" || filePath.length === 0) {
+            return dispatcherError(
+              "xproc_neural_load requires `path` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const loaded = CrossProcessNeuralLearningEngine.loadFrom(filePath);
+          const metrics = loaded.getMetrics();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, path: filePath, metrics }),
+            }],
+          };
+        }
+        if (action === "xproc_neural_metrics") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const metrics = crossProcessNeuralLearningEngine.getMetrics();
+          const config = crossProcessNeuralLearningEngine.getConfig();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, metrics, config }),
+            }],
+          };
+        }
+        if (action === "xproc_neural_reset") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const seed = params.seed as number | undefined;
+          crossProcessNeuralLearningEngine.reset(seed);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, seed: seed ?? null }),
+            }],
+          };
         }
 
         if (action === "process_full_pipeline") {
