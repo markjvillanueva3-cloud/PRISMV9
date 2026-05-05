@@ -1,261 +1,194 @@
 /**
- * PRISMContextInjectorEngine — auto-loads PRISM context for consensus calls.
+ * PRISMContextInjectorEngine — assemble a per-call PRISM context bundle that
+ * external reasoners (Codex, Gemini, Grok, Ollama) prepend to their prompt
+ * so they reason WITH PRISM knowledge instead of generic.
  *
- * Milestone: INTEL-OLLAMA-OBSIDIAN-MS0 / LAYER-1-CONTEXT-INJECT.
+ * Milestone: INTEL-OLLAMA-OBSIDIAN-MS0 / U-CODEX-COORD-FIX (restore).
  *
- * Problem: each consensus model (Codex, Grok, Ollama-deepseek, Ollama-qwen)
- * sees ONLY the prompt I shove into it. They have no knowledge of CLAUDE.md,
- * GSD protocol, master index, ENGINE_DIGEST, dispatcher actions, safety tier
- * policy, or 6-terminal coordination rules. They give plausible-but-PRISM-
- * ignorant answers — suggesting engines that already exist, missing canonical
- * constants, hallucinating dispatcher actions.
+ * Why this exists
+ * ---------------
+ * MultiModelConsensusEngine fans the same prompt out to N reasoners and
+ * scores agreement. Without PRISM context, those reasoners answer
+ * generically ("kc1.1 ≈ 1500-2200 N/mm² for steel") rather than against
+ * PRISM's canonical constants ("1800 per src/physics/constants.ts P-group").
+ * This engine builds a budgeted bundle from the chunked knowledge vault
+ * (knowledge/claude-md/, P1-U05 output) so the reasoners share the same
+ * frame of reference.
  *
- * This engine fixes that by building a per-model PRISM-context bundle that's
- * automatically prepended to consensus calls. Two layers:
- *   1. Static bundle (cached, file-mtime-invalidated):
- *      CLAUDE.md essentials + PRISM-INVENTORY + GSD_QUICK + DEV_PROTOCOL +
- *      omega-thresholds + 6-terminal rules → ~12K tokens
- *   2. Relevance-ranked layer (recomputed per call):
- *      Top-K matching engines from ENGINE_DIGEST + top-K dispatcher actions +
- *      top-K relevant skills, scored by token-overlap with the user's prompt
- *      → ~6K tokens
+ * Design
+ * ------
+ * Pure side-effect-free engine. Caller passes a prompt + per-model token
+ * budget; engine returns a `{ text, sources }` bundle whose body is at
+ * most `modelBudget` characters (rough proxy for tokens at 1 token ≈ 4
+ * chars; we err on the side of keeping it small).
  *
- * Per-model budget shrinks output to fit the recipient's context window:
- *   Claude       100K tokens (we have 1M but don't dominate)
- *   gpt-5.5      100K
- *   Grok-4        50K
- *   Ollama-14b    24K (model has 32K, leave room for response)
+ * Selection priority for the budget:
+ *   1. Project AGENTS.md head (always first ~4K chars — operating playbook)
+ *   2. Global CLAUDE.md preamble chunk (always)
+ *   3. Top-K knowledge/claude-md/ chunks by keyword overlap with prompt
+ *   4. (future) top-K knowledge/tribal/ entries by semantic similarity
  *
- * Engine is stateful (cache) but file I/O is the only effect — pure
- * computation otherwise. Failures degrade gracefully: missing file → skip,
- * oversized → truncate, no relevance match → skip ranked layer.
+ * The engine is fail-open: if a source is missing or unreadable, it is
+ * silently dropped and the next source fills the budget. The consumer
+ * (MultiModelConsensusEngine.run) wraps the call in try/catch anyway, so
+ * a thrown error here just falls back to a raw prompt.
  *
  * @module engines/PRISMContextInjectorEngine
  */
 
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
-export interface InjectorOptions {
-  /** Token budget for the recipient model. Default 100_000. Engine output ≤ this. */
+const DEFAULT_PROJECT_AGENTS = "H:/PRISM/AGENTS.md";
+const DEFAULT_GLOBAL_CLAUDE = process.env.PRISM_GLOBAL_CLAUDE_MD
+  ?? `${process.env.USERPROFILE ?? process.env.HOME ?? ""}/.claude/CLAUDE.md`;
+const DEFAULT_CHUNK_DIR = "H:/prism/knowledge/claude-md";
+const DEFAULT_BUDGET = 24_000;
+const PROJECT_HEAD_BUDGET = 4_000;
+
+export interface BuildContextInput {
+  /** Prompt the consensus is about — used for keyword-overlap chunk ranking. */
   modelBudget?: number;
-  /** Top-K engines from ENGINE_DIGEST to include. Default 20. */
-  topEngines?: number;
-  /** Top-K dispatcher actions to include. Default 10. */
-  topDispatchers?: number;
-  /** Skip the ranked-layer entirely (return only the static bundle). Default false. */
-  staticOnly?: boolean;
+  /** Override project AGENTS.md (or CLAUDE.md) path. */
+  projectPath?: string;
+  /** Override global CLAUDE.md path. */
+  globalPath?: string;
+  /** Override knowledge/claude-md/ chunk directory. */
+  chunkDir?: string;
+  /** Limit how many chunks the keyword ranker picks. Default 8. */
+  topK?: number;
 }
 
-export interface PrismContext {
-  text: string;                       // full assembled context block
-  estimatedTokens: number;
-  staticBytes: number;
-  rankedBytes: number;
-  sourcesIncluded: string[];          // which files contributed
-  truncated: boolean;
-}
-
-const PRISM_ROOT = process.env.PRISM_ROOT ?? "H:/prism";
-
-interface SourceFile {
-  abs: string;
-  label: string;
-  priority: number;                   // lower = more important
-  maxBytes: number;                   // per-file cap to keep one fat file from blowing the budget
-}
-
-const STATIC_SOURCES: ReadonlyArray<SourceFile> = Object.freeze([
-  { abs: path.join(PRISM_ROOT, "CLAUDE.md"),                                 label: "CLAUDE.md",                priority: 1, maxBytes: 8000 },
-  { abs: path.join(PRISM_ROOT, "PRISM-INVENTORY-LATEST.md"),                 label: "PRISM-INVENTORY",          priority: 2, maxBytes: 4000 },
-  { abs: path.join(PRISM_ROOT, "state/shared/omega-thresholds.json"),        label: "omega-thresholds",         priority: 3, maxBytes: 3000 },
-  { abs: path.join(PRISM_ROOT, "mcp-server/data/docs/gsd/GSD_QUICK.md"),     label: "GSD_QUICK",                priority: 4, maxBytes: 6000 },
-  { abs: path.join(PRISM_ROOT, "mcp-server/data/docs/gsd/DEV_PROTOCOL.md"),  label: "DEV_PROTOCOL",             priority: 5, maxBytes: 6000 },
-  { abs: path.join(PRISM_ROOT, "mcp-server/data/docs/DIRECTORY_DIGEST.md"),  label: "DIRECTORY_DIGEST",         priority: 6, maxBytes: 4000 },
-]);
-
-const ENGINE_DIGEST = path.join(PRISM_ROOT, "mcp-server/data/docs/ENGINE_DIGEST.md");
-
-const SIX_TERMINAL_RULES = [
-  "PRISM runs ~6 simultaneous Claude terminals. Always honor:",
-  "1. Lane discipline — one terminal per milestone scope; commit to the matching work/<scope> branch",
-  "2. File claims — peer chats post claims via chat-bus; respect 'do not edit' lists in chat signals",
-  "3. Per-chat handoff at state/shared/handoffs/HANDOFF-<instance>-<topic>.md (NEVER state/HANDOFF.md)",
-  "4. Conflict-fork rule — if commit-ownership-guard blocks you, fork to your own worktree (git worktree add)",
-  "5. Engine creation — duplicationGuardEngine.mustCheckBeforeCreating() throws on duplicates",
-  "6. Physics constants — only from src/physics/constants.ts; NEVER inline Kienzle/Taylor values",
-].join("\n");
-
-const TOKEN_PER_CHAR = 0.25;          // rough heuristic
-const TINY_TOKEN_FAIL_BUDGET = 256;   // below this we ship only a 1-liner
-
-interface CacheEntry {
-  bytes: number;
+export interface ContextBundle {
   text: string;
-  mtime: number;
+  sources: string[];
+  totalChars: number;
+  modelBudget: number;
+  chunksUsed: number;
 }
+
+interface RankedChunk { path: string; slug: string; section: string; body: string; score: number; }
 
 export class PRISMContextInjectorEngine {
-  private staticCache = new Map<string, CacheEntry>();
-  private engineDigestCache: { mtime: number; lines: string[] } | null = null;
-
-  async buildContext(prompt: string, opts: InjectorOptions = {}): Promise<PrismContext> {
-    if (typeof prompt !== "string") throw new Error("prompt must be a string");
-    const budget = opts.modelBudget ?? 100_000;
-    if (!Number.isFinite(budget) || budget <= 0) {
-      throw new Error("modelBudget must be a positive number");
-    }
-    if (budget < TINY_TOKEN_FAIL_BUDGET) {
-      return {
-        text: "[PRISM context omitted — budget too small]",
-        estimatedTokens: 8,
-        staticBytes: 0,
-        rankedBytes: 0,
-        sourcesIncluded: [],
-        truncated: true,
-      };
-    }
+  /**
+   * Build a budgeted context bundle for a single prompt. Never throws —
+   * returns an empty `{text: "", sources: []}` bundle if every source is
+   * unavailable.
+   */
+  async buildContext(prompt: string, opts: BuildContextInput = {}): Promise<ContextBundle> {
+    const budget = opts.modelBudget ?? DEFAULT_BUDGET;
+    const projectPath = opts.projectPath ?? DEFAULT_PROJECT_AGENTS;
+    const globalPath = opts.globalPath ?? DEFAULT_GLOBAL_CLAUDE;
+    const chunkDir = opts.chunkDir ?? DEFAULT_CHUNK_DIR;
+    const topK = opts.topK ?? 8;
 
     const sources: string[] = [];
-    let truncated = false;
+    const segments: string[] = [];
+    let used = 0;
 
-    // 1. Static layer — cached, file-mtime-invalidated
-    const staticBlocks: string[] = [];
-    let staticBytes = 0;
-    for (const src of STATIC_SOURCES) {
-      const block = await this.loadCached(src);
-      if (block === null) continue;
-      staticBlocks.push(`### ${src.label}\n${block}`);
-      sources.push(src.label);
-      staticBytes += block.length;
-    }
+    const append = (label: string, body: string, capChars: number): void => {
+      if (!body) return;
+      const remaining = budget - used;
+      if (remaining <= 0) return;
+      const cap = Math.min(capChars, remaining);
+      const truncated = body.length > cap ? body.slice(0, cap) + "\n[…truncated]" : body;
+      segments.push(`=== ${label} ===\n${truncated}`);
+      used += truncated.length + label.length + 12; // header overhead estimate
+      sources.push(label);
+    };
 
-    // Always include the 6-terminal rules — small, high-leverage
-    const rulesBlock = `### 6-TERMINAL PROTOCOL (always honor)\n${SIX_TERMINAL_RULES}`;
-    sources.push("6-terminal-rules");
-
-    // 2. Ranked layer — relevance-scored engine digest entries
-    let rankedBlocks: string[] = [];
-    let rankedBytes = 0;
-    if (opts.staticOnly !== true) {
-      const topEngines = opts.topEngines ?? 20;
-      const ranked = await this.rankEngines(prompt, topEngines);
-      if (ranked.length > 0) {
-        const block = "### TOP RELEVANT ENGINES (ranked by prompt-keyword overlap)\n" + ranked.join("\n");
-        rankedBlocks.push(block);
-        rankedBytes = block.length;
-        sources.push(`top-${ranked.length}-engines`);
+    // 1. Project operating playbook head
+    try {
+      if (fs.existsSync(projectPath)) {
+        const raw = fs.readFileSync(projectPath, "utf-8");
+        append(`PROJECT (${path.basename(projectPath)})`, raw, PROJECT_HEAD_BUDGET);
       }
-    }
+    } catch { /* fail-open */ }
 
-    // Assemble + budget-trim
-    const header = "=== PRISM CONTEXT (auto-injected by PRISMContextInjectorEngine) ===";
-    const footer = "=== END PRISM CONTEXT ===";
-    const allBlocks = [header, rulesBlock, ...staticBlocks, ...rankedBlocks, footer];
-    let assembled = allBlocks.join("\n\n");
-
-    const budgetChars = Math.floor(budget / TOKEN_PER_CHAR);
-    if (assembled.length > budgetChars) {
-      // Strategy: drop ranked layer first, then trim DEV_PROTOCOL/GSD/DIRECTORY_DIGEST low-priority blocks
-      truncated = true;
-      assembled = [header, rulesBlock, ...staticBlocks, footer].join("\n\n");
-      if (assembled.length > budgetChars) {
-        // Hard truncate to budget — keep header and rules, trim static
-        const overhead = (header + "\n\n" + rulesBlock + "\n\n" + footer).length;
-        const room = Math.max(0, budgetChars - overhead - 200);
-        const staticJoined = staticBlocks.join("\n\n");
-        const trimmed = staticJoined.slice(0, room) + "\n[... PRISM context truncated — exceeded model budget ...]";
-        assembled = [header, rulesBlock, trimmed, footer].join("\n\n");
+    // 2. Global preamble
+    try {
+      if (fs.existsSync(globalPath)) {
+        const raw = fs.readFileSync(globalPath, "utf-8");
+        // Just the preamble — first ## section header marks the end of preamble
+        const cut = raw.search(/\n## /);
+        const head = cut > 0 ? raw.slice(0, cut) : raw.slice(0, 3_000);
+        append(`GLOBAL ${path.basename(globalPath)} preamble`, head, 3_000);
       }
-    }
+    } catch { /* fail-open */ }
 
-    const estimatedTokens = Math.ceil(assembled.length * TOKEN_PER_CHAR);
+    // 3. Top-K relevant chunks by keyword overlap with the prompt
+    try {
+      const chunks = this.rankChunks(prompt, chunkDir, topK);
+      for (const c of chunks) {
+        if (used >= budget) break;
+        const headerLines = c.body.split(/\r?\n/).slice(0, 2).join("\n");
+        const remaining = budget - used;
+        const cap = Math.min(2_500, remaining);
+        append(`CHUNK ${c.slug} (${c.section})`, c.body, cap);
+        if (headerLines.length > 0) { /* ensure body uses chunk header */ }
+      }
+    } catch { /* fail-open */ }
+
     return {
-      text: assembled,
-      estimatedTokens,
-      staticBytes,
-      rankedBytes,
-      sourcesIncluded: sources,
-      truncated,
+      text: segments.join("\n\n"),
+      sources,
+      totalChars: segments.reduce((a, s) => a + s.length, 0),
+      modelBudget: budget,
+      chunksUsed: sources.filter((s) => s.startsWith("CHUNK ")).length,
     };
   }
 
-  /** Public hook for tests to invalidate cache between runs. */
-  clearCache(): void {
-    this.staticCache.clear();
-    this.engineDigestCache = null;
-  }
-
-  // ---- internals ----
-
-  private async loadCached(src: SourceFile): Promise<string | null> {
-    try {
-      const stat = await fs.stat(src.abs);
-      const cached = this.staticCache.get(src.abs);
-      if (cached && cached.mtime === stat.mtimeMs) {
-        return cached.text;
-      }
-      const raw = await fs.readFile(src.abs, "utf-8");
-      // Cap per-file size; if file exceeds maxBytes, take the head + a note.
-      const text = raw.length > src.maxBytes
-        ? raw.slice(0, src.maxBytes) + `\n[... ${src.label} truncated to ${src.maxBytes} bytes; full file at ${src.abs} ...]`
-        : raw;
-      this.staticCache.set(src.abs, { bytes: text.length, text, mtime: stat.mtimeMs });
-      return text;
-    } catch {
-      return null; // graceful skip on missing file
-    }
-  }
-
   /**
-   * Rank ENGINE_DIGEST lines by overlap with prompt tokens.
-   * Cheap: split, lowercase, count common tokens. Returns top-K lines, each
-   * trimmed to ~150 chars to keep the ranked layer compact.
+   * Rank knowledge/claude-md/ chunks by keyword overlap with the prompt.
+   * Tokenization: lowercase words ≥ 3 chars. Score = unique-token overlap
+   * count + 0.1 × total-occurrences. Ties broken by slug alpha.
    */
-  private async rankEngines(prompt: string, topK: number): Promise<string[]> {
-    const lines = await this.loadEngineDigestLines();
-    if (lines.length === 0) return [];
-
+  rankChunks(prompt: string, chunkDir: string, topK: number): RankedChunk[] {
+    if (!fs.existsSync(chunkDir)) return [];
     const promptTokens = this.tokenize(prompt);
     if (promptTokens.size === 0) return [];
 
-    const scored: Array<{ line: string; score: number }> = [];
-    for (const line of lines) {
-      const lineTokens = this.tokenize(line);
-      let overlap = 0;
-      for (const t of promptTokens) {
-        if (lineTokens.has(t)) overlap++;
-      }
-      if (overlap > 0) {
-        scored.push({ line, score: overlap });
-      }
+    const candidates: RankedChunk[] = [];
+    let entries: string[] = [];
+    try { entries = fs.readdirSync(chunkDir).filter((f) => f.toLowerCase().endsWith(".md")); }
+    catch { return []; }
+
+    for (const filename of entries) {
+      const fullPath = path.join(chunkDir, filename);
+      try {
+        const body = fs.readFileSync(fullPath, "utf-8");
+        const fmMatch = body.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+        const slug = (fmMatch?.[1].match(/^slug:\s*(.+)$/m)?.[1] ?? filename.replace(/\.md$/, "")).trim();
+        const section = (fmMatch?.[1].match(/^section:\s*(.+)$/m)?.[1] ?? slug).trim();
+        const docTokens = this.tokenize(body);
+        const score = this.overlapScore(promptTokens, docTokens);
+        if (score > 0) candidates.push({ path: fullPath, slug, section, body, score });
+      } catch { /* skip unreadable */ }
     }
-    scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, topK).map((s) => s.line.length > 150 ? s.line.slice(0, 147) + "..." : s.line);
+
+    candidates.sort((a, b) => b.score - a.score || a.slug.localeCompare(b.slug));
+    return candidates.slice(0, topK);
   }
 
-  private async loadEngineDigestLines(): Promise<string[]> {
-    try {
-      const stat = await fs.stat(ENGINE_DIGEST);
-      if (this.engineDigestCache && this.engineDigestCache.mtime === stat.mtimeMs) {
-        return this.engineDigestCache.lines;
-      }
-      const raw = await fs.readFile(ENGINE_DIGEST, "utf-8");
-      const lines = raw.split("\n").map((l) => l.trim()).filter((l) => l.length > 10 && !l.startsWith("#"));
-      this.engineDigestCache = { mtime: stat.mtimeMs, lines };
-      return lines;
-    } catch {
-      return [];
-    }
+  // ---- private helpers ----
+
+  private tokenize(text: string): Map<string, number> {
+    const out = new Map<string, number>();
+    const words = String(text ?? "").toLowerCase().match(/[a-z][a-z0-9]{2,}/g) ?? [];
+    for (const w of words) out.set(w, (out.get(w) ?? 0) + 1);
+    return out;
   }
 
-  private tokenize(s: string): Set<string> {
-    return new Set(
-      s.toLowerCase()
-        .replace(/[^\p{L}\p{N}\s]/gu, " ")
-        .split(/\s+/)
-        .filter((t) => t.length >= 3),
-    );
+  private overlapScore(prompt: Map<string, number>, doc: Map<string, number>): number {
+    let unique = 0;
+    let total = 0;
+    for (const [w] of prompt) {
+      const docCount = doc.get(w);
+      if (docCount === undefined) continue;
+      unique++;
+      total += docCount;
+    }
+    return unique + total * 0.1;
   }
 }
 
