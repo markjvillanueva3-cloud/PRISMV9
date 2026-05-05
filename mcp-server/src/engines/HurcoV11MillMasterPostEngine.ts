@@ -249,6 +249,18 @@ export interface MillOperation {
     kc1_1?: number;
     mc?: number;
   };
+  /**
+   * U-PPGH13: optional structured tool descriptor. When supplied, its
+   * `description`, `coating`, and `stickout_mm` SHADOW the flat
+   * `tool_description` (and propagate into `setup_sheet.tools[]`). The
+   * structured `tool.number` MUST equal the top-level `tool_number` —
+   * mismatch throws so silent reassignment can't slip through. Diameter
+   * and flutes on the structured tool are ignored at emit time (the flat
+   * `tool_diameter_mm` / `tool_flutes` remain the source of truth for
+   * physics checks); they're only carried through into setup_sheet
+   * for kit-up workflow continuity.
+   */
+  tool?: MillTool;
 }
 
 /**
@@ -862,11 +874,18 @@ export class HurcoV11MillMasterPostEngine {
       const toolByNumber = new Map<number, SetupSheetTool>();
       for (const op of operations) {
         if (!toolByNumber.has(op.tool_number)) {
+          // U-PPGH13: structured op.tool fields shadow flat fields. coating
+          // and stickout_mm are surfaced ONLY when the structured tool path
+          // supplies them — verbose flat-field callers stay backward compat
+          // (those two fields remain undefined for them).
+          const t = op.tool;
           toolByNumber.set(op.tool_number, {
             number: op.tool_number,
             diameter_mm: op.tool_diameter_mm,
             flutes: op.tool_flutes,
-            description: op.tool_description,
+            description: t?.description ?? op.tool_description,
+            coating: t?.coating,
+            stickout_mm: t?.stickout_mm,
           });
         }
       }
@@ -988,6 +1007,9 @@ export class HurcoV11MillMasterPostEngine {
       r: m.r,
     }));
 
+    // U-PPGH13: pass the structured tool through op.tool so the unified
+    // generateToolChange + setup_sheet build paths surface coating +
+    // stickout_mm + description shadowing without a post-result patch.
     const op: MillOperation = {
       operation_type: args.operation,
       tool_number: args.tool.number,
@@ -1000,6 +1022,7 @@ export class HurcoV11MillMasterPostEngine {
       axial_depth_mm: args.axial_depth_mm,
       coordinates,
       arc_data: arcData,
+      tool: args.tool,
     };
 
     const cfg: Partial<HurcoPostConfig> = {
@@ -1009,21 +1032,7 @@ export class HurcoV11MillMasterPostEngine {
         : {}),
     };
 
-    const result = this.generateProgram([op], cfg);
-
-    // U-PPGH11: structured-tool fields (coating, stickout_mm) are surfaced
-    // only via this API path. Patch the setup_sheet entry for this tool.
-    if (result.setup_sheet) {
-      for (const t of result.setup_sheet.tools) {
-        if (t.number === args.tool.number) {
-          if (args.tool.coating !== undefined) t.coating = args.tool.coating;
-          if (args.tool.stickout_mm !== undefined) {
-            t.stickout_mm = args.tool.stickout_mm;
-          }
-        }
-      }
-    }
-    return result;
+    return this.generateProgram([op], cfg);
   }
 
   /**
@@ -1062,8 +1071,19 @@ export class HurcoV11MillMasterPostEngine {
     const lines: string[] = [];
     const tcp = cfg.tool_change_position!;
 
+    // U-PPGH13: structured tool.description shadows flat tool_description.
+    // Mismatch on tool.number vs tool_number is a silent-reassignment bug
+    // class — throw so the caller fixes their input.
+    if (op.tool && op.tool.number !== op.tool_number) {
+      throw new Error(
+        `generateToolChange: structured tool.number=${op.tool.number} does not match flat tool_number=${op.tool_number}`,
+      );
+    }
+    const description =
+      op.tool?.description ?? op.tool_description ?? `TOOL ${op.tool_number}`;
+
     lines.push(`G91 G28 Z0 (Z RETRACT)`);
-    lines.push(`T${op.tool_number} M06 (${op.tool_description || `TOOL ${op.tool_number}`})`);
+    lines.push(`T${op.tool_number} M06 (${description})`);
     lines.push(`G43 H${op.tool_number} (TOOL LENGTH COMP)`);
 
     return lines;
