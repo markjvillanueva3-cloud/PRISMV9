@@ -27,6 +27,9 @@ import {
   okumaOSPMillMasterPostEngine,
   type MillOperation,
   type OkumaOSPMillPostConfig,
+  type MillTool,
+  type MillMaterial,
+  type PostMove,
 } from "../engines/OkumaOSPMillMasterPostEngine.js";
 
 const engine = new OkumaOSPMillMasterPostEngine();
@@ -486,5 +489,187 @@ describe("OkumaOSPMillMasterPostEngine — singleton + introspection", () => {
 
   it("tribal_tips count is positive (engine has at least one tip)", () => {
     expect(engine.getStats().tribal_tips).toBeGreaterThan(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// U-PPGOH02: postSingle simplified API (mirror of HurcoV11 U-PPGH11)
+// ---------------------------------------------------------------------------
+
+const POSTSINGLE_PROGRAM_BASE = 9000;
+const POSTSINGLE_TOOL_NUM = 3;
+const POSTSINGLE_DIA_MM = 10;
+const POSTSINGLE_FLUTES = 4;
+const POSTSINGLE_RPM = 8000;
+const POSTSINGLE_FEED = 1500;
+const POSTSINGLE_AP = 2;
+const POSTSINGLE_ARC_R = 25;
+const POSTSINGLE_ARC_X = 50;
+const POSTSINGLE_ARC_Y = 50;
+const POSTSINGLE_AGGRESSIVE_OUT_OF_RANGE = 99;
+
+function postSingleMoves(): PostMove[] {
+  return [
+    { x: 0, y: 0, z: 5, type: "rapid" },
+    { x: POSTSINGLE_ARC_X, y: 0, z: -POSTSINGLE_AP, type: "linear" },
+    { x: POSTSINGLE_ARC_X, y: POSTSINGLE_ARC_Y, z: -POSTSINGLE_AP, type: "arc_cw", r: POSTSINGLE_ARC_R },
+    { x: 0, y: POSTSINGLE_ARC_Y, z: -POSTSINGLE_AP, type: "linear" },
+  ];
+}
+
+function findLine(gcode: string[], pred: (l: string) => boolean, label: string): string {
+  const found = gcode.find(pred);
+  if (found === undefined) {
+    throw new Error(`findLine: no ${label} matching predicate in ${gcode.length} lines`);
+  }
+  return found;
+}
+
+function mustOkumaSheet<T>(v: T | undefined, label: string): T {
+  if (v === undefined) throw new Error(`${label}: expected defined, got undefined`);
+  return v;
+}
+
+describe("OkumaOSPMill — postSingle simplified API (U-PPGOH02)", () => {
+  it("wraps a single PostMove array into a complete program with T<n> M6 emit", () => {
+    const tool: MillTool = {
+      number: POSTSINGLE_TOOL_NUM,
+      diameter_mm: POSTSINGLE_DIA_MM,
+      flutes: POSTSINGLE_FLUTES,
+      description: "10MM CARBIDE",
+      coating: "TiAlN",
+      stickout_mm: 30,
+    };
+    const material: MillMaterial = { iso_group: "N", name: "6061-T6" };
+    const result = okumaOSPMillMasterPostEngine.postSingle({
+      toolpath: postSingleMoves(),
+      material,
+      tool,
+      operation: "pocket",
+      spindle_rpm: POSTSINGLE_RPM,
+      feed_mm_min: POSTSINGLE_FEED,
+      axial_depth_mm: POSTSINGLE_AP,
+    }, { program_number: POSTSINGLE_PROGRAM_BASE + 1 });
+    expect(result.tools_used).toEqual([POSTSINGLE_TOOL_NUM]);
+    // OSP convention: T{n} on its own line, then M6
+    expect(result.gcode.some(l => /^T3\b/.test(l))).toBe(true);
+    expect(result.gcode.some(l => /^M6\b/.test(l))).toBe(true);
+  });
+
+  it("PostMove arc_cw with R is preserved through to G2 R# output (OSP dialect: unpadded G2)", () => {
+    const result = okumaOSPMillMasterPostEngine.postSingle({
+      toolpath: postSingleMoves(),
+      material: { iso_group: "N" },
+      tool: { number: 1, diameter_mm: 10, flutes: 4 },
+      operation: "contour",
+      spindle_rpm: 6000,
+      feed_mm_min: 1000,
+      axial_depth_mm: 2,
+    }, { program_number: POSTSINGLE_PROGRAM_BASE + 2 });
+    // OSP dialect emits unpadded G-codes ("G2", not "G02") — matches the
+    // dialect cw_arc_code config in ControllerDialectEngine. \b after G2
+    // ensures we don't accidentally match G20 (inch units) or G28 (home).
+    const arc = findLine(result.gcode, l => /^G2\b/.test(l), "G2 line");
+    expect(arc).toContain(`R${POSTSINGLE_ARC_R.toFixed(3)}`);
+    expect(arc).toContain(`X${POSTSINGLE_ARC_X.toFixed(3)}`);
+    expect(arc).toContain(`Y${POSTSINGLE_ARC_Y.toFixed(3)}`);
+  });
+
+  it("structured tool coating + stickout flow into setup_sheet entry by tool number", () => {
+    const result = okumaOSPMillMasterPostEngine.postSingle({
+      toolpath: postSingleMoves(),
+      material: { iso_group: "N" },
+      tool: { number: 9, diameter_mm: 8, flutes: 3, coating: "AlCrN", stickout_mm: 25 },
+      operation: "pocket",
+      spindle_rpm: 6000,
+      feed_mm_min: 1000,
+      axial_depth_mm: 2,
+    }, { program_number: POSTSINGLE_PROGRAM_BASE + 3 });
+    const t = mustOkumaSheet(result.setup_sheet, "postSingle setup_sheet").tools[0];
+    expect(t.number).toBe(9);
+    expect(t.coating).toBe("AlCrN");
+    expect(t.stickout_mm).toBe(25);
+    expect(t.diameter_mm).toBe(8);
+  });
+
+  it("forwards configOverrides — JM Die preset spread produces the M460V identifiers on setup_sheet", () => {
+    const result = okumaOSPMillMasterPostEngine.postSingle({
+      toolpath: postSingleMoves(),
+      material: { iso_group: "P" },
+      tool: { number: 4, diameter_mm: 12, flutes: 4 },
+      operation: "pocket",
+      spindle_rpm: 5000,
+      feed_mm_min: 1200,
+      axial_depth_mm: 2,
+    }, {
+      osp_family: "P300",
+      program_number: POSTSINGLE_PROGRAM_BASE + 4,
+      setup_sheet_machine_name: "Okuma Genos M460V-5AX",
+      setup_sheet_controller_name: "OSP-P300MA-H",
+    });
+    const sheet = mustOkumaSheet(result.setup_sheet, "configOverride setup_sheet");
+    expect(sheet.machine).toBe("Okuma Genos M460V-5AX");
+    expect(sheet.controller).toBe("OSP-P300MA-H");
+  });
+
+  // U-PPGOH02 hardening: silent-disable guards. Each prevents a class of
+  // caller mistake that would otherwise emit a malformed program.
+  it("rejects empty toolpath (no useful program without coordinates)", () => {
+    expect(() =>
+      okumaOSPMillMasterPostEngine.postSingle({
+        toolpath: [],
+        material: { iso_group: "N" },
+        tool: { number: 1, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 6000,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }, { program_number: POSTSINGLE_PROGRAM_BASE + 5 }),
+    ).toThrow(/toolpath must contain at least one move/);
+  });
+
+  it("rejects tool.number=0 (invalid magazine slot)", () => {
+    expect(() =>
+      okumaOSPMillMasterPostEngine.postSingle({
+        toolpath: postSingleMoves(),
+        material: { iso_group: "N" },
+        tool: { number: 0, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 6000,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }, { program_number: POSTSINGLE_PROGRAM_BASE + 6 }),
+    ).toThrow(/invalid tool\.number=0/);
+  });
+
+  it("rejects NaN coordinate on any move (would emit NaN G-code)", () => {
+    expect(() =>
+      okumaOSPMillMasterPostEngine.postSingle({
+        toolpath: [
+          { x: 0, y: 0, z: 5, type: "rapid" },
+          { x: Number.NaN, y: 10, z: -2, type: "linear" },
+        ],
+        material: { iso_group: "N" },
+        tool: { number: 1, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 6000,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }, { program_number: POSTSINGLE_PROGRAM_BASE + 7 }),
+    ).toThrow(/toolpath\[1\] has non-finite coordinate/);
+  });
+
+  it("rejects spindle_rpm<=0 (silent-disable guard against zero-cut conditions)", () => {
+    expect(() =>
+      okumaOSPMillMasterPostEngine.postSingle({
+        toolpath: postSingleMoves(),
+        material: { iso_group: "N" },
+        tool: { number: 1, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 0,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }, { program_number: POSTSINGLE_PROGRAM_BASE + 8 }),
+    ).toThrow(/spindle_rpm must be > 0/);
   });
 });
