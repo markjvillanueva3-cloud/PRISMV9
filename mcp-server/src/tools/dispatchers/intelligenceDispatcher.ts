@@ -167,6 +167,8 @@ const ACTIONS = [
   "consensus_credit_apply_result",  // Online: per-run credit assignment from a ConsensusResult
   "consensus_credit_apply_feed",    // Batch: replay JSONL feed via cursor
   "consensus_credit_status",        // Read-only: cursor + perf state snapshot for dashboards
+  // ===== ConsensusPerformanceDashboardEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DASHBOARD =====
+  "consensus_dashboard",            // Read-only: full analytics dashboard (per-task ranking, gaps, trend, suggested probes)
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -712,6 +714,25 @@ export function registerIntelligenceDispatcher(server: any): void {
           const state = consensusModelPerformanceEngine.loadState((params.perfStatePath as string | undefined) ?? null);
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, cursor, state }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DASHBOARD: read-only
+        // analytics dashboard over the consensus learning state.
+        // ============================================================
+        if (action === "consensus_dashboard") {
+          const { consensusPerformanceDashboardEngine } = await import("../../engines/ConsensusPerformanceDashboardEngine.js");
+          const dashboard = consensusPerformanceDashboardEngine.compute({
+            perfStatePath: params.perfStatePath as string | undefined,
+            feedPath: params.feedPath as string | undefined,
+            expectedVendors: params.expectedVendors as readonly string[] | undefined,
+            expectedTaskTypes: params.expectedTaskTypes as readonly string[] | undefined,
+            topK: params.topK as number | undefined,
+            trendWindow: params.trendWindow as number | undefined,
+            staleAfterDays: params.staleAfterDays as number | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, dashboard }) }],
           };
         }
 
