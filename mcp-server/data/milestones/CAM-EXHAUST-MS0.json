@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 145,
+  "completed_units": 148,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -267,7 +267,10 @@
     "U-CAM56",
     "U-CAM57",
     "U-CAM58",
-    "U-CAM51"
+    "U-CAM51",
+    "U-CAM112",
+    "U-CAM113",
+    "U-CAM117"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -4364,7 +4367,7 @@
       "title": "OllamaCAMIntegrationEngine â€” Local Inference",
       "phase": "PHASE-8",
       "type": "engine",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extend OllamaIntegrationEngine for CAM-specific inference. Load CAM LoRA adapters, optimize for speed/feed and strategy queries.",
       "entry_conditions": [
         "U-CAM108 through U-CAM111 complete"
@@ -4498,7 +4501,7 @@
       "title": "Deep Learning Orchestrator â€” AGI Decision Making",
       "phase": "PHASE-8",
       "type": "engine",
-      "status": "not_started",
+      "status": "complete",
       "description": "AGI-level decision orchestrator for CAM. Combines physics, ML, tribal knowledge for near-human decisions. Multi-agent reasoning.",
       "entry_conditions": [
         "U-CAM112 complete",

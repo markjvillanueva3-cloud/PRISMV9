@@ -1912,6 +1912,20 @@ export const ACTIONS = [
     "alphacam_function_index_find_parameter", "alphacam_function_index_search_parameters",
     "alphacam_function_index_get_operations_by_category", "alphacam_function_index_get_summary",
     "alphacam_function_index_get_drilling_operations", "alphacam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM112 — OllamaCAM local-LLM CAM inference
+    "ollama_cam_query", "ollama_cam_strategy_recommend",
+    "ollama_cam_parameter_extract", "ollama_cam_operation_classify",
+    "ollama_cam_tool_select_advisor", "ollama_cam_health_check",
+    "ollama_cam_list_tasks", "ollama_cam_get_system_prompt",
+  // CAM-EXHAUST-MS0/U-CAM113 — NVIDIA NIM/Triton GPU CAM inference
+    "nvidia_cam_query", "nvidia_cam_strategy_recommend",
+    "nvidia_cam_parameter_extract", "nvidia_cam_operation_classify",
+    "nvidia_cam_tool_select_advisor", "nvidia_cam_health_check",
+    "nvidia_cam_list_tasks", "nvidia_cam_resolve_endpoint",
+    "nvidia_cam_get_system_prompt",
+  // CAM-EXHAUST-MS0/U-CAM117 — Deep Learning Orchestrator (multi-source AGI decisions)
+    "cam_dl_decide", "cam_dl_health_check_all",
+    "cam_dl_list_sources", "cam_dl_get_default_weights",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -15990,6 +16004,143 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...SURFCAMFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM112 — OllamaCAM local-LLM CAM inference (8 actions)
+          case "ollama_cam_query": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await OllamaCAMIntegrationEngine.query(task, prompt, opts);
+            break;
+          }
+          case "ollama_cam_strategy_recommend": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await OllamaCAMIntegrationEngine.strategyRecommend(prompt, opts);
+            break;
+          }
+          case "ollama_cam_parameter_extract": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await OllamaCAMIntegrationEngine.parameterExtract(prompt, opts);
+            break;
+          }
+          case "ollama_cam_operation_classify": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await OllamaCAMIntegrationEngine.operationClassify(prompt, opts);
+            break;
+          }
+          case "ollama_cam_tool_select_advisor": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await OllamaCAMIntegrationEngine.toolSelectAdvisor(prompt, opts);
+            break;
+          }
+          case "ollama_cam_health_check": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            result = { success: true, ...(await OllamaCAMIntegrationEngine.healthCheck()) };
+            break;
+          }
+          case "ollama_cam_list_tasks": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            result = { success: true, tasks: OllamaCAMIntegrationEngine.listTasks() };
+            break;
+          }
+          case "ollama_cam_get_system_prompt": {
+            const { OllamaCAMIntegrationEngine } = await import("../../engines/OllamaCAMIntegrationEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            result = { success: true, system_prompt: OllamaCAMIntegrationEngine.getSystemPrompt(task) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM113 — NVIDIA NIM/Triton GPU CAM inference (9 actions)
+          case "nvidia_cam_query": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await NVIDIALLMCAMEngine.query(task, prompt, opts);
+            break;
+          }
+          case "nvidia_cam_strategy_recommend": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await NVIDIALLMCAMEngine.strategyRecommend(prompt, opts);
+            break;
+          }
+          case "nvidia_cam_parameter_extract": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await NVIDIALLMCAMEngine.parameterExtract(prompt, opts);
+            break;
+          }
+          case "nvidia_cam_operation_classify": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await NVIDIALLMCAMEngine.operationClassify(prompt, opts);
+            break;
+          }
+          case "nvidia_cam_tool_select_advisor": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await NVIDIALLMCAMEngine.toolSelectAdvisor(prompt, opts);
+            break;
+          }
+          case "nvidia_cam_health_check": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const opts = (params.options as { endpoint?: string; apiKey?: string; model?: string } | undefined) ?? {};
+            result = { success: true, ...(await NVIDIALLMCAMEngine.healthCheck(opts)) };
+            break;
+          }
+          case "nvidia_cam_list_tasks": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            result = { success: true, tasks: NVIDIALLMCAMEngine.listTasks() };
+            break;
+          }
+          case "nvidia_cam_resolve_endpoint": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const override = params.override as string | undefined;
+            result = { success: true, endpoint: NVIDIALLMCAMEngine.resolveEndpoint(override) };
+            break;
+          }
+          case "nvidia_cam_get_system_prompt": {
+            const { NVIDIALLMCAMEngine } = await import("../../engines/NVIDIALLMCAMEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            result = { success: true, system_prompt: NVIDIALLMCAMEngine.getSystemPrompt(task) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM117 — Deep Learning Orchestrator (4 actions)
+          case "cam_dl_decide": {
+            const { CAMDeepLearningOrchestratorEngine } = await import("../../engines/CAMDeepLearningOrchestratorEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = await CAMDeepLearningOrchestratorEngine.decide(task, prompt, opts);
+            break;
+          }
+          case "cam_dl_health_check_all": {
+            const { CAMDeepLearningOrchestratorEngine } = await import("../../engines/CAMDeepLearningOrchestratorEngine.js");
+            result = { success: true, sources: await CAMDeepLearningOrchestratorEngine.healthCheckAll() };
+            break;
+          }
+          case "cam_dl_list_sources": {
+            const { CAMDeepLearningOrchestratorEngine } = await import("../../engines/CAMDeepLearningOrchestratorEngine.js");
+            result = { success: true, sources: CAMDeepLearningOrchestratorEngine.listSources() };
+            break;
+          }
+          case "cam_dl_get_default_weights": {
+            const { CAMDeepLearningOrchestratorEngine } = await import("../../engines/CAMDeepLearningOrchestratorEngine.js");
+            result = { success: true, weights: CAMDeepLearningOrchestratorEngine.getDefaultWeights() };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index (10 actions)
