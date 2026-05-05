@@ -50,15 +50,21 @@ function findStableSessionId(explicitId) {
 }
 
 const CODEX_BIN = process.env.CODEX_BIN ?? "H:\\Tools\\nodejs\\npx.cmd";
+// Prompt is delivered via stdin, NOT argv. `codex exec` with no positional
+// argument reads from stdin. Keeping args small also avoids the Windows
+// 8191-char cmd-line limit when shell:true wraps .cmd invocations.
+// Reasoning effort overridden to "medium" so a 26 KB diff review finishes in
+// ~3-5 min instead of the 8-12 min default xhigh on gpt-5.5.
 const CODEX_ARGS = process.env.CODEX_ARGS
   ? process.env.CODEX_ARGS.split(" ")
-  : ["--no-install", "codex", "exec", "--skip-git-repo-check"];
+  : ["--no-install", "codex", "exec", "--skip-git-repo-check", "-c", "model_reasoning_effort=\"medium\""];
 const GEMINI_BIN = process.env.GEMINI_BIN ?? "H:\\Tools\\nodejs\\npx.cmd";
+// Same stdin convention. `gemini` with no -p / no positional reads stdin.
 const GEMINI_ARGS = process.env.GEMINI_ARGS
   ? process.env.GEMINI_ARGS.split(" ")
-  : ["--no-install", "gemini", "-p"];
+  : ["--no-install", "gemini"];
 
-const REVIEW_TIMEOUT_MS = 180_000; // 3 min per provider; covers cold-start + reasoning
+const REVIEW_TIMEOUT_MS = 360_000; // 6 min per provider; covers cold-start + xhigh reasoning on diffs up to 80KB
 const MAX_DIFF_BYTES = 80_000;     // truncate huge diffs so providers don't OOM
 const MAX_OUTPUT_PEEK = 8_000;     // stored in ledger notes
 
@@ -128,12 +134,16 @@ function captureDiff(target) {
       timeout: 8000,
     }).toString();
     if (out.length > MAX_DIFF_BYTES) {
-      return out.slice(0, MAX_DIFF_BYTES) + `\n\n... [truncated at ${MAX_DIFF_BYTES} bytes — full diff is ${out.length} bytes]`;
+      return {
+        text: out.slice(0, MAX_DIFF_BYTES) + `\n\n... [truncated at ${MAX_DIFF_BYTES} bytes — full diff is ${out.length} bytes]`,
+        truncated: true,
+        totalBytes: out.length,
+      };
     }
-    return out;
+    return { text: out, truncated: false, totalBytes: out.length };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return `[scrutiny-3way: git diff capture failed: ${msg}]`;
+    return { text: `[scrutiny-3way: git diff capture failed: ${msg}]`, truncated: false, totalBytes: 0, error: msg };
   }
 }
 
@@ -159,10 +169,12 @@ function spawnReview(provider, bin, args, stdinPayload) {
 
     let child;
     try {
+      // Windows .cmd/.bat needs shell:true (modern Node refuses direct spawn).
+      const useShell = process.platform === "win32" && /\.(cmd|bat)$/i.test(bin);
       child = spawn(bin, args, {
         stdio: ["pipe", "pipe", "pipe"],
         windowsHide: true,
-        // shell:false — using direct exe + args so we can stream prompt via stdin
+        shell: useShell,
       });
     } catch (err) {
       finish("fail", `spawn-failed: ${err.message}`, "", err.message);
@@ -206,23 +218,29 @@ function spawnReview(provider, bin, args, stdinPayload) {
   });
 }
 
-function buildPromptForCLI(diff, target) {
+function buildPromptForCLI(diffInfo, target) {
   const targetLabel = target ? `commit ${target}` : "uncommitted changes";
+  const truncationWarning = diffInfo.truncated
+    ? `\n\n⚠ DIFF TRUNCATED — only the first ${MAX_DIFF_BYTES} bytes of ${diffInfo.totalBytes} are shown. If you cannot evaluate completeness from a partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.\n`
+    : "";
   return [
     REVIEW_SYSTEM,
-    "",
+    truncationWarning,
     `--- DIFF (target: ${targetLabel}) ---`,
-    diff,
+    diffInfo.text,
     "--- END DIFF ---",
     "",
     "Now respond with VERDICT: PASS or VERDICT: FAIL on the first line, then BLOCKER lines, then notes.",
   ].join("\n");
 }
 
-function buildOpusReviewerPrompt(diff, target) {
+function buildOpusReviewerPrompt(diffInfo, target) {
   const targetLabel = target ? `commit ${target}` : "uncommitted changes";
+  const truncationWarning = diffInfo.truncated
+    ? `NOTE: Diff was truncated at ${MAX_DIFF_BYTES} bytes (full size ${diffInfo.totalBytes}). If completeness cannot be assessed from the partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.\n\n`
+    : "";
   return [
-    "Review the following diff as a strict code reviewer for the PRISM platform.",
+    truncationWarning + "Review the following diff as a strict code reviewer for the PRISM platform.",
     `Target: ${targetLabel}.`,
     "",
     "Acceptance criteria:",
@@ -237,7 +255,7 @@ function buildOpusReviewerPrompt(diff, target) {
     "Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).",
     "",
     "--- DIFF ---",
-    diff,
+    diffInfo.text,
     "--- END DIFF ---",
   ].join("\n");
 }
@@ -267,8 +285,17 @@ async function main() {
   // Sub-command: --mark-opus pass|fail — used by the chat after the Agent tool
   // reviewer returns. Records the third leg of the 3-of-3 strict gate.
   if (args.markOpus) {
+    const normalized = args.markOpus.toLowerCase();
+    if (normalized !== "pass" && normalized !== "fail") {
+      console.log(JSON.stringify({
+        ok: false,
+        error: "invalid-mark-opus",
+        message: `--mark-opus must be 'pass' or 'fail' (case-insensitive); got: ${JSON.stringify(args.markOpus)}`,
+      }, null, 2));
+      process.exit(2);
+    }
     const sid = findStableSessionId(args.sessionId);
-    const verdict = args.markOpus === "pass" ? "pass" : "fail";
+    const verdict = normalized;
     const entry = recordScrutiny(sid, {
       opusReviewed: verdict === "pass",
       opusDetail: { verdict, blockers: args.blockers, notes: args.notes },
@@ -284,8 +311,8 @@ async function main() {
     return;
   }
 
-  const diff = captureDiff(args.target);
-  if (!diff || diff.length < 20) {
+  const diffInfo = captureDiff(args.target);
+  if (!diffInfo || !diffInfo.text || diffInfo.text.length < 20) {
     console.log(JSON.stringify({
       ok: false,
       error: "no-diff",
@@ -294,16 +321,16 @@ async function main() {
     process.exit(2);
   }
 
-  const cliPrompt = buildPromptForCLI(diff, args.target);
-  const opusPrompt = buildOpusReviewerPrompt(diff, args.target);
+  const cliPrompt = buildPromptForCLI(diffInfo, args.target);
+  const opusPrompt = buildOpusReviewerPrompt(diffInfo, args.target);
 
   // Skip-aware parallel dispatch
   const skipCodex = args.skip.includes("codex");
   const skipGemini = args.skip.includes("gemini");
 
   const tasks = [];
-  if (!skipCodex) tasks.push(spawnReview("codex", CODEX_BIN, [...CODEX_ARGS, cliPrompt], ""));
-  if (!skipGemini) tasks.push(spawnReview("gemini", GEMINI_BIN, [...GEMINI_ARGS, cliPrompt], ""));
+  if (!skipCodex) tasks.push(spawnReview("codex", CODEX_BIN, [...CODEX_ARGS], cliPrompt));
+  if (!skipGemini) tasks.push(spawnReview("gemini", GEMINI_BIN, [...GEMINI_ARGS], cliPrompt));
 
   const results = await Promise.all(tasks);
 
@@ -335,7 +362,8 @@ async function main() {
   const out = {
     ok: true,
     target: args.target || "(uncommitted)",
-    diffBytes: diff.length,
+    diffBytes: diffInfo.totalBytes,
+    diffTruncated: diffInfo.truncated,
     results: results.map((r) => ({
       provider: r.provider,
       verdict: r.verdict,
