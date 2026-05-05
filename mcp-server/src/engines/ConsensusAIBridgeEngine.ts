@@ -42,6 +42,7 @@
 import { multiModelConsensusEngine, type ConsensusResult, type ConsensusInput } from "./MultiModelConsensusEngine.js";
 import { consensusRecallCacheEngine, type CachedConsensus } from "./ConsensusRecallCacheEngine.js";
 import { consensusNeuralFeedbackEngine } from "./ConsensusNeuralFeedbackEngine.js";
+import { consensusNeuralCreditAssignmentEngine } from "./ConsensusNeuralCreditAssignmentEngine.js";
 
 export type AITaskType =
   | "plan"        // architecture / roadmap planning — requires deep reasoning
@@ -163,6 +164,19 @@ export class ConsensusAIBridgeEngine {
       });
     } catch {
       // never let feed write break orchestration
+    }
+
+    // 4. Credit assignment — closes the learning loop. Translates the
+    // ConsensusResult into per-vendor EMA updates so the next call can
+    // pick a smarter pool. Fire-and-forget, errors swallowed: this is
+    // strictly improvement signal, never on the critical path.
+    try {
+      consensusNeuralCreditAssignmentEngine.applyFromResult({
+        result,
+        taskType,
+      });
+    } catch {
+      // never let credit assignment break orchestration
     }
 
     return this.projectLive(result, req.prompt, taskType, caller, Date.now() - start);
