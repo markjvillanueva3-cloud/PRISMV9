@@ -219,7 +219,7 @@ export class ConsensusDriftAutoProbeEngine {
 
     // 4. Cooldown filter.
     const candidates: AlertEntry[] = [];
-    for (const a of byPair.values()) {
+    for (const a of Array.from(byPair.values())) {
       const key = pairKey(a.vendor!, a.taskType!);
       const prior = probedRecord.issued[key];
       if (prior) {
