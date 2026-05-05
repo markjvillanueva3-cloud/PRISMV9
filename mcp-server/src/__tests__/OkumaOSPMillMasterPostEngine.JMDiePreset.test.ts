@@ -51,6 +51,10 @@ const JM_DIE_TLC_MODE = "G56_HA";
 const JM_DIE_NURBS_CODE = "G131";
 const JM_DIE_TCP_MODE = "G169_G170";
 const JM_DIE_N_PAD = 4;
+// U-PPGOH01: setup_sheet identification — M460V-5AX runs OSP-P300MA-H,
+// not stock P300M. Tool-crib + traveler bridge consume verbatim.
+const JM_DIE_MACHINE_NAME = "Okuma Genos M460V-5AX";
+const JM_DIE_CONTROLLER_NAME = "OSP-P300MA-H";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -84,7 +88,7 @@ const surfaceOp: MillOperation = {
 // ---------------------------------------------------------------------------
 
 describe("JM_DIE_PRESET — exported constant", () => {
-  it("equals the JM Die canonical eight-field shape", () => {
+  it("equals the JM Die canonical ten-field shape (U-PPGOH01: + setup_sheet identifiers)", () => {
     expect(JM_DIE_PRESET).toEqual({
       osp_family: JM_DIE_FAMILY,
       work_offset_index: JM_DIE_WORK_OFFSET,
@@ -94,15 +98,19 @@ describe("JM_DIE_PRESET — exported constant", () => {
       n_number_pad_digits: JM_DIE_N_PAD,
       use_call_oo88: true,
       fixture_offset_wcs: JM_DIE_FIXTURE_WCS,
+      setup_sheet_machine_name: JM_DIE_MACHINE_NAME,
+      setup_sheet_controller_name: JM_DIE_CONTROLLER_NAME,
     });
   });
 
-  it("contains exactly eight keys (Partial<> by contract — caller adds program_number)", () => {
+  it("contains exactly ten keys (Partial<> by contract — caller adds program_number)", () => {
     const keys = Object.keys(JM_DIE_PRESET).sort();
     expect(keys).toEqual([
       "fixture_offset_wcs",
       "n_number_pad_digits",
       "osp_family",
+      "setup_sheet_controller_name",
+      "setup_sheet_machine_name",
       "super_nurbs_code",
       "tcp_mode",
       "tool_length_comp_mode",
@@ -393,5 +401,132 @@ describe("CALL OO88 fixture-offset macro", () => {
         // use_call_oo88 unset → false → no collision
       })
     ).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// U-PPGOH01: structured setup_sheet payload
+// ---------------------------------------------------------------------------
+
+const PROGRAM_SETUP_DEFAULT = PROGRAM_BASE + 400;
+const PROGRAM_SETUP_P300_DEFAULT = PROGRAM_BASE + 401;
+const PROGRAM_SETUP_P500_DEFAULT = PROGRAM_BASE + 402;
+const PROGRAM_SETUP_OPT_OUT = PROGRAM_BASE + 403;
+const PROGRAM_SETUP_VERBATIM = PROGRAM_BASE + 404;
+const PROGRAM_SETUP_DEDUP = PROGRAM_BASE + 405;
+const PROGRAM_SETUP_SEQUENCE = PROGRAM_BASE + 406;
+const PROGRAM_SETUP_INCH = PROGRAM_BASE + 407;
+const SETUP_TOOL_NUM_VERBATIM = 7;
+const SETUP_RPM_VERBATIM = 7777;
+const SETUP_FEED_VERBATIM = 1234;
+const SETUP_AP_VERBATIM = 2.5;
+const SETUP_TOOL_NUM_HIGH = 9;
+const SETUP_TOOL_NUM_LOW = 3;
+const SETUP_TOOL_NUM_MID = 5;
+const SETUP_DEDUP_EXPECTED_COUNT = 2;
+
+function mustSheet<T>(v: T | undefined, label: string): T {
+  if (v === undefined) throw new Error(`${label}: expected defined, got undefined`);
+  return v;
+}
+
+describe("OkumaOSPMill — setup_sheet emission (U-PPGOH01)", () => {
+  it("emits setup_sheet by default with JM Die machine='Okuma Genos M460V-5AX' + controller='OSP-P300MA-H'", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([baseOp], {
+      ...JM_DIE_PRESET,
+      program_number: PROGRAM_SETUP_DEFAULT,
+    });
+    const sheet = mustSheet(result.setup_sheet, "JM Die setup_sheet");
+    expect(sheet.machine).toBe(JM_DIE_MACHINE_NAME);
+    expect(sheet.controller).toBe(JM_DIE_CONTROLLER_NAME);
+    expect(sheet.program_number).toBe(PROGRAM_SETUP_DEFAULT);
+    expect(sheet.units).toBe("metric");
+  });
+
+  it("default (no JM Die preset) emits family-derived names — P300 → 'OSP-P300M Mill' / 'OSP-P300M'", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([baseOp], {
+      program_number: PROGRAM_SETUP_P300_DEFAULT,
+      osp_family: "P300",
+    });
+    const sheet = mustSheet(result.setup_sheet, "P300 default setup_sheet");
+    expect(sheet.machine).toBe("Okuma OSP-P300M Mill");
+    expect(sheet.controller).toBe("OSP-P300M");
+  });
+
+  it("default (no JM Die preset) emits family-derived names — P500 → 'OSP-P500M Mill' / 'OSP-P500M'", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([baseOp], {
+      program_number: PROGRAM_SETUP_P500_DEFAULT,
+      osp_family: "P500",
+    });
+    const sheet = mustSheet(result.setup_sheet, "P500 default setup_sheet");
+    expect(sheet.machine).toBe("Okuma OSP-P500M Mill");
+    expect(sheet.controller).toBe("OSP-P500M");
+  });
+
+  it("emit_setup_sheet:false suppresses setup_sheet entirely", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([baseOp], {
+      ...JM_DIE_PRESET,
+      program_number: PROGRAM_SETUP_OPT_OUT,
+      emit_setup_sheet: false,
+    });
+    expect(result.setup_sheet === undefined).toBe(true);
+  });
+
+  it("operations row preserves spindle/feed/axial_depth verbatim from MillOperation", () => {
+    const op: MillOperation = {
+      ...baseOp,
+      tool_number: SETUP_TOOL_NUM_VERBATIM,
+      spindle_rpm: SETUP_RPM_VERBATIM,
+      feed_mm_min: SETUP_FEED_VERBATIM,
+      axial_depth_mm: SETUP_AP_VERBATIM,
+    };
+    const result = okumaOSPMillMasterPostEngine.generateProgram([op], {
+      ...JM_DIE_PRESET,
+      program_number: PROGRAM_SETUP_VERBATIM,
+    });
+    const row = mustSheet(result.setup_sheet, "verbatim setup_sheet").operations[0];
+    expect(row.sequence).toBe(1);
+    expect(row.tool_number).toBe(SETUP_TOOL_NUM_VERBATIM);
+    expect(row.spindle_rpm).toBe(SETUP_RPM_VERBATIM);
+    expect(row.feed_mm_min).toBe(SETUP_FEED_VERBATIM);
+    expect(row.axial_depth_mm).toBe(SETUP_AP_VERBATIM);
+  });
+
+  it("tools deduplicated by number and sorted ascending across multi-op programs", () => {
+    const opA: MillOperation = { ...baseOp, tool_number: SETUP_TOOL_NUM_HIGH };
+    const opB: MillOperation = { ...baseOp, tool_number: SETUP_TOOL_NUM_LOW };
+    const opC: MillOperation = { ...baseOp, tool_number: SETUP_TOOL_NUM_HIGH };  // dup of opA
+    const result = okumaOSPMillMasterPostEngine.generateProgram([opA, opB, opC], {
+      ...JM_DIE_PRESET,
+      program_number: PROGRAM_SETUP_DEDUP,
+    });
+    const tools = mustSheet(result.setup_sheet, "dedup setup_sheet").tools;
+    expect(tools.length).toBe(SETUP_DEDUP_EXPECTED_COUNT);
+    expect(tools[0].number).toBe(SETUP_TOOL_NUM_LOW);
+    expect(tools[1].number).toBe(SETUP_TOOL_NUM_HIGH);
+  });
+
+  it("operations carry 1-based sequence numbers in source order (not sorted)", () => {
+    const opA: MillOperation = { ...baseOp, tool_number: SETUP_TOOL_NUM_HIGH, operation_type: "pocket" };
+    const opB: MillOperation = { ...baseOp, tool_number: SETUP_TOOL_NUM_LOW, operation_type: "contour" };
+    const opC: MillOperation = { ...baseOp, tool_number: SETUP_TOOL_NUM_MID, operation_type: "drill" };
+    const result = okumaOSPMillMasterPostEngine.generateProgram([opA, opB, opC], {
+      ...JM_DIE_PRESET,
+      program_number: PROGRAM_SETUP_SEQUENCE,
+    });
+    const ops = mustSheet(result.setup_sheet, "sequence setup_sheet").operations;
+    expect(ops.map(o => o.sequence)).toEqual([1, 2, 3]);
+    expect(ops.map(o => o.type)).toEqual(["pocket", "contour", "drill"]);
+    expect(ops.map(o => o.tool_number)).toEqual([SETUP_TOOL_NUM_HIGH, SETUP_TOOL_NUM_LOW, SETUP_TOOL_NUM_MID]);
+  });
+
+  it("setup_sheet.units propagates 'inch' when cfg.units='inch'", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([baseOp], {
+      ...JM_DIE_PRESET,
+      program_number: PROGRAM_SETUP_INCH,
+      units: "inch",
+    });
+    const sheet = mustSheet(result.setup_sheet, "inch setup_sheet");
+    expect(sheet.units).toBe("inch");
   });
 });

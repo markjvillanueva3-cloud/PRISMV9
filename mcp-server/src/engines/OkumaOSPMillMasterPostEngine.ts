@@ -178,6 +178,26 @@ export interface OkumaOSPMillPostConfig {
   /** Opt-in AdvancedPostProcessor pass (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
    *  multi_axis force-skipped on P300 (3-axis); pushed warning surfaces. */
   advanced_post?: AdvancedPostFeaturesConfig;
+  /**
+   * U-PPGOH01: emit a structured setup_sheet alongside the G-code. Default
+   * true. Setup sheets feed the JM Die operator dashboard, the tool-crib
+   * pre-stage workflow, and the ERP traveler bridge. Set false when the
+   * caller wants only the G-code stream (lighter payload, batch post runs
+   * that don't ship to the floor). Mirrors HurcoV11 U-PPGH10.
+   */
+  emit_setup_sheet?: boolean;
+  /**
+   * U-PPGOH01: machine identifier surfaced on `setup_sheet.machine`. Default
+   * derived from `osp_family` (`"Okuma OSP-P300M Mill"` / `"Okuma OSP-P500M Mill"`).
+   * JM Die preset overrides to `"Okuma Genos M460V-5AX"`.
+   */
+  setup_sheet_machine_name?: string;
+  /**
+   * U-PPGOH01: controller identifier surfaced on `setup_sheet.controller`.
+   * Default derived from `osp_family` (`"OSP-P300M"` / `"OSP-P500M"`). JM Die
+   * preset overrides to `"OSP-P300MA-H"` (the actual M460V control variant).
+   */
+  setup_sheet_controller_name?: string;
 }
 
 /**
@@ -209,6 +229,11 @@ export const JM_DIE_PRESET: Partial<OkumaOSPMillPostConfig> = {
   n_number_pad_digits: 4,
   use_call_oo88: true,
   fixture_offset_wcs: 51,
+  // U-PPGOH01: setup_sheet identification — the M460V-5AX runs OSP-P300MA-H,
+  // not stock P300M. Tool-crib + traveler bridge consume these strings
+  // verbatim on the JM Die operator dashboard.
+  setup_sheet_machine_name: "Okuma Genos M460V-5AX",
+  setup_sheet_controller_name: "OSP-P300MA-H",
 };
 
 export interface MillOperation {
@@ -323,6 +348,46 @@ export interface AdvancedPipelineSummary {
   } | null;
 }
 
+/**
+ * U-PPGOH01: structured setup-sheet payload for the OkumaOSPMill master post.
+ * Same shape as the HurcoV11 setup sheet (U-PPGH10) but with `machine` /
+ * `controller` typed as plain string so the OSP family + JM Die M460V-5AX
+ * variant flow through. Tools deduplicated and sorted ascending by `number`
+ * for stable kit-up worklists; operations carry 1-based sequence numbers in
+ * source order.
+ *
+ * `coating` / `stickout_mm` are populated only when the structured-tool API
+ * supplies them (forthcoming U-PPGOH02 + U-PPGOH03). Until then the flat
+ * MillOperation fields populate `number` and `diameter_mm`; the optional
+ * fields stay undefined and round-trip cleanly through JSON.
+ */
+export interface OkumaSetupSheetTool {
+  number: number;
+  diameter_mm: number;
+  flutes: number;
+  description?: string;
+  coating?: string;
+  stickout_mm?: number;
+}
+
+export interface OkumaSetupSheetOp {
+  sequence: number;          // 1-based
+  type: MillOperation["operation_type"];
+  tool_number: number;
+  spindle_rpm: number;
+  feed_mm_min: number;
+  axial_depth_mm: number;
+}
+
+export interface OkumaSetupSheet {
+  machine: string;
+  controller: string;
+  units: "metric" | "inch";
+  program_number: number;
+  tools: OkumaSetupSheetTool[];
+  operations: OkumaSetupSheetOp[];
+}
+
 export interface OkumaOSPMillPostOutput {
   gcode: string[];
   program_number: number;
@@ -330,6 +395,8 @@ export interface OkumaOSPMillPostOutput {
   estimated_cycle_min: number;
   tools_used: number[];
   warnings: string[];
+  /** U-PPGOH01: present unless cfg.emit_setup_sheet === false. */
+  setup_sheet?: OkumaSetupSheet;
   physics_checks: Array<{
     line: number;
     check: string;
@@ -786,6 +853,51 @@ export class OkumaOSPMillMasterPostEngine {
       gcode.push(line);
     }
 
+    // U-PPGOH01: build the structured setup_sheet payload. Defaults ON; the
+    // caller opts out via cfg.emit_setup_sheet === false (strict equality so
+    // an undefined config still emits — backward compatible). Tools are
+    // deduplicated by number then sorted ascending for stable kit-up lists;
+    // operations carry 1-based sequence numbers in source order. Mirrors
+    // HurcoV11 U-PPGH10. Machine/controller names default from osp_family;
+    // JM Die preset overrides to the M460V-5AX-specific strings.
+    const emitSetupSheet = cfg.emit_setup_sheet !== false;
+    let setupSheet: OkumaSetupSheet | undefined;
+    if (emitSetupSheet) {
+      const familyDefault = cfg.osp_family === "P500"
+        ? { machine: "Okuma OSP-P500M Mill", controller: "OSP-P500M" }
+        : { machine: "Okuma OSP-P300M Mill", controller: "OSP-P300M" };
+      const toolByNumber = new Map<number, OkumaSetupSheetTool>();
+      for (const op of operations) {
+        if (!toolByNumber.has(op.tool_number)) {
+          toolByNumber.set(op.tool_number, {
+            number: op.tool_number,
+            diameter_mm: op.tool_diameter_mm,
+            flutes: op.tool_flutes,
+            description: op.tool_description,
+          });
+        }
+      }
+      const sortedTools = Array.from(toolByNumber.values()).sort(
+        (a, b) => a.number - b.number,
+      );
+      const sheetOps: OkumaSetupSheetOp[] = operations.map((op, idx) => ({
+        sequence: idx + 1,
+        type: op.operation_type,
+        tool_number: op.tool_number,
+        spindle_rpm: op.spindle_rpm,
+        feed_mm_min: op.feed_mm_min,
+        axial_depth_mm: op.axial_depth_mm,
+      }));
+      setupSheet = {
+        machine: cfg.setup_sheet_machine_name ?? familyDefault.machine,
+        controller: cfg.setup_sheet_controller_name ?? familyDefault.controller,
+        units: cfg.units ?? "metric",
+        program_number: cfg.program_number,
+        tools: sortedTools,
+        operations: sheetOps,
+      };
+    }
+
     return {
       gcode,
       program_number: cfg.program_number,
@@ -796,6 +908,7 @@ export class OkumaOSPMillMasterPostEngine {
       block_annotations: blockAnnotations,
       physics_checks: physicsChecks,
       tribal_tips_applied: tribalTipsApplied,
+      setup_sheet: setupSheet,
     };
   }
 
