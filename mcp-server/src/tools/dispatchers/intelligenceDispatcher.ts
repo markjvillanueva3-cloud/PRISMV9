@@ -174,6 +174,8 @@ const ACTIONS = [
   // ===== ConsensusCreditRunLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON =====
   "consensus_credit_run_history",   // Read-only: tail of cron run log
   "consensus_credit_run_stats",     // Read-only: aggregate stats over recent runs
+  // ===== ConsensusDriftDetectorEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR =====
+  "consensus_drift_detect",         // Read-only: compare two perf-state snapshots and surface EMA regressions
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -780,6 +782,37 @@ export function registerIntelligenceDispatcher(server: any): void {
           });
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, stats }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR: compare
+        // two perf-state snapshots and surface per-(vendor, taskType)
+        // EMA regressions classified by severity. Two input modes:
+        //   - inline:   {before, after} payloads (test/integration)
+        //   - filepath: {beforePath, afterPath} loaded via the perf engine
+        //   - mixed:    {beforePath} loads from disk, {after} inline
+        // afterPath defaults to the live perf-state file.
+        // ============================================================
+        if (action === "consensus_drift_detect") {
+          const { consensusDriftDetectorEngine } = await import("../../engines/ConsensusDriftDetectorEngine.js");
+          const { consensusModelPerformanceEngine } = await import("../../engines/ConsensusModelPerformanceEngine.js");
+          const beforeState = params.before
+            ? (params.before as never)
+            : consensusModelPerformanceEngine.loadState((params.beforePath as string | undefined) ?? null);
+          const afterState = params.after
+            ? (params.after as never)
+            : consensusModelPerformanceEngine.loadState((params.afterPath as string | undefined) ?? null);
+          const report = consensusDriftDetectorEngine.compare(beforeState, afterState, {
+            beforeAt: params.beforeAt as string | undefined,
+            afterAt: params.afterAt as string | undefined,
+            minObservations: params.minObservations as number | undefined,
+            minorThreshold: params.minorThreshold as number | undefined,
+            moderateThreshold: params.moderateThreshold as number | undefined,
+            severeThreshold: params.severeThreshold as number | undefined,
+          });
+          const actionable = consensusDriftDetectorEngine.hasActionableDrift(report);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, report, actionable }) }],
           };
         }
 

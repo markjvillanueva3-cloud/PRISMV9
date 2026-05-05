@@ -507,6 +507,24 @@ const consensus_credit_run_stats = z.object({
   limit: z.number().int().positive().optional(),
 }).passthrough();
 
+// ConsensusDriftDetectorEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
+// Compare two perf-state snapshots to detect EMA regressions per (vendor, taskType).
+const consensus_drift_detect = z.object({
+  // Either supply both snapshot paths, or supply `before` directly and let
+  // the dispatcher load `after` from the live perf-state file.
+  beforePath: optStr,
+  afterPath: optStr,
+  // Optional inline snapshots (test/integration use).
+  before: z.unknown().optional(),
+  after: z.unknown().optional(),
+  beforeAt: optStr,
+  afterAt: optStr,
+  minObservations: z.number().int().nonnegative().optional(),
+  minorThreshold: z.number().positive().lt(1).optional(),
+  moderateThreshold: z.number().positive().lt(1).optional(),
+  severeThreshold: z.number().positive().lt(1).optional(),
+}).passthrough();
+
 // ============================================================================
 // EXPORT MAP — 52 core actions (49 + 3 from U-CREDIT-DISPATCHER)
 // ============================================================================
@@ -584,4 +602,6 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   // ConsensusCreditRunLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON
   consensus_credit_run_history,
   consensus_credit_run_stats,
+  // ConsensusDriftDetectorEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
+  consensus_drift_detect,
 };
