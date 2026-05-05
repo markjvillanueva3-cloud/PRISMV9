@@ -182,6 +182,23 @@ export interface MillOperation {
   coolant?: "flood" | "mist" | "tsc" | "off";
   coordinates: Array<{ x: number; y: number; z: number; type: "rapid" | "linear" | "arc_cw" | "arc_ccw" }>;
   arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+  /**
+   * Per-operation Kienzle override (PPG-MS0/U-PPGH05 — re-applies U-PPGH04
+   * after that commit accidentally truncated the engine and dropped the
+   * aggressiveness + prove-out features regressed by stale-tree edit).
+   * When supplied, kc1_1 and/or mc replace the canonical
+   * CANONICAL_KIENZLE[material_iso] values for the cutting-force check.
+   * Bounds enforced (kc1_1 ∈ [100, 5000] N/mm², mc ∈ [0.10, 0.45]) to prevent
+   * a bad-faith caller from silently disabling the Fc-vs-machine-limit safety
+   * gate. If `iso_group` is also supplied it MUST match `material_iso` —
+   * mismatch throws. The cutting-force check string surfaces the resolved
+   * values as `(kc1_1=X mc=Y)` for traceability.
+   */
+  material?: {
+    iso_group?: ISOGroup;
+    kc1_1?: number;
+    mc?: number;
+  };
 }
 
 export interface HurcoPostOutput {
@@ -912,12 +929,34 @@ export class HurcoV11MillMasterPostEngine {
 
     // Depth of cut check (Kienzle force consideration)
     // Fc = kc1_1 * ap * fz^(1 - mc) — Sandvik Coromant General Turning (2024), ISO 3685
-    const kienzle = CANONICAL_KIENZLE[op.material_iso];
-    const Fc = kienzle.kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - kienzle.mc);
+    // PPG-MS0/U-PPGH05: honor optional op.material override with sanity bounds.
+    // Bounds (kc1_1 ∈ [100, 5000], mc ∈ [0.10, 0.45]) prevent a malformed
+    // override from silently producing Fc≈0 and trivially passing the
+    // Fc <= maxForce upper-bound gate (which would disable the safety check).
+    if (op.material?.iso_group !== undefined && op.material.iso_group !== op.material_iso) {
+      throw new Error(
+        `HurcoV11MillMasterPostEngine.performPhysicsChecks: op.material.iso_group=${op.material.iso_group} ` +
+          `does not match op.material_iso=${op.material_iso}. Supply only one or keep them aligned.`,
+      );
+    }
+    const canonicalKienzle = CANONICAL_KIENZLE[op.material_iso];
+    const kc1_1 = op.material?.kc1_1 ?? canonicalKienzle.kc1_1;
+    const mc = op.material?.mc ?? canonicalKienzle.mc;
+    if (op.material?.kc1_1 !== undefined && (kc1_1 < 100 || kc1_1 > 5000)) {
+      throw new Error(
+        `HurcoV11MillMasterPostEngine.performPhysicsChecks: kc1_1 override ${kc1_1} out of safe range [100, 5000] N/mm²`,
+      );
+    }
+    if (op.material?.mc !== undefined && (mc < 0.10 || mc > 0.45)) {
+      throw new Error(
+        `HurcoV11MillMasterPostEngine.performPhysicsChecks: mc override ${mc} out of safe range [0.10, 0.45]`,
+      );
+    }
+    const Fc = kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - mc);
     const maxForce = 2000; // N, rough limit for VMX24
     checks.push({
       line: startLine,
-      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N`,
+      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N (kc1_1=${kc1_1} mc=${mc})`,
       passed: Fc <= maxForce,
       value: Fc,
       limit: maxForce

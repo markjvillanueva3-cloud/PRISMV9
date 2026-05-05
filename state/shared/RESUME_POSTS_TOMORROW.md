@@ -7,9 +7,11 @@
 
 ---
 
-## 2026-05-05 SESSION (claude-803437e0) — U-PPGH04 LANDED
+## 2026-05-05 SESSION (claude-803437e0) — U-PPGH04 LANDED + U-PPGH05 REGRESSION FIX
 
 **REPO HEALTH:** Earlier in this session `H:/prism/.git` had corrupt tree/blob objects (unreadable tree `c91078d8...`, blob `577dffe1...` for CAMAnalyzeEngine.test.ts, unreadable parent commit `fc960eeb...`). `git fetch --refetch origin` (exit 0, ~minutes) repopulated all missing objects; `git status` and commits now work. A stale `.git/index.lock` from 07:37 was also removed manually (user-approved). If a future session sees `unable to read tree` errors again, run `git fetch --refetch origin` first before any other recovery.
+
+**REGRESSION INTRODUCED + FIXED THIS SESSION:** U-PPGH04 (commit `5b0812d10`) was authored against a STALE 1407-line copy of `HurcoV11MillMasterPostEngine.ts` while the canonical version on the branch was 1664 lines (with U-PPGH02 aggressiveness L1-L5 + U-PPGH03 prove-out features). The commit silently dropped 257 lines of feature code. Detected by re-running the unit-test suite — 28 tests still failed because `HURCO_AGGRESSIVENESS_TABLE`, `prove_out`, etc. were absent from the engine. **U-PPGH05** (next commit) restores the engine from `HEAD~3` and re-applies the U-PPGH04 changes (material override + sanity bounds + `(kc1_1=X mc=Y)` suffix) on top. After U-PPGH05: aggressiveness suite GREEN, coolant suite GREEN, sidecar integration GREEN, material override GREEN — net +13 tests vs. broken-U-PPGH04 state.
 
 **U-PPGH04 — code complete, tests green, awaiting repo recovery to commit:**
 
