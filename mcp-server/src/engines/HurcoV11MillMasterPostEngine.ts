@@ -108,64 +108,6 @@ export interface HurcoPostConfig {
    *  Threads post-AS/F G-code through `advancedPostProcessorEngine.enhance()`
    *  with controller='hurco'. multi_axis force-skipped on axis_count<4. */
   advanced_post?: AdvancedPostFeaturesConfig;
-  /**
-   * Sync-path feed-multiplier level (PPG-HARDEN/U-PPGH02). Operator-friendly
-   * 1..5 stepping that maps to a fixed feed multiplier table:
-   *   L1 ULTRA-CONSERVATIVE = 0.6×
-   *   L2 CONSERVATIVE       = 0.75×
-   *   L3 MODERATE           = 0.9×
-   *   L4 AGGRESSIVE         = 1.0×
-   *   L5 MAX                = 1.1×
-   * Out-of-range values are clamped to [1, 5]; non-integers are rounded to
-   * the nearest level. Independent of `advanced_aggressiveness` (which is
-   * the AutoSpeedFeed 0..1 fractional knob in the advanced pipeline).
-   * When omitted, sync emission is byte-identical to prior behavior — no
-   * header line, no feed multiplier applied, `feed_optimizations` stays empty.
-   */
-  aggressiveness?: number;
-  /**
-   * Reserved for future sync-path AutoSpeedFeed wiring. Currently no-op in
-   * the sync `generateProgram` path; AS/F only runs via `generateProgramAdvanced`
-   * with `use_advanced_features: true`. The `aggressiveness` multiplier
-   * applies regardless of this flag.
-   */
-  optimize_feeds?: boolean;
-  /**
-   * Sync-path prove-out mode (PPG-HARDEN/U-PPGH03). Operator-friendly
-   * first-article / new-setup safety pass:
-   *   - Multiplies every op's feed by `feed_factor` (default 0.5 = half-feed)
-   *   - Emits `M01 (OPTIONAL STOP - PROVE OUT)` between operations so the
-   *     operator can step through one op at a time on the WinMax UI
-   *   - Sets `result.prove_out_mode === true` so downstream telemetry can
-   *     filter out prove-out runs from production cycle-time stats
-   * When omitted or `enabled: false`, sync emission is byte-identical to
-   * prior behavior. Prove-out OVERRIDES `aggressiveness` (an operator who
-   * dialed prove-out wants caution, not the L1..L5 aggressiveness scale).
-   */
-  prove_out?: HurcoProveOutConfig;
-}
-
-/**
- * Prove-out mode config (PPG-HARDEN/U-PPGH03). Independent of the
- * aggressiveness L1..L5 stepping — operators reach for prove-out during
- * first-article runs, post-crash recovery, or new-fixture validation.
- */
-export interface HurcoProveOutConfig {
-  /** Master switch. When false/omitted, prove-out has no effect. */
-  enabled: boolean;
-  /**
-   * Feed multiplier applied to every op's feed_mm_min. Default 0.5
-   * (half-feed). Clamped to [0, 1]; values above 1 would INCREASE feed
-   * during prove-out (semantically wrong) so they clamp to 1.
-   * NaN / undefined / non-numeric → fall back to 0.5.
-   */
-  feed_factor?: number;
-  /**
-   * Emit `M01 (OPTIONAL STOP - PROVE OUT)` between operations. Default
-   * true. Set false to keep continuous run while still using the
-   * reduced feed (e.g. operator watching a closed-door cycle).
-   */
-  add_optional_stops?: boolean;
 }
 
 export interface MillOperation {
@@ -182,6 +124,20 @@ export interface MillOperation {
   coolant?: "flood" | "mist" | "tsc" | "off";
   coordinates: Array<{ x: number; y: number; z: number; type: "rapid" | "linear" | "arc_cw" | "arc_ccw" }>;
   arc_data?: Array<{ i?: number; j?: number; k?: number; r?: number }>;
+  /**
+   * Per-operation Kienzle override (PPG-MS0/U-PPGH04). When supplied, kc1_1 and/or
+   * mc replace the canonical CANONICAL_KIENZLE[material_iso] values for the
+   * cutting-force check. Bounds enforced (kc1_1 ∈ [100, 5000] N/mm²,
+   * mc ∈ [0.10, 0.45]) to prevent a bad-faith caller from silently disabling
+   * the Fc-vs-machine-limit safety gate. If `iso_group` is also supplied it
+   * MUST match `material_iso` — mismatch throws. The cutting-force check
+   * string surfaces the resolved values as `(kc1_1=X mc=Y)` for traceability.
+   */
+  material?: {
+    iso_group?: ISOGroup;
+    kc1_1?: number;
+    mc?: number;
+  };
 }
 
 export interface HurcoPostOutput {
@@ -211,47 +167,11 @@ export interface HurcoPostOutput {
    * post-publish time.
    */
   block_annotations: BlockAnnotation[];
-  /**
-   * Clamped aggressiveness level (1..5) actually applied to this run, or
-   * undefined when caller did not request the level system. Always equals
-   * the rounded-and-clamped form of `cfg.aggressiveness` so callers never
-   * have to redo the clamp themselves (PPG-HARDEN/U-PPGH02).
-   */
-  aggressiveness_applied?: number;
-  /**
-   * Per-operation feed-multiplier audit. Empty array unless caller passed
-   * `cfg.aggressiveness` or `cfg.prove_out.enabled`; one entry per
-   * operation otherwise. Block ID matches the `Nxxx` label on the
-   * spindle-start line so this audit lines up with `block_annotations[]`
-   * for downstream verification.
-   */
-  feed_optimizations: HurcoFeedOptimization[];
-  /**
-   * Prove-out mode flag (PPG-HARDEN/U-PPGH03). True when the caller
-   * passed `cfg.prove_out.enabled = true`; false otherwise. Downstream
-   * telemetry can filter prove-out runs out of production cycle-time
-   * statistics so they don't depress the median.
-   */
-  prove_out_mode: boolean;
   /** Advanced-pipeline opt-in fields — populated only by `generateProgramAdvanced`
    *  when `use_advanced_features: true`. Sync `generateProgram` returns these as null. */
   advanced_features_applied?: string[];
   optimized_gcode?: string[] | null;
   advanced_summary?: HurcoAdvancedSummary | null;
-}
-
-/**
- * Per-operation feed-multiplier audit emitted by the sync-path
- * aggressiveness level system (PPG-HARDEN/U-PPGH02). One entry per
- * operation when `cfg.aggressiveness` is provided.
- */
-export interface HurcoFeedOptimization {
-  block_id: string;
-  level: number;
-  label: string;
-  multiplier: number;
-  original_feed_mm_min: number;
-  optimized_feed_mm_min: number;
 }
 
 export interface HurcoAdvancedSummary {
@@ -412,130 +332,6 @@ const HURCO_V11_TRIBAL_KNOWLEDGE = [
 ];
 
 // ============================================================================
-// AGGRESSIVENESS LEVEL TABLE — sync-path feed multiplier (U-PPGH02)
-// ============================================================================
-//
-// Operator-friendly 1..5 stepping for feed scaling on the sync `generateProgram`
-// path. Independent of the AutoSpeedFeed `advanced_aggressiveness` 0..1 knob
-// in the advanced pipeline. Levels are intentionally coarse so a shop floor
-// operator can dial conservativeness without thinking in fractions:
-//
-//   L1 ULTRA-CONSERVATIVE — first-article / unproven setup / new material
-//   L2 CONSERVATIVE       — safe production
-//   L3 MODERATE           — typical production
-//   L4 AGGRESSIVE         — proven program, machine in good condition
-//   L5 MAX                — push to chip-load limits, well-instrumented run
-//
-// Multipliers chosen to bracket nominal (L4=1.0) with a 0.6× ultra-safe
-// floor and a 1.1× ceiling (10% over nominal — anything more should go
-// through the AutoSpeedFeed pipeline with full chip-thinning analysis).
-//
-export const HURCO_AGGRESSIVENESS_LEVEL_MIN = 1;
-export const HURCO_AGGRESSIVENESS_LEVEL_MAX = 5;
-export const HURCO_AGGRESSIVENESS_TABLE: ReadonlyArray<{
-  readonly level: number;
-  readonly label: string;
-  readonly multiplier: number;
-}> = [
-  { level: 1, label: "ULTRA-CONSERVATIVE", multiplier: 0.6 },
-  { level: 2, label: "CONSERVATIVE",        multiplier: 0.75 },
-  { level: 3, label: "MODERATE",            multiplier: 0.9 },
-  { level: 4, label: "AGGRESSIVE",          multiplier: 1.0 },
-  { level: 5, label: "MAX",                 multiplier: 1.1 },
-];
-
-/**
- * Clamp + round caller-supplied aggressiveness to a valid level entry, or
- * return null to signal "not requested" (caller passed undefined / NaN).
- *
- * Adversarial inputs are normalized:
- *  - undefined           → null  (no behavior change)
- *  - NaN                 → null  (no behavior change; never throws)
- *  - non-finite (±Inf)   → clamped to the nearest valid extreme
- *  - non-integer         → rounded to nearest integer level
- *  - out of [1, 5]       → clamped to [1, 5]
- */
-function resolveAggressivenessLevel(
-  raw: number | undefined,
-): typeof HURCO_AGGRESSIVENESS_TABLE[number] | null {
-  if (raw === undefined || raw === null) return null;
-  if (Number.isNaN(raw)) return null;
-  let level: number;
-  if (raw === Infinity || raw > HURCO_AGGRESSIVENESS_LEVEL_MAX) {
-    level = HURCO_AGGRESSIVENESS_LEVEL_MAX;
-  } else if (raw === -Infinity || raw < HURCO_AGGRESSIVENESS_LEVEL_MIN) {
-    level = HURCO_AGGRESSIVENESS_LEVEL_MIN;
-  } else {
-    level = Math.round(raw);
-  }
-  return HURCO_AGGRESSIVENESS_TABLE[level - 1] ?? null;
-}
-
-// ============================================================================
-// PROVE-OUT MODE — sync-path first-article / post-crash safety pass (U-PPGH03)
-// ============================================================================
-//
-// Independent of the aggressiveness L1..L5 stepping. Operators dial prove-out
-// during first-article runs, post-crash recovery, post-fixture-change
-// validation, or any scenario where they want to step through the program
-// op-by-op at reduced feed. When prove-out is enabled, it OVERRIDES
-// aggressiveness — the operator's caution intent wins.
-//
-export const PROVE_OUT_DEFAULT_FEED_FACTOR = 0.5;
-export const PROVE_OUT_FEED_FACTOR_MIN = 0;
-export const PROVE_OUT_FEED_FACTOR_MAX = 1;
-export const PROVE_OUT_LABEL = "PROVE-OUT";
-/** Sentinel level used in HurcoFeedOptimization rows produced by prove-out
- *  (vs. L1..L5 produced by aggressiveness). Lets downstream consumers
- *  discriminate the two paths without a discriminated-union type change. */
-export const PROVE_OUT_LEVEL_SENTINEL = 0;
-
-/** Internal resolved prove-out entry. `feedFactor` is already clamped to
- *  [0, 1] and NaN-normalized; `addOptionalStops` defaults to true. */
-interface ProveOutEntry {
-  readonly enabled: true;
-  readonly feedFactor: number;
-  readonly addOptionalStops: boolean;
-}
-
-/**
- * Normalize caller-supplied prove_out config to a resolved entry, or null
- * when prove-out is not requested (off / undefined / `enabled: false`).
- *
- * Adversarial inputs are normalized:
- *  - undefined / null               → null  (no behavior change)
- *  - { enabled: false }             → null  (no behavior change)
- *  - feed_factor = NaN              → defaults to 0.5
- *  - feed_factor = ±Infinity        → clamped to nearest extreme [0, 1]
- *  - feed_factor < 0 or > 1         → clamped to [0, 1]
- *  - non-numeric feed_factor        → defaults to 0.5
- *  - add_optional_stops omitted     → defaults to true
- */
-function resolveProveOutEntry(
-  raw: HurcoProveOutConfig | undefined,
-): ProveOutEntry | null {
-  if (!raw || raw.enabled !== true) return null;
-
-  let factor: number;
-  const requested = raw.feed_factor;
-  if (typeof requested !== "number" || Number.isNaN(requested)) {
-    factor = PROVE_OUT_DEFAULT_FEED_FACTOR;
-  } else if (requested === Infinity || requested > PROVE_OUT_FEED_FACTOR_MAX) {
-    factor = PROVE_OUT_FEED_FACTOR_MAX;
-  } else if (requested === -Infinity || requested < PROVE_OUT_FEED_FACTOR_MIN) {
-    factor = PROVE_OUT_FEED_FACTOR_MIN;
-  } else {
-    factor = requested;
-  }
-
-  return {
-    enabled: true,
-    feedFactor: factor,
-    addOptionalStops: raw.add_optional_stops !== false,
-  };
-}
-
-// ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
@@ -564,9 +360,6 @@ export class HurcoV11MillMasterPostEngine {
     const physicsChecks: HurcoPostOutput["physics_checks"] = [];
     const tribalTipsApplied: string[] = [];
     const toolsUsed = new Set<number>();
-    const feedOptimizations: HurcoFeedOptimization[] = [];
-    const aggressivenessEntry = resolveAggressivenessLevel(cfg.aggressiveness);
-    const proveOutEntry = resolveProveOutEntry(cfg.prove_out);
 
     log.info(`[HurcoV11] Generating program O${cfg.program_number} with ${operations.length} operations`);
 
@@ -574,19 +367,6 @@ export class HurcoV11MillMasterPostEngine {
     gcode.push(`O${cfg.program_number} (${cfg.program_comment || "PRISM GENERATED"})`);
     gcode.push(`(MACHINE: HURCO VMX24 - WINMAX V11)`);
     gcode.push(`(GENERATED: ${new Date().toISOString()})`);
-    if (aggressivenessEntry && !proveOutEntry) {
-      // U-PPGH02: emit aggressiveness header only when explicitly requested
-      // so legacy programs (no aggressiveness param) stay byte-identical.
-      // U-PPGH03: prove-out OVERRIDES aggressiveness — only one of the two
-      // multiplier headers ever appears. Operator caution wins.
-      gcode.push(`(AGGRESSIVENESS: ${aggressivenessEntry.label} L${aggressivenessEntry.level}/5)`);
-    }
-    if (proveOutEntry) {
-      // U-PPGH03: prove-out header — explicit so the operator sees the
-      // mode at top of program before manually stepping through cycles.
-      const stopsTag = proveOutEntry.addOptionalStops ? "ON" : "OFF";
-      gcode.push(`(PROVE-OUT MODE: feed_factor=${proveOutEntry.feedFactor.toFixed(2)}, optional_stops=${stopsTag})`);
-    }
     gcode.push("");
 
     // Safe start block
@@ -611,57 +391,13 @@ export class HurcoV11MillMasterPostEngine {
     const blockAnnotations: BlockAnnotation[] = [];
     for (let i = 0; i < operations.length; i++) {
       const op = operations[i];
-
-      // U-PPGH03: prove-out emits an M01 BETWEEN operations (never before
-      // the first op or after the last) so the operator can step through
-      // one op at a time on the WinMax UI. Suppressed when caller passes
-      // `add_optional_stops: false`. Independent of feed multiplication —
-      // an operator can run continuous-but-slow or stop-but-nominal.
-      if (proveOutEntry && proveOutEntry.addOptionalStops && i > 0) {
-        gcode.push("");
-        gcode.push("M01 (OPTIONAL STOP - PROVE OUT)");
-      }
-
       toolsUsed.add(op.tool_number);
-
-      // U-PPGH02: clone op with multiplied feed when aggressiveness was
-      // requested. Physics checks run on the EFFECTIVE feed (what actually
-      // executes on the machine) so the L5 1.1× ceiling can still trip a
-      // chip-load violation that the original feed would have passed.
-      // U-PPGH03: prove-out OVERRIDES aggressiveness when both are set.
-      // Operator dialed caution; prove-out feed_factor wins. Only one
-      // entry per op lands in feed_optimizations[].
-      const blockId = "N" + (100 + i * 10);
-      let effectiveOp = op;
-      if (proveOutEntry) {
-        const optimizedFeed = Math.round(op.feed_mm_min * proveOutEntry.feedFactor);
-        effectiveOp = { ...op, feed_mm_min: optimizedFeed };
-        feedOptimizations.push({
-          block_id: blockId,
-          level: PROVE_OUT_LEVEL_SENTINEL,
-          label: PROVE_OUT_LABEL,
-          multiplier: proveOutEntry.feedFactor,
-          original_feed_mm_min: op.feed_mm_min,
-          optimized_feed_mm_min: optimizedFeed,
-        });
-      } else if (aggressivenessEntry) {
-        const optimizedFeed = Math.round(op.feed_mm_min * aggressivenessEntry.multiplier);
-        effectiveOp = { ...op, feed_mm_min: optimizedFeed };
-        feedOptimizations.push({
-          block_id: blockId,
-          level: aggressivenessEntry.level,
-          label: aggressivenessEntry.label,
-          multiplier: aggressivenessEntry.multiplier,
-          original_feed_mm_min: op.feed_mm_min,
-          optimized_feed_mm_min: optimizedFeed,
-        });
-      }
 
       gcode.push("");
       gcode.push(`(OPERATION ${i + 1}: ${op.operation_type.toUpperCase()})`);
 
       // Physics checks
-      const checks = this.performPhysicsChecks(effectiveOp, gcode.length);
+      const checks = this.performPhysicsChecks(op, gcode.length);
       physicsChecks.push(...checks);
       const failedChecks = checks.filter(c => !c.passed);
       if (failedChecks.length > 0) {
@@ -669,21 +405,22 @@ export class HurcoV11MillMasterPostEngine {
       }
 
       // Tool change
-      const toolChange = this.generateToolChange(effectiveOp, cfg);
+      const toolChange = this.generateToolChange(op, cfg);
       gcode.push(...toolChange);
 
       // Spindle start — labelled block carries the op's S/F for the sidecar
       // gate to cross-check (U-PPGM13). block_id "N{100 + i*10}" gives stable
       // O(1) lookup keys: N100, N110, N120, ...
-      const spindleStart = this.generateSpindleStart(effectiveOp, cfg, blockId);
+      const blockId = "N" + (100 + i * 10);
+      const spindleStart = this.generateSpindleStart(op, cfg, blockId);
       gcode.push(...spindleStart);
 
       // Apply tribal knowledge
-      const tips = this.applyTribalKnowledge(effectiveOp);
+      const tips = this.applyTribalKnowledge(op);
       tribalTipsApplied.push(...tips.applied);
 
       // Generate toolpath
-      const toolpath = this.generateToolpath(effectiveOp, cfg);
+      const toolpath = this.generateToolpath(op, cfg);
       gcode.push(...toolpath);
 
       // Build per-block annotation: physics_basis="kienzle" because the
@@ -691,36 +428,32 @@ export class HurcoV11MillMasterPostEngine {
       // safety envelope from CANONICAL_KIENZLE; vc/fpt are derived from
       // op.spindle_rpm + op.tool_diameter_mm + op.feed_mm_min + flutes
       // (no inlined physics constants).
-      // U-PPGH02: emitted vc/fpt/F reflect the EFFECTIVE feed (post-multiplier)
-      // because that is what the machine actually executes. Downstream
-      // verifiers cross-check this against the physics chain so they need
-      // to see the post-multiplier values, not the operator's intent.
-      const vc_mpm = (Math.PI * effectiveOp.tool_diameter_mm * effectiveOp.spindle_rpm) / 1000;
-      const fpt_mm = effectiveOp.feed_mm_min / (effectiveOp.spindle_rpm * effectiveOp.tool_flutes);
+      const vc_mpm = (Math.PI * op.tool_diameter_mm * op.spindle_rpm) / 1000;
+      const fpt_mm = op.feed_mm_min / (op.spindle_rpm * op.tool_flutes);
       blockAnnotations.push({
         block_id: blockId,
-        op_id: `op_${i + 1}_${effectiveOp.operation_type}`,
-        iso_group: effectiveOp.material_iso,
+        op_id: `op_${i + 1}_${op.operation_type}`,
+        iso_group: op.material_iso,
         tool_material: "carbide",
         emitted: {
           vc_mpm,
           fpt_mm,
-          ap_mm: effectiveOp.axial_depth_mm,
-          ae_mm: effectiveOp.radial_depth_mm,
-          S_rpm: effectiveOp.spindle_rpm,
-          F_mmpm: effectiveOp.feed_mm_min,
+          ap_mm: op.axial_depth_mm,
+          ae_mm: op.radial_depth_mm,
+          S_rpm: op.spindle_rpm,
+          F_mmpm: op.feed_mm_min,
         },
         physics_basis: "kienzle",
         confidence: 0.85,
         safety_margin: 0.9,
         source_constants: [
-          `CANONICAL_KIENZLE.${effectiveOp.material_iso}`,
-          `CANONICAL_TAYLOR.${effectiveOp.material_iso}`,
+          `CANONICAL_KIENZLE.${op.material_iso}`,
+          `CANONICAL_TAYLOR.${op.material_iso}`,
         ],
       });
 
-      // Estimate time on EFFECTIVE feed — slower feed = longer cycle time.
-      estimatedTime += this.estimateCycleTime(effectiveOp);
+      // Estimate time
+      estimatedTime += this.estimateCycleTime(op);
     }
 
     // Program end
@@ -741,9 +474,6 @@ export class HurcoV11MillMasterPostEngine {
       tools_used: Array.from(toolsUsed).sort((a, b) => a - b),
       warnings,
       block_annotations: blockAnnotations,
-      aggressiveness_applied: aggressivenessEntry?.level,
-      feed_optimizations: feedOptimizations,
-      prove_out_mode: proveOutEntry !== null,
       physics_checks: physicsChecks,
       tribal_tips_applied: tribalTipsApplied
     };
@@ -804,20 +534,11 @@ export class HurcoV11MillMasterPostEngine {
     }
 
     // Coolant
-    // PPG-HARDEN/U-PPGH01: TSC (through-spindle coolant) was previously
-    // accepted by the type-level enum but silently dropped in emit. JM Die's
-    // VMX24 is documented as not supporting TSC (see tribal tip categorized
-    // "coolant"), but Hurco V11 controllers across the wider VMX/VM line
-    // accept M88 — and a programmer who explicitly requests TSC needs the
-    // M88 emitted so the operator can see and reject it at machine setup.
-    // Silently dropping the request was the worst of all worlds.
     const coolant = op.coolant || cfg.coolant_mode;
     if (coolant === "flood") {
       lines.push("M08 (FLOOD COOLANT)");
     } else if (coolant === "mist") {
       lines.push("M07 (MIST COOLANT)");
-    } else if (coolant === "tsc") {
-      lines.push("M88 (THROUGH-SPINDLE COOLANT)");
     }
 
     return lines;
@@ -912,12 +633,34 @@ export class HurcoV11MillMasterPostEngine {
 
     // Depth of cut check (Kienzle force consideration)
     // Fc = kc1_1 * ap * fz^(1 - mc) — Sandvik Coromant General Turning (2024), ISO 3685
-    const kienzle = CANONICAL_KIENZLE[op.material_iso];
-    const Fc = kienzle.kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - kienzle.mc);
+    // PPG-MS0/U-PPGH04: honor optional op.material override with sanity bounds.
+    // Bounds (kc1_1 ∈ [100, 5000], mc ∈ [0.10, 0.45]) prevent a malformed
+    // override from silently producing Fc≈0 and trivially passing the
+    // Fc <= maxForce upper-bound gate (which would disable the safety check).
+    if (op.material?.iso_group !== undefined && op.material.iso_group !== op.material_iso) {
+      throw new Error(
+        `HurcoV11MillMasterPostEngine.performPhysicsChecks: op.material.iso_group=${op.material.iso_group} ` +
+          `does not match op.material_iso=${op.material_iso}. Supply only one or keep them aligned.`,
+      );
+    }
+    const canonicalKienzle = CANONICAL_KIENZLE[op.material_iso];
+    const kc1_1 = op.material?.kc1_1 ?? canonicalKienzle.kc1_1;
+    const mc = op.material?.mc ?? canonicalKienzle.mc;
+    if (op.material?.kc1_1 !== undefined && (kc1_1 < 100 || kc1_1 > 5000)) {
+      throw new Error(
+        `HurcoV11MillMasterPostEngine.performPhysicsChecks: kc1_1 override ${kc1_1} out of safe range [100, 5000] N/mm²`,
+      );
+    }
+    if (op.material?.mc !== undefined && (mc < 0.10 || mc > 0.45)) {
+      throw new Error(
+        `HurcoV11MillMasterPostEngine.performPhysicsChecks: mc override ${mc} out of safe range [0.10, 0.45]`,
+      );
+    }
+    const Fc = kc1_1 * op.axial_depth_mm * Math.pow(fz, 1 - mc);
     const maxForce = 2000; // N, rough limit for VMX24
     checks.push({
       line: startLine,
-      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N`,
+      check: `Cutting force ${Fc.toFixed(0)} N vs machine limit ${maxForce} N (kc1_1=${kc1_1} mc=${mc})`,
       passed: Fc <= maxForce,
       value: Fc,
       limit: maxForce
