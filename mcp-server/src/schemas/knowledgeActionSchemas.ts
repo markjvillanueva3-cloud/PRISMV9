@@ -73,6 +73,52 @@ const wiki_summarize_dir = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P14-U03 — vault backlinks
+// (wires VaultBacklinkEngine to knowledge dispatcher)
+// ============================================================================
+
+const _backlinkCandidate = z.object({
+  id: z.string().min(1),
+  kind: z.enum(["engine", "dispatcher_action", "skill"]),
+  description: z.string().min(1),
+});
+
+const wiki_backlink_for_chunk = z.object({
+  chunk_text: z.string().describe("Vault chunk text to score against PRISM corpora"),
+  top_k: z.number().int().positive().optional().describe("Per-kind top-K (default 5)"),
+  min_score: z.number().nonnegative().optional().describe("Score floor (default 0.05)"),
+  candidates_engine: z.array(_backlinkCandidate).optional().describe("Engine corpus"),
+  candidates_action: z.array(_backlinkCandidate).optional().describe("Dispatcher-action corpus"),
+  candidates_skill: z.array(_backlinkCandidate).optional().describe("Skill corpus"),
+}).passthrough();
+
+const wiki_backlink_render = z.object({
+  result: z.object({
+    ok: z.boolean(),
+    chunkText: z.string(),
+    engines: z.array(z.object({
+      id: z.string(), kind: z.literal("engine"), description: z.string(),
+      score: z.number(), uniqueOverlap: z.number().int().nonnegative(),
+    })),
+    dispatcher_actions: z.array(z.object({
+      id: z.string(), kind: z.literal("dispatcher_action"), description: z.string(),
+      score: z.number(), uniqueOverlap: z.number().int().nonnegative(),
+    })),
+    skills: z.array(z.object({
+      id: z.string(), kind: z.literal("skill"), description: z.string(),
+      score: z.number(), uniqueOverlap: z.number().int().nonnegative(),
+    })),
+    totalScored: z.number().int().nonnegative(),
+    durationMs: z.number().int().nonnegative(),
+  }).describe("BacklinkResult from a prior wiki_backlink_for_chunk call"),
+}).passthrough();
+
+const wiki_backlink_parse_digest = z.object({
+  digest_text: z.string().describe("Raw digest text (one item per line, em-dash or colon separator)"),
+  kind: z.enum(["engine", "dispatcher_action", "skill"]).describe("Tag to apply to parsed candidates"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1154,4 +1200,7 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   wiki_rag_should_trigger,
   wiki_classify_file,
   wiki_summarize_dir,
+  wiki_backlink_for_chunk,
+  wiki_backlink_render,
+  wiki_backlink_parse_digest,
 };

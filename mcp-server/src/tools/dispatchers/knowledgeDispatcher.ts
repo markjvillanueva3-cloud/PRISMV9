@@ -192,6 +192,13 @@ const VAULT_RAG_ACTIONS = [
   "wiki_summarize_dir",         // Aggregate FileEntry[] into a DirSummary (KIP planner)
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P14-U03: Vault auto-backlinks — surfaces VaultBacklinkEngine. */
+const VAULT_BACKLINK_ACTIONS = [
+  "wiki_backlink_for_chunk",    // Score one chunk against engine/action/skill corpora → top-K per kind
+  "wiki_backlink_render",       // Render a BacklinkResult to a "## Related PRISM" markdown section
+  "wiki_backlink_parse_digest", // Parse ENGINE_DIGEST.md / DISPATCHER_DIGEST.md text → BacklinkCandidate[]
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -215,6 +222,7 @@ const ACTIONS = [
   ...TRIBAL_ACTIVATION_ACTIONS,
   ...KIP_INGEST_ACTIONS,
   ...VAULT_RAG_ACTIONS,
+  ...VAULT_BACKLINK_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2235,6 +2243,44 @@ export function registerKnowledgeDispatcher(server: any): void {
               };
             });
             result = resourcesClassifierEngine.summarizeDir(dirRelPath, normalized);
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P14-U03: Vault backlinks (VaultBacklinkEngine) ──
+          case "wiki_backlink_for_chunk": {
+            const { vaultBacklinkEngine } = await import("../../engines/VaultBacklinkEngine.js");
+            const chunkText = params.chunk_text ?? params.chunkText;
+            if (typeof chunkText !== "string") {
+              throw new Error("wiki_backlink_for_chunk: chunk_text required (string)");
+            }
+            result = vaultBacklinkEngine.findBacklinksForChunk(chunkText, {
+              topK: params.top_k ?? params.topK,
+              minScore: params.min_score ?? params.minScore,
+              candidatesEngine: Array.isArray(params.candidates_engine) ? params.candidates_engine : undefined,
+              candidatesAction: Array.isArray(params.candidates_action) ? params.candidates_action : undefined,
+              candidatesSkill: Array.isArray(params.candidates_skill) ? params.candidates_skill : undefined,
+            });
+            break;
+          }
+          case "wiki_backlink_render": {
+            const { vaultBacklinkEngine } = await import("../../engines/VaultBacklinkEngine.js");
+            const r = params.result;
+            if (!r || typeof r !== "object") {
+              throw new Error("wiki_backlink_render: result required (BacklinkResult shape)");
+            }
+            result = { markdown: vaultBacklinkEngine.renderBacklinksMarkdown(r) };
+            break;
+          }
+          case "wiki_backlink_parse_digest": {
+            const { vaultBacklinkEngine } = await import("../../engines/VaultBacklinkEngine.js");
+            const text = params.digest_text ?? params.digestText;
+            const kind = params.kind;
+            if (typeof text !== "string") {
+              throw new Error("wiki_backlink_parse_digest: digest_text required (string)");
+            }
+            if (kind !== "engine" && kind !== "dispatcher_action" && kind !== "skill") {
+              throw new Error("wiki_backlink_parse_digest: kind must be one of engine|dispatcher_action|skill");
+            }
+            result = { candidates: vaultBacklinkEngine.parseDigest(text, kind) };
             break;
           }
         }

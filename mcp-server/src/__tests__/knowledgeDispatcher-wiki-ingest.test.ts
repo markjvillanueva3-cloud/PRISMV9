@@ -227,4 +227,68 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       }).success).toBe(true);
     });
   });
+
+  describe("Vault backlinks wiring (P14-U03)", () => {
+    it("wiki_backlink_for_chunk is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_backlink_for_chunk")).toBe(true);
+    });
+
+    it("wiki_backlink_render is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_backlink_render")).toBe(true);
+    });
+
+    it("wiki_backlink_parse_digest is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_backlink_parse_digest")).toBe(true);
+    });
+
+    it("wiki_backlink_for_chunk schema accepts a realistic payload with corpora", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_backlink_for_chunk as z.ZodType;
+      const result = schema.safeParse({
+        chunk_text: "Iscar carbide insert geometry catalog",
+        top_k: 3,
+        min_score: 0.05,
+        candidates_engine: [
+          { id: "ToolingCatalogEngine", kind: "engine", description: "tooling catalog" },
+        ],
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("wiki_backlink_for_chunk schema rejects non-positive top_k and negative min_score", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_backlink_for_chunk as z.ZodType;
+      expect(schema.safeParse({ chunk_text: "x", top_k: 0 }).success).toBe(false);
+      expect(schema.safeParse({ chunk_text: "x", top_k: -1 }).success).toBe(false);
+      expect(schema.safeParse({ chunk_text: "x", min_score: -0.5 }).success).toBe(false);
+      expect(schema.safeParse({ chunk_text: "x", top_k: 5, min_score: 0 }).success).toBe(true);
+    });
+
+    it("wiki_backlink_for_chunk schema rejects malformed candidate (missing id/description)", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_backlink_for_chunk as z.ZodType;
+      expect(schema.safeParse({
+        chunk_text: "x",
+        candidates_engine: [{ id: "", kind: "engine", description: "x" }],
+      }).success).toBe(false);
+      expect(schema.safeParse({
+        chunk_text: "x",
+        candidates_engine: [{ id: "X", kind: "wrong-kind", description: "x" }],
+      }).success).toBe(false);
+    });
+
+    it("wiki_backlink_parse_digest schema requires digest_text + valid kind", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_backlink_parse_digest as z.ZodType;
+      expect(schema.safeParse({ digest_text: "X — desc", kind: "engine" }).success).toBe(true);
+      expect(schema.safeParse({ digest_text: "X — desc", kind: "dispatcher_action" }).success).toBe(true);
+      expect(schema.safeParse({ digest_text: "X — desc", kind: "skill" }).success).toBe(true);
+      expect(schema.safeParse({ digest_text: "X — desc", kind: "invalid" }).success).toBe(false);
+      expect(schema.safeParse({ kind: "engine" }).success).toBe(false);
+    });
+
+    it("VaultBacklinkEngine module exports the singleton with required methods", async () => {
+      const mod = await import("../engines/VaultBacklinkEngine.js");
+      expect(typeof mod.VaultBacklinkEngine).toBe("function");
+      expect(typeof mod.vaultBacklinkEngine.findBacklinksForChunk).toBe("function");
+      expect(typeof mod.vaultBacklinkEngine.renderBacklinksMarkdown).toBe("function");
+      expect(typeof mod.vaultBacklinkEngine.parseDigest).toBe("function");
+    });
+  });
 });
