@@ -1,12 +1,13 @@
 /**
- * CADSystemRouterEngine — unified router across all 5 CAD plan↔execution bridges.
+ * CADSystemRouterEngine — unified router across all 6 CAD plan↔execution bridges.
  *
- * The 5 PRISM CAD systems each have their own catalog + execution emitter:
+ * The 6 PRISM CAD systems each have their own catalog + execution emitter:
  *   - fusion360   → Fusion360CADFunctionIndexEngine + AutodeskFusionMCPProxyEngine.renderPythonScript
  *   - inventor    → InventorCADFunctionIndexEngine + InventorCADExecutionBridge (iLogic VB.NET)
  *   - mastercam   → MastercamCADFunctionIndexEngine + MastercamCADExecutionBridge (C# NET-Hook)
  *   - hypercad    → HyperCADCADFunctionIndexEngine + HyperCADCADExecutionBridge (HyperCAD-S macro)
  *   - solidworks  → SolidWorksCADFunctionIndexEngine + SolidWorksCADExecutionBridge (VBA)
+ *   - esprit      → EspritFunctionIndexEngine + EspritCADExecutionBridge (KBM macro)
  *
  * This router is the synergy layer the upstream AI orchestrator
  * (MillingAGI / CrossDisciplinaryDeepLearningEngine / PRISMSelfAwarenessEngine)
@@ -15,6 +16,13 @@
  * an explicit `system` hint or a `filePath` — the router detects the system
  * from the extension when no hint is given, then dispatches to the right
  * bridge.
+ *
+ * Esprit shape note: Esprit's function index keys operations by id only
+ * (auto-detecting section across milling/turning/mill_turn/swiss) rather
+ * than by (module, op). The router accepts moduleId for the unified
+ * planAndRender signature and forwards it as Esprit's sectionHint when it
+ * matches a known section name; otherwise the moduleId is ignored and
+ * Esprit's auto-detect is used.
  *
  * Five static entry points:
  *   1. detectSystem({sourceSystem?, filePath?}) — string + extension routing
@@ -51,6 +59,7 @@ export const SUPPORTED_CAD_SYSTEMS = [
   "mastercam",
   "hypercad",
   "solidworks",
+  "esprit",
 ] as const;
 
 export type CADSystemId = (typeof SUPPORTED_CAD_SYSTEMS)[number];
@@ -66,6 +75,8 @@ export type CADSystemId = (typeof SUPPORTED_CAD_SYSTEMS)[number];
  *   - HyperCAD-S:   .hcsm (model), .hcss (sketch)
  *   - SolidWorks:   .sldprt (part), .sldasm (assembly), .slddrw (drawing),
  *                   .sldlfp (library part), .sldblk (block)
+ *   - ESPRIT:       .esprit (current), .esp (legacy DP Technology), .escx
+ *                   (TNG project)
  */
 export const CAD_FILE_EXTENSION_MAP: Readonly<Record<string, CADSystemId>> = Object.freeze({
   // Fusion 360
@@ -88,7 +99,19 @@ export const CAD_FILE_EXTENSION_MAP: Readonly<Record<string, CADSystemId>> = Obj
   slddrw: "solidworks",
   sldlfp: "solidworks",
   sldblk: "solidworks",
+  // ESPRIT
+  esprit: "esprit",
+  esp: "esprit",
+  escx: "esprit",
 });
+
+/**
+ * Esprit's function index keys ops by id with section auto-detection. The
+ * router treats moduleId as a section hint when it matches one of these
+ * canonical section names; otherwise moduleId is ignored and Esprit's
+ * auto-detect runs.
+ */
+const ESPRIT_SECTION_KEYS = new Set(["milling", "turning", "mill_turn", "swiss"]);
 
 // ============================================================================
 // TYPES
@@ -140,6 +163,13 @@ export type RoutedExecutionResult =
       module_id: string;
       operation_id: string;
       vba_macro: string;
+      plan: unknown;
+    }
+  | {
+      system: "esprit";
+      module_id: string;
+      operation_id: string;
+      kbm_macro: string;
       plan: unknown;
     };
 
@@ -320,20 +350,46 @@ export class CADSystemRouterEngine {
       };
     }
 
-    // args.system === "solidworks"
-    const { SolidWorksCADExecutionBridge } = await import("./SolidWorksCADExecutionBridge.js");
-    const swPlan = await SolidWorksCADExecutionBridge.plan({
-      moduleId: args.moduleId,
+    if (args.system === "solidworks") {
+      const { SolidWorksCADExecutionBridge } = await import("./SolidWorksCADExecutionBridge.js");
+      const swPlan = await SolidWorksCADExecutionBridge.plan({
+        moduleId: args.moduleId,
+        operationId: args.operationId,
+        params,
+      });
+      const vba = SolidWorksCADExecutionBridge.renderVBAScaffold(swPlan);
+      return {
+        system: "solidworks",
+        module_id: args.moduleId,
+        operation_id: args.operationId,
+        vba_macro: vba,
+        plan: swPlan,
+      };
+    }
+
+    // args.system === "esprit"
+    // Esprit's bridge takes operationId only and auto-detects section.
+    // We forward moduleId as sectionHint when it matches a real Esprit
+    // section; otherwise moduleId is informational and the bridge auto-
+    // detects. This preserves the unified router signature without
+    // surfacing Esprit's auto-detect behavior to the caller.
+    const { EspritCADExecutionBridge } = await import("./EspritCADExecutionBridge.js");
+    const espritArgs: { operationId: string; params: Record<string, unknown>; sectionHint?: string } = {
       operationId: args.operationId,
       params,
-    });
-    const vba = SolidWorksCADExecutionBridge.renderVBAScaffold(swPlan);
+    };
+    if (args.moduleId && ESPRIT_SECTION_KEYS.has(args.moduleId)) {
+      espritArgs.sectionHint = args.moduleId;
+    }
+    const espritPlan = await EspritCADExecutionBridge.plan(espritArgs);
+    const kbm = EspritCADExecutionBridge.renderKBMScaffold(espritPlan);
     return {
-      system: "solidworks",
-      module_id: args.moduleId,
+      system: "esprit",
+      // Echo the resolved section back as module_id so callers can introspect.
+      module_id: espritPlan.section,
       operation_id: args.operationId,
-      vba_macro: vba,
-      plan: swPlan,
+      kbm_macro: kbm,
+      plan: espritPlan,
     };
   }
 
@@ -453,20 +509,84 @@ async function loadAllFunctionIndexEngines(): Promise<
   Record<CADSystemId, RouterCompatibleIndexEngine>
 > {
   if (_indexEngineCache) return _indexEngineCache;
-  const [{ Fusion360CADFunctionIndexEngine }, { InventorCADFunctionIndexEngine }, { MastercamCADFunctionIndexEngine }, { HyperCADCADFunctionIndexEngine }, { SolidWorksCADFunctionIndexEngine }] =
-    await Promise.all([
-      import("./Fusion360CADFunctionIndexEngine.js"),
-      import("./InventorCADFunctionIndexEngine.js"),
-      import("./MastercamCADFunctionIndexEngine.js"),
-      import("./HyperCADCADFunctionIndexEngine.js"),
-      import("./SolidWorksCADFunctionIndexEngine.js"),
-    ]);
+  const [
+    { Fusion360CADFunctionIndexEngine },
+    { InventorCADFunctionIndexEngine },
+    { MastercamCADFunctionIndexEngine },
+    { HyperCADCADFunctionIndexEngine },
+    { SolidWorksCADFunctionIndexEngine },
+    { EspritFunctionIndexEngine },
+  ] = await Promise.all([
+    import("./Fusion360CADFunctionIndexEngine.js"),
+    import("./InventorCADFunctionIndexEngine.js"),
+    import("./MastercamCADFunctionIndexEngine.js"),
+    import("./HyperCADCADFunctionIndexEngine.js"),
+    import("./SolidWorksCADFunctionIndexEngine.js"),
+    import("./EspritFunctionIndexEngine.js"),
+  ]);
   _indexEngineCache = {
     fusion360: Fusion360CADFunctionIndexEngine as unknown as RouterCompatibleIndexEngine,
     inventor: InventorCADFunctionIndexEngine as unknown as RouterCompatibleIndexEngine,
     mastercam: MastercamCADFunctionIndexEngine as unknown as RouterCompatibleIndexEngine,
     hypercad: HyperCADCADFunctionIndexEngine as unknown as RouterCompatibleIndexEngine,
     solidworks: SolidWorksCADFunctionIndexEngine as unknown as RouterCompatibleIndexEngine,
+    esprit: makeEspritRouterAdapter(EspritFunctionIndexEngine),
   };
   return _indexEngineCache;
+}
+
+/**
+ * Adapt EspritFunctionIndexEngine to the RouterCompatibleIndexEngine shape.
+ *
+ * Differences the adapter normalizes:
+ *   - Esprit organizes its index as `sections` (milling/turning/mill_turn/
+ *     swiss); the router treats each section as a "module" so the existing
+ *     OperationMatch.module_id field stays meaningful.
+ *   - Esprit doesn't expose `listAllOperations()` — we walk the cached
+ *     sections directly. Each operation's params_count comes from the
+ *     declared `parameter_count` field when present, or is computed by
+ *     summing the group→param table.
+ *   - Esprit doesn't expose `getTotalParameterCount()` — the index already
+ *     aggregates totals across sections, so we return that.
+ *
+ * Type assertion at the call site is unavoidable because the donor engines
+ * each ship system-specific TypeScript types that can't be structurally
+ * unified without refactoring all 5 engines. The adapter ensures the
+ * runtime contract holds for the router's actual access pattern.
+ */
+function makeEspritRouterAdapter(
+  espritEngine: typeof import("./EspritFunctionIndexEngine.js")["EspritFunctionIndexEngine"],
+): RouterCompatibleIndexEngine {
+  return {
+    getIndex() {
+      const idx = espritEngine.getIndex();
+      return {
+        modules: Object.keys(idx.sections).map((sectionKey) => ({ module_id: sectionKey })),
+      };
+    },
+    listAllOperations() {
+      const idx = espritEngine.getIndex();
+      const out: { module_id: string; operation_id: string; category: string; params_count: number }[] = [];
+      for (const [sectionKey, section] of Object.entries(idx.sections)) {
+        for (const [opId, op] of Object.entries(section.operations || {})) {
+          let pc = typeof op.parameter_count === "number" ? op.parameter_count : 0;
+          if (pc === 0) {
+            for (const group of Object.values(op.parameters || {})) {
+              pc += Object.keys(group).length;
+            }
+          }
+          out.push({
+            module_id: sectionKey,
+            operation_id: opId,
+            category: op.category,
+            params_count: pc,
+          });
+        }
+      }
+      return out;
+    },
+    getTotalParameterCount() {
+      return espritEngine.getIndex().total_parameters;
+    },
+  };
 }

@@ -214,7 +214,9 @@ const ACTIONS = [
   "cad_solidworks_summary", "cad_solidworks_total_parameter_count", "cad_solidworks_load_errors",
   // SolidWorks planning↔execution bridge (U-CAD-FIDX-SW-INT-01 — VBA macro emit)
   "cad_solidworks_plan_execution", "cad_solidworks_render_vba",
-  // 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01 — system-agnostic CAD plan↔exec)
+  // ESPRIT planning↔execution bridge (U-CAD-FIDX-ESP-INT-02 — KBM macro emit; closes 6/6 tier-1 CAM bridges)
+  "cad_esprit_plan_execution", "cad_esprit_render_kbm",
+  // 6-CAD orchestrator router (U-CAD-FIDX-ORCH-01 + ESP-ORCH-01 — system-agnostic CAD plan↔exec)
   "cad_route_detect_system", "cad_route_plan_execution",
   "cad_route_find_operation", "cad_route_capabilities", "cad_route_supported_systems",
   // XPROC-FEAT-01: cross-process feature routing (mill+lathe+wedm) with CAD coverage
@@ -2543,7 +2545,57 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: true, plan, vba_macro: vba };
             break;
           }
-          // ─── 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01) ─────────────────
+          // ─── ESPRIT planning↔execution bridge (U-CAD-FIDX-ESP-INT-02) ────────
+          // Differs from sibling bridges: signature is operationId-only because
+          // EspritFunctionIndexEngine auto-detects section across milling /
+          // turning / mill_turn / swiss. An optional `section_hint` lets callers
+          // disambiguate when the same op id exists in multiple sections.
+          case "cad_esprit_plan_execution": {
+            const { EspritCADExecutionBridge } = await import(
+              "../../engines/EspritCADExecutionBridge.js"
+            );
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            const sectionHint = (params.section_hint ?? params.sectionHint) as string | undefined;
+            if (!operationId) {
+              return dispatcherError(
+                "cad_esprit_plan_execution requires operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await EspritCADExecutionBridge.plan({
+              operationId,
+              params: opParams,
+              ...(sectionHint ? { sectionHint } : {}),
+            });
+            result = { success: true, plan };
+            break;
+          }
+          case "cad_esprit_render_kbm": {
+            const { EspritCADExecutionBridge } = await import(
+              "../../engines/EspritCADExecutionBridge.js"
+            );
+            const operationId = (params.operation_id ?? params.operationId) as string | undefined;
+            const opParams = (params.params ?? params.parameters ?? {}) as Record<string, unknown>;
+            const sectionHint = (params.section_hint ?? params.sectionHint) as string | undefined;
+            if (!operationId) {
+              return dispatcherError(
+                "cad_esprit_render_kbm requires operation_id",
+                action,
+                "prism_cad",
+              );
+            }
+            const plan = await EspritCADExecutionBridge.plan({
+              operationId,
+              params: opParams,
+              ...(sectionHint ? { sectionHint } : {}),
+            });
+            const kbm = EspritCADExecutionBridge.renderKBMScaffold(plan);
+            result = { success: true, plan, kbm_macro: kbm };
+            break;
+          }
+          // ─── 6-CAD orchestrator router (U-CAD-FIDX-ORCH-01 + ESP-ORCH-01) ───
           case "cad_route_supported_systems": {
             const { CADSystemRouterEngine } = await import(
               "../../engines/CADSystemRouterEngine.js"

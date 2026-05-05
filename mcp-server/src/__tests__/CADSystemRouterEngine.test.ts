@@ -17,7 +17,7 @@ import {
 // ============================================================================
 
 describe("CADSystemRouterEngine.listSupportedSystems()", () => {
-  it("ships exactly 5 supported systems in the canonical priority order", () => {
+  it("ships exactly 6 supported systems in the canonical priority order (Esprit closes 6/6)", () => {
     const out = CADSystemRouterEngine.listSupportedSystems();
     expect(out.systems).toEqual([
       "fusion360",
@@ -25,10 +25,11 @@ describe("CADSystemRouterEngine.listSupportedSystems()", () => {
       "mastercam",
       "hypercad",
       "solidworks",
+      "esprit",
     ]);
   });
 
-  it("exposes the file-extension map with the documented vendor extensions", () => {
+  it("exposes the file-extension map with the documented vendor extensions including Esprit", () => {
     const out = CADSystemRouterEngine.listSupportedSystems();
     expect(out.extensions["f3d"]).toBe("fusion360");
     expect(out.extensions["ipt"]).toBe("inventor");
@@ -39,6 +40,9 @@ describe("CADSystemRouterEngine.listSupportedSystems()", () => {
     expect(out.extensions["sldprt"]).toBe("solidworks");
     expect(out.extensions["sldasm"]).toBe("solidworks");
     expect(out.extensions["slddrw"]).toBe("solidworks");
+    expect(out.extensions["esprit"]).toBe("esprit");
+    expect(out.extensions["esp"]).toBe("esprit");
+    expect(out.extensions["escx"]).toBe("esprit");
   });
 
   it("freezes the extension map (Object.freeze guard)", () => {
@@ -262,7 +266,7 @@ describe("CADSystemRouterEngine.findOperationAcrossSystems()", () => {
 // ============================================================================
 
 describe("CADSystemRouterEngine.listCapabilitiesAcrossSystems()", () => {
-  it("returns 5 system snapshots in canonical order", async () => {
+  it("returns 6 system snapshots in canonical order (Esprit closes 6/6)", async () => {
     const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
     expect(matrix.systems.map((s) => s.system)).toEqual([
       "fusion360",
@@ -270,6 +274,7 @@ describe("CADSystemRouterEngine.listCapabilitiesAcrossSystems()", () => {
       "mastercam",
       "hypercad",
       "solidworks",
+      "esprit",
     ]);
   });
 
@@ -306,8 +311,20 @@ describe("CADSystemRouterEngine.listCapabilitiesAcrossSystems()", () => {
     expect(matrix.totals.total_parameters).toBeGreaterThanOrEqual(4900);
   });
 
-  it("aggregate module total is 40 (5 systems × 8 modules each, all sealed COMPLETE)", async () => {
+  it("aggregate module total is 44 (5 systems × 8 modules + Esprit's 4 sections, all sealed COMPLETE)", async () => {
     const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
-    expect(matrix.totals.total_modules).toBe(40);
+    // 5 sealed CAD systems each ship 8 modules = 40, plus Esprit's 4 sections
+    // (milling / turning / mill_turn / swiss) which are exposed as modules via
+    // the makeEspritRouterAdapter — total 44.
+    expect(matrix.totals.total_modules).toBe(44);
+  });
+
+  it("esprit reports 4 modules (sections) / >= 18 operations / >= 200 parameters (CAD-FIDX-ESP-INT-01 closure proof)", async () => {
+    const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
+    const esprit = matrix.systems.find((s) => s.system === "esprit");
+    expect(esprit?.system).toBe("esprit");
+    expect(esprit?.total_modules).toBe(4);
+    expect(esprit?.total_operations).toBeGreaterThanOrEqual(18);
+    expect(esprit?.total_parameters).toBeGreaterThanOrEqual(200);
   });
 });

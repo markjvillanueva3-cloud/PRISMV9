@@ -56,17 +56,27 @@ beforeAll(() => {
   handler = tool.handler;
 });
 
-describe("cadDispatcher 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01)", () => {
+describe("cadDispatcher 6-CAD orchestrator router (U-CAD-FIDX-ORCH-01 + ESP-ORCH-01)", () => {
   describe("cad_route_supported_systems", () => {
-    it("returns the canonical system list and extension map", async () => {
+    it("returns the canonical 6-system list and extension map (Esprit closes 6/6)", async () => {
       const r = await invoke("cad_route_supported_systems");
       expect(r.success).toBe(true);
       const systems = r.systems as readonly string[];
-      expect(systems).toEqual(["fusion360", "inventor", "mastercam", "hypercad", "solidworks"]);
+      expect(systems).toEqual([
+        "fusion360",
+        "inventor",
+        "mastercam",
+        "hypercad",
+        "solidworks",
+        "esprit",
+      ]);
       const exts = r.extensions as Record<string, string>;
       expect(exts["sldprt"]).toBe("solidworks");
       expect(exts["f3d"]).toBe("fusion360");
       expect(exts["ipt"]).toBe("inventor");
+      expect(exts["esprit"]).toBe("esprit");
+      expect(exts["esp"]).toBe("esprit");
+      expect(exts["escx"]).toBe("esprit");
     });
   });
 
@@ -193,7 +203,7 @@ describe("cadDispatcher 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01)", () => {
   });
 
   describe("cad_route_capabilities", () => {
-    it("returns the full 5-CAD capability matrix with aggregate totals", async () => {
+    it("returns the full 6-CAD capability matrix with aggregate totals (5 sealed + Esprit)", async () => {
       const r = await invoke("cad_route_capabilities");
       expect(r.success).toBe(true);
       const systems = r.systems as Array<{
@@ -202,14 +212,32 @@ describe("cadDispatcher 5-CAD orchestrator router (U-CAD-FIDX-ORCH-01)", () => {
         total_operations: number;
         total_parameters: number;
       }>;
-      expect(systems.length).toBe(5);
+      expect(systems.length).toBe(6);
       const totals = r.totals as {
         total_modules: number;
         total_operations: number;
         total_parameters: number;
       };
-      expect(totals.total_modules).toBe(40);
-      expect(totals.total_parameters).toBeGreaterThanOrEqual(4900);
+      // 5 systems × 8 modules = 40, plus Esprit's 4 sections (milling /
+      // turning / mill_turn / swiss) exposed as modules via the adapter.
+      expect(totals.total_modules).toBe(44);
+      // Sealed-five total ≥4900 + Esprit's ≥200 catalog params.
+      expect(totals.total_parameters).toBeGreaterThanOrEqual(5100);
+    });
+
+    it("esprit slice exposes the catalog as 4 sections / >= 18 ops / >= 200 params (CAD-FIDX-ESP-INT-01 closure)", async () => {
+      const r = await invoke("cad_route_capabilities");
+      const systems = r.systems as Array<{
+        system: string;
+        total_modules: number;
+        total_operations: number;
+        total_parameters: number;
+      }>;
+      const esprit = systems.find((s) => s.system === "esprit");
+      expect(esprit?.system).toBe("esprit");
+      expect(esprit?.total_modules).toBe(4);
+      expect(esprit?.total_operations).toBeGreaterThanOrEqual(18);
+      expect(esprit?.total_parameters).toBeGreaterThanOrEqual(200);
     });
 
     it("solidworks slice reports the 1184 / 178 / 8 closure values", async () => {
