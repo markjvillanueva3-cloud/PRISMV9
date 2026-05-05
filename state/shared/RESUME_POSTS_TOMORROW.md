@@ -1,13 +1,34 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Last updated:** 2026-05-05 ~18:20 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
+**Last updated:** 2026-05-05 ~18:50 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
 
 ---
 
-## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 LANDED ON work/ppgh05
+## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 LANDED ON work/ppgh05
+
+### U-PPGMU01 — Multus B250II facade scaffold (NEW ENGINE)
+
+**Why this engine is a FACADE not a from-scratch mill-turn engine:** the canonical asset is already the PRISM-Enhanced Mastercam/Fusion CPS post at `JM DIE/PRISM MODIFIED POST PROCESSORS/OKUMA_MULTUS_B250IIW-PRISM-Enhanced-v5_2_7.cps` (233 KB, OSP-P300SA controller, FORKID `D93DAA65-1C09-402E-9871-3280B561D994`, 11 `usePRISMxxx` intelligence flags already wired into the .cps's properties block). The .cps does the actual G-code emission — Mastercam/Fusion drives it. PRISM's job is to wrap and validate, not to re-emit. **Never** scaffold a from-scratch mill-turn engine here; the existing post is the source of truth.
+
+**Files:**
+- `mcp-server/src/engines/OkumaMultusB250IIMillTurnMasterPostEngine.ts` (NEW, ~310 lines)
+- `mcp-server/src/__tests__/OkumaMultusB250IIMillTurnMasterPostEngine.test.ts` (NEW, ~250 lines)
+
+**Surface:**
+- 7 pinned constants (`CANONICAL_POST_RELATIVE_PATH`, `CANONICAL_POST_FILENAME`, `CANONICAL_CONTROLLER`, `CANONICAL_FORKID`, `CANONICAL_REVISION_TAG`, `CANONICAL_MINIMUM_RUNTIME_REVISION`, `PRISM_INTELLIGENCE_FLAGS`)
+- `parseMetadata(cpsContent)` — pure regex extraction (no eval), returns typed `MultusPostMetadata`
+- `validateCanonical(meta)` — drift detection (FORKID swap, revision regression, missing PRISM flags, lost capability)
+- `inspectCanonical({cpsContent? | cpsPath? | repoRoot?})` — load + parse + validate, with dependency injection for tests
+- `getStats()` — capability census surface
+
+**Tests:** 15/15 pass + 1 skipped (live `.cps` read — skipped here because `JM DIE/` isn't checked out in the ppgh05 worktree; main worktree CI exercises it). Regression sweep on Hurco/OkumaOSP/Mitsubishi/seal: 199/199 GREEN. tsc clean.
+
+**KEY GOTCHA fixed during authoring:** the property-name regex `/^\s{2}(name): \{$/gm` rejected single-line `name: { ... },` PRISM-flag declarations because of the `$` anchor — only the 2 multi-line shop-level properties matched, giving `propertyCount=2`. Drop `$` (the regex docstring above the constant explains why).
+
+### U-PPGM18 — sealMasterPostOutput schema_version assertion fix
 
 **SHIPPED:** `[CAM-EXHAUST-MS0]/U-PPGM18: align stale sealMasterPostOutput schema_version assertion with current 1.2.0 constant`
 
@@ -19,12 +40,20 @@
 
 ---
 
-## NEXT ACTIONS (priority order, refreshed 2026-05-05 ~18:20)
+## NEXT ACTIONS (priority order, refreshed 2026-05-05 ~18:50)
 
-### Priority 1 — `OkumaB250LatheMasterPostEngine.test.ts` does not exist
+### Priority 1 — Continue the U-PPGMU0N Multus progression
+The facade is shipped (U-PPGMU01). Next units, smallest-first:
+- **U-PPGMU02** — wire the engine to camDispatcher: add `master_post_okuma_multus_b250` action that invokes `inspectCanonical()` and threads the result through `sealMasterPostOutput`. **Caution:** camDispatcher.ts in **main** worktree is permanently churned by peer chats — edit ppgh05's copy here, cherry-pick later.
+- **U-PPGMU03** — Kienzle Fc cross-check: when `usePRISMCuttingForceEstimate` is on, parse the .cps's emitted `(Fc=XXX N)` comment lines and verify against `CANONICAL_KIENZLE` for each op's `material_iso` + `axial_depth_mm` + `fz`. Hard-block if drift > 15%.
+- **U-PPGMU04** — Taylor T cross-check: when `usePRISMToolLifeTracking` is on, verify the post's emitted tool-life estimate against `CANONICAL_TAYLOR`. Same drift threshold.
+- **U-PPGMU05** — BlockAnnotation envelope: parse the .cps output stream, attribute each block to an op, emit `block_annotations[]` so `sealMasterPostOutput` can seal Multus output the same way it seals Hurco/OkumaOSP/Mitsubishi.
+- **U-PPGMU06+** — feature parity sweep against the 11 PRISM flags one at a time (warmup, thermal-comp, arc-feed, corner-decel, tool-break, chip-load, stability, cycle-time, surface-finish, force-est, tool-life).
+
+### Priority 2 — `OkumaB250LatheMasterPostEngine.test.ts` does not exist
 Only `OkumaB250LatheMasterPostEngine.SidecarIntegration.test.ts` and `integration/MasterPostOkumaB250.integration.test.ts` exist — no full unit-test file. The `stop_on_untested_engine` hook may already flag this. Authoring one would bring the lathe master post to feature parity with Hurco/OkumaOSP coverage.
 
-### Priority 2 — Bring OkumaB250 + Mitsubishi WEDM to Hurco/OkumaOSP feature parity
+### Priority 3 — Bring OkumaB250 + Mitsubishi WEDM to Hurco/OkumaOSP feature parity
 Hurco/OkumaOSP gained these in U-PPGH10..U-PPGH15 + U-PPGOH01..U-PPGOH05:
 - `postSingle` simplified API
 - structured `op.tool` shadowing flow
@@ -34,7 +63,7 @@ Hurco/OkumaOSP gained these in U-PPGH10..U-PPGH15 + U-PPGOH01..U-PPGOH05:
 
 OkumaB250 (lathe) and Mitsubishi WEDM most likely lack a subset. Audit each, pick smallest gap, ship one feature per unit (`U-PPGOB01+`, `U-PPGMV01+`).
 
-### Priority 3 — Cherry-pick ppgh05 → cam-exhaust-ms0
+### Priority 4 — Cherry-pick ppgh05 → cam-exhaust-ms0
 `work/ppgh05` is now several units ahead of `work/cam-exhaust-ms0`. When the camDispatcher peer-claim chain in main releases, the ppgh05 lineage should be merged or cherry-picked back. Don't fight for camDispatcher — this is engine + test work only.
 
 ### (Stale) Priority — U-PPGM17d camDispatcher verify_tier wiring
