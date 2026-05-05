@@ -198,6 +198,23 @@ const espritGenerateScriptSchema = z.object({
 
 const espritCapabilitiesSchema = z.object({}).passthrough();
 
+// ── Print → All CADs Orchestrator (U-CADC-PRINT-ORCHESTRATOR-01) ─────────────
+const printToAllCadsSchema = z.object({
+  analysis: z.unknown().optional(),
+  profiles: z.array(z.unknown()).optional(),
+  dimensions: z.array(z.unknown()).optional(),
+  partName: z.string().optional(),
+  part_name: z.string().optional(),
+  units: z.enum(["mm", "in"]).optional(),
+  outputDir: z.string().optional(),
+  output_dir: z.string().optional(),
+  defaultDepth: z.number().optional(),
+  default_depth: z.number().optional(),
+  targets: z.array(z.string()).optional(),
+}).passthrough();
+
+const printToAllCadsTargetsSchema = z.object({}).passthrough();
+
 // ── CAD Trial-Error Learning Actions (U-CADC29) ───────────────────────────────
 const cadTrialIngestSchema = z.object({
   outcome: z.unknown().optional(),
@@ -424,6 +441,10 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   // Esprit Code Generator
   esprit_generate_script: espritGenerateScriptSchema,
   esprit_capabilities: espritCapabilitiesSchema,
+  // Print → All CADs Orchestrator
+  print_to_all_cads: printToAllCadsSchema,
+  print_to_all_cads_validate: printToAllCadsSchema,
+  print_to_all_cads_targets: printToAllCadsTargetsSchema,
   // CAD Trial-Error Learning (U-CADC29)
   cad_trial_ingest: cadTrialIngestSchema,
   cad_trial_patterns: cadTrialPatternsSchema,

@@ -70,7 +70,7 @@ const ESPRIT_SUPPORTED_OPS: ReadonlyArray<CADOperationKind> = [
 // ── Engine ───────────────────────────────────────────────────────────────────
 
 export class EspritCodeGeneratorEngine extends UnifiedCADCodeGeneratorBase<EspritGenerationContext> {
-  readonly cadSystem: CADSystemId = "rhino"; // No 'esprit' literal in CAD_SYSTEMS yet — placeholder slot.
+  readonly cadSystem: CADSystemId = "esprit";
 
   readonly capabilities: CADCapabilityMatrix = {
     cadSystem: this.cadSystem,
