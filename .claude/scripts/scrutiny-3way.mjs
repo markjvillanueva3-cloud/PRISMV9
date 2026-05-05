@@ -25,7 +25,7 @@
  * Authored: 2026-05-05 (claude-66471c04, CAD-COMPLETE-MS0 wrap-up).
  */
 
-import { spawn, execSync } from "node:child_process";
+import { spawn, execFileSync, execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -49,7 +49,27 @@ function findStableSessionId(explicitId) {
   return "unknown-session";
 }
 
-const CODEX_BIN = process.env.CODEX_BIN ?? "H:\\Tools\\nodejs\\npx.cmd";
+/**
+ * Resolve npx for the host. Honors $PRISM_NPX_BIN, then falls back to a
+ * Windows-friendly default that's known to exist on this developer's
+ * machine, then to a portable "npx" / "npx.cmd" name on PATH.
+ *
+ * Gemini blocker #4: prior code hardcoded "H:\\Tools\\nodejs\\npx.cmd"
+ * which fails on Linux/macOS hosts and on Windows machines without that
+ * specific layout.
+ */
+function resolveNpx() {
+  if (process.env.PRISM_NPX_BIN) return process.env.PRISM_NPX_BIN;
+  const winDefault = "H:\\Tools\\nodejs\\npx.cmd";
+  if (process.platform === "win32") {
+    try {
+      if (fs.existsSync(winDefault)) return winDefault;
+    } catch { /* fall through */ }
+    return "npx.cmd";
+  }
+  return "npx";
+}
+const CODEX_BIN = process.env.CODEX_BIN ?? resolveNpx();
 // Prompt is delivered via stdin, NOT argv. `codex exec` with no positional
 // argument reads from stdin. Keeping args small also avoids the Windows
 // 8191-char cmd-line limit when shell:true wraps .cmd invocations.
@@ -58,7 +78,7 @@ const CODEX_BIN = process.env.CODEX_BIN ?? "H:\\Tools\\nodejs\\npx.cmd";
 const CODEX_ARGS = process.env.CODEX_ARGS
   ? process.env.CODEX_ARGS.split(" ")
   : ["--no-install", "codex", "exec", "--skip-git-repo-check", "-c", "model_reasoning_effort=\"medium\""];
-const GEMINI_BIN = process.env.GEMINI_BIN ?? "H:\\Tools\\nodejs\\npx.cmd";
+const GEMINI_BIN = process.env.GEMINI_BIN ?? resolveNpx();
 // Same stdin convention. `gemini` with no -p / no positional reads stdin.
 const GEMINI_ARGS = process.env.GEMINI_ARGS
   ? process.env.GEMINI_ARGS.split(" ")
@@ -119,16 +139,22 @@ function parseArgs(argv) {
 
 function captureDiff(target) {
   try {
-    let cmd;
+    // Codex blocker #4: previously did `git show ${target}` interpolated
+    // into a shell. A maliciously named branch/tag could inject shell
+    // metacharacters. Switch to execFileSync with an explicit argv array
+    // and validate `target` against a strict refname allowlist before use.
+    let args;
     if (!target || target === "diff") {
-      cmd = "git diff HEAD --no-color";
+      args = ["diff", "HEAD", "--no-color"];
     } else if (target === "HEAD") {
-      cmd = "git show HEAD --no-color";
+      args = ["show", "HEAD", "--no-color"];
     } else {
-      // Specific commit hash
-      cmd = `git show ${target} --no-color`;
+      if (!/^[A-Za-z0-9._/-]+$/.test(target)) {
+        return `[scrutiny-3way: target "${String(target)}" rejected — must match /^[A-Za-z0-9._\\/-]+$/]`;
+      }
+      args = ["show", target, "--no-color"];
     }
-    const out = execSync(cmd, {
+    const out = execFileSync("git", args, {
       stdio: ["ignore", "pipe", "ignore"],
       maxBuffer: 16 * 1024 * 1024,
       timeout: 8000,
@@ -195,9 +221,17 @@ function spawnReview(provider, bin, args, stdinPayload) {
     child.on("close", (code) => {
       clearTimeout(timer);
       const text = stdout.trim();
-      // Parse first VERDICT: line
-      const verdictMatch = text.match(/VERDICT:\s*(PASS|FAIL)/i);
-      const verdict = verdictMatch ? verdictMatch[1].toLowerCase() : (code === 0 ? "pass" : "fail");
+      // Codex blockers #2 + #3: VERDICT must appear on the first non-empty
+      // line, exact format. Anything else — missing line, wrong line,
+      // mismatched format — defaults to "fail" per the strict review
+      // contract ("if unsure choose FAIL"). Old code accepted VERDICT
+      // anywhere in the stream and fell back to PASS on exit 0.
+      const firstLine = text
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .find((l) => l.length > 0) ?? "";
+      const verdictMatch = firstLine.match(/^VERDICT:\s*(PASS|FAIL)\s*$/i);
+      const verdict = verdictMatch ? verdictMatch[1].toLowerCase() : "fail";
       const blockerLines = text
         .split(/\r?\n/)
         .filter((l) => /^BLOCKER:/i.test(l.trim()))
@@ -205,7 +239,15 @@ function spawnReview(provider, bin, args, stdinPayload) {
         .join("\n");
       const exitInfo = code === 0 ? "" : `[exit ${code}]`;
       const stderrPeek = stderr.length > 0 ? `\nstderr: ${stderr.slice(0, 500)}` : "";
-      finish(verdict, blockerLines, `${exitInfo}${stderrPeek}`.trim(), "");
+      const verdictNote = verdictMatch
+        ? ""
+        : `[VERDICT line missing or malformed; defaulted to FAIL. firstLine="${firstLine.slice(0, 120)}"]`;
+      finish(
+        verdict,
+        blockerLines,
+        `${verdictNote}${exitInfo}${stderrPeek}`.trim(),
+        "",
+      );
     });
 
     // Pipe prompt via stdin
@@ -354,8 +396,14 @@ async function main() {
     }
     try {
       recordScrutiny(sessionId, marks);
-    } catch {
-      // non-fatal — script result still surfaces in stdout below
+    } catch (err) {
+      // Gemini blocker #3: previously swallowed silently, hiding disk I/O
+      // / permission errors that left the gate stuck. Surface to stderr so
+      // the chat sees the failure even though stdout still gets the JSON.
+      const msg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(
+        `scrutiny-3way: recordScrutiny(session=${sessionId}, ${r.provider}) failed: ${msg}\n`,
+      );
     }
   }
 
