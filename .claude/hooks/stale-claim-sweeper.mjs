@@ -7,7 +7,7 @@
  * accumulates stale entries forever. Other chats then see ghost claims and
  * fire spurious CONFLICT messages on every PreToolUse Edit/Write.
  *
- * This hook reaps three kinds of stale state on every SessionStart (and
+ * This hook reaps SEVEN kinds of stale state on every SessionStart (and
  * optionally Stop). Conservative thresholds — only sweeps clearly-dead state.
  *
  * 1. session-file-ownership.json — remove claim entries older than
@@ -20,26 +20,55 @@
  * 3. state/shared/AGENT_WORKBOARD.md — strip agent sections whose
  *    `Last Updated:` field is older than HEARTBEAT_TTL_MS.
  *
+ * 4. state/shared/chat-bus/messages/*.json — remove message files older than
+ *    CHAT_BUS_MSG_TTL_MS. Inject hook only shows last 10min, so older
+ *    messages have zero consumers but cost N file reads per hook fire.
+ *
+ * 5. state/shared/chat-bus/claims/*.json — remove claim files older than
+ *    CHAT_BUS_CLAIM_TTL_MS or whose self-declared `expires` is in the past.
+ *    Default chat-bus claim TTL is 15-30min; this sweeps 30min+ stragglers.
+ *
+ * 6. C:/Users/<user>/AppData/Local/Temp/claude/<project>/<session>/tasks/
+ *    *.output — remove background bash task output files older than
+ *    TASK_OUTPUT_TTL_MS (24h). These accumulate from orphaned background
+ *    Bash tool tasks where the harness didn't reap on session end.
+ *
+ * 7. Zombie node hook processes — kill node.exe processes whose:
+ *      - command line contains `\.claude\(hooks|helpers|scripts)\`
+ *      - lifetime > NODE_HOOK_MAX_AGE_MS (5 min — hooks normally complete in <30s)
+ *      - parent claude.exe is dead (orphaned)
+ *      - NOT the MCP server (excluded by cmdline match `mcp-server\dist\index.js`)
+ *    Conservative filters protect active hooks across all 6 concurrent chats.
+ *
  * Safe to run repeatedly. Atomic writes (tmp + rename). Emits {continue:true}
  * on every error path. Disable via env: PRISM_CLAIM_SWEEP=0
+ * Disable just node-killer with: PRISM_NODE_REAP=0
  */
 
 import {
-  existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync,
-  renameSync, mkdirSync, appendFileSync,
+  existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync,
+  renameSync, mkdirSync, appendFileSync, rmSync,
 } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { join, dirname } from "node:path";
+import os from "node:os";
 
 const OWNERSHIP_PATH = "H:/prism/mcp-server/data/state/session-file-ownership.json";
 const LOCK_DIR = "H:/prism/state/shared";
 const WORKBOARD_PATH = "H:/prism/state/shared/AGENT_WORKBOARD.md";
+const CHAT_BUS_MSG_DIR = "H:/prism/state/shared/chat-bus/messages";
+const CHAT_BUS_CLAIM_DIR = "H:/prism/state/shared/chat-bus/claims";
+const CLAUDE_TASKS_ROOT = join(os.homedir(), "AppData", "Local", "Temp", "claude");
 const LOG_DIR = "H:/prism/state/shared";
 const LOG_FILE = `${LOG_DIR}/stale-claim-sweeper.log`;
 
-const CLAIM_TTL_MS = 5 * 60 * 1000;       // 5 min — match git-lock TTL convention
-const LOCK_TTL_MS = 5 * 60 * 1000;        // 5 min
-const HEARTBEAT_TTL_MS = 60 * 60 * 1000;  // 1 hour
+const CLAIM_TTL_MS = 5 * 60 * 1000;             // 5 min — match git-lock TTL convention
+const LOCK_TTL_MS = 5 * 60 * 1000;              // 5 min
+const HEARTBEAT_TTL_MS = 60 * 60 * 1000;        // 1 hour
+const CHAT_BUS_MSG_TTL_MS = 60 * 60 * 1000;     // 1 hour — inject only shows last 10min
+const CHAT_BUS_CLAIM_TTL_MS = 30 * 60 * 1000;   // 30 min — chat-bus claim TTL is 15-30min
+const TASK_OUTPUT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hour — background bash .output files
+const NODE_HOOK_MAX_AGE_MS = 5 * 60 * 1000;     // 5 min — hooks should finish in <30s
 
 function log(msg) {
   try {
@@ -192,6 +221,150 @@ function sweepWorkboard() {
   return { swept };
 }
 
+function sweepChatBusMessages() {
+  if (!existsSync(CHAT_BUS_MSG_DIR)) return { swept: 0 };
+  const now = Date.now();
+  let swept = 0;
+  let entries;
+  try { entries = readdirSync(CHAT_BUS_MSG_DIR); } catch { return { swept: 0 }; }
+  for (const name of entries) {
+    const path = join(CHAT_BUS_MSG_DIR, name);
+    try {
+      const st = statSync(path);
+      if (!st.isFile()) continue;
+      if ((now - st.mtimeMs) > CHAT_BUS_MSG_TTL_MS) {
+        unlinkSync(path);
+        swept++;
+      }
+    } catch { /* file vanished or perm error — skip */ }
+  }
+  return { swept };
+}
+
+function sweepChatBusClaims() {
+  if (!existsSync(CHAT_BUS_CLAIM_DIR)) return { swept: 0 };
+  const now = Date.now();
+  let swept = 0;
+  let entries;
+  try { entries = readdirSync(CHAT_BUS_CLAIM_DIR); } catch { return { swept: 0 }; }
+  for (const name of entries) {
+    const path = join(CHAT_BUS_CLAIM_DIR, name);
+    let stale = false;
+    try {
+      const st = statSync(path);
+      if (!st.isFile()) continue;
+      if ((now - st.mtimeMs) > CHAT_BUS_CLAIM_TTL_MS) {
+        stale = true;
+      } else {
+        // Check self-declared expiry — claim format includes `expires` ISO string
+        try {
+          const claim = JSON.parse(readFileSync(path, "utf8"));
+          const expiresMs = Date.parse(claim?.expires || claim?.expiresAt || "");
+          if (Number.isFinite(expiresMs) && expiresMs < now) stale = true;
+        } catch { /* unparseable — sweep */ stale = true; }
+      }
+      if (stale) {
+        unlinkSync(path);
+        swept++;
+      }
+    } catch { /* file vanished — skip */ }
+  }
+  return { swept };
+}
+
+function sweepClaudeTaskOutputs() {
+  if (!existsSync(CLAUDE_TASKS_ROOT)) return { swept: 0, dirs: 0 };
+  const now = Date.now();
+  let swept = 0;
+  let dirsScanned = 0;
+  const projectDirs = (() => {
+    try { return readdirSync(CLAUDE_TASKS_ROOT); } catch { return []; }
+  })();
+  for (const proj of projectDirs) {
+    const projPath = join(CLAUDE_TASKS_ROOT, proj);
+    let sessionDirs;
+    try { sessionDirs = readdirSync(projPath); } catch { continue; }
+    for (const sess of sessionDirs) {
+      const tasksDir = join(projPath, sess, "tasks");
+      if (!existsSync(tasksDir)) continue;
+      dirsScanned++;
+      let files;
+      try { files = readdirSync(tasksDir); } catch { continue; }
+      for (const f of files) {
+        if (!/\.(output|json)$/.test(f)) continue;
+        const fpath = join(tasksDir, f);
+        try {
+          const st = statSync(fpath);
+          if ((now - st.mtimeMs) > TASK_OUTPUT_TTL_MS) {
+            unlinkSync(fpath);
+            swept++;
+          }
+        } catch { /* ok */ }
+      }
+    }
+  }
+  return { swept, dirs: dirsScanned };
+}
+
+function getZombieNodeHooks() {
+  // Returns array of {pid, age_ms, cmdline, parent_alive} for hook node procs.
+  // Windows-specific via wmic. Returns [] on non-Windows or any error.
+  if (process.platform !== "win32") return [];
+  let csv;
+  try {
+    csv = execFileSync("wmic", [
+      "process", "where", "name='node.exe'",
+      "get", "ProcessId,ParentProcessId,CommandLine,CreationDate", "/format:csv",
+    ], { encoding: "utf8", timeout: 4000, windowsHide: true });
+  } catch { return []; }
+  const rows = csv.split(/\r?\n/).filter(r => r.trim() && !r.startsWith("Node,"));
+  const result = [];
+  const now = Date.now();
+  for (const row of rows) {
+    // Fields per /format:csv : Node,CommandLine,CreationDate,ParentProcessId,ProcessId
+    // CommandLine may contain commas — be defensive: rejoin extras into cmd field.
+    const parts = row.split(",");
+    if (parts.length < 5) continue;
+    const pid = Number.parseInt(parts[parts.length - 1], 10);
+    const ppid = Number.parseInt(parts[parts.length - 2], 10);
+    const created = parts[parts.length - 3];
+    const cmdline = parts.slice(1, parts.length - 3).join(",");
+    if (!Number.isFinite(pid)) continue;
+
+    // SAFETY FILTER: skip MCP server unconditionally
+    if (/mcp-server[\\/]dist[\\/]index\.js/i.test(cmdline)) continue;
+    // Only target our hook/helper/script nodes
+    if (!/[\\/]\.claude[\\/](hooks|helpers|scripts)[\\/]/i.test(cmdline)) continue;
+
+    // Parse WMI CreationDate (yyyymmddHHMMSS.ffffff+TZ) into ms
+    const m = created?.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
+    if (!m) continue;
+    const createdMs = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+    const age_ms = now - createdMs;
+    if (age_ms < NODE_HOOK_MAX_AGE_MS) continue;
+
+    const parent_alive = pidAlive(ppid);
+    result.push({ pid, ppid, age_ms, cmdline: cmdline.trim(), parent_alive });
+  }
+  return result;
+}
+
+function sweepZombieNodeHooks() {
+  if (process.env.PRISM_NODE_REAP === "0") return { swept: 0, found: 0 };
+  if (process.platform !== "win32") return { swept: 0, found: 0 };
+  const candidates = getZombieNodeHooks();
+  let swept = 0;
+  for (const c of candidates) {
+    // Only kill orphans (parent dead) — protects hooks of active claude.exe sessions
+    if (c.parent_alive) continue;
+    try {
+      execFileSync("taskkill", ["/F", "/PID", String(c.pid)], { timeout: 2000, windowsHide: true, stdio: "ignore" });
+      swept++;
+    } catch { /* may already be dead */ }
+  }
+  return { swept, found: candidates.length };
+}
+
 function main() {
   drainStdin();
   if (process.env.PRISM_CLAIM_SWEEP === "0") {
@@ -201,12 +374,21 @@ function main() {
   const claims = sweepFileOwnership();
   const locks = sweepGitLocks();
   const board = sweepWorkboard();
-  const total = claims.swept + locks.swept + board.swept;
+  const busMsgs = sweepChatBusMessages();
+  const busClaims = sweepChatBusClaims();
+  const taskOutputs = sweepClaudeTaskOutputs();
+  const nodeHooks = sweepZombieNodeHooks();
+  const total = claims.swept + locks.swept + board.swept
+              + busMsgs.swept + busClaims.swept + taskOutputs.swept + nodeHooks.swept;
   if (total > 0) {
-    log(`swept claims=${claims.swept} locks=${locks.swept} workboard=${board.swept} (claims kept=${claims.kept})`);
+    log(`swept claims=${claims.swept} locks=${locks.swept} workboard=${board.swept} ` +
+        `busMsgs=${busMsgs.swept} busClaims=${busClaims.swept} ` +
+        `taskOutputs=${taskOutputs.swept}/${taskOutputs.dirs}dirs ` +
+        `zombieNodes=${nodeHooks.swept}/${nodeHooks.found}found ` +
+        `(claims kept=${claims.kept})`);
     process.stdout.write(JSON.stringify({
       continue: true,
-      systemMessage: `stale-claim-sweeper: reaped ${claims.swept} claims, ${locks.swept} locks, ${board.swept} workboard agents`,
+      systemMessage: `stale-claim-sweeper: reaped ${claims.swept} ownership-claims, ${locks.swept} git-locks, ${board.swept} workboard, ${busMsgs.swept} bus-msgs, ${busClaims.swept} bus-claims, ${taskOutputs.swept} task-outputs, ${nodeHooks.swept} zombie-nodes`,
     }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
