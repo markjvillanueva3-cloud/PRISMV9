@@ -42,6 +42,12 @@ const args = new Set(process.argv.slice(2));
 const QUIET = args.has("--quiet");
 const DRY_RUN = args.has("--dry-run");
 const JSON_OUT = args.has("--json");
+const SINGLE_FILE = (() => {
+  for (const a of process.argv.slice(2)) {
+    if (a.startsWith("--single-file=")) return a.slice("--single-file=".length);
+  }
+  return null;
+})();
 
 function log(line) {
   try {
@@ -61,7 +67,7 @@ async function loadEngine() {
   throw new Error(`engine unavailable: dist=${existsSync(ENGINE_DIST)} src=${existsSync(ENGINE_SRC)} tsx=${existsSync(TSX_BIN)}`);
 }
 
-async function runViaTsx(opts) {
+async function runViaTsx(opts, singleFile = null) {
   // Write the bootstrap to a tempfile rather than --eval so Windows shell
   // quoting does not mangle the embedded JSON. tsx loads the .ts engine
   // directly via its loader, so we don't need a built dist.
@@ -70,12 +76,22 @@ async function runViaTsx(opts) {
   const bootstrapPath = join(tmpdir(), `obsidian-memory-sync-bootstrap-${process.pid}-${Date.now()}.mts`);
   const optsJson = JSON.stringify(opts);
   const engineUrl = pathToFileURL(ENGINE_SRC).href;
+  const singleJson = JSON.stringify(singleFile);
   const code = [
     `import { obsidianMemorySyncEngine, ObsidianMemorySyncEngine } from ${JSON.stringify(engineUrl)};`,
     `const engine = obsidianMemorySyncEngine || new ObsidianMemorySyncEngine();`,
     `const opts = ${optsJson};`,
+    `const singleFile = ${singleJson};`,
     `try {`,
-    `  const r = engine.sync(opts);`,
+    `  let r;`,
+    `  if (singleFile) {`,
+    `    const sourceDir = opts.sourceDir || (process.env.HOME ? process.env.HOME : process.env.USERPROFILE) + "/.claude/projects/H--PRISM/memory";`,
+    `    const vaultRoot = opts.vaultRoot || "H:/prism/knowledge/memories";`,
+    `    const outcome = engine.mirrorOne(singleFile, sourceDir, vaultRoot, !!opts.dryRun);`,
+    `    r = { ok: true, filesScanned: 1, filesMirrored: outcome.mirrored ? 1 : 0, filesSkipped: outcome.skipped ? 1 : 0, filesFailed: 0, errors: [], vaultRoot, obsidianMirrored: 0, durationMs: 0, mode: "single-file", reason: outcome.reason || null };`,
+    `  } else {`,
+    `    r = engine.sync(opts);`,
+    `  }`,
     `  process.stdout.write(JSON.stringify(r));`,
     `} catch (e) {`,
     `  process.stdout.write(JSON.stringify({ok:false,error:String((e&&e.message)||e),filesScanned:0,filesMirrored:0,filesSkipped:0,filesFailed:0,errors:[],obsidianMirrored:0,durationMs:0}));`,
@@ -129,7 +145,32 @@ async function main() {
 
   let result;
   try {
-    if (loaded.mode === "tsx-subprocess") {
+    if (SINGLE_FILE) {
+      // Incremental single-file mirror — used by the PostToolUse hook on
+      // memory-file write/edit so the vault stays in sync without waiting
+      // for the next Stop.
+      if (loaded.mode === "tsx-subprocess") {
+        result = await runViaTsx(opts, SINGLE_FILE);
+      } else {
+        const sourceDir = opts.sourceDir
+          ?? join(process.env.HOME ?? process.env.USERPROFILE ?? "", ".claude", "projects", "H--PRISM", "memory");
+        const vaultRoot = opts.vaultRoot ?? "H:/prism/knowledge/memories";
+        const outcome = loaded.engine.mirrorOne(SINGLE_FILE, sourceDir, vaultRoot, !!opts.dryRun);
+        result = {
+          ok: true,
+          filesScanned: 1,
+          filesMirrored: outcome.mirrored ? 1 : 0,
+          filesSkipped: outcome.skipped ? 1 : 0,
+          filesFailed: 0,
+          errors: [],
+          vaultRoot,
+          obsidianMirrored: 0,
+          durationMs: 0,
+          mode: "single-file",
+          reason: outcome.reason ?? null,
+        };
+      }
+    } else if (loaded.mode === "tsx-subprocess") {
       result = await runViaTsx(opts);
     } else {
       result = loaded.engine.sync(opts);
