@@ -496,6 +496,17 @@ const consensus_warmstart = z.object({
   mergeWithExisting: z.boolean().optional(),
 }).passthrough();
 
+// ConsensusCreditRunLogEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON
+const consensus_credit_run_history = z.object({
+  logPath: optStr,
+  limit: z.number().int().positive().optional(),
+}).passthrough();
+
+const consensus_credit_run_stats = z.object({
+  logPath: optStr,
+  limit: z.number().int().positive().optional(),
+}).passthrough();
+
 // ============================================================================
 // EXPORT MAP — 52 core actions (49 + 3 from U-CREDIT-DISPATCHER)
 // ============================================================================
@@ -570,4 +581,7 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   consensus_dashboard,
   // ConsensusBaselineWarmstartEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-PERF-WEIGHTS-WARMSTART
   consensus_warmstart,
+  // ConsensusCreditRunLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON
+  consensus_credit_run_history,
+  consensus_credit_run_stats,
 };

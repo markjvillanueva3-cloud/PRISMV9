@@ -171,6 +171,9 @@ const ACTIONS = [
   "consensus_dashboard",            // Read-only: full analytics dashboard (per-task ranking, gaps, trend, suggested probes)
   // ===== ConsensusBaselineWarmstartEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-PERF-WEIGHTS-WARMSTART =====
   "consensus_warmstart",            // Cold-start: bootstrap perf state from JSONL feed via unweighted-mean credit
+  // ===== ConsensusCreditRunLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON =====
+  "consensus_credit_run_history",   // Read-only: tail of cron run log
+  "consensus_credit_run_stats",     // Read-only: aggregate stats over recent runs
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -753,6 +756,30 @@ export function registerIntelligenceDispatcher(server: any): void {
           });
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON: read-only run-log
+        // surface for the scheduled credit-assignment backfill.
+        // ============================================================
+        if (action === "consensus_credit_run_history") {
+          const { consensusCreditRunLogEngine } = await import("../../engines/ConsensusCreditRunLogEngine.js");
+          const history = consensusCreditRunLogEngine.getHistory({
+            logPath: params.logPath as string | undefined,
+            limit: params.limit as number | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, history, count: history.length }) }],
+          };
+        }
+        if (action === "consensus_credit_run_stats") {
+          const { consensusCreditRunLogEngine } = await import("../../engines/ConsensusCreditRunLogEngine.js");
+          const stats = consensusCreditRunLogEngine.getStats({
+            logPath: params.logPath as string | undefined,
+            limit: params.limit as number | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, stats }) }],
           };
         }
 
