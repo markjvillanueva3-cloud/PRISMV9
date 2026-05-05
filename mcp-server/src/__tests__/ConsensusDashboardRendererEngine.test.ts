@@ -7,9 +7,10 @@
  */
 import { describe, it, expect } from "vitest";
 import { ConsensusDashboardRendererEngine } from "../engines/ConsensusDashboardRendererEngine.js";
-import type { RunLogPayload } from "../engines/ConsensusDashboardRendererEngine.js";
+import type { RunLogPayload, DriftAlertPayload } from "../engines/ConsensusDashboardRendererEngine.js";
 import type { Dashboard } from "../engines/ConsensusPerformanceDashboardEngine.js";
 import type { RunLogEntry } from "../engines/ConsensusCreditRunLogEngine.js";
+import type { AlertEntry } from "../engines/ConsensusDriftAlertLogEngine.js";
 
 const renderer = new ConsensusDashboardRendererEngine();
 
@@ -375,5 +376,135 @@ describe("ConsensusDashboardRendererEngine", () => {
     const runsIdx = md.indexOf("## Recent credit-assignment runs");
     expect(trendIdx).toBeGreaterThan(-1);
     expect(runsIdx).toBeGreaterThan(trendIdx);
+  });
+
+  // ---- recent-drift-alerts (U-CONSENSUS-DRIFT-DASHBOARD-SECTION) ----
+
+  function makeAlert(overrides: Partial<AlertEntry> = {}): AlertEntry {
+    return {
+      schema_version: "1.0.0",
+      ts: "2026-05-05T18:00:00.000Z",
+      kind: "alert",
+      vendor: "anthropic",
+      taskType: "plan",
+      severity: "severe",
+      emaBefore: 0.85,
+      emaAfter: 0.45,
+      delta: -0.40,
+      nBefore: 30,
+      nAfter: 32,
+      ...overrides,
+    };
+  }
+
+  function makeDriftPayload(alerts: AlertEntry[], overrides: Partial<DriftAlertPayload["stats"]> = {}): DriftAlertPayload {
+    const onlyAlerts = alerts.filter((a) => a.kind === "alert");
+    const summaries = alerts.filter((a) => a.kind === "summary");
+    const bySeverity: Record<string, number> = { minor: 0, moderate: 0, severe: 0 };
+    const byVendor: Record<string, number> = {};
+    for (const a of onlyAlerts) {
+      if (a.severity) bySeverity[a.severity] = (bySeverity[a.severity] ?? 0) + 1;
+      if (a.vendor) byVendor[a.vendor] = (byVendor[a.vendor] ?? 0) + 1;
+    }
+    return {
+      alerts,
+      stats: {
+        totalAlerts: onlyAlerts.length,
+        totalSummaries: summaries.length,
+        bySeverity,
+        byVendor,
+        earliestTs: alerts.length > 0 ? alerts[0].ts : null,
+        latestTs: alerts.length > 0 ? alerts[alerts.length - 1].ts : null,
+        ...overrides,
+      },
+    };
+  }
+
+  it("renderDriftAlerts shows 'no checks' message when ledger entirely empty", () => {
+    const text = renderer.renderDriftAlerts(makeDriftPayload([])).join("\n");
+    expect(text).toContain("## Recent drift alerts");
+    expect(text).toContain("Drift ledger empty");
+    expect(text).not.toContain("| Timestamp |");
+  });
+
+  it("renderDriftAlerts shows 'no actionable regressions' when summaries exist but no alerts", () => {
+    const summaryOnly: AlertEntry[] = [
+      { schema_version: "1.0.0", ts: "2026-05-05T18:00:00.000Z", kind: "summary", run_id: "r1", total_actionable: 0 },
+      { schema_version: "1.0.0", ts: "2026-05-05T19:00:00.000Z", kind: "summary", run_id: "r2", total_actionable: 0 },
+    ];
+    const text = renderer.renderDriftAlerts(makeDriftPayload(summaryOnly)).join("\n");
+    expect(text).toContain("2 drift checks recorded");
+    expect(text).toContain("no actionable regressions");
+    expect(text).not.toContain("| Timestamp |");
+  });
+
+  it("renderDriftAlerts emits table rows + stats summary for actionable alerts", () => {
+    const alerts: AlertEntry[] = [
+      makeAlert({ vendor: "anthropic", taskType: "plan", severity: "severe", delta: -0.40, emaBefore: 0.85, emaAfter: 0.45, nAfter: 32 }),
+      makeAlert({ ts: "2026-05-05T19:00:00.000Z", vendor: "openai", taskType: "decide", severity: "moderate", delta: -0.18, emaBefore: 0.80, emaAfter: 0.62, nAfter: 50 }),
+    ];
+    const text = renderer.renderDriftAlerts(makeDriftPayload(alerts)).join("\n");
+    expect(text).toContain("| Timestamp | Severity | Vendor | Task | Δ EMA | Before → After | n |");
+    expect(text).toContain("severe");
+    expect(text).toContain("anthropic");
+    expect(text).toContain("0.850 → 0.450");
+    expect(text).toContain("-0.400");
+    expect(text).toContain("openai");
+    expect(text).toContain("0.800 → 0.620");
+    expect(text).toContain("Stats: 2 alerts");
+    expect(text).toContain("severe=1");
+    expect(text).toContain("moderate=1");
+    expect(text).toContain("anthropic=1");
+    expect(text).toContain("openai=1");
+  });
+
+  it("renderDriftAlerts caps rows at limit and reports truncation", () => {
+    const alerts = Array.from({ length: 25 }, (_, i) =>
+      makeAlert({
+        ts: `2026-05-05T${String(i % 24).padStart(2, "0")}:00:00.000Z`,
+        vendor: `vendor_${i}`,
+        delta: -0.40 - i * 0.001,
+      }),
+    );
+    const text = renderer.renderDriftAlerts(makeDriftPayload(alerts), 5).join("\n");
+    // Data rows start with "| 2026-" (ISO timestamp); stats footer starts with "_".
+    const dataRows = text.split("\n").filter((l) => l.startsWith("| 2026-"));
+    expect(dataRows).toHaveLength(5);
+    // Tail-slice: last 5 alerts (indices 20..24).
+    expect(dataRows[0]).toContain("vendor_20");
+    expect(dataRows[4]).toContain("vendor_24");
+    expect(text).toContain("…and 20 earlier alerts not shown (limit=5)");
+  });
+
+  it("renderDriftAlerts skips summary entries from the rendered table (alerts only)", () => {
+    const mixed: AlertEntry[] = [
+      makeAlert({ vendor: "anthropic", severity: "severe", delta: -0.40 }),
+      { schema_version: "1.0.0", ts: "2026-05-05T18:00:01.000Z", kind: "summary", run_id: "r1", total_actionable: 1 },
+      makeAlert({ ts: "2026-05-05T19:00:00.000Z", vendor: "openai", severity: "moderate", delta: -0.18 }),
+    ];
+    const text = renderer.renderDriftAlerts(makeDriftPayload(mixed)).join("\n");
+    // Two alert rows in the table; summary line shouldn't appear with run_id.
+    expect(text).not.toContain("run_id");
+    const rowCount = text.split("\n").filter((l) => l.includes("severe") || l.includes("moderate")).length;
+    expect(rowCount).toBeGreaterThanOrEqual(2);
+  });
+
+  it("render with showDriftAlerts=false suppresses section even if driftAlerts payload supplied", () => {
+    const md = renderer.render(makeDashboard(), {
+      driftAlerts: makeDriftPayload([makeAlert()]),
+      showDriftAlerts: false,
+    });
+    expect(md).not.toContain("## Recent drift alerts");
+  });
+
+  it("render appends drift-alerts section after run-log when both supplied", () => {
+    const md = renderer.render(makeDashboard(), {
+      runLog: makePayload([makeEntry()]),
+      driftAlerts: makeDriftPayload([makeAlert()]),
+    });
+    const runsIdx = md.indexOf("## Recent credit-assignment runs");
+    const alertsIdx = md.indexOf("## Recent drift alerts");
+    expect(runsIdx).toBeGreaterThan(-1);
+    expect(alertsIdx).toBeGreaterThan(runsIdx);
   });
 });

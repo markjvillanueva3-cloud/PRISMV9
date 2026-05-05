@@ -28,7 +28,7 @@
 // .ts source. When run under tsx (`npx tsx scripts/consensus-dashboard.mjs`),
 // tsx auto-maps "../src/engines/X.js" → "../src/engines/X.ts". When run
 // under plain node, only the dist path will resolve.
-let dashboardEngine, rendererEngine, runLogEngine;
+let dashboardEngine, rendererEngine, runLogEngine, alertLogEngine;
 try {
   ({ consensusPerformanceDashboardEngine: dashboardEngine } =
     await import("../dist/engines/ConsensusPerformanceDashboardEngine.js"));
@@ -36,6 +36,8 @@ try {
     await import("../dist/engines/ConsensusDashboardRendererEngine.js"));
   ({ consensusCreditRunLogEngine: runLogEngine } =
     await import("../dist/engines/ConsensusCreditRunLogEngine.js"));
+  ({ consensusDriftAlertLogEngine: alertLogEngine } =
+    await import("../dist/engines/ConsensusDriftAlertLogEngine.js"));
 } catch {
   try {
     ({ consensusPerformanceDashboardEngine: dashboardEngine } =
@@ -44,6 +46,8 @@ try {
       await import("../src/engines/ConsensusDashboardRendererEngine.js"));
     ({ consensusCreditRunLogEngine: runLogEngine } =
       await import("../src/engines/ConsensusCreditRunLogEngine.js"));
+    ({ consensusDriftAlertLogEngine: alertLogEngine } =
+      await import("../src/engines/ConsensusDriftAlertLogEngine.js"));
   } catch (e) {
     console.error(
       "Failed to load consensus dashboard engines.\n" +
@@ -68,6 +72,9 @@ function parseArgs(argv) {
     runLogLimit: undefined,
     withRuns: 0,
     runLogPath: undefined,
+    driftAlertLimit: undefined,
+    withAlerts: 0,
+    alertLogPath: undefined,
     perfStatePath: undefined,
     feedPath: undefined,
     staleAfterDays: undefined,
@@ -88,6 +95,9 @@ function parseArgs(argv) {
       case "--with-runs":        opts.withRuns = parseIntOrThrow(next(), "--with-runs"); break;
       case "--runs-limit":       opts.runLogLimit = parseIntOrThrow(next(), "--runs-limit"); break;
       case "--run-log":          opts.runLogPath = next(); break;
+      case "--with-alerts":      opts.withAlerts = parseIntOrThrow(next(), "--with-alerts"); break;
+      case "--alerts-limit":     opts.driftAlertLimit = parseIntOrThrow(next(), "--alerts-limit"); break;
+      case "--alert-log":        opts.alertLogPath = next(); break;
       case "--perf-state":       opts.perfStatePath = next(); break;
       case "--feed":             opts.feedPath = next(); break;
       case "--stale-after-days": opts.staleAfterDays = parseFloatOrThrow(next(), "--stale-after-days"); break;
@@ -142,6 +152,9 @@ Options:
   --with-runs <N>              Include the last N credit-cron runs section
   --runs-limit <N>             Cap rows shown in the runs table (default 10)
   --run-log <path>             Override credit-cron run log path
+  --with-alerts <N>            Include the last N drift-alert ledger entries
+  --alerts-limit <N>           Cap rows shown in the drift-alerts table (default 10)
+  --alert-log <path>           Override drift-alert ledger path
   --perf-state <path>          Override perf state path
   --feed <path>                Override JSONL feed path
   --stale-after-days <N>       Flag observations older than N days as stale (0 = disabled)
@@ -185,10 +198,23 @@ if (opts.withRuns > 0 && opts.showRunLog !== false) {
   }
 }
 
+// Optional: load drift-alert ledger when --with-alerts N is specified.
+let driftAlertPayload;
+if (opts.withAlerts > 0) {
+  try {
+    const alerts = alertLogEngine.getAlerts({ limit: opts.withAlerts, logPath: opts.alertLogPath });
+    const stats = alertLogEngine.getAlertStats({ limit: opts.withAlerts, logPath: opts.alertLogPath });
+    driftAlertPayload = { alerts, stats };
+  } catch (e) {
+    console.error(`Failed to load drift alert ledger: ${e?.message ?? e}`);
+    // Fail-open: continue without drift-alerts section.
+  }
+}
+
 if (opts.json) {
-  const out = runLogPayload
-    ? { ...dashboard, runLog: runLogPayload }
-    : dashboard;
+  const out = { ...dashboard };
+  if (runLogPayload) out.runLog = runLogPayload;
+  if (driftAlertPayload) out.driftAlerts = driftAlertPayload;
   process.stdout.write(JSON.stringify(out, null, 2) + "\n");
 } else {
   const md = rendererEngine.render(dashboard, {
@@ -197,8 +223,10 @@ if (opts.json) {
     showRunLog: opts.showRunLog,
     probesLimit: opts.probesLimit,
     runLogLimit: opts.runLogLimit ?? opts.withRuns,
+    driftAlertLimit: opts.driftAlertLimit ?? opts.withAlerts,
     title: opts.title,
     runLog: runLogPayload,
+    driftAlerts: driftAlertPayload,
   });
   process.stdout.write(md);
 }

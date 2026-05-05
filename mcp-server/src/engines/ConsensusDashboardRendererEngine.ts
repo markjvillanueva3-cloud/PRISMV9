@@ -35,11 +35,27 @@ import type {
   RunLogEntry,
   RunStats,
 } from "./ConsensusCreditRunLogEngine.js";
+import type {
+  AlertEntry,
+} from "./ConsensusDriftAlertLogEngine.js";
 
 /** Payload for the optional "Recent runs" section — paired history + stats. */
 export interface RunLogPayload {
   history: readonly RunLogEntry[];
   stats: RunStats;
+}
+
+/** Payload for the optional "Recent drift alerts" section — alerts + aggregate stats. */
+export interface DriftAlertPayload {
+  alerts: readonly AlertEntry[];
+  stats: {
+    totalAlerts: number;
+    totalSummaries: number;
+    bySeverity: Record<string, number>;
+    byVendor: Record<string, number>;
+    earliestTs: string | null;
+    latestTs: string | null;
+  };
 }
 
 export interface RenderOpts {
@@ -57,10 +73,17 @@ export interface RenderOpts {
   title?: string;
   /** Optional run-log payload. When set, renderRecentRuns() is appended to render(). */
   runLog?: RunLogPayload;
+  /** Cap on drift-alert rows shown. Default 10. */
+  driftAlertLimit?: number;
+  /** If false, suppress the drift-alert section even when payload is supplied. Default true. */
+  showDriftAlerts?: boolean;
+  /** Optional drift-alert payload. When set, renderDriftAlerts() is appended to render(). */
+  driftAlerts?: DriftAlertPayload;
 }
 
 const DEFAULT_PROBES_LIMIT = 10;
 const DEFAULT_RUN_LOG_LIMIT = 10;
+const DEFAULT_DRIFT_ALERT_LIMIT = 10;
 const DEFAULT_TITLE = "Consensus Dashboard";
 
 export class ConsensusDashboardRendererEngine {
@@ -71,9 +94,11 @@ export class ConsensusDashboardRendererEngine {
   render(dashboard: Dashboard, opts: RenderOpts = {}): string {
     const probesLimit = opts.probesLimit ?? DEFAULT_PROBES_LIMIT;
     const runLogLimit = opts.runLogLimit ?? DEFAULT_RUN_LOG_LIMIT;
+    const driftAlertLimit = opts.driftAlertLimit ?? DEFAULT_DRIFT_ALERT_LIMIT;
     const showTrend = opts.showTrend !== false;
     const showProbes = opts.showProbes !== false;
     const showRunLog = opts.showRunLog !== false;
+    const showDriftAlerts = opts.showDriftAlerts !== false;
     const title = opts.title ?? DEFAULT_TITLE;
 
     const lines: string[] = [];
@@ -94,8 +119,66 @@ export class ConsensusDashboardRendererEngine {
       lines.push("");
       lines.push(...this.renderRecentRuns(opts.runLog, runLogLimit));
     }
+    if (showDriftAlerts && opts.driftAlerts) {
+      lines.push("");
+      lines.push(...this.renderDriftAlerts(opts.driftAlerts, driftAlertLimit));
+    }
     lines.push("");
     return lines.join("\n");
+  }
+
+  /**
+   * Render the recent drift-alerts block from a paired DriftAlertPayload.
+   * Surfaces actionable regressions (severity = moderate or severe) the
+   * cron has persisted to the alert ledger. Summary lines (audit trail
+   * "we checked, nothing fired") are intentionally suppressed in the
+   * markdown view — they exist for forensic queries, not the dashboard.
+   */
+  renderDriftAlerts(payload: DriftAlertPayload, limit: number = DEFAULT_DRIFT_ALERT_LIMIT): string[] {
+    const lines: string[] = [];
+    lines.push("## Recent drift alerts");
+    lines.push("");
+    const onlyAlerts = payload.alerts.filter((a) => a.kind === "alert");
+    if (onlyAlerts.length === 0) {
+      const checked = payload.stats.totalSummaries;
+      if (checked > 0) {
+        lines.push(`_${checked} drift checks recorded — no actionable regressions._`);
+      } else {
+        lines.push("_Drift ledger empty — schedule the credit-cron with --snapshot-dir to populate._");
+      }
+      return lines;
+    }
+    const cap = Math.max(1, limit);
+    const tail = onlyAlerts.slice(-cap);
+    lines.push("| Timestamp | Severity | Vendor | Task | Δ EMA | Before → After | n |");
+    lines.push("|-----------|---------:|--------|------|------:|----------------|--:|");
+    for (const a of tail) {
+      const sev = a.severity ?? "?";
+      const vendor = a.vendor ?? "?";
+      const task = a.taskType ?? "?";
+      const delta = typeof a.delta === "number" ? a.delta.toFixed(3) : "?";
+      const before = typeof a.emaBefore === "number" ? a.emaBefore.toFixed(3) : "?";
+      const after = typeof a.emaAfter === "number" ? a.emaAfter.toFixed(3) : "?";
+      const nA = typeof a.nAfter === "number" ? a.nAfter : "?";
+      lines.push(`| ${a.ts} | ${sev} | ${vendor} | ${task} | ${delta} | ${before} → ${after} | ${nA} |`);
+    }
+    if (onlyAlerts.length > cap) {
+      lines.push("");
+      lines.push(`_…and ${onlyAlerts.length - cap} earlier alerts not shown (limit=${cap})._`);
+    }
+    const s = payload.stats;
+    const sevParts: string[] = [];
+    if (s.bySeverity.severe) sevParts.push(`severe=${s.bySeverity.severe}`);
+    if (s.bySeverity.moderate) sevParts.push(`moderate=${s.bySeverity.moderate}`);
+    if (s.bySeverity.minor) sevParts.push(`minor=${s.bySeverity.minor}`);
+    const sevLabel = sevParts.length > 0 ? sevParts.join(" · ") : "none";
+    const vendorTop = Object.entries(s.byVendor).sort(([, a], [, b]) => b - a).slice(0, 3);
+    const vendorLabel = vendorTop.length > 0
+      ? vendorTop.map(([v, n]) => `${v}=${n}`).join(" · ")
+      : "—";
+    lines.push("");
+    lines.push(`_Stats: ${s.totalAlerts} alerts across ${s.totalSummaries} checks · severity: ${sevLabel} · top vendors: ${vendorLabel}_`);
+    return lines;
   }
 
   /**
