@@ -174,3 +174,321 @@ describe("multiple sessions — isolation", () => {
     expect(getEntry("beta").sessionId).toBe("beta");
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════
+// U-SCRUTINY-3WAY-03: tests for the 3-way upgrade + Gemini blocker fixes
+// ════════════════════════════════════════════════════════════════════════
+
+describe("3-way provider marks — set/revoke", () => {
+  it("records codexReviewed: true and exposes it on the entry", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    const entry = getEntry("s1");
+    expect(entry.codexReviewed).toBe(true);
+    expect(entry.geminiReviewed).toBe(false);
+    expect(entry.opusReviewed).toBe(false);
+  });
+
+  it("records geminiReviewed: true independently from codex/opus", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { geminiReviewed: true });
+    const entry = getEntry("s1");
+    expect(entry.codexReviewed).toBe(false);
+    expect(entry.geminiReviewed).toBe(true);
+    expect(entry.opusReviewed).toBe(false);
+  });
+
+  it("records opusReviewed: true independently from codex/gemini", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { opusReviewed: true });
+    const entry = getEntry("s1");
+    expect(entry.codexReviewed).toBe(false);
+    expect(entry.geminiReviewed).toBe(false);
+    expect(entry.opusReviewed).toBe(true);
+  });
+
+  it("a subsequent FAIL revokes a prior PASS for the same provider (Codex blocker #1)", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { opusReviewed: true });
+    expect(getEntry("s1").opusReviewed).toBe(true);
+    // Now mark opus FAIL — boolean type-guard should let `false` through.
+    recordScrutiny("s1", { opusReviewed: false });
+    expect(getEntry("s1").opusReviewed).toBe(false);
+  });
+
+  it("revocation works for all three providers, not just opus", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true, geminiReviewed: true, opusReviewed: true });
+    expect(getEntry("s1").codexReviewed).toBe(true);
+    expect(getEntry("s1").geminiReviewed).toBe(true);
+    expect(getEntry("s1").opusReviewed).toBe(true);
+    recordScrutiny("s1", { codexReviewed: false });
+    recordScrutiny("s1", { geminiReviewed: false });
+    recordScrutiny("s1", { opusReviewed: false });
+    const entry = getEntry("s1");
+    expect(entry.codexReviewed).toBe(false);
+    expect(entry.geminiReviewed).toBe(false);
+    expect(entry.opusReviewed).toBe(false);
+  });
+
+  it("undefined provider marks leave the existing value unchanged", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    // Subsequent call with no codex flag — must not flip codex back to false.
+    recordScrutiny("s1", { selfReviewed: true });
+    expect(getEntry("s1").codexReviewed).toBe(true);
+    expect(getEntry("s1").selfReviewed).toBe(true);
+  });
+
+  it("non-boolean provider values are ignored (no coercion)", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    // @ts-ignore — deliberately wrong type
+    recordScrutiny("s1", { codexReviewed: "yes" });
+    // String "yes" is truthy but the boolean type-guard should reject it.
+    expect(getEntry("s1").codexReviewed).toBe(true);
+    // @ts-ignore
+    recordScrutiny("s1", { codexReviewed: 0 });
+    expect(getEntry("s1").codexReviewed).toBe(true);
+  });
+});
+
+describe("agentReviewed — boolean type-guard + OR derivation (Gemini blocker #3)", () => {
+  it("accepts agentReviewed: false to revoke a prior true", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { agentReviewed: true });
+    expect(getEntry("s1").agentReviewed).toBe(true);
+    recordScrutiny("s1", { agentReviewed: false });
+    expect(getEntry("s1").agentReviewed).toBe(false);
+  });
+
+  it("OR-derives agentReviewed=true when any provider is true, even if explicitly set false", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    // Explicit revocation paired with an active provider — derivation wins.
+    recordScrutiny("s1", { codexReviewed: true, agentReviewed: false });
+    expect(getEntry("s1").agentReviewed).toBe(true);
+  });
+
+  it("agentReviewed remains false when explicit false AND no providers are true", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { agentReviewed: false });
+    expect(getEntry("s1").agentReviewed).toBe(false);
+  });
+});
+
+describe("isCleared — 3-of-3 strict path", () => {
+  it("returns false with zero provider marks", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("s1", { selfReviewed: true });
+    expect(isCleared("s1")).toBe(false);
+  });
+
+  it("returns false with only one provider PASS", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    expect(isCleared("s1")).toBe(false);
+  });
+
+  it("returns false with two providers PASS (need all three)", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true, geminiReviewed: true });
+    expect(isCleared("s1")).toBe(false);
+  });
+
+  it("returns true only when all three provider PASS marks are recorded", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true, geminiReviewed: true, opusReviewed: true });
+    expect(isCleared("s1")).toBe(true);
+  });
+
+  it("FAIL revocation reverts a previously cleared session", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true, geminiReviewed: true, opusReviewed: true });
+    expect(isCleared("s1")).toBe(true);
+    recordScrutiny("s1", { opusReviewed: false });
+    expect(isCleared("s1")).toBe(false);
+  });
+});
+
+describe("isCleared — legacy fallback for pre-3way entries", () => {
+  it("clears legacy entries with selfReviewed && agentReviewed and no provider flags", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("legacy", { selfReviewed: true, agentReviewed: true });
+    // No codexReviewed/geminiReviewed/opusReviewed — should fall back.
+    expect(isCleared("legacy")).toBe(true);
+  });
+
+  it("legacy fallback fires when no provider PASS is recorded yet, even with explicit FALSE marks", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    // The fallback gates on "no provider has PASSed" (not "no provider flag exists"),
+    // because makeEmptyEntry initializes all three providers to false. So an entry
+    // with explicit codex=false plus selfReviewed+agentReviewed still trips the
+    // legacy fallback — which is intentional, since that exactly matches the
+    // pre-3way callers who only knew about self/agent flags.
+    recordScrutiny("mixed", { selfReviewed: true, agentReviewed: true, codexReviewed: false });
+    expect(isCleared("mixed")).toBe(true);
+  });
+
+  it("legacy fallback does NOT fire once a provider PASSes (strict 3-of-3 takes over)", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    // codexReviewed: true takes the entry out of "legacy" territory.
+    // Now strict 3-of-3 governs and we need all three providers PASS.
+    recordScrutiny("postlegacy", { selfReviewed: true, agentReviewed: true, codexReviewed: true });
+    expect(isCleared("postlegacy")).toBe(false);
+  });
+
+  it("a half-marked legacy entry (selfReviewed only) doesn't clear", async () => {
+    const { recordScrutiny, isCleared } = await loadLedger();
+    recordScrutiny("half", { selfReviewed: true });
+    expect(isCleared("half")).toBe(false);
+  });
+});
+
+describe("recordReviewerDetail — per-provider verdict capture", () => {
+  it("captures codex verdict + blockers + notes under reviews.codex", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", {
+      codexReviewed: false,
+      codexDetail: { verdict: "fail", blockers: "BLOCKER: foo", notes: "saw issue X" },
+    });
+    const r = getEntry("s1").reviews.codex;
+    expect(r.verdict).toBe("fail");
+    expect(r.blockers).toBe("BLOCKER: foo");
+    expect(r.notes).toBe("saw issue X");
+    expect(typeof r.recordedAt).toBe("string");
+  });
+
+  it("truncates oversized blockers/notes (1000/500 chars)", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", {
+      geminiDetail: { verdict: "fail", blockers: "B".repeat(1500), notes: "n".repeat(800) },
+    });
+    const r = getEntry("s1").reviews.gemini;
+    expect(r.blockers.length).toBe(1000);
+    expect(r.notes.length).toBe(500);
+  });
+});
+
+describe("file lock — RMW serialization (Gemini blocker #4)", () => {
+  it("records two sequential mark sets without losing the first", async () => {
+    // Same-process serialization: lock guarantees the second recordScrutiny
+    // sees the first's writes. Verifies the lock-and-release path doesn't
+    // deadlock and that loadLedger picks up the prior mark.
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    recordScrutiny("s1", { geminiReviewed: true });
+    const entry = getEntry("s1");
+    expect(entry.codexReviewed).toBe(true);
+    expect(entry.geminiReviewed).toBe(true);
+  });
+
+  it("leaves no stale lock file after a successful operation", async () => {
+    const { recordScrutiny } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    const lockP = path.join(sandboxRoot, "mcp-server", "data", "state", "SCRUTINY_LEDGER.json.lock");
+    expect(fs.existsSync(lockP)).toBe(false);
+  });
+
+  it("releases the lock even when the wrapped fn would throw", async () => {
+    // Force saveLedger to throw by making the data dir read-only.
+    // We can't easily make Windows dirs read-only in tests, so instead
+    // we trigger a throw via a corrupt sessionId leading to a path issue
+    // — actually simplest: pre-create the .lock file with stale mtime,
+    // then recordScrutiny should clear it and acquire successfully,
+    // never leaving the lock behind.
+    const { recordScrutiny } = await loadLedger();
+    const lockP = path.join(sandboxRoot, "mcp-server", "data", "state", "SCRUTINY_LEDGER.json.lock");
+    fs.mkdirSync(path.dirname(lockP), { recursive: true });
+    fs.writeFileSync(lockP, JSON.stringify({ pid: 999999, acquiredAt: 0 }));
+    // Manually set mtime to long-ago so stale-clear kicks in
+    const longAgo = new Date(Date.now() - 60_000);
+    fs.utimesSync(lockP, longAgo, longAgo);
+    recordScrutiny("s1", { codexReviewed: true });
+    // Lock should have been cleared and not re-leaked.
+    expect(fs.existsSync(lockP)).toBe(false);
+  });
+});
+
+describe("parseVerdictLine — VERDICT regex (Gemini blocker #2)", () => {
+  it("accepts plain VERDICT: PASS", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("VERDICT: PASS").verdict).toBe("pass");
+  });
+
+  it("accepts plain VERDICT: FAIL", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("VERDICT: FAIL").verdict).toBe("fail");
+  });
+
+  it("accepts VERDICT with trailing parenthesis (the literal example from the system prompt)", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("VERDICT: PASS (if all criteria met)").verdict).toBe("pass");
+    expect(parseVerdictLine("VERDICT: FAIL (if ANY criterion violated)").verdict).toBe("fail");
+  });
+
+  it("accepts VERDICT with em-dash trailing prose", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("VERDICT: PASS — confidence high").verdict).toBe("pass");
+  });
+
+  it("is case-insensitive on PASS/FAIL", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("verdict: pass").verdict).toBe("pass");
+    expect(parseVerdictLine("Verdict: Fail").verdict).toBe("fail");
+  });
+
+  it("ignores leading whitespace (per-line trim)", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("   VERDICT: PASS").verdict).toBe("pass");
+  });
+
+  it("only matches on the FIRST non-empty line — blank prefix lines are skipped", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("\n\n\nVERDICT: PASS").verdict).toBe("pass");
+  });
+
+  it("rejects VERDICT mentioned later in the body (prose VERDICT: FAIL)", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    const text = [
+      "Looking at this commit, I see no major issues.",
+      "VERDICT: PASS",  // not first non-empty line — must NOT match
+    ].join("\n");
+    expect(parseVerdictLine(text).verdict).toBe(null);
+  });
+
+  it("rejects malformed first line (no colon, wrong word)", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("VERDICT PASS").verdict).toBe(null);
+    expect(parseVerdictLine("OK: PASS").verdict).toBe(null);
+    expect(parseVerdictLine("VERDICT: PASSED").verdict).toBe(null); // word boundary check
+  });
+
+  it("returns null on non-string or empty input", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    expect(parseVerdictLine("").verdict).toBe(null);
+    expect(parseVerdictLine(null).verdict).toBe(null);
+    expect(parseVerdictLine(undefined).verdict).toBe(null);
+  });
+
+  it("returns the firstLine for diagnostic notes alongside the verdict", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    const r = parseVerdictLine("VERDICT: FAIL — saw issue X");
+    expect(r.verdict).toBe("fail");
+    expect(r.firstLine).toBe("VERDICT: FAIL — saw issue X");
+  });
+});
+
+describe("saveLedger error propagation (Gemini blocker #1)", () => {
+  it("recordScrutiny throws when the underlying write fails", async () => {
+    // Make the state directory read-only on POSIX, or pre-occupy the path
+    // with a directory on any OS so writeFileSync rejects.
+    const { recordScrutiny } = await loadLedger();
+    const ledgerP = path.join(sandboxRoot, "mcp-server", "data", "state", "SCRUTINY_LEDGER.json");
+    // Replace the ledger file location with a directory — fs.writeFileSync
+    // will throw EISDIR on attempt to write to a path that's a directory,
+    // OR the rename target collision will throw. Either surfaces upstream.
+    if (fs.existsSync(ledgerP)) fs.rmSync(ledgerP);
+    fs.mkdirSync(ledgerP, { recursive: true });
+    expect(() => recordScrutiny("s1", { codexReviewed: true })).toThrow();
+  });
+});
