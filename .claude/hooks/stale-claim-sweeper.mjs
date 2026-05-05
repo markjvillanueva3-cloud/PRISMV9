@@ -49,7 +49,7 @@ import {
   existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync,
   renameSync, mkdirSync, appendFileSync, rmSync,
 } from "node:fs";
-import { execFileSync, execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import os from "node:os";
 
@@ -250,9 +250,11 @@ function sweepChatBusClaims() {
   for (const name of entries) {
     const path = join(CHAT_BUS_CLAIM_DIR, name);
     let stale = false;
+    let stMtimeMs = 0;
     try {
       const st = statSync(path);
       if (!st.isFile()) continue;
+      stMtimeMs = st.mtimeMs;
       if ((now - st.mtimeMs) > CHAT_BUS_CLAIM_TTL_MS) {
         stale = true;
       } else {
@@ -264,6 +266,14 @@ function sweepChatBusClaims() {
         } catch { /* unparseable — sweep */ stale = true; }
       }
       if (stale) {
+        // Re-stat just before unlink. If a peer chat atomically renewed the claim
+        // (renameSync writes a fresh tmp onto the same canonical filename) the
+        // mtime advances. Skip the unlink in that case to avoid clobbering the
+        // peer's renewal — we'll catch it on the next sweep if it really is stale.
+        try {
+          const stCheck = statSync(path);
+          if (stCheck.mtimeMs !== stMtimeMs) continue;
+        } catch { continue; /* vanished — peer already cleaned it */ }
         unlinkSync(path);
         swept++;
       }
@@ -291,7 +301,9 @@ function sweepClaudeTaskOutputs() {
       let files;
       try { files = readdirSync(tasksDir); } catch { continue; }
       for (const f of files) {
-        if (!/\.(output|json)$/.test(f)) continue;
+        // Only sweep .output (background-bash stdout) — NOT .json (task control metadata).
+        // Task .json holds harness state for resumable tasks; harness owns its lifecycle.
+        if (!/\.output$/.test(f)) continue;
         const fpath = join(tasksDir, f);
         try {
           const st = statSync(fpath);
@@ -309,6 +321,9 @@ function sweepClaudeTaskOutputs() {
 function getZombieNodeHooks() {
   // Returns array of {pid, age_ms, cmdline, parent_alive} for hook node procs.
   // Windows-specific via wmic. Returns [] on non-Windows or any error.
+  // Note: WMIC is deprecated on Windows 11 24H2+; this fail-closed (returns [])
+  // when wmic is missing. Migration to `Get-CimInstance Win32_Process` will be a
+  // separate unit when 24H2 lands on dev machines.
   if (process.platform !== "win32") return [];
   let csv;
   try {
@@ -317,12 +332,15 @@ function getZombieNodeHooks() {
       "get", "ProcessId,ParentProcessId,CommandLine,CreationDate", "/format:csv",
     ], { encoding: "utf8", timeout: 4000, windowsHide: true });
   } catch { return []; }
+  // wmic /format:csv emits columns alphabetically: Node,CommandLine,CreationDate,ParentProcessId,ProcessId
+  // regardless of the order requested in the `get` clause.
   const rows = csv.split(/\r?\n/).filter(r => r.trim() && !r.startsWith("Node,"));
   const result = [];
   const now = Date.now();
   for (const row of rows) {
-    // Fields per /format:csv : Node,CommandLine,CreationDate,ParentProcessId,ProcessId
-    // CommandLine may contain commas — be defensive: rejoin extras into cmd field.
+    // CommandLine is the only field that can contain commas (CreationDate is fixed
+    // yyyymmddHHMMSS.ffffff+ZZZ; pids are integers; Node is the hostname). Anchor
+    // from the right and rejoin the middle slice as cmdline.
     const parts = row.split(",");
     if (parts.length < 5) continue;
     const pid = Number.parseInt(parts[parts.length - 1], 10);
@@ -336,10 +354,16 @@ function getZombieNodeHooks() {
     // Only target our hook/helper/script nodes
     if (!/[\\/]\.claude[\\/](hooks|helpers|scripts)[\\/]/i.test(cmdline)) continue;
 
-    // Parse WMI CreationDate (yyyymmddHHMMSS.ffffff+TZ) into ms
+    // Parse WMI CreationDate. WMI emits in LOCAL time as yyyymmddHHMMSS.ffffff+ZZZ
+    // (where +ZZZ is the local offset in minutes, e.g. -300 for CDT). Earlier
+    // versions used Date.UTC(...) which mis-aged by ±tz_offset minutes — on CDT
+    // this is +5h, making freshly-spawned hooks immediately exceed any age threshold.
+    // The local-tz constructor `new Date(y, m-1, d, h, min, s)` interprets its args
+    // in the host TZ, matching what WMI emitted.
     const m = created?.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
     if (!m) continue;
-    const createdMs = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+    const createdMs = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
+    if (!Number.isFinite(createdMs)) continue;
     const age_ms = now - createdMs;
     if (age_ms < NODE_HOOK_MAX_AGE_MS) continue;
 
@@ -388,7 +412,7 @@ function main() {
         `(claims kept=${claims.kept})`);
     process.stdout.write(JSON.stringify({
       continue: true,
-      systemMessage: `stale-claim-sweeper: reaped ${claims.swept} ownership-claims, ${locks.swept} git-locks, ${board.swept} workboard, ${busMsgs.swept} bus-msgs, ${busClaims.swept} bus-claims, ${taskOutputs.swept} task-outputs, ${nodeHooks.swept} zombie-nodes`,
+      systemMessage: `stale-claim-sweeper: reaped ${claims.swept} ownership-claims, ${locks.swept} git-locks, ${board.swept} workboard, ${busMsgs.swept} bus-msgs, ${busClaims.swept} bus-claims, ${taskOutputs.swept} task-outputs, ${nodeHooks.swept}/${nodeHooks.found} zombie-nodes (killed/found)`,
     }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
