@@ -163,5 +163,68 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       expect(typeof mod.createOllamaEmbedder).toBe("function");
       expect(() => mod.createOllamaEmbedder({ host: "not-a-url" })).toThrow(/invalid Ollama host/);
     });
+
+    it("ObsidianMemoryRagEngine exports the singleton with query+shouldTrigger methods", async () => {
+      const mod = await import("../engines/ObsidianMemoryRagEngine.js");
+      expect(typeof mod.ObsidianMemoryRagEngine).toBe("function");
+      expect(typeof mod.obsidianMemoryRagEngine.query).toBe("function");
+      expect(typeof mod.obsidianMemoryRagEngine.shouldTrigger).toBe("function");
+    });
+
+    it("ResourcesClassifierEngine exports the singleton with classifyFile+summarizeDir methods", async () => {
+      const mod = await import("../engines/ResourcesClassifierEngine.js");
+      expect(typeof mod.ResourcesClassifierEngine).toBe("function");
+      expect(typeof mod.resourcesClassifierEngine.classifyFile).toBe("function");
+      expect(typeof mod.resourcesClassifierEngine.summarizeDir).toBe("function");
+    });
+  });
+
+  describe("Vault RAG + Resources/ classifier wiring (P14-U02 follow-up)", () => {
+    it("wiki_rag_query is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_rag_query")).toBe(true);
+    });
+
+    it("wiki_rag_should_trigger is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_rag_should_trigger")).toBe(true);
+    });
+
+    it("wiki_classify_file is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_classify_file")).toBe(true);
+    });
+
+    it("wiki_summarize_dir is registered in the action enum", () => {
+      expect(KNOWLEDGE_ACTIONS.includes("wiki_summarize_dir")).toBe(true);
+    });
+
+    it("wiki_rag_query schema rejects empty query", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_rag_query as z.ZodType;
+      expect(schema.safeParse({ query: "" }).success).toBe(false);
+      expect(schema.safeParse({ query: "remember the cutter we used last week", top_k: 5 }).success).toBe(true);
+    });
+
+    it("wiki_rag_query schema rejects non-positive top_k and max_body_chars", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_rag_query as z.ZodType;
+      expect(schema.safeParse({ query: "x x x", top_k: 0 }).success).toBe(false);
+      expect(schema.safeParse({ query: "x x x", top_k: -1 }).success).toBe(false);
+      expect(schema.safeParse({ query: "x x x", max_body_chars: 0 }).success).toBe(false);
+      expect(schema.safeParse({ query: "x x x", top_k: 3, max_body_chars: 800 }).success).toBe(true);
+    });
+
+    it("wiki_classify_file schema rejects negative size and missing rel_path", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_classify_file as z.ZodType;
+      expect(schema.safeParse({ rel_path: "", ext: ".pdf", size: 100 }).success).toBe(false);
+      expect(schema.safeParse({ rel_path: "a.pdf", ext: ".pdf", size: -1 }).success).toBe(false);
+      expect(schema.safeParse({ rel_path: "a.pdf", ext: ".pdf", size: 0 }).success).toBe(true);
+    });
+
+    it("wiki_summarize_dir schema accepts an entries array and rejects non-array entries", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_summarize_dir as z.ZodType;
+      expect(schema.safeParse({ dir_rel_path: "Resources/foo", entries: [] }).success).toBe(true);
+      expect(schema.safeParse({ dir_rel_path: "Resources/foo", entries: "nope" as unknown }).success).toBe(false);
+      expect(schema.safeParse({
+        dir_rel_path: "Resources/foo",
+        entries: [{ rel_path: "x.pdf", ext: ".pdf", size: 100 }],
+      }).success).toBe(true);
+    });
   });
 });
