@@ -7,7 +7,9 @@
  */
 import { describe, it, expect } from "vitest";
 import { ConsensusDashboardRendererEngine } from "../engines/ConsensusDashboardRendererEngine.js";
+import type { RunLogPayload } from "../engines/ConsensusDashboardRendererEngine.js";
 import type { Dashboard } from "../engines/ConsensusPerformanceDashboardEngine.js";
+import type { RunLogEntry } from "../engines/ConsensusCreditRunLogEngine.js";
 
 const renderer = new ConsensusDashboardRendererEngine();
 
@@ -243,5 +245,135 @@ describe("ConsensusDashboardRendererEngine", () => {
     const a = renderer.render(dash);
     const b = renderer.render(dash);
     expect(a).toBe(b);
+  });
+
+  // ---- recent-runs (U-CONSENSUS-DASHBOARD-RUNLOG) ----
+
+  function makeEntry(overrides: Partial<RunLogEntry> = {}): RunLogEntry {
+    return {
+      schema_version: "1.0.0",
+      ts: "2026-05-05T16:00:00.000Z",
+      ok: true,
+      processed: 12,
+      skipped: 0,
+      cursorAdvance: 4096,
+      cursorOffset: 4096,
+      perVendor: { anthropic: 4, openai: 4, google: 4 },
+      trigger: "cron",
+      error: null,
+      durationMs: 84,
+      ...overrides,
+    };
+  }
+
+  function makePayload(entries: RunLogEntry[]): RunLogPayload {
+    if (entries.length === 0) {
+      return {
+        history: [],
+        stats: {
+          totalRuns: 0,
+          successfulRuns: 0,
+          failedRuns: 0,
+          successRate: 0,
+          totalProcessed: 0,
+          totalSkipped: 0,
+          meanDurationMs: 0,
+          lastRunAt: null,
+          lastRunOk: null,
+        },
+      };
+    }
+    let successful = 0;
+    let totalProcessed = 0;
+    let totalSkipped = 0;
+    let totalDuration = 0;
+    for (const e of entries) {
+      if (e.ok) successful++;
+      totalProcessed += e.processed;
+      totalSkipped += e.skipped;
+      totalDuration += e.durationMs;
+    }
+    const last = entries[entries.length - 1];
+    return {
+      history: entries,
+      stats: {
+        totalRuns: entries.length,
+        successfulRuns: successful,
+        failedRuns: entries.length - successful,
+        successRate: Number((successful / entries.length).toFixed(4)),
+        totalProcessed,
+        totalSkipped,
+        meanDurationMs: Number((totalDuration / entries.length).toFixed(2)),
+        lastRunAt: last.ts,
+        lastRunOk: last.ok,
+      },
+    };
+  }
+
+  it("renderRecentRuns shows empty-state message when history is empty", () => {
+    const text = renderer.renderRecentRuns(makePayload([])).join("\n");
+    expect(text).toContain("## Recent credit-assignment runs");
+    expect(text).toContain("_No recorded runs yet");
+    // No table header should be emitted in empty state.
+    expect(text).not.toContain("| Timestamp |");
+  });
+
+  it("renderRecentRuns emits table rows + stats summary line for populated history", () => {
+    const payload = makePayload([
+      makeEntry({ ts: "2026-05-05T15:00:00.000Z", processed: 10, skipped: 1, durationMs: 100, cursorOffset: 1000, ok: true }),
+      makeEntry({ ts: "2026-05-05T16:00:00.000Z", processed: 20, skipped: 0, durationMs: 50, cursorOffset: 3000, ok: false }),
+    ]);
+    const text = renderer.renderRecentRuns(payload).join("\n");
+    expect(text).toContain("| Timestamp | OK | Processed | Skipped | Duration (ms) | Cursor |");
+    expect(text).toContain("| 2026-05-05T15:00:00.000Z | ✓ | 10 | 1 | 100 | 1000 |");
+    expect(text).toContain("| 2026-05-05T16:00:00.000Z | ✗ | 20 | 0 | 50 | 3000 |");
+    // Stats line: 2 runs, 1 ok, 1 failed (50.0%), processed=30, skipped=1, mean=75ms
+    expect(text).toContain("2 runs");
+    expect(text).toContain("1 ok / 1 failed (50.0%)");
+    expect(text).toContain("processed=30");
+    expect(text).toContain("skipped=1");
+    expect(text).toContain("mean=75ms");
+  });
+
+  it("renderRecentRuns caps rows at limit and reports truncation", () => {
+    const entries = Array.from({ length: 25 }, (_, i) =>
+      makeEntry({ ts: `2026-05-05T${String(i % 24).padStart(2, "0")}:00:00.000Z`, processed: i, cursorOffset: i * 100 }),
+    );
+    const text = renderer.renderRecentRuns(makePayload(entries), 5).join("\n");
+    const dataRows = text.split("\n").filter((l) => l.startsWith("| 2026-"));
+    expect(dataRows).toHaveLength(5);
+    // Tail-slice: last 5 entries (indices 20..24) shown — cursorOffsets 2000..2400.
+    expect(dataRows[0]).toContain("| 2000 |");
+    expect(dataRows[4]).toContain("| 2400 |");
+    expect(text).toContain("…and 20 earlier runs not shown (limit=5)");
+  });
+
+  it("render with showRunLog=false suppresses the recent-runs section even if runLog supplied", () => {
+    const payload = makePayload([makeEntry()]);
+    const md = renderer.render(makeDashboard(), { runLog: payload, showRunLog: false });
+    expect(md).not.toContain("## Recent credit-assignment runs");
+  });
+
+  it("renderRecentRuns preserves input ordering (oldest → newest tail)", () => {
+    const entries = [
+      makeEntry({ ts: "2026-05-05T10:00:00.000Z", cursorOffset: 100 }),
+      makeEntry({ ts: "2026-05-05T11:00:00.000Z", cursorOffset: 200 }),
+      makeEntry({ ts: "2026-05-05T12:00:00.000Z", cursorOffset: 300 }),
+    ];
+    const text = renderer.renderRecentRuns(makePayload(entries)).join("\n");
+    const idx10 = text.indexOf("2026-05-05T10:00:00.000Z");
+    const idx11 = text.indexOf("2026-05-05T11:00:00.000Z");
+    const idx12 = text.indexOf("2026-05-05T12:00:00.000Z");
+    expect(idx10).toBeGreaterThan(-1);
+    expect(idx11).toBeGreaterThan(idx10);
+    expect(idx12).toBeGreaterThan(idx11);
+  });
+
+  it("render appends recent-runs section after trend when runLog provided (default showRunLog=true)", () => {
+    const md = renderer.render(makeDashboard(), { runLog: makePayload([makeEntry()]) });
+    const trendIdx = md.indexOf("## Recent feed trend");
+    const runsIdx = md.indexOf("## Recent credit-assignment runs");
+    expect(trendIdx).toBeGreaterThan(-1);
+    expect(runsIdx).toBeGreaterThan(trendIdx);
   });
 });

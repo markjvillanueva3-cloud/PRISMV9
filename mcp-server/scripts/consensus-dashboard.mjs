@@ -28,18 +28,22 @@
 // .ts source. When run under tsx (`npx tsx scripts/consensus-dashboard.mjs`),
 // tsx auto-maps "../src/engines/X.js" → "../src/engines/X.ts". When run
 // under plain node, only the dist path will resolve.
-let dashboardEngine, rendererEngine;
+let dashboardEngine, rendererEngine, runLogEngine;
 try {
   ({ consensusPerformanceDashboardEngine: dashboardEngine } =
     await import("../dist/engines/ConsensusPerformanceDashboardEngine.js"));
   ({ consensusDashboardRendererEngine: rendererEngine } =
     await import("../dist/engines/ConsensusDashboardRendererEngine.js"));
+  ({ consensusCreditRunLogEngine: runLogEngine } =
+    await import("../dist/engines/ConsensusCreditRunLogEngine.js"));
 } catch {
   try {
     ({ consensusPerformanceDashboardEngine: dashboardEngine } =
       await import("../src/engines/ConsensusPerformanceDashboardEngine.js"));
     ({ consensusDashboardRendererEngine: rendererEngine } =
       await import("../src/engines/ConsensusDashboardRendererEngine.js"));
+    ({ consensusCreditRunLogEngine: runLogEngine } =
+      await import("../src/engines/ConsensusCreditRunLogEngine.js"));
   } catch (e) {
     console.error(
       "Failed to load consensus dashboard engines.\n" +
@@ -58,8 +62,12 @@ function parseArgs(argv) {
     json: false,
     showTrend: true,
     showProbes: true,
+    showRunLog: true,
     topK: undefined,
     probesLimit: undefined,
+    runLogLimit: undefined,
+    withRuns: 0,
+    runLogPath: undefined,
     perfStatePath: undefined,
     feedPath: undefined,
     staleAfterDays: undefined,
@@ -74,8 +82,12 @@ function parseArgs(argv) {
       case "--json":             opts.json = true; break;
       case "--no-trend":         opts.showTrend = false; break;
       case "--no-probes":        opts.showProbes = false; break;
+      case "--no-runs":          opts.showRunLog = false; break;
       case "--top-k":            opts.topK = parseIntOrThrow(next(), "--top-k"); break;
       case "--probes-limit":     opts.probesLimit = parseIntOrThrow(next(), "--probes-limit"); break;
+      case "--with-runs":        opts.withRuns = parseIntOrThrow(next(), "--with-runs"); break;
+      case "--runs-limit":       opts.runLogLimit = parseIntOrThrow(next(), "--runs-limit"); break;
+      case "--run-log":          opts.runLogPath = next(); break;
       case "--perf-state":       opts.perfStatePath = next(); break;
       case "--feed":             opts.feedPath = next(); break;
       case "--stale-after-days": opts.staleAfterDays = parseFloatOrThrow(next(), "--stale-after-days"); break;
@@ -124,8 +136,12 @@ Options:
   --json                       Emit raw dashboard JSON instead of markdown
   --no-trend                   Suppress the recent-trend section
   --no-probes                  Suppress the suggested-probes section
+  --no-runs                    Suppress the recent credit-cron runs section
   --top-k <N>                  Cap vendors shown per task (default 5)
   --probes-limit <N>           Cap probe rows shown (default 10)
+  --with-runs <N>              Include the last N credit-cron runs section
+  --runs-limit <N>             Cap rows shown in the runs table (default 10)
+  --run-log <path>             Override credit-cron run log path
   --perf-state <path>          Override perf state path
   --feed <path>                Override JSONL feed path
   --stale-after-days <N>       Flag observations older than N days as stale (0 = disabled)
@@ -155,14 +171,34 @@ const dashboard = dashboardEngine.compute({
   staleAfterDays: opts.staleAfterDays,
 });
 
+// Optional: load credit-cron run log when --with-runs N is specified.
+// Builds a RunLogPayload by pairing tail-history with aggregate stats.
+let runLogPayload;
+if (opts.withRuns > 0 && opts.showRunLog !== false) {
+  try {
+    const history = runLogEngine.getHistory({ limit: opts.withRuns, logPath: opts.runLogPath });
+    const stats = runLogEngine.getStats({ limit: opts.withRuns, logPath: opts.runLogPath });
+    runLogPayload = { history, stats };
+  } catch (e) {
+    console.error(`Failed to load run log: ${e?.message ?? e}`);
+    // Fail-open: continue without run-log section.
+  }
+}
+
 if (opts.json) {
-  process.stdout.write(JSON.stringify(dashboard, null, 2) + "\n");
+  const out = runLogPayload
+    ? { ...dashboard, runLog: runLogPayload }
+    : dashboard;
+  process.stdout.write(JSON.stringify(out, null, 2) + "\n");
 } else {
   const md = rendererEngine.render(dashboard, {
     showTrend: opts.showTrend,
     showProbes: opts.showProbes,
+    showRunLog: opts.showRunLog,
     probesLimit: opts.probesLimit,
+    runLogLimit: opts.runLogLimit ?? opts.withRuns,
     title: opts.title,
+    runLog: runLogPayload,
   });
   process.stdout.write(md);
 }
