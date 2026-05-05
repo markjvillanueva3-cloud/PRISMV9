@@ -484,6 +484,8 @@ const DIAGNOSIS_FWD = [
   // XPROC-NEURAL-T1-02: pure-JS MLP 32→16→3 over CrossProcessOutcomeStore
   "xproc_neural_train", "xproc_neural_predict", "xproc_neural_evaluate",
   "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
+  // XPROC-NEURAL-T1-03: transfer learning across material clusters
+  "xproc_transfer_classify", "xproc_transfer_pairs", "xproc_transfer_check",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -1052,6 +1054,95 @@ export function registerIntelligenceDispatcher(server: any): void {
             content: [{
               type: "text" as const,
               text: JSON.stringify({ action, success: true, seed: seed ?? null }),
+            }],
+          };
+        }
+
+        // === XPROC-NEURAL-T1-03: Material-cluster transfer learning ===
+        // Note: actual weight-surgery transfer() requires an in-process donor
+        // engine reference and is exposed via the engine singleton. Dispatcher
+        // surfaces read-only classification + trusted-pair queries.
+        if (action === "xproc_transfer_classify") {
+          const { crossProcessTransferLearningEngine } = await import(
+            "../../engines/CrossProcessTransferLearningEngine.js"
+          );
+          const material = params.material as string | undefined;
+          if (typeof material !== "string") {
+            return dispatcherError(
+              "xproc_transfer_classify requires `material` (string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const cluster = crossProcessTransferLearningEngine.classifyMaterial(material);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, material, cluster }),
+            }],
+          };
+        }
+        if (action === "xproc_transfer_pairs") {
+          const { crossProcessTransferLearningEngine, MATERIAL_CLUSTERS } = await import(
+            "../../engines/CrossProcessTransferLearningEngine.js"
+          );
+          const pairs = crossProcessTransferLearningEngine.listTransferPairs();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                pairs,
+                clusters: MATERIAL_CLUSTERS,
+                count: pairs.length,
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_transfer_check") {
+          const { crossProcessTransferLearningEngine, MATERIAL_CLUSTERS } = await import(
+            "../../engines/CrossProcessTransferLearningEngine.js"
+          );
+          const source = params.source as string | undefined;
+          const target = params.target as string | undefined;
+          if (typeof source !== "string" || typeof target !== "string") {
+            return dispatcherError(
+              "xproc_transfer_check requires `source` and `target` cluster strings",
+              action,
+              "prism_intelligence",
+            );
+          }
+          // Accept cluster ids verbatim; otherwise classify as material name.
+          // Pre-check is necessary because some cluster ids (e.g.
+          // "hardened_steel") contain a substring ("steel") that the
+          // classifier maps to a *different* cluster (carbon_steel).
+          const validClusters = MATERIAL_CLUSTERS as readonly string[];
+          const sourceCluster = validClusters.includes(source)
+            ? (source as (typeof MATERIAL_CLUSTERS)[number])
+            : crossProcessTransferLearningEngine.classifyMaterial(source);
+          const targetCluster = validClusters.includes(target)
+            ? (target as (typeof MATERIAL_CLUSTERS)[number])
+            : crossProcessTransferLearningEngine.classifyMaterial(target);
+          const trusted =
+            sourceCluster && targetCluster
+              ? crossProcessTransferLearningEngine.isTrustedPair(
+                  sourceCluster,
+                  targetCluster,
+                )
+              : false;
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                source,
+                target,
+                sourceCluster,
+                targetCluster,
+                trusted,
+              }),
             }],
           };
         }
