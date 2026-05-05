@@ -596,6 +596,47 @@ describe("HurcoV11 — setup sheet emission", () => {
     const seq = must(result.setup_sheet, "setup_sheet").operations.map(o => `${o.sequence}:${o.type}`);
     expect(seq).toEqual(["1:face", "2:pocket", "3:drill"]);
   });
+
+  // U-PPGH10 failure-mode regression guards. The setup-sheet payload is
+  // consumed by the operator dashboard, the tool-crib pre-stage workflow,
+  // and the ERP traveler bridge — silent corruption of any field would
+  // propagate to wrong tools loaded in the magazine or wrong tracebacks
+  // in QA. These guards pin the contract.
+  it("setup_sheet.operations row preserves spindle/feed/axial_depth verbatim from MillOperation", () => {
+    const op = makeOp({
+      tool_number: 4,
+      operation_type: "contour",
+      spindle_rpm: 7777,
+      feed_mm_min: 1234,
+      axial_depth_mm: 2.5,
+    });
+    const result = hurcoV11MillMasterPostEngine.generateProgram([op]);
+    const row = must(result.setup_sheet, "setup_sheet").operations[0];
+    expect(row.tool_number).toBe(4);
+    expect(row.spindle_rpm).toBe(7777);
+    expect(row.feed_mm_min).toBe(1234);
+    expect(row.axial_depth_mm).toBe(2.5);
+  });
+
+  it("setup_sheet.units propagates 'inch' when cfg.units='inch'", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], { units: "inch" });
+    const sheet = must(result.setup_sheet, "setup_sheet");
+    expect(sheet.units).toBe("inch");
+  });
+
+  it("setup_sheet.tools.flutes + diameter_mm propagated from flat MillOperation fields (until structured-tool API lands in U-PPGH11)", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ tool_number: 7, tool_diameter_mm: 16, tool_flutes: 5, tool_description: "16MM 5FL FINISHING" }),
+    ]);
+    const t = must(result.setup_sheet, "setup_sheet").tools[0];
+    expect(t.number).toBe(7);
+    expect(t.diameter_mm).toBe(16);
+    expect(t.flutes).toBe(5);
+    expect(t.description).toBe("16MM 5FL FINISHING");
+    // Structured-tool fields stay undefined under the flat-field path.
+    expect(t.coating === undefined).toBe(true);
+    expect(t.stickout_mm === undefined).toBe(true);
+  });
 });
 
 describe("HurcoV11 — postSingle simplified API", () => {

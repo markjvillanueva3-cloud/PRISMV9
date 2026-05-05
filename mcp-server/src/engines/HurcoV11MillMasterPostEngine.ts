@@ -143,6 +143,14 @@ export interface HurcoPostConfig {
    * dialed prove-out wants caution, not the L1..L5 aggressiveness scale).
    */
   prove_out?: HurcoProveOutConfig;
+  /**
+   * U-PPGH10: emit a structured setup_sheet alongside the G-code. Default
+   * true. Setup sheets are consumed by the JM Die operator dashboard, the
+   * tool-crib pre-stage workflow, and the ERP traveler bridge. Set false
+   * when the caller wants only the G-code stream (lighter payload, batch
+   * post runs that don't ship to the floor).
+   */
+  emit_setup_sheet?: boolean;
 }
 
 /**
@@ -201,6 +209,45 @@ export interface MillOperation {
   };
 }
 
+/**
+ * U-PPGH10: structured setup-sheet payload. The operator dashboard, tool-crib
+ * pre-stage workflow, and ERP traveler bridge all consume this shape. Tools
+ * are deduplicated and sorted ascending by `number` so the kit-up worklist
+ * is stable across re-runs of the same job. Operations are emitted in the
+ * order they appear in the program with 1-based sequence numbers.
+ *
+ * `coating` and `stickout_mm` are populated only when the structured-tool
+ * API supplies them (forthcoming U-PPGH11). Until then the flat MillOperation
+ * fields populate `number` and `diameter_mm`; the optional fields stay
+ * undefined and round-trip cleanly through JSON.
+ */
+export interface SetupSheetTool {
+  number: number;
+  diameter_mm: number;
+  flutes: number;
+  description?: string;
+  coating?: string;
+  stickout_mm?: number;
+}
+
+export interface SetupSheetOp {
+  sequence: number;          // 1-based
+  type: MillOperation["operation_type"];
+  tool_number: number;
+  spindle_rpm: number;
+  feed_mm_min: number;
+  axial_depth_mm: number;
+}
+
+export interface SetupSheet {
+  machine: "Hurco VMX24";
+  controller: "WinMax V11";
+  units: "metric" | "inch";
+  program_number: number;
+  tools: SetupSheetTool[];
+  operations: SetupSheetOp[];
+}
+
 export interface HurcoPostOutput {
   gcode: string[];
   program_number: number;
@@ -208,6 +255,8 @@ export interface HurcoPostOutput {
   estimated_cycle_min: number;
   tools_used: number[];
   warnings: string[];
+  /** U-PPGH10: present unless cfg.emit_setup_sheet === false. */
+  setup_sheet?: SetupSheet;
   physics_checks: Array<{
     line: number;
     check: string;
@@ -760,6 +809,46 @@ export class HurcoV11MillMasterPostEngine {
     gcode.push("M30 (PROGRAM END)");
     gcode.push("%");
 
+    // U-PPGH10: build the structured setup-sheet payload. Defaults ON; the
+    // caller opts out via cfg.emit_setup_sheet === false (strict equality so
+    // an undefined config still emits — backward compatible). Tools are
+    // deduplicated by number then sorted ascending for stable kit-up lists;
+    // operations carry 1-based sequence numbers in source order.
+    const emitSetupSheet = cfg.emit_setup_sheet !== false;
+    let setupSheet: SetupSheet | undefined;
+    if (emitSetupSheet) {
+      const toolByNumber = new Map<number, SetupSheetTool>();
+      for (const op of operations) {
+        if (!toolByNumber.has(op.tool_number)) {
+          toolByNumber.set(op.tool_number, {
+            number: op.tool_number,
+            diameter_mm: op.tool_diameter_mm,
+            flutes: op.tool_flutes,
+            description: op.tool_description,
+          });
+        }
+      }
+      const sortedTools = Array.from(toolByNumber.values()).sort(
+        (a, b) => a.number - b.number,
+      );
+      const sheetOps: SetupSheetOp[] = operations.map((op, idx) => ({
+        sequence: idx + 1,
+        type: op.operation_type,
+        tool_number: op.tool_number,
+        spindle_rpm: op.spindle_rpm,
+        feed_mm_min: op.feed_mm_min,
+        axial_depth_mm: op.axial_depth_mm,
+      }));
+      setupSheet = {
+        machine: "Hurco VMX24",
+        controller: "WinMax V11",
+        units: cfg.units ?? "metric",
+        program_number: cfg.program_number,
+        tools: sortedTools,
+        operations: sheetOps,
+      };
+    }
+
     return {
       gcode,
       program_number: cfg.program_number,
@@ -772,7 +861,8 @@ export class HurcoV11MillMasterPostEngine {
       feed_optimizations: feedOptimizations,
       prove_out_mode: proveOutEntry !== null,
       physics_checks: physicsChecks,
-      tribal_tips_applied: tribalTipsApplied
+      tribal_tips_applied: tribalTipsApplied,
+      setup_sheet: setupSheet,
     };
   }
 
@@ -795,7 +885,7 @@ export class HurcoV11MillMasterPostEngine {
     // G54.1 P<n>. Emitting G12 (the literal numeric offset) for value 12
     // would parse-error on V11 — V11 has no G12. WinMax docs map P1..P48
     // (some configs to P99) for the extended block.
-    const wo = cfg.work_offset;
+    const wo = cfg.work_offset ?? 54;
     const wcsLine =
       wo >= 54 && wo <= 59
         ? `G${wo} (WORK OFFSET)`
