@@ -66,6 +66,27 @@
  * process persistence is delegated to k8s ConfigMap (registry seed) +
  * Prometheus (metric history) — out of scope for this engine.
  *
+ * Dispatcher wiring rationale (per CLAUDE.md ENGINE WIRING):
+ *   This engine is wired exclusively through `prism_cam` (27 cam_serve_*
+ *   actions). It is intentionally NOT wired through vendor-specialized
+ *   dispatchers (mastercam, hypermill, fusion360, etc.) because the
+ *   engine is vendor-AGNOSTIC infrastructure: it routes between MODEL
+ *   backends (Ollama, Triton, vLLM, NIM), not between CAM systems. CAM
+ *   systems appear only as filter dimensions on registered models.
+ *
+ *   It is also intentionally NOT wired through `prism_intelligence` /
+ *   `prism_ai`. The CAM AGI arc (U-CAM118 CAMReasoningChainEngine,
+ *   U-CAM119 CAMConfidenceCalibrationEngine, U-CAM121
+ *   CAMTransferLearningEngine) established the precedent that CAM-arc
+ *   infrastructure wires only through `prism_cam`. AGI-arc callers
+ *   reach this engine via `prism_cam:cam_serve_*` after their own
+ *   reasoning/calibration/transfer step.
+ *
+ *   If a future re-scoping turns this engine into generic AI-serving
+ *   infrastructure (decoupled from the CAM arc), add a forwarded-actions
+ *   block in intelligenceDispatcher.ts following the existing
+ *   *_FWD pattern.
+ *
  * References:
  *   - Hoeffding, W. (1963) "Probability Inequalities for Sums of Bounded
  *     Random Variables" J. Am. Stat. Assoc. 58, 13-30.
@@ -242,6 +263,21 @@ const MAX_PENDING_CONFIRMATIONS = 256;
 const MAX_BUCKETS = 1000;
 const ALPHA_HOEFFDING = 0.05;
 
+/**
+ * z-score for a two-sided 95% confidence interval on the standard normal.
+ * Wilson, E.B. (1927) "Probable Inference, the Law of Succession, and
+ * Statistical Inference" J. Am. Stat. Assoc. 22, 209-212.
+ */
+const Z_95 = 1.96;
+
+/**
+ * FNV-1a 32-bit hash constants.
+ * Fowler, G., Noll, L.C., Vo, P. (1991) "FNV Hash" — IETF draft
+ * draft-eastlake-fnv-17, table 5. Both values are fixed by the spec.
+ */
+const FNV_OFFSET_BASIS_32 = 0x811c9dc5;
+const FNV_PRIME_32 = 0x01000193;
+
 const DEFAULT_POLICY: Omit<RoutingPolicy, "cam_system" | "task" | "kind"> = {
   epsilon: 0.05,
   max_error_rate: 0.10,
@@ -261,13 +297,13 @@ const DEFAULT_MAX_BATCH_WAIT_MS = 25;
 // MATH
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** FNV-1a 32-bit hash. Pure, deterministic, no allocation per char. */
+/** FNV-1a 32-bit hash. Pure, deterministic. Uses Math.imul for 32-bit
+ * signed multiplication; result re-cast to unsigned via `>>> 0`. */
 function fnv1a32(s: string): number {
-  let h = 0x811c9dc5;
+  let h = FNV_OFFSET_BASIS_32;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
-    // h * 16777619, mod 2^32
-    h = (h + ((h << 1) >>> 0) + ((h << 4) >>> 0) + ((h << 7) >>> 0) + ((h << 8) >>> 0) + ((h << 24) >>> 0)) >>> 0;
+    h = Math.imul(h, FNV_PRIME_32) >>> 0;
   }
   return h >>> 0;
 }
@@ -276,14 +312,14 @@ function hashBucket(key: string, max = MAX_BUCKETS): number {
   return fnv1a32(key) % max;
 }
 
-/** Wilson score 95% lower confidence bound on a Bernoulli success rate. */
+/** Wilson score 95% lower confidence bound on a Bernoulli success rate.
+ *  Uses Z_95 from the constants block above. */
 function wilsonLower95(successes: number, n: number): number {
   if (n <= 0) return 0;
-  const z = 1.96;
   const phat = successes / n;
-  const denom = 1 + (z * z) / n;
-  const center = phat + (z * z) / (2 * n);
-  const margin = z * Math.sqrt((phat * (1 - phat) + (z * z) / (4 * n)) / n);
+  const denom = 1 + (Z_95 * Z_95) / n;
+  const center = phat + (Z_95 * Z_95) / (2 * n);
+  const margin = Z_95 * Math.sqrt((phat * (1 - phat) + (Z_95 * Z_95) / (4 * n)) / n);
   return Math.max(0, (center - margin) / denom);
 }
 
