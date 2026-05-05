@@ -2747,7 +2747,14 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-05T23:45:00Z",
+          "completed_by": "claude-1f96b0f4",
+          "commits": [
+            "9fc1ef3fe"
+          ],
+          "notes": "VaultBacklinkEngine — pure-keyword IDF-weighted Jaccard scoring (no embeddings dep), deterministic, offline-safe. Public API: findBacklinksForChunk · renderBacklinksMarkdown · parseDigest · tokenize. 3 new dispatcher actions on prism_knowledge (wiki_backlink_for_chunk, wiki_backlink_render, wiki_backlink_parse_digest). Driver: scripts/auto-backlink-vault.mjs walks knowledge/ingested/, idempotently rewrites each .md with a '## Related PRISM' section. Length-normalized scoring + NaN/Inf filtering + tie-break determinism. 29 engine tests + 8 new dispatcher tests = +37 tests. Full KIP suite now 160/160. Zero new tsc errors. Used semantic similarity over keyword overlap rather than vector search (Qdrant cold-start) per the milestone's intent — embeddings can be swapped in later as P14-U04+."
         },
         {
           "id": "P14-U04",
