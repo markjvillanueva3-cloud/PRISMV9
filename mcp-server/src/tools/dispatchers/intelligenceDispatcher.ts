@@ -184,6 +184,11 @@ const ACTIONS = [
   // ===== ConsensusDriftAlertLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-ALERT-LOG =====
   "consensus_drift_alert_history",  // Read-only: tail of drift alert ledger with filtering
   "consensus_drift_alert_stats",    // Read-only: aggregate stats over alert ledger
+  // ===== ConsensusDriftAutoProbeEngine (4) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-AUTO-PROBE-WIRE =====
+  "consensus_drift_auto_probe_plan",   // Read-only: plan probes from alert ledger + cooldown state
+  "consensus_drift_auto_probe_mark",   // Mutating: persist that probes were issued
+  "consensus_drift_auto_probe_prune",  // Mutating: drop stale probe-issued entries
+  "consensus_drift_auto_probe_load",   // Read-only: read the probe-issued state file
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -897,6 +902,59 @@ export function registerIntelligenceDispatcher(server: any): void {
           });
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, stats }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-AUTO-PROBE-WIRE:
+        // surface the probe planner + state-file ops as 4 dispatcher
+        // actions. _plan + _load are read-only; _mark + _prune persist
+        // to the issued-probe state file via atomic tmp+rename. The
+        // cron CLI (consensus-credit-cron.mjs) is the intended caller
+        // when --snapshot-dir is set, but the route is also useful for
+        // ad-hoc inspection from any CLI with prism MCP wired.
+        // ============================================================
+        if (action === "consensus_drift_auto_probe_plan") {
+          const { consensusDriftAutoProbeEngine } = await import("../../engines/ConsensusDriftAutoProbeEngine.js");
+          const result = consensusDriftAutoProbeEngine.planProbes({
+            alertLogPath: params.alertLogPath as string | undefined,
+            stateFilePath: params.stateFilePath as string | undefined,
+            recencyMs: params.recencyMs as number | undefined,
+            cooldownMs: params.cooldownMs as number | undefined,
+            maxProbes: params.maxProbes as number | undefined,
+            severityFloor: params.severityFloor as "moderate" | "severe" | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, result }) }],
+          };
+        }
+        if (action === "consensus_drift_auto_probe_mark") {
+          const { consensusDriftAutoProbeEngine } = await import("../../engines/ConsensusDriftAutoProbeEngine.js");
+          const probes = Array.isArray(params.probes) ? params.probes : [];
+          const result = consensusDriftAutoProbeEngine.markProbed({
+            stateFilePath: params.stateFilePath as string | undefined,
+            probes: probes as never,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: result.ok, result }) }],
+          };
+        }
+        if (action === "consensus_drift_auto_probe_prune") {
+          const { consensusDriftAutoProbeEngine } = await import("../../engines/ConsensusDriftAutoProbeEngine.js");
+          const result = consensusDriftAutoProbeEngine.pruneProbedRecord({
+            stateFilePath: params.stateFilePath as string | undefined,
+            olderThanMs: params.olderThanMs as number | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: result.ok, result }) }],
+          };
+        }
+        if (action === "consensus_drift_auto_probe_load") {
+          const { consensusDriftAutoProbeEngine } = await import("../../engines/ConsensusDriftAutoProbeEngine.js");
+          const record = consensusDriftAutoProbeEngine.loadProbedRecord(
+            params.stateFilePath as string | undefined,
+          );
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, record }) }],
           };
         }
 

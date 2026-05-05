@@ -544,6 +544,43 @@ const consensus_drift_alert_stats = z.object({
   sinceTs: optStr,
 }).passthrough();
 
+// ConsensusDriftAutoProbeEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-AUTO-PROBE-WIRE
+// Plan + persist drift-driven verification probes. Plan is read-only;
+// mark/prune mutate the issued-probe state file (atomic tmp+rename).
+const driftProbeSeverity = z.enum(["moderate", "severe"]);
+const driftProbe = z.object({
+  vendor: z.string(),
+  taskType: z.string(),
+  severity: driftProbeSeverity,
+  delta: z.number(),
+  alertTs: z.string(),
+  priority: z.number(),
+  reason: z.enum(["drift-severe", "drift-moderate"]),
+}).passthrough();
+
+const consensus_drift_auto_probe_plan = z.object({
+  alertLogPath: optStr,
+  stateFilePath: optStr,
+  recencyMs: z.number().int().nonnegative().optional(),
+  cooldownMs: z.number().int().nonnegative().optional(),
+  maxProbes: z.number().int().nonnegative().optional(),
+  severityFloor: driftProbeSeverity.optional(),
+}).passthrough();
+
+const consensus_drift_auto_probe_mark = z.object({
+  stateFilePath: optStr,
+  probes: z.array(driftProbe),
+}).passthrough();
+
+const consensus_drift_auto_probe_prune = z.object({
+  stateFilePath: optStr,
+  olderThanMs: z.number().int().nonnegative().optional(),
+}).passthrough();
+
+const consensus_drift_auto_probe_load = z.object({
+  stateFilePath: optStr,
+}).passthrough();
+
 // ConsensusDriftDetectorEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
 // Compare two perf-state snapshots to detect EMA regressions per (vendor, taskType).
 const consensus_drift_detect = z.object({
@@ -649,4 +686,9 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   // ConsensusDriftAlertLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-ALERT-LOG
   consensus_drift_alert_history,
   consensus_drift_alert_stats,
+  // ConsensusDriftAutoProbeEngine (4) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-AUTO-PROBE-WIRE
+  consensus_drift_auto_probe_plan,
+  consensus_drift_auto_probe_mark,
+  consensus_drift_auto_probe_prune,
+  consensus_drift_auto_probe_load,
 };
