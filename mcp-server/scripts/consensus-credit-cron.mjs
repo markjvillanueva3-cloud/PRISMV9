@@ -33,18 +33,26 @@
  */
 
 // Engine load: prefer compiled dist, fall back to src/.ts under tsx.
-let creditEngine, runLogEngine;
+let creditEngine, runLogEngine, snapshotEngine, driftEngine;
 try {
   ({ consensusNeuralCreditAssignmentEngine: creditEngine } =
     await import("../dist/engines/ConsensusNeuralCreditAssignmentEngine.js"));
   ({ consensusCreditRunLogEngine: runLogEngine } =
     await import("../dist/engines/ConsensusCreditRunLogEngine.js"));
+  ({ consensusPerfSnapshotEngine: snapshotEngine } =
+    await import("../dist/engines/ConsensusPerfSnapshotEngine.js"));
+  ({ consensusDriftDetectorEngine: driftEngine } =
+    await import("../dist/engines/ConsensusDriftDetectorEngine.js"));
 } catch {
   try {
     ({ consensusNeuralCreditAssignmentEngine: creditEngine } =
       await import("../src/engines/ConsensusNeuralCreditAssignmentEngine.js"));
     ({ consensusCreditRunLogEngine: runLogEngine } =
       await import("../src/engines/ConsensusCreditRunLogEngine.js"));
+    ({ consensusPerfSnapshotEngine: snapshotEngine } =
+      await import("../src/engines/ConsensusPerfSnapshotEngine.js"));
+    ({ consensusDriftDetectorEngine: driftEngine } =
+      await import("../src/engines/ConsensusDriftDetectorEngine.js"));
   } catch (e) {
     console.error(
       "Failed to load consensus credit engines.\n" +
@@ -69,6 +77,10 @@ function parseArgs(argv) {
     perfStatePath: undefined,
     logPath: undefined,
     trigger: "cron",
+    snapshotDir: undefined,
+    snapshotKeep: undefined,
+    driftEnabled: undefined, // tri-state: true / false / undefined (auto: enabled iff snapshotDir set)
+    driftMinSpanMs: undefined,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -83,6 +95,11 @@ function parseArgs(argv) {
       case "--perf-state":  opts.perfStatePath = next(); break;
       case "--log":         opts.logPath = next(); break;
       case "--trigger":     opts.trigger = next(); break;
+      case "--snapshot-dir":     opts.snapshotDir = next(); break;
+      case "--snapshot-keep":    opts.snapshotKeep = parseIntOrThrow(next(), "--snapshot-keep"); break;
+      case "--drift":            opts.driftEnabled = true; break;
+      case "--no-drift":         opts.driftEnabled = false; break;
+      case "--drift-min-span-ms":opts.driftMinSpanMs = parseIntOrThrow(next(), "--drift-min-span-ms"); break;
       case "-h":
       case "--help":
         printHelp();
@@ -122,6 +139,11 @@ Options:
   --perf-state <path>   Override perf state path
   --log <path>          Override run log path
   --trigger <name>      Tag the run-log entry's trigger field (default "cron")
+  --snapshot-dir <path> Capture pre+post perf-state snapshots in this directory
+  --snapshot-keep <N>   Auto-prune to N most-recent snapshots after run
+  --drift               Force drift check between pre+post snapshots (default: on iff --snapshot-dir set)
+  --no-drift            Skip drift check even if --snapshot-dir set
+  --drift-min-span-ms <N>  Min ms between before/after for drift comparison (default 0)
   -h, --help            Show this help
 
 Exit codes:
@@ -140,6 +162,19 @@ const startedAt = Date.now();
 const before = creditEngine.loadCursor(opts.cursorPath);
 const beforeOffset = before.last_offset_bytes ?? 0;
 
+// ---- pre-run snapshot (if enabled) ----
+// Capture BEFORE applying credit so the pre+post pair shows the
+// per-vendor EMA delta produced by THIS run. Snapshots also serve as
+// a baseline for the drift detector across schedule windows.
+let preSnapshot = null;
+if (opts.snapshotDir && !opts.dryRun) {
+  preSnapshot = snapshotEngine.captureSnapshot({
+    perfStatePath: opts.perfStatePath,
+    snapshotDir: opts.snapshotDir,
+    label: "pre-cron",
+  });
+}
+
 const result = creditEngine.applyFromFeed({
   feedPath: opts.feedPath,
   cursorPath: opts.cursorPath,
@@ -150,6 +185,44 @@ const result = creditEngine.applyFromFeed({
 
 const durationMs = Date.now() - startedAt;
 const cursorAdvance = Math.max(0, (result.cursor?.last_offset_bytes ?? 0) - beforeOffset);
+
+// ---- post-run snapshot + drift check (if enabled) ----
+let postSnapshot = null;
+let driftReport = null;
+let actionableDrift = null;
+if (opts.snapshotDir && !opts.dryRun) {
+  postSnapshot = snapshotEngine.captureSnapshot({
+    perfStatePath: opts.perfStatePath,
+    snapshotDir: opts.snapshotDir,
+    label: "post-cron",
+  });
+
+  // Drift detection defaults ON when --snapshot-dir is set; --no-drift
+  // explicitly disables. Without a pre-snapshot from this run, fall
+  // back to the most-recent pair on disk.
+  const driftEnabled = opts.driftEnabled ?? true;
+  if (driftEnabled) {
+    const pair = snapshotEngine.getLatestPair({
+      snapshotDir: opts.snapshotDir,
+      minSpanMs: opts.driftMinSpanMs ?? 0,
+    });
+    if (pair.ok && pair.before && pair.after) {
+      driftReport = driftEngine.compare(pair.before.state, pair.after.state, {
+        beforeAt: pair.before.ts,
+        afterAt: pair.after.ts,
+      });
+      actionableDrift = driftEngine.hasActionableDrift(driftReport);
+    }
+  }
+
+  // Optional retention cap.
+  if (opts.snapshotKeep !== undefined) {
+    snapshotEngine.pruneSnapshots({
+      snapshotDir: opts.snapshotDir,
+      keepLast: opts.snapshotKeep,
+    });
+  }
+}
 
 // Map perVendor totals → simple {vendor: observation_count} for log compactness.
 const perVendor = {};
@@ -185,15 +258,27 @@ if (opts.verbose) {
     durationMs,
     dryRun: opts.dryRun,
     error: result.error,
+    snapshot: opts.snapshotDir ? {
+      preSnapshotPath: preSnapshot?.snapshotPath ?? null,
+      postSnapshotPath: postSnapshot?.snapshotPath ?? null,
+    } : null,
+    drift: driftReport ? {
+      actionable: actionableDrift,
+      counts: driftReport.counts,
+      events: driftReport.events,
+    } : null,
   }, null, 2) + "\n");
-} else if (!opts.quiet || !result.ok) {
-  // One-line summary for cron logs.
+} else if (!opts.quiet || !result.ok || actionableDrift) {
+  // One-line summary for cron logs. Append drift summary when actionable.
   const tag = opts.dryRun ? "[dry-run]" : "[run]";
   const status = result.ok ? "ok" : `FAIL (${result.error ?? "unknown"})`;
-  process.stdout.write(
-    `${tag} status=${status} processed=${result.processed} skipped=${result.skipped} ` +
-    `cursorAdvance=${cursorAdvance} duration=${durationMs}ms\n`,
-  );
+  let line = `${tag} status=${status} processed=${result.processed} skipped=${result.skipped} ` +
+    `cursorAdvance=${cursorAdvance} duration=${durationMs}ms`;
+  if (driftReport) {
+    const c = driftReport.counts;
+    line += ` drift=${actionableDrift ? "ACTIONABLE" : "ok"}(severe=${c.severe},mod=${c.moderate},minor=${c.minor})`;
+  }
+  process.stdout.write(line + "\n");
 }
 
 process.exit(result.ok ? 0 : 2);
