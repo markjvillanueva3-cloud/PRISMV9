@@ -73,6 +73,19 @@ import {
 } from "./AdvancedPostProcessorEngine.js";
 
 /**
+ * U-PPGOH04: maximum tool L:D (stickout / diameter) ratio before the
+ * deflection check fails. 4× is a Sandvik Coromant general-milling rule
+ * of thumb for solid carbide endmills — above this, deflection scales
+ * with L³ and chatter risk multiplies. The check is opt-in (only emits
+ * when the structured `op.tool.stickout_mm` is supplied — flat-field
+ * callers stay backward compatible because they don't carry stickout).
+ * Mirrors HurcoV11 STICKOUT_RATIO_LIMIT = 4 (same rule of thumb, no
+ * machine-specific variance — the constant is duplicated to keep the
+ * engines independent rather than introducing a cross-engine import).
+ */
+export const STICKOUT_RATIO_LIMIT = 4;
+
+/**
  * PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring — opt-in AdvancedPostProcessor pass.
  * Controller='okuma' table row carries OSP-correct codes (G08 P1, G06.2 NURBS,
  * G43.4 H#1 RTCP). multi_axis force-skipped on P300 (3-axis MB-V family).
@@ -1194,6 +1207,24 @@ export class OkumaOSPMillMasterPostEngine {
 
     // Reference Taylor for traceability — surfaces in source_constants
     void CANONICAL_TAYLOR[op.material_iso];
+
+    // U-PPGOH04: opt-in stickout deflection (L:D) check. The structured
+    // `op.tool.stickout_mm` field is the only source — flat-field callers
+    // don't carry stickout and skip this gate (backward compat). Above the
+    // STICKOUT_RATIO_LIMIT (4×D) ratio, cantilever deflection scales with
+    // L³ and chatter risk multiplies. The check FAILS rather than throws
+    // so downstream telemetry can flag the run without stopping a
+    // deliberately long-reach setup the operator has signed off.
+    if (op.tool?.stickout_mm !== undefined) {
+      const ratio = op.tool.stickout_mm / op.tool_diameter_mm;
+      checks.push({
+        line: startLine,
+        check: `Tool stickout ratio ${ratio.toFixed(2)}xD (stickout=${op.tool.stickout_mm}mm / D=${op.tool_diameter_mm}mm) vs limit ${STICKOUT_RATIO_LIMIT}xD`,
+        passed: ratio <= STICKOUT_RATIO_LIMIT,
+        value: ratio,
+        limit: STICKOUT_RATIO_LIMIT,
+      });
+    }
 
     return checks;
   }

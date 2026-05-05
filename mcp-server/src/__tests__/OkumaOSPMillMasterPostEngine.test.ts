@@ -765,3 +765,83 @@ describe("OkumaOSPMill — op.tool structured shadowing (U-PPGOH03)", () => {
     ).toThrow(/structured tool\.number=6 does not match flat tool_number=5/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// U-PPGOH04: stickout deflection physics check
+// ---------------------------------------------------------------------------
+
+const STICKOUT_PROGRAM_BASE = 9200;
+const STICKOUT_TOOL_NUM = 1;
+const STICKOUT_DIA_6MM = 6;
+const STICKOUT_FLUTES_3 = 3;
+const STICKOUT_FAIL_MM = 30;            // 30/6 = 5x → fails (limit 4x)
+const STICKOUT_PASS_MM = 18;            // 18/6 = 3x → passes (≤ 4x)
+const STICKOUT_FAIL_RATIO = 5;
+const STICKOUT_LIMIT_RATIO = 4;
+
+describe("OkumaOSPMill — stickout deflection check (U-PPGOH04)", () => {
+  it("appears only when op.tool.stickout_mm provided; fails when ratio > 4×D", () => {
+    const tool: MillTool = {
+      number: STICKOUT_TOOL_NUM,
+      diameter_mm: STICKOUT_DIA_6MM,
+      flutes: STICKOUT_FLUTES_3,
+      stickout_mm: STICKOUT_FAIL_MM,
+    };
+    const withStickout = okumaOSPMillMasterPostEngine.generateProgram(
+      [makeOp({ tool, tool_diameter_mm: STICKOUT_DIA_6MM, tool_flutes: STICKOUT_FLUTES_3 })],
+      { program_number: STICKOUT_PROGRAM_BASE + 1 },
+    );
+    const stick = findCheck(withStickout.physics_checks, c => /stickout/.test(c.check));
+    expect(stick.passed).toBe(false);
+    expect(stick.value).toBe(STICKOUT_FAIL_RATIO);
+    expect(stick.limit).toBe(STICKOUT_LIMIT_RATIO);
+  });
+
+  it("passes when stickout ratio ≤ 4×D (long-reach but within deflection envelope)", () => {
+    const tool: MillTool = {
+      number: STICKOUT_TOOL_NUM,
+      diameter_mm: STICKOUT_DIA_6MM,
+      flutes: STICKOUT_FLUTES_3,
+      stickout_mm: STICKOUT_PASS_MM,
+    };
+    const result = okumaOSPMillMasterPostEngine.generateProgram(
+      [makeOp({ tool, tool_diameter_mm: STICKOUT_DIA_6MM, tool_flutes: STICKOUT_FLUTES_3 })],
+      { program_number: STICKOUT_PROGRAM_BASE + 2 },
+    );
+    const stick = findCheck(result.physics_checks, c => /stickout/.test(c.check));
+    expect(stick.passed).toBe(true);
+    expect(stick.value).toBe(STICKOUT_PASS_MM / STICKOUT_DIA_6MM);
+  });
+
+  it("flat-field caller (no op.tool) gets no stickout check entry — backward compat", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram(
+      [makeOp({ tool_diameter_mm: STICKOUT_DIA_6MM, tool_flutes: STICKOUT_FLUTES_3 })],
+      { program_number: STICKOUT_PROGRAM_BASE + 3 },
+    );
+    const stickAbsent = result.physics_checks.filter(c => /stickout/.test(c.check));
+    expect(stickAbsent.length).toBe(0);
+  });
+
+  it("structured op.tool without stickout_mm also produces no stickout check (opt-in only)", () => {
+    const tool: MillTool = {
+      number: STICKOUT_TOOL_NUM,
+      diameter_mm: STICKOUT_DIA_6MM,
+      flutes: STICKOUT_FLUTES_3,
+      // no stickout_mm
+    };
+    const result = okumaOSPMillMasterPostEngine.generateProgram(
+      [makeOp({ tool, tool_diameter_mm: STICKOUT_DIA_6MM, tool_flutes: STICKOUT_FLUTES_3 })],
+      { program_number: STICKOUT_PROGRAM_BASE + 4 },
+    );
+    const stickAbsent = result.physics_checks.filter(c => /stickout/.test(c.check));
+    expect(stickAbsent.length).toBe(0);
+  });
+});
+
+function findCheck<T extends { check: string }>(arr: T[], pred: (c: T) => boolean): T {
+  const found = arr.find(pred);
+  if (found === undefined) {
+    throw new Error(`findCheck: no entry matching predicate in ${arr.length} checks`);
+  }
+  return found;
+}
