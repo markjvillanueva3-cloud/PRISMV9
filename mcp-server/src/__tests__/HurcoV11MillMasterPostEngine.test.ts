@@ -721,17 +721,64 @@ describe("HurcoV11 — material constant overrides", () => {
 });
 
 describe("HurcoV11 — UltiMotion & metadata", () => {
-  it("UltiMotion G187 P3 emitted by default", () => {
+  // U-PPGH06: Hurco V11 WinMax has NO inline UltiMotion G-code. G187 is Haas
+  // dialect; emitting it on a V11 controller would parse-error. Engine emits
+  // a comment annotation only — UltiMotion is a control-panel setting the
+  // operator must enable in the WinMax UI. Tests pin the dialect-correct
+  // behavior and prevent regression to G187.
+  const EXPECTED_ULTIMOTION_COMMENT =
+    "(HURCO V11 UltiMotion: enable in WinMax UI - Settings → Performance → UltiMotion ON, Smoothing Tolerance ~0.005mm for finish)";
+  const EXPECTED_ULTIMOTION_TIP =
+    "UltiMotion intent recorded as comment annotation (Hurco V11 has no inline UltiMotion G-code)";
+
+  it("UltiMotion comment annotation emitted by default with exact text (no inline G-code on Hurco V11)", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
-    const um = mustFind(result.gcode, l => /^G187/.test(l), "G187");
-    expect(um).toBe("G187 P3 (ULTIMOTION HIGH ACCURACY MODE)");
+    const um = mustFind(
+      result.gcode,
+      l => /UltiMotion/.test(l) && /WinMax UI/.test(l),
+      "UltiMotion comment annotation"
+    );
+    expect(um).toBe(EXPECTED_ULTIMOTION_COMMENT);
   });
 
-  it("use_ultimotion: false suppresses G187 P3", () => {
+  it("never emits G187 G-code (G187 is Haas dialect; would parse-error on Hurco V11)", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
+    expect(linesMatching(result.gcode, /^G187\b/).length).toBe(0);
+  });
+
+  it("use_ultimotion: false suppresses UltiMotion comment annotation entirely", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
       use_ultimotion: false
     });
-    expect(linesMatching(result.gcode, /^G187/).length).toBe(0);
+    expect(linesMatching(result.gcode, /UltiMotion/).length).toBe(0);
+    expect(linesMatching(result.gcode, /^G187\b/).length).toBe(0);
+  });
+
+  it("explicit use_ultimotion: true emits exact comment, zero G187 lines", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
+      use_ultimotion: true
+    });
+    expect(linesMatching(result.gcode, /^G187\b/).length).toBe(0);
+    expect(linesMatching(result.gcode, /UltiMotion/)).toContain(EXPECTED_ULTIMOTION_COMMENT);
+  });
+
+  it("tribal_tips_applied records exact comment-annotation tip when use_ultimotion=true", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
+    expect(result.tribal_tips_applied).toContain(EXPECTED_ULTIMOTION_TIP);
+  });
+
+  it("tribal_tips_applied omits the comment-annotation tip when use_ultimotion=false (static op-matched tip may still appear as general guidance)", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
+      use_ultimotion: false
+    });
+    // The annotation tip is gated by use_ultimotion=true: must be 0 when false.
+    const annotationTips = result.tribal_tips_applied.filter(t =>
+      /comment annotation/.test(t) && /no inline UltiMotion/.test(t)
+    );
+    expect(annotationTips.length).toBe(0);
+    // The static op-matched tip (category=ultimotion) is general operator
+    // guidance about the WinMax control panel — independent of use_ultimotion.
+    // We do NOT assert on its presence here; it depends on op type matching.
   });
 
   it("tools_used array deduplicated and sorted ascending across multiple operations", () => {
