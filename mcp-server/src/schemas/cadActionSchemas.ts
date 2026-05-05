@@ -147,6 +147,57 @@ const cadRegenThresholdsSchema = z.object({
   set: z.record(z.number()).optional(),
 });
 
+// ── Print → Fusion 360 Bridge (U-CADC-FUS-PRINT-01) ─────────────────────────
+const printToFusion360Schema = z.object({
+  analysis: z.unknown().optional().describe("BlueprintAnalysis from BlueprintVisionOCREngine"),
+  profiles: z.array(z.unknown()).optional().describe("ExtractedProfile[] from blueprint vision"),
+  dimensions: z.array(z.unknown()).optional().describe("ExtractedDimension[] (used when no profiles)"),
+  partName: z.string().optional().describe("Part name override"),
+  part_name: z.string().optional(),
+  units: z.enum(["mm", "in"]).optional().describe("Unit system (default: title_block.units → mm)"),
+  outputDir: z.string().optional(),
+  output_dir: z.string().optional(),
+  targetVersion: z.enum(["2023", "2024", "2025"]).optional().describe("Fusion 360 version target"),
+  target_version: z.enum(["2023", "2024", "2025"]).optional(),
+  defaultDepth: z.number().optional().describe("Default extrusion depth in mm when no depth dim"),
+  default_depth: z.number().optional(),
+}).passthrough();
+
+const printToFusion360ValidateSchema = z.object({
+  analysis: z.unknown().optional(),
+  profiles: z.array(z.unknown()).optional(),
+  dimensions: z.array(z.unknown()).optional(),
+  defaultDepth: z.number().optional(),
+  default_depth: z.number().optional(),
+}).passthrough();
+
+const printToFusion360CapabilitiesSchema = z.object({}).passthrough();
+
+// ── Print → Mastercam / Inventor / SolidWorks / Esprit Bridges ──────────────
+const printToBridgeBaseSchema = z.object({
+  analysis: z.unknown().optional(),
+  profiles: z.array(z.unknown()).optional(),
+  dimensions: z.array(z.unknown()).optional(),
+  partName: z.string().optional(),
+  part_name: z.string().optional(),
+  units: z.enum(["mm", "in"]).optional(),
+  defaultDepth: z.number().optional(),
+  default_depth: z.number().optional(),
+}).passthrough();
+
+const printToCapabilitiesSchema = z.object({}).passthrough();
+
+// ── Esprit Code Generator (U-CADC-ESP-CODEGEN-01) ───────────────────────────
+const espritGenerateScriptSchema = z.object({
+  operations: z.array(z.unknown()).optional(),
+  projectName: z.string().optional(),
+  units: z.enum(["mm", "in"]).optional(),
+  outputDir: z.string().optional(),
+  targetVersion: z.enum(["2023", "2024", "2025"]).optional(),
+}).passthrough();
+
+const espritCapabilitiesSchema = z.object({}).passthrough();
+
 // ── CAD Trial-Error Learning Actions (U-CADC29) ───────────────────────────────
 const cadTrialIngestSchema = z.object({
   outcome: z.unknown().optional(),
@@ -353,6 +404,26 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   cad_regen_batch: cadRegenBatchSchema,
   cad_regen_compare: cadRegenCompareSchema,
   cad_regen_thresholds: cadRegenThresholdsSchema,
+  // Print → Fusion 360 Bridge (U-CADC-FUS-PRINT-01)
+  print_to_fusion360: printToFusion360Schema,
+  print_to_fusion360_validate: printToFusion360ValidateSchema,
+  print_to_fusion360_capabilities: printToFusion360CapabilitiesSchema,
+  // Print → Mastercam / Inventor / SolidWorks / Esprit Bridges
+  print_to_mastercam: printToBridgeBaseSchema,
+  print_to_mastercam_validate: printToBridgeBaseSchema,
+  print_to_mastercam_capabilities: printToCapabilitiesSchema,
+  print_to_inventor: printToBridgeBaseSchema,
+  print_to_inventor_validate: printToBridgeBaseSchema,
+  print_to_inventor_capabilities: printToCapabilitiesSchema,
+  print_to_solidworks: printToBridgeBaseSchema,
+  print_to_solidworks_validate: printToBridgeBaseSchema,
+  print_to_solidworks_capabilities: printToCapabilitiesSchema,
+  print_to_esprit: printToBridgeBaseSchema,
+  print_to_esprit_validate: printToBridgeBaseSchema,
+  print_to_esprit_capabilities: printToCapabilitiesSchema,
+  // Esprit Code Generator
+  esprit_generate_script: espritGenerateScriptSchema,
+  esprit_capabilities: espritCapabilitiesSchema,
   // CAD Trial-Error Learning (U-CADC29)
   cad_trial_ingest: cadTrialIngestSchema,
   cad_trial_patterns: cadTrialPatternsSchema,
