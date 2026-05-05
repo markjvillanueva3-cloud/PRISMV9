@@ -687,7 +687,12 @@ export class HurcoV11MillMasterPostEngine {
       physicsChecks.push(...checks);
       const failedChecks = checks.filter(c => !c.passed);
       if (failedChecks.length > 0) {
-        warnings.push(...failedChecks.map(c => `Line ${c.line}: ${c.check}`));
+        // U-PPGH09: prefix the operation index (1-based) so multi-op programs
+        // can surface which operation tripped the check. Operator reading the
+        // setup-sheet warnings list needs to know "Op 3 has the 50000 RPM
+        // overspeed", not just "Line 47".
+        const opNum = i + 1;
+        warnings.push(...failedChecks.map(c => `Op ${opNum} line ${c.line}: ${c.check}`));
       }
 
       // Tool change

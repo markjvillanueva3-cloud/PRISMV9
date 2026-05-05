@@ -824,6 +824,46 @@ describe("HurcoV11 — UltiMotion & metadata", () => {
     expect(rpmWarning).toContain("50000 RPM");
   });
 
+  // U-PPGH09 failure-mode regression guards: operation index must propagate
+  // correctly into every warning. Multi-op programs need the operator to
+  // know which op tripped which check — a bare "Line 47" can map to any
+  // op in a 10-op file. The 1-based op index (Op 1, Op 2, ...) matches the
+  // OPERATION header banner emitted at gcode line "(OPERATION N: ...)".
+  it("warnings prefix Op N tracks the offending operation in a multi-op program", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ spindle_rpm: 6000 }),                         // op 1 — clean
+      makeOp({ tool_number: 2, spindle_rpm: 50000 }),        // op 2 — RPM overspeed
+      makeOp({ tool_number: 3, spindle_rpm: 8000 }),         // op 3 — clean
+    ]);
+    const rpmWarning = mustFind(result.warnings, w => /Spindle.*50000/.test(w), "RPM warning");
+    expect(rpmWarning.startsWith("Op 2 line")).toBe(true);
+    expect(rpmWarning).not.toMatch(/^Op 1 /);
+    expect(rpmWarning).not.toMatch(/^Op 3 /);
+  });
+
+  it("warnings emit Op 1, Op 2 prefixes when both ops fail the same check", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ spindle_rpm: 50000 }),                        // op 1 — RPM overspeed
+      makeOp({ tool_number: 2, spindle_rpm: 60000 }),        // op 2 — RPM overspeed
+    ]);
+    const op1 = result.warnings.filter(w => /^Op 1 line/.test(w) && /Spindle/.test(w));
+    const op2 = result.warnings.filter(w => /^Op 2 line/.test(w) && /Spindle/.test(w));
+    expect(op1.length).toBe(1);
+    expect(op2.length).toBe(1);
+    expect(op1[0]).toContain("50000 RPM");
+    expect(op2[0]).toContain("60000 RPM");
+  });
+
+  it("warnings array NEVER emits the legacy bare 'Line N' prefix (regression guard)", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ spindle_rpm: 50000 }),
+    ]);
+    // Legacy format was `Line N: ...`. New format is `Op K line N: ...`.
+    // Any warning string that matches /^Line \d+:/ would prove a regression.
+    const legacy = result.warnings.filter(w => /^Line \d+:/.test(w));
+    expect(legacy.length).toBe(0);
+  });
+
   it("program_number propagates exactly from config to output and Onnnn header", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
       program_number: 8675
