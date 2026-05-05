@@ -1,9 +1,52 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Written:** 2026-05-04 13:00 UTC by claude-04c0e75c
+**Last updated:** 2026-05-05 ~08:10 UTC by claude-803437e0 (was 2026-05-04 13:00 by claude-04c0e75c)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
+
+---
+
+## 2026-05-05 SESSION (claude-803437e0) — U-PPGH04 LANDED
+
+**REPO HEALTH:** Earlier in this session `H:/prism/.git` had corrupt tree/blob objects (unreadable tree `c91078d8...`, blob `577dffe1...` for CAMAnalyzeEngine.test.ts, unreadable parent commit `fc960eeb...`). `git fetch --refetch origin` (exit 0, ~minutes) repopulated all missing objects; `git status` and commits now work. A stale `.git/index.lock` from 07:37 was also removed manually (user-approved). If a future session sees `unable to read tree` errors again, run `git fetch --refetch origin` first before any other recovery.
+
+**U-PPGH04 — code complete, tests green, awaiting repo recovery to commit:**
+
+Files staged (uncommitted):
+- `mcp-server/src/engines/HurcoV11MillMasterPostEngine.ts` — added optional `material?: { iso_group?, kc1_1?, mc? }` to `MillOperation` interface; `performPhysicsChecks` now resolves canonical-vs-override Kienzle constants with sanity bounds (`kc1_1 ∈ [100, 5000]`, `mc ∈ [0.10, 0.45]`) and throws on iso_group mismatch; cutting force check string now suffixes `(kc1_1=X mc=Y)` for traceability.
+- `mcp-server/src/__tests__/HurcoV11MillMasterPostEngine.test.ts` — added 5 new tests (kc1_1 floor/ceiling, mc range, iso_group mismatch, partial override). Was untracked in git index — `git add` blocked by tree corruption.
+
+Test results (2026-05-05 ~08:00):
+- `HurcoV11MillMasterPostEngine.test.ts -t "material constant overrides"` — **7/7 GREEN** (2 originally-failing + 5 new guard tests)
+- Full file: 38 pass / 28 fail (was 35/31 before my edit) — **net +3 fixes, zero regressions**
+- Sidecar integration suites (`HurcoV11SidecarIntegration`, `PostPhysicsSidecar.integration`, `verifyBlockAnnotations`, `PhysicsSidecarBuilderEngine`, `camDispatcher-PhysicsSidecar`) — **120/121 GREEN**, the 1 fail (`sealMasterPostOutput.test.ts` line 71 expected schema_version `1.1.0` got `1.2.0`) is a **pre-existing stale assertion** from before PPG-WIRE-MS6/U-PPGM16 bumped the WEDM schema; **not caused by U-PPGH04**.
+- `tsc --noEmit` clean (exit 0).
+
+Multi-model consensus: 2 specialist reviewers (physics-reviewer + test-review-agent) consulted in parallel; both APPROVE-WITH-CHANGES; their required guards (sanity bounds + iso_group mismatch error) are implemented.
+
+Commit message ready (paste verbatim once repo recovers):
+```
+[CAM-EXHAUST-MS0]/U-PPGH04: HurcoV11 material override + Kienzle source attribution
+
+- MillOperation gains optional material?:{iso_group?, kc1_1?, mc?} per-op override
+- performPhysicsChecks resolves canonical vs override with sanity bounds
+  (kc1_1 ∈ [100, 5000], mc ∈ [0.10, 0.45]) — guards against silent disable
+  of the Fc<=maxForce safety gate when caller passes underflow value
+- Cutting force check string now surfaces (kc1_1=X mc=Y) for traceability
+- Throws on iso_group mismatch between op.material_iso and op.material.iso_group
+- 5 new test cases (floor/ceiling/range/mismatch/partial override) — 7/7 GREEN
+- HurcoV11MillMasterPostEngine.test.ts: 35→38 passing, zero regressions
+- 120/121 GREEN across sidecar integration suites; remaining failure is a
+  pre-existing schema 1.1.0→1.2.0 drift in sealMasterPostOutput.test.ts
+  (separate unit, not U-PPGH04 scope)
+
+Multi-model consensus: physics-reviewer + test-review-agent both APPROVE-WITH-CHANGES
+```
+
+**Remaining HurcoV11 sync-path failures still open (28 tests):** `postSingle is not a function`, UltiMotion `G187 P3` default emission, `Op 1 line ... 50000 RPM` warning prefix, `physics_checks` count 4 vs 5 in getStats, structured tool/coating in setup_sheet — all candidates for U-PPGH03..U-PPGH05.
+
+---
 
 ---
 
