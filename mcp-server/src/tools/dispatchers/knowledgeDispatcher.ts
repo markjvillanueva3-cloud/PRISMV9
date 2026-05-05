@@ -178,6 +178,12 @@ const TRIBAL_ACTIVATION_ACTIONS = [
   "tribal_awareness",           // Self-awareness integration
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: Knowledge Ingestion Pipeline (KIP) — PDF→Qdrant batch worker. */
+const KIP_INGEST_ACTIONS = [
+  "wiki_ingest_pdf",            // Ingest one PDF: extract → chunk → embed → upsert under kind='wiki'
+  "wiki_ingest_dryrun",         // Same but skip Qdrant upsert (returns chunk count + chars)
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -199,6 +205,7 @@ const ACTIONS = [
   ...VIDEO_ACTIONS,
   ...FORMULA_ORCHESTRATOR_ACTIONS,
   ...TRIBAL_ACTIVATION_ACTIONS,
+  ...KIP_INGEST_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2118,6 +2125,35 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "tribal_awareness": {
             const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
             result = tribalKnowledgeActivationEngine.getSelfAwareness();
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: Knowledge Ingestion Pipeline ──
+          case "wiki_ingest_pdf":
+          case "wiki_ingest_dryrun": {
+            const { KnowledgeIngestEngine } = await import("../../engines/KnowledgeIngestEngine.js");
+            const { qdrantMemoryEngine } = await import("../../engines/QdrantMemoryEngine.js");
+            const { ensureQdrantEmbedder } = await import("../../engines/OllamaEmbedderFactory.js");
+            const pdfPath = params.pdf_path ?? params.pdfPath ?? params.path;
+            if (typeof pdfPath !== "string" || pdfPath.length === 0) {
+              throw new Error("wiki_ingest_pdf: pdf_path required");
+            }
+            const meta = {
+              source: params.source ?? params.source_id ?? pdfPath,
+              title: params.title,
+              vendor: params.vendor,
+              category: params.category,
+              tags: Array.isArray(params.tags) ? params.tags : undefined,
+            };
+            ensureQdrantEmbedder();
+            const engine = new KnowledgeIngestEngine({ memory: qdrantMemoryEngine });
+            const ingestResult = await engine.ingestPdf(pdfPath, meta, {
+              targetChars: params.target_chars,
+              overlapChars: params.overlap_chars,
+              maxPages: params.max_pages,
+              timeoutMs: params.timeout_ms,
+              dryRun: action === "wiki_ingest_dryrun" || params.dry_run === true,
+            });
+            result = ingestResult;
             break;
           }
         }

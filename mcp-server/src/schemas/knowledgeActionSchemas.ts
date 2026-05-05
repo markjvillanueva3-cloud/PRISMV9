@@ -19,6 +19,26 @@ const optStr = z.string().optional();
 const optNum = z.number().optional();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02 — wiki ingest (KIP)
+// ============================================================================
+
+const wiki_ingest_pdf = z.object({
+  pdf_path: z.string().min(1).describe("Absolute path to a PDF on disk"),
+  source: z.string().min(1).optional().describe("Stable id for the document; defaults to pdf_path"),
+  title: optStr.describe("Human-readable catalog/manual title"),
+  vendor: optStr.describe("Manufacturer/vendor tag (e.g. 'Iscar')"),
+  category: optStr.describe("Category tag (e.g. 'insert-catalog')"),
+  tags: z.array(z.string()).optional().describe("Free-form tags for retrieval filtering"),
+  target_chars: z.number().int().positive().optional().describe("Chunker target chars (default 1500)"),
+  overlap_chars: z.number().int().min(0).optional().describe("Chunker overlap chars (default 200)"),
+  max_pages: z.number().int().positive().optional().describe("Cap on PDF pages read"),
+  timeout_ms: z.number().int().positive().optional().describe("Per-PDF subprocess timeout"),
+  dry_run: z.boolean().optional().describe("If true, extract+chunk only — skip Qdrant upsert"),
+}).passthrough();
+
+const wiki_ingest_dryrun = wiki_ingest_pdf;
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1093,4 +1113,7 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   knowledge_atom_batch,
   knowledge_conflict_detect,
   knowledge_conflict_resolve_authority,
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: KIP ingestion
+  wiki_ingest_pdf,
+  wiki_ingest_dryrun,
 };
