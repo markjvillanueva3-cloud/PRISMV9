@@ -447,7 +447,38 @@ const assist_safety = z.object({
 }).passthrough();
 
 // ============================================================================
-// EXPORT MAP — 49 core actions
+// ConsensusNeuralCreditAssignmentEngine (3) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-DISPATCHER
+//
+// Online + batch wrappers for the consensus learning loop. The full
+// ConsensusResultLike shape is too rich to constrain with Zod here without
+// duplicating engine types — accept passthrough and let the engine validate.
+// ============================================================================
+
+const consensus_credit_apply_result = z.object({
+  // ConsensusResultLike — engine validates internals.
+  result: z.record(z.string(), z.unknown()),
+  taskType: z.string().min(1),
+  perfStatePath: optStr,
+  alpha: z.number().gt(0).lt(1).optional(),
+  persist: z.boolean().optional(),
+}).passthrough();
+
+const consensus_credit_apply_feed = z.object({
+  feedPath: optStr,
+  cursorPath: optStr,
+  perfStatePath: optStr,
+  alpha: z.number().gt(0).lt(1).optional(),
+  batchSize: z.number().int().positive().optional(),
+  persist: z.boolean().optional(),
+}).passthrough();
+
+const consensus_credit_status = z.object({
+  cursorPath: optStr,
+  perfStatePath: optStr,
+}).passthrough();
+
+// ============================================================================
+// EXPORT MAP — 52 core actions (49 + 3 from U-CREDIT-DISPATCHER)
 // ============================================================================
 
 export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
@@ -512,4 +543,8 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   assist_confidence,
   assist_mistakes,
   assist_safety,
+  // ConsensusNeuralCreditAssignmentEngine (3) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-DISPATCHER
+  consensus_credit_apply_result,
+  consensus_credit_apply_feed,
+  consensus_credit_status,
 };
