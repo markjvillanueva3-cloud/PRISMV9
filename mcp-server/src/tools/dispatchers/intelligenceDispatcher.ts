@@ -163,6 +163,10 @@ const ACTIONS = [
   "sa_jm_die_summary",           // SA: Get JM Die program summary
   "sa_full_awareness",           // SA: Get full drive awareness
   "sa_proactive_check",          // SA: Quick proactive reasoning check
+  // ===== ConsensusNeuralCreditAssignmentEngine (3) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-DISPATCHER =====
+  "consensus_credit_apply_result",  // Online: per-run credit assignment from a ConsensusResult
+  "consensus_credit_apply_feed",    // Batch: replay JSONL feed via cursor
+  "consensus_credit_status",        // Read-only: cursor + perf state snapshot for dashboards
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -663,6 +667,54 @@ export function registerIntelligenceDispatcher(server: any): void {
         // calls DiagnosticReasoningEngine directly: alarm-pattern matching +
         // Bayesian symptom update + repair-action plan + safety warnings.
         // ============================================================
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-DISPATCHER: Consensus Neural Credit Assignment
+        //
+        // Three actions exposing the engine's online + batch surface so
+        // backfill scripts, dashboards, and cron jobs can drive credit
+        // assignment outside the AIBridge auto-fire path.
+        //   consensus_credit_apply_result — online: per-run credit from
+        //     a ConsensusResult (mirrors the AIBridge call site)
+        //   consensus_credit_apply_feed   — batch: replay JSONL via cursor
+        //   consensus_credit_status       — read-only state snapshot
+        // ============================================================
+        if (action === "consensus_credit_apply_result") {
+          const { consensusNeuralCreditAssignmentEngine } = await import("../../engines/ConsensusNeuralCreditAssignmentEngine.js");
+          const out = consensusNeuralCreditAssignmentEngine.applyFromResult({
+            result: params.result as never,
+            taskType: params.taskType as string,
+            perfStatePath: params.perfStatePath as string | undefined,
+            alpha: params.alpha as number | undefined,
+            persist: params.persist as boolean | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
+          };
+        }
+        if (action === "consensus_credit_apply_feed") {
+          const { consensusNeuralCreditAssignmentEngine } = await import("../../engines/ConsensusNeuralCreditAssignmentEngine.js");
+          const out = consensusNeuralCreditAssignmentEngine.applyFromFeed({
+            feedPath: params.feedPath as string | undefined,
+            cursorPath: params.cursorPath as string | undefined,
+            perfStatePath: params.perfStatePath as string | undefined,
+            alpha: params.alpha as number | undefined,
+            batchSize: params.batchSize as number | undefined,
+            persist: params.persist as boolean | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
+          };
+        }
+        if (action === "consensus_credit_status") {
+          const { consensusNeuralCreditAssignmentEngine } = await import("../../engines/ConsensusNeuralCreditAssignmentEngine.js");
+          const { consensusModelPerformanceEngine } = await import("../../engines/ConsensusModelPerformanceEngine.js");
+          const cursor = consensusNeuralCreditAssignmentEngine.loadCursor(params.cursorPath as string | undefined);
+          const state = consensusModelPerformanceEngine.loadState((params.perfStatePath as string | undefined) ?? null);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, cursor, state }) }],
+          };
+        }
+
         if (action === "diagnose_failure") {
           const alarm = params.alarm as Record<string, unknown> | undefined;
           if (!alarm || typeof alarm !== "object") {
