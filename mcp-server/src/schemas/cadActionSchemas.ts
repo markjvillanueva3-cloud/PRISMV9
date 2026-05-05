@@ -215,6 +215,45 @@ const printToAllCadsSchema = z.object({
 
 const printToAllCadsTargetsSchema = z.object({}).passthrough();
 
+// ── Print → hyperCAD-S Analysis Bridge / Live Bridges (SW + Esprit) ─────────
+const printToHyperCADSAnalysisSchema = z.object({
+  analysis: z.unknown().optional(),
+  profiles: z.array(z.unknown()).optional(),
+  dimensions: z.array(z.unknown()).optional(),
+  partName: z.string().optional(),
+  part_name: z.string().optional(),
+  units: z.enum(["mm", "in"]).optional(),
+  outputDir: z.string().optional(),
+  output_dir: z.string().optional(),
+  targetVersion: z.enum(["2023", "2024", "2025"]).optional(),
+  target_version: z.enum(["2023", "2024", "2025"]).optional(),
+  defaultDepth: z.number().optional(),
+  default_depth: z.number().optional(),
+}).passthrough();
+
+const liveExecuteSchema = z.object({
+  script: z.union([z.string(), z.unknown()]).optional(),
+  config: z.object({
+    mode: z.enum(["http", "com", "mock"]),
+    endpoint: z.string().optional(),
+    timeoutMs: z.number().optional(),
+    comShimPath: z.string().optional(),
+  }).optional(),
+  mode: z.enum(["http", "com", "mock"]).optional(),
+}).passthrough();
+
+const liveValidateSchema = z.object({
+  config: z.object({
+    mode: z.enum(["http", "com", "mock"]),
+    endpoint: z.string().optional(),
+    timeoutMs: z.number().optional(),
+    comShimPath: z.string().optional(),
+  }).optional(),
+  mode: z.enum(["http", "com", "mock"]).optional(),
+}).passthrough();
+
+const liveModesSchema = z.object({}).passthrough();
+
 // ── CAD Trial-Error Learning Actions (U-CADC29) ───────────────────────────────
 const cadTrialIngestSchema = z.object({
   outcome: z.unknown().optional(),
@@ -445,6 +484,18 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   print_to_all_cads: printToAllCadsSchema,
   print_to_all_cads_validate: printToAllCadsSchema,
   print_to_all_cads_targets: printToAllCadsTargetsSchema,
+  // Print → hyperCAD-S Analysis Bridge
+  print_to_hypercads_analysis: printToHyperCADSAnalysisSchema,
+  print_to_hypercads_analysis_validate: printToHyperCADSAnalysisSchema,
+  print_to_hypercads_analysis_capabilities: liveModesSchema,
+  // SolidWorks Live Bridge
+  solidworks_live_execute: liveExecuteSchema,
+  solidworks_live_validate: liveValidateSchema,
+  solidworks_live_modes: liveModesSchema,
+  // Esprit Live Bridge
+  esprit_live_execute: liveExecuteSchema,
+  esprit_live_validate: liveValidateSchema,
+  esprit_live_modes: liveModesSchema,
   // CAD Trial-Error Learning (U-CADC29)
   cad_trial_ingest: cadTrialIngestSchema,
   cad_trial_patterns: cadTrialPatternsSchema,

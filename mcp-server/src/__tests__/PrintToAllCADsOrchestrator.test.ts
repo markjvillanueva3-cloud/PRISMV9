@@ -28,7 +28,7 @@ import type { ExtractedProfile } from "../engines/BlueprintVisionOCREngine.js";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const ALL_TARGET_COUNT = 5;
+const ALL_TARGET_COUNT = 6;
 const ORCH_VERSION = "1.0.0";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
@@ -67,9 +67,10 @@ describe("PrintToAllCADsOrchestrator — identity", () => {
     expect(printToAllCADsOrchestrator.version).toBe(ORCH_VERSION);
   });
 
-  it("supports exactly the 5 priority CAD targets in priority order", () => {
+  it("supports exactly the 6 priority CAD targets in priority order", () => {
     expect([...printToAllCADsOrchestrator.supportedTargets()]).toEqual([
       "fusion360",
+      "hypercads",
       "mastercam",
       "inventor",
       "solidworks",
@@ -128,9 +129,10 @@ describe("PrintToAllCADsOrchestrator — buildAllScripts() defaults to all 5 tar
     expect(out.summary.succeeded).toBe(ALL_TARGET_COUNT);
     expect(out.summary.failed).toBe(0);
     expect(out.results.length).toBe(ALL_TARGET_COUNT);
-    // Priority order preserved
+    // Priority order preserved (hypercads inserted after fusion360)
     expect(out.results.map((r) => r.target)).toEqual([
       "fusion360",
+      "hypercads",
       "mastercam",
       "inventor",
       "solidworks",

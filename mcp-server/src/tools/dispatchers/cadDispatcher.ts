@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any, _printToHyperCADSAnalysis: any, _swLive: any, _espritLive: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -62,6 +62,9 @@ async function getEngine(name: string): Promise<any> {
     case "printToEsprit": return _printToEsprit ??= (await import("../../engines/PrintToEspritBridge.js")).printToEspritBridge;
     case "espritGen": return _espritGen ??= (await import("../../engines/EspritCodeGeneratorEngine.js")).espritCodeGeneratorEngine;
     case "printToAllCads": return _printToAllCads ??= (await import("../../engines/PrintToAllCADsOrchestrator.js")).printToAllCADsOrchestrator;
+    case "printToHyperCADSAnalysis": return _printToHyperCADSAnalysis ??= (await import("../../engines/PrintToHyperCADSAnalysisBridge.js")).printToHyperCADSAnalysisBridge;
+    case "swLive": return _swLive ??= (await import("../../engines/SolidWorksLiveBridgeEngine.js")).solidWorksLiveBridgeEngine;
+    case "espritLive": return _espritLive ??= (await import("../../engines/EspritLiveBridgeEngine.js")).espritLiveBridgeEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -155,6 +158,12 @@ const ACTIONS = [
   "esprit_generate_script", "esprit_capabilities",
   // Print → All CADs Orchestrator (U-CADC-PRINT-ORCHESTRATOR-01)
   "print_to_all_cads", "print_to_all_cads_validate", "print_to_all_cads_targets",
+  // Print → hyperCAD-S Analysis Bridge (U-CADC-HC-PRINT-01)
+  "print_to_hypercads_analysis", "print_to_hypercads_analysis_validate", "print_to_hypercads_analysis_capabilities",
+  // SolidWorks Live Bridge (U-CADC-SW-LIVE-01)
+  "solidworks_live_execute", "solidworks_live_validate", "solidworks_live_modes",
+  // Esprit Live Bridge (U-CADC-ESP-LIVE-01)
+  "esprit_live_execute", "esprit_live_validate", "esprit_live_modes",
   // Siemens NX Unified Code Generator (U-CADC14)
   "nx_generate_script", "nx_build_part", "nx_execute",
   "nx_capabilities",
@@ -1063,6 +1072,69 @@ Params vary by action — pass relevant fields in params object.`,
               orchestratorVersion: orch.version,
               targets: orch.supportedTargets(),
             };
+            break;
+          }
+          // ── Print → hyperCAD-S Analysis Bridge (U-CADC-HC-PRINT-01) ──
+          case "print_to_hypercads_analysis": {
+            const bridge = await getEngine("printToHyperCADSAnalysis");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis, profiles: params.profiles, dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name, units: params.units,
+              outputDir: params.outputDir ?? params.output_dir,
+              targetVersion: params.targetVersion ?? params.target_version,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_hypercads_analysis_validate": {
+            const bridge = await getEngine("printToHyperCADSAnalysis");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_hypercads_analysis_capabilities": {
+            const bridge = await getEngine("printToHyperCADSAnalysis");
+            result = { success: true, bridgeVersion: bridge.version, supportedOperations: bridge.supportedOperations() };
+            break;
+          }
+          // ── SolidWorks Live Bridge (U-CADC-SW-LIVE-01) ──
+          case "solidworks_live_execute": {
+            const bridge = await getEngine("swLive");
+            const execRes = await bridge.execute({
+              script: params.script,
+              config: params.config ?? { mode: params.mode ?? "mock" },
+            });
+            result = { success: execRes.ok, ...execRes };
+            break;
+          }
+          case "solidworks_live_validate": {
+            const bridge = await getEngine("swLive");
+            result = { success: true, ...bridge.validate(params.config ?? params) };
+            break;
+          }
+          case "solidworks_live_modes": {
+            const bridge = await getEngine("swLive");
+            result = { success: true, version: bridge.version, modes: bridge.supportedModes() };
+            break;
+          }
+          // ── Esprit Live Bridge (U-CADC-ESP-LIVE-01) ──
+          case "esprit_live_execute": {
+            const bridge = await getEngine("espritLive");
+            const execRes = await bridge.execute({
+              script: params.script,
+              config: params.config ?? { mode: params.mode ?? "mock" },
+            });
+            result = { success: execRes.ok, ...execRes };
+            break;
+          }
+          case "esprit_live_validate": {
+            const bridge = await getEngine("espritLive");
+            result = { success: true, ...bridge.validate(params.config ?? params) };
+            break;
+          }
+          case "esprit_live_modes": {
+            const bridge = await getEngine("espritLive");
+            result = { success: true, version: bridge.version, modes: bridge.supportedModes() };
             break;
           }
           // ─── Siemens NX Code Generator (U-CADC14) ───────────────────────
