@@ -59,7 +59,12 @@ function saveLedger(data) {
   const p = ledgerPath();
   try {
     fs.mkdirSync(path.dirname(p), { recursive: true });
-    fs.writeFileSync(p, JSON.stringify(data, null, 2));
+    // Atomic write: tmp + rename. Prevents torn JSON when multiple chats
+    // race on the ledger (Gemini FAIL #2). Rename is atomic on the same
+    // filesystem on both NTFS and POSIX.
+    const tmp = `${p}.tmp.${process.pid}.${Date.now().toString(36)}`;
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+    fs.renameSync(tmp, p);
     return true;
   } catch {
     return false;
@@ -133,10 +138,14 @@ export function recordScrutiny(sessionId, marks = {}) {
   if (typeof entry.opusReviewed !== "boolean") entry.opusReviewed = false;
   if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
 
+  // Provider PASS/FAIL marks accept BOTH true and false so a later FAIL
+  // revokes a prior PASS (Codex blocker #1). Without this, calling
+  // `--mark-opus fail` after a prior PASS would leave the boolean true and
+  // isCleared() would still return true — violating "ANY reviewer FAIL keeps blocking".
   if (marks.selfReviewed === true) entry.selfReviewed = true;
-  if (marks.codexReviewed === true) entry.codexReviewed = true;
-  if (marks.geminiReviewed === true) entry.geminiReviewed = true;
-  if (marks.opusReviewed === true) entry.opusReviewed = true;
+  if (typeof marks.codexReviewed === "boolean") entry.codexReviewed = marks.codexReviewed;
+  if (typeof marks.geminiReviewed === "boolean") entry.geminiReviewed = marks.geminiReviewed;
+  if (typeof marks.opusReviewed === "boolean") entry.opusReviewed = marks.opusReviewed;
   // Legacy agent flag — only set if no provider flags were passed (callers
   // upgrading scripts can opt out by passing the new flags directly).
   if (marks.agentReviewed === true) entry.agentReviewed = true;
