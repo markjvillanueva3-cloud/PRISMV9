@@ -293,7 +293,7 @@ export class ConsensusNeuralCreditAssignmentEngine {
       successCount: datum.models.filter((m) => m.ok).length,
       agreementScore: datum.agreement_score,
       consensus: voters.size > 0
-        ? { answer: "", voters: [...voters], confidence: datum.agreement_score }
+        ? { answer: "", voters: Array.from(voters), confidence: datum.agreement_score }
         : null,
       recommendation: datum.recommendation,
       totalLatencyMs: datum.total_latency_ms,
