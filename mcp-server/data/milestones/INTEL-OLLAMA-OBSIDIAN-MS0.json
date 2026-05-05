@@ -832,7 +832,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "completed",
+          "completed_at": "2026-05-05T16:06:28.505Z",
+          "completed_by": "claude-41281702",
+          "notes": "ScriptSummaryEngine + summarize-all-scripts-via-ollama.mjs. 24/24 vitest cases pass. Live run: 197 scripts summarized via Ollama qwen2.5-coder:7b in 111s (concurrency=6). Output at knowledge/scripts/INDEX.md (8 buckets by dirname). Hash-keyed cache for idempotent reruns. Falls back to first comment line on Ollama failure."
         },
         {
           "id": "P3-U03",
@@ -939,7 +943,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-05T15:54:13.832Z",
+          "completed_by": "claude-41281702",
+          "notes": "ObsidianMemoryRagEngine + memory-rag-inject UserPromptSubmit hook. 29/29 vitest cases pass. Live smoke: 4319 vault entries scanned in <1s, top-5 hits returned for memory-keyword query. Format matches Claude Code hookSpecificOutput.additionalContext schema. Pure file-system keyword-overlap (no Qdrant dependency)."
         },
         {
           "id": "P10-U04",
