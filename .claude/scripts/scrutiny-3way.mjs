@@ -85,7 +85,13 @@ const GEMINI_ARGS = process.env.GEMINI_ARGS
   : ["--no-install", "gemini"];
 
 const REVIEW_TIMEOUT_MS = 360_000; // 6 min per provider; covers cold-start + xhigh reasoning on diffs up to 80KB
-const MAX_DIFF_BYTES = 80_000;     // truncate huge diffs so providers don't OOM
+const DEFAULT_MAX_DIFF_BYTES = 80_000;     // truncate huge diffs so providers don't OOM
+const MAX_DIFF_BYTES = (() => {
+  const env = process.env.PRISM_SCRUTINY_MAX_DIFF_BYTES;
+  if (!env) return DEFAULT_MAX_DIFF_BYTES;
+  const n = Number.parseInt(env, 10);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_DIFF_BYTES;
+})();
 const MAX_OUTPUT_PEEK = 8_000;     // stored in ledger notes
 
 const REVIEW_SYSTEM = `You are a strict code reviewer for the PRISM manufacturing-intelligence platform. \
