@@ -124,12 +124,28 @@ export interface HurcoPostConfig {
    */
   aggressiveness?: number;
   /**
-   * Reserved for future sync-path AutoSpeedFeed wiring. Currently no-op in
-   * the sync `generateProgram` path; AS/F only runs via `generateProgramAdvanced`
-   * with `use_advanced_features: true`. The `aggressiveness` multiplier
-   * applies regardless of this flag.
+   * Sync-path feed adjustment master switch. Default true.
+   * U-PPGH15: when true (or omitted), the Kienzle-bounded feed clamp runs
+   * if `max_cutting_force_N` is also supplied. Set false to bypass even
+   * when force would otherwise exceed the limit (operator override —
+   * useful for diagnostic runs where the true emit feed must be preserved
+   * for chatter mapping). The aggressiveness multiplier applies regardless
+   * of this flag (it's a level scale, not a force-based clamp).
    */
   optimize_feeds?: boolean;
+  /**
+   * U-PPGH15: machine-side cutting-force ceiling [N]. When supplied AND
+   * `optimize_feeds !== false`, the engine recomputes Kienzle Fc on the
+   * effective (post-aggressiveness/prove-out) feed; if Fc exceeds this
+   * limit, feed is reduced to the maximum value that satisfies
+   *     Fc(fz_new) = kc1_1 · ap · fz_new^(1−mc) ≤ max_cutting_force_N
+   * Solving for fz_new: fz_new = (max / (kc1_1·ap))^(1/(1−mc))
+   * The clamp is recorded as a feed_optimizations[] entry with
+   * `reason: "Kienzle Fc=<N>N exceeded <max>N"` so post-emit telemetry
+   * can attribute the reduction. Omit (undefined) to disable the clamp;
+   * supply 0 or a negative value to throw (silent-disable guard).
+   */
+  max_cutting_force_N?: number;
   /**
    * Sync-path prove-out mode (PPG-HARDEN/U-PPGH03). Operator-friendly
    * first-article / new-setup safety pass:
@@ -372,6 +388,13 @@ export interface HurcoFeedOptimization {
   multiplier: number;
   original_feed_mm_min: number;
   optimized_feed_mm_min: number;
+  /**
+   * U-PPGH15: human-readable cause for telemetry attribution. Set on
+   * Kienzle-bounded clamp entries (`"Kienzle Fc=<N>N exceeded <max>N"`).
+   * Aggressiveness/prove-out entries leave this undefined — their cause
+   * is implied by `level` + `label`.
+   */
+  reason?: string;
 }
 
 export interface HurcoAdvancedSummary {
@@ -610,6 +633,15 @@ export const PROVE_OUT_LABEL = "PROVE-OUT";
  *  discriminate the two paths without a discriminated-union type change. */
 export const PROVE_OUT_LEVEL_SENTINEL = 0;
 
+/** U-PPGH15: label for HurcoFeedOptimization rows produced by the
+ *  Kienzle-bounded feed clamp (cfg.max_cutting_force_N gate). */
+export const KIENZLE_CLAMP_LABEL = "KIENZLE-CLAMP";
+/** Sentinel level for Kienzle clamp rows. -1 distinguishes them from both
+ *  aggressiveness (L1..L5) and prove-out (0). Downstream telemetry can
+ *  filter by `level === KIENZLE_CLAMP_LEVEL_SENTINEL` or by the `reason`
+ *  prefix `"Kienzle Fc=…"`. */
+export const KIENZLE_CLAMP_LEVEL_SENTINEL = -1;
+
 /** U-PPGH07: minimum acceptable Taylor tool-life [min] for unattended JM Die
  *  shop runs. Below this the operator is asked to drop Vc before continuing.
  *  Aligns with the test in HurcoV11MillMasterPostEngine.test.ts. */
@@ -788,6 +820,73 @@ export class HurcoV11MillMasterPostEngine {
           original_feed_mm_min: op.feed_mm_min,
           optimized_feed_mm_min: optimizedFeed,
         });
+      }
+
+      // U-PPGH15: Kienzle-bounded feed clamp. Runs after aggressiveness/prove-out
+      // (so the clamp respects whatever scale the operator dialed) but before
+      // physics checks (so the failed-check warnings reflect what actually
+      // emits). Skipped when optimize_feeds === false (operator override) or
+      // max_cutting_force_N is undefined (no machine-side limit declared).
+      // Uses the same kc1_1/mc resolution as performPhysicsChecks: canonical
+      // CANONICAL_KIENZLE[material_iso] unless op.material override is given,
+      // with the same [100, 5000] / [0.10, 0.45] sanity bounds.
+      if (
+        cfg.optimize_feeds !== false &&
+        cfg.max_cutting_force_N !== undefined
+      ) {
+        if (
+          !Number.isFinite(cfg.max_cutting_force_N) ||
+          cfg.max_cutting_force_N <= 0
+        ) {
+          throw new Error(
+            `HurcoV11MillMasterPostEngine.generateProgram: max_cutting_force_N must be > 0, got ${cfg.max_cutting_force_N}`,
+          );
+        }
+        if (
+          op.material?.iso_group !== undefined &&
+          op.material.iso_group !== op.material_iso
+        ) {
+          throw new Error(
+            `HurcoV11MillMasterPostEngine.generateProgram: op.material.iso_group=${op.material.iso_group} does not match op.material_iso=${op.material_iso}`,
+          );
+        }
+        const canonicalKienzle = CANONICAL_KIENZLE[op.material_iso];
+        const kc1_1 = op.material?.kc1_1 ?? canonicalKienzle.kc1_1;
+        const mc = op.material?.mc ?? canonicalKienzle.mc;
+        if (op.material?.kc1_1 !== undefined && (kc1_1 < 100 || kc1_1 > 5000)) {
+          throw new Error(
+            `HurcoV11MillMasterPostEngine.generateProgram: kc1_1 override ${kc1_1} out of safe range [100, 5000] N/mm²`,
+          );
+        }
+        if (op.material?.mc !== undefined && (mc < 0.10 || mc > 0.45)) {
+          throw new Error(
+            `HurcoV11MillMasterPostEngine.generateProgram: mc override ${mc} out of safe range [0.10, 0.45]`,
+          );
+        }
+        const fz = effectiveOp.feed_mm_min / (effectiveOp.spindle_rpm * effectiveOp.tool_flutes);
+        const Fc = kc1_1 * effectiveOp.axial_depth_mm * Math.pow(fz, 1 - mc);
+        if (Fc > cfg.max_cutting_force_N) {
+          // Solve fz_new from Fc_max = kc1_1 · ap · fz_new^(1−mc)
+          //   fz_new = (Fc_max / (kc1_1·ap))^(1/(1−mc))
+          const fzNew = Math.pow(
+            cfg.max_cutting_force_N / (kc1_1 * effectiveOp.axial_depth_mm),
+            1 / (1 - mc),
+          );
+          const feedNew = Math.floor(
+            fzNew * effectiveOp.spindle_rpm * effectiveOp.tool_flutes,
+          );
+          const reason = `Kienzle Fc=${Fc.toFixed(0)}N exceeded ${cfg.max_cutting_force_N}N`;
+          feedOptimizations.push({
+            block_id: blockId,
+            level: KIENZLE_CLAMP_LEVEL_SENTINEL,
+            label: KIENZLE_CLAMP_LABEL,
+            multiplier: feedNew / effectiveOp.feed_mm_min,
+            original_feed_mm_min: effectiveOp.feed_mm_min,
+            optimized_feed_mm_min: feedNew,
+            reason,
+          });
+          effectiveOp = { ...effectiveOp, feed_mm_min: feedNew };
+        }
       }
 
       gcode.push("");
