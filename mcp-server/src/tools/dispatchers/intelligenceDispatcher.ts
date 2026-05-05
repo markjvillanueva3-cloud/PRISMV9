@@ -490,6 +490,8 @@ const DIAGNOSIS_FWD = [
   "xproc_attention_explain", "xproc_attention_ece",
   "xproc_attention_baseline_add", "xproc_attention_anomaly",
   "xproc_attention_baseline_get", "xproc_attention_baseline_reset",
+  // XPROC-NEURAL-T1-05: AGI bridge — keyword + neural blend composer
+  "xproc_agi_compose",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
@@ -1280,6 +1282,40 @@ export function registerIntelligenceDispatcher(server: any): void {
             content: [{
               type: "text" as const,
               text: JSON.stringify({ action, success: true }),
+            }],
+          };
+        }
+
+        // === XPROC-NEURAL-T1-05: AGI bridge composer ===
+        if (action === "xproc_agi_compose") {
+          const { crossProcessNeuralLearningEngine } = await import(
+            "../../engines/CrossProcessNeuralLearningEngine.js"
+          );
+          const { crossProcessAGIBridge } = await import(
+            "../../engines/CrossProcessAGIBridge.js"
+          );
+          const reqParam = params.request as Parameters<
+            typeof crossProcessAGIBridge.compose
+          >[1] | undefined;
+          if (!reqParam || typeof reqParam !== "object" || typeof reqParam.intent !== "string") {
+            return dispatcherError(
+              "xproc_agi_compose requires `request` with `intent` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const opts = (params.opts as Parameters<
+            typeof crossProcessAGIBridge.compose
+          >[2]) ?? undefined;
+          const out = crossProcessAGIBridge.compose(
+            crossProcessNeuralLearningEngine,
+            reqParam,
+            opts,
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, ...out }),
             }],
           };
         }
