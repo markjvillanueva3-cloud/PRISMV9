@@ -28,7 +28,15 @@ import * as path from "node:path";
 import * as crypto from "node:crypto";
 
 const LEDGER_REL = "mcp-server/data/state/SCRUTINY_LEDGER.json";
+const LOCK_REL = LEDGER_REL + ".lock";
 const MAX_BLOCKS_PER_SESSION = 3;
+
+// Lock parameters — short enough that the worst-case wait is bounded for
+// interactive use but long enough that 6 concurrent chats each writing a few
+// times per session don't time out.
+const LOCK_STALE_MS = 30_000;     // stale lock from a crashed writer is force-cleared after this
+const LOCK_RETRY_MS = 25;         // sleep between attempts
+const LOCK_MAX_WAIT_MS = 5_000;   // total wait budget per acquire
 
 function findProjectRoot(startDir) {
   let cur = startDir || process.cwd();
@@ -45,30 +53,128 @@ function ledgerPath() {
   return path.join(findProjectRoot(), LEDGER_REL);
 }
 
+function lockPath() {
+  return path.join(findProjectRoot(), LOCK_REL);
+}
+
+/**
+ * Sleep without burning CPU. Uses Atomics.wait on a private SharedArrayBuffer
+ * so it works in any Node main thread without spawning a worker. The
+ * SharedArrayBuffer is private to this call so no cross-thread coordination
+ * happens — it's purely a sync sleep primitive.
+ */
+function sleepSync(ms) {
+  const buf = new SharedArrayBuffer(4);
+  Atomics.wait(new Int32Array(buf), 0, 0, Math.max(0, ms));
+}
+
+/**
+ * Acquire a file-based lock for the ledger, run fn(), then release.
+ *
+ * Gemini blocker #4: the previous code used atomic tmp+rename so individual
+ * writes weren't torn, but two concurrent recordScrutiny calls could each
+ * loadLedger() the same starting state, modify their copies independently,
+ * and rename in sequence — the second rename silently overwrites the first
+ * mark (lost-update RMW race).
+ *
+ * Resolution: serialize the load-modify-save cycle behind an O_EXCL lockfile.
+ * Stale-lock detection clears locks older than LOCK_STALE_MS so a crashed
+ * writer can't deadlock the gate.
+ */
+function withLedgerLock(fn) {
+  const lockP = lockPath();
+  fs.mkdirSync(path.dirname(lockP), { recursive: true });
+  const start = Date.now();
+  let acquired = false;
+  while (!acquired) {
+    try {
+      const fd = fs.openSync(lockP, "wx");
+      fs.writeSync(fd, JSON.stringify({ pid: process.pid, acquiredAt: Date.now() }));
+      fs.closeSync(fd);
+      acquired = true;
+    } catch (err) {
+      if (err && err.code !== "EEXIST") throw err;
+      // Stale-lock check: if the lock file is older than LOCK_STALE_MS, the
+      // owner crashed without releasing. Force-clear and retry.
+      try {
+        const stat = fs.statSync(lockP);
+        if (Date.now() - stat.mtimeMs > LOCK_STALE_MS) {
+          fs.unlinkSync(lockP);
+          continue;
+        }
+      } catch { /* lock disappeared between EEXIST and stat — racing release; retry */ }
+      if (Date.now() - start >= LOCK_MAX_WAIT_MS) {
+        throw new Error(
+          `scrutiny-ledger: could not acquire lock at ${lockP} within ${LOCK_MAX_WAIT_MS}ms`,
+        );
+      }
+      sleepSync(LOCK_RETRY_MS);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    try { fs.unlinkSync(lockP); } catch { /* already removed by stale-clear or peer */ }
+  }
+}
+
 function loadLedger() {
   const p = ledgerPath();
   if (!fs.existsSync(p)) return { entries: {} };
   try {
     return JSON.parse(fs.readFileSync(p, "utf-8"));
   } catch {
+    // Corrupt or unreadable ledger: surface as empty so callers can re-record
+    // their marks. We don't throw here because a corrupt history shouldn't
+    // block new reviewers from clearing the gate.
     return { entries: {} };
   }
 }
 
+/**
+ * Persist the ledger to disk atomically. THROWS on failure so callers see
+ * disk-full / permission errors instead of silently losing their mark
+ * (Gemini blocker #1: previously returned `false` and recordScrutiny ignored
+ * it, so a write failure looked like success to the chat).
+ */
 function saveLedger(data) {
   const p = ledgerPath();
-  try {
-    fs.mkdirSync(path.dirname(p), { recursive: true });
-    // Atomic write: tmp + rename. Prevents torn JSON when multiple chats
-    // race on the ledger (Gemini FAIL #2). Rename is atomic on the same
-    // filesystem on both NTFS and POSIX.
-    const tmp = `${p}.tmp.${process.pid}.${Date.now().toString(36)}`;
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
-    fs.renameSync(tmp, p);
-    return true;
-  } catch {
-    return false;
-  }
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  // Atomic write: tmp + rename. Combined with withLedgerLock above this gives
+  // both torn-write protection AND read-modify-write serialization across
+  // concurrent processes.
+  const tmp = `${p}.tmp.${process.pid}.${Date.now().toString(36)}`;
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, p);
+  return true;
+}
+
+/**
+ * Parse a reviewer's first-non-empty output line into a verdict.
+ *
+ * Gemini blocker #2: the previous regex `^VERDICT:\s*(PASS|FAIL)\s*$` was too
+ * strict and rejected conformant reviewer outputs that included trailing
+ * notes, such as `VERDICT: PASS — confidence high` or `VERDICT: PASS (5/9)`.
+ * The system prompt itself shows trailing parens as illustrative ("(if all
+ * criteria met)") so reviewers reasonably emit them.
+ *
+ * Resolution: anchor to the start of the line, accept PASS or FAIL on a word
+ * boundary, allow any trailing text. Still strict on the leading
+ * `VERDICT:\s*` shape so prose mentions of "VERDICT:" elsewhere don't match.
+ *
+ * @param {string} text — full reviewer stdout (already trimmed by caller)
+ * @returns {{ verdict: "pass"|"fail"|null, firstLine: string }}
+ *   verdict is null when no recognizable VERDICT line was found.
+ */
+export function parseVerdictLine(text) {
+  if (typeof text !== "string") return { verdict: null, firstLine: "" };
+  const firstLine = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .find((l) => l.length > 0) ?? "";
+  const m = firstLine.match(/^VERDICT:\s*(PASS|FAIL)\b/i);
+  if (!m) return { verdict: null, firstLine };
+  return { verdict: m[1].toLowerCase(), firstLine };
 }
 
 /**
@@ -130,41 +236,46 @@ function recordReviewerDetail(entry, provider, detail) {
  * }} marks
  */
 export function recordScrutiny(sessionId, marks = {}) {
-  const data = loadLedger();
-  const entry = data.entries[sessionId] || makeEmptyEntry(sessionId);
-  // Migrate legacy entries that lack the new fields
-  if (typeof entry.codexReviewed !== "boolean") entry.codexReviewed = false;
-  if (typeof entry.geminiReviewed !== "boolean") entry.geminiReviewed = false;
-  if (typeof entry.opusReviewed !== "boolean") entry.opusReviewed = false;
-  if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
+  return withLedgerLock(() => {
+    const data = loadLedger();
+    const entry = data.entries[sessionId] || makeEmptyEntry(sessionId);
+    // Migrate legacy entries that lack the new fields
+    if (typeof entry.codexReviewed !== "boolean") entry.codexReviewed = false;
+    if (typeof entry.geminiReviewed !== "boolean") entry.geminiReviewed = false;
+    if (typeof entry.opusReviewed !== "boolean") entry.opusReviewed = false;
+    if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
 
-  // Provider PASS/FAIL marks accept BOTH true and false so a later FAIL
-  // revokes a prior PASS (Codex blocker #1). Without this, calling
-  // `--mark-opus fail` after a prior PASS would leave the boolean true and
-  // isCleared() would still return true — violating "ANY reviewer FAIL keeps blocking".
-  if (marks.selfReviewed === true) entry.selfReviewed = true;
-  if (typeof marks.codexReviewed === "boolean") entry.codexReviewed = marks.codexReviewed;
-  if (typeof marks.geminiReviewed === "boolean") entry.geminiReviewed = marks.geminiReviewed;
-  if (typeof marks.opusReviewed === "boolean") entry.opusReviewed = marks.opusReviewed;
-  // Legacy agent flag — only set if no provider flags were passed (callers
-  // upgrading scripts can opt out by passing the new flags directly).
-  if (marks.agentReviewed === true) entry.agentReviewed = true;
+    // Provider PASS/FAIL marks accept BOTH true and false so a later FAIL
+    // revokes a prior PASS (Codex blocker #1). Without this, calling
+    // `--mark-opus fail` after a prior PASS would leave the boolean true and
+    // isCleared() would still return true — violating "ANY reviewer FAIL keeps blocking".
+    if (marks.selfReviewed === true) entry.selfReviewed = true;
+    if (typeof marks.codexReviewed === "boolean") entry.codexReviewed = marks.codexReviewed;
+    if (typeof marks.geminiReviewed === "boolean") entry.geminiReviewed = marks.geminiReviewed;
+    if (typeof marks.opusReviewed === "boolean") entry.opusReviewed = marks.opusReviewed;
+    // Legacy agent flag — same boolean type-guard as the providers so a
+    // FAIL mark on the legacy field also revokes a prior PASS (Gemini
+    // blocker #3). Note that lines below derive agentReviewed from the OR
+    // of the providers, so this explicit assignment is the FALSE-revocation
+    // path; OR-derivation reasserts TRUE if any provider is still PASS.
+    if (typeof marks.agentReviewed === "boolean") entry.agentReviewed = marks.agentReviewed;
 
-  if (marks.codexDetail) recordReviewerDetail(entry, "codex", marks.codexDetail);
-  if (marks.geminiDetail) recordReviewerDetail(entry, "gemini", marks.geminiDetail);
-  if (marks.opusDetail) recordReviewerDetail(entry, "opus", marks.opusDetail);
+    if (marks.codexDetail) recordReviewerDetail(entry, "codex", marks.codexDetail);
+    if (marks.geminiDetail) recordReviewerDetail(entry, "gemini", marks.geminiDetail);
+    if (marks.opusDetail) recordReviewerDetail(entry, "opus", marks.opusDetail);
 
-  // Derived: agentReviewed is the OR of the 3 providers (so legacy callers
-  // that read this field still see "true" once any reviewer signs off).
-  if (entry.codexReviewed || entry.geminiReviewed || entry.opusReviewed) {
-    entry.agentReviewed = true;
-  }
+    // Derived: agentReviewed is the OR of the 3 providers (so legacy callers
+    // that read this field still see "true" once any reviewer signs off).
+    if (entry.codexReviewed || entry.geminiReviewed || entry.opusReviewed) {
+      entry.agentReviewed = true;
+    }
 
-  if (typeof marks.notes === "string") entry.notes = marks.notes.slice(0, 500);
-  entry.recordedAt = new Date().toISOString();
-  data.entries[sessionId] = entry;
-  saveLedger(data);
-  return entry;
+    if (typeof marks.notes === "string") entry.notes = marks.notes.slice(0, 500);
+    entry.recordedAt = new Date().toISOString();
+    data.entries[sessionId] = entry;
+    saveLedger(data);
+    return entry;
+  });
 }
 
 /**
@@ -202,35 +313,36 @@ export function isCleared(sessionId) {
  * MAX_BLOCKS_PER_SESSION ceiling so the hook can't infinite-loop a chat.
  */
 export function bumpBlockCount(sessionId) {
-  const data = loadLedger();
-  const entry = data.entries[sessionId] || {
-    sessionId,
-    recordedAt: new Date().toISOString(),
-    selfReviewed: false,
-    agentReviewed: false,
-    blockCount: 0,
-    notes: "",
-  };
-  entry.blockCount = (entry.blockCount || 0) + 1;
-  entry.recordedAt = new Date().toISOString();
-  data.entries[sessionId] = entry;
-  saveLedger(data);
-  return entry.blockCount;
+  return withLedgerLock(() => {
+    const data = loadLedger();
+    const entry = data.entries[sessionId] || makeEmptyEntry(sessionId);
+    entry.blockCount = (entry.blockCount || 0) + 1;
+    entry.recordedAt = new Date().toISOString();
+    data.entries[sessionId] = entry;
+    saveLedger(data);
+    return entry.blockCount;
+  });
 }
 
 export function getEntry(sessionId) {
+  // Read-only — no lock required since loadLedger handles corrupt-JSON
+  // gracefully and a torn write is impossible thanks to saveLedger's
+  // tmp+rename. Worst case is reading a slightly-stale snapshot, which
+  // is acceptable for getEntry's use cases (display + hook decisions).
   const data = loadLedger();
   return data.entries[sessionId] || null;
 }
 
 export function clearSession(sessionId) {
-  const data = loadLedger();
-  if (data.entries[sessionId]) {
-    delete data.entries[sessionId];
-    saveLedger(data);
-    return true;
-  }
-  return false;
+  return withLedgerLock(() => {
+    const data = loadLedger();
+    if (data.entries[sessionId]) {
+      delete data.entries[sessionId];
+      saveLedger(data);
+      return true;
+    }
+    return false;
+  });
 }
 
 export { MAX_BLOCKS_PER_SESSION };

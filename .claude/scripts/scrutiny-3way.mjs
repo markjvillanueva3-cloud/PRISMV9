@@ -29,7 +29,7 @@ import { spawn, execFileSync, execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { recordScrutiny, getEntry } from "../helpers/scrutiny-ledger.mjs";
+import { recordScrutiny, getEntry, parseVerdictLine } from "../helpers/scrutiny-ledger.mjs";
 
 const STABLE_SESSION_HELPER_TIMEOUT_MS = 2000;
 
@@ -227,17 +227,15 @@ function spawnReview(provider, bin, args, stdinPayload) {
     child.on("close", (code) => {
       clearTimeout(timer);
       const text = stdout.trim();
-      // Codex blockers #2 + #3: VERDICT must appear on the first non-empty
-      // line, exact format. Anything else — missing line, wrong line,
-      // mismatched format — defaults to "fail" per the strict review
-      // contract ("if unsure choose FAIL"). Old code accepted VERDICT
-      // anywhere in the stream and fell back to PASS on exit 0.
-      const firstLine = text
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .find((l) => l.length > 0) ?? "";
-      const verdictMatch = firstLine.match(/^VERDICT:\s*(PASS|FAIL)\s*$/i);
-      const verdict = verdictMatch ? verdictMatch[1].toLowerCase() : "fail";
+      // Codex blockers #2 + #3 + Gemini #2: parse via the shared, unit-
+      // tested parseVerdictLine helper. The helper requires the first
+      // non-empty line to start with `VERDICT:` followed by PASS/FAIL on
+      // a word boundary — trailing notes are allowed (e.g.
+      // "VERDICT: PASS — confidence high") since the system prompt itself
+      // shows trailing parens. Missing or malformed VERDICT defaults to
+      // FAIL ("if unsure choose FAIL").
+      const { verdict: parsedVerdict, firstLine } = parseVerdictLine(text);
+      const verdict = parsedVerdict ?? "fail";
       const blockerLines = text
         .split(/\r?\n/)
         .filter((l) => /^BLOCKER:/i.test(l.trim()))
@@ -245,7 +243,7 @@ function spawnReview(provider, bin, args, stdinPayload) {
         .join("\n");
       const exitInfo = code === 0 ? "" : `[exit ${code}]`;
       const stderrPeek = stderr.length > 0 ? `\nstderr: ${stderr.slice(0, 500)}` : "";
-      const verdictNote = verdictMatch
+      const verdictNote = parsedVerdict
         ? ""
         : `[VERDICT line missing or malformed; defaulted to FAIL. firstLine="${firstLine.slice(0, 120)}"]`;
       finish(
