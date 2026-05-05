@@ -174,6 +174,11 @@ const ACTIONS = [
   // ===== ConsensusCreditRunLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON =====
   "consensus_credit_run_history",   // Read-only: tail of cron run log
   "consensus_credit_run_stats",     // Read-only: aggregate stats over recent runs
+  // ===== ConsensusPerfSnapshotEngine (4) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-PERF-SNAPSHOT =====
+  "consensus_perf_snapshot_capture", // Capture a timestamped snapshot of the live perf-state file
+  "consensus_perf_snapshot_list",    // List snapshot files in chronological order
+  "consensus_perf_snapshot_prune",   // Retain only keepLast newest snapshots
+  "consensus_perf_snapshot_pair",    // Pick (before, after) for drift comparison
   // ===== ConsensusDriftDetectorEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR =====
   "consensus_drift_detect",         // Read-only: compare two perf-state snapshots and surface EMA regressions
 ] as const;
@@ -782,6 +787,49 @@ export function registerIntelligenceDispatcher(server: any): void {
           });
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, stats }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-PERF-SNAPSHOT: capture
+        // and manage timestamped perf-state snapshots that feed the
+        // drift detector. Four actions: capture / list / prune / pair.
+        // ============================================================
+        if (action === "consensus_perf_snapshot_capture") {
+          const { consensusPerfSnapshotEngine } = await import("../../engines/ConsensusPerfSnapshotEngine.js");
+          const out = consensusPerfSnapshotEngine.captureSnapshot({
+            perfStatePath: params.perfStatePath as string | undefined,
+            snapshotDir: params.snapshotDir as string | undefined,
+            label: params.label as string | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
+          };
+        }
+        if (action === "consensus_perf_snapshot_list") {
+          const { consensusPerfSnapshotEngine } = await import("../../engines/ConsensusPerfSnapshotEngine.js");
+          const list = consensusPerfSnapshotEngine.listSnapshots(params.snapshotDir as string | undefined);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, snapshots: list, count: list.length }) }],
+          };
+        }
+        if (action === "consensus_perf_snapshot_prune") {
+          const { consensusPerfSnapshotEngine } = await import("../../engines/ConsensusPerfSnapshotEngine.js");
+          const out = consensusPerfSnapshotEngine.pruneSnapshots({
+            snapshotDir: params.snapshotDir as string | undefined,
+            keepLast: params.keepLast as number,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
+          };
+        }
+        if (action === "consensus_perf_snapshot_pair") {
+          const { consensusPerfSnapshotEngine } = await import("../../engines/ConsensusPerfSnapshotEngine.js");
+          const out = consensusPerfSnapshotEngine.getLatestPair({
+            snapshotDir: params.snapshotDir as string | undefined,
+            minSpanMs: params.minSpanMs as number | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
           };
         }
         // ============================================================

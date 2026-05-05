@@ -507,6 +507,27 @@ const consensus_credit_run_stats = z.object({
   limit: z.number().int().positive().optional(),
 }).passthrough();
 
+// ConsensusPerfSnapshotEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-PERF-SNAPSHOT
+const consensus_perf_snapshot_capture = z.object({
+  perfStatePath: optStr,
+  snapshotDir: optStr,
+  label: optStr,
+}).passthrough();
+
+const consensus_perf_snapshot_list = z.object({
+  snapshotDir: optStr,
+}).passthrough();
+
+const consensus_perf_snapshot_prune = z.object({
+  snapshotDir: optStr,
+  keepLast: z.number().int().nonnegative(),
+}).passthrough();
+
+const consensus_perf_snapshot_pair = z.object({
+  snapshotDir: optStr,
+  minSpanMs: z.number().int().nonnegative().optional(),
+}).passthrough();
+
 // ConsensusDriftDetectorEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
 // Compare two perf-state snapshots to detect EMA regressions per (vendor, taskType).
 const consensus_drift_detect = z.object({
@@ -602,6 +623,11 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   // ConsensusCreditRunLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CREDIT-CRON
   consensus_credit_run_history,
   consensus_credit_run_stats,
+  // ConsensusPerfSnapshotEngine (4) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-PERF-SNAPSHOT
+  consensus_perf_snapshot_capture,
+  consensus_perf_snapshot_list,
+  consensus_perf_snapshot_prune,
+  consensus_perf_snapshot_pair,
   // ConsensusDriftDetectorEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
   consensus_drift_detect,
 };
