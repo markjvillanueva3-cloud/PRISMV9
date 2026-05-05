@@ -53,13 +53,26 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import os from "node:os";
 
-const OWNERSHIP_PATH = "H:/prism/mcp-server/data/state/session-file-ownership.json";
-const LOCK_DIR = "H:/prism/state/shared";
-const WORKBOARD_PATH = "H:/prism/state/shared/AGENT_WORKBOARD.md";
-const CHAT_BUS_MSG_DIR = "H:/prism/state/shared/chat-bus/messages";
-const CHAT_BUS_CLAIM_DIR = "H:/prism/state/shared/chat-bus/claims";
-const CLAUDE_TASKS_ROOT = join(os.homedir(), "AppData", "Local", "Temp", "claude");
-const LOG_DIR = "H:/prism/state/shared";
+// Directory constants are env-overridable for sandboxed unit tests. Production
+// invocation gets the hard-coded H: paths; tests set PRISM_SWEEPER_TEST_ROOT.
+const TEST_ROOT = process.env.PRISM_SWEEPER_TEST_ROOT || null;
+const OWNERSHIP_PATH = TEST_ROOT
+  ? join(TEST_ROOT, "session-file-ownership.json")
+  : "H:/prism/mcp-server/data/state/session-file-ownership.json";
+const LOCK_DIR = TEST_ROOT ? join(TEST_ROOT, "locks") : "H:/prism/state/shared";
+const WORKBOARD_PATH = TEST_ROOT
+  ? join(TEST_ROOT, "AGENT_WORKBOARD.md")
+  : "H:/prism/state/shared/AGENT_WORKBOARD.md";
+const CHAT_BUS_MSG_DIR = TEST_ROOT
+  ? join(TEST_ROOT, "chat-bus", "messages")
+  : "H:/prism/state/shared/chat-bus/messages";
+const CHAT_BUS_CLAIM_DIR = TEST_ROOT
+  ? join(TEST_ROOT, "chat-bus", "claims")
+  : "H:/prism/state/shared/chat-bus/claims";
+const CLAUDE_TASKS_ROOT = TEST_ROOT
+  ? join(TEST_ROOT, "claude-tasks")
+  : join(os.homedir(), "AppData", "Local", "Temp", "claude");
+const LOG_DIR = TEST_ROOT || "H:/prism/state/shared";
 const LOG_FILE = `${LOG_DIR}/stale-claim-sweeper.log`;
 
 const CLAIM_TTL_MS = 5 * 60 * 1000;             // 5 min — match git-lock TTL convention
@@ -114,7 +127,7 @@ function extractPidFromSession(sessionStr) {
   return m ? Number.parseInt(m[1], 10) : null;
 }
 
-function sweepFileOwnership() {
+export function sweepFileOwnership() {
   if (!existsSync(OWNERSHIP_PATH)) return { swept: 0, kept: 0 };
   let data;
   try {
@@ -146,7 +159,7 @@ function sweepFileOwnership() {
   return { swept, kept: Object.keys(kept).length };
 }
 
-function sweepGitLocks() {
+export function sweepGitLocks() {
   if (!existsSync(LOCK_DIR)) return { swept: 0 };
   const now = Date.now();
   let swept = 0;
@@ -176,7 +189,7 @@ function sweepGitLocks() {
   return { swept };
 }
 
-function sweepWorkboard() {
+export function sweepWorkboard() {
   if (!existsSync(WORKBOARD_PATH)) return { swept: 0 };
   let text;
   try { text = readFileSync(WORKBOARD_PATH, "utf8"); } catch { return { swept: 0 }; }
@@ -221,7 +234,7 @@ function sweepWorkboard() {
   return { swept };
 }
 
-function sweepChatBusMessages() {
+export function sweepChatBusMessages() {
   if (!existsSync(CHAT_BUS_MSG_DIR)) return { swept: 0 };
   const now = Date.now();
   let swept = 0;
@@ -241,7 +254,7 @@ function sweepChatBusMessages() {
   return { swept };
 }
 
-function sweepChatBusClaims() {
+export function sweepChatBusClaims() {
   if (!existsSync(CHAT_BUS_CLAIM_DIR)) return { swept: 0 };
   const now = Date.now();
   let swept = 0;
@@ -282,7 +295,7 @@ function sweepChatBusClaims() {
   return { swept };
 }
 
-function sweepClaudeTaskOutputs() {
+export function sweepClaudeTaskOutputs() {
   if (!existsSync(CLAUDE_TASKS_ROOT)) return { swept: 0, dirs: 0 };
   const now = Date.now();
   let swept = 0;
@@ -303,7 +316,7 @@ function sweepClaudeTaskOutputs() {
       for (const f of files) {
         // Only sweep .output (background-bash stdout) — NOT .json (task control metadata).
         // Task .json holds harness state for resumable tasks; harness owns its lifecycle.
-        if (!/\.output$/.test(f)) continue;
+        if (!isClaudeTaskOutputFile(f)) continue;
         const fpath = join(tasksDir, f);
         try {
           const st = statSync(fpath);
@@ -316,6 +329,36 @@ function sweepClaudeTaskOutputs() {
     }
   }
   return { swept, dirs: dirsScanned };
+}
+
+// Pure helper: parse WMI CreationDate (yyyymmddHHMMSS.ffffff+ZZZ) → unix ms
+// in host TZ. Returns null on malformed input. Extracted for unit testing.
+export function parseWmiCreationDate(created) {
+  const m = (typeof created === "string") ? created.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/) : null;
+  if (!m) return null;
+  const ms = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
+  return Number.isFinite(ms) ? ms : null;
+}
+
+// Pure helper: extract {pid, ppid, created, cmdline} from one wmic /format:csv row.
+// Returns null on malformed input. Anchors fields from the right since CommandLine
+// (the only comma-bearing field) sits in the middle.
+export function parseWmicRow(row) {
+  if (typeof row !== "string" || !row.trim() || row.startsWith("Node,")) return null;
+  const parts = row.split(",");
+  if (parts.length < 5) return null;
+  const pid = Number.parseInt(parts[parts.length - 1], 10);
+  const ppid = Number.parseInt(parts[parts.length - 2], 10);
+  const created = parts[parts.length - 3];
+  const cmdline = parts.slice(1, parts.length - 3).join(",");
+  if (!Number.isFinite(pid)) return null;
+  return { pid, ppid, created, cmdline };
+}
+
+// Pure helper: is this filename a sweep-eligible Claude background-bash output?
+// Returns false for .json (harness-owned task metadata) and other extensions.
+export function isClaudeTaskOutputFile(name) {
+  return typeof name === "string" && /\.output$/.test(name);
 }
 
 function getZombieNodeHooks() {
@@ -338,32 +381,17 @@ function getZombieNodeHooks() {
   const result = [];
   const now = Date.now();
   for (const row of rows) {
-    // CommandLine is the only field that can contain commas (CreationDate is fixed
-    // yyyymmddHHMMSS.ffffff+ZZZ; pids are integers; Node is the hostname). Anchor
-    // from the right and rejoin the middle slice as cmdline.
-    const parts = row.split(",");
-    if (parts.length < 5) continue;
-    const pid = Number.parseInt(parts[parts.length - 1], 10);
-    const ppid = Number.parseInt(parts[parts.length - 2], 10);
-    const created = parts[parts.length - 3];
-    const cmdline = parts.slice(1, parts.length - 3).join(",");
-    if (!Number.isFinite(pid)) continue;
+    const parsed = parseWmicRow(row);
+    if (!parsed) continue;
+    const { pid, ppid, created, cmdline } = parsed;
 
     // SAFETY FILTER: skip MCP server unconditionally
     if (/mcp-server[\\/]dist[\\/]index\.js/i.test(cmdline)) continue;
     // Only target our hook/helper/script nodes
     if (!/[\\/]\.claude[\\/](hooks|helpers|scripts)[\\/]/i.test(cmdline)) continue;
 
-    // Parse WMI CreationDate. WMI emits in LOCAL time as yyyymmddHHMMSS.ffffff+ZZZ
-    // (where +ZZZ is the local offset in minutes, e.g. -300 for CDT). Earlier
-    // versions used Date.UTC(...) which mis-aged by ±tz_offset minutes — on CDT
-    // this is +5h, making freshly-spawned hooks immediately exceed any age threshold.
-    // The local-tz constructor `new Date(y, m-1, d, h, min, s)` interprets its args
-    // in the host TZ, matching what WMI emitted.
-    const m = created?.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
-    if (!m) continue;
-    const createdMs = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime();
-    if (!Number.isFinite(createdMs)) continue;
+    const createdMs = parseWmiCreationDate(created);
+    if (createdMs === null) continue;
     const age_ms = now - createdMs;
     if (age_ms < NODE_HOOK_MAX_AGE_MS) continue;
 
@@ -373,7 +401,7 @@ function getZombieNodeHooks() {
   return result;
 }
 
-function sweepZombieNodeHooks() {
+export function sweepZombieNodeHooks() {
   if (process.env.PRISM_NODE_REAP === "0") return { swept: 0, found: 0 };
   if (process.platform !== "win32") return { swept: 0, found: 0 };
   const candidates = getZombieNodeHooks();
@@ -419,7 +447,20 @@ function main() {
   }
 }
 
-try { main(); } catch (err) {
-  log(`fatal: ${err?.message || err}`);
-  try { process.stdout.write(JSON.stringify({ continue: true })); } catch { /* ok */ }
+// Run main() only when invoked as a script, not when imported by a test.
+// Node convention: import.meta.url matches file:// URL of process.argv[1] iff CLI.
+import { pathToFileURL } from "node:url";
+const isEntryPoint = (() => {
+  try {
+    return import.meta.url === pathToFileURL(process.argv[1] || "").href;
+  } catch { return false; }
+})();
+
+if (isEntryPoint) {
+  try { main(); } catch (err) {
+    log(`fatal: ${err?.message || err}`);
+    try { process.stdout.write(JSON.stringify({ continue: true })); } catch { /* ok */ }
+  }
 }
+
+export { main };
