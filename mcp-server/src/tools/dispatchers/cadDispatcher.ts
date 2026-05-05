@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -55,6 +55,12 @@ async function getEngine(name: string): Promise<any> {
     case "gear": return _gear ??= (await import("../../engines/InvoluteGearEngine.js")).involuteGearEngine;
     case "spring": return _spring ??= (await import("../../engines/HelicalSpringEngine.js")).helicalSpringEngine;
     case "cadTrialLearn": return _cadTrialLearn ??= (await import("../../engines/CADTrialErrorLearningEngine.js")).cadTrialErrorLearningEngine;
+    case "printToFusion": return _printToFusion ??= (await import("../../engines/PrintToFusion360Bridge.js")).printToFusion360Bridge;
+    case "printToMastercam": return _printToMastercam ??= (await import("../../engines/PrintToMastercamBridge.js")).printToMastercamBridge;
+    case "printToInventor": return _printToInventor ??= (await import("../../engines/PrintToInventorBridge.js")).printToInventorBridge;
+    case "printToSolidWorks": return _printToSolidWorks ??= (await import("../../engines/PrintToSolidWorksBridge.js")).printToSolidWorksBridge;
+    case "printToEsprit": return _printToEsprit ??= (await import("../../engines/PrintToEspritBridge.js")).printToEspritBridge;
+    case "espritGen": return _espritGen ??= (await import("../../engines/EspritCodeGeneratorEngine.js")).espritCodeGeneratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -134,6 +140,18 @@ const ACTIONS = [
   // Fusion 360 Unified Code Generator (U-CADC13)
   "fusion360_generate_script", "fusion360_build_part", "fusion360_execute",
   "fusion360_capabilities",
+  // Print → Fusion 360 Bridge (U-CADC-FUS-PRINT-01) — OCR analysis to Python script
+  "print_to_fusion360", "print_to_fusion360_validate", "print_to_fusion360_capabilities",
+  // Print → Mastercam Bridge (U-CADC-MC-PRINT-01)
+  "print_to_mastercam", "print_to_mastercam_validate", "print_to_mastercam_capabilities",
+  // Print → Inventor Bridge (U-CADC-INV-PRINT-01)
+  "print_to_inventor", "print_to_inventor_validate", "print_to_inventor_capabilities",
+  // Print → SolidWorks Bridge (U-CADC-SW-PRINT-01)
+  "print_to_solidworks", "print_to_solidworks_validate", "print_to_solidworks_capabilities",
+  // Print → Esprit Bridge (U-CADC-ESP-PRINT-01)
+  "print_to_esprit", "print_to_esprit_validate", "print_to_esprit_capabilities",
+  // Esprit Code Generator (U-CADC-ESP-CODEGEN-01)
+  "esprit_generate_script", "esprit_capabilities",
   // Siemens NX Unified Code Generator (U-CADC14)
   "nx_generate_script", "nx_build_part", "nx_execute",
   "nx_capabilities",
@@ -858,6 +876,158 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "fusion360_capabilities": {
             const engine = await getEngine("f360Gen");
+            const caps = engine.getCapabilities();
+            result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
+            break;
+          }
+          // ── Print → Fusion 360 Bridge (U-CADC-FUS-PRINT-01) ──
+          case "print_to_fusion360": {
+            const bridge = await getEngine("printToFusion");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis,
+              profiles: params.profiles,
+              dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name,
+              units: params.units,
+              outputDir: params.outputDir ?? params.output_dir,
+              targetVersion: params.targetVersion ?? params.target_version,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_fusion360_validate": {
+            const bridge = await getEngine("printToFusion");
+            const v = bridge.validate({
+              analysis: params.analysis,
+              profiles: params.profiles,
+              dimensions: params.dimensions,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+            });
+            result = { success: true, ...v };
+            break;
+          }
+          case "print_to_fusion360_capabilities": {
+            const bridge = await getEngine("printToFusion");
+            result = {
+              success: true,
+              bridgeVersion: bridge.version,
+              supportedOperations: bridge.supportedOperations(),
+            };
+            break;
+          }
+          // ── Print → Mastercam Bridge (U-CADC-MC-PRINT-01) ──
+          case "print_to_mastercam": {
+            const bridge = await getEngine("printToMastercam");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis, profiles: params.profiles, dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name, units: params.units,
+              outputDir: params.outputDir ?? params.output_dir,
+              targetVersion: params.targetVersion ?? params.target_version,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+              machineGroup: params.machineGroup ?? params.machine_group,
+              postProcessor: params.postProcessor ?? params.post_processor,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_mastercam_validate": {
+            const bridge = await getEngine("printToMastercam");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_mastercam_capabilities": {
+            const bridge = await getEngine("printToMastercam");
+            result = { success: true, bridgeVersion: bridge.version, supportedOperations: bridge.supportedOperations() };
+            break;
+          }
+          // ── Print → Inventor Bridge (U-CADC-INV-PRINT-01) ──
+          case "print_to_inventor": {
+            const bridge = await getEngine("printToInventor");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis, profiles: params.profiles, dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name, units: params.units,
+              outputPath: params.outputPath ?? params.output_path,
+              templatePath: params.templatePath ?? params.template_path,
+              documentType: params.documentType ?? params.document_type,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_inventor_validate": {
+            const bridge = await getEngine("printToInventor");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_inventor_capabilities": {
+            const bridge = await getEngine("printToInventor");
+            result = { success: true, bridgeVersion: bridge.version, supportedOperations: bridge.supportedOperations() };
+            break;
+          }
+          // ── Print → SolidWorks Bridge (U-CADC-SW-PRINT-01) ──
+          case "print_to_solidworks": {
+            const bridge = await getEngine("printToSolidWorks");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis, profiles: params.profiles, dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name, units: params.units,
+              outputDir: params.outputDir ?? params.output_dir,
+              templatePath: params.templatePath ?? params.template_path,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_solidworks_validate": {
+            const bridge = await getEngine("printToSolidWorks");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_solidworks_capabilities": {
+            const bridge = await getEngine("printToSolidWorks");
+            result = { success: true, bridgeVersion: bridge.version, supportedOperations: bridge.supportedOperations() };
+            break;
+          }
+          // ── Print → Esprit Bridge (U-CADC-ESP-PRINT-01) ──
+          case "print_to_esprit": {
+            const bridge = await getEngine("printToEsprit");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis, profiles: params.profiles, dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name, units: params.units,
+              outputDir: params.outputDir ?? params.output_dir,
+              targetVersion: params.targetVersion ?? params.target_version,
+              documentTemplate: params.documentTemplate ?? params.document_template,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_esprit_validate": {
+            const bridge = await getEngine("printToEsprit");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_esprit_capabilities": {
+            const bridge = await getEngine("printToEsprit");
+            result = { success: true, bridgeVersion: bridge.version, supportedOperations: bridge.supportedOperations() };
+            break;
+          }
+          // ── Esprit Code Generator (U-CADC-ESP-CODEGEN-01) ──
+          case "esprit_generate_script": {
+            const engine = await getEngine("espritGen");
+            const ops = params.operations ?? [];
+            const ctx = {
+              projectName: params.projectName ?? "PRISM_EspritPart",
+              units: params.units ?? "mm",
+              outputDir: params.outputDir,
+              targetVersion: params.targetVersion ?? "2024",
+            };
+            const script = engine.buildScript(ops, ctx);
+            result = { success: true, script: script.body, filename: script.filename, warnings: script.warnings, parameters: Object.fromEntries(script.parameters) };
+            break;
+          }
+          case "esprit_capabilities": {
+            const engine = await getEngine("espritGen");
             const caps = engine.getCapabilities();
             result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
             break;
