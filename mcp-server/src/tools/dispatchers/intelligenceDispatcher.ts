@@ -169,6 +169,8 @@ const ACTIONS = [
   "consensus_credit_status",        // Read-only: cursor + perf state snapshot for dashboards
   // ===== ConsensusPerformanceDashboardEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DASHBOARD =====
   "consensus_dashboard",            // Read-only: full analytics dashboard (per-task ranking, gaps, trend, suggested probes)
+  // ===== ConsensusBaselineWarmstartEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-PERF-WEIGHTS-WARMSTART =====
+  "consensus_warmstart",            // Cold-start: bootstrap perf state from JSONL feed via unweighted-mean credit
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -733,6 +735,24 @@ export function registerIntelligenceDispatcher(server: any): void {
           });
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, dashboard }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-PERF-WEIGHTS-WARMSTART: bootstrap
+        // a perf state from the JSONL feed using unweighted-mean credit
+        // per (vendor, task_type). Two modes: replace (default) or
+        // mergeWithExisting (preserves real EMA history, fills gaps).
+        // ============================================================
+        if (action === "consensus_warmstart") {
+          const { consensusBaselineWarmstartEngine } = await import("../../engines/ConsensusBaselineWarmstartEngine.js");
+          const out = consensusBaselineWarmstartEngine.warmstart({
+            feedPath: params.feedPath as string | undefined,
+            perfStatePath: params.perfStatePath as string | undefined,
+            persist: params.persist as boolean | undefined,
+            mergeWithExisting: params.mergeWithExisting as boolean | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...out }) }],
           };
         }
 

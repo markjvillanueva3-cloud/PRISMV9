@@ -16,6 +16,7 @@ import * as path from "node:path";
 import { consensusNeuralCreditAssignmentEngine } from "../engines/ConsensusNeuralCreditAssignmentEngine.js";
 import { consensusModelPerformanceEngine } from "../engines/ConsensusModelPerformanceEngine.js";
 import { consensusPerformanceDashboardEngine } from "../engines/ConsensusPerformanceDashboardEngine.js";
+import { consensusBaselineWarmstartEngine } from "../engines/ConsensusBaselineWarmstartEngine.js";
 import type { ConsensusResultLike } from "../engines/ConsensusNeuralFeedbackEngine.js";
 
 function tmpDir(): string {
@@ -39,13 +40,13 @@ function makeResult(): ConsensusResultLike {
   };
 }
 
-function makeFeedLine(overrides: { ts?: string; reward?: number; vendor?: string; model?: string } = {}): string {
+function makeFeedLine(overrides: { ts?: string; reward?: number; vendor?: string; model?: string; task_type?: string } = {}): string {
   return JSON.stringify({
     schema_version: "1.0.0",
     ts: overrides.ts ?? "2026-05-05T15:00:00.000Z",
     prompt_hash: "h",
     prompt: "p",
-    task_type: "decide",
+    task_type: overrides.task_type ?? "decide",
     source_session: "test",
     recommendation: "accept",
     agreement_score: 1.0,
@@ -198,6 +199,59 @@ describe("intelligenceDispatcher consensus_credit_* actions", () => {
     // both vendors uncovered on plan → 3 missing combos there too
     const missing = dashboard.overall.coldStartCombos.filter((c) => c.reason === "missing");
     expect(missing.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("consensus_warmstart bootstraps perf state from JSONL feed via unweighted-mean credit", () => {
+    // Two datums with rewards 1.0 and 0.5 → mean = 0.75 (NOT alpha-blended)
+    fs.writeFileSync(
+      feedPath,
+      makeFeedLine({ ts: "2026-05-05T15:00:00.000Z", reward: 1.0 }) + "\n" +
+        makeFeedLine({ ts: "2026-05-05T15:01:00.000Z", reward: 0.5 }) + "\n",
+    );
+    // Mirror dispatcher's exact call shape:
+    //   consensusBaselineWarmstartEngine.warmstart({ feedPath, perfStatePath, persist?, mergeWithExisting? })
+    const out = consensusBaselineWarmstartEngine.warmstart({
+      feedPath,
+      perfStatePath: perfPath,
+    });
+    expect(out.ok).toBe(true);
+    expect(out.feedLines).toBe(2);
+    expect(out.skippedLines).toBe(0);
+    expect(out.persisted).toBe(true);
+    expect(out.merged).toBe(false);
+    expect(out.state.vendors.anthropic.tasks.decide.n).toBe(2);
+    // Unweighted mean = (1.0 + 0.5) / 2 = 0.75 (vs alpha-blended which would be different)
+    expect(out.state.vendors.anthropic.tasks.decide.ema).toBe(0.75);
+    expect(out.perVendorTask.anthropic.decide.observations).toBe(2);
+    expect(out.perVendorTask.anthropic.decide.meanCredit).toBe(0.75);
+    // Persisted to disk
+    expect(fs.existsSync(perfPath)).toBe(true);
+    const reloaded = consensusModelPerformanceEngine.loadState(perfPath);
+    expect(reloaded.vendors.anthropic.tasks.decide.ema).toBe(0.75);
+  });
+
+  it("consensus_warmstart with mergeWithExisting=true preserves real EMA history", () => {
+    // Pre-seed perf state with real history.
+    consensusNeuralCreditAssignmentEngine.applyFromResult({
+      result: makeResult(),
+      taskType: "decide",
+      perfStatePath: perfPath,
+    });
+    // Feed has data for a different task type — gap-fill via merge
+    fs.writeFileSync(feedPath, makeFeedLine({ task_type: "plan", reward: 0.6 }) + "\n");
+    const out = consensusBaselineWarmstartEngine.warmstart({
+      feedPath,
+      perfStatePath: perfPath,
+      mergeWithExisting: true,
+    });
+    expect(out.ok).toBe(true);
+    expect(out.merged).toBe(true);
+    // anthropic decide preserved (n=1, ema=1.0 from cold-start applyFromResult)
+    expect(out.state.vendors.anthropic.tasks.decide.ema).toBe(1.0);
+    expect(out.state.vendors.anthropic.tasks.decide.n).toBe(1);
+    // anthropic plan filled from baseline
+    expect(out.state.vendors.anthropic.tasks.plan.ema).toBe(0.6);
+    expect(out.state.vendors.anthropic.tasks.plan.n).toBe(1);
   });
 
   it("consensus_credit_apply_feed with batchSize caps lines and resumes on next call", () => {
