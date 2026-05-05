@@ -31,19 +31,36 @@ import type {
   SuggestedProbe,
   FeedTrend,
 } from "./ConsensusPerformanceDashboardEngine.js";
+import type {
+  RunLogEntry,
+  RunStats,
+} from "./ConsensusCreditRunLogEngine.js";
+
+/** Payload for the optional "Recent runs" section — paired history + stats. */
+export interface RunLogPayload {
+  history: readonly RunLogEntry[];
+  stats: RunStats;
+}
 
 export interface RenderOpts {
   /** Cap on probe rows shown. Default 10. */
   probesLimit?: number;
+  /** Cap on run-log rows shown. Default 10. */
+  runLogLimit?: number;
   /** If false, suppress the trend section entirely. Default true. */
   showTrend?: boolean;
   /** If false, suppress the probes section entirely. Default true. */
   showProbes?: boolean;
+  /** If false, suppress the run-log section entirely even when runLog is supplied. Default true. */
+  showRunLog?: boolean;
   /** Title shown at the top of the rendered page. Default "Consensus Dashboard". */
   title?: string;
+  /** Optional run-log payload. When set, renderRecentRuns() is appended to render(). */
+  runLog?: RunLogPayload;
 }
 
 const DEFAULT_PROBES_LIMIT = 10;
+const DEFAULT_RUN_LOG_LIMIT = 10;
 const DEFAULT_TITLE = "Consensus Dashboard";
 
 export class ConsensusDashboardRendererEngine {
@@ -53,8 +70,10 @@ export class ConsensusDashboardRendererEngine {
    */
   render(dashboard: Dashboard, opts: RenderOpts = {}): string {
     const probesLimit = opts.probesLimit ?? DEFAULT_PROBES_LIMIT;
+    const runLogLimit = opts.runLogLimit ?? DEFAULT_RUN_LOG_LIMIT;
     const showTrend = opts.showTrend !== false;
     const showProbes = opts.showProbes !== false;
+    const showRunLog = opts.showRunLog !== false;
     const title = opts.title ?? DEFAULT_TITLE;
 
     const lines: string[] = [];
@@ -71,8 +90,46 @@ export class ConsensusDashboardRendererEngine {
       lines.push("");
       lines.push(...this.renderTrend(dashboard.trend));
     }
+    if (showRunLog && opts.runLog) {
+      lines.push("");
+      lines.push(...this.renderRecentRuns(opts.runLog, runLogLimit));
+    }
     lines.push("");
     return lines.join("\n");
+  }
+
+  /**
+   * Render the recent-runs block from a paired RunLogPayload (history + stats).
+   * Emits a markdown table per run (most recent last, ordering preserved from
+   * the underlying append-only log) followed by a one-line stats summary.
+   */
+  renderRecentRuns(payload: RunLogPayload, limit: number = DEFAULT_RUN_LOG_LIMIT): string[] {
+    const lines: string[] = [];
+    lines.push("## Recent credit-assignment runs");
+    lines.push("");
+    if (payload.history.length === 0) {
+      lines.push("_No recorded runs yet — schedule the credit-cron to populate this section._");
+      return lines;
+    }
+    const cap = Math.max(1, limit);
+    const tail = payload.history.slice(-cap);
+    lines.push("| Timestamp | OK | Processed | Skipped | Duration (ms) | Cursor |");
+    lines.push("|-----------|:--:|----------:|--------:|--------------:|-------:|");
+    for (const e of tail) {
+      const ok = e.ok ? "✓" : "✗";
+      lines.push(`| ${e.ts} | ${ok} | ${e.processed} | ${e.skipped} | ${e.durationMs} | ${e.cursorOffset} |`);
+    }
+    if (payload.history.length > cap) {
+      lines.push("");
+      lines.push(`_…and ${payload.history.length - cap} earlier runs not shown (limit=${cap})._`);
+    }
+    const s = payload.stats;
+    const successPct = (s.successRate * 100).toFixed(1);
+    lines.push("");
+    lines.push(
+      `_Stats: ${s.totalRuns} runs · ${s.successfulRuns} ok / ${s.failedRuns} failed (${successPct}%) · processed=${s.totalProcessed} · skipped=${s.totalSkipped} · mean=${s.meanDurationMs.toFixed(0)}ms_`,
+    );
+    return lines;
   }
 
   /** Render only the per-task ranking tables (used by callers that compose). */
