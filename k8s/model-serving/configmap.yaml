@@ -1,0 +1,90 @@
+# PRISM CAM Model Serving — registry seed + routing-policy seed
+# CAM-EXHAUST-MS0/U-CAM122
+#
+# Loaded by the engine on container boot. Each entry corresponds to a
+# CAMModelServingEngine.registerModel() call; the routing_policies block
+# corresponds to setRoutingPolicy(). Mutate via `kubectl edit configmap`
+# + the operator-confirmation flow — the engine consumes file changes
+# only on pod restart, so canary weight changes go through the
+# dispatcher action `cam_serve_promote_to_canary` for live updates.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prism-cam-model-serving-registry
+  namespace: prism
+  labels:
+    app: prism-cam-model-serving
+data:
+  models.json: |
+    [
+      {
+        "id": "cam-strategy-recommend-v1",
+        "name": "CAM Strategy Recommender (Ollama deepseek-r1:14b)",
+        "version": "1.0.0",
+        "backend": "ollama",
+        "endpoint_url": "http://ollama.prism.svc.cluster.local:11434/api/generate",
+        "cam_systems": ["mastercam", "fusion360", "hypermill", "inventor-hsm", "solidcam", "nx"],
+        "tasks": ["strategy_recommend"],
+        "rate_capacity": 200,
+        "rate_refill_per_sec": 100,
+        "max_batch_size": 8,
+        "max_batch_wait_ms": 25,
+        "metadata": {
+          "trained_on": "jm-die-corpus-2026-04",
+          "commit": "1ea7e4349"
+        }
+      },
+      {
+        "id": "cam-parameter-extract-v1",
+        "name": "CAM Parameter Extractor (Triton)",
+        "version": "1.0.0",
+        "backend": "triton",
+        "endpoint_url": "http://triton.prism.svc.cluster.local:8000/v2/models/cam_param_extract/infer",
+        "cam_systems": ["mastercam", "hypermill", "fusion360"],
+        "tasks": ["parameter_extract"],
+        "rate_capacity": 500,
+        "rate_refill_per_sec": 250,
+        "max_batch_size": 32,
+        "max_batch_wait_ms": 10
+      },
+      {
+        "id": "cam-operation-classify-v1",
+        "name": "CAM Operation Classifier (vLLM)",
+        "version": "1.0.0",
+        "backend": "vllm",
+        "endpoint_url": "http://vllm.prism.svc.cluster.local:8000/v1/completions",
+        "cam_systems": ["mastercam", "fusion360", "hypermill", "inventor-hsm", "solidcam"],
+        "tasks": ["operation_classify"],
+        "rate_capacity": 300,
+        "rate_refill_per_sec": 150,
+        "max_batch_size": 16,
+        "max_batch_wait_ms": 20
+      }
+    ]
+  routing_policies.json: |
+    [
+      {
+        "cam_system": "mastercam",
+        "task": "strategy_recommend",
+        "kind": "canary_split",
+        "epsilon": 0.05,
+        "max_error_rate": 0.10,
+        "latency_tolerance": 0.30,
+        "rollback_latency_mult": 1.50,
+        "wilson_delta": 0.05,
+        "min_samples_for_promotion": 200,
+        "min_samples_for_rollback": 30
+      },
+      {
+        "cam_system": "fusion360",
+        "task": "strategy_recommend",
+        "kind": "canary_split",
+        "epsilon": 0.05,
+        "max_error_rate": 0.10,
+        "latency_tolerance": 0.30,
+        "rollback_latency_mult": 1.50,
+        "wilson_delta": 0.05,
+        "min_samples_for_promotion": 200,
+        "min_samples_for_rollback": 30
+      }
+    ]

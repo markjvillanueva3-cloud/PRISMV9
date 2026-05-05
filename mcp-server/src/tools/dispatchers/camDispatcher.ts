@@ -1950,6 +1950,21 @@ export const ACTIONS = [
     "cam_transfer_accuracy", "cam_transfer_list_observations",
     "cam_transfer_clear_all", "cam_transfer_set_observation_cap",
     "cam_transfer_set_outcome_cap",
+  // CAM-EXHAUST-MS0/U-CAM122 — Model Serving (production deploy: registry, A/B, canary, SLO, batching, rate-limit)
+    "cam_serve_register_model", "cam_serve_deregister_model",
+    "cam_serve_list_models", "cam_serve_get_model",
+    "cam_serve_update_endpoint", "cam_serve_set_routing_policy",
+    "cam_serve_get_routing_policy", "cam_serve_list_routing_policies",
+    "cam_serve_route_request", "cam_serve_deploy_shadow",
+    "cam_serve_promote_to_canary", "cam_serve_promote_to_active",
+    "cam_serve_demote_from_active", "cam_serve_rollback_canary",
+    "cam_serve_retire_model", "cam_serve_record_metric",
+    "cam_serve_get_health", "cam_serve_list_health",
+    "cam_serve_enqueue_batch", "cam_serve_drain_batch",
+    "cam_serve_peek_batch_size", "cam_serve_check_rate_limit",
+    "cam_serve_set_rate_limit", "cam_serve_list_pending_confirmations",
+    "cam_serve_clear_confirmations", "cam_serve_set_metric_buffer_size",
+    "cam_serve_clear_all",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -16393,6 +16408,187 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const cap = params.cap as number;
             CAMTransferLearningEngine.setOutcomeCap(cap);
             result = { success: true, cap };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM122 — Model Serving (27 actions)
+          case "cam_serve_register_model": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const specArg = params.spec as Parameters<typeof CAMModelServingEngine.registerModel>[0];
+            result = { success: true, model: CAMModelServingEngine.registerModel(specArg) };
+            break;
+          }
+          case "cam_serve_deregister_model": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            CAMModelServingEngine.deregisterModel(id);
+            result = { success: true, id };
+            break;
+          }
+          case "cam_serve_list_models": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const filter = params.filter as Parameters<typeof CAMModelServingEngine.listModels>[0];
+            result = { success: true, models: CAMModelServingEngine.listModels(filter) };
+            break;
+          }
+          case "cam_serve_get_model": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            result = { success: true, model: CAMModelServingEngine.getModel(id) };
+            break;
+          }
+          case "cam_serve_update_endpoint": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const url = params.url as string;
+            result = { success: true, model: CAMModelServingEngine.updateModelEndpoint(id, url) };
+            break;
+          }
+          case "cam_serve_set_routing_policy": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const camSystem = params.cam_system as string;
+            const task = params.task as string;
+            const kind = params.kind as Parameters<typeof CAMModelServingEngine.setRoutingPolicy>[2];
+            const overrides = params.overrides as Parameters<typeof CAMModelServingEngine.setRoutingPolicy>[3];
+            result = { success: true, policy: CAMModelServingEngine.setRoutingPolicy(camSystem, task, kind, overrides) };
+            break;
+          }
+          case "cam_serve_get_routing_policy": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const camSystem = params.cam_system as string;
+            const task = params.task as string;
+            result = { success: true, policy: CAMModelServingEngine.getRoutingPolicy(camSystem, task) };
+            break;
+          }
+          case "cam_serve_list_routing_policies": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            result = { success: true, policies: CAMModelServingEngine.listRoutingPolicies() };
+            break;
+          }
+          case "cam_serve_route_request": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const req = params.request as Parameters<typeof CAMModelServingEngine.routeRequest>[0];
+            result = { success: true, decision: CAMModelServingEngine.routeRequest(req) };
+            break;
+          }
+          case "cam_serve_deploy_shadow": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            result = { success: true, envelope: CAMModelServingEngine.deployShadow(id) };
+            break;
+          }
+          case "cam_serve_promote_to_canary": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const weight = params.weight as number;
+            result = { success: true, envelope: CAMModelServingEngine.promoteToCanary(id, weight) };
+            break;
+          }
+          case "cam_serve_promote_to_active": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            result = { success: true, envelope: CAMModelServingEngine.promoteToActive(id) };
+            break;
+          }
+          case "cam_serve_demote_from_active": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const reason = params.reason as string;
+            result = { success: true, envelope: CAMModelServingEngine.demoteFromActive(id, reason) };
+            break;
+          }
+          case "cam_serve_rollback_canary": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const reason = params.reason as string;
+            result = { success: true, envelope: CAMModelServingEngine.rollbackCanary(id, reason) };
+            break;
+          }
+          case "cam_serve_retire_model": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            result = { success: true, envelope: CAMModelServingEngine.retireModel(id) };
+            break;
+          }
+          case "cam_serve_record_metric": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const sample = params.sample as Parameters<typeof CAMModelServingEngine.recordMetric>[1];
+            CAMModelServingEngine.recordMetric(id, sample);
+            result = { success: true, id };
+            break;
+          }
+          case "cam_serve_get_health": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            result = { success: true, health: CAMModelServingEngine.getModelHealth(id) };
+            break;
+          }
+          case "cam_serve_list_health": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            result = { success: true, health: CAMModelServingEngine.listAllHealth() };
+            break;
+          }
+          case "cam_serve_enqueue_batch": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const batchKey = params.batch_key as string;
+            const requestId = params.request_id as string;
+            const payload = params.payload as unknown;
+            result = { success: true, ...CAMModelServingEngine.enqueueBatchRequest(id, batchKey, requestId, payload) };
+            break;
+          }
+          case "cam_serve_drain_batch": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const batchKey = params.batch_key as string;
+            const force = params.force as boolean | undefined;
+            const drained = CAMModelServingEngine.drainBatch(id, batchKey, force);
+            result = { success: true, drained };
+            break;
+          }
+          case "cam_serve_peek_batch_size": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const batchKey = params.batch_key as string;
+            result = { success: true, size: CAMModelServingEngine.peekBatchSize(id, batchKey) };
+            break;
+          }
+          case "cam_serve_check_rate_limit": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            result = { success: true, ...CAMModelServingEngine.checkRateLimit(id) };
+            break;
+          }
+          case "cam_serve_set_rate_limit": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const id = params.id as string;
+            const capacity = params.capacity as number;
+            const refillPerSec = params.refill_per_sec as number;
+            result = { success: true, model: CAMModelServingEngine.setRateLimit(id, capacity, refillPerSec) };
+            break;
+          }
+          case "cam_serve_list_pending_confirmations": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const filter = params.filter as Parameters<typeof CAMModelServingEngine.listPendingConfirmations>[0];
+            result = { success: true, confirmations: CAMModelServingEngine.listPendingConfirmations(filter) };
+            break;
+          }
+          case "cam_serve_clear_confirmations": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            result = { success: true, cleared: CAMModelServingEngine.clearConfirmations() };
+            break;
+          }
+          case "cam_serve_set_metric_buffer_size": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            const size = params.size as number;
+            CAMModelServingEngine.setMetricBufferSize(size);
+            result = { success: true, size };
+            break;
+          }
+          case "cam_serve_clear_all": {
+            const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
+            CAMModelServingEngine.clearAll();
+            result = { success: true };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index (10 actions)
