@@ -556,7 +556,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "completed",
+          "completed_at": "2026-05-05T13:44:23.803Z",
+          "completed_by": "claude-41281702",
+          "notes": "memory-mirror-to-vault.mjs PostToolUse hook (matcher: Edit|Write|MultiEdit) + obsidian-memory-sync.mjs --single-file mode for incremental mirror. 12/12 tests pass: hook handles MultiEdit/Write/Edit payload shapes, malformed JSON, Windows paths, escape hatch via PRISM_MEMORY_MIRROR_DISABLED. Always emits {continue:true}. Qdrant embedding deferred (engine surface ready; Qdrant down at runtime)."
         },
         {
           "id": "P1-U05",
