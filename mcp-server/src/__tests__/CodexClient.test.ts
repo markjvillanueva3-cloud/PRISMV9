@@ -120,3 +120,68 @@ describe("CodexClientEngine — input validation", () => {
     })).rejects.toThrow(/sandbox/);
   });
 });
+
+describe.skipIf(process.platform !== "win32")("CodexClientEngine — .cmd shim regression (P1-U-CODEX-COORD)", () => {
+  it("survives spawn against a Windows .cmd shim (no EINVAL) and parses its codex-shaped stderr", async () => {
+    // Regression for the spawn-EINVAL bug discovered while wiring multi-model
+    // coordination: spawning codex.cmd without shell:true on Windows fails
+    // immediately because CreateProcess can't execute .cmd/.bat. The fix
+    // gates shell:true on the binary's .cmd|.bat extension.
+    //
+    // We can't redirect CODEX_BIN at runtime (frozen at module load), so we
+    // launch a fresh tsx subprocess with PRISM_CODEX_BIN pointed at a
+    // synthetic .cmd that prints exact codex-format stderr.
+    const fs = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const { spawnSync } = await import("node:child_process");
+
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "codex-shim-"));
+    const shim = path.join(tmpdir, "fake-codex.cmd");
+    // The .cmd extension is what triggers the spawn-EINVAL bug we're testing.
+    // To get LF-line-endings (matching real codex behavior — `echo` would emit
+    // CRLF and break the parser), we delegate stderr emission to a node
+    // one-liner. This keeps the .cmd shim path while producing real-shape
+    // codex stderr.
+    const codexStderr = "OpenAI Codex v0.128.0 (research preview)\\n--------\\nmodel: gpt-5.5\\n--------\\ncodex\\nSHIM_OK_42\\ntokens used\\n100\\n";
+    fs.writeFileSync(shim, [
+      "@echo off",
+      `node -e "process.stderr.write('${codexStderr}')"`,
+      "exit /b 0",
+    ].join("\r\n"), "utf-8");
+
+    const probe = path.join(tmpdir, "probe.mjs");
+    const enginePosix = path.join(process.cwd(), "src", "engines", "CodexClientEngine.ts").replace(/\\/g, "/");
+    const engineUrl = `file:///${enginePosix}`;
+    fs.writeFileSync(probe, [
+      `import { codexClientEngine } from ${JSON.stringify(engineUrl)};`,
+      `const r = await codexClientEngine.exec({ prompt: "hi", timeoutMs: 10000, skipGitCheck: true });`,
+      `process.stdout.write(JSON.stringify({ ok: r.ok, answer: r.answer, error: r.error, tokens: r.tokens, model: r.model }));`,
+    ].join("\n"), "utf-8");
+
+    try {
+      const tsx = path.join(process.cwd(), "node_modules", ".bin", "tsx.cmd");
+      const result = spawnSync(tsx, [probe], {
+        encoding: "utf-8",
+        env: { ...process.env, PRISM_CODEX_BIN: shim },
+        timeout: 30_000,
+        shell: true,
+      });
+
+      expect(result.status).toBe(0);
+      const out = (result.stdout ?? "").trim();
+      expect(out.length).toBeGreaterThan(0);
+      const parsed = JSON.parse(out) as { ok: boolean; answer: string; error: string | null; tokens: number | null; model: string };
+
+      // The original bug surfaced as error="spawn failed: spawn EINVAL".
+      // After the fix, exec returns ok:true with parsed answer.
+      expect(parsed.error).toBeNull();
+      expect(parsed.ok).toBe(true);
+      expect(parsed.answer).toBe("SHIM_OK_42");
+      expect(parsed.tokens).toBe(100);
+      expect(parsed.model).toBe("gpt-5.5");
+    } finally {
+      try { fs.rmSync(tmpdir, { recursive: true, force: true }); } catch { /* ignore */ }
+    }
+  }, 60_000);
+});

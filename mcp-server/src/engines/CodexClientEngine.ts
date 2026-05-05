@@ -14,6 +14,7 @@
  */
 
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 
 export interface CodexExecOptions {
   prompt: string;
@@ -35,7 +36,40 @@ export interface CodexResult {
   rawStderrTail: string;          // last ~2000 chars of stderr for debugging
 }
 
-const CODEX_BIN = process.env.PRISM_CODEX_BIN ?? "codex";
+/**
+ * Resolve the codex binary in priority order:
+ *   1. PRISM_CODEX_BIN env var (explicit override)
+ *   2. Bare `codex` (when on PATH — the canonical case)
+ *   3. Known Windows install locations — /h/Tools/nodejs/codex.cmd is our
+ *      portable bundle, npm globals cover regular `npm i -g @openai/codex`.
+ * On Windows, .cmd shims are valid spawn targets when shell:true is used.
+ */
+function resolveCodexBin(): string {
+  if (process.env.PRISM_CODEX_BIN) return process.env.PRISM_CODEX_BIN;
+
+  // We can't probe PATH from here without sync I/O; defer to spawn ENOENT
+  // and the candidate list. Returning "codex" first keeps POSIX hosts happy
+  // where the bare command is the right answer.
+  if (process.platform !== "win32") return "codex";
+
+  // On Windows, shell:true is required for .cmd shims — but we still try
+  // the bare name first so a non-shim install (codex.exe on PATH) wins.
+  const candidates = [
+    "codex",
+    "H:/Tools/nodejs/codex.cmd",
+    "H:/Tools/nodejs/codex.exe",
+    `${process.env.APPDATA ?? ""}\\npm\\codex.cmd`,
+    `${process.env.APPDATA ?? ""}/npm/codex.cmd`,
+  ];
+  // Use the first existing candidate. Done synchronously at module load.
+  for (const c of candidates) {
+    if (c === "codex") continue; // can't existsSync a PATH-only name
+    try { if (existsSync(c)) return c; } catch { /* ignore */ }
+  }
+  return "codex";
+}
+
+const CODEX_BIN = resolveCodexBin();
 const DEFAULT_MODEL = process.env.PRISM_CODEX_MODEL ?? "gpt-5.5";
 const DEFAULT_EFFORT = (process.env.PRISM_CODEX_EFFORT ?? "xhigh") as CodexExecOptions["reasoningEffort"];
 const DEFAULT_TIMEOUT_MS = Number(process.env.PRISM_CODEX_TIMEOUT_MS ?? 120_000);
@@ -59,10 +93,16 @@ export class CodexClientEngine {
 
       let child;
       try {
+        // On Windows, .cmd/.bat shims (codex.cmd is one) cannot be launched
+        // by CreateProcess directly — Node returns EINVAL. shell:true routes
+        // through cmd.exe so the shim resolves, while POSIX systems keep the
+        // direct spawn for performance.
+        const useShell = process.platform === "win32" && /\.(cmd|bat)$/i.test(CODEX_BIN);
         child = spawn(CODEX_BIN, args, {
           stdio: ["pipe", "pipe", "pipe"],
           windowsHide: true,
           cwd: options.workdir ?? process.cwd(),
+          shell: useShell,
         });
       } catch (e) {
         return settle(this.fail(start, `spawn failed: ${(e as Error).message}`, ""));
