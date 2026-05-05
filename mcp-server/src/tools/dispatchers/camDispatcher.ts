@@ -1065,6 +1065,7 @@ export const ACTIONS = [
   "lathe_stock_boundary_gate", "lathe_stock_boundary_gate_or_throw",
   "lathe_proof_carrying_emit", "lathe_proof_carrying_reproduce",
   "lathe_lora_physics_validate", "lathe_lora_physics_process", "lathe_lora_physics_kienzle_coefs",
+  "lathe_lora_master_initialize", "lathe_lora_master_register_subsystem", "lathe_lora_master_transition", "lathe_lora_master_health", "lathe_lora_master_summary",
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
   "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "lathe_p2p_reason_explain", "lathe_p2p_reason_markdown", "lathe_p2p_reason_json", "lathe_p2p_reason_filter", "lathe_p2p_reason_mode_summary",
@@ -4433,6 +4434,73 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               group: params.material_group,
               coefficients: latheLoRAPhysicsAugmentedInferenceEngine.getKienzleCoefficients(params.material_group),
             };
+            break;
+          }
+          case "lathe_lora_master_initialize": {
+            const { latheLoRAMasterOrchestratorEngine } = await import(
+              "../../engines/LatheLoRAMasterOrchestratorEngine.js"
+            );
+            const cfg = params.config as Record<string, unknown> | undefined;
+            if (cfg) latheLoRAMasterOrchestratorEngine.setConfig(cfg);
+            const state = latheLoRAMasterOrchestratorEngine.initialize();
+            result = {
+              id: state.id,
+              current_phase: state.current_phase,
+              overall_health: state.overall_health,
+              initialized_at: state.initialized_at,
+            };
+            break;
+          }
+          case "lathe_lora_master_register_subsystem": {
+            const { latheLoRAMasterOrchestratorEngine } = await import(
+              "../../engines/LatheLoRAMasterOrchestratorEngine.js"
+            );
+            const name = params.name as string | undefined;
+            const initialPhase = (params.initial_phase as string | undefined) ?? "data_collection";
+            if (!name || typeof name !== "string") {
+              throw new Error("lathe_lora_master_register_subsystem: 'name' (string) is required");
+            }
+            const ok = latheLoRAMasterOrchestratorEngine.registerSubsystem(
+              name,
+              initialPhase as Parameters<typeof latheLoRAMasterOrchestratorEngine.registerSubsystem>[1],
+            );
+            if (!ok) {
+              throw new Error("lathe_lora_master_register_subsystem: orchestrator not initialized — call lathe_lora_master_initialize first");
+            }
+            result = { registered: true, name, initial_phase: initialPhase };
+            break;
+          }
+          case "lathe_lora_master_transition": {
+            const { latheLoRAMasterOrchestratorEngine } = await import(
+              "../../engines/LatheLoRAMasterOrchestratorEngine.js"
+            );
+            const phase = params.phase as string | undefined;
+            if (!phase) {
+              throw new Error("lathe_lora_master_transition: 'phase' (string) is required");
+            }
+            const ok = latheLoRAMasterOrchestratorEngine.transition(
+              phase as Parameters<typeof latheLoRAMasterOrchestratorEngine.transition>[0],
+            );
+            if (!ok) {
+              throw new Error(`lathe_lora_master_transition: rejected — invalid phase '${phase}' or backwards transition not allowed`);
+            }
+            result = { transitioned: true, phase };
+            break;
+          }
+          case "lathe_lora_master_health": {
+            const { latheLoRAMasterOrchestratorEngine } = await import(
+              "../../engines/LatheLoRAMasterOrchestratorEngine.js"
+            );
+            const health = latheLoRAMasterOrchestratorEngine.healthCheck();
+            const stats = latheLoRAMasterOrchestratorEngine.getStats();
+            result = { health, stats };
+            break;
+          }
+          case "lathe_lora_master_summary": {
+            const { latheLoRAMasterOrchestratorEngine } = await import(
+              "../../engines/LatheLoRAMasterOrchestratorEngine.js"
+            );
+            result = { summary: latheLoRAMasterOrchestratorEngine.getSummary() };
             break;
           }
           case "lathe_p2p_signoff_generate": {
