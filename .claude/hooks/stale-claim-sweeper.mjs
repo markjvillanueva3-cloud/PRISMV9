@@ -285,7 +285,7 @@ export function sweepChatBusClaims() {
         // peer's renewal — we'll catch it on the next sweep if it really is stale.
         try {
           const stCheck = statSync(path);
-          if (stCheck.mtimeMs !== stMtimeMs) continue;
+          if (shouldSkipUnlinkDueToRace(stMtimeMs, stCheck.mtimeMs)) continue;
         } catch { continue; /* vanished — peer already cleaned it */ }
         unlinkSync(path);
         swept++;
@@ -351,7 +351,9 @@ export function parseWmicRow(row) {
   const ppid = Number.parseInt(parts[parts.length - 2], 10);
   const created = parts[parts.length - 3];
   const cmdline = parts.slice(1, parts.length - 3).join(",");
-  if (!Number.isFinite(pid)) return null;
+  // Reject if pid or ppid failed to parse as a finite integer. Both fields must
+  // be valid numbers for the downstream pidAlive / kill paths to work safely.
+  if (!Number.isFinite(pid) || !Number.isFinite(ppid)) return null;
   return { pid, ppid, created, cmdline };
 }
 
@@ -359,6 +361,13 @@ export function parseWmicRow(row) {
 // Returns false for .json (harness-owned task metadata) and other extensions.
 export function isClaudeTaskOutputFile(name) {
   return typeof name === "string" && /\.output$/.test(name);
+}
+
+// Pure helper: should we skip unlinking a chat-bus claim because a peer renewed
+// it between our first stat and our re-stat? Returns true (skip) when mtimes
+// differ. Extracted so the race-check branch is unit-testable independent of fs.
+export function shouldSkipUnlinkDueToRace(originalMtimeMs, recheckMtimeMs) {
+  return originalMtimeMs !== recheckMtimeMs;
 }
 
 function getZombieNodeHooks() {
