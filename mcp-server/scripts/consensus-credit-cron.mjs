@@ -33,7 +33,7 @@
  */
 
 // Engine load: prefer compiled dist, fall back to src/.ts under tsx.
-let creditEngine, runLogEngine, snapshotEngine, driftEngine;
+let creditEngine, runLogEngine, snapshotEngine, driftEngine, alertLogEngine;
 try {
   ({ consensusNeuralCreditAssignmentEngine: creditEngine } =
     await import("../dist/engines/ConsensusNeuralCreditAssignmentEngine.js"));
@@ -43,6 +43,8 @@ try {
     await import("../dist/engines/ConsensusPerfSnapshotEngine.js"));
   ({ consensusDriftDetectorEngine: driftEngine } =
     await import("../dist/engines/ConsensusDriftDetectorEngine.js"));
+  ({ consensusDriftAlertLogEngine: alertLogEngine } =
+    await import("../dist/engines/ConsensusDriftAlertLogEngine.js"));
 } catch {
   try {
     ({ consensusNeuralCreditAssignmentEngine: creditEngine } =
@@ -53,6 +55,8 @@ try {
       await import("../src/engines/ConsensusPerfSnapshotEngine.js"));
     ({ consensusDriftDetectorEngine: driftEngine } =
       await import("../src/engines/ConsensusDriftDetectorEngine.js"));
+    ({ consensusDriftAlertLogEngine: alertLogEngine } =
+      await import("../src/engines/ConsensusDriftAlertLogEngine.js"));
   } catch (e) {
     console.error(
       "Failed to load consensus credit engines.\n" +
@@ -81,6 +85,8 @@ function parseArgs(argv) {
     snapshotKeep: undefined,
     driftEnabled: undefined, // tri-state: true / false / undefined (auto: enabled iff snapshotDir set)
     driftMinSpanMs: undefined,
+    alertLogPath: undefined,
+    alertEnabled: undefined, // tri-state: enabled iff drift is enabled when undefined
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -100,6 +106,9 @@ function parseArgs(argv) {
       case "--drift":            opts.driftEnabled = true; break;
       case "--no-drift":         opts.driftEnabled = false; break;
       case "--drift-min-span-ms":opts.driftMinSpanMs = parseIntOrThrow(next(), "--drift-min-span-ms"); break;
+      case "--alert-log":        opts.alertLogPath = next(); break;
+      case "--alert":            opts.alertEnabled = true; break;
+      case "--no-alert":         opts.alertEnabled = false; break;
       case "-h":
       case "--help":
         printHelp();
@@ -144,6 +153,9 @@ Options:
   --drift               Force drift check between pre+post snapshots (default: on iff --snapshot-dir set)
   --no-drift            Skip drift check even if --snapshot-dir set
   --drift-min-span-ms <N>  Min ms between before/after for drift comparison (default 0)
+  --alert-log <path>    Override drift-alert ledger path (default state/shared/CONSENSUS_DRIFT_ALERT_LOG.jsonl)
+  --alert               Force alert ledger writes (default: on iff drift enabled)
+  --no-alert            Skip drift alert ledger writes even if drift enabled
   -h, --help            Show this help
 
 Exit codes:
@@ -212,6 +224,18 @@ if (opts.snapshotDir && !opts.dryRun) {
         afterAt: pair.after.ts,
       });
       actionableDrift = driftEngine.hasActionableDrift(driftReport);
+      // Persist alerts when drift detection produced a report. Default
+      // behavior: write whenever drift is enabled (caller can opt out via
+      // --no-alert). Always-write summary lets dashboards distinguish
+      // "we checked, nothing fired" from "we never checked".
+      const alertEnabled = opts.alertEnabled ?? true;
+      if (alertEnabled) {
+        alertLogEngine.recordReport({
+          report: driftReport,
+          runId: `cron-${startedAt}`,
+          logPath: opts.alertLogPath,
+        });
+      }
     }
   }
 
