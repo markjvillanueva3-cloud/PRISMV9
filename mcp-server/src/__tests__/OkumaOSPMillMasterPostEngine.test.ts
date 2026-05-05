@@ -673,3 +673,95 @@ describe("OkumaOSPMill — postSingle simplified API (U-PPGOH02)", () => {
     ).toThrow(/spindle_rpm must be > 0/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// U-PPGOH03: op.tool structured shadowing on the verbose generateProgram path
+// ---------------------------------------------------------------------------
+
+const SHADOW_PROGRAM_BASE = 9100;
+const SHADOW_TOOL_NUM = 5;
+const SHADOW_DIA_MM = 8;
+const SHADOW_FLUTES = 3;
+const SHADOW_STRUCTURED_DESC = "STRUCTURED-NAME";
+const SHADOW_FLAT_DESC = "FLAT-NAME";
+const SHADOW_COATING = "AlCrN";
+const SHADOW_STICKOUT_MM = 25;
+
+describe("OkumaOSPMill — op.tool structured shadowing (U-PPGOH03)", () => {
+  it("uses structured tool.description over flat tool_description in tool-length-comp emit", () => {
+    const tool: MillTool = {
+      number: SHADOW_TOOL_NUM,
+      diameter_mm: SHADOW_DIA_MM,
+      flutes: SHADOW_FLUTES,
+      description: SHADOW_STRUCTURED_DESC,
+    };
+    const op: MillOperation = makeOp({
+      tool_number: SHADOW_TOOL_NUM,
+      tool_diameter_mm: SHADOW_DIA_MM,
+      tool_flutes: SHADOW_FLUTES,
+      tool_description: SHADOW_FLAT_DESC,
+      tool,
+    });
+    const result = okumaOSPMillMasterPostEngine.generateProgram([op], {
+      program_number: SHADOW_PROGRAM_BASE + 1,
+    });
+    // Default tlc mode is `G43_H` — emit `G43 H<n> (STRUCTURED-NAME)`. Flat name
+    // must not appear anywhere in the program.
+    const tlcLine = findLine(
+      result.gcode,
+      l => /^G43 H/.test(l),
+      "G43 H tool-length-comp line",
+    );
+    expect(tlcLine).toContain(SHADOW_STRUCTURED_DESC);
+    expect(result.gcode.some(l => l.includes(SHADOW_FLAT_DESC))).toBe(false);
+  });
+
+  it("structured tool.coating + tool.stickout_mm propagate into setup_sheet via the verbose path", () => {
+    const tool: MillTool = {
+      number: SHADOW_TOOL_NUM,
+      diameter_mm: SHADOW_DIA_MM,
+      flutes: SHADOW_FLUTES,
+      coating: SHADOW_COATING,
+      stickout_mm: SHADOW_STICKOUT_MM,
+    };
+    const op: MillOperation = makeOp({
+      tool_number: SHADOW_TOOL_NUM,
+      tool_diameter_mm: SHADOW_DIA_MM,
+      tool_flutes: SHADOW_FLUTES,
+      tool,
+    });
+    const result = okumaOSPMillMasterPostEngine.generateProgram([op], {
+      program_number: SHADOW_PROGRAM_BASE + 2,
+    });
+    const sheet = mustOkumaSheet(result.setup_sheet, "verbose-path setup_sheet");
+    const t = sheet.tools[0];
+    expect(t.number).toBe(SHADOW_TOOL_NUM);
+    expect(t.coating).toBe(SHADOW_COATING);
+    expect(t.stickout_mm).toBe(SHADOW_STICKOUT_MM);
+    expect(t.diameter_mm).toBe(SHADOW_DIA_MM);
+  });
+
+  it("flat-field caller (no op.tool) leaves coating/stickout undefined — backward-compat", () => {
+    const op = makeOp({ tool_number: SHADOW_TOOL_NUM });
+    const result = okumaOSPMillMasterPostEngine.generateProgram([op], {
+      program_number: SHADOW_PROGRAM_BASE + 3,
+    });
+    const t = mustOkumaSheet(result.setup_sheet, "flat-path setup_sheet").tools[0];
+    expect(t.coating === undefined).toBe(true);
+    expect(t.stickout_mm === undefined).toBe(true);
+  });
+
+  it("throws when op.tool.number does not match flat tool_number (silent-reassignment guard)", () => {
+    const tool: MillTool = {
+      number: SHADOW_TOOL_NUM + 1,  // mismatch
+      diameter_mm: SHADOW_DIA_MM,
+      flutes: SHADOW_FLUTES,
+    };
+    const op = makeOp({ tool_number: SHADOW_TOOL_NUM, tool });
+    expect(() =>
+      okumaOSPMillMasterPostEngine.generateProgram([op], {
+        program_number: SHADOW_PROGRAM_BASE + 4,
+      }),
+    ).toThrow(/structured tool\.number=6 does not match flat tool_number=5/);
+  });
+});

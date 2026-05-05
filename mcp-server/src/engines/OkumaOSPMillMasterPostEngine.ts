@@ -313,6 +313,18 @@ export interface MillOperation {
   rotary_a_deg?: number;
   /** Indexed C-axis (table rotation) angle in degrees. Default 0. */
   rotary_c_deg?: number;
+  /**
+   * U-PPGOH03: optional structured tool descriptor. When supplied, its
+   * `description`, `coating`, and `stickout_mm` SHADOW the flat
+   * `tool_description` (and propagate into `setup_sheet.tools[]`). The
+   * structured `tool.number` MUST equal the top-level `tool_number` —
+   * mismatch throws so silent reassignment can't slip through. Diameter
+   * and flutes on the structured tool are ignored at emit time (the flat
+   * `tool_diameter_mm` / `tool_flutes` remain the source of truth for
+   * physics checks); they're only carried into setup_sheet for kit-up
+   * workflow continuity. Mirrors HurcoV11 U-PPGH13.
+   */
+  tool?: MillTool;
 }
 
 export interface AdvancedPipelineSummary {
@@ -789,13 +801,23 @@ export class OkumaOSPMillMasterPostEngine {
       for (const line of dialect.tool_change_sequence) {
         gcode.push(line.replace("{tool}", String(op.tool_number)));
       }
+      // U-PPGOH03: structured op.tool.description shadows flat tool_description.
+      // Mismatch on tool.number vs tool_number is a silent-reassignment bug
+      // class — throw so the caller fixes their input.
+      if (op.tool && op.tool.number !== op.tool_number) {
+        throw new Error(
+          `OkumaOSPMill.generateProgram: structured tool.number=${op.tool.number} does not match flat tool_number=${op.tool_number}`,
+        );
+      }
+      const toolDescription =
+        op.tool?.description ?? op.tool_description ?? `TOOL ${op.tool_number}`;
       // Tool-length compensation — honor `tool_length_comp_mode` config.
       // Default `G43_H` matches OSP-P*M generic emission. JM Die's hyperMILL
       // post specifies `G56 HA` (single static call against active-tool
       // length register set by Okuma's tool-length-measure cycle).
       const tlcLine = cfg.tool_length_comp_mode === "G56_HA"
-        ? `G56 HA ${this.fmtComment(dialect, op.tool_description ?? `TOOL ${op.tool_number}`)}`
-        : `G43 H${op.tool_number} ${this.fmtComment(dialect, op.tool_description ?? `TOOL ${op.tool_number}`)}`;
+        ? `G56 HA ${this.fmtComment(dialect, toolDescription)}`
+        : `G43 H${op.tool_number} ${this.fmtComment(dialect, toolDescription)}`;
       gcode.push(tlcLine);
       if (cfg.tool_length_comp_mode === "G56_HA") {
         tribalTipsApplied.push("[jm_die_tool_length] G56 HA emitted (tool-length-comp via active register)");
@@ -912,11 +934,18 @@ export class OkumaOSPMillMasterPostEngine {
       const toolByNumber = new Map<number, OkumaSetupSheetTool>();
       for (const op of operations) {
         if (!toolByNumber.has(op.tool_number)) {
+          // U-PPGOH03: structured op.tool fields shadow flat fields. coating
+          // and stickout_mm are surfaced ONLY when the structured tool path
+          // supplies them — verbose flat-field callers stay backward compat
+          // (those two fields remain undefined for them).
+          const t = op.tool;
           toolByNumber.set(op.tool_number, {
             number: op.tool_number,
             diameter_mm: op.tool_diameter_mm,
             flutes: op.tool_flutes,
-            description: op.tool_description,
+            description: t?.description ?? op.tool_description,
+            coating: t?.coating,
+            stickout_mm: t?.stickout_mm,
           });
         }
       }
@@ -1030,6 +1059,9 @@ export class OkumaOSPMillMasterPostEngine {
       r: m.r,
     }));
 
+    // U-PPGOH03: pass the structured tool through op.tool so the unified
+    // tool-change emit + setup_sheet build paths surface coating +
+    // stickout_mm + description shadowing without a post-result patch.
     const op: MillOperation = {
       operation_type: args.operation,
       tool_number: args.tool.number,
@@ -1042,24 +1074,10 @@ export class OkumaOSPMillMasterPostEngine {
       axial_depth_mm: args.axial_depth_mm,
       coordinates,
       arc_data: arcData,
+      tool: args.tool,
     };
 
-    const result = this.generateProgram([op], configOverrides);
-
-    // U-PPGOH02: surface structured-tool fields on setup_sheet entry. The
-    // verbose path leaves them undefined (op.tool support lands in U-PPGOH03);
-    // postSingle path patches the matching tool entry by number.
-    if (result.setup_sheet) {
-      for (const t of result.setup_sheet.tools) {
-        if (t.number === args.tool.number) {
-          if (args.tool.coating !== undefined) t.coating = args.tool.coating;
-          if (args.tool.stickout_mm !== undefined) {
-            t.stickout_mm = args.tool.stickout_mm;
-          }
-        }
-      }
-    }
-    return result;
+    return this.generateProgram([op], configOverrides);
   }
 
   // --------------------------------------------------------------------------
