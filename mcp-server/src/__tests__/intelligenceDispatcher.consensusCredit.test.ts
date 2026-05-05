@@ -17,6 +17,7 @@ import { consensusNeuralCreditAssignmentEngine } from "../engines/ConsensusNeura
 import { consensusModelPerformanceEngine } from "../engines/ConsensusModelPerformanceEngine.js";
 import { consensusPerformanceDashboardEngine } from "../engines/ConsensusPerformanceDashboardEngine.js";
 import { consensusBaselineWarmstartEngine } from "../engines/ConsensusBaselineWarmstartEngine.js";
+import { consensusCreditRunLogEngine } from "../engines/ConsensusCreditRunLogEngine.js";
 import type { ConsensusResultLike } from "../engines/ConsensusNeuralFeedbackEngine.js";
 
 function tmpDir(): string {
@@ -74,12 +75,14 @@ describe("intelligenceDispatcher consensus_credit_* actions", () => {
   let perfPath: string;
   let cursorPath: string;
   let feedPath: string;
+  let runLogPath: string;
 
   beforeEach(() => {
     dir = tmpDir();
     perfPath = path.join(dir, "perf.json");
     cursorPath = path.join(dir, "cursor.json");
     feedPath = path.join(dir, "feed.jsonl");
+    runLogPath = path.join(dir, "runs.jsonl");
   });
 
   afterEach(() => {
@@ -252,6 +255,61 @@ describe("intelligenceDispatcher consensus_credit_* actions", () => {
     // anthropic plan filled from baseline
     expect(out.state.vendors.anthropic.tasks.plan.ema).toBe(0.6);
     expect(out.state.vendors.anthropic.tasks.plan.n).toBe(1);
+  });
+
+  it("consensus_credit_run_history returns recorded run entries in chronological order", () => {
+    // Mirror dispatcher's exact call: getHistory({ logPath, limit })
+    consensusCreditRunLogEngine.recordRun({
+      ok: true, processed: 5, skipped: 0, cursorAdvance: 1024, cursorOffset: 1024,
+      perVendor: { anthropic: 5 }, trigger: "test", error: null, durationMs: 100, logPath: runLogPath,
+    });
+    consensusCreditRunLogEngine.recordRun({
+      ok: true, processed: 3, skipped: 1, cursorAdvance: 512, cursorOffset: 1536,
+      perVendor: { openai: 3 }, trigger: "test", error: null, durationMs: 80, logPath: runLogPath,
+    });
+    const history = consensusCreditRunLogEngine.getHistory({ logPath: runLogPath });
+    expect(history).toHaveLength(2);
+    expect(history.map((e) => e.processed)).toEqual([5, 3]);
+    expect(history[0].perVendor.anthropic).toBe(5);
+    expect(history[1].perVendor.openai).toBe(3);
+  });
+
+  it("consensus_credit_run_history on missing log returns empty array", () => {
+    const history = consensusCreditRunLogEngine.getHistory({ logPath: runLogPath });
+    expect(history).toEqual([]);
+  });
+
+  it("consensus_credit_run_stats aggregates success rate and totals over recent runs", () => {
+    consensusCreditRunLogEngine.recordRun({
+      ok: true, processed: 10, skipped: 1, cursorAdvance: 0, cursorOffset: 0,
+      perVendor: {}, trigger: "test", error: null, durationMs: 100, logPath: runLogPath,
+    });
+    consensusCreditRunLogEngine.recordRun({
+      ok: false, processed: 0, skipped: 0, cursorAdvance: 0, cursorOffset: 0,
+      perVendor: {}, trigger: "test", error: "fail", durationMs: 50, logPath: runLogPath,
+    });
+    consensusCreditRunLogEngine.recordRun({
+      ok: true, processed: 20, skipped: 2, cursorAdvance: 0, cursorOffset: 0,
+      perVendor: {}, trigger: "test", error: null, durationMs: 150, logPath: runLogPath,
+    });
+    // Mirror dispatcher's exact call: getStats({ logPath, limit })
+    const stats = consensusCreditRunLogEngine.getStats({ logPath: runLogPath });
+    expect(stats.totalRuns).toBe(3);
+    expect(stats.successfulRuns).toBe(2);
+    expect(stats.failedRuns).toBe(1);
+    expect(stats.successRate).toBeCloseTo(0.6667, 3);
+    expect(stats.totalProcessed).toBe(30);
+    expect(stats.totalSkipped).toBe(3);
+    // mean = (100+50+150)/3 = 100
+    expect(stats.meanDurationMs).toBe(100);
+    expect(stats.lastRunOk).toBe(true);
+  });
+
+  it("consensus_credit_run_stats on missing log returns zeroed snapshot", () => {
+    const stats = consensusCreditRunLogEngine.getStats({ logPath: runLogPath });
+    expect(stats.totalRuns).toBe(0);
+    expect(stats.lastRunAt).toBe(null);
+    expect(stats.lastRunOk).toBe(null);
   });
 
   it("consensus_credit_apply_feed with batchSize caps lines and resumes on next call", () => {
