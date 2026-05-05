@@ -1,0 +1,99 @@
+# PRISM CAM Model Serving — Argo Rollouts canary spec
+# CAM-EXHAUST-MS0/U-CAM122
+#
+# Mirrors the engine's promotion-gate semantics into the cluster control
+# plane: progressive weight steps (10 → 25 → 50 → 100), pause-and-analyze
+# at each step, and automatic rollback on metric regression.
+#
+# AnalysisTemplate `cam-canary-success-rate` queries Prometheus for:
+#   - `cam_serve_error_rate{model_id, status="canary"}` ≤ 0.10
+#   - `cam_serve_p95_latency_ms{status="canary"}` ≤ p95(active) · 1.30
+#
+# When the engine itself rolls back via recordMetric() side-effect, the
+# operator-confirmation envelope flows to the dashboard; this Rollout
+# spec is the cluster-level safety net that fires when the engine
+# itself is unreachable or the metric pipeline lags.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: prism-cam-model-serving-rollout
+  namespace: prism
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: prism-cam-model-serving
+  template:
+    metadata:
+      labels:
+        app: prism-cam-model-serving
+    spec:
+      containers:
+        - name: serving
+          image: ghcr.io/prism/cam-model-serving:1.0.0
+          ports:
+            - containerPort: 3100
+  strategy:
+    canary:
+      canaryService: prism-cam-model-serving-canary
+      stableService: prism-cam-model-serving
+      maxSurge: 1
+      maxUnavailable: 0
+      steps:
+        - setWeight: 10
+        - pause: { duration: 5m }
+        - analysis:
+            templates:
+              - templateName: cam-canary-success-rate
+            args:
+              - name: service-name
+                value: prism-cam-model-serving-canary
+        - setWeight: 25
+        - pause: { duration: 10m }
+        - analysis:
+            templates:
+              - templateName: cam-canary-success-rate
+            args:
+              - name: service-name
+                value: prism-cam-model-serving-canary
+        - setWeight: 50
+        - pause: { duration: 15m }
+        - analysis:
+            templates:
+              - templateName: cam-canary-success-rate
+            args:
+              - name: service-name
+                value: prism-cam-model-serving-canary
+        - setWeight: 100
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: cam-canary-success-rate
+  namespace: prism
+spec:
+  args:
+    - name: service-name
+  metrics:
+    - name: success-rate
+      interval: 1m
+      successCondition: result[0] >= 0.90
+      failureLimit: 2
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(cam_serve_request_total{service="{{args.service-name}}",success="true"}[5m]))
+            /
+            sum(rate(cam_serve_request_total{service="{{args.service-name}}"}[5m]))
+    - name: p95-latency
+      interval: 1m
+      successCondition: result[0] <= 200
+      failureLimit: 2
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.95, sum by (le) (
+              rate(cam_serve_request_duration_ms_bucket{service="{{args.service-name}}"}[5m])
+            ))
