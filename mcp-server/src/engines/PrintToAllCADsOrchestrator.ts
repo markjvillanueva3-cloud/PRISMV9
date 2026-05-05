@@ -27,15 +27,23 @@ import { printToMastercamBridge, type PrintToMastercamOutput } from "./PrintToMa
 import { printToInventorBridge, type PrintToInventorOutput } from "./PrintToInventorBridge.js";
 import { printToSolidWorksBridge, type PrintToSolidWorksOutput } from "./PrintToSolidWorksBridge.js";
 import { printToEspritBridge, type PrintToEspritOutput } from "./PrintToEspritBridge.js";
+import {
+  printToHyperCADSAnalysisBridge,
+  type PrintToHyperCADSAnalysisOutput,
+} from "./PrintToHyperCADSAnalysisBridge.js";
 import type { TranslatorInput } from "./PrintToCADTranslator.js";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const ORCHESTRATOR_VERSION = "1.0.0";
 
-/** CAD targets supported by this orchestrator, in priority order. */
+/**
+ * CAD targets supported by this orchestrator, in user-stated priority order:
+ * fusion → hypercad → mastercam → inventor → solidworks → esprit.
+ */
 export const ALL_CAD_TARGETS = [
   "fusion360",
+  "hypercads",
   "mastercam",
   "inventor",
   "solidworks",
@@ -57,7 +65,8 @@ type BridgeOutput =
   | PrintToMastercamOutput
   | PrintToInventorOutput
   | PrintToSolidWorksOutput
-  | PrintToEspritOutput;
+  | PrintToEspritOutput
+  | PrintToHyperCADSAnalysisOutput;
 
 export interface PerCADResult {
   target: CADTarget;
@@ -123,6 +132,11 @@ function runBridge(target: CADTarget, input: OrchestratorInput): BridgeOutput {
       });
     case "esprit":
       return printToEspritBridge.buildBridgeScript({
+        ...input,
+        outputDir: input.outputDir,
+      });
+    case "hypercads":
+      return printToHyperCADSAnalysisBridge.buildBridgeScript({
         ...input,
         outputDir: input.outputDir,
       });
