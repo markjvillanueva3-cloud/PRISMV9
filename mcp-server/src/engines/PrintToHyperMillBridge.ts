@@ -35,10 +35,26 @@ import {
 } from "./HyperMillCodeGeneratorEngine.js";
 import type { BlueprintAnalysis } from "./BlueprintOCREngine.js";
 import type { ExtractedProfile } from "./BlueprintVisionOCREngine.js";
+import {
+  ultimateSpeedFeedEngine,
+  type UltimateSpeedFeedInput,
+} from "./UltimateSpeedFeedEngine.js";
+
+/** Minimal result shape the bridge consumes — wider engine results satisfy this */
+export interface BridgeFeedSpeedResult {
+  spindle_rpm: { value: number };
+  feed_rate: { value: number };
+}
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const BRIDGE_VERSION = "1.0.0";
+const BRIDGE_VERSION = "1.1.0";
+
+/** Sanity bounds — anything outside is treated as a failed calc */
+const RPM_MIN = 1;
+const RPM_MAX = 100_000;
+const FEED_MIN = 1;
+const FEED_MAX = 50_000;
 
 const DEFAULT_DRILL_DIA_MM = 6.0;
 const DEFAULT_POCKET_ROUGH_DIA_MM = 8.0;
@@ -77,6 +93,49 @@ export interface PrintToHyperMillInput {
   runNCGeneration?: boolean;
   /** Whether to wrap script in try/except (default true for prod safety) */
   addErrorHandling?: boolean;
+  /**
+   * Material-driven calibration of feeds + spindle RPM. Default behavior:
+   *   - true  if a material name is resolved from analysis (or input.materialOverride)
+   *   - false otherwise (no point invoking physics with no material)
+   * Pass `false` explicitly to force hardcoded defaults (e.g. for repro tests).
+   */
+  useMaterialFeedSpeed?: boolean;
+  /** Override the title-block material (e.g. when caller knows the actual stock) */
+  materialOverride?: string;
+}
+
+/** DI surface for the speed/feed physics engine — keeps the bridge testable */
+export interface FeedSpeedCalculator {
+  calculate(input: UltimateSpeedFeedInput): BridgeFeedSpeedResult;
+}
+
+export interface MaterialCalibrationEntry {
+  /** Operation name (HMOperation.name) */
+  op: string;
+  /** Tool number used for the calc */
+  tool: number;
+  /** Where the final feed/rpm came from */
+  source: "physics" | "default" | "failed";
+  /** Final spindle rpm written into HMOperation */
+  rpm: number;
+  /** Final feed in mm/min written into HMOperation */
+  feed_mm_min: number;
+  /** Why physics calc was skipped or failed (only set when source != "physics") */
+  reason?: string;
+}
+
+export interface MaterialCalibration {
+  enabled: boolean;
+  /** Material name actually fed to the physics engine (may differ from title block) */
+  material: string | null;
+  /** Per-operation outcomes — same length as ops emitted */
+  perOp: MaterialCalibrationEntry[];
+  /** Counters for quick assertion in tests / dashboards */
+  summary: {
+    physics: number;
+    fallback: number;
+    failed: number;
+  };
 }
 
 export interface PrintToHyperMillOutput {
@@ -92,6 +151,8 @@ export interface PrintToHyperMillOutput {
   units: "mm" | "in";
   /** Per-operation summary (type + tool + name) for traceability */
   operationSummary: Array<{ type: string; tool: number | null; name: string }>;
+  /** Per-op calibration outcome from the speed/feed physics engine */
+  materialCalibration: MaterialCalibration;
   provenance: {
     source: "blueprint_analysis" | "profiles" | "mixed" | "dimensions_only";
     profileCount: number;
@@ -147,7 +208,152 @@ function unitsFrom(input: PrintToHyperMillInput): "mm" | "in" {
 }
 
 function materialFrom(input: PrintToHyperMillInput): string | null {
+  if (input.materialOverride && input.materialOverride.trim().length > 0) {
+    return input.materialOverride.trim();
+  }
   return input.analysis?.title_block?.material ?? input.analysis?.summary?.material ?? null;
+}
+
+/** Map an HMOperation type onto an UltimateSpeedFeed input */
+function opToFeedSpeedInput(
+  op: HMOperation,
+  tool: HMTool,
+  material: string,
+): UltimateSpeedFeedInput {
+  let operation: UltimateSpeedFeedInput["operation"] = "milling";
+  let cut_type: UltimateSpeedFeedInput["cut_type"] = "roughing";
+  let strategy: UltimateSpeedFeedInput["strategy"] | undefined;
+
+  switch (op.type) {
+    case "drilling":
+      operation = "drilling";
+      cut_type = "roughing";
+      break;
+    case "scallop_finishing":
+    case "z_level_finishing":
+      operation = "milling";
+      cut_type = "finishing";
+      break;
+    case "hpc_roughing":
+      operation = "milling";
+      cut_type = "roughing";
+      strategy = "hpc";
+      break;
+    case "pocket_2d":
+    case "contour_2d":
+    default:
+      operation = "milling";
+      cut_type = "roughing";
+      break;
+  }
+
+  return {
+    material,
+    tool_diameter_mm: tool.diameter_mm,
+    flutes: tool.flutes ?? 2,
+    tool_material: "carbide",
+    operation,
+    cut_type,
+    ...(strategy ? { strategy } : {}),
+  };
+}
+
+/** Sanity-check a physics result before promoting it onto an HMOperation */
+function isCleanResult(rpm: number, feed: number): boolean {
+  return (
+    Number.isFinite(rpm) && rpm >= RPM_MIN && rpm <= RPM_MAX &&
+    Number.isFinite(feed) && feed >= FEED_MIN && feed <= FEED_MAX
+  );
+}
+
+/**
+ * Calibrate every op's feed_mm_min + spindle_rpm from physics. Mutates `ops`
+ * in place. Failures are isolated per-op; defaults stay if calc cannot run.
+ */
+function calibrateOps(
+  ops: HMOperation[],
+  tools: HMTool[],
+  material: string,
+  feedSpeed: FeedSpeedCalculator,
+  warnings: string[],
+): MaterialCalibration {
+  const toolByNumber = new Map<number, HMTool>(tools.map((t) => [t.number, t]));
+  const perOp: MaterialCalibrationEntry[] = [];
+  let physics = 0;
+  let fallback = 0;
+  let failed = 0;
+
+  for (const op of ops) {
+    const opName = op.name ?? op.type;
+    const toolNum = op.tool_number ?? -1;
+    const tool = toolByNumber.get(toolNum);
+    const defaultRpm = op.spindle_rpm ?? 0;
+    const defaultFeed = op.feed_mm_min ?? 0;
+
+    if (!tool) {
+      perOp.push({
+        op: opName,
+        tool: toolNum,
+        source: "default",
+        rpm: defaultRpm,
+        feed_mm_min: defaultFeed,
+        reason: `tool ${toolNum} not in tool table`,
+      });
+      fallback += 1;
+      continue;
+    }
+
+    try {
+      const sfInput = opToFeedSpeedInput(op, tool, material);
+      const sfResult = feedSpeed.calculate(sfInput);
+      const rpm = sfResult.spindle_rpm.value;
+      const feed = sfResult.feed_rate.value;
+      if (!isCleanResult(rpm, feed)) {
+        perOp.push({
+          op: opName,
+          tool: toolNum,
+          source: "failed",
+          rpm: defaultRpm,
+          feed_mm_min: defaultFeed,
+          reason: `physics returned out-of-range rpm=${rpm} feed=${feed}`,
+        });
+        warnings.push(`[${opName}] physics calc out-of-range — kept defaults rpm=${defaultRpm} feed=${defaultFeed}`);
+        failed += 1;
+        continue;
+      }
+      const rpmRounded = Math.round(rpm);
+      const feedRounded = Math.round(feed);
+      op.spindle_rpm = rpmRounded;
+      op.feed_mm_min = feedRounded;
+      perOp.push({
+        op: opName,
+        tool: toolNum,
+        source: "physics",
+        rpm: rpmRounded,
+        feed_mm_min: feedRounded,
+      });
+      physics += 1;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      perOp.push({
+        op: opName,
+        tool: toolNum,
+        source: "failed",
+        rpm: defaultRpm,
+        feed_mm_min: defaultFeed,
+        reason: msg,
+      });
+      warnings.push(`[${opName}] physics calc threw — kept defaults: ${msg}`);
+      failed += 1;
+    }
+  }
+
+  return {
+    enabled: true,
+    material,
+    perOp,
+    summary: { physics, fallback, failed },
+  };
 }
 
 function pickPostProcessor(materialOrControllerHint: string | null, override?: string): string {
@@ -381,6 +587,11 @@ function buildToolTable(profiles: ExtractedProfile[]): HMTool[] {
 
 export class PrintToHyperMillBridge {
   readonly version = BRIDGE_VERSION;
+  private readonly feedSpeed: FeedSpeedCalculator;
+
+  constructor(deps?: { feedSpeed?: FeedSpeedCalculator }) {
+    this.feedSpeed = deps?.feedSpeed ?? ultimateSpeedFeedEngine;
+  }
 
   validate(input: unknown): PrintToHyperMillValidation {
     return validateInput(input);
@@ -401,6 +612,33 @@ export class PrintToHyperMillBridge {
     const { ops, unsupported, warnings, source } = buildOperations(input);
     const tools = buildToolTable(profiles);
 
+    // Material-driven calibration of feed/rpm. Default ON when a material is
+    // resolved; explicit `useMaterialFeedSpeed: false` opts out.
+    const wantCalibration = input.useMaterialFeedSpeed ?? Boolean(material);
+    let materialCalibration: MaterialCalibration;
+    if (wantCalibration && material && ops.length > 0) {
+      materialCalibration = calibrateOps(ops, tools, material, this.feedSpeed, warnings);
+    } else {
+      const reason = !material
+        ? "no material resolved from title block / override"
+        : ops.length === 0
+          ? "no operations to calibrate"
+          : "useMaterialFeedSpeed=false";
+      materialCalibration = {
+        enabled: false,
+        material,
+        perOp: ops.map((op) => ({
+          op: op.name ?? op.type,
+          tool: op.tool_number ?? -1,
+          source: "default",
+          rpm: op.spindle_rpm ?? 0,
+          feed_mm_min: op.feed_mm_min ?? 0,
+          reason,
+        })),
+        summary: { physics: 0, fallback: ops.length, failed: 0 },
+      };
+    }
+
     const params: HMGenerateParams = {
       part_name: partName,
       job_name: `${partName}_PRISM_Job`,
@@ -415,8 +653,12 @@ export class PrintToHyperMillBridge {
 
     // Surface generator-side warnings in our own list
     const allWarnings = [...warnings, ...result.warnings];
-    if (material) {
-      allWarnings.push(`Material from title block: ${material} (caller is responsible for material-specific feeds/speeds)`);
+    if (material && materialCalibration.enabled) {
+      allWarnings.push(
+        `Material-calibrated feeds/speeds: material=${material}, physics=${materialCalibration.summary.physics}, fallback=${materialCalibration.summary.fallback}, failed=${materialCalibration.summary.failed}`,
+      );
+    } else if (material) {
+      allWarnings.push(`Material from title block: ${material} (calibration disabled — using bridge defaults)`);
     }
     if (units === "in") {
       allWarnings.push("Units=inch — generated AC script assumes hyperMILL is configured for inch mode");
@@ -441,6 +683,7 @@ export class PrintToHyperMillBridge {
         tool: o.tool_number ?? null,
         name: o.name ?? o.type,
       })),
+      materialCalibration,
       provenance: {
         source,
         profileCount: profiles.length,

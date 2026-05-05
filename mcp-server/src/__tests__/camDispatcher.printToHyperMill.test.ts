@@ -123,7 +123,7 @@ describe("camDispatcher — print_to_hypermill round-trip", () => {
   it("capabilities via dispatcher exposes supported profile types + 4 default tools", async () => {
     const res = await invoke("print_to_hypermill_capabilities", {});
     expect(res.success).toBe(true);
-    expect(res.version).toBe("1.0.0");
+    expect(res.version).toBe("1.1.0");
     const sup = res.supportedProfileTypes as string[];
     expect([...sup].sort()).toEqual(["external", "hole", "pocket"]);
     const tools = res.defaultTools as Array<{ number: number; role: string }>;
