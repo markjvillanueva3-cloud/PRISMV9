@@ -785,7 +785,17 @@ export class HurcoV11MillMasterPostEngine {
     }
 
     lines.push("G90 G17 G40 G49 G80 (ABSOLUTE, XY PLANE, CANCEL COMP, CANCEL CANNED)");
-    lines.push(`G${cfg.work_offset} (WORK OFFSET)`);
+    // U-PPGH08: Hurco WinMax dialect — G54..G59 are the six standard work
+    // offsets; anything else routes to the extended fixture-offset table
+    // G54.1 P<n>. Emitting G12 (the literal numeric offset) for value 12
+    // would parse-error on V11 — V11 has no G12. WinMax docs map P1..P48
+    // (some configs to P99) for the extended block.
+    const wo = cfg.work_offset;
+    const wcsLine =
+      wo >= 54 && wo <= 59
+        ? `G${wo} (WORK OFFSET)`
+        : `G54.1 P${wo} (WORK OFFSET)`;
+    lines.push(wcsLine);
 
     return lines;
   }

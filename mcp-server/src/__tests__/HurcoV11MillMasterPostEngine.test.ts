@@ -140,6 +140,30 @@ describe("HurcoV11 — units & work offsets", () => {
     const wcs = mustFind(result.gcode, l => /WORK OFFSET/.test(l), "WCS line");
     expect(wcs).toBe("G54.1 P12 (WORK OFFSET)");
   });
+
+  // U-PPGH08 failure-mode regression guards: only G54..G59 are direct on Hurco
+  // V11 WinMax. Anything else (below 54, above 59) MUST route through the
+  // G54.1 P<n> extended block, never emit a literal G<n> that V11 would
+  // parse-error on (no G1, G2, G12, G60, G99 work-offset semantics on V11).
+  it("emits G54.1 P1 extended offset for work_offset 1 (below G54 standard range)", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], { work_offset: 1 });
+    const wcs = mustFind(result.gcode, l => /WORK OFFSET/.test(l), "WCS line");
+    expect(wcs).toBe("G54.1 P1 (WORK OFFSET)");
+    expect(linesMatching(result.gcode, /^G1\b/).length).toBe(0);
+  });
+
+  it("emits G54.1 P60 extended offset for work_offset 60 (above G59 standard range)", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], { work_offset: 60 });
+    const wcs = mustFind(result.gcode, l => /WORK OFFSET/.test(l), "WCS line");
+    expect(wcs).toBe("G54.1 P60 (WORK OFFSET)");
+    expect(linesMatching(result.gcode, /^G60\b/).length).toBe(0);
+  });
+
+  it("emits direct G54 (default) when no work_offset override supplied", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
+    const wcs = mustFind(result.gcode, l => /WORK OFFSET/.test(l), "WCS line");
+    expect(wcs).toBe("G54 (WORK OFFSET)");
+  });
 });
 
 describe("HurcoV11 — tool change", () => {
