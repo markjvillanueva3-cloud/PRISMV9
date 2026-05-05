@@ -709,6 +709,71 @@ describe("HurcoV11 — postSingle simplified API", () => {
     expect(t.stickout_mm).toBe(25);
     expect(t.diameter_mm).toBe(8);
   });
+
+  // U-PPGH11 hardening: silent-disable guards. Each guard prevents a
+  // class of caller mistake that would otherwise produce a malformed
+  // program (zero-feed strafe, NaN-coord rapid, slot-0 tool change)
+  // and run on a real machine.
+  it("rejects empty toolpath (no useful program without coordinates)", () => {
+    expect(() =>
+      hurcoV11MillMasterPostEngine.postSingle({
+        toolpath: [],
+        material: { iso_group: "N" },
+        tool: { number: 1, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 6000,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }),
+    ).toThrow(/toolpath must contain at least one move/);
+  });
+
+  it("rejects tool.number=0 (invalid magazine slot)", () => {
+    expect(() =>
+      hurcoV11MillMasterPostEngine.postSingle({
+        toolpath: makePostMoves(),
+        material: { iso_group: "N" },
+        tool: { number: 0, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 6000,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }),
+    ).toThrow(/invalid tool\.number=0/);
+  });
+
+  it("rejects NaN coordinate on any move (would emit NaN G-code)", () => {
+    expect(() =>
+      hurcoV11MillMasterPostEngine.postSingle({
+        toolpath: [
+          { x: 0, y: 0, z: 5, type: "rapid" },
+          { x: Number.NaN, y: 10, z: -2, type: "linear" },
+        ],
+        material: { iso_group: "N" },
+        tool: { number: 1, diameter_mm: 10, flutes: 4 },
+        operation: "pocket",
+        spindle_rpm: 6000,
+        feed_mm_min: 1000,
+        axial_depth_mm: 2,
+      }),
+    ).toThrow(/toolpath\[1\] has non-finite coordinate/);
+  });
+
+  it("clamps aggressiveness=99 to L5 (existing sync-path behavior preserved through wrapper)", () => {
+    const result = hurcoV11MillMasterPostEngine.postSingle({
+      toolpath: makePostMoves(),
+      material: { iso_group: "N" },
+      tool: { number: 1, diameter_mm: 10, flutes: 4 },
+      operation: "pocket",
+      spindle_rpm: 6000,
+      feed_mm_min: 1000,
+      axial_depth_mm: 2,
+      aggressiveness: 99,
+    });
+    expect(result.aggressiveness_applied).toBe(5);
+    const header = mustFind(result.gcode, l => /AGGRESSIVENESS/.test(l), "header");
+    expect(header).toBe("(AGGRESSIVENESS: MAX L5/5)");
+  });
 });
 
 describe("HurcoV11 — material constant overrides", () => {

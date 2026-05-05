@@ -176,6 +176,48 @@ export interface HurcoProveOutConfig {
   add_optional_stops?: boolean;
 }
 
+/**
+ * U-PPGH11: structured tool descriptor for the simplified `postSingle` API.
+ * `coating` and `stickout_mm` flow into `setup_sheet.tools[]` (consumed by
+ * tool-crib pre-stage + operator dashboard). The flat MillOperation path
+ * does not surface these fields — by design, only the structured API does.
+ */
+export interface MillTool {
+  number: number;
+  diameter_mm: number;
+  flutes: number;
+  description?: string;
+  coating?: string;
+  stickout_mm?: number;
+}
+
+/**
+ * U-PPGH11: material descriptor for `postSingle`. ISO group is required
+ * (drives Kienzle/Taylor); name is operator-friendly text echoed to header.
+ */
+export interface MillMaterial {
+  iso_group: ISOGroup;
+  name?: string;
+}
+
+/**
+ * U-PPGH11: single toolpath move emitted by upstream CAM/AGI consumers.
+ * Carries inline arc R / IJK so callers don't have to maintain a parallel
+ * `arc_data` array. Verbose `MillOperation.coordinates` retains the legacy
+ * parallel shape; `postSingle` accepts this richer shape and translates.
+ */
+export interface PostMove {
+  x: number;
+  y: number;
+  z: number;
+  type: "rapid" | "linear" | "arc_cw" | "arc_ccw";
+  /** Arc radius (mm). Use for short arcs where R is more compact than IJK. */
+  r?: number;
+  i?: number;
+  j?: number;
+  k?: number;
+}
+
 export interface MillOperation {
   operation_type: "face" | "pocket" | "contour" | "drill" | "tap" | "bore" | "slot" | "3d_surface" | "adaptive";
   tool_number: number;
@@ -864,6 +906,124 @@ export class HurcoV11MillMasterPostEngine {
       tribal_tips_applied: tribalTipsApplied,
       setup_sheet: setupSheet,
     };
+  }
+
+  /**
+   * U-PPGH11: simplified single-operation post API. Translates a structured
+   * `{ toolpath, material, tool, operation, spindle_rpm, feed_mm_min,
+   * axial_depth_mm }` brief into a one-element MillOperation array and
+   * runs `generateProgram`. The structured tool's `coating` + `stickout_mm`
+   * fields are propagated into `setup_sheet.tools[]` — the verbose
+   * MillOperation path leaves them undefined (only the structured API
+   * surfaces them, by design).
+   *
+   * Guards (silent-disable prevention):
+   *   - empty toolpath → throws (no useful G-code without coordinates)
+   *   - tool.number <= 0 or non-finite → throws (invalid magazine slot)
+   *   - spindle_rpm <= 0 or feed_mm_min <= 0 → throws
+   *   - non-finite (NaN/Infinity) coordinate on any move → throws
+   *
+   * `aggressiveness` (1..5) is forwarded into `cfg.aggressiveness` and
+   * routed through the existing sync-path multiplier table; clamping +
+   * rounding behaviour is identical to `generateProgram` (PPG-HARDEN/U-PPGH02).
+   */
+  postSingle(
+    args: {
+      toolpath: PostMove[];
+      material: MillMaterial;
+      tool: MillTool;
+      operation: MillOperation["operation_type"];
+      spindle_rpm: number;
+      feed_mm_min: number;
+      axial_depth_mm: number;
+      aggressiveness?: number;
+    },
+    configOverrides?: Partial<HurcoPostConfig>,
+  ): HurcoPostOutput {
+    if (!args.toolpath || args.toolpath.length === 0) {
+      throw new Error("postSingle: toolpath must contain at least one move");
+    }
+    if (
+      !args.tool ||
+      !Number.isFinite(args.tool.number) ||
+      args.tool.number <= 0
+    ) {
+      throw new Error(
+        `postSingle: invalid tool.number=${args.tool?.number}; must be a positive finite integer`,
+      );
+    }
+    if (!Number.isFinite(args.spindle_rpm) || args.spindle_rpm <= 0) {
+      throw new Error(
+        `postSingle: spindle_rpm must be > 0, got ${args.spindle_rpm}`,
+      );
+    }
+    if (!Number.isFinite(args.feed_mm_min) || args.feed_mm_min <= 0) {
+      throw new Error(
+        `postSingle: feed_mm_min must be > 0, got ${args.feed_mm_min}`,
+      );
+    }
+    for (let i = 0; i < args.toolpath.length; i++) {
+      const m = args.toolpath[i];
+      if (
+        !Number.isFinite(m.x) ||
+        !Number.isFinite(m.y) ||
+        !Number.isFinite(m.z)
+      ) {
+        throw new Error(
+          `postSingle: toolpath[${i}] has non-finite coordinate (x=${m.x}, y=${m.y}, z=${m.z})`,
+        );
+      }
+    }
+
+    const coordinates = args.toolpath.map((m) => ({
+      x: m.x,
+      y: m.y,
+      z: m.z,
+      type: m.type,
+    }));
+    const arcData = args.toolpath.map((m) => ({
+      i: m.i,
+      j: m.j,
+      k: m.k,
+      r: m.r,
+    }));
+
+    const op: MillOperation = {
+      operation_type: args.operation,
+      tool_number: args.tool.number,
+      tool_diameter_mm: args.tool.diameter_mm,
+      tool_flutes: args.tool.flutes,
+      tool_description: args.tool.description,
+      material_iso: args.material.iso_group,
+      spindle_rpm: args.spindle_rpm,
+      feed_mm_min: args.feed_mm_min,
+      axial_depth_mm: args.axial_depth_mm,
+      coordinates,
+      arc_data: arcData,
+    };
+
+    const cfg: Partial<HurcoPostConfig> = {
+      ...configOverrides,
+      ...(args.aggressiveness !== undefined
+        ? { aggressiveness: args.aggressiveness }
+        : {}),
+    };
+
+    const result = this.generateProgram([op], cfg);
+
+    // U-PPGH11: structured-tool fields (coating, stickout_mm) are surfaced
+    // only via this API path. Patch the setup_sheet entry for this tool.
+    if (result.setup_sheet) {
+      for (const t of result.setup_sheet.tools) {
+        if (t.number === args.tool.number) {
+          if (args.tool.coating !== undefined) t.coating = args.tool.coating;
+          if (args.tool.stickout_mm !== undefined) {
+            t.stickout_mm = args.tool.stickout_mm;
+          }
+        }
+      }
+    }
+    return result;
   }
 
   /**
