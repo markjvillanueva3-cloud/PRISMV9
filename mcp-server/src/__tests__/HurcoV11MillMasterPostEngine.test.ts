@@ -199,10 +199,19 @@ describe("HurcoV11 — tool change", () => {
 });
 
 describe("HurcoV11 — spindle & coolant", () => {
-  it("emits S<rpm> M03 spindle CW with exact RPM value", () => {
-    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp({ spindle_rpm: 8500 })]);
-    const sLine = mustFind(result.gcode, l => /^S8500 M03/.test(l), "S line");
-    expect(sLine).toBe("S8500 M03 (SPINDLE CW 8500 RPM)");
+  it("emits N<id> S<rpm> M03 F<feed> labelled spindle line per U-PPGM13 sidecar contract", () => {
+    // U-PPGM13 (PPG-MS0/U-PPGH12): sidecar verifyBlockAnnotations cross-checks
+    // S and F on the same labelled block. Pre-U-PPGM13 assertion expected a
+    // bare `S<rpm> M03 (SPINDLE CW <rpm> RPM)` line; that contract changed
+    // when block_annotations[] gained S+F coupling. First op = N100 (block id
+    // formula: "N" + (100 + i*10)).
+    const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp({ spindle_rpm: 8500, feed_mm_min: 1200 })]);
+    const sLine = mustFind(result.gcode, l => /^N100 S8500 M03 F1200/.test(l), "labelled S line");
+    expect(sLine).toBe("N100 S8500 M03 F1200 (SPINDLE CW 8500 RPM, FEED 1200)");
+    // The matching block_annotations[] entry must carry the same block_id, S, F.
+    const ann = mustFind(result.block_annotations, b => b.block_id === "N100", "N100 annotation");
+    expect(ann.emitted.S_rpm).toBe(8500);
+    expect(ann.emitted.F_mmpm).toBe(1200);
   });
 
   it("inserts G04 P1.0 dwell when axial_depth > 0.5×D (12mm tool, 8mm DOC)", () => {
