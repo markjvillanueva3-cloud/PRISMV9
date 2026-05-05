@@ -484,7 +484,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | preserve as .deprecated.json; no destructive delete"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | preserve as .deprecated.json; no destructive delete",
+          "status": "completed",
+          "completed_at": "2026-05-05T13:26:33.204Z",
+          "completed_by": "claude-41281702",
+          "notes": "Stop-hook + script + counter file at data/state/consolidation-counter.json. 10/10 vitest cases pass. Live smoke: counter 0->1->2 across runs (no trigger), --force trigger fires consolidate() in 2.9s + resets counter to 0. Hook detached spawn verified pid=35672."
         },
         {
           "id": "P1-U03",
