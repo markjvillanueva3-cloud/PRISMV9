@@ -206,7 +206,7 @@
     ],
     "orchestration_flow": "User Intent â†’ Intent Classification â†’ Domain Router â†’ Master Orchestrator â†’ [Reasoning + Physics + ML + Tribal] â†’ Confidence Calibration â†’ Human Handoff (if <0.85) â†’ Output"
   },
-  "completed_units": 135,
+  "completed_units": 145,
   "completed_unit_ids": [
     "U-CAM85",
     "U-CAM86",
@@ -257,7 +257,17 @@
     "U-CAMTEST14",
     "U-CAMTEST15",
     "U-CAMTEST16",
-    "U-CAMTEST17"
+    "U-CAMTEST17",
+    "U-CAM48",
+    "U-CAM49",
+    "U-CAM52",
+    "U-CAM53",
+    "U-CAM54",
+    "U-CAM55",
+    "U-CAM56",
+    "U-CAM57",
+    "U-CAM58",
+    "U-CAM51"
   ],
   "off_plan_units": [
     "U-CAM-ML-02-CLASSIFIER",
@@ -2289,7 +2299,7 @@
       "title": "CATIA Machining â€” Complete Function Index Assembly",
       "phase": "PHASE-2",
       "type": "integration",
-      "status": "not_started",
+      "status": "complete",
       "description": "Assemble all CATIA Machining functions into unified CAMFunctionIndex.",
       "entry_conditions": [
         "U-CAM47 complete"
@@ -2316,7 +2326,7 @@
       "title": "GibbsCAM â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract GibbsCAM operations: 2D/3D milling, turning, MTM, wire EDM, probing.",
       "entry_conditions": [
         "PHASE-2 complete"
@@ -2386,7 +2396,7 @@
       "title": "SURFCAM â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract SURFCAM operations: 2D/3D milling, turning, TrueMill.",
       "entry_conditions": [
         "U-CAM50 complete"
@@ -2412,7 +2422,7 @@
       "title": "BobCAD-CAM â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract BobCAD-CAM operations: milling, turning, wire EDM, nesting.",
       "entry_conditions": [
         "U-CAM51 complete"
@@ -2438,7 +2448,7 @@
       "title": "FeatureCAM â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract FeatureCAM operations: automatic feature recognition, milling, turning, wire EDM.",
       "entry_conditions": [
         "U-CAM52 complete"
@@ -2464,7 +2474,7 @@
       "title": "Tebis â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract Tebis operations: high-end mold/die CAM, 5-axis, automation.",
       "entry_conditions": [
         "U-CAM53 complete"
@@ -2490,7 +2500,7 @@
       "title": "WorkNC â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract WorkNC operations: Auto5, waveform roughing, hybrid machining.",
       "entry_conditions": [
         "U-CAM54 complete"
@@ -2516,7 +2526,7 @@
       "title": "Cimatron â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract Cimatron operations: mold/die CAM, electrode design, 5-axis.",
       "entry_conditions": [
         "U-CAM55 complete"
@@ -2542,7 +2552,7 @@
       "title": "SprutCAM â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract SprutCAM operations: milling, turning, robot machining, additive.",
       "entry_conditions": [
         "U-CAM56 complete"
@@ -2568,7 +2578,7 @@
       "title": "Alphacam â€” Complete Function Extraction",
       "phase": "PHASE-3",
       "type": "extraction",
-      "status": "not_started",
+      "status": "complete",
       "description": "Extract Alphacam operations: routing, milling, turning, stone.",
       "entry_conditions": [
         "U-CAM57 complete"
@@ -6295,12 +6305,17 @@
         "tests_min_30": true,
         "stock_setups_total": 100,
         "material_distribution_per_slot": 20,
-        "form_distribution": { "plate": 60, "billet": 40, "bar": 0, "casting": 0, "extrusion": 0 },
+        "form_distribution": {
+          "plate": 60,
+          "billet": 40,
+          "bar": 0,
+          "casting": 0,
+          "extrusion": 0
+        },
         "templates": 5,
         "dispatcher_wiring": "wired (cam_stock_setup_* — 8 actions) + 3 round-trip tests"
       },
-      "completion_note": "100 setups generated deterministically as the cross-product of FixturePartCatalogEngine.list() (20 parts) × 5 stock templates (slots A=6061, B=1018, C=D2 billet, D=Inconel-718 billet, E=UHMW). Engine name shortened to StockWorkholdingCatalogEngine (vs CAMTestStockCatalogEngine in original deliverables) — avoids 'Test' in non-test code. Templates carry per-material margin (4 mm UHMW, 5 mm 6061/1018, 6 mm Inconel, 8 mm D2 for hardening allowance) and matching workholding (smooth steel jaws on alu, serrated on 1018 steel, hardened on D2/Inconel, machinable soft on UHMW). Catalog frozen at module load with duplicate-id + per-part slot-completeness audit. Engine wired to camDispatcher via 8 lazy-imported actions. Tests cover cross-product invariants, envelope derivation arithmetic, workholding mappings, lookup happy/null/throw paths, schema rejection on bad inputs, immutability, and 3 dispatcher round-trip tests including a derived dependency check (stock count = 5 × part count)."
-      ,
+      "completion_note": "100 setups generated deterministically as the cross-product of FixturePartCatalogEngine.list() (20 parts) × 5 stock templates (slots A=6061, B=1018, C=D2 billet, D=Inconel-718 billet, E=UHMW). Engine name shortened to StockWorkholdingCatalogEngine (vs CAMTestStockCatalogEngine in original deliverables) — avoids 'Test' in non-test code. Templates carry per-material margin (4 mm UHMW, 5 mm 6061/1018, 6 mm Inconel, 8 mm D2 for hardening allowance) and matching workholding (smooth steel jaws on alu, serrated on 1018 steel, hardened on D2/Inconel, machinable soft on UHMW). Catalog frozen at module load with duplicate-id + per-part slot-completeness audit. Engine wired to camDispatcher via 8 lazy-imported actions. Tests cover cross-product invariants, envelope derivation arithmetic, workholding mappings, lookup happy/null/throw paths, schema rejection on bad inputs, immutability, and 3 dispatcher round-trip tests including a derived dependency check (stock count = 5 × part count).",
       "estimated_tokens": 10000,
       "four_loop": [
         "BUILD",
@@ -6339,8 +6354,7 @@
         "all_combos_total": 180,
         "dispatcher_wiring": "wired (cam_mt_matrix_* — 7 actions) + 3 round-trip tests"
       },
-      "completion_note": "9-slot matrix (M[1-3]T[1-3]) materializes against any FixturePartCatalog descriptor. Tool class table per category provides the 3 tool slots: pocket_2d uses [roughing/finishing/chamfer endmill], drilling uses [spot_drill/drill/chamfer_mill], threading uses [tap_drill/tap/thread_mill], surface_3d uses [bull_nose/ball_rougher/ball_finisher], multi_axis uses [bull_nose/ball_finisher/swarf_cutter], turning uses [od_rougher/od_finisher/thread_tool]. Material slot resolution cycles through part.recommended_materials with mod-length fallback so every slot resolves even when a part lists fewer than 3 materials. allCombos() expands to 180 = 20 parts × 9 slots; the 900-per-host figure from the description is reached by intersecting with the 100 stock setups at scenario-generator time (U-CAMTEST08..13). Engine name shortened from CAMTestMaterialToolMatrixEngine to MaterialToolMatrixEngine. Wired to camDispatcher via 7 lazy-imported actions. 37 tests cover matrix shape, tool-class table per category, materialization (deterministic, correct material/tool sourcing, unique combo_id per part×slot), allCombos cross-product invariants, lookup happy/null/throw paths, schema rejection on slot index 0/4/NaN and malformed slot_id, immutability, and 3 dispatcher round-trip tests."
-      ,
+      "completion_note": "9-slot matrix (M[1-3]T[1-3]) materializes against any FixturePartCatalog descriptor. Tool class table per category provides the 3 tool slots: pocket_2d uses [roughing/finishing/chamfer endmill], drilling uses [spot_drill/drill/chamfer_mill], threading uses [tap_drill/tap/thread_mill], surface_3d uses [bull_nose/ball_rougher/ball_finisher], multi_axis uses [bull_nose/ball_finisher/swarf_cutter], turning uses [od_rougher/od_finisher/thread_tool]. Material slot resolution cycles through part.recommended_materials with mod-length fallback so every slot resolves even when a part lists fewer than 3 materials. allCombos() expands to 180 = 20 parts × 9 slots; the 900-per-host figure from the description is reached by intersecting with the 100 stock setups at scenario-generator time (U-CAMTEST08..13). Engine name shortened from CAMTestMaterialToolMatrixEngine to MaterialToolMatrixEngine. Wired to camDispatcher via 7 lazy-imported actions. 37 tests cover matrix shape, tool-class table per category, materialization (deterministic, correct material/tool sourcing, unique combo_id per part×slot), allCombos cross-product invariants, lookup happy/null/throw paths, schema rejection on slot index 0/4/NaN and malformed slot_id, immutability, and 3 dispatcher round-trip tests.",
       "estimated_tokens": 10000,
       "four_loop": [
         "BUILD",
@@ -6379,8 +6393,7 @@
         "dispatcher_action": "cam_scenario_generate_pocket_2d",
         "shared_engine_note": "Same engine satisfies U-CAMTEST09..13 — see those units for per-category counts."
       },
-      "completion_note": "3x rule applied: instead of 6 near-clone CAMScenarioGenerator{Pockets,Contours,Drilling,Surfaces,5Axis,Turning}Engine.ts files, shipped a single CAMScenarioGeneratorEngine with category-typed convenience methods. generatePocket2D() returns 108 scenarios (3 pocket parts × 9 M/T slots × 4 hosts). Engine cross-validates the stock_id against StockWorkholdingCatalog and the (material_id, tool_id) tuple via MaterialToolMatrix per slot — every scenario is round-trip-parsed against GeneratedScenarioSchema before output. Output shape mirrors the in-host runner ScenarioDescriptorSchema so scenarios feed directly into the runners with no adapter."
-      ,
+      "completion_note": "3x rule applied: instead of 6 near-clone CAMScenarioGenerator{Pockets,Contours,Drilling,Surfaces,5Axis,Turning}Engine.ts files, shipped a single CAMScenarioGeneratorEngine with category-typed convenience methods. generatePocket2D() returns 108 scenarios (3 pocket parts × 9 M/T slots × 4 hosts). Engine cross-validates the stock_id against StockWorkholdingCatalog and the (material_id, tool_id) tuple via MaterialToolMatrix per slot — every scenario is round-trip-parsed against GeneratedScenarioSchema before output. Output shape mirrors the in-host runner ScenarioDescriptorSchema so scenarios feed directly into the runners with no adapter.",
       "estimated_tokens": 16000,
       "four_loop": [
         "BUILD",
@@ -6416,8 +6429,7 @@
         "shared_engine": "CAMScenarioGeneratorEngine (see U-CAMTEST08 completion note)",
         "dispatcher_action": "cam_scenario_generate_contour_2d"
       },
-      "completion_note": "Satisfied by U-CAMTEST08's unified engine. generateContour2D() returns 108 scenarios (3 contour parts × 9 M/T × 4 hosts). Per-category test in CAMScenarioGeneratorEngine.test.ts asserts the count exactly."
-      ,
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. generateContour2D() returns 108 scenarios (3 contour parts × 9 M/T × 4 hosts). Per-category test in CAMScenarioGeneratorEngine.test.ts asserts the count exactly.",
       "estimated_tokens": 16000,
       "four_loop": [
         "BUILD",
@@ -6455,8 +6467,7 @@
         "spec_drift_note": "spec said '144 scenarios' but actual host-filtered count is 126 = 72 drilling (2×9×4) + 54 threading (1×9×4 + 1×9×2). multi_start_leadscrew is mill-turn-only per its own catalog declaration so it can't land on 4 hosts.",
         "dispatcher_action": "cam_scenario_generate_drilling_threading"
       },
-      "completion_note": "Satisfied by U-CAMTEST08's unified engine. The 144 figure in the original spec assumed 4 hosts × every part, but threading parts have host restrictions: thread_multi_start_leadscrew is mill-turn-only (mastercam + hypermill), giving 1×9×4 + 1×9×2 = 54 threading scenarios. Total 126 (72 drilling + 54 threading) is the honest host-filtered count."
-      ,
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. The 144 figure in the original spec assumed 4 hosts × every part, but threading parts have host restrictions: thread_multi_start_leadscrew is mill-turn-only (mastercam + hypermill), giving 1×9×4 + 1×9×2 = 54 threading scenarios. Total 126 (72 drilling + 54 threading) is the honest host-filtered count.",
       "estimated_tokens": 14000,
       "four_loop": [
         "BUILD",
@@ -6492,8 +6503,7 @@
         "shared_engine": "CAMScenarioGeneratorEngine",
         "dispatcher_action": "cam_scenario_generate_surface_3d"
       },
-      "completion_note": "Satisfied by U-CAMTEST08's unified engine. 108 scenarios = 3 surface_3d parts (bowl, boss, saddle) × 9 M/T × 4 hosts."
-      ,
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. 108 scenarios = 3 surface_3d parts (bowl, boss, saddle) × 9 M/T × 4 hosts.",
       "estimated_tokens": 20000,
       "four_loop": [
         "BUILD",
@@ -6529,8 +6539,7 @@
         "spec_drift_note": "spec said '144 scenarios' but actual host-filtered count is 117 = 3 parts × 9 × 3 hosts (impeller/undercut/hub on hypermill/fusion360/mastercam, no inventor_hsm) + 1 part × 9 × 4 (fillet_blend on all 4). Honest 5-axis-capable host filtering.",
         "dispatcher_action": "cam_scenario_generate_multi_axis"
       },
-      "completion_note": "Satisfied by U-CAMTEST08's unified engine. The 144 figure assumed all 4 hosts on every multi_axis part, but Inventor HSM does not handle simultaneous-5-axis impeller/undercut/turbine — those parts cite ['hypermill', 'fusion360', 'mastercam']. fillet_blend is achievable on all 4 hosts so it contributes 36; the others contribute 81 (3 × 27). Total 117 is the honest host-filtered count."
-      ,
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. The 144 figure assumed all 4 hosts on every multi_axis part, but Inventor HSM does not handle simultaneous-5-axis impeller/undercut/turbine — those parts cite ['hypermill', 'fusion360', 'mastercam']. fillet_blend is achievable on all 4 hosts so it contributes 36; the others contribute 81 (3 × 27). Total 117 is the honest host-filtered count.",
       "estimated_tokens": 24000,
       "four_loop": [
         "BUILD",
@@ -6566,8 +6575,7 @@
         "host_invariant": "all 54 scenarios target mastercam or hypermill only (no fusion360, no inventor_hsm) — verified by cross-host invariant test",
         "dispatcher_action": "cam_scenario_generate_turning"
       },
-      "completion_note": "Satisfied by U-CAMTEST08's unified engine. 54 = 3 turning parts (od_rough_shaft, id_groove_sleeve, threaded_shaft) × 9 M/T × 2 mill-turn hosts (mastercam + hypermill). Cross-host invariant test asserts no turning scenario ever routes to a non-mill-turn host — auditGenerator() also catches this."
-      ,
+      "completion_note": "Satisfied by U-CAMTEST08's unified engine. 54 = 3 turning parts (od_rough_shaft, id_groove_sleeve, threaded_shaft) × 9 M/T × 2 mill-turn hosts (mastercam + hypermill). Cross-host invariant test asserts no turning scenario ever routes to a non-mill-turn host — auditGenerator() also catches this.",
       "estimated_tokens": 20000,
       "four_loop": [
         "BUILD",
@@ -6606,8 +6614,7 @@
         "dispatcher_wiring": "wired (cam_assertion_bundle_* — 5 actions) + 3 round-trip tests",
         "host_agnostic": true
       },
-      "completion_note": "Pure-functional engine. Same evaluate(observed, stats, expectations) signature works for all 4 in-host runners. Pure helpers (p99 nearest-rank, countBandTransitions 0↔nonzero, firstHardStopSeq, seqGaps) exported separately so the runner-side dedup follow-up can call them directly. byName / failed / auditBundle round out the API. Bundle round-trip parses through BundleResultSchema for caller-drift safety. The 4 existing in-host runners (HyperMill / Fusion360 / InventorHSM / Mastercam) currently inline the same logic — a follow-up dedup unit can refactor them to call this engine; their behavior stays unchanged so their existing test suites stay green either way. 44 tests cover happy path (all 7 pass on calm baseline), per-family failure modes (each family fails individually under the right violation), 4-way hard_stop matrix (deliberate × observed crossings + custom budget override), pure helper semantics (p99 nearest-rank with edge cases, band transition counting where consecutive nonzero bands do NOT count as transitions, seq gap + dupe detection), schema rejection (negative seq, band 3, negative latency, negative stats, zero expected_frame_count, unknown assertion family), audit invariant (missing family + overall_pass mismatch detected), filter helpers, and 3 dispatcher round-trip tests."
-      ,
+      "completion_note": "Pure-functional engine. Same evaluate(observed, stats, expectations) signature works for all 4 in-host runners. Pure helpers (p99 nearest-rank, countBandTransitions 0↔nonzero, firstHardStopSeq, seqGaps) exported separately so the runner-side dedup follow-up can call them directly. byName / failed / auditBundle round out the API. Bundle round-trip parses through BundleResultSchema for caller-drift safety. The 4 existing in-host runners (HyperMill / Fusion360 / InventorHSM / Mastercam) currently inline the same logic — a follow-up dedup unit can refactor them to call this engine; their behavior stays unchanged so their existing test suites stay green either way. 44 tests cover happy path (all 7 pass on calm baseline), per-family failure modes (each family fails individually under the right violation), 4-way hard_stop matrix (deliberate × observed crossings + custom budget override), pure helper semantics (p99 nearest-rank with edge cases, band transition counting where consecutive nonzero bands do NOT count as transitions, seq gap + dupe detection), schema rejection (negative seq, band 3, negative latency, negative stats, zero expected_frame_count, unknown assertion family), audit invariant (missing family + overall_pass mismatch detected), filter helpers, and 3 dispatcher round-trip tests.",
       "estimated_tokens": 18000,
       "four_loop": [
         "BUILD",
@@ -6645,8 +6652,7 @@
         "default_path": "data/state/CAM_INHOST_RESULTS.json",
         "dispatcher_wiring": "wired (cam_results_bridge_* — 8 actions) + 3 round-trip tests"
       },
-      "completion_note": "In-memory store keyed by `${host}::${scenario_id}` (host is part of the key so the same scenario_id can run on multiple hosts). Last-write-wins on ingest re-fires (runners retry transient errors so this is the correct policy). summarize() partitions across host × category × assertion family in one pass. persist() writes a versioned ResultsFile (schemaVersion 1.0.0, envelopes, written_at_ms) and creates parent dirs as needed; load() round-trips through ResultsFileSchema and rejects mismatched schemaVersion. 35 tests cover ingest happy path, cross-host + cross-category aggregation correctness, last-write-wins on (host, scenario_id) collisions, persist+load round-trip on real fs (temp paths), corrupt-JSON / missing-file / version-mismatch failure modes, schema rejection on bad envelopes, audit invariant, reset semantics, and 3 dispatcher round-trip tests."
-      ,
+      "completion_note": "In-memory store keyed by `${host}::${scenario_id}` (host is part of the key so the same scenario_id can run on multiple hosts). Last-write-wins on ingest re-fires (runners retry transient errors so this is the correct policy). summarize() partitions across host × category × assertion family in one pass. persist() writes a versioned ResultsFile (schemaVersion 1.0.0, envelopes, written_at_ms) and creates parent dirs as needed; load() round-trips through ResultsFileSchema and rejects mismatched schemaVersion. 35 tests cover ingest happy path, cross-host + cross-category aggregation correctness, last-write-wins on (host, scenario_id) collisions, persist+load round-trip on real fs (temp paths), corrupt-JSON / missing-file / version-mismatch failure modes, schema rejection on bad envelopes, audit invariant, reset semantics, and 3 dispatcher round-trip tests.",
       "estimated_tokens": 14000,
       "four_loop": [
         "BUILD",
@@ -6690,8 +6696,7 @@
         "text_dashboard": "ASCII pass/fail matrix per host + per category + per assertion family",
         "json_dashboard_data_shape": "stable contract for React side"
       },
-      "completion_note": "Backend half complete; React dashboard explicitly deferred to Codex frontend lane (see deferred_deliverables). Orchestrator uses DI for the scenario runner (default no-op for hermetic tests; production injects the hub-driven runner). One run cycle: generate → group-by-host → invoke runner_fn per host → bridge.summarize() → persist versioned NightlyRunReport (schema 1.0.0) to data/state/CAM_NIGHTLY_RUNS/<run_id>.json. dashboardData() emits the stable JSON contract the React side will render — frontend can build against it without re-parsing the full report. formatTextDashboard() renders an ASCII pass/fail matrix so a failing nightly is readable in raw terminal output even before the React dashboard exists. 25 tests cover orchestration happy path + partial-fail runner + per-host dispatch tracking + hosts filter + default no-op runner + duration math, persistence (write/list/get/missing-file), text dashboard contents (header + per-host + per-category + assertion families), JSON dashboard shape (overall + hosts + categories + assertion_failures arrays, division-by-zero guard), audit invariant (duration drift + roll-up mismatch detected), and 3 dispatcher round-trip tests."
-      ,
+      "completion_note": "Backend half complete; React dashboard explicitly deferred to Codex frontend lane (see deferred_deliverables). Orchestrator uses DI for the scenario runner (default no-op for hermetic tests; production injects the hub-driven runner). One run cycle: generate → group-by-host → invoke runner_fn per host → bridge.summarize() → persist versioned NightlyRunReport (schema 1.0.0) to data/state/CAM_NIGHTLY_RUNS/<run_id>.json. dashboardData() emits the stable JSON contract the React side will render — frontend can build against it without re-parsing the full report. formatTextDashboard() renders an ASCII pass/fail matrix so a failing nightly is readable in raw terminal output even before the React dashboard exists. 25 tests cover orchestration happy path + partial-fail runner + per-host dispatch tracking + hosts filter + default no-op runner + duration math, persistence (write/list/get/missing-file), text dashboard contents (header + per-host + per-category + assertion families), JSON dashboard shape (overall + hosts + categories + assertion_failures arrays, division-by-zero guard), audit invariant (duration drift + roll-up mismatch detected), and 3 dispatcher round-trip tests.",
       "estimated_tokens": 16000,
       "four_loop": [
         "BUILD",
@@ -6733,8 +6738,7 @@
         "schema_version": "1.0.0",
         "dispatcher_wiring": "wired (cam_regression_* — 8 actions) + 3 round-trip tests"
       },
-      "completion_note": "Diffs current NightlyRunReport against a stored golden baseline across 5 regression types: scenario_count drift (any change), host_pass_rate drop (>5% absolute), category_pass_rate drop (>5% absolute), assertion_failure_rate rise (>5% absolute), and new_failing_family (clean-baseline → any failure = always critical). Severity mapping: |delta| ≥10% absolute → critical, ≥5% → warning, sub-threshold drops are filtered (not info-level finding rows, just dropped). Improvements never register as regressions (one-sided). Golden baseline workflow: hasGolden / loadGolden / promoteToGolden manage data/state/CAM_INHOST_GOLDEN_BASELINE.json; detectAgainstGolden does load+diff in one call. 34 tests cover happy path (identical → 0 findings), per-type detection (each of 5 types fires under right condition + boundary severity checks), severity boundaries (5pt = warning, 10pt = critical, <5pt = filtered), improvements ignored, golden file IO (write/read/missing/corrupt/parent-dir-create/round-trip), filter helpers, schema rejection, audit invariant (total_findings + by_severity sum + has_critical consistency), and 3 dispatcher round-trip tests."
-      ,
+      "completion_note": "Diffs current NightlyRunReport against a stored golden baseline across 5 regression types: scenario_count drift (any change), host_pass_rate drop (>5% absolute), category_pass_rate drop (>5% absolute), assertion_failure_rate rise (>5% absolute), and new_failing_family (clean-baseline → any failure = always critical). Severity mapping: |delta| ≥10% absolute → critical, ≥5% → warning, sub-threshold drops are filtered (not info-level finding rows, just dropped). Improvements never register as regressions (one-sided). Golden baseline workflow: hasGolden / loadGolden / promoteToGolden manage data/state/CAM_INHOST_GOLDEN_BASELINE.json; detectAgainstGolden does load+diff in one call. 34 tests cover happy path (identical → 0 findings), per-type detection (each of 5 types fires under right condition + boundary severity checks), severity boundaries (5pt = warning, 10pt = critical, <5pt = filtered), improvements ignored, golden file IO (write/read/missing/corrupt/parent-dir-create/round-trip), filter helpers, schema rejection, audit invariant (total_findings + by_severity sum + has_critical consistency), and 3 dispatcher round-trip tests.",
       "estimated_tokens": 18000,
       "four_loop": [
         "BUILD",

@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "system_id": "surfcam",
+  "section_key": "turning",
+  "extraction_source": "SURFCAM 2024 Lathe Reference (Hexagon — Vero Software) + SURFCAM Velocity training docs",
+  "extraction_date": "2026-05-05",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM51",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 75,
+    "categories": ["turn_rough", "turn_finish", "groove", "thread", "cutoff"]
+  },
+  "operations": {
+    "turn_rough": {
+      "display_name": "Turn Roughing",
+      "category": "turn_rough",
+      "description": "OD/ID lathe roughing using G71 longitudinal or G72 facing canned cycles. Stock model awareness with multi-pass radial steps.",
+      "dialog_tabs": ["Geometry", "Cycle", "Cut", "Output"],
+      "parameter_count": 17,
+      "parameters": {
+        "geometry": {
+          "profileChain": { "type": "selection", "tab": "Geometry", "required": true },
+          "stockOD": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "stockLength": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "facingZ": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G71_longitudinal", "G72_facing", "longhand"], "default": "G71_longitudinal", "tab": "Cycle", "required": true },
+          "side": { "type": "enum", "values": ["OD", "ID", "face"], "default": "OD", "tab": "Cycle" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cycle" }
+        },
+        "cut": {
+          "depthOfCut": { "type": "number", "unit": "mm", "default": 2, "range": [0.05, 20], "tab": "Cut", "required": true },
+          "stockAllowanceX": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Cut" },
+          "stockAllowanceZ": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Cut" },
+          "feedRev": { "type": "number", "unit": "mm/rev", "default": 0.25, "tab": "Cut", "required": true },
+          "spindleMode": { "type": "enum", "values": ["G96_CSS", "G97_RPM"], "default": "G96_CSS", "tab": "Cut" },
+          "surfaceSpeed": { "type": "number", "unit": "m/min", "default": 200, "tab": "Cut", "description": "Used when spindleMode=G96" },
+          "maxRpm": { "type": "number", "unit": "rpm", "default": 3500, "tab": "Cut" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Output" },
+          "rapidApproachX": { "type": "number", "unit": "mm", "default": 2, "tab": "Output" },
+          "rapidApproachZ": { "type": "number", "unit": "mm", "default": 2, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" }
+        }
+      }
+    },
+    "turn_finish": {
+      "display_name": "Turn Finishing",
+      "category": "turn_finish",
+      "description": "Single-pass finish profile follow with chip control, dwell at corners, and optional G70 finishing cycle for tight tolerance.",
+      "dialog_tabs": ["Geometry", "Cycle", "Cut", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "profileChain": { "type": "selection", "tab": "Geometry", "required": true },
+          "side": { "type": "enum", "values": ["OD", "ID", "face"], "default": "OD", "tab": "Geometry" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["G70_finish", "longhand"], "default": "G70_finish", "tab": "Cycle", "required": true },
+          "passes": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Cycle" },
+          "stockOnFinish": { "type": "number", "unit": "mm", "default": 0, "description": "Stock left after this finish pass (0 = clean)", "tab": "Cycle" }
+        },
+        "cut": {
+          "feedRev": { "type": "number", "unit": "mm/rev", "default": 0.08, "range": [0.01, 0.5], "tab": "Cut", "required": true },
+          "spindleMode": { "type": "enum", "values": ["G96_CSS", "G97_RPM"], "default": "G96_CSS", "tab": "Cut" },
+          "surfaceSpeed": { "type": "number", "unit": "m/min", "default": 250, "tab": "Cut" },
+          "maxRpm": { "type": "number", "unit": "rpm", "default": 4000, "tab": "Cut" },
+          "noseRadiusComp": { "type": "boolean", "default": true, "description": "G41/G42 cutter-comp via insert nose radius", "tab": "Cut" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Output" },
+          "leadInArc": { "type": "boolean", "default": true, "tab": "Output" },
+          "leadOutArc": { "type": "boolean", "default": true, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" }
+        }
+      }
+    },
+    "groove": {
+      "display_name": "Grooving",
+      "category": "groove",
+      "description": "OD/ID/face groove cycles. Multi-cut peck and trochoidal options for deep grooves. Insert-width-aware tool stepping.",
+      "dialog_tabs": ["Geometry", "Strategy", "Cut", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "grooveStartX": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "grooveEndX": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "grooveZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "grooveWidth": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "side": { "type": "enum", "values": ["OD", "ID", "face"], "default": "OD", "tab": "Geometry" }
+        },
+        "strategy": {
+          "strategy": { "type": "enum", "values": ["plunge_only", "trochoidal", "peck_grooves", "rough_finish_separated"], "default": "peck_grooves", "tab": "Strategy", "required": true },
+          "insertWidth": { "type": "number", "unit": "mm", "default": 3, "tab": "Strategy", "required": true },
+          "passOverlap": { "type": "number", "unit": "percent", "default": 30, "range": [10, 90], "tab": "Strategy" },
+          "peckIncrement": { "type": "number", "unit": "mm", "default": 1.5, "tab": "Strategy" }
+        },
+        "cut": {
+          "feedRev": { "type": "number", "unit": "mm/rev", "default": 0.08, "tab": "Cut", "required": true },
+          "spindleMode": { "type": "enum", "values": ["G96_CSS", "G97_RPM"], "default": "G97_RPM", "description": "G97 preferred to maintain SFM at varying X", "tab": "Cut" },
+          "rpm": { "type": "number", "unit": "rpm", "default": 1500, "tab": "Cut" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.2, "description": "Dwell to break chip at groove floor", "tab": "Cut" }
+        },
+        "output": {
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" }
+        }
+      }
+    },
+    "thread": {
+      "display_name": "Threading",
+      "category": "thread",
+      "description": "OD/ID thread turning via G76 multi-pass canned cycle or longhand G32. Pitch, depth, lead, and infeed angle parametrized per ISO/UN/NPT standards.",
+      "dialog_tabs": ["Geometry", "Standard", "Strategy", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "majorDiameter": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "threadStartZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "threadEndZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "side": { "type": "enum", "values": ["OD", "ID"], "default": "OD", "tab": "Geometry" }
+        },
+        "standard": {
+          "threadStandard": { "type": "enum", "values": ["ISO_metric", "UN", "UNJ", "NPT", "BSPT", "custom"], "default": "ISO_metric", "tab": "Standard", "required": true },
+          "pitch": { "type": "number", "unit": "mm", "default": 1.25, "tab": "Standard", "required": true },
+          "starts": { "type": "integer", "default": 1, "range": [1, 8], "tab": "Standard" },
+          "totalThreadDepth": { "type": "number", "unit": "mm", "tab": "Standard", "description": "Auto-computed from standard if not overridden" }
+        },
+        "strategy": {
+          "cycleType": { "type": "enum", "values": ["G76_canned", "longhand_G32"], "default": "G76_canned", "tab": "Strategy", "required": true },
+          "infeedAngleDeg": { "type": "number", "unit": "deg", "default": 29.5, "range": [0, 30], "description": "Flank infeed for ISO/UN; 0 for radial", "tab": "Strategy" },
+          "firstCutDepth": { "type": "number", "unit": "mm", "default": 0.4, "tab": "Strategy" },
+          "minCutDepth": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Strategy" },
+          "finishPasses": { "type": "integer", "default": 2, "tab": "Strategy" }
+        },
+        "output": {
+          "leadInLength": { "type": "number", "unit": "mm", "default": 5, "description": "Acceleration lead-in length", "tab": "Output" },
+          "leadOutLength": { "type": "number", "unit": "mm", "default": 2, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" }
+        }
+      }
+    },
+    "cutoff": {
+      "display_name": "Cutoff / Parting",
+      "category": "cutoff",
+      "description": "Part separation by parting tool. Supports through-cut, peck, and broken-chip strategies. Optional safety distance for OD chamfer pre-cut.",
+      "dialog_tabs": ["Geometry", "Strategy", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "cutoffZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "stockOD": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "innerDiameter": { "type": "number", "unit": "mm", "default": 0, "description": "Stop X here (e.g. tube ID); 0 = full part-off", "tab": "Geometry" }
+        },
+        "strategy": {
+          "strategy": { "type": "enum", "values": ["through", "peck", "broken_chip"], "default": "broken_chip", "tab": "Strategy", "required": true },
+          "peckDepth": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "preChamferOD": { "type": "boolean", "default": true, "description": "Pre-cut chamfer at stock OD before parting", "tab": "Strategy" },
+          "feedReductionPctNearCenter": { "type": "number", "unit": "percent", "default": 50, "tab": "Strategy" }
+        },
+        "output": {
+          "feedRev": { "type": "number", "unit": "mm/rev", "default": 0.06, "tab": "Output", "required": true },
+          "spindleMode": { "type": "enum", "values": ["G96_CSS", "G97_RPM"], "default": "G97_RPM", "tab": "Output" },
+          "rpm": { "type": "number", "unit": "rpm", "default": 1200, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" },
+          "partCatcher": { "type": "boolean", "default": true, "description": "Activate parts catcher on retract", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "G96 vs G97 Selection",
+      "key_concepts": ["constant surface speed (CSS)", "constant rpm", "spindle limit clamping"],
+      "best_practices": ["Use G96 for OD turning to maintain SFM as X varies", "Use G97 for grooving/threading and small ID work", "Always pair G96 with maxRpm clamp to protect chuck"]
+    },
+    {
+      "topic": "Threading Infeed Selection",
+      "key_concepts": ["radial infeed", "flank infeed 29.5°", "alternating flank"],
+      "best_practices": ["Flank infeed 29.5° for ISO/UN external", "Radial infeed for ISO trapezoid", "Alternating flank only on coarse pitch >2mm"]
+    }
+  ]
+}

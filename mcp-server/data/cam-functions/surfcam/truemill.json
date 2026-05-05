@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "system_id": "surfcam",
+  "section_key": "truemill",
+  "extraction_source": "SURFCAM 2024 TrueMill Reference (Hexagon — Vero Software, licensed from Surfware/CGTech)",
+  "extraction_date": "2026-05-05",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM51",
+  "summary": {
+    "total_operations": 3,
+    "total_parameters": 53,
+    "categories": ["truemill_pocket", "truemill_profile", "truemill_rest"]
+  },
+  "operations": {
+    "truemill_pocket": {
+      "display_name": "TrueMill Pocket",
+      "category": "truemill_pocket",
+      "description": "TrueMill flagship HSM pocket strategy — patented constant-engagement-angle (CEA) trochoidal toolpath. Eliminates full-slot cuts; permits aggressive axial depth + light radial engagement for 4-7x feedrate over conventional pocket.",
+      "dialog_tabs": ["Geometry", "Engagement", "Strategy", "Output"],
+      "parameter_count": 19,
+      "parameters": {
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "islands": { "type": "selection", "tab": "Geometry" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Geometry" }
+        },
+        "engagement": {
+          "maxEngagementAngleDeg": { "type": "number", "unit": "deg", "default": 60, "range": [10, 120], "description": "TrueMill caps tool radial engagement at this angle to prevent chatter and prolong tool life", "tab": "Engagement", "required": true },
+          "minEngagementAngleDeg": { "type": "number", "unit": "deg", "default": 5, "range": [1, 60], "tab": "Engagement" },
+          "axialDepthPct": { "type": "number", "unit": "percent", "default": 200, "range": [50, 400], "description": "Axial depth as % of tool diameter — TrueMill enables 100-300% with light radial", "tab": "Engagement" },
+          "radialStepoverPct": { "type": "number", "unit": "percent", "default": 8, "range": [2, 50], "description": "Light stepover (typically 5-15%) is TrueMill's core enabler", "tab": "Engagement" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["truemill_morph", "truemill_spiral", "truemill_offset"], "default": "truemill_morph", "tab": "Strategy", "required": true },
+          "approach": { "type": "enum", "values": ["climb"], "default": "climb", "description": "TrueMill is climb-only by definition", "tab": "Strategy" },
+          "rampType": { "type": "enum", "values": ["helix", "ramp", "preDrill"], "default": "helix", "tab": "Strategy" },
+          "rampAngleDeg": { "type": "number", "unit": "deg", "default": 3, "tab": "Strategy" },
+          "smoothEntry": { "type": "boolean", "default": true, "description": "Tangential arc entry to honor CEA invariant", "tab": "Strategy" }
+        },
+        "output": {
+          "feedrateMmpm": { "type": "number", "unit": "mm/min", "default": 6000, "description": "TrueMill HSM feeds 4-7x conventional pocket", "tab": "Output" },
+          "spindleRpm": { "type": "number", "unit": "rpm", "default": 12000, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc", "mql"], "default": "mql", "description": "MQL preferred for HSM thermal stability", "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 5, "tab": "Output" }
+        }
+      }
+    },
+    "truemill_profile": {
+      "display_name": "TrueMill Profile",
+      "category": "truemill_profile",
+      "description": "CEA-controlled profile follow with tangentially-engaged lead and tangentially-disengaged retract. Maintains constant chip-load along arc-rich profiles.",
+      "dialog_tabs": ["Profile", "Engagement", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "profile": {
+          "profileCurve": { "type": "selection", "tab": "Profile", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Profile" }
+        },
+        "engagement": {
+          "maxEngagementAngleDeg": { "type": "number", "unit": "deg", "default": 75, "range": [10, 120], "tab": "Engagement", "required": true },
+          "axialDepthPct": { "type": "number", "unit": "percent", "default": 150, "range": [25, 300], "tab": "Engagement" },
+          "radialStepoverPct": { "type": "number", "unit": "percent", "default": 10, "range": [2, 50], "tab": "Engagement" },
+          "passes": { "type": "integer", "default": 1, "range": [1, 30], "tab": "Engagement" }
+        },
+        "output": {
+          "leadInArc": { "type": "boolean", "default": true, "description": "Tangential arc lead-in maintains CEA on entry", "tab": "Output" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 4, "tab": "Output" },
+          "leadOutArc": { "type": "boolean", "default": true, "tab": "Output" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "default": 4, "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.02, "tab": "Output" },
+          "feedrateMmpm": { "type": "number", "unit": "mm/min", "default": 5000, "tab": "Output" },
+          "spindleRpm": { "type": "number", "unit": "rpm", "default": 12000, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc", "mql"], "default": "mql", "tab": "Output" }
+        }
+      }
+    },
+    "truemill_rest": {
+      "display_name": "TrueMill Rest Roughing",
+      "category": "truemill_rest",
+      "description": "Rest-mill follow-up that re-applies CEA constraint to material left by previous larger-tool TrueMill pass. Prevents the corner overload that conventional rest-mill suffers.",
+      "dialog_tabs": ["Surface", "RestStock", "Engagement", "Output"],
+      "parameter_count": 18,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Surface" },
+          "boundary": { "type": "selection", "tab": "Surface" }
+        },
+        "restStock": {
+          "previousToolDiameterMm": { "type": "number", "unit": "mm", "tab": "RestStock", "required": true },
+          "previousToolCornerRadiusMm": { "type": "number", "unit": "mm", "default": 0, "tab": "RestStock" },
+          "minRestThicknessMm": { "type": "number", "unit": "mm", "default": 0.1, "tab": "RestStock" },
+          "stockModelMode": { "type": "enum", "values": ["computed", "imported_stl", "previous_op"], "default": "computed", "tab": "RestStock" }
+        },
+        "engagement": {
+          "maxEngagementAngleDeg": { "type": "number", "unit": "deg", "default": 50, "range": [10, 120], "description": "Lower CEA cap for corner reentry safety", "tab": "Engagement", "required": true },
+          "axialDepthPct": { "type": "number", "unit": "percent", "default": 100, "range": [25, 250], "tab": "Engagement" },
+          "radialStepoverPct": { "type": "number", "unit": "percent", "default": 5, "range": [2, 25], "tab": "Engagement" },
+          "approach": { "type": "enum", "values": ["climb"], "default": "climb", "tab": "Engagement" }
+        },
+        "output": {
+          "patternType": { "type": "enum", "values": ["pencil_trace", "scallop", "morph"], "default": "pencil_trace", "tab": "Output", "required": true },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.015, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "feedrateMmpm": { "type": "number", "unit": "mm/min", "default": 4500, "tab": "Output" },
+          "spindleRpm": { "type": "number", "unit": "rpm", "default": 14000, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc", "mql"], "default": "mql", "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 3, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Constant Engagement Angle (CEA) Theory",
+      "key_concepts": ["radial chip thinning", "tangential engagement", "patent US 6,648,560 (Surfware)"],
+      "best_practices": ["Cap CEA at 60° for general pocket, 75° for profile, 50° for rest", "Light stepover (5-15%) is CEA's enabler — do not use TrueMill at >25% stepover", "Pair CEA with axial-depth >100% tool diameter to maximize MRR"]
+    },
+    {
+      "topic": "TrueMill vs Conventional Pocket",
+      "key_concepts": ["MRR comparison", "tool life", "machine spindle stability"],
+      "best_practices": ["Expect 4-7x feedrate for hardened steels (40+HRC)", "Tool life 2-3x conventional in nickel alloys", "Avoid TrueMill on machines with low spindle rigidity (<7.5kW continuous)"]
+    },
+    {
+      "topic": "MQL with TrueMill",
+      "key_concepts": ["minimum quantity lubrication", "thermal management", "chip evacuation"],
+      "best_practices": ["MQL preferred over flood at HSM speeds (12k+ rpm)", "Flood acceptable below 6k rpm", "Always use MQL or TSC for closed-pocket TrueMill"]
+    }
+  ]
+}

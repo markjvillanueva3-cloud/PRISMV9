@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "system_id": "surfcam",
+  "section_key": "milling_3d",
+  "extraction_source": "SURFCAM 2024 Reference (Hexagon — Vero Software) + SURFCAM Velocity training docs",
+  "extraction_date": "2026-05-05",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM51",
+  "summary": {
+    "total_operations": 4,
+    "total_parameters": 67,
+    "categories": ["zlevel_rough_3d", "parallel_finish_3d", "scallop_3d", "rest_mill_3d"]
+  },
+  "operations": {
+    "zlevel_rough_3d": {
+      "display_name": "Z-Level Roughing",
+      "category": "zlevel_rough_3d",
+      "description": "3-axis stepdown roughing of solid bodies. Closed-area waterline cleared per Z, with stock awareness and ramp-in/helix entries.",
+      "dialog_tabs": ["Geometry", "Strategy", "Stock", "Output"],
+      "parameter_count": 17,
+      "parameters": {
+        "geometry": {
+          "drivingSurface": { "type": "selection", "tab": "Geometry", "required": true },
+          "checkSurfaces": { "type": "selection", "tab": "Geometry" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true }
+        },
+        "strategy": {
+          "stepdown": { "type": "number", "unit": "mm", "default": 2, "range": [0.05, 50], "tab": "Strategy", "required": true },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 70, "range": [10, 95], "tab": "Strategy" },
+          "patternType": { "type": "enum", "values": ["offset", "zigzag", "spiral", "true_spiral"], "default": "offset", "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "minPocketSizePct": { "type": "number", "unit": "percent", "default": 100, "description": "Skip pockets smaller than this % of tool diameter", "tab": "Strategy" }
+        },
+        "stock": {
+          "stockMode": { "type": "enum", "values": ["box", "stl", "previous_op", "none"], "default": "stl", "tab": "Stock", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Stock" },
+          "skipFlatAreas": { "type": "boolean", "default": false, "description": "Skip Z-level if floor is already clear", "tab": "Stock" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Output" },
+          "rampType": { "type": "enum", "values": ["plunge", "ramp", "helix", "preDrill"], "default": "helix", "tab": "Output" },
+          "rampAngleDeg": { "type": "number", "unit": "deg", "default": 5, "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 5, "tab": "Output" },
+          "smoothLinks": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "parallel_finish_3d": {
+      "display_name": "Parallel Finish",
+      "category": "parallel_finish_3d",
+      "description": "Constant-direction parallel passes for finishing shallow surfaces. Best for slope angles 0-30° from horizontal.",
+      "dialog_tabs": ["Surface", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "boundary": { "type": "selection", "tab": "Surface" },
+          "checkSurfaces": { "type": "selection", "tab": "Surface" },
+          "minSlopeDeg": { "type": "number", "unit": "deg", "default": 0, "tab": "Surface" },
+          "maxSlopeDeg": { "type": "number", "unit": "deg", "default": 30, "tab": "Surface" }
+        },
+        "strategy": {
+          "stepover": { "type": "number", "unit": "mm", "default": 0.5, "range": [0.01, 10], "tab": "Strategy", "required": true },
+          "patternAngleDeg": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional", "alternating"], "default": "alternating", "tab": "Strategy" },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0, "tab": "Strategy" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Output" },
+          "linkType": { "type": "enum", "values": ["onSurface", "rapid_retract", "smoothed", "minimum_distance"], "default": "smoothed", "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 2, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 1, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    },
+    "scallop_3d": {
+      "display_name": "Constant Scallop Finish",
+      "category": "scallop_3d",
+      "description": "3D constant scallop-height finishing — geodesic offset from previous pass. Maintains uniform surface finish across all slope angles.",
+      "dialog_tabs": ["Surface", "Strategy", "Output"],
+      "parameter_count": 12,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "boundary": { "type": "selection", "tab": "Surface" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Surface" },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Surface" }
+        },
+        "strategy": {
+          "scallopHeight": { "type": "number", "unit": "mm", "default": 0.005, "range": [0.0005, 0.5], "tab": "Strategy", "required": true },
+          "maxStepover": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional", "alternating"], "default": "alternating", "tab": "Strategy" },
+          "spiralStart": { "type": "enum", "values": ["inside_out", "outside_in"], "default": "outside_in", "tab": "Strategy" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Output" },
+          "linkType": { "type": "enum", "values": ["onSurface", "rapid_retract", "smoothed"], "default": "onSurface", "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "feedAcceleration": { "type": "enum", "values": ["smooth", "stepped", "constant"], "default": "smooth", "tab": "Output" }
+        }
+      }
+    },
+    "rest_mill_3d": {
+      "display_name": "Rest Milling",
+      "category": "rest_mill_3d",
+      "description": "Targeted clean-up of material left by larger previous tool. Uses tool-diameter and stock-model awareness to skip cleared regions.",
+      "dialog_tabs": ["Surface", "RestStock", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "surface": {
+          "drivingSurface": { "type": "selection", "tab": "Surface", "required": true },
+          "boundary": { "type": "selection", "tab": "Surface" },
+          "checkSurfaces": { "type": "selection", "tab": "Surface" }
+        },
+        "restStock": {
+          "previousToolDiameterMm": { "type": "number", "unit": "mm", "tab": "RestStock", "required": true },
+          "previousToolCornerRadiusMm": { "type": "number", "unit": "mm", "default": 0, "tab": "RestStock" },
+          "minRestThicknessMm": { "type": "number", "unit": "mm", "default": 0.05, "description": "Skip rest stock thinner than this", "tab": "RestStock" },
+          "stockModel": { "type": "enum", "values": ["computed", "imported_stl", "previous_op"], "default": "computed", "tab": "RestStock" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["pencil_trace", "scallop", "parallel", "zlevel"], "default": "pencil_trace", "tab": "Strategy", "required": true },
+          "stepover": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional", "alternating"], "default": "climb", "tab": "Strategy" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 2, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Z-Level Roughing for Mold Cores",
+      "key_concepts": ["stepdown vs stepover trade-off", "stock-aware re-machining", "helix vs ramp entry"],
+      "best_practices": ["Use 30-50% tool-diameter stepdown for steel cores", "Always set stockMode=stl for second-rough", "Helix entry on closed pockets only"]
+    },
+    {
+      "topic": "Constant-Scallop vs Parallel Finish",
+      "key_concepts": ["geodesic offset", "slope angle independence", "scallop height vs stepover"],
+      "best_practices": ["Constant-scallop for cores with mixed slopes", "Parallel for shallow slopes only", "Scallop height 0.005-0.012mm for finish-grade molds"]
+    }
+  ]
+}
