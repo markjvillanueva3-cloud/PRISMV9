@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -61,6 +61,7 @@ async function getEngine(name: string): Promise<any> {
     case "printToSolidWorks": return _printToSolidWorks ??= (await import("../../engines/PrintToSolidWorksBridge.js")).printToSolidWorksBridge;
     case "printToEsprit": return _printToEsprit ??= (await import("../../engines/PrintToEspritBridge.js")).printToEspritBridge;
     case "espritGen": return _espritGen ??= (await import("../../engines/EspritCodeGeneratorEngine.js")).espritCodeGeneratorEngine;
+    case "printToAllCads": return _printToAllCads ??= (await import("../../engines/PrintToAllCADsOrchestrator.js")).printToAllCADsOrchestrator;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -152,6 +153,8 @@ const ACTIONS = [
   "print_to_esprit", "print_to_esprit_validate", "print_to_esprit_capabilities",
   // Esprit Code Generator (U-CADC-ESP-CODEGEN-01)
   "esprit_generate_script", "esprit_capabilities",
+  // Print → All CADs Orchestrator (U-CADC-PRINT-ORCHESTRATOR-01)
+  "print_to_all_cads", "print_to_all_cads_validate", "print_to_all_cads_targets",
   // Siemens NX Unified Code Generator (U-CADC14)
   "nx_generate_script", "nx_build_part", "nx_execute",
   "nx_capabilities",
@@ -1030,6 +1033,36 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("espritGen");
             const caps = engine.getCapabilities();
             result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
+            break;
+          }
+          // ── Print → All CADs Orchestrator (U-CADC-PRINT-ORCHESTRATOR-01) ──
+          case "print_to_all_cads": {
+            const orch = await getEngine("printToAllCads");
+            const out = orch.buildAllScripts({
+              analysis: params.analysis,
+              profiles: params.profiles,
+              dimensions: params.dimensions,
+              partName: params.partName ?? params.part_name,
+              units: params.units,
+              outputDir: params.outputDir ?? params.output_dir,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+              targets: params.targets,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_all_cads_validate": {
+            const orch = await getEngine("printToAllCads");
+            result = { success: true, ...orch.validate(params) };
+            break;
+          }
+          case "print_to_all_cads_targets": {
+            const orch = await getEngine("printToAllCads");
+            result = {
+              success: true,
+              orchestratorVersion: orch.version,
+              targets: orch.supportedTargets(),
+            };
             break;
           }
           // ─── Siemens NX Code Generator (U-CADC14) ───────────────────────

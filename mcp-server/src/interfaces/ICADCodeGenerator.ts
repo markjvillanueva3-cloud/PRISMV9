@@ -50,6 +50,7 @@ export const CAD_SYSTEMS = [
   "nx",
   "onshape",
   "rhino",
+  "esprit",
 ] as const;
 export type CADSystemId = (typeof CAD_SYSTEMS)[number];
 
