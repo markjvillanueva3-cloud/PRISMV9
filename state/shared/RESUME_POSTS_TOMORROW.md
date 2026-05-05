@@ -1,9 +1,44 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Last updated:** 2026-05-05 ~08:10 UTC by claude-803437e0 (was 2026-05-04 13:00 by claude-04c0e75c)
+**Last updated:** 2026-05-05 ~18:20 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
+
+---
+
+## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 LANDED ON work/ppgh05
+
+**SHIPPED:** `[CAM-EXHAUST-MS0]/U-PPGM18: align stale sealMasterPostOutput schema_version assertion with current 1.2.0 constant`
+
+**WHAT:** `sealMasterPostOutput.test.ts:71` was the lone failure across the seal+sidecar suite — pre-existing 1.1.0 vs 1.2.0 drift documented by claude-803437e0 on 2026-05-05 ~08:00 (caused by PPG-WIRE-MS6/U-PPGM16 bumping the WEDM schema). Fixed by importing the exported `POST_PHYSICS_SIDECAR_SCHEMA_VERSION` constant rather than re-hardcoding "1.2.0", so the next additive bump won't break this assertion the same way.
+
+**STATE:** running `sealMasterPostOutput + sealWEDM + four SidecarIntegration suites + PhysicsSidecarBuilderEngine` = **127/127 GREEN, zero regressions**. tsc clean on touched file under project tsconfig.
+
+**STATE OF Hurco/Okuma engines on this branch:** `HurcoV11MillMasterPostEngine.test.ts` 88/88 · `OkumaOSPMillMasterPostEngine.test.ts` 67/67 · `MitsubishiMV1200RWireEDMMasterPostEngine.test.ts` 23/23. Earlier briefs' "12 fail / 81 total" Hurco snapshot is OBSOLETE — U-PPGH10..U-PPGH15 + U-PPGOH01..U-PPGOH05 all landed since (see git log `work/ppgh05`).
+
+---
+
+## NEXT ACTIONS (priority order, refreshed 2026-05-05 ~18:20)
+
+### Priority 1 — `OkumaB250LatheMasterPostEngine.test.ts` does not exist
+Only `OkumaB250LatheMasterPostEngine.SidecarIntegration.test.ts` and `integration/MasterPostOkumaB250.integration.test.ts` exist — no full unit-test file. The `stop_on_untested_engine` hook may already flag this. Authoring one would bring the lathe master post to feature parity with Hurco/OkumaOSP coverage.
+
+### Priority 2 — Bring OkumaB250 + Mitsubishi WEDM to Hurco/OkumaOSP feature parity
+Hurco/OkumaOSP gained these in U-PPGH10..U-PPGH15 + U-PPGOH01..U-PPGOH05:
+- `postSingle` simplified API
+- structured `op.tool` shadowing flow
+- structured `setup_sheet` payload (machine-flavored)
+- Kienzle-bounded feed clamp on sync path
+- stickout deflection physics check
+
+OkumaB250 (lathe) and Mitsubishi WEDM most likely lack a subset. Audit each, pick smallest gap, ship one feature per unit (`U-PPGOB01+`, `U-PPGMV01+`).
+
+### Priority 3 — Cherry-pick ppgh05 → cam-exhaust-ms0
+`work/ppgh05` is now several units ahead of `work/cam-exhaust-ms0`. When the camDispatcher peer-claim chain in main releases, the ppgh05 lineage should be merged or cherry-picked back. Don't fight for camDispatcher — this is engine + test work only.
+
+### (Stale) Priority — U-PPGM17d camDispatcher verify_tier wiring
+Still applicable but blocked: camDispatcher.ts is permanently churned by peer chats on the main worktree. Do NOT take this on without a fresh worktree fork.
 
 ---
 

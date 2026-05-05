@@ -22,7 +22,10 @@ import { describe, it, expect } from "vitest";
 
 import { sealMasterPostOutput } from "../cps/sealMasterPostOutput.js";
 import { PhysicsSidecarBuilderEngine } from "../engines/PhysicsSidecarBuilderEngine.js";
-import { type BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
+import {
+  POST_PHYSICS_SIDECAR_SCHEMA_VERSION,
+  type BlockAnnotation,
+} from "../schemas/postPhysicsSidecarSchema.js";
 
 const FIXED_OPTS = {
   source_engine_versions: { "TestEngine": "1.0.0" },
@@ -68,7 +71,7 @@ describe("sealMasterPostOutput — happy path", () => {
     const out = makeOutput();
     const r = sealMasterPostOutput(out, FIXED_OPTS);
     expect(r.engine_output).toBe(out);
-    expect(r.sidecar.meta.schema_version).toBe("1.1.0");
+    expect(r.sidecar.meta.schema_version).toBe(POST_PHYSICS_SIDECAR_SCHEMA_VERSION);
     expect(r.sidecar.block_annotations).toHaveLength(1);
     expect(r.sidecar.block_annotations?.[0].block_id).toBe("N100");
     // Verify field is genuinely absent (not just undefined-valued) when
