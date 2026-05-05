@@ -2,8 +2,25 @@
  * scrutiny-ledger — tracks per-session scrutiny status for scrutinize-before-stop hook.
  *
  * Stores entries keyed by stable session id (or transcript path hash).
- * Schema: { sessionId, recordedAt, selfReviewed, agentReviewed, blockCount }
+ * Schema: {
+ *   sessionId, recordedAt, blockCount, notes,
+ *   selfReviewed,               // existing: human/Claude self-diff review
+ *   agentReviewed,              // existing: backward-compat — true if ANY of (codex|gemini|opus) reviewed
+ *   codexReviewed,              // NEW: Codex CLI returned PASS
+ *   geminiReviewed,             // NEW: Gemini CLI returned PASS
+ *   opusReviewed,               // NEW: Claude Opus reviewer agent returned PASS
+ *   reviews: {                  // NEW: per-provider verdicts
+ *     codex:  { verdict: "pass"|"fail", blockers, notes, recordedAt },
+ *     gemini: { ... },
+ *     opus:   { ... },
+ *   }
+ * }
  * Storage: mcp-server/data/state/SCRUTINY_LEDGER.json
+ *
+ * Multi-CLI consensus: scrutinize-before-stop requires 3-of-3 reviewers (codex
+ * AND gemini AND opus) to release the Stop. Strict mode per user election
+ * 2026-05-05. Self-review remains orthogonal but is no longer load-bearing
+ * for clearance.
  */
 
 import * as fs from "node:fs";
@@ -64,24 +81,76 @@ export function deriveSessionId(payload) {
   return "unknown-session";
 }
 
-/**
- * Record that scrutiny has been completed for a session.
- *
- * @param {string} sessionId
- * @param {{ selfReviewed?: boolean, agentReviewed?: boolean, notes?: string }} marks
- */
-export function recordScrutiny(sessionId, marks = {}) {
-  const data = loadLedger();
-  const entry = data.entries[sessionId] || {
+function makeEmptyEntry(sessionId) {
+  return {
     sessionId,
     recordedAt: new Date().toISOString(),
     selfReviewed: false,
     agentReviewed: false,
+    codexReviewed: false,
+    geminiReviewed: false,
+    opusReviewed: false,
+    reviews: {},
     blockCount: 0,
     notes: "",
   };
+}
+
+function recordReviewerDetail(entry, provider, detail) {
+  if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
+  if (!detail) return;
+  const verdict = detail.verdict === "pass" || detail.verdict === "fail" ? detail.verdict : undefined;
+  entry.reviews[provider] = {
+    verdict: verdict ?? entry.reviews[provider]?.verdict ?? "pass",
+    blockers: typeof detail.blockers === "string" ? detail.blockers.slice(0, 1000) : entry.reviews[provider]?.blockers ?? "",
+    notes: typeof detail.notes === "string" ? detail.notes.slice(0, 500) : entry.reviews[provider]?.notes ?? "",
+    recordedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Record that scrutiny has been completed for a session.
+ *
+ * @param {string} sessionId
+ * @param {{
+ *   selfReviewed?: boolean,
+ *   agentReviewed?: boolean,    // legacy alias — sets all three flags off if not paired with provider flags
+ *   codexReviewed?: boolean,
+ *   geminiReviewed?: boolean,
+ *   opusReviewed?: boolean,
+ *   codexDetail?: { verdict?: "pass"|"fail", blockers?: string, notes?: string },
+ *   geminiDetail?: { verdict?: "pass"|"fail", blockers?: string, notes?: string },
+ *   opusDetail?:   { verdict?: "pass"|"fail", blockers?: string, notes?: string },
+ *   notes?: string
+ * }} marks
+ */
+export function recordScrutiny(sessionId, marks = {}) {
+  const data = loadLedger();
+  const entry = data.entries[sessionId] || makeEmptyEntry(sessionId);
+  // Migrate legacy entries that lack the new fields
+  if (typeof entry.codexReviewed !== "boolean") entry.codexReviewed = false;
+  if (typeof entry.geminiReviewed !== "boolean") entry.geminiReviewed = false;
+  if (typeof entry.opusReviewed !== "boolean") entry.opusReviewed = false;
+  if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
+
   if (marks.selfReviewed === true) entry.selfReviewed = true;
+  if (marks.codexReviewed === true) entry.codexReviewed = true;
+  if (marks.geminiReviewed === true) entry.geminiReviewed = true;
+  if (marks.opusReviewed === true) entry.opusReviewed = true;
+  // Legacy agent flag — only set if no provider flags were passed (callers
+  // upgrading scripts can opt out by passing the new flags directly).
   if (marks.agentReviewed === true) entry.agentReviewed = true;
+
+  if (marks.codexDetail) recordReviewerDetail(entry, "codex", marks.codexDetail);
+  if (marks.geminiDetail) recordReviewerDetail(entry, "gemini", marks.geminiDetail);
+  if (marks.opusDetail) recordReviewerDetail(entry, "opus", marks.opusDetail);
+
+  // Derived: agentReviewed is the OR of the 3 providers (so legacy callers
+  // that read this field still see "true" once any reviewer signs off).
+  if (entry.codexReviewed || entry.geminiReviewed || entry.opusReviewed) {
+    entry.agentReviewed = true;
+  }
+
   if (typeof marks.notes === "string") entry.notes = marks.notes.slice(0, 500);
   entry.recordedAt = new Date().toISOString();
   data.entries[sessionId] = entry;
@@ -90,13 +159,33 @@ export function recordScrutiny(sessionId, marks = {}) {
 }
 
 /**
- * Returns true if the session has both self and agent reviews recorded.
+ * Returns true when all three CLI reviewers (Codex, Gemini, Opus) have
+ * recorded PASS for the session. Self-review is orthogonal and is NOT
+ * required for clearance under the multi-CLI 3-of-3 policy.
+ *
+ * Backward compat: if a legacy entry has `agentReviewed: true` but no
+ * provider flags (e.g. recorded by an older client of this helper),
+ * treat it as cleared so prior sessions don't get retroactively blocked.
  */
 export function isCleared(sessionId) {
   const data = loadLedger();
   const entry = data.entries[sessionId];
   if (!entry) return false;
-  return entry.selfReviewed === true && entry.agentReviewed === true;
+  // Strict 3-of-3 policy
+  if (entry.codexReviewed === true && entry.geminiReviewed === true && entry.opusReviewed === true) {
+    return true;
+  }
+  // Legacy fallback: pre-3way entries used selfReviewed && agentReviewed
+  // and had none of codex/gemini/opus flags. Honor those so existing ledger
+  // history doesn't suddenly fail closed.
+  const isLegacyEntry =
+    entry.codexReviewed !== true &&
+    entry.geminiReviewed !== true &&
+    entry.opusReviewed !== true;
+  if (isLegacyEntry && entry.selfReviewed === true && entry.agentReviewed === true) {
+    return true;
+  }
+  return false;
 }
 
 /**
