@@ -88,7 +88,7 @@ export class PrintToSolidWorksBridge {
 
     return {
       script: body,
-      filename: script.filename || `${t.partName}.swp`,
+      filename: script.filename || `${t.partName}.bas`,
       opsEmitted: t.ops.length,
       unsupported: t.unsupported,
       warnings,
