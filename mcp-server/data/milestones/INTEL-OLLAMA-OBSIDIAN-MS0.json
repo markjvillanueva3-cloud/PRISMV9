@@ -25,56 +25,136 @@
     "phase_summary": {
       "P0": {
         "branch": "work/intel-ollama-obsidian-ms1",
-        "shipped_units": ["P0-U01", "P0-U02", "P0-U03"],
-        "commits": {"P0-U01": "2f0196dea", "P0-U02": "cda1b161f", "P0-U03": "88b4ed878"},
+        "shipped_units": [
+          "P0-U01",
+          "P0-U02",
+          "P0-U03"
+        ],
+        "commits": {
+          "P0-U01": "2f0196dea",
+          "P0-U02": "cda1b161f",
+          "P0-U03": "88b4ed878"
+        },
         "notes": "P0-U04 (ollama-auto-router promotion to UserPromptSubmit Block 0) effectively shipped — hook fires at Block 1 in H:/.claude/settings.json (was Block 2). Block 1 vs Block 0 is ordering preference, not function. Treat as shipped with caveat."
       },
       "P1": {
         "branch": "work/intel-ollama-obsidian-ms1",
-        "shipped_units": ["P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05"],
-        "commits": {"P1-U01": "a1cd61703", "P1-U02": "a9d2c63fa", "P1-U03": "2e9084f70", "P1-U04": "d3fc82a59", "P1-U05": "a8ad92c14"},
+        "shipped_units": [
+          "P1-U01",
+          "P1-U02",
+          "P1-U03",
+          "P1-U04",
+          "P1-U05"
+        ],
+        "commits": {
+          "P1-U01": "a1cd61703",
+          "P1-U02": "a9d2c63fa",
+          "P1-U03": "2e9084f70",
+          "P1-U04": "d3fc82a59",
+          "P1-U05": "a8ad92c14"
+        },
         "notes": "All 5 units have explicit commits. Phase fully shipped on sibling branch."
       },
       "P2": {
         "branch": "work/intel-ollama-obsidian-ms1",
-        "shipped_units": ["P2-U01", "P2-U02", "P2-U03", "P2-U04"],
-        "commits": {"P2-U01": "ae94030ab", "P2-U02": "683a3606a", "P2-U03": "cdfe25bdb", "P2-U04": "cab8c25c1"},
+        "shipped_units": [
+          "P2-U01",
+          "P2-U02",
+          "P2-U03",
+          "P2-U04"
+        ],
+        "commits": {
+          "P2-U01": "ae94030ab",
+          "P2-U02": "683a3606a",
+          "P2-U03": "cdfe25bdb",
+          "P2-U04": "cab8c25c1"
+        },
         "notes": "All 4 units have explicit commits. Phase fully shipped on sibling branch."
       },
       "P3": {
         "branch": "work/intel-ollama-obsidian-ms1",
-        "shipped_units": ["P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05"],
-        "commits": {"P3-U01": "5f8e5d79b", "P3-U02": "a6281de52", "P3-U03": "77588b431", "P3-U04": "45e2c9d6a", "P3-U05": "c23612029"},
+        "shipped_units": [
+          "P3-U01",
+          "P3-U02",
+          "P3-U03",
+          "P3-U04",
+          "P3-U05"
+        ],
+        "commits": {
+          "P3-U01": "5f8e5d79b",
+          "P3-U02": "a6281de52",
+          "P3-U03": "77588b431",
+          "P3-U04": "45e2c9d6a",
+          "P3-U05": "c23612029"
+        },
         "notes": "5/5 units shipped. The slot envelope-labeled 'P3-U06' is actually P10-U04 (envelope structural drift — the 6th P3 entry's id field is P10-U04, see phases[3].units[5]). Phase fully shipped on sibling branch."
       },
       "P4": {
         "branch": "work/intel-ollama-obsidian-ms1 + work/intel-p8-schema",
-        "shipped_units": ["P4-U01", "P4-U03"],
-        "not_started_units": ["P4-U02", "P4-U04"],
-        "commits": {"P4-U01": "86aedc3fb", "P4-U03": "[work/intel-p8-schema] partial via initial enforcer commit + rate-limit-relax in this branch"},
+        "shipped_units": [
+          "P4-U01",
+          "P4-U03"
+        ],
+        "not_started_units": [
+          "P4-U02",
+          "P4-U04"
+        ],
+        "commits": {
+          "P4-U01": "86aedc3fb",
+          "P4-U03": "[work/intel-p8-schema] partial via initial enforcer commit + rate-limit-relax in this branch"
+        },
         "notes": "P4-U01 (GSD chunked + indexed) shipped via 86aedc3fb. P4-U03 (claudemd-ollama-enforcer rewire) NOW COMPLETE — vector-index query works (.claude/hooks/claudemd-ollama-enforcer.mjs:161 calls prism_memory:semantic_search with kind:rule, limit:3) AND rate-limit relaxed from 3min to 30s in this branch (RATE_WINDOW_MS = 30 * 1000 on line 47, with documenting comment block at lines 39-44). P4-U02 (directive summaries via Ollama) NOT STARTED — none of scripts/summarize-directives-via-ollama.mjs, .claude/hooks/directive-summary-refresh.mjs, or H:/prism/knowledge/directives/SUMMARIES.md exist. P4-U04 (wiki query bridge) NOT STARTED — scripts/embed-wiki-index.mjs absent."
       },
       "P5": {
         "branch": "work/intel-ollama-obsidian-ms1 (no per-unit commits)",
-        "shipped_units": ["P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05"],
-        "commits": {"all_via_test": "P5OrphanReasoningDispatchers.test.ts (21/21 green)"},
+        "shipped_units": [
+          "P5-U01",
+          "P5-U02",
+          "P5-U03",
+          "P5-U04",
+          "P5-U05"
+        ],
+        "commits": {
+          "all_via_test": "P5OrphanReasoningDispatchers.test.ts (21/21 green)"
+        },
         "notes": "All 5 reasoning-engine actions wired in code: creative_solve, causal_analyze, counterfactual_predict, scientific_reason (aiReasoningDispatcher.ts:670,679,699,721); diagnose_failure (intelligenceDispatcher.ts:59,214,671). Schemas in aiReasoningActionSchemas.ts. Test file P5OrphanReasoningDispatchers.test.ts passes 21/21 (verified 2026-05-01 by claude-ba192f8a). P6-U02 close-out commit retroactively documents this."
       },
       "P6": {
         "branch": "work/intel-ollama-obsidian-ms1 + work/intel-p8-schema",
-        "shipped_units": ["P6-U01", "P6-U02", "P6-U03"],
-        "commits": {"P6-U02": "3e3bbe018", "P6-U03": "e7bb92603", "P6-U01": "[work/intel-p8-schema] hook + this branch's audit/bootstrap scripts"},
+        "shipped_units": [
+          "P6-U01",
+          "P6-U02",
+          "P6-U03"
+        ],
+        "commits": {
+          "P6-U02": "3e3bbe018",
+          "P6-U03": "e7bb92603",
+          "P6-U01": "[work/intel-p8-schema] hook + this branch's audit/bootstrap scripts"
+        },
         "notes": "P6-U02 (rtk-prefix-reminder + P4/P5/P6 close-out) shipped via 3e3bbe018. P6-U03 (awareness hook deduplication) shipped via e7bb92603. P6-U01 (H-drive mirror hook) NOW COMPLETE — main hook .claude/hooks/c-to-h-mirror.mjs (different name than envelope spec but functionally identical) was already shipping; this branch adds the missing audit + bootstrap deliverables: scripts/mirror-c-to-h-audit.mjs (--json, --write, exit-1 on gaps), scripts/bootstrap-h-mirror.mjs (--dry-run, --force, idempotent), scripts/lib/c-to-h-mirror-shared.mjs (single source of truth: MIRRORED_ROOT, MIRRORED_SUBDIRS, listCFiles, compareFile, buildAuditReport). Verified against live box: 5/5 root files identical (settings.json, settings.local.json, .mcp.json, CLAUDE.md, keybindings.json), 0 mirror gaps, 0 diverged, 2062 H-only files (informational). Tests: CToHMirrorShared.test.ts 7/7 green covering identical/diverged/c_only classification + missing-root edge case + null-cRoot error path."
       },
       "P7": {
         "branch": "work/intel-ollama-obsidian-ms1 + work/intel-p8-schema",
-        "shipped_units": ["P7-U01", "P7-U02"],
-        "commits": {"P7-U02": "6b192c147", "P7-U01": "[work/intel-p8-schema]"},
+        "shipped_units": [
+          "P7-U01",
+          "P7-U02"
+        ],
+        "commits": {
+          "P7-U02": "6b192c147",
+          "P7-U01": "[work/intel-p8-schema]"
+        },
         "notes": "P7-U02 (cross-PC handoff audit) shipped via 6b192c147. P7-U01 (token-economy benchmark) NOW SHIPPED — scripts/token-economy-benchmark.mjs (analyzes ollama-offload-stats.json, computes per-hook + per-category savings, classifies zero-state/below-floor/floor-met/target-met against 50%/80% thresholds) + TOKEN-ECONOMY-REPORT.md (markdown report; current state on this branch is zero-state because the worktree's offload-stats.json was reset 2026-04-28 before the live data accumulated). Tests: TokenEconomyBenchmark.test.ts 17/17 green covering loadStats edge cases (missing/malformed/array), all 4 verdict classifications, breakdown sorting/aggregation, NaN-immunity for div-by-zero, formatReport sections per verdict. To capture real measurement: run on the LIVE shared box where offload-stats has 39k tokens saved (the worktree's stats are checked-in zero-state). Exit code 1 only on verified below-floor; zero-state and floor-met both exit 0."
       },
       "P8": {
         "branch": "work/intel-p8-schema (THIS branch)",
-        "shipped_units": ["P8-U01", "P8-U02", "P8-U03", "P8-U04 partial", "P8-U05", "P8-U06 partial"],
+        "shipped_units": [
+          "P8-U01",
+          "P8-U02",
+          "P8-U03",
+          "P8-U04 partial",
+          "P8-U05",
+          "P8-U06 partial"
+        ],
         "commits": {
           "P8-U01": "a61733d69 + eccd6a405 (initial + reviewer-fix)",
           "P8-U02": "3969da183",
@@ -94,21 +174,93 @@
     "totals": {
       "phases_with_partial_or_full_shipping": 8,
       "phases_not_started": 16,
-      "high_confidence_complete_phases": ["P1", "P2", "P3", "P5"],
-      "high_confidence_partial_phases": ["P0", "P4", "P6", "P7", "P8"],
+      "high_confidence_complete_phases": [
+        "P1",
+        "P2",
+        "P3",
+        "P5"
+      ],
+      "high_confidence_partial_phases": [
+        "P0",
+        "P4",
+        "P6",
+        "P7",
+        "P8"
+      ],
       "verified_unit_states": {
-        "shipped_full": ["P0-U01", "P0-U02", "P0-U03", "P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05", "P2-U01", "P2-U02", "P2-U03", "P2-U04", "P3-U01", "P3-U02", "P3-U03", "P3-U04", "P3-U05", "P4-U01", "P4-U03", "P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05", "P6-U01", "P6-U02", "P6-U03", "P7-U01", "P7-U02", "P8-U01", "P8-U02", "P8-U03", "P8-U05"],
-        "shipped_partial": ["P0-U04", "P8-U04", "P8-U06"],
-        "not_started": ["P4-U02", "P4-U04"],
+        "shipped_full": [
+          "P0-U01",
+          "P0-U02",
+          "P0-U03",
+          "P1-U01",
+          "P1-U02",
+          "P1-U03",
+          "P1-U04",
+          "P1-U05",
+          "P2-U01",
+          "P2-U02",
+          "P2-U03",
+          "P2-U04",
+          "P3-U01",
+          "P3-U02",
+          "P3-U03",
+          "P3-U04",
+          "P3-U05",
+          "P4-U01",
+          "P4-U03",
+          "P5-U01",
+          "P5-U02",
+          "P5-U03",
+          "P5-U04",
+          "P5-U05",
+          "P6-U01",
+          "P6-U02",
+          "P6-U03",
+          "P7-U01",
+          "P7-U02",
+          "P8-U01",
+          "P8-U02",
+          "P8-U03",
+          "P8-U05"
+        ],
+        "shipped_partial": [
+          "P0-U04",
+          "P8-U04",
+          "P8-U06"
+        ],
+        "not_started": [
+          "P4-U02",
+          "P4-U04"
+        ],
         "audited_count": 38
       }
     },
     "audit_history": [
-      {"by": "claude-ba192f8a", "at": "2026-05-01T20:25:00.000Z", "scope": "phase-level cross-branch grep map (initial cross_branch_shipping_status)"},
-      {"by": "claude-ba192f8a", "at": "2026-05-01T20:55:00.000Z", "scope": "verified 5 status-unknown units (P4-U02, P4-U03, P4-U04, P6-U01, P7-U01) against deliverables; P3-U06 was envelope drift (slot is P10-U04)"},
-      {"by": "claude-ba192f8a", "at": "2026-05-01T21:02:00.000Z", "scope": "P4-U03 promoted partial→shipped_full via rate-limit relax 3min→30s (.claude/hooks/claudemd-ollama-enforcer.mjs:47)"},
-      {"by": "claude-ba192f8a", "at": "2026-05-01T21:06:00.000Z", "scope": "P6-U01 promoted partial→shipped_full via scripts/mirror-c-to-h-audit.mjs + scripts/bootstrap-h-mirror.mjs + scripts/lib/c-to-h-mirror-shared.mjs (7-test vitest suite). Live audit on this box: 5/5 identical, 0 gaps."},
-      {"by": "claude-ba192f8a", "at": "2026-05-01T21:16:00.000Z", "scope": "P7-U01 promoted not_started→shipped_full via scripts/token-economy-benchmark.mjs + TOKEN-ECONOMY-REPORT.md (17-test vitest suite). Branch state shows zero-state because checked-in offload-stats.json was reset 2026-04-28; live measurement needs run on populated box."}
+      {
+        "by": "claude-ba192f8a",
+        "at": "2026-05-01T20:25:00.000Z",
+        "scope": "phase-level cross-branch grep map (initial cross_branch_shipping_status)"
+      },
+      {
+        "by": "claude-ba192f8a",
+        "at": "2026-05-01T20:55:00.000Z",
+        "scope": "verified 5 status-unknown units (P4-U02, P4-U03, P4-U04, P6-U01, P7-U01) against deliverables; P3-U06 was envelope drift (slot is P10-U04)"
+      },
+      {
+        "by": "claude-ba192f8a",
+        "at": "2026-05-01T21:02:00.000Z",
+        "scope": "P4-U03 promoted partial→shipped_full via rate-limit relax 3min→30s (.claude/hooks/claudemd-ollama-enforcer.mjs:47)"
+      },
+      {
+        "by": "claude-ba192f8a",
+        "at": "2026-05-01T21:06:00.000Z",
+        "scope": "P6-U01 promoted partial→shipped_full via scripts/mirror-c-to-h-audit.mjs + scripts/bootstrap-h-mirror.mjs + scripts/lib/c-to-h-mirror-shared.mjs (7-test vitest suite). Live audit on this box: 5/5 identical, 0 gaps."
+      },
+      {
+        "by": "claude-ba192f8a",
+        "at": "2026-05-01T21:16:00.000Z",
+        "scope": "P7-U01 promoted not_started→shipped_full via scripts/token-economy-benchmark.mjs + TOKEN-ECONOMY-REPORT.md (17-test vitest suite). Branch state shows zero-state because checked-in offload-stats.json was reset 2026-04-28; live measurement needs run on populated box."
+      }
     ]
   },
   "phases": [
@@ -293,7 +445,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-05T13:03:02.404Z",
+          "completed_by": "claude-41281702",
+          "notes": "Hook + script + engine green; 74 memory files mirrored to H:/prism/knowledge/memories on first run; idempotent on second run (74 skipped). 15 vitest cases pass. Stop hook fire-and-forget verified, never blocks."
         },
         {
           "id": "P1-U02",
