@@ -1937,6 +1937,11 @@ export const ACTIONS = [
     "cam_reasoning_get_chain", "cam_reasoning_list_chains",
     "cam_reasoning_why_decision", "cam_reasoning_compare_alternatives",
     "cam_reasoning_clear_chains", "cam_reasoning_set_max_chains",
+  // CAM-EXHAUST-MS0/U-CAM119 — Confidence Calibration (uncertainty quantification)
+    "cam_calibration_record_outcome", "cam_calibration_calibrate",
+    "cam_calibration_calibrate_decision", "cam_calibration_metrics",
+    "cam_calibration_recommend_method", "cam_calibration_get_outcome_count",
+    "cam_calibration_clear_outcomes", "cam_calibration_set_outcome_cap",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -16237,6 +16242,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const max = params.max as number;
             CAMReasoningChainEngine.setMaxChains(max);
             result = { success: true, max };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM119 — Confidence Calibration (8 actions)
+          case "cam_calibration_record_outcome": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const outcome = CAMConfidenceCalibrationEngine.recordOutcome({
+              decisionId: params.decision_id as string,
+              task: params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor",
+              predictedConfidence: params.predicted_confidence as number,
+              wasCorrect: params.was_correct as boolean,
+            });
+            result = { success: true, outcome };
+            break;
+          }
+          case "cam_calibration_calibrate": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const raw = params.raw_confidence as number;
+            const opts = (params.options as Parameters<typeof CAMConfidenceCalibrationEngine.calibrate>[1]) ?? {};
+            result = { success: true, ...CAMConfidenceCalibrationEngine.calibrate(raw, opts) };
+            break;
+          }
+          case "cam_calibration_calibrate_decision": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const decision = params.decision as Parameters<typeof CAMConfidenceCalibrationEngine.calibrateDecision>[0];
+            const opts = (params.options as Parameters<typeof CAMConfidenceCalibrationEngine.calibrateDecision>[1]) ?? {};
+            result = { success: true, ...CAMConfidenceCalibrationEngine.calibrateDecision(decision, opts) };
+            break;
+          }
+          case "cam_calibration_metrics": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const opts = (params.options as Parameters<typeof CAMConfidenceCalibrationEngine.metrics>[0]) ?? {};
+            result = { success: true, metrics: CAMConfidenceCalibrationEngine.metrics(opts) };
+            break;
+          }
+          case "cam_calibration_recommend_method": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor" | undefined;
+            result = { success: true, method: CAMConfidenceCalibrationEngine.recommendMethod(task) };
+            break;
+          }
+          case "cam_calibration_get_outcome_count": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor" | undefined;
+            result = { success: true, count: CAMConfidenceCalibrationEngine.getOutcomeCount(task) };
+            break;
+          }
+          case "cam_calibration_clear_outcomes": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            CAMConfidenceCalibrationEngine.clearOutcomes();
+            result = { success: true };
+            break;
+          }
+          case "cam_calibration_set_outcome_cap": {
+            const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
+            const cap = params.cap as number;
+            CAMConfidenceCalibrationEngine.setOutcomeCap(cap);
+            result = { success: true, cap };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index (10 actions)
