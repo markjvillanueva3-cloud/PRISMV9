@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any, _printToHyperCADSAnalysis: any, _swLive: any, _espritLive: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any, _printToHyperCADSAnalysis: any, _swLive: any, _espritLive: any, _bprintToAllCads: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -65,6 +65,7 @@ async function getEngine(name: string): Promise<any> {
     case "printToHyperCADSAnalysis": return _printToHyperCADSAnalysis ??= (await import("../../engines/PrintToHyperCADSAnalysisBridge.js")).printToHyperCADSAnalysisBridge;
     case "swLive": return _swLive ??= (await import("../../engines/SolidWorksLiveBridgeEngine.js")).solidWorksLiveBridgeEngine;
     case "espritLive": return _espritLive ??= (await import("../../engines/EspritLiveBridgeEngine.js")).espritLiveBridgeEngine;
+    case "bprintToAllCads": return _bprintToAllCads ??= (await import("../../engines/BlueprintToAllCADsOrchestratorEngine.js")).blueprintToAllCADsOrchestratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -164,6 +165,8 @@ const ACTIONS = [
   "solidworks_live_execute", "solidworks_live_validate", "solidworks_live_modes",
   // Esprit Live Bridge (U-CADC-ESP-LIVE-01)
   "esprit_live_execute", "esprit_live_validate", "esprit_live_modes",
+  // Blueprint OCR → 6-CAD Orchestrator (U-CADC-BPRINT-OCR-ORCH-01)
+  "blueprint_to_all_cads", "blueprint_to_all_cads_validate", "blueprint_to_all_cads_capabilities",
   // Siemens NX Unified Code Generator (U-CADC14)
   "nx_generate_script", "nx_build_part", "nx_execute",
   "nx_capabilities",
@@ -1135,6 +1138,33 @@ Params vary by action — pass relevant fields in params object.`,
           case "esprit_live_modes": {
             const bridge = await getEngine("espritLive");
             result = { success: true, version: bridge.version, modes: bridge.supportedModes() };
+            break;
+          }
+          // ── Blueprint OCR → 6-CAD Orchestrator (U-CADC-BPRINT-OCR-ORCH-01) ──
+          case "blueprint_to_all_cads": {
+            const orch = await getEngine("bprintToAllCads");
+            const out = await orch.run({
+              image: params.image,
+              analysis: params.analysis,
+              profiles: params.profiles,
+              vision: params.vision,
+              targets: params.targets,
+              outputDir: params.outputDir ?? params.output_dir,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+              partName: params.partName ?? params.part_name,
+              units: params.units,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "blueprint_to_all_cads_validate": {
+            const orch = await getEngine("bprintToAllCads");
+            result = { success: true, ...orch.validate(params) };
+            break;
+          }
+          case "blueprint_to_all_cads_capabilities": {
+            const orch = await getEngine("bprintToAllCads");
+            result = { success: true, ...orch.capabilities() };
             break;
           }
           // ─── Siemens NX Code Generator (U-CADC14) ───────────────────────

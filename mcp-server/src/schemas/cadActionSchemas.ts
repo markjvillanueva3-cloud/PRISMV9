@@ -254,6 +254,35 @@ const liveValidateSchema = z.object({
 
 const liveModesSchema = z.object({}).passthrough();
 
+// ── Blueprint OCR → 6-CAD Orchestrator (U-CADC-BPRINT-OCR-ORCH-01) ──
+const blueprintToAllCadsSchema = z.object({
+  image: z.object({
+    type: z.enum(["base64", "file", "url"]),
+    data: z.string().optional(),
+    path: z.string().optional(),
+    url: z.string().optional(),
+    media_type: z.enum(["image/jpeg", "image/png", "image/gif", "image/webp"]).optional(),
+  }).optional().describe("Image source — vision mode"),
+  analysis: z.unknown().optional().describe("Pre-built BlueprintAnalysis — analysis mode"),
+  profiles: z.array(z.unknown()).optional(),
+  vision: z.object({
+    expected_units: z.enum(["mm", "inch"]).optional(),
+    blueprint_type: z.enum(["wire_edm", "milling", "turning", "general"]).optional(),
+    extract_geometry: z.boolean().optional(),
+    model: z.string().optional(),
+  }).optional(),
+  targets: z.array(z.string()).optional(),
+  outputDir: z.string().optional(),
+  output_dir: z.string().optional(),
+  defaultDepth: z.number().optional(),
+  default_depth: z.number().optional(),
+  partName: z.string().optional(),
+  part_name: z.string().optional(),
+  units: z.enum(["mm", "in"]).optional(),
+}).passthrough();
+
+const blueprintToAllCadsCapabilitiesSchema = z.object({}).passthrough();
+
 // ── CAD Trial-Error Learning Actions (U-CADC29) ───────────────────────────────
 const cadTrialIngestSchema = z.object({
   outcome: z.unknown().optional(),
@@ -496,6 +525,10 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   esprit_live_execute: liveExecuteSchema,
   esprit_live_validate: liveValidateSchema,
   esprit_live_modes: liveModesSchema,
+  // Blueprint OCR → 6-CAD Orchestrator
+  blueprint_to_all_cads: blueprintToAllCadsSchema,
+  blueprint_to_all_cads_validate: blueprintToAllCadsSchema,
+  blueprint_to_all_cads_capabilities: blueprintToAllCadsCapabilitiesSchema,
   // CAD Trial-Error Learning (U-CADC29)
   cad_trial_ingest: cadTrialIngestSchema,
   cad_trial_patterns: cadTrialPatternsSchema,

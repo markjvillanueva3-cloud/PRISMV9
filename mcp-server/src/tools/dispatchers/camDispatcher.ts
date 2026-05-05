@@ -279,6 +279,8 @@ let _pmUnifiedIndex: any;
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
 let _hyperMillCodeGen: any;
+// CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge singleton
+let _printToHyperMill: any;
 // E1121 — PowerMillCodeGeneratorEngine singleton
 let _powerMillCodeGen: any;
 // E1124 — UniversalToolExportEngine singleton
@@ -604,6 +606,8 @@ async function getEngine(name: string): Promise<any> {
     case "sprutCAMStrategy": return _sprutCAMStrategy ??= (await import("../../engines/BatchCAMStrategyEngines.js")).sprutCAMStrategyEngine;
     // E1120 — HyperMillCodeGeneratorEngine
     case "hyperMillCodeGen": return _hyperMillCodeGen ??= (await import("../../engines/HyperMillCodeGeneratorEngine.js")).hyperMillCodeGeneratorEngine;
+    // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge
+    case "printToHyperMill": return _printToHyperMill ??= (await import("../../engines/PrintToHyperMillBridge.js")).printToHyperMillBridge;
     // E1118 — SolidCAMCodeGeneratorEngine
     case "solidcamCodeGen": return _solidcamCodeGen ??= (await import("../../engines/SolidCAMCodeGeneratorEngine.js")).solidCAMCodeGeneratorEngine;
     // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine
@@ -1325,6 +1329,8 @@ export const ACTIONS = [
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
+  // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
+  "print_to_hypermill", "print_to_hypermill_validate", "print_to_hypermill_capabilities",
   // E1127 — HyperMillToolExportEngine (2 actions, CAMX-MS9/U03)
   "hypermill_tool_export", "hypermill_tool_export_job",
   // E1121 — PowerMillCodeGeneratorEngine (2 actions)
@@ -8502,6 +8508,34 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "hypermill_code_templates": {
             const eng = await getEngine("hyperMillCodeGen");
             result = eng.getTemplates(params.category);
+            break;
+          }
+
+          // ── CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge ──
+          case "print_to_hypermill": {
+            const bridge = await getEngine("printToHyperMill");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis,
+              profiles: params.profiles,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+              partName: params.partName ?? params.part_name,
+              units: params.units,
+              machineName: params.machineName ?? params.machine_name,
+              postProcessor: params.postProcessor ?? params.post_processor,
+              runNCGeneration: params.runNCGeneration ?? params.run_nc_generation,
+              addErrorHandling: params.addErrorHandling ?? params.add_error_handling,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_hypermill_validate": {
+            const bridge = await getEngine("printToHyperMill");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_hypermill_capabilities": {
+            const bridge = await getEngine("printToHyperMill");
+            result = { success: true, ...bridge.capabilities() };
             break;
           }
 
