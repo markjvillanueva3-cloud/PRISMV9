@@ -16,10 +16,19 @@
  */
 
 import type { CADScript, CADExecutionResult } from "../interfaces/ICADCodeGenerator.js";
+import {
+  dispatchViaHttp,
+  dispatchViaCom,
+  type HttpClient,
+  type ProcessRunner,
+  type TempFileSink,
+} from "./cadLiveDispatch.js";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const BRIDGE_VERSION = "1.0.0";
+const BRIDGE_VERSION = "1.1.0";
+const BRAND = "EspritLiveBridge";
+const SCRIPT_EXT = "vb";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MIN_VALID_TIMEOUT_MS = 100;
 const MAX_VALID_TIMEOUT_MS = 600_000;
@@ -101,8 +110,23 @@ function mockResult(scriptBody: string): CADExecutionResult {
 
 // ── Engine ───────────────────────────────────────────────────────────────────
 
+export interface EspritLiveDeps {
+  http?: HttpClient;
+  runner?: ProcessRunner;
+  tempSink?: TempFileSink;
+}
+
 export class EspritLiveBridgeEngine {
   readonly version = BRIDGE_VERSION;
+  private readonly http?: HttpClient;
+  private readonly runner?: ProcessRunner;
+  private readonly tempSink?: TempFileSink;
+
+  constructor(deps?: EspritLiveDeps) {
+    this.http = deps?.http;
+    this.runner = deps?.runner;
+    this.tempSink = deps?.tempSink;
+  }
 
   validate(config: EspritLiveConfig): { ok: boolean; error?: string } {
     return validateConfig(config);
@@ -121,32 +145,31 @@ export class EspritLiveBridgeEngine {
       };
     }
     const body = resolveScriptBody(input.script);
-    const start = Date.now();
 
     if (input.config.mode === "mock") {
       return mockResult(body);
     }
 
     if (input.config.mode === "http") {
-      return {
-        ok: false,
-        error:
-          "EspritLiveBridge: HTTP execution not yet wired (requires Esprit plugin listener at " +
-          input.config.endpoint +
-          ")",
-        durationMs: Date.now() - start,
-      };
+      return dispatchViaHttp({
+        endpoint: input.config.endpoint as string,
+        timeoutMs: input.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+        body,
+        brand: BRAND,
+        http: this.http,
+      });
     }
 
     // mode === "com"
-    return {
-      ok: false,
-      error:
-        "EspritLiveBridge: COM execution not yet wired (requires Windows + Esprit.Application + cscript.exe shim at " +
-        input.config.comShimPath +
-        ")",
-      durationMs: Date.now() - start,
-    };
+    return dispatchViaCom({
+      comShimPath: input.config.comShimPath as string,
+      body,
+      brand: BRAND,
+      scriptExt: SCRIPT_EXT,
+      timeoutMs: input.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      runner: this.runner,
+      tempSink: this.tempSink,
+    });
   }
 
   supportedModes(): readonly EspritExecutionMode[] {

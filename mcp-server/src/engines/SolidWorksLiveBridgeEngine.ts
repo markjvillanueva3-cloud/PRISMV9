@@ -23,10 +23,19 @@
  */
 
 import type { CADScript, CADExecutionResult } from "../interfaces/ICADCodeGenerator.js";
+import {
+  dispatchViaHttp,
+  dispatchViaCom,
+  type HttpClient,
+  type ProcessRunner,
+  type TempFileSink,
+} from "./cadLiveDispatch.js";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const BRIDGE_VERSION = "1.0.0";
+const BRIDGE_VERSION = "1.1.0";
+const BRAND = "SolidWorksLiveBridge";
+const SCRIPT_EXT = "bas";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MIN_VALID_TIMEOUT_MS = 100;
 const MAX_VALID_TIMEOUT_MS = 600_000;
@@ -109,8 +118,23 @@ function mockResult(scriptBody: string): CADExecutionResult {
 
 // ── Engine ───────────────────────────────────────────────────────────────────
 
+export interface SolidWorksLiveDeps {
+  http?: HttpClient;
+  runner?: ProcessRunner;
+  tempSink?: TempFileSink;
+}
+
 export class SolidWorksLiveBridgeEngine {
   readonly version = BRIDGE_VERSION;
+  private readonly http?: HttpClient;
+  private readonly runner?: ProcessRunner;
+  private readonly tempSink?: TempFileSink;
+
+  constructor(deps?: SolidWorksLiveDeps) {
+    this.http = deps?.http;
+    this.runner = deps?.runner;
+    this.tempSink = deps?.tempSink;
+  }
 
   /**
    * Validate config without executing. Returns {ok:true} or {ok:false, error}.
@@ -137,32 +161,31 @@ export class SolidWorksLiveBridgeEngine {
       };
     }
     const body = resolveScriptBody(input.script);
-    const start = Date.now();
 
     if (input.config.mode === "mock") {
       return mockResult(body);
     }
 
     if (input.config.mode === "http") {
-      return {
-        ok: false,
-        error:
-          "SolidWorksLiveBridge: HTTP execution not yet wired (requires SolidWorks add-in listener at " +
-          input.config.endpoint +
-          ")",
-        durationMs: Date.now() - start,
-      };
+      return dispatchViaHttp({
+        endpoint: input.config.endpoint as string,
+        timeoutMs: input.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+        body,
+        brand: BRAND,
+        http: this.http,
+      });
     }
 
     // mode === "com"
-    return {
-      ok: false,
-      error:
-        "SolidWorksLiveBridge: COM execution not yet wired (requires Windows + SOLIDWORKS.exe + cscript.exe shim at " +
-        input.config.comShimPath +
-        ")",
-      durationMs: Date.now() - start,
-    };
+    return dispatchViaCom({
+      comShimPath: input.config.comShimPath as string,
+      body,
+      brand: BRAND,
+      scriptExt: SCRIPT_EXT,
+      timeoutMs: input.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      runner: this.runner,
+      tempSink: this.tempSink,
+    });
   }
 
   /** Modes this bridge knows how to dispatch (executable + mocked). */
