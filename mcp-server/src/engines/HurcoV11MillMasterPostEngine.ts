@@ -615,6 +615,14 @@ export const PROVE_OUT_LEVEL_SENTINEL = 0;
  *  Aligns with the test in HurcoV11MillMasterPostEngine.test.ts. */
 export const TAYLOR_TARGET_LIFE_MIN = 10;
 
+/** U-PPGH14: maximum tool L:D (stickout / diameter) ratio before the
+ *  deflection check fails. 4× is a Sandvik Coromant general-milling rule
+ *  of thumb for solid carbide endmills — above this, deflection scales
+ *  with L³ and chatter risk multiplies. The check is opt-in (only emits
+ *  when the structured `op.tool.stickout_mm` is supplied — flat-field
+ *  callers stay backward compatible because they don't carry stickout). */
+export const STICKOUT_RATIO_LIMIT = 4;
+
 /** Internal resolved prove-out entry. `feedFactor` is already clamped to
  *  [0, 1] and NaN-normalized; `addOptionalStops` defaults to true. */
 interface ProveOutEntry {
@@ -1277,6 +1285,25 @@ export class HurcoV11MillMasterPostEngine {
       value: T,
       limit: TAYLOR_TARGET_LIFE_MIN,
     });
+
+    // U-PPGH14: opt-in stickout deflection (L:D) check. The structured
+    // `op.tool.stickout_mm` field is the only source — flat-field callers
+    // don't carry stickout and skip this gate (backward compat). Above the
+    // STICKOUT_RATIO_LIMIT (4×D) ratio, cantilever deflection scales with
+    // L³ and chatter risk multiplies (Sandvik Coromant general milling
+    // rule of thumb for solid carbide endmills). The check FAILS rather
+    // than throws so downstream telemetry can flag the run without
+    // stopping a deliberately long-reach setup the operator has signed off.
+    if (op.tool?.stickout_mm !== undefined) {
+      const ratio = op.tool.stickout_mm / op.tool_diameter_mm;
+      checks.push({
+        line: startLine,
+        check: `Tool stickout ratio ${ratio.toFixed(2)}×D (stickout=${op.tool.stickout_mm}mm / D=${op.tool_diameter_mm}mm) vs limit ${STICKOUT_RATIO_LIMIT}×D`,
+        passed: ratio <= STICKOUT_RATIO_LIMIT,
+        value: ratio,
+        limit: STICKOUT_RATIO_LIMIT,
+      });
+    }
 
     return checks;
   }
