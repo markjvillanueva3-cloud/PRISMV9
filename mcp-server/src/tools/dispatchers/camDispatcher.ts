@@ -1942,6 +1942,14 @@ export const ACTIONS = [
     "cam_calibration_calibrate_decision", "cam_calibration_metrics",
     "cam_calibration_recommend_method", "cam_calibration_get_outcome_count",
     "cam_calibration_clear_outcomes", "cam_calibration_set_outcome_cap",
+  // CAM-EXHAUST-MS0/U-CAM121 — Transfer Learning (cross-CAM knowledge transfer)
+    "cam_transfer_register_domain", "cam_transfer_list_cams",
+    "cam_transfer_get_domain", "cam_transfer_domain_similarity",
+    "cam_transfer_record_observation", "cam_transfer_predict",
+    "cam_transfer_best_source", "cam_transfer_record_outcome",
+    "cam_transfer_accuracy", "cam_transfer_list_observations",
+    "cam_transfer_clear_all", "cam_transfer_set_observation_cap",
+    "cam_transfer_set_outcome_cap",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -16298,6 +16306,92 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMConfidenceCalibrationEngine } = await import("../../engines/CAMConfidenceCalibrationEngine.js");
             const cap = params.cap as number;
             CAMConfidenceCalibrationEngine.setOutcomeCap(cap);
+            result = { success: true, cap };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM121 — Cross-CAM Transfer Learning (13 actions)
+          case "cam_transfer_register_domain": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const features = params.features as Parameters<typeof CAMTransferLearningEngine.registerCAMDomain>[0];
+            result = { success: true, domain: CAMTransferLearningEngine.registerCAMDomain(features) };
+            break;
+          }
+          case "cam_transfer_list_cams": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            result = { success: true, cams: CAMTransferLearningEngine.listSupportedCAMs() };
+            break;
+          }
+          case "cam_transfer_get_domain": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const slug = params.slug as string;
+            result = { success: true, domain: CAMTransferLearningEngine.getDomain(slug) ?? null };
+            break;
+          }
+          case "cam_transfer_domain_similarity": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const sourceCam = params.source_cam as string;
+            const targetCam = params.target_cam as string;
+            const sigma = params.sigma as number | undefined;
+            result = { success: true, ...CAMTransferLearningEngine.domainSimilarity(sourceCam, targetCam, sigma) };
+            break;
+          }
+          case "cam_transfer_record_observation": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const observation = params.observation as Parameters<typeof CAMTransferLearningEngine.recordObservation>[0];
+            result = { success: true, observation: CAMTransferLearningEngine.recordObservation(observation) };
+            break;
+          }
+          case "cam_transfer_predict": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const request = params.request as Parameters<typeof CAMTransferLearningEngine.transfer>[0];
+            result = { success: true, ...CAMTransferLearningEngine.transfer(request) };
+            break;
+          }
+          case "cam_transfer_best_source": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const targetCam = params.target_cam as string;
+            const task = params.task as Parameters<typeof CAMTransferLearningEngine.bestSourceCAM>[1];
+            const operation = params.operation as string;
+            const material = params.material as string;
+            result = { success: true, best: CAMTransferLearningEngine.bestSourceCAM(targetCam, task, operation, material) };
+            break;
+          }
+          case "cam_transfer_record_outcome": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const outcome = params.outcome as Parameters<typeof CAMTransferLearningEngine.recordTransferOutcome>[0];
+            result = { success: true, outcome: CAMTransferLearningEngine.recordTransferOutcome(outcome) };
+            break;
+          }
+          case "cam_transfer_accuracy": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const sourceCam = params.source_cam as string | undefined;
+            const targetCam = params.target_cam as string | undefined;
+            result = { success: true, accuracy: CAMTransferLearningEngine.transferAccuracy(sourceCam, targetCam) };
+            break;
+          }
+          case "cam_transfer_list_observations": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const filter = params.filter as Parameters<typeof CAMTransferLearningEngine.listObservations>[0];
+            result = { success: true, observations: CAMTransferLearningEngine.listObservations(filter) };
+            break;
+          }
+          case "cam_transfer_clear_all": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            CAMTransferLearningEngine.clearAll();
+            result = { success: true };
+            break;
+          }
+          case "cam_transfer_set_observation_cap": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const cap = params.cap as number;
+            CAMTransferLearningEngine.setObservationCap(cap);
+            result = { success: true, cap };
+            break;
+          }
+          case "cam_transfer_set_outcome_cap": {
+            const { CAMTransferLearningEngine } = await import("../../engines/CAMTransferLearningEngine.js");
+            const cap = params.cap as number;
+            CAMTransferLearningEngine.setOutcomeCap(cap);
             result = { success: true, cap };
             break;
           }
