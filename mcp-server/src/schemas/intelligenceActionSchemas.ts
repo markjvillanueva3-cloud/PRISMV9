@@ -477,6 +477,17 @@ const consensus_credit_status = z.object({
   perfStatePath: optStr,
 }).passthrough();
 
+// ConsensusPerformanceDashboardEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DASHBOARD
+const consensus_dashboard = z.object({
+  perfStatePath: optStr,
+  feedPath: optStr,
+  expectedVendors: z.array(z.string()).optional(),
+  expectedTaskTypes: z.array(z.string()).optional(),
+  topK: z.number().int().positive().optional(),
+  trendWindow: z.number().int().nonnegative().optional(),
+  staleAfterDays: z.number().nonnegative().optional(),
+}).passthrough();
+
 // ============================================================================
 // EXPORT MAP — 52 core actions (49 + 3 from U-CREDIT-DISPATCHER)
 // ============================================================================
@@ -547,4 +558,6 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   consensus_credit_apply_result,
   consensus_credit_apply_feed,
   consensus_credit_status,
+  // ConsensusPerformanceDashboardEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DASHBOARD
+  consensus_dashboard,
 };

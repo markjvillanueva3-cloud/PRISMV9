@@ -15,6 +15,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { consensusNeuralCreditAssignmentEngine } from "../engines/ConsensusNeuralCreditAssignmentEngine.js";
 import { consensusModelPerformanceEngine } from "../engines/ConsensusModelPerformanceEngine.js";
+import { consensusPerformanceDashboardEngine } from "../engines/ConsensusPerformanceDashboardEngine.js";
 import type { ConsensusResultLike } from "../engines/ConsensusNeuralFeedbackEngine.js";
 
 function tmpDir(): string {
@@ -170,6 +171,33 @@ describe("intelligenceDispatcher consensus_credit_* actions", () => {
     expect(cursor.last_offset_bytes).toBe(0);
     expect(cursor.feed_path).toBe("");
     expect(state.vendors).toEqual({});
+  });
+
+  it("consensus_dashboard returns full analytics view computed from perf state and feed", () => {
+    // Seed a minimal perf state so the dashboard has something to rank.
+    consensusNeuralCreditAssignmentEngine.applyFromResult({
+      result: makeResult(),
+      taskType: "decide",
+      perfStatePath: perfPath,
+    });
+    fs.writeFileSync(feedPath, makeFeedLine() + "\n" + makeFeedLine({ ts: "2026-05-05T15:01:00.000Z", reward: 0.6 }) + "\n");
+
+    // Mirror dispatcher's consensus_dashboard call shape:
+    const dashboard = consensusPerformanceDashboardEngine.compute({
+      perfStatePath: perfPath,
+      feedPath,
+      expectedVendors: ["anthropic", "openai", "google"],
+      expectedTaskTypes: ["decide", "plan"],
+    });
+    expect(dashboard.overall.totalVendors).toBe(3);
+    expect(dashboard.overall.totalTaskTypes).toBe(2);
+    expect(dashboard.perTaskType.decide.vendors[0].vendor).toBe("anthropic");
+    expect(dashboard.trend.feedLines).toBe(2);
+    expect(dashboard.trend.recentRewards?.count).toBe(2);
+    // anthropic + openai covered on decide → google missing → 1 missing combo
+    // both vendors uncovered on plan → 3 missing combos there too
+    const missing = dashboard.overall.coldStartCombos.filter((c) => c.reason === "missing");
+    expect(missing.length).toBeGreaterThanOrEqual(4);
   });
 
   it("consensus_credit_apply_feed with batchSize caps lines and resumes on next call", () => {
