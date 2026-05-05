@@ -2708,7 +2708,16 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-05T23:20:00Z",
+          "completed_by": "claude-1f96b0f4",
+          "commits": [
+            "e0ba8c0cd",
+            "3e9548487",
+            "5bd699990"
+          ],
+          "notes": "KnowledgeIngestEngine (PDF→chunks→embed→Qdrant under kind='wiki'), PdfChunkExtractorEngine (chunker), ObsidianMemoryRagEngine (vault RAG), ResourcesClassifierEngine wired (wiki_classify_file/wiki_summarize_dir actions). Ingest driver: scripts/ingest-pdfs.mjs (named slightly differently than spec but same role). Extract subprocess: scripts/extract-pdf-text.py. Verifier: scripts/verify-kip-ingest.mjs. Provenance frontmatter via meta {source,title,vendor,category,tags}. Machining-skip via ResourcesClassifierEngine.classifyFile filter. 6 dispatcher actions on knowledgeDispatcher (wiki_ingest_pdf, wiki_ingest_dryrun, wiki_rag_query, wiki_rag_should_trigger, wiki_classify_file, wiki_summarize_dir). 123/123 tests across 5 KIP test files. Zero new tsc errors on KIP surface. Opus reviewer PASS; Codex+Gemini env-blocked (Windows shim emit + daily quota), 3-block escape hatch fired."
         },
         {
           "id": "P14-U03",
