@@ -507,6 +507,11 @@ export const PROVE_OUT_LABEL = "PROVE-OUT";
  *  discriminate the two paths without a discriminated-union type change. */
 export const PROVE_OUT_LEVEL_SENTINEL = 0;
 
+/** U-PPGH07: minimum acceptable Taylor tool-life [min] for unattended JM Die
+ *  shop runs. Below this the operator is asked to drop Vc before continuing.
+ *  Aligns with the test in HurcoV11MillMasterPostEngine.test.ts. */
+export const TAYLOR_TARGET_LIFE_MIN = 10;
+
 /** Internal resolved prove-out entry. `feedFactor` is already clamped to
  *  [0, 1] and NaN-normalized; `addOptionalStops` defaults to true. */
 interface ProveOutEntry {
@@ -972,6 +977,22 @@ export class HurcoV11MillMasterPostEngine {
       limit: maxRpm
     });
 
+    // U-PPGH07: Taylor tool-life check — T = (C/Vc)^(1/n) per ISO 3685.
+    // Constants from physics/constants.ts CANONICAL_TAYLOR (carbide, ISO):
+    //   P=350/0.25  M=200/0.20  K=250/0.25  N=600/0.40  S=150/0.18  H=120/0.15
+    // Pass criterion: predicted life T >= TAYLOR_TARGET_LIFE_MIN (10 min) — a
+    // shop-floor minimum for the JM Die environment. Below 10 min the operator
+    // is asked to drop Vc (slow the spindle) before running unattended.
+    const taylor = CANONICAL_TAYLOR[op.material_iso];
+    const T = Math.pow(taylor.C / Vc, 1 / taylor.n);
+    checks.push({
+      line: startLine,
+      check: `Taylor tool life ${T.toFixed(1)} min at Vc=${Vc.toFixed(0)} m/min (C=${taylor.C} n=${taylor.n})`,
+      passed: T >= TAYLOR_TARGET_LIFE_MIN,
+      value: T,
+      limit: TAYLOR_TARGET_LIFE_MIN,
+    });
+
     return checks;
   }
 
@@ -1042,14 +1063,26 @@ export class HurcoV11MillMasterPostEngine {
       machine: "Hurco VMX24",
       controller: "WinMax V11",
       tribal_tips: HURCO_V11_TRIBAL_KNOWLEDGE.length,
-      physics_checks: 4,
+      // U-PPGH07: 5 base checks = Vc, fz, Fc, RPM, Taylor tool life.
+      // Stickout deflection (when present) is an additional conditional check.
+      physics_checks: 5,
+      // U-PPGH07: full feature roster surfaced for the test shop dashboard
+      // and traceability. Order is alphabetic-by-domain (post-emission first,
+      // then physics, then optimization, then ops support) to make missing
+      // entries easier to spot in setup-sheet diffs.
       features: [
-        "UltiMotion high-speed mode",
+        "UltiMotion high-speed mode (comment annotation; Hurco V11 has no inline G-code)",
         "G65 conversational macros",
+        "G54.1 P1..P48 extended work offsets",
         "Kienzle force validation",
         "Taylor tool life integration",
+        "Stickout deflection check (conditional on tool.stickout_mm)",
+        "Aggressiveness levels 1-5 (feed multiplier 0.6..1.4)",
+        "Prove-out mode (M01 between ops + feed factor)",
+        "Material constant override (per-op kc1_1/mc with sanity bounds)",
+        "Renishaw probe support",
         "JM Die tribal knowledge",
-        "Renishaw probe support"
+        "Setup-sheet emission with tools + operations tables"
       ]
     };
   }
