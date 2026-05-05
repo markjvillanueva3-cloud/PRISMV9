@@ -281,6 +281,8 @@ let _catiaCodeGen: any;
 let _hyperMillCodeGen: any;
 // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge singleton
 let _printToHyperMill: any;
+// CAD-COMPLETE-MS0/U-CADC-PRINT-INVHSM-01 — PrintToInventorHSMBridge singleton
+let _printToInventorHSM: any;
 // E1121 — PowerMillCodeGeneratorEngine singleton
 let _powerMillCodeGen: any;
 // E1124 — UniversalToolExportEngine singleton
@@ -608,6 +610,8 @@ async function getEngine(name: string): Promise<any> {
     case "hyperMillCodeGen": return _hyperMillCodeGen ??= (await import("../../engines/HyperMillCodeGeneratorEngine.js")).hyperMillCodeGeneratorEngine;
     // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge
     case "printToHyperMill": return _printToHyperMill ??= (await import("../../engines/PrintToHyperMillBridge.js")).printToHyperMillBridge;
+    // CAD-COMPLETE-MS0/U-CADC-PRINT-INVHSM-01 — PrintToInventorHSMBridge
+    case "printToInventorHSM": return _printToInventorHSM ??= (await import("../../engines/PrintToInventorHSMBridge.js")).printToInventorHSMBridge;
     // E1118 — SolidCAMCodeGeneratorEngine
     case "solidcamCodeGen": return _solidcamCodeGen ??= (await import("../../engines/SolidCAMCodeGeneratorEngine.js")).solidCAMCodeGeneratorEngine;
     // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine
@@ -1331,6 +1335,8 @@ export const ACTIONS = [
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
   "print_to_hypermill", "print_to_hypermill_validate", "print_to_hypermill_capabilities",
+  // CAD-COMPLETE-MS0/U-CADC-PRINT-INVHSM-01 — PrintToInventorHSMBridge (3 actions)
+  "print_to_inventor_hsm", "print_to_inventor_hsm_validate", "print_to_inventor_hsm_capabilities",
   // E1127 — HyperMillToolExportEngine (2 actions, CAMX-MS9/U03)
   "hypermill_tool_export", "hypermill_tool_export_job",
   // E1121 — PowerMillCodeGeneratorEngine (2 actions)
@@ -1926,6 +1932,11 @@ export const ACTIONS = [
   // CAM-EXHAUST-MS0/U-CAM117 — Deep Learning Orchestrator (multi-source AGI decisions)
     "cam_dl_decide", "cam_dl_health_check_all",
     "cam_dl_list_sources", "cam_dl_get_default_weights",
+  // CAM-EXHAUST-MS0/U-CAM118 — Reasoning Chain (explainable decisions)
+    "cam_reasoning_decide", "cam_reasoning_build_from_decision",
+    "cam_reasoning_get_chain", "cam_reasoning_list_chains",
+    "cam_reasoning_why_decision", "cam_reasoning_compare_alternatives",
+    "cam_reasoning_clear_chains", "cam_reasoning_set_max_chains",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -8555,6 +8566,36 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "print_to_hypermill_capabilities": {
             const bridge = await getEngine("printToHyperMill");
+            result = { success: true, ...bridge.capabilities() };
+            break;
+          }
+
+          // ── CAD-COMPLETE-MS0/U-CADC-PRINT-INVHSM-01 — PrintToInventorHSMBridge ──
+          case "print_to_inventor_hsm": {
+            const bridge = await getEngine("printToInventorHSM");
+            const out = bridge.buildBridgeScript({
+              analysis: params.analysis,
+              profiles: params.profiles,
+              defaultDepth: params.defaultDepth ?? params.default_depth,
+              partName: params.partName ?? params.part_name,
+              units: params.units,
+              machineName: params.machineName ?? params.machine_name,
+              postProcessor: params.postProcessor ?? params.post_processor,
+              ncOutputPath: params.ncOutputPath ?? params.nc_output_path,
+              addErrorHandling: params.addErrorHandling ?? params.add_error_handling,
+              useMaterialFeedSpeed: params.useMaterialFeedSpeed ?? params.use_material_feed_speed,
+              materialOverride: params.materialOverride ?? params.material_override,
+            });
+            result = { success: true, ...out };
+            break;
+          }
+          case "print_to_inventor_hsm_validate": {
+            const bridge = await getEngine("printToInventorHSM");
+            result = { success: true, ...bridge.validate(params) };
+            break;
+          }
+          case "print_to_inventor_hsm_capabilities": {
+            const bridge = await getEngine("printToInventorHSM");
             result = { success: true, ...bridge.capabilities() };
             break;
           }
@@ -16141,6 +16182,61 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_dl_get_default_weights": {
             const { CAMDeepLearningOrchestratorEngine } = await import("../../engines/CAMDeepLearningOrchestratorEngine.js");
             result = { success: true, weights: CAMDeepLearningOrchestratorEngine.getDefaultWeights() };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM118 — Reasoning Chain (8 actions)
+          case "cam_reasoning_decide": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const task = params.task as "strategy_recommend" | "parameter_extract" | "operation_classify" | "tool_select_advisor";
+            const prompt = params.prompt as string;
+            const opts = (params.options as Record<string, unknown> | undefined) ?? {};
+            result = { success: true, ...(await CAMReasoningChainEngine.decide(task, prompt, opts)) };
+            break;
+          }
+          case "cam_reasoning_build_from_decision": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const decision = params.decision as Parameters<typeof CAMReasoningChainEngine.buildFromDecision>[0];
+            const request = params.request as Parameters<typeof CAMReasoningChainEngine.buildFromDecision>[1];
+            result = { success: true, chain: CAMReasoningChainEngine.buildFromDecision(decision, request) };
+            break;
+          }
+          case "cam_reasoning_get_chain": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const chainId = params.chain_id as string;
+            const chain = CAMReasoningChainEngine.getChain(chainId);
+            result = { success: chain !== null, chain };
+            break;
+          }
+          case "cam_reasoning_list_chains": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const filter = params.filter as Parameters<typeof CAMReasoningChainEngine.listChains>[0];
+            result = { success: true, chains: CAMReasoningChainEngine.listChains(filter) };
+            break;
+          }
+          case "cam_reasoning_why_decision": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const chainId = params.chain_id as string;
+            const query = params.query as string;
+            result = { success: true, ...CAMReasoningChainEngine.whyDecision(chainId, query) };
+            break;
+          }
+          case "cam_reasoning_compare_alternatives": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const chainId = params.chain_id as string;
+            result = { success: true, ...CAMReasoningChainEngine.compareAlternatives(chainId) };
+            break;
+          }
+          case "cam_reasoning_clear_chains": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            CAMReasoningChainEngine.clearChains();
+            result = { success: true };
+            break;
+          }
+          case "cam_reasoning_set_max_chains": {
+            const { CAMReasoningChainEngine } = await import("../../engines/CAMReasoningChainEngine.js");
+            const max = params.max as number;
+            CAMReasoningChainEngine.setMaxChains(max);
+            result = { success: true, max };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index (10 actions)
