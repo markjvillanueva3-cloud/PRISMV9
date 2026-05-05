@@ -184,6 +184,14 @@ const KIP_INGEST_ACTIONS = [
   "wiki_ingest_dryrun",         // Same but skip Qdrant upsert (returns chunk count + chars)
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: Vault RAG + Resources/ classification — surfaces ObsidianMemoryRagEngine + ResourcesClassifierEngine. */
+const VAULT_RAG_ACTIONS = [
+  "wiki_rag_query",             // Top-K vault recall (memories + tribal) for a prompt
+  "wiki_rag_should_trigger",    // Cheap predicate: would RAG fire for this query?
+  "wiki_classify_file",         // Bucket one file (machining/binary/general/mixed)
+  "wiki_summarize_dir",         // Aggregate FileEntry[] into a DirSummary (KIP planner)
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -206,6 +214,7 @@ const ACTIONS = [
   ...FORMULA_ORCHESTRATOR_ACTIONS,
   ...TRIBAL_ACTIVATION_ACTIONS,
   ...KIP_INGEST_ACTIONS,
+  ...VAULT_RAG_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2154,6 +2163,72 @@ export function registerKnowledgeDispatcher(server: any): void {
               dryRun: action === "wiki_ingest_dryrun" || params.dry_run === true,
             });
             result = ingestResult;
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: Vault RAG (ObsidianMemoryRagEngine) ──
+          case "wiki_rag_query": {
+            const { obsidianMemoryRagEngine } = await import("../../engines/ObsidianMemoryRagEngine.js");
+            const query = params.query ?? params.q;
+            if (typeof query !== "string" || query.length === 0) {
+              throw new Error("wiki_rag_query: query required");
+            }
+            result = obsidianMemoryRagEngine.query({
+              query,
+              memoriesDir: params.memories_dir ?? params.memoriesDir,
+              tribalDir: params.tribal_dir ?? params.tribalDir,
+              topK: params.top_k ?? params.topK,
+              maxBodyChars: params.max_body_chars ?? params.maxBodyChars,
+              forceSearch: params.force_search === true || params.forceSearch === true,
+            });
+            break;
+          }
+          case "wiki_rag_should_trigger": {
+            const { obsidianMemoryRagEngine } = await import("../../engines/ObsidianMemoryRagEngine.js");
+            const query = params.query ?? params.q;
+            if (typeof query !== "string") {
+              throw new Error("wiki_rag_should_trigger: query required");
+            }
+            result = {
+              triggered: obsidianMemoryRagEngine.shouldTrigger(query, params.force_search === true || params.forceSearch === true),
+            };
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: Resources/ classifier (ResourcesClassifierEngine) ──
+          case "wiki_classify_file": {
+            const { resourcesClassifierEngine } = await import("../../engines/ResourcesClassifierEngine.js");
+            const relPath = params.rel_path ?? params.relPath;
+            const ext = params.ext;
+            const size = params.size;
+            if (typeof relPath !== "string" || relPath.length === 0) {
+              throw new Error("wiki_classify_file: rel_path required");
+            }
+            if (typeof ext !== "string") {
+              throw new Error("wiki_classify_file: ext required (string, may be empty)");
+            }
+            if (typeof size !== "number" || !Number.isFinite(size) || size < 0) {
+              throw new Error("wiki_classify_file: size required (non-negative number)");
+            }
+            result = {
+              category: resourcesClassifierEngine.classifyFile({ relPath, ext, size }),
+            };
+            break;
+          }
+          case "wiki_summarize_dir": {
+            const { resourcesClassifierEngine } = await import("../../engines/ResourcesClassifierEngine.js");
+            const dirRelPath = params.dir_rel_path ?? params.dirRelPath;
+            const entries = params.entries;
+            if (typeof dirRelPath !== "string" || dirRelPath.length === 0) {
+              throw new Error("wiki_summarize_dir: dir_rel_path required");
+            }
+            if (!Array.isArray(entries)) {
+              throw new Error("wiki_summarize_dir: entries required (array)");
+            }
+            const normalized = entries.map((e: any) => ({
+              relPath: e?.rel_path ?? e?.relPath,
+              ext: e?.ext ?? "",
+              size: typeof e?.size === "number" ? e.size : 0,
+            }));
+            result = resourcesClassifierEngine.summarizeDir(dirRelPath, normalized);
             break;
           }
         }

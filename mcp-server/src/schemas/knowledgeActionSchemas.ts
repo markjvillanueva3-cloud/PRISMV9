@@ -39,6 +39,40 @@ const wiki_ingest_pdf = z.object({
 const wiki_ingest_dryrun = wiki_ingest_pdf;
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02 — vault RAG + Resources/ classification
+// (wires ObsidianMemoryRagEngine + ResourcesClassifierEngine to knowledge dispatcher)
+// ============================================================================
+
+const wiki_rag_query = z.object({
+  query: z.string().min(1).describe("User prompt or recall query string"),
+  memories_dir: optStr.describe("Override memories dir (default H:/prism/knowledge/memories)"),
+  tribal_dir: optStr.describe("Override tribal dir (default H:/prism/knowledge/tribal)"),
+  top_k: z.number().int().positive().optional().describe("How many entries to return (default 5)"),
+  max_body_chars: z.number().int().positive().optional().describe("Per-entry body cap (default 1500)"),
+  force_search: z.boolean().optional().describe("Run RAG even without memory keywords"),
+}).passthrough();
+
+const wiki_rag_should_trigger = z.object({
+  query: z.string().min(1),
+  force_search: z.boolean().optional(),
+}).passthrough();
+
+const wiki_classify_file = z.object({
+  rel_path: z.string().min(1).describe("Path relative to Resources/ root (forward slashes)"),
+  ext: z.string().describe("Lowercased ext including dot, or empty string"),
+  size: z.number().nonnegative().describe("File size in bytes"),
+}).passthrough();
+
+const wiki_summarize_dir = z.object({
+  dir_rel_path: z.string().min(1).describe("Directory path relative to Resources/ root"),
+  entries: z.array(z.object({
+    rel_path: z.string(),
+    ext: z.string(),
+    size: z.number().nonnegative(),
+  })).describe("FileEntry[] under this directory"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1116,4 +1150,8 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   // INTEL-OLLAMA-OBSIDIAN-MS0/P14-U02: KIP ingestion
   wiki_ingest_pdf,
   wiki_ingest_dryrun,
+  wiki_rag_query,
+  wiki_rag_should_trigger,
+  wiki_classify_file,
+  wiki_summarize_dir,
 };
