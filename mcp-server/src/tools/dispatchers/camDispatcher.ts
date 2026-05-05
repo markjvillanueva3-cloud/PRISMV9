@@ -1912,6 +1912,12 @@ export const ACTIONS = [
     "alphacam_function_index_find_parameter", "alphacam_function_index_search_parameters",
     "alphacam_function_index_get_operations_by_category", "alphacam_function_index_get_summary",
     "alphacam_function_index_get_drilling_operations", "alphacam_function_index_get_operation",
+  // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
+    "surfcam_function_index_get", "surfcam_function_index_list_sections",
+    "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
+    "surfcam_function_index_find_parameter", "surfcam_function_index_search_parameters",
+    "surfcam_function_index_get_operations_by_category", "surfcam_function_index_get_summary",
+    "surfcam_function_index_get_truemill_operations", "surfcam_function_index_get_operation",
   // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index
     "visi_function_index_get", "visi_function_index_list_sections",
     "visi_function_index_get_section", "visi_function_index_list_operations",
@@ -15927,6 +15933,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { AlphacamFunctionIndexEngine } = await import("../../engines/AlphacamFunctionIndexEngine.js");
             const operationId = params.operation_id as string;
             result = { success: true, ...AlphacamFunctionIndexEngine.getOperation(operationId) };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (10 actions, TrueMill HSM flagship)
+          case "surfcam_function_index_get": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            result = { success: true, index: SURFCAMFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "surfcam_function_index_list_sections": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            result = { success: true, sections: SURFCAMFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "surfcam_function_index_get_section": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: SURFCAMFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "surfcam_function_index_list_operations": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            result = { success: true, operations: SURFCAMFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "surfcam_function_index_find_parameter": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: SURFCAMFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "surfcam_function_index_search_parameters": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: SURFCAMFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "surfcam_function_index_get_operations_by_category": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: SURFCAMFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "surfcam_function_index_get_summary": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            result = { success: true, ...SURFCAMFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "surfcam_function_index_get_truemill_operations": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            result = { success: true, operations: SURFCAMFunctionIndexEngine.getTrueMillOperations() };
+            break;
+          }
+          case "surfcam_function_index_get_operation": {
+            const { SURFCAMFunctionIndexEngine } = await import("../../engines/SURFCAMFunctionIndexEngine.js");
+            const operationId = params.operation_id as string;
+            result = { success: true, ...SURFCAMFunctionIndexEngine.getOperation(operationId) };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM-FIDX-20 — VISI Function Index (10 actions)

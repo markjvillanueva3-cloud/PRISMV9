@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "system_id": "surfcam",
+  "section_key": "milling_2d",
+  "extraction_source": "SURFCAM 2024 Reference (Hexagon — Vero Software) + SURFCAM Velocity training docs",
+  "extraction_date": "2026-05-05",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM51",
+  "summary": {
+    "total_operations": 5,
+    "total_parameters": 79,
+    "categories": ["pocket_2d", "contour_2d", "drill_2d", "slot_2d", "face_2d"]
+  },
+  "operations": {
+    "pocket_2d": {
+      "display_name": "2D Pocket",
+      "category": "pocket_2d",
+      "description": "Closed-boundary 2D pocket clearing with optional islands. Supports zigzag, spiral, and offset toolpaths with high-speed corner smoothing.",
+      "dialog_tabs": ["Geometry", "Strategy", "Cut", "Output"],
+      "parameter_count": 17,
+      "parameters": {
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "islands": { "type": "selection", "tab": "Geometry" },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "stockAllowance": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Geometry" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zigzag", "spiral", "offset", "true_spiral"], "default": "spiral", "tab": "Strategy", "required": true },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 65, "range": [10, 95], "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 2.5, "range": [0.05, 50], "tab": "Strategy", "required": true },
+          "approachType": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" }
+        },
+        "cut": {
+          "rampType": { "type": "enum", "values": ["plunge", "ramp", "helix", "preDrill"], "default": "helix", "tab": "Cut" },
+          "rampAngleDeg": { "type": "number", "unit": "deg", "default": 5, "range": [0.5, 45], "tab": "Cut" },
+          "helixDiameterMm": { "type": "number", "unit": "mm", "default": 6, "tab": "Cut" },
+          "cornerSmoothing": { "type": "boolean", "default": true, "description": "HSM corner-smoothing for high feedrate retention", "tab": "Cut" },
+          "smoothingRadius": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Cut" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Output" },
+          "minLinkLength": { "type": "number", "unit": "mm", "default": 1.0, "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 5, "tab": "Output" }
+        }
+      }
+    },
+    "contour_2d": {
+      "display_name": "2D Contour",
+      "category": "contour_2d",
+      "description": "Profile-following 2D contour with multi-pass support, lead-in/out, cutter-comp options. Common for part-perimeter finish and slot-walls.",
+      "dialog_tabs": ["Profile", "Passes", "LeadInOut", "Output"],
+      "parameter_count": 16,
+      "parameters": {
+        "profile": {
+          "profileCurve": { "type": "selection", "tab": "Profile", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Profile", "required": true },
+          "compensation": { "type": "enum", "values": ["computer", "control_G41_G42", "wear", "off"], "default": "computer", "tab": "Profile" }
+        },
+        "passes": {
+          "axialPasses": { "type": "integer", "default": 1, "range": [1, 50], "tab": "Passes" },
+          "radialStock": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" },
+          "finalPassDepth": { "type": "number", "unit": "mm", "default": 5, "tab": "Passes" },
+          "approach": { "type": "enum", "values": ["climb", "conventional", "alternating"], "default": "climb", "tab": "Passes" }
+        },
+        "leadInOut": {
+          "leadInType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "rampDown", "none"], "default": "arc", "tab": "LeadInOut" },
+          "leadInRadius": { "type": "number", "unit": "mm", "default": 5, "tab": "LeadInOut" },
+          "leadInLength": { "type": "number", "unit": "mm", "default": 5, "tab": "LeadInOut" },
+          "leadOutType": { "type": "enum", "values": ["arc", "tangent", "perpendicular", "none"], "default": "arc", "tab": "LeadInOut" },
+          "overlapMm": { "type": "number", "unit": "mm", "default": 0.5, "tab": "LeadInOut" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 5, "tab": "Output" }
+        }
+      }
+    },
+    "drill_2d": {
+      "display_name": "2D Drill",
+      "category": "drill_2d",
+      "description": "Point-based drilling with peck, deep-hole, tap, ream, bore cycles. Outputs canned cycles G81/G73/G83/G84/G85 per controller dialect.",
+      "dialog_tabs": ["Geometry", "Cycle", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "drillPoints": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "depthZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "tipBreakthroughMm": { "type": "number", "unit": "mm", "default": 1.5, "description": "Adds tool-tip breakthrough beyond bottomZ", "tab": "Geometry" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["drill_G81", "peck_G73", "deep_hole_G83", "tap_G84", "ream_G85", "bore_G86", "spot_G82"], "default": "drill_G81", "tab": "Cycle", "required": true },
+          "peckIncrementMm": { "type": "number", "unit": "mm", "default": 2, "range": [0.1, 50], "tab": "Cycle" },
+          "dwellSeconds": { "type": "number", "unit": "s", "default": 0, "range": [0, 5], "tab": "Cycle" },
+          "retractMode": { "type": "enum", "values": ["G98", "G99"], "default": "G99", "description": "Initial-plane vs R-plane retract", "tab": "Cycle" },
+          "tapPitch": { "type": "number", "unit": "mm/rev", "tab": "Cycle", "description": "Required for tap cycle" },
+          "rigidTap": { "type": "boolean", "default": true, "description": "Synchronized rigid tap (M29)", "tab": "Cycle" }
+        },
+        "output": {
+          "rapidPlaneZ": { "type": "number", "unit": "mm", "default": 25, "tab": "Output" },
+          "feedRetract": { "type": "number", "unit": "mm/min", "default": 5000, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" },
+          "outputCannedCycle": { "type": "boolean", "default": true, "description": "Use G-code canned cycle vs longhand expansion", "tab": "Output" }
+        }
+      }
+    },
+    "slot_2d": {
+      "display_name": "2D Slot",
+      "category": "slot_2d",
+      "description": "Slot milling with optional plunge mode and trochoidal entry for deep slots. Bidirectional zigzag for fastest material removal.",
+      "dialog_tabs": ["Geometry", "Strategy", "Output"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "slotCenterline": { "type": "selection", "tab": "Geometry", "required": true },
+          "slotWidth": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true }
+        },
+        "strategy": {
+          "strategy": { "type": "enum", "values": ["plunge_only", "zigzag", "trochoidal", "spiral_in"], "default": "trochoidal", "tab": "Strategy", "required": true },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 35, "range": [5, 50], "description": "Trochoidal step-over (smaller = lower radial engagement)", "tab": "Strategy" },
+          "trochoidalRadiusMm": { "type": "number", "unit": "mm", "default": 0.8, "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" },
+          "rampInArc": { "type": "boolean", "default": true, "tab": "Strategy" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.025, "tab": "Output" },
+          "smoothCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "feedReductionInCorners": { "type": "boolean", "default": true, "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 5, "tab": "Output" }
+        }
+      }
+    },
+    "face_2d": {
+      "display_name": "2D Facing",
+      "category": "face_2d",
+      "description": "Top-face stock removal across the part envelope. Supports one-way, zigzag, and high-feed face mill patterns.",
+      "dialog_tabs": ["Geometry", "Strategy", "Output"],
+      "parameter_count": 18,
+      "parameters": {
+        "geometry": {
+          "boundary": { "type": "selection", "tab": "Geometry", "required": true },
+          "topZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "bottomZ": { "type": "number", "unit": "mm", "tab": "Geometry", "required": true },
+          "extensionMm": { "type": "number", "unit": "mm", "default": 5, "description": "Tool-overrun beyond boundary", "tab": "Geometry" }
+        },
+        "strategy": {
+          "patternType": { "type": "enum", "values": ["zigzag", "one_way_climb", "one_way_conventional", "high_feed"], "default": "zigzag", "tab": "Strategy", "required": true },
+          "stepoverPct": { "type": "number", "unit": "percent", "default": 70, "range": [10, 95], "tab": "Strategy" },
+          "stepdown": { "type": "number", "unit": "mm", "default": 1, "tab": "Strategy" },
+          "passes": { "type": "integer", "default": 1, "range": [1, 20], "tab": "Strategy" },
+          "patternAngleDeg": { "type": "number", "unit": "deg", "default": 0, "range": [-90, 90], "tab": "Strategy" },
+          "approach": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Strategy" }
+        },
+        "output": {
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.05, "tab": "Output" },
+          "linkType": { "type": "enum", "values": ["direct", "rapid_retract", "smoothed"], "default": "smoothed", "tab": "Output" },
+          "linkClearanceZ": { "type": "number", "unit": "mm", "default": 5, "tab": "Output" },
+          "engageStockClearance": { "type": "number", "unit": "mm", "default": 2, "tab": "Output" },
+          "feed": { "type": "number", "unit": "mm/min", "default": 1500, "tab": "Output" },
+          "spindleRpm": { "type": "number", "unit": "rpm", "default": 8000, "tab": "Output" },
+          "coolant": { "type": "enum", "values": ["off", "flood", "mist", "tsc"], "default": "flood", "tab": "Output" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Pocket Strategy Selection",
+      "key_concepts": ["true_spiral vs offset", "stepover for low-engagement", "ramp vs helix entry"],
+      "best_practices": ["Use true_spiral for steel pockets >Ø10mm", "Helix entry for closed pockets", "Stepover 40-65% for HSM finish"]
+    },
+    {
+      "topic": "Cutter Compensation",
+      "key_concepts": ["computer comp", "control comp G41/G42", "wear comp"],
+      "best_practices": ["Use computer comp for repeatable parts", "Use control comp G41/G42 only when operator adjusts wear at machine", "Never mix wear and computer compensation"]
+    }
+  ]
+}
