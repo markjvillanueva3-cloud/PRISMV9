@@ -31,6 +31,7 @@ import {
   type MillMaterial,
   type PostMove,
 } from "../engines/OkumaOSPMillMasterPostEngine.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 const engine = new OkumaOSPMillMasterPostEngine();
 
@@ -845,3 +846,122 @@ function findCheck<T extends { check: string }>(arr: T[], pred: (c: T) => boolea
   }
   return found;
 }
+
+// ---------------------------------------------------------------------------
+// U-PPGOH05: Kienzle-bounded feed clamp
+// ---------------------------------------------------------------------------
+
+const KIENZLE_PROGRAM_BASE = 9300;
+const KIENZLE_MAX_FORCE_LOW = 1000;
+const KIENZLE_MAX_FORCE_MID = 1500;
+const KIENZLE_AP_HEAVY = 10;
+const KIENZLE_AP_HEAVY_2 = 8;
+const KIENZLE_FEED_HIGH = 4000;
+const KIENZLE_FEED_HIGHER = 5000;
+const KIENZLE_RPM = 4000;
+const KIENZLE_RPM_LOW = 3000;
+const KIENZLE_FLUTES_2 = 2;
+const KIENZLE_TOLERANCE_FACTOR = 1.05;
+const KIENZLE_LIGHT_FEED = 800;
+const KIENZLE_LIGHT_AP = 0.5;
+
+describe("OkumaOSPMill — Kienzle-bounded feed clamp (U-PPGOH05)", () => {
+  it("reduces feed when predicted Fc exceeds max_cutting_force_N", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([
+      makeOp({
+        material_iso: "P",
+        axial_depth_mm: KIENZLE_AP_HEAVY,
+        feed_mm_min: KIENZLE_FEED_HIGH,
+        spindle_rpm: KIENZLE_RPM,
+        tool_flutes: KIENZLE_FLUTES_2,
+      }),
+    ], {
+      program_number: KIENZLE_PROGRAM_BASE + 1,
+      max_cutting_force_N: KIENZLE_MAX_FORCE_LOW,
+    });
+    expect(result.feed_optimizations.length).toBe(1);
+    const opt = result.feed_optimizations[0];
+    expect(opt.original_feed_mm_min).toBe(KIENZLE_FEED_HIGH);
+    expect(opt.optimized_feed_mm_min).toBeLessThan(KIENZLE_FEED_HIGH);
+    expect(opt.reason).toMatch(/Kienzle Fc=\d+N exceeded 1000N/);
+    expect(opt.label).toBe("KIENZLE-CLAMP");
+  });
+
+  it("never increases feed (light cut produces no Kienzle reduction entry)", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([
+      makeOp({
+        material_iso: "N",
+        axial_depth_mm: KIENZLE_LIGHT_AP,
+        feed_mm_min: KIENZLE_LIGHT_FEED,
+      }),
+    ], { program_number: KIENZLE_PROGRAM_BASE + 2 });
+    expect(result.feed_optimizations.length).toBe(0);
+  });
+
+  it("optimize_feeds:false disables Kienzle reduction even when force would exceed limit", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([
+      makeOp({
+        material_iso: "P",
+        axial_depth_mm: KIENZLE_AP_HEAVY,
+        feed_mm_min: KIENZLE_FEED_HIGH,
+        spindle_rpm: KIENZLE_RPM,
+        tool_flutes: KIENZLE_FLUTES_2,
+      }),
+    ], {
+      program_number: KIENZLE_PROGRAM_BASE + 3,
+      max_cutting_force_N: KIENZLE_MAX_FORCE_LOW,
+      optimize_feeds: false,
+    });
+    expect(result.feed_optimizations.length).toBe(0);
+  });
+
+  it("optimized feed produces Fc ≤ limit (verify bound by recomputing Kienzle)", () => {
+    const op = makeOp({
+      material_iso: "P",
+      axial_depth_mm: KIENZLE_AP_HEAVY_2,
+      feed_mm_min: KIENZLE_FEED_HIGHER,
+      spindle_rpm: KIENZLE_RPM_LOW,
+      tool_flutes: KIENZLE_FLUTES_2,
+    });
+    const maxF = KIENZLE_MAX_FORCE_MID;
+    const result = okumaOSPMillMasterPostEngine.generateProgram([op], {
+      program_number: KIENZLE_PROGRAM_BASE + 4,
+      max_cutting_force_N: maxF,
+    });
+    expect(result.feed_optimizations.length).toBe(1);
+    const optimized = result.feed_optimizations[0];
+    const fzNew = optimized.optimized_feed_mm_min / (op.spindle_rpm * op.tool_flutes);
+    const FcNew = CANONICAL_KIENZLE.P.kc1_1 * op.axial_depth_mm * Math.pow(fzNew, 1 - CANONICAL_KIENZLE.P.mc);
+    expect(FcNew).toBeLessThanOrEqual(maxF * KIENZLE_TOLERANCE_FACTOR);
+  });
+
+  it("rejects max_cutting_force_N <= 0 (silent-disable guard)", () => {
+    expect(() =>
+      okumaOSPMillMasterPostEngine.generateProgram([makeOp()], {
+        program_number: KIENZLE_PROGRAM_BASE + 5,
+        max_cutting_force_N: 0,
+      }),
+    ).toThrow(/max_cutting_force_N must be > 0/);
+  });
+
+  it("block_id on Kienzle entry uses the same N-pad formula as block_annotations[]", () => {
+    const result = okumaOSPMillMasterPostEngine.generateProgram([
+      makeOp({
+        material_iso: "P",
+        axial_depth_mm: KIENZLE_AP_HEAVY,
+        feed_mm_min: KIENZLE_FEED_HIGH,
+        spindle_rpm: KIENZLE_RPM,
+        tool_flutes: KIENZLE_FLUTES_2,
+      }),
+    ], {
+      program_number: KIENZLE_PROGRAM_BASE + 6,
+      max_cutting_force_N: KIENZLE_MAX_FORCE_LOW,
+      n_number_pad_digits: 4,  // JM Die preset width
+    });
+    expect(result.feed_optimizations.length).toBe(1);
+    const opt = result.feed_optimizations[0];
+    // Pad-4 first op = N0100, matches block_annotations[0].block_id
+    expect(opt.block_id).toBe("N0100");
+    expect(result.block_annotations[0].block_id).toBe("N0100");
+  });
+});

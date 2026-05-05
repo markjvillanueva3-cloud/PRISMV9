@@ -86,6 +86,33 @@ import {
 export const STICKOUT_RATIO_LIMIT = 4;
 
 /**
+ * U-PPGOH05: per-op feed adjustment audit row produced by the Kienzle-
+ * bounded clamp. OkumaOSP has no sync-path aggressiveness/prove-out
+ * system (those live on HurcoV11), so feed_optimizations[] only carries
+ * Kienzle clamp entries on this engine. The shape matches HurcoV11's
+ * HurcoFeedOptimization for consumer parity.
+ */
+export interface OkumaFeedOptimization {
+  block_id: string;
+  level: number;
+  label: string;
+  multiplier: number;
+  original_feed_mm_min: number;
+  optimized_feed_mm_min: number;
+  /** "Kienzle Fc=<N>N exceeded <max>N" for telemetry attribution. */
+  reason?: string;
+}
+
+/** U-PPGOH05: label for OkumaFeedOptimization rows produced by the
+ *  Kienzle-bounded feed clamp (cfg.max_cutting_force_N gate). */
+export const OKUMA_KIENZLE_CLAMP_LABEL = "KIENZLE-CLAMP";
+
+/** U-PPGOH05: sentinel level for Kienzle clamp rows on OkumaOSP. -1
+ *  matches HurcoV11 KIENZLE_CLAMP_LEVEL_SENTINEL so cross-engine
+ *  consumers can filter both engines' rows by the same sentinel. */
+export const OKUMA_KIENZLE_CLAMP_LEVEL_SENTINEL = -1;
+
+/**
  * PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring — opt-in AdvancedPostProcessor pass.
  * Controller='okuma' table row carries OSP-correct codes (G08 P1, G06.2 NURBS,
  * G43.4 H#1 RTCP). multi_axis force-skipped on P300 (3-axis MB-V family).
@@ -191,6 +218,29 @@ export interface OkumaOSPMillPostConfig {
   /** Opt-in AdvancedPostProcessor pass (PPG-WIRE-MS5/U-PPGW-AdvancedPost-Wiring).
    *  multi_axis force-skipped on P300 (3-axis); pushed warning surfaces. */
   advanced_post?: AdvancedPostFeaturesConfig;
+  /**
+   * U-PPGOH05: sync-path feed adjustment master switch. Default true.
+   * When true (or omitted), the Kienzle-bounded feed clamp runs if
+   * `max_cutting_force_N` is also supplied. Set false to bypass even
+   * when force would otherwise exceed the limit (operator override —
+   * useful for diagnostic runs where the true emit feed must be preserved
+   * for chatter mapping). Mirrors HurcoV11 U-PPGH15. Distinct from
+   * `advanced_aggressiveness` (which is the AutoSpeedFeed 0..1 fractional
+   * knob in the advanced pipeline).
+   */
+  optimize_feeds?: boolean;
+  /**
+   * U-PPGOH05: machine-side cutting-force ceiling [N]. When supplied AND
+   * `optimize_feeds !== false`, the engine recomputes Kienzle Fc on each
+   * op's feed; if Fc exceeds this limit, feed is reduced to the maximum
+   * value that satisfies
+   *     Fc(fz_new) = kc1_1 · ap · fz_new^(1−mc) ≤ max_cutting_force_N
+   * Solving for fz_new: fz_new = (max / (kc1_1·ap))^(1/(1−mc))
+   * The clamp is recorded as a feed_optimizations[] entry with
+   * `reason: "Kienzle Fc=<N>N exceeded <max>N"`. Omit (undefined) to
+   * disable; supply 0 or a negative value to throw (silent-disable guard).
+   */
+  max_cutting_force_N?: number;
   /**
    * U-PPGOH01: emit a structured setup_sheet alongside the G-code. Default
    * true. Setup sheets feed the JM Die operator dashboard, the tool-crib
@@ -486,6 +536,14 @@ export interface OkumaOSPMillPostOutput {
    * passes verbatim to `sealMasterPostOutput` for sidecar+verify.
    */
   block_annotations: BlockAnnotation[];
+  /**
+   * U-PPGOH05: per-op feed-multiplier audit. Empty array unless caller
+   * passed `cfg.max_cutting_force_N` (and `cfg.optimize_feeds !== false`)
+   * AND the predicted Kienzle Fc exceeded the limit. Block id matches
+   * the Nxxx label on the spindle-start line so this audit aligns with
+   * `block_annotations[]` for downstream verification.
+   */
+  feed_optimizations: OkumaFeedOptimization[];
 }
 
 // ============================================================================
@@ -793,10 +851,67 @@ export class OkumaOSPMillMasterPostEngine {
 
     let estimatedTime = 0;
     const blockAnnotations: BlockAnnotation[] = [];
+    const feedOptimizations: OkumaFeedOptimization[] = [];
 
     for (let i = 0; i < operations.length; i++) {
-      const op = operations[i];
-      toolsUsed.add(op.tool_number);
+      const rawOp = operations[i];
+      toolsUsed.add(rawOp.tool_number);
+
+      // U-PPGOH05: Kienzle-bounded feed clamp. Runs BEFORE physics checks so
+      // the failed-check warnings reflect what actually emits. Skipped when
+      // optimize_feeds === false (operator override) or max_cutting_force_N
+      // is undefined (no machine-side limit declared). Mirrors HurcoV11
+      // U-PPGH15 — same Fc/fz inversion math.
+      //
+      // Note: the canonical Nxxx block id including pad-digits formatting is
+      // computed further down (line ~968) — for the feed_optimizations entry
+      // we use the unpadded form here. Downstream consumers correlate by
+      // numeric position, not by string equality with block_annotations[].
+      let op = rawOp;
+      if (
+        cfg.optimize_feeds !== false &&
+        cfg.max_cutting_force_N !== undefined
+      ) {
+        if (
+          !Number.isFinite(cfg.max_cutting_force_N) ||
+          cfg.max_cutting_force_N <= 0
+        ) {
+          throw new Error(
+            `OkumaOSPMill.generateProgram: max_cutting_force_N must be > 0, got ${cfg.max_cutting_force_N}`,
+          );
+        }
+        const kienzle = CANONICAL_KIENZLE[rawOp.material_iso];
+        const fz = rawOp.feed_mm_min / (rawOp.spindle_rpm * rawOp.tool_flutes);
+        const Fc = kienzle.kc1_1 * rawOp.axial_depth_mm * Math.pow(fz, 1 - kienzle.mc);
+        if (Fc > cfg.max_cutting_force_N) {
+          // Solve fz_new from Fc_max = kc1_1 · ap · fz_new^(1−mc)
+          const fzNew = Math.pow(
+            cfg.max_cutting_force_N / (kienzle.kc1_1 * rawOp.axial_depth_mm),
+            1 / (1 - kienzle.mc),
+          );
+          const feedNew = Math.floor(
+            fzNew * rawOp.spindle_rpm * rawOp.tool_flutes,
+          );
+          const reason = `Kienzle Fc=${Fc.toFixed(0)}N exceeded ${cfg.max_cutting_force_N}N`;
+          // Use the same block-id formula the canonical block-annotations
+          // section uses (line ~968) — pad-digit aware so the Kienzle audit
+          // row's block_id matches its block_annotations[] sibling exactly.
+          const padDigits = cfg.n_number_pad_digits ?? 0;
+          const clampBlockId = padDigits > 0
+            ? "N" + String(100 + i * 10).padStart(padDigits, "0")
+            : "N" + (100 + i * 10);
+          feedOptimizations.push({
+            block_id: clampBlockId,
+            level: OKUMA_KIENZLE_CLAMP_LEVEL_SENTINEL,
+            label: OKUMA_KIENZLE_CLAMP_LABEL,
+            multiplier: feedNew / rawOp.feed_mm_min,
+            original_feed_mm_min: rawOp.feed_mm_min,
+            optimized_feed_mm_min: feedNew,
+            reason,
+          });
+          op = { ...rawOp, feed_mm_min: feedNew };
+        }
+      }
 
       gcode.push("");
       gcode.push(this.fmtComment(dialect, `OPERATION ${i + 1}: ${op.operation_type.toUpperCase()}`));
@@ -994,6 +1109,7 @@ export class OkumaOSPMillMasterPostEngine {
       physics_checks: physicsChecks,
       tribal_tips_applied: tribalTipsApplied,
       setup_sheet: setupSheet,
+      feed_optimizations: feedOptimizations,
     };
   }
 
