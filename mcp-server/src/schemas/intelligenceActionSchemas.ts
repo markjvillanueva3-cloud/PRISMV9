@@ -528,6 +528,22 @@ const consensus_perf_snapshot_pair = z.object({
   minSpanMs: z.number().int().nonnegative().optional(),
 }).passthrough();
 
+// ConsensusDriftAlertLogEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-ALERT-LOG
+const consensus_drift_alert_history = z.object({
+  logPath: optStr,
+  limit: z.number().int().positive().optional(),
+  sinceTs: optStr,
+  kind: z.enum(["alert", "summary"]).optional(),
+  severity: z.enum(["minor", "moderate", "severe"]).optional(),
+  vendor: optStr,
+}).passthrough();
+
+const consensus_drift_alert_stats = z.object({
+  logPath: optStr,
+  limit: z.number().int().positive().optional(),
+  sinceTs: optStr,
+}).passthrough();
+
 // ConsensusDriftDetectorEngine — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
 // Compare two perf-state snapshots to detect EMA regressions per (vendor, taskType).
 const consensus_drift_detect = z.object({
@@ -630,4 +646,7 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   consensus_perf_snapshot_pair,
   // ConsensusDriftDetectorEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR
   consensus_drift_detect,
+  // ConsensusDriftAlertLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-ALERT-LOG
+  consensus_drift_alert_history,
+  consensus_drift_alert_stats,
 };

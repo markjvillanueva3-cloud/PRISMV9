@@ -181,6 +181,9 @@ const ACTIONS = [
   "consensus_perf_snapshot_pair",    // Pick (before, after) for drift comparison
   // ===== ConsensusDriftDetectorEngine (1) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-DETECTOR =====
   "consensus_drift_detect",         // Read-only: compare two perf-state snapshots and surface EMA regressions
+  // ===== ConsensusDriftAlertLogEngine (2) — INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-ALERT-LOG =====
+  "consensus_drift_alert_history",  // Read-only: tail of drift alert ledger with filtering
+  "consensus_drift_alert_stats",    // Read-only: aggregate stats over alert ledger
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -861,6 +864,39 @@ export function registerIntelligenceDispatcher(server: any): void {
           const actionable = consensusDriftDetectorEngine.hasActionableDrift(report);
           return {
             content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, report, actionable }) }],
+          };
+        }
+        // ============================================================
+        // INTEL-OLLAMA-OBSIDIAN-MS0/U-CONSENSUS-DRIFT-ALERT-LOG: read-
+        // only access to the actionable-drift ledger. Two actions:
+        //   consensus_drift_alert_history — tail with filtering
+        //   consensus_drift_alert_stats   — aggregate counters
+        // Cron writes happen inside scripts/consensus-credit-cron.mjs
+        // when --snapshot-dir is set; this surface is read-only.
+        // ============================================================
+        if (action === "consensus_drift_alert_history") {
+          const { consensusDriftAlertLogEngine } = await import("../../engines/ConsensusDriftAlertLogEngine.js");
+          const alerts = consensusDriftAlertLogEngine.getAlerts({
+            logPath: params.logPath as string | undefined,
+            limit: params.limit as number | undefined,
+            sinceTs: params.sinceTs as string | undefined,
+            kind: params.kind as "alert" | "summary" | undefined,
+            severity: params.severity as "minor" | "moderate" | "severe" | undefined,
+            vendor: params.vendor as string | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, alerts, count: alerts.length }) }],
+          };
+        }
+        if (action === "consensus_drift_alert_stats") {
+          const { consensusDriftAlertLogEngine } = await import("../../engines/ConsensusDriftAlertLogEngine.js");
+          const stats = consensusDriftAlertLogEngine.getAlertStats({
+            logPath: params.logPath as string | undefined,
+            limit: params.limit as number | undefined,
+            sinceTs: params.sinceTs as string | undefined,
+          });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ok: true, stats }) }],
           };
         }
 
