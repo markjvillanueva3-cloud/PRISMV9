@@ -2223,11 +2223,17 @@ export function registerKnowledgeDispatcher(server: any): void {
             if (!Array.isArray(entries)) {
               throw new Error("wiki_summarize_dir: entries required (array)");
             }
-            const normalized = entries.map((e: any) => ({
-              relPath: e?.rel_path ?? e?.relPath,
-              ext: e?.ext ?? "",
-              size: typeof e?.size === "number" ? e.size : 0,
-            }));
+            const normalized = entries.map((e: unknown) => {
+              const obj = (e ?? {}) as Record<string, unknown>;
+              const rel = (obj.rel_path ?? obj.relPath);
+              const ext = obj.ext;
+              const size = obj.size;
+              return {
+                relPath: typeof rel === "string" ? rel : "",
+                ext: typeof ext === "string" ? ext : "",
+                size: typeof size === "number" && Number.isFinite(size) ? size : 0,
+              };
+            });
             result = resourcesClassifierEngine.summarizeDir(dirRelPath, normalized);
             break;
           }
