@@ -74,12 +74,15 @@ describe("parseWmiCreationDate — timezone fix", () => {
     expect(parseWmiCreationDate(12345)).toBeNull();
   });
 
-  it("rejects out-of-range year/month/day producing non-finite Date", async () => {
+  it("returns finite ms even for absurd values (JS Date roll-over: y9999/m99 → real date)", async () => {
     const { parseWmiCreationDate } = await loadSweeper();
-    // "99999999999999" matches the regex prefix structurally but rolls over to a real ms;
-    // we only assert it's either null or finite (no NaN leak).
+    // JavaScript Date constructor accepts any integer arg and rolls over.
+    // y=9999, m=99 (= year 10007 month 3) is still a real moment in time.
+    // The contract is: returned value is either null OR a finite ms — never NaN.
     const result = parseWmiCreationDate("99999999999999.000000+000");
-    expect(result === null || Number.isFinite(result)).toBe(true);
+    expect(typeof result).toBe("number");
+    expect(Number.isFinite(result)).toBe(true);
+    expect(result).toBeGreaterThan(0);
   });
 });
 
@@ -115,6 +118,43 @@ describe("parseWmicRow — CSV row parsing", () => {
   it("returns null when pid field is non-numeric", async () => {
     const { parseWmicRow } = await loadSweeper();
     expect(parseWmicRow("HOST,cmd,20260505180000.000000+000,abc,xyz")).toBeNull();
+  });
+
+  it("returns null when ppid is non-numeric but pid is valid", async () => {
+    const { parseWmicRow } = await loadSweeper();
+    // pid=12345 (valid), ppid=notanumber (invalid). Must reject — downstream
+    // pidAlive(NaN) would silently fail and skip the parent-dead safety check.
+    expect(parseWmicRow("HOST,cmd,20260505180000.000000+000,notanumber,12345")).toBeNull();
+  });
+
+  it("accepts integer ppid alongside integer pid", async () => {
+    const { parseWmicRow } = await loadSweeper();
+    const r = parseWmicRow("HOST,cmd,20260505180000.000000+000,4567,12345");
+    expect(r).not.toBeNull();
+    expect(r.pid).toBe(12345);
+    expect(r.ppid).toBe(4567);
+  });
+});
+
+describe("shouldSkipUnlinkDueToRace — race-check predicate", () => {
+  it("returns false when mtimes are identical (no peer renewal → safe to unlink)", async () => {
+    const { shouldSkipUnlinkDueToRace } = await loadSweeper();
+    expect(shouldSkipUnlinkDueToRace(1000, 1000)).toBe(false);
+  });
+
+  it("returns true when mtime advanced (peer renewed → SKIP unlink, FIX1 race branch)", async () => {
+    const { shouldSkipUnlinkDueToRace } = await loadSweeper();
+    expect(shouldSkipUnlinkDueToRace(1000, 5000)).toBe(true);
+  });
+
+  it("returns true when mtime regressed (clock skew or unusual fs → still skip)", async () => {
+    const { shouldSkipUnlinkDueToRace } = await loadSweeper();
+    expect(shouldSkipUnlinkDueToRace(5000, 1000)).toBe(true);
+  });
+
+  it("returns false for identical zero mtimes (no signal → don't skip)", async () => {
+    const { shouldSkipUnlinkDueToRace } = await loadSweeper();
+    expect(shouldSkipUnlinkDueToRace(0, 0)).toBe(false);
   });
 });
 
