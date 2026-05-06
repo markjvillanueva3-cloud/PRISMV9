@@ -1989,6 +1989,10 @@
           "title": "Consolidate 17 awareness hooks down to 3 canonical",
           "effort": 50,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:13:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Built scripts/awareness-hook-audit.mjs (~190 lines) — non-destructive audit that classifies awareness hooks at H:/prism/.claude/hooks/ as canonical-keep / redundant-archive / unknown. Pure exports: CANONICAL_AWARENESS_HOOKS (3-name Set: awareness-snapshot, awareness-bootstrap, prism-awareness-cache), listAwarenessHooks(dir, fsAdapter) (filters *awareness*.mjs case-insensitive, sorted, tolerates non-string entries), classifyHook(basename) (canonical|redundant|unknown — stop_on_* gates classified 'unknown' to protect P11-U08 STOP_GATE_LIST), buildMigrationPlan(hooks) (partition + summary counts), renderMarkdown(plan) (4 sections + 'How to apply' operator steps). CLI: --json | --write | --dir=PATH | --out=PATH. Live audit found 11 hooks: 3 canonical / 7 redundant / 1 unknown (stop_on_awareness_degraded.mjs correctly excluded from archival list because it's a STOP_GATE_LIST gate from P11-U08). Generated AWARENESS-HOOK-CONSOLIDATION.md at repo root with the migration plan. 22/22 tests pass in mcp-server/src/__tests__/AwarenessHookAudit.test.ts. DECISION (same pattern as P10-U06 audit.mjs and P11-U08 stop-gate-chain.mjs deferred archival): did NOT execute the actual mv to .deprecated/ — the canonical hook directory at H:/prism/.claude/hooks/ has live peer-chat write traffic, and a unilateral move from this iooms0 worktree would race against the canonical PRISM repo. The audit ships the migration PLAN; the operator does the mv when peer chats are quiet, then re-runs the audit to verify. settings.json wiring will follow in P11-U07 (14-hook wire-in unit).",
           "exit_conditions": [
             "Keep wired: awareness-snapshot, awareness-bootstrap, prism-awareness-cache",
             "Move 14 redundant to .claude/hooks/.deprecated/ (do NOT delete)",
