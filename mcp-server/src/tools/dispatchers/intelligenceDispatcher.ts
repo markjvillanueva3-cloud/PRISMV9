@@ -28,7 +28,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
     _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
-    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any;
+    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -48,6 +48,7 @@ async function getEngine(name: string): Promise<any> {
     case "aiSystemRouter":       return _aiSystemRouter ??= (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterDispatch;
     case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
     case "xprocSymbolicEnforcer": return _xprocSymbolicEnforcer ??= (await import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js")).crossProcessSymbolicEnforcer;
+    case "xprocSafetyVerifier": return _xprocSafetyVerifier ??= (await import("../../engines/CrossProcessNeuroSymbolicSafetyVerifierEngine.js")).crossProcessNeuroSymbolicSafetyVerifier;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -183,6 +184,9 @@ const ACTIONS = [
   // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
   "xproc_symbolic_project",
   "xproc_symbolic_violations",
+  // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+  "xproc_safety_verify",
+  "xproc_safety_escalate",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -641,6 +645,9 @@ export function registerIntelligenceDispatcher(server: any): void {
           // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
           xproc_symbolic_project: "xprocSymbolicEnforcer",
           xproc_symbolic_violations: "xprocSymbolicEnforcer",
+          // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+          xproc_safety_verify: "xprocSafetyVerifier",
+          xproc_safety_escalate: "xprocSafetyVerifier",
         };
 
         const engineName = CORE_ROUTING[action];

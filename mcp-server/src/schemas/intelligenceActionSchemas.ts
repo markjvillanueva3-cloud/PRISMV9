@@ -489,6 +489,24 @@ const xproc_symbolic_violations = z.object({
   state: z.object({}).passthrough().describe("Material/tool/machine/operation state"),
 }).passthrough().describe("Return only the constraint violations for a prediction without projecting (audit-only).");
 
+// XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+const xproc_safety_verify = z.object({
+  prediction: z.object({}).passthrough().describe("Cutting-condition prediction"),
+  state: z.object({}).passthrough().describe("Material/tool/machine/operation state"),
+  omega_score: z.number().finite().min(0).max(1).optional().describe("Ω(x) safety score for tier-threshold check"),
+  safety_score: z.number().finite().min(0).max(1).optional().describe("S(x) safety score for tier-threshold check + global floor"),
+  tier: z.enum(["shop_floor", "production", "proven_out", "sim"]).optional().describe("Safety tier — defaults to shop_floor when omitted"),
+  caller: z.string().optional().describe("Caller identity for audit trail"),
+}).passthrough().describe("Hard-gate verification of a neural recommendation. Composes T8-01 projection + tiered Ω/S thresholds. Returns pass/review/fail with full provenance.");
+const xproc_safety_escalate = z.object({
+  prediction: z.object({}).passthrough(),
+  state: z.object({}).passthrough(),
+  omega_score: z.number().finite().min(0).max(1).optional(),
+  safety_score: z.number().finite().min(0).max(1).optional(),
+  tier: z.enum(["shop_floor", "production", "proven_out", "sim"]).optional(),
+  reason: z.string().describe("Caller-provided escalation rationale"),
+}).passthrough().describe("Force a verify() result to 'review' verdict with caller-provided escalation reason. Useful for upfront ambiguity.");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -580,7 +598,9 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   ai_orchestration_history,
   ai_orchestration_stats,
   ai_orchestration_summary,
-  // XPROC-NEURAL Tier 8 (2)
+  // XPROC-NEURAL Tier 8 (4)
   xproc_symbolic_project,
   xproc_symbolic_violations,
+  xproc_safety_verify,
+  xproc_safety_escalate,
 };
