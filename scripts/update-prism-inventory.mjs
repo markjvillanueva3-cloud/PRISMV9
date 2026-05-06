@@ -337,6 +337,7 @@ function updateBaselineInPlace(snap, baseline) {
     registries: snap.counts.registries,
     algorithms: snap.counts.algorithms,
     test_count: snap.counts.tests,
+    tests: snap.counts.tests,
     scripts: snap.counts.scripts,
   };
   atomicWrite(BASELINE_PATH, JSON.stringify(baseline, null, 2) + "\n");
