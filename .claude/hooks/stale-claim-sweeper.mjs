@@ -82,6 +82,7 @@ const CHAT_BUS_MSG_TTL_MS = 60 * 60 * 1000;     // 1 hour — inject only shows 
 const CHAT_BUS_CLAIM_TTL_MS = 30 * 60 * 1000;   // 30 min — chat-bus claim TTL is 15-30min
 const TASK_OUTPUT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hour — background bash .output files
 const NODE_HOOK_MAX_AGE_MS = 5 * 60 * 1000;     // 5 min — hooks should finish in <30s
+const ATOMIC_TMP_TTL_MS = 5 * 60 * 1000;        // 5 min — atomic writes complete in <1s; stale = crashed chat
 
 function log(msg) {
   try {
@@ -185,6 +186,31 @@ export function sweepGitLocks() {
     if ((ts > 0 && (now - ts) > LOCK_TTL_MS) || pidDead) {
       try { unlinkSync(path); swept++; } catch { /* ok */ }
     }
+  }
+  return { swept };
+}
+
+export function sweepAtomicWriteTmps() {
+  // Atomic-write tmp files leak when a chat crashes mid-rename. Pattern variants
+  // observed in state/shared/: `*.json.tmp.*`, `*.json.NNNNN.HEX.tmp`, `*.tmp`.
+  // All complete within milliseconds when healthy; >5min stale = crashed chat.
+  if (!existsSync(LOCK_DIR)) return { swept: 0 };
+  const now = Date.now();
+  let swept = 0;
+  let entries;
+  try { entries = readdirSync(LOCK_DIR); } catch { return { swept: 0 }; }
+  for (const name of entries) {
+    if (!/\.tmp(\.|$)/.test(name)) continue;
+    if (/^GIT_LOCK_/.test(name)) continue;  // owned by sweepGitLocks
+    const path = join(LOCK_DIR, name);
+    try {
+      const st = statSync(path);
+      if (!st.isFile()) continue;
+      if ((now - st.mtimeMs) > ATOMIC_TMP_TTL_MS) {
+        unlinkSync(path);
+        swept++;
+      }
+    } catch { /* vanished — skip */ }
   }
   return { swept };
 }
@@ -434,22 +460,23 @@ function main() {
   }
   const claims = sweepFileOwnership();
   const locks = sweepGitLocks();
+  const atomicTmps = sweepAtomicWriteTmps();
   const board = sweepWorkboard();
   const busMsgs = sweepChatBusMessages();
   const busClaims = sweepChatBusClaims();
   const taskOutputs = sweepClaudeTaskOutputs();
   const nodeHooks = sweepZombieNodeHooks();
-  const total = claims.swept + locks.swept + board.swept
+  const total = claims.swept + locks.swept + atomicTmps.swept + board.swept
               + busMsgs.swept + busClaims.swept + taskOutputs.swept + nodeHooks.swept;
   if (total > 0) {
-    log(`swept claims=${claims.swept} locks=${locks.swept} workboard=${board.swept} ` +
-        `busMsgs=${busMsgs.swept} busClaims=${busClaims.swept} ` +
+    log(`swept claims=${claims.swept} locks=${locks.swept} atomicTmps=${atomicTmps.swept} ` +
+        `workboard=${board.swept} busMsgs=${busMsgs.swept} busClaims=${busClaims.swept} ` +
         `taskOutputs=${taskOutputs.swept}/${taskOutputs.dirs}dirs ` +
         `zombieNodes=${nodeHooks.swept}/${nodeHooks.found}found ` +
         `(claims kept=${claims.kept})`);
     process.stdout.write(JSON.stringify({
       continue: true,
-      systemMessage: `stale-claim-sweeper: reaped ${claims.swept} ownership-claims, ${locks.swept} git-locks, ${board.swept} workboard, ${busMsgs.swept} bus-msgs, ${busClaims.swept} bus-claims, ${taskOutputs.swept} task-outputs, ${nodeHooks.swept}/${nodeHooks.found} zombie-nodes (killed/found)`,
+      systemMessage: `stale-claim-sweeper: reaped ${claims.swept} ownership-claims, ${locks.swept} git-locks, ${atomicTmps.swept} atomic-tmps, ${board.swept} workboard, ${busMsgs.swept} bus-msgs, ${busClaims.swept} bus-claims, ${taskOutputs.swept} task-outputs, ${nodeHooks.swept}/${nodeHooks.found} zombie-nodes (killed/found)`,
     }));
   } else {
     process.stdout.write(JSON.stringify({ continue: true }));
