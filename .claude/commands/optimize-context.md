@@ -1,3 +1,11 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "optimize-context"
+    - "too long"
+    - "context full"
+---
 # Optimize Context — Auto-Slim Before Next Prompt
 
 Trim the conversation context when token budget exceeds 70% of the model window. Prefers reversible compression (load-on-demand digests, drop verbose tool outputs) over destructive truncation.

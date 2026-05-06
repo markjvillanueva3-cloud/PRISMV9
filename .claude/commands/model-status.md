@@ -1,3 +1,9 @@
+---
+policy:
+  tier: 3
+  triggers:
+    - "model-status"
+---
 # Model Status — Local LLM Stack Health Snapshot
 
 Report health of the local LLM stack: Ollama daemon reachability, installed models, warm-up state, active LoRA adapters, and cloud fallback availability.

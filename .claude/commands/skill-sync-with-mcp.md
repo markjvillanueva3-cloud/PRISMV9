@@ -1,3 +1,12 @@
+---
+policy:
+  tier: 2
+  triggers:
+    - "skill-sync-with-mcp"
+    - "skill sync"
+    - "skill mcp audit"
+    - "orphaned skill"
+---
 # Skill Sync with MCP — Verify Each Skill Has a Dispatcher Action
 
 Walk every `.claude/commands/*.md` skill file and verify the MCP action it claims to wire to actually exists in the dispatcher source. Reports orphaned skills (skill points at action that doesn't exist) and orphan actions (action exists with no skill exposing it). The closing pass either fixes the references or stages a rename plan.

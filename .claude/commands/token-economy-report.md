@@ -1,3 +1,12 @@
+---
+policy:
+  tier: 2
+  triggers:
+    - "token-economy-report"
+    - "token report"
+    - "session token"
+    - "how many tokens"
+---
 # Token Economy Report — Session Token Breakdown
 
 Display the current session's token usage by category, surface top waste patterns, and link the report file for downstream analysis. Wraps `mcp-server/data/state/token-economy-session.json` (written by the P9-U05 Stop hook).

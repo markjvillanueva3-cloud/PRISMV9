@@ -1,3 +1,13 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "memory"
+    - "remember"
+    - "recall"
+    - "forget"
+    - "long-term memory"
+---
 # Memory — Unified Memory-Operations Dispatcher
 
 Single entry point for PRISM long-term memory operations. Routes by sub-command to search, list, prune, sync, or export operations against the Qdrant vector store + JSONL ledgers.

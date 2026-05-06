@@ -1,3 +1,12 @@
+---
+policy:
+  tier: 2
+  triggers:
+    - "enforce-handoff-topic"
+    - "who"
+    - "is x claimed"
+    - "chat conflict"
+---
 # Enforce Handoff Topic — Peer Chat Overwrite Detector
 
 Reactive guard that detects when this chat is about to write to a file or topic that another active peer chat has already claimed. Reads the chat-bus + per-agent handoff manifests, surfaces the conflict, and either blocks the write or tells you to claim the topic first.
