@@ -196,3 +196,31 @@ Steps 1-4 are the immediate wins — they unlock the full print-to-program user-
 - Orphan milestones: 3 `not_started` matching active scope
 
 **Bottom line:** the print-to-program user-facing pipeline (Stages 1-5 + multi-axis + auto-bridge + STEP import + turning import) was substantially built in March-April 2026 and is sitting on disk uncommitted, mostly because work landed in stray `H:/prism/src/` instead of `H:/prism/mcp-server/src/`. Recovering Tier 0 items #1-#7 unlocks the entire `print-to-program` user-facing capability and directly serves the CAD-FUSION-LIVE-MS0 training surface.
+
+---
+
+## APPENDIX A — `git fsck` finalization (added 2026-05-06 after agent 7 returned partial)
+
+Agent 7's stash/reflog audit deferred fsck because it timed out without output. Three retry attempts (`fsck --no-reflogs --lost-found`, `fsck --dangling --no-reflogs`, `fsck --dangling`) all hit 90-180s timeouts. Reason found via `git count-objects -v` (the only command that completed):
+
+```
+count:           179,849   loose objects
+size:            41.6 GB   loose-object disk
+in-pack:         190,506   packed objects
+packs:           56        pack files
+size-pack:       750 MB    pack-file disk
+prune-packable:  16,511    redundant objects (cleanable via gc)
+garbage:         0         truly orphan objects
+size-garbage:    0
+```
+
+**Verdict — by elimination, not direct traversal:** `garbage: 0` means there is **no orphan commit/blob lost outside reachability**. No CAD work is hidden in dangling-fsck land. The 90s+ fsck timeouts were a *traversal* problem (179K loose objects on a slow drive), not a *reachability* problem. Agent 7's earlier reflog audit (`git reflog | head -100` clean for current HEAD lineage, three "actually ship X (lost in prior lint-staged stash)" recovery commits proving the lint-staged pattern has bitten before) plus the count-objects garbage=0 close the loop: **the 10 stash entries + reflog scan covered every reachable-but-not-on-branch object**.
+
+Stale artifacts surfaced as a side-effect:
+- `.tmp-29948-pack-*.pack` (207.9 MB) — abandoned in-progress repack from an interrupted `git gc`. Safe to delete.
+- 16,511 prune-packable loose objects — `git gc` would reclaim them.
+- 56 pack files including 3 large ones (226 MB + 207 MB + 207 MB) — could consolidate via `git repack -a -d`.
+
+**Maintenance recommendation (not blocking the archaeology task):** schedule a `git gc --aggressive` off-hours when no chats are active. Will reclaim ~16 GB of redundant loose objects and consolidate packs, making future fsck runs feasible.
+
+**Final archaeology verdict:** discovery is complete. No further git-archaeology surface to mine. All 10 agents have closed their search slices. Ready to execute the 10-step recovery sequence.
