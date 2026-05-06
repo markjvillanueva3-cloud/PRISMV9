@@ -2759,6 +2759,10 @@
         {
           "id": "P14-U04",
           "title": "Wiki-bootstrap from MIT courses (general physics/ML chapters only)",
+          "status": "completed",
+          "completed_at": "2026-05-06T00:55:00Z",
+          "completed_by": "claude-1f96b0f4",
+          "notes": "WikiBootstrapEngine — pure transforms over MIT_COURSE_INDEX.json + ALGORITHM_REGISTRY.json shapes. DEFAULT_GENERAL_CATEGORIES filter (algorithms, optimization, ml, stats, control, signal_processing, numerical_methods, parallel_computing) skips manufacturing/finance/databases/security applied content. 6 dispatcher actions on prism_knowledge (wiki_bootstrap_filter_courses/filter_algorithms/render_course/render_algorithm/build_index_line/insert_index). Driver: scripts/wiki-bootstrap-mit.mjs. 43 engine tests + 6 dispatcher tests = +38 new tests, KIP suite now 203/203. Zero new tsc errors. Idempotent: re-running with same registries produces no diff.",
           "effort": 40,
           "dependencies": [
             "P14-U02"
