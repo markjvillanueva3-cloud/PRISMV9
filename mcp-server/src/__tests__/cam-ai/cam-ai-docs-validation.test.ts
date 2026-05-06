@@ -442,6 +442,160 @@ describe("U-CAM126: docs/cam-ai/ behavior validation", () => {
     }
   });
 
+  // ── doc example-block field-name parity (catches API drift in code samples) ──
+
+  // Strips // line comments and extracts top-level (depth-1) object keys
+  // from the argument to a function call. Returns null if the call is
+  // not present in `block`. Handles nested objects correctly (only
+  // returns keys at the call's argument depth).
+  function extractTopLevelKeys(block: string, callRegex: RegExp): string[] | null {
+    // Strip line comments line-by-line.
+    const lines = block.split("\n").map((l) => {
+      const idx = l.indexOf("//");
+      return idx >= 0 ? l.slice(0, idx) : l;
+    });
+    const stripped = lines.join("\n");
+    const m = callRegex.exec(stripped);
+    if (m === null) return null;
+    // Find the opening `{` after the match end and walk until matching `}`.
+    let i = m.index + m[0].length;
+    while (i < stripped.length && stripped[i] !== "{") i++;
+    if (i >= stripped.length) return null;
+    const start = i + 1;
+    let depth = 1;
+    i++;
+    while (i < stripped.length && depth > 0) {
+      const c = stripped[i];
+      if (c === "{") depth++;
+      else if (c === "}") depth--;
+      if (depth > 0) i++;
+    }
+    const argBody = stripped.slice(start, i);
+    // Now extract keys at the OUTERMOST depth only — walk the argBody and
+    // record `(\w+)?:` matches that occur at depth 0 within argBody itself.
+    const keys: string[] = [];
+    let d = 0;
+    let buf = "";
+    for (let k = 0; k < argBody.length; k++) {
+      const c = argBody[k];
+      if (c === "{") { if (d === 0) { /* about to nest a value */ } d++; buf = ""; continue; }
+      if (c === "}") { d--; buf = ""; continue; }
+      if (c === "[") { d++; buf = ""; continue; }
+      if (c === "]") { d--; buf = ""; continue; }
+      if (d !== 0) continue;
+      if (c === ",") { buf = ""; continue; }
+      if (c === ":") {
+        const name = buf.trim().replace(/\?$/, "");
+        if (/^\w+$/.test(name)) keys.push(name);
+        buf = "";
+        continue;
+      }
+      buf += c;
+    }
+    return keys;
+  }
+
+  it("lora-training.md TypeScript example blocks use real RecordCorrectionInput / RecordOutcomeInput / LoRAExportOptions fields", () => {
+    // Anti-rot guard: parse every ```ts...``` block and assert that
+    // top-level field identifiers used as object keys match the engine's
+    // input interfaces. Catches the class of bug where a doc example
+    // invents fields the API does not accept (e.g. `success: true` when
+    // engine wants `wasCorrect`).
+    const doc = readDoc("lora-training.md");
+    const fenceRe = /```ts\n([\s\S]*?)\n```/g;
+    const validRecordCorrectionFields = new Set([
+      "decisionId", "task", "originalValue", "correctedValue",
+      "originalSource", "originalConfidence", "reason", "operatorId",
+      "prompt", "recordedAt",
+    ]);
+    const validRecordOutcomeFields = new Set([
+      "decisionId", "task", "wasCorrect", "predictedConfidence", "recordedAt",
+    ]);
+    const validLoraExportFields = new Set(["task", "includeConfirmed", "limit"]);
+
+    let corrChecked = 0;
+    let outChecked = 0;
+    let expChecked = 0;
+
+    for (const match of doc.matchAll(fenceRe)) {
+      const block = match[1];
+
+      const corrKeys = extractTopLevelKeys(block, /recordCorrection\s*\(\s*/);
+      if (corrKeys !== null) {
+        const invalid = corrKeys.filter((f) => !validRecordCorrectionFields.has(f));
+        expect(invalid).toEqual([]);
+        corrChecked++;
+      }
+
+      const outKeys = extractTopLevelKeys(block, /recordOutcome\s*\(\s*/);
+      if (outKeys !== null) {
+        const invalid = outKeys.filter((f) => !validRecordOutcomeFields.has(f));
+        expect(invalid).toEqual([]);
+        outChecked++;
+      }
+
+      const expKeys = extractTopLevelKeys(block, /loraTrainingExport\s*\(\s*/);
+      if (expKeys !== null) {
+        const invalid = expKeys.filter((f) => !validLoraExportFields.has(f));
+        expect(invalid).toEqual([]);
+        expChecked++;
+      }
+    }
+    // Doc must have at least one example of each — guards against silent
+    // example removal that would let the parity test become a no-op.
+    expect(corrChecked).toBeGreaterThanOrEqual(1);
+    expect(outChecked).toBeGreaterThanOrEqual(1);
+    expect(expChecked).toBeGreaterThanOrEqual(1);
+  });
+
+  it("model-serving.md TypeScript example blocks use real ModelSpec / RouteRequest / MetricSample fields", () => {
+    const doc = readDoc("model-serving.md");
+    const fenceRe = /```ts\n([\s\S]*?)\n```/g;
+    const validModelSpecFields = new Set([
+      "id", "name", "version", "backend", "endpoint_url", "cam_systems",
+      "tasks", "weight", "rate_capacity", "rate_refill_per_sec",
+      "max_batch_size", "max_batch_wait_ms", "metadata",
+    ]);
+    const validRouteRequestFields = new Set([
+      "cam_system", "task", "request_key", "priority",
+    ]);
+    const validMetricSampleFields = new Set([
+      "ts", "latency_ms", "success", "error_class",
+    ]);
+
+    let specChecked = 0;
+    let routeChecked = 0;
+    let metricChecked = 0;
+
+    for (const match of doc.matchAll(fenceRe)) {
+      const block = match[1];
+
+      const specKeys = extractTopLevelKeys(block, /interface\s+ModelSpec\s*/);
+      if (specKeys !== null) {
+        const invalid = specKeys.filter((f) => !validModelSpecFields.has(f));
+        expect(invalid).toEqual([]);
+        specChecked++;
+      }
+
+      const routeKeys = extractTopLevelKeys(block, /routeRequest\s*\(\s*/);
+      if (routeKeys !== null) {
+        const invalid = routeKeys.filter((f) => !validRouteRequestFields.has(f));
+        expect(invalid).toEqual([]);
+        routeChecked++;
+      }
+
+      const metricKeys = extractTopLevelKeys(block, /recordMetric\s*\([^,]+,\s*/);
+      if (metricKeys !== null) {
+        const invalid = metricKeys.filter((f) => !validMetricSampleFields.has(f));
+        expect(invalid).toEqual([]);
+        metricChecked++;
+      }
+    }
+    expect(specChecked).toBeGreaterThanOrEqual(1);
+    expect(routeChecked).toBeGreaterThanOrEqual(1);
+    expect(metricChecked).toBeGreaterThanOrEqual(1);
+  });
+
   // ── architecture.md API table parity ─────────────────────────────────
 
   it("architecture.md Public API block — every cited Engine.method exists as a static method in source", () => {
