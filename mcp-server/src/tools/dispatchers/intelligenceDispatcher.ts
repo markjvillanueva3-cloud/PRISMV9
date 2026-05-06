@@ -38,7 +38,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocOnlineMLP: any, _xprocDriftDetector: any,
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
-    _xprocQLearning: any, _xprocBandit: any;
+    _xprocQLearning: any, _xprocBandit: any,
+    _xprocBayesianMLP: any, _xprocConformal: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -83,6 +84,8 @@ async function getEngine(name: string): Promise<any> {
     case "xprocPolicyGradient": return _xprocPolicyGradient ??= (await import("../../engines/CrossProcessPolicyGradientEngine.js")).crossProcessPolicyGradient;
     case "xprocQLearning": return _xprocQLearning ??= (await import("../../engines/CrossProcessQLearningTabularEngine.js")).crossProcessQLearningTabular;
     case "xprocBandit": return _xprocBandit ??= (await import("../../engines/CrossProcessMultiArmedBanditEngine.js")).crossProcessMultiArmedBandit;
+    case "xprocBayesianMLP": return _xprocBayesianMLP ??= (await import("../../engines/CrossProcessBayesianMLPEngine.js")).crossProcessBayesianMLP;
+    case "xprocConformal": return _xprocConformal ??= (await import("../../engines/CrossProcessConformalPredictionEngine.js")).crossProcessConformalPrediction;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -324,6 +327,16 @@ const ACTIONS = [
   "xproc_bandit_stats",
   "xproc_bandit_reset",
   "xproc_bandit_constants",
+  // XPROC-NEURAL Tier 5 (T5-01) — Bayesian MLP via MC Dropout
+  "xproc_bayes_predict",
+  "xproc_bayes_uncertainty",
+  "xproc_bayes_constants",
+  // XPROC-NEURAL Tier 5 (T5-02) — Inductive Conformal Prediction
+  "xproc_conformal_calibrate",
+  "xproc_conformal_set",
+  "xproc_conformal_stats",
+  "xproc_conformal_reset",
+  "xproc_conformal_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -877,6 +890,16 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_bandit_stats: "xprocBandit",
           xproc_bandit_reset: "xprocBandit",
           xproc_bandit_constants: "xprocBandit",
+          // XPROC-NEURAL Tier 5 (T5-01) — Bayesian MLP via MC Dropout
+          xproc_bayes_predict: "xprocBayesianMLP",
+          xproc_bayes_uncertainty: "xprocBayesianMLP",
+          xproc_bayes_constants: "xprocBayesianMLP",
+          // XPROC-NEURAL Tier 5 (T5-02) — Inductive Conformal Prediction
+          xproc_conformal_calibrate: "xprocConformal",
+          xproc_conformal_set: "xprocConformal",
+          xproc_conformal_stats: "xprocConformal",
+          xproc_conformal_reset: "xprocConformal",
+          xproc_conformal_constants: "xprocConformal",
         };
 
         const engineName = CORE_ROUTING[action];
