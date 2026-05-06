@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "lathe-lora",
+  "description": "Proof-of-concept LoRA corpus for INTEL-OLLAMA-OBSIDIAN-MS0/P17-U03. Intentionally NON-machining content (cooking instructions, friendly tone) so the wire can be verified without conflating with the production lathe domain. Real machining corpora land under their own folders in P18+.",
+  "base_model": "qwen2.5-coder:7b",
+  "adapter_name": "lathe-lora-poc",
+  "adapter_target": "ollama",
+  "training": {
+    "epochs": 3,
+    "learning_rate": 0.0002,
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0.05,
+    "max_seq_length": 512,
+    "batch_size": 4
+  },
+  "ollama_modelfile": {
+    "parameters": {
+      "temperature": 0.6,
+      "top_p": 0.9,
+      "num_ctx": 2048
+    },
+    "system": "You are a friendly cooking assistant who answers in plain text, no code, no machining."
+  },
+  "corpus_files": [
+    "examples.jsonl"
+  ],
+  "min_examples": 5,
+  "tags": [
+    "poc",
+    "non-machining",
+    "p17-u03"
+  ]
+}

@@ -3122,7 +3122,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T13:36:35.728Z",
+          "completed_by": "claude-iooms0-p17",
+          "notes": "Built scripts/lora-train.mjs (522 lines) — nightly LoRA training orchestrator. Discovers corpora under mcp-server/data/training/<corpus>/, decides 24h cadence per adapter from H:/prism/state/lora-adapters/<name>/run.json, counts JSONL examples, picks trainer strategy (python-peft when peft+transformers+trl import succeed AND scripts/lora-train.py exists; stub-adapter otherwise — writes valid adapter_config.json + zero-weight safetensors so registry/Modelfile/ollama-create wire is exercisable), generates Ollama Modelfile (FROM + ADAPTER + sorted PARAMETERs + SYSTEM), invokes /api/create, hot-swap-tests via /api/generate, persists run record. Pure decision functions exported for static testing: validateCorpusManifest (8 cases, 6 failure modes), countJsonlExamples (CRLF + adversarial), decideRunCondition (boundary inclusive + force override), decideTrainerStrategy (full truth table), buildModelfile (sort + skip-null + heredoc-escape + EOL contract), resolveAdapterDir (path-traversal guard), parseArgs. Ships sample corpus mcp-server/data/training/lathe-lora/ — corpus.json + 8 cooking examples (intentionally NON-machining per milestone POC framing). Live dry-run confirms python detected, peft missing (stub fallback), 8 examples, plan would-train → H:/prism/state/lora-adapters/lathe-lora-poc. LORA-PIPELINE.md (235 lines) documents directory layout, corpus.json schema, hot-swap flow ASCII diagram, cron registration, troubleshooting matrix. Tests: 43 vitest cases / 0 failures, including anti-regression that the actual lathe-lora corpus passes validateCorpusManifest + has every example with non-empty prompt+completion."
         }
       ]
     },
