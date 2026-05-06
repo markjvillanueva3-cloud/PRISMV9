@@ -649,6 +649,79 @@ export class ToleranceExtractionEngine {
       fit_class: result.fit_class,
     };
   }
+
+  /**
+   * Convert per-feature tolerances into Fusion 360 design parameters.
+   *
+   * Each FeatureTolerance becomes 1-3 design parameters depending on band:
+   *   - {feature_id}_nominal — driving dimension (mm)
+   *   - {feature_id}_upper   — upper deviation (mm, only if non-zero)
+   *   - {feature_id}_lower   — lower deviation (mm, only if non-zero)
+   *
+   * Bridges PRISM blueprint OCR (which extracts ± tolerances) and Fusion 360
+   * (which accepts userParameters.add). Closes a DfM gap on punches/dies where
+   * dropped ±.002" callouts silently changed finish strategy in the live build.
+   */
+  toFusionDesignParameters(tolerances: FeatureTolerance[]): Array<{
+    name: string;
+    value: number;
+    unit: "mm";
+    description: string;
+  }> {
+    const params: Array<{ name: string; value: number; unit: "mm"; description: string }> = [];
+    const sanitize = (s: string): string => s.replace(/[^A-Za-z0-9_]/g, "_");
+    for (const t of tolerances) {
+      const safeId = sanitize(t.feature_id);
+      const tolText = `${t.upper_dev_mm >= 0 ? "+" : ""}${t.upper_dev_mm.toFixed(4)} / ${t.lower_dev_mm >= 0 ? "+" : ""}${t.lower_dev_mm.toFixed(4)} mm (${t.source})`;
+      params.push({
+        name: `${safeId}_nominal`,
+        value: t.nominal_mm,
+        unit: "mm",
+        description: `${t.raw_text ?? safeId} — nominal. Tolerance: ${tolText}`,
+      });
+      if (t.upper_dev_mm !== 0) {
+        params.push({
+          name: `${safeId}_upper`,
+          value: t.upper_dev_mm,
+          unit: "mm",
+          description: `${safeId} upper deviation`,
+        });
+      }
+      if (t.lower_dev_mm !== 0) {
+        params.push({
+          name: `${safeId}_lower`,
+          value: t.lower_dev_mm,
+          unit: "mm",
+          description: `${safeId} lower deviation`,
+        });
+      }
+    }
+    return params;
+  }
+
+  /**
+   * One-shot pipeline: dimensions + GD&T → Fusion design parameters.
+   *
+   * Wires extract() → toFusionDesignParameters() so callers (the print-to-
+   * program bridge, live bridge, quoting engine) lift dimensional intent into
+   * Fusion in one call.
+   */
+  extractFusionDesignParams(
+    dimensions: ExtractedDimension[],
+    gdts: ExtractedGDT[],
+    generalToleranceClass: "f" | "m" | "c" | "v" = "m",
+  ): {
+    parameters: Array<{ name: string; value: number; unit: "mm"; description: string }>;
+    feature_tolerances: FeatureTolerance[];
+    warnings: string[];
+  } {
+    const result = this.extract(dimensions, gdts, generalToleranceClass);
+    return {
+      parameters: this.toFusionDesignParameters(result.feature_tolerances),
+      feature_tolerances: result.feature_tolerances,
+      warnings: result.warnings,
+    };
+  }
 }
 
 // ============================================================================
