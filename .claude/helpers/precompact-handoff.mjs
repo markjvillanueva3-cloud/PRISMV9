@@ -353,14 +353,12 @@ function resolveTerminalFromHookStdinOrHelper() {
 function main() {
   const args = parseArgs(process.argv);
 
-  // Resolve terminal: prefer --terminal arg, then stdin session_id, then
-  // stable-session-id helper. Eliminates the old `auto-${ppid}` phantom.
+  // Resolve terminal so we can check whether the live chat already wrote a
+  // handoff in the last few minutes. Read-only — the hook never writes.
   if (!args.terminal) {
     const autoTerminal = resolveTerminalFromHookStdinOrHelper();
     if (autoTerminal) args.terminal = autoTerminal;
   }
-
-  // Resolve identity
   let identity;
   if (args.terminal) {
     const session = getSessionId(args.terminal);
@@ -374,56 +372,31 @@ function main() {
     }
   }
   if (!identity) {
-    identity = inferAgentIdentity({
-      agent: args.agent,
-      family: args.agentFamily,
-    });
+    identity = inferAgentIdentity({ agent: args.agent, family: args.agentFamily });
   }
 
-  // Step 1: Check for existing meaningful RESUME (from /precompact)
-  let resume = getExistingResume(identity.instance, 5);
-  let resumeSource = "preserved";
+  // BANNED FROM WRITING (2026-05-06).
+  // Per-agent handoffs may be written ONLY by the live Claude chat. Hooks
+  // (this one, formerly the PreCompact auto-writer) and subagents produced
+  // generic stubs ("Pre-compact snapshot (RESUME generated)") that overwrote
+  // the meaningful RESUME directives the live chat had crafted. The live chat
+  // is the only context with enough information to write a useful resume —
+  // it has the conversation history, the in-flight task, the precise next
+  // step. The /precompact and /handoff skills now pass --source live-chat
+  // when invoking per-agent-handoff.mjs write, and any non-live-chat write
+  // is rejected with error: "writer_banned".
+  //
+  // This hook now ONLY emits a systemMessage:
+  //   - If the live chat wrote a handoff in the last 5 minutes (via
+  //     /precompact), reassure that resume is preserved.
+  //   - Else, remind the user to run /precompact BEFORE /compact so the
+  //     next session has a useful RESUME directive.
+  const existing = getExistingResume(identity.instance, 5);
+  const msg = existing
+    ? `precompact: handoff write skipped (BANNED for hooks). Live-chat /precompact RESUME (${existing.slice(0, 80).replace(/"/g, '\\"')}...) is preserved.`
+    : `precompact: handoff write skipped (BANNED for hooks). No fresh /precompact RESUME found — run /precompact in the live chat BEFORE /compact so the next session has a real RESUME directive.`;
 
-  if (!resume) {
-    // Step 2: Generate smart RESUME from state (pass identity for claim matching)
-    resume = generateSmartResume(identity);
-    resumeSource = "generated";
-  }
-
-  // Step 2.5: Derive topic — prefer THIS chat's existing handoff or state markers
-  // over global git log (which can mis-attribute peer chats' work to us).
-  const derived = deriveSessionTopic(identity.instance);
-  const topic = derived.topic;
-
-  // Step 3: Write the handoff via per-agent-handoff.mjs
-  const handoffScript = path.resolve("H:/prism/.claude/helpers/per-agent-handoff.mjs");
-  const writeArgs = [
-    handoffScript,
-    "write",
-    "--terminal", args.terminal || `auto-${process.ppid}`, // per-agent-handoff auto-registers the terminal on first use
-    "--resume", resume,
-    "--state", `Pre-compact snapshot (RESUME ${resumeSource})`,
-      ...(topic ? ["--topic", topic] : []),
-  ];
-
-  const result = spawnSync(process.execPath, writeArgs, {
-    encoding: "utf8",
-    windowsHide: true,
-    cwd: PRISM_ROOT,
-  });
-
-  // Always emit Claude-Code-valid JSON. Diagnostic info goes in systemMessage
-  // (schema-legal) rather than free top-level keys (which fail validation).
-  const meta = `handoff: resume_source=${resumeSource} preview="${resume.slice(0, 100).replace(/"/g, '\\"')}"`;
-  if (result.status === 0) {
-    console.log(JSON.stringify({ continue: true, systemMessage: meta }));
-  } else {
-    const err = (result.stderr || "").slice(0, 200);
-    console.log(JSON.stringify({
-      continue: true,
-      systemMessage: `handoff FAILED: per-agent-handoff.mjs write failed — ${err} | ${meta}`,
-    }));
-  }
+  console.log(JSON.stringify({ continue: true, systemMessage: msg }));
 }
 
 try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }

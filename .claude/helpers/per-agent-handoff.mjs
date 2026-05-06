@@ -236,7 +236,38 @@ function addToQueue(item) {
 
 // ── Commands ─────────────────────────────────────────────────────
 
+// Writers banned to live chat ONLY. Hooks (PreCompact auto-writer) and
+// subagents (Agent-spawned) produced generic stubs like "Pre-compact snapshot
+// (RESUME generated)" that clobbered the meaningful RESUME directives the live
+// chat had crafted. After /compact, /startup would read these stubs and have
+// no idea what the chat was actually doing. User feedback 2026-05-06: "ban
+// handlers and subagents from writing handoffs. live chat claude needs to
+// handle it, we always have issues with per agent handoffs being generics
+// and stubs". The /precompact and /handoff skills (run by the live chat)
+// pass --source live-chat explicitly. Anything else is rejected.
+function isLiveChatSource(args) {
+  const src = (args.source || "").toString().trim().toLowerCase();
+  return src === "live-chat";
+}
+
+function rejectNonLiveChat(args, op) {
+  if (isLiveChatSource(args)) return null;
+  return {
+    ok: false,
+    error: "writer_banned",
+    op,
+    message:
+      "Per-agent handoffs may be written ONLY by the live Claude chat. " +
+      "Hooks (PreCompact auto-writer) and subagents are banned — they produce " +
+      "generic stubs that overwrite real RESUME directives. To write a handoff, " +
+      "have the LIVE chat run /precompact or /handoff (those skills pass " +
+      "--source live-chat explicitly). See memory: feedback_handoff_writers.md.",
+  };
+}
+
 function cmdWrite(identity, args) {
+  const banned = rejectNonLiveChat(args, "write");
+  if (banned) return banned;
   ensureDirs();
   // SAFETY NET: auto-derive topic when caller omits --topic. Prevents bare-named
   // HANDOFF-{id}.md files from accumulating and being picked up by /startup's
@@ -439,6 +470,8 @@ function cmdLatest(identity, args) {
 }
 
 function cmdStop(identity, args) {
+  const banned = rejectNonLiveChat(args, "stop");
+  if (banned) return banned;
   // Write per-agent handoff
   const writeResult = cmdWrite(identity, args);
 
