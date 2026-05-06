@@ -1007,6 +1007,78 @@
         "Extend pre-delete-guard.mjs with an orphan-suffix exemption (.ts-1, .t-1, -1$, Engi-1$, Engin-1$, .-1$)",
         "Bypass via direct fs.unlinkSync (not recommended — guard is real safety property)"
       ]
+    },
+    {
+      "phase": "P4-5-ORPHAN-BRANCHES (quick-wins subset)",
+      "status": "complete (safe deletions); 4 stranded branches graduated",
+      "executed_at": "2026-05-06",
+      "session_id": "claude-e7271397",
+      "method": "cherry-status audit (`git cherry origin/main <branch>`) for every dormant branch. Branches with all-`+` cherry status are 100% stranded; branches with +0 commits ahead are fully merged.",
+      "branches_deleted": [
+        "work/ussh-sci (+0/-102 — fully merged into origin/main)",
+        "worktree-agent-a34d706a924b92968 (+0/-48 — empty stub at original main HEAD)",
+        "worktree-agent-a721b9d5fda5dc493 (+0/-48 — empty stub)",
+        "worktree-agent-a934d757403454ad1 (+0/-48 — empty stub)",
+        "worktree-agent-abd2bcee (+0/-48 — empty stub)",
+        "worktree-agent-abf1e9c6a81eb16e4 (+0/-48 — empty stub)",
+        "worktree-agent-ac94f64a2cf22d997 (+0/-48 — empty stub)",
+        "worktree-agent-acd8533e (+0/-48 — empty stub, was 'initializing')",
+        "worktree-agent-ad1c002a (+0/-48 — empty stub)",
+        "worktree-agent-adca235f (+0/-48 — empty stub)",
+        "worktree-agent-af038f883efa0b9cd (+0/-48 — empty stub)",
+        "worktree-stabilize-cba638c3 (+0/-48 — empty stub)",
+        "archive-2026-02-01 (+1 — preserved as tag archive/snapshot-2026-02-01 before delete)"
+      ],
+      "worktrees_pruned": [
+        ".claude/worktrees/agent-a34d706a924b92968 (locked — force-removed)",
+        ".claude/worktrees/agent-a721b9d5fda5dc493 (locked)",
+        ".claude/worktrees/agent-a934d757403454ad1 (locked)",
+        ".claude/worktrees/agent-abd2bcee (locked)",
+        ".claude/worktrees/agent-abf1e9c6a81eb16e4 (locked)",
+        ".claude/worktrees/agent-ac94f64a2cf22d997 (locked)",
+        ".claude/worktrees/agent-acd8533e (locked, 'initializing')",
+        ".claude/worktrees/agent-ad1c002a (locked)",
+        ".claude/worktrees/agent-adca235f (locked)",
+        ".claude/worktrees/agent-af038f883efa0b9cd (locked)",
+        ".claude/worktrees/stabilize-cba638c3 (no lock file)"
+      ],
+      "tags_created": ["archive/snapshot-2026-02-01 → 363ccd496 (PRISM v9.0 state archive)"],
+      "graduation_candidates": [
+        {
+          "branch": "work/ai-aware-harden",
+          "commits_ahead": 22,
+          "highlights": "5 WEDM safety gate engines MISSING from main: WEDMControllerDialectVerifierEngine, WEDMThermalReleaseGateEngine, WEDMFlushAdequacyGateEngine, WEDMHeadClearanceGateEngine, WEDMUnitTagGateEngine. SAFETY-CRITICAL.",
+          "verification": "All commits show `+` on `git cherry origin/main` (none applied). `git ls-tree -r origin/main` shows 0 hits for each WEDM engine name.",
+          "recommended_phase": "WEDM-CONSOLIDATE-MS (combined with wedm-consolidated)",
+          "graduation_reason": "Safety-critical engines, blind cherry-pick is unsafe; needs scrutiny + tests + 3-of-3 review on its own"
+        },
+        {
+          "branch": "work/wedm-consolidated",
+          "commits_ahead": 44,
+          "highlights": "WEDM consolidation work (commits not audited individually)",
+          "recommended_phase": "WEDM-CONSOLIDATE-MS (combined with ai-aware-harden)",
+          "graduation_reason": "Companion to ai-aware-harden — both target WEDM domain"
+        },
+        {
+          "branch": "work/lathe-master",
+          "commits_ahead": 62,
+          "highlights": "Lathe master post / mill-turn work",
+          "possibly_superseded_by": ["work/lathe-pro-v3-ms2 (active worktree)", "work/lathe-prod-ready-ms0 (active worktree)", "work/ppgh05 (Multus engine, claimed by claude-093e69ac)"],
+          "recommended_phase": "LATHE-CONSOLIDATE-MS — but must first determine what's superseded",
+          "graduation_reason": "Three live lathe worktrees may already cover this; needs supersession audit before cherry-pick"
+        },
+        {
+          "branch": "claude/interesting-shamir",
+          "commits_ahead": 22,
+          "highlights": "R2-MS0 50 golden benchmarks (6 ISO groups, 20 calc types) + 'Roadmap v17.0 Claude Code Maximized' (2009-line doc) + mode switching protocol",
+          "age": "2026-02-19 (oldest stranded branch)",
+          "recommended_phase": "QA-BENCHMARKS-MS — only if benchmarks aren't already on main",
+          "graduation_reason": "Likely superseded — Feb 2026 work; current QA track may have replaced it"
+        }
+      ],
+      "branch_count_change": "before=54 → after=41 (-13)",
+      "worktree_count_change": "before=43 → after=32 (-11)",
+      "remaining_targets": "Branches not yet triaged (alive worktrees): work/cad-complete-ms0, work/cam-engine-fixes, work/cam-exhaust-cam43-plus, work/cad-fidx-fus-93a0, work/cad-fidx-solidworks, work/cam-spcfai-ms0, work/cam-fusion-ms1, work/cam-hypermill-ms1, work/engine-wire-cad-ms0, work/engine-wire-ms0, work/intel-ollama-obsidian-ms0/ms1, work/intel-p8-schema, work/knowledge-wiki-ms0, work/lathe-pro-v3-ms2, work/lathe-pro-v3-bookkeeping, work/lathe-prod-ready-ms0, work/mill-master, work/ppg-advancedpost, work/ppgh05, work/psau-sav2, work/session-efficiency, work/tsc-cleanup-ms0, plus meta/* + claude/* + worktree-u-fus-api01/02 + 1 stale locked agent worktree (ac117174afd81e7bb at e91b79d6f)"
     }
   ],
   "out_of_scope": [
