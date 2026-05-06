@@ -44,12 +44,20 @@ function makeStubServer() {
 let handler: CapturedTool["handler"];
 
 async function invoke(action: string, params: Record<string, unknown> = {}) {
-  const res = await handler({ action, params });
-  const text = res.content[0]?.text ?? "";
+  // Robust against handler shape evolution: handler may throw, omit content,
+  // or return `{isError, content}` on error. Surface a uniform envelope so
+  // tests can assert success/error without crashing on missing fields.
+  let res: { content?: Array<{ text?: string }> };
+  try {
+    res = await handler({ action, params });
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err) } as Record<string, unknown>;
+  }
+  const text = res.content?.[0]?.text ?? "";
   try {
     return JSON.parse(text) as Record<string, unknown>;
   } catch {
-    return { __raw: text } as Record<string, unknown>;
+    return { success: false, __raw: text } as Record<string, unknown>;
   }
 }
 

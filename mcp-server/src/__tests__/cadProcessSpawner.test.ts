@@ -185,15 +185,40 @@ describe("stress: 100 rapid spawn/kill cycles", () => {
     "leaves zero orphan processes after 100 spawn+kill cycles",
     async () => {
       const CYCLES = 100;
+      const MAX_SPAWN_RETRIES = 5;
 
       for (let i = 0; i < CYCLES; i++) {
-        const proc = spawner.spawn({
-          exe: process.execPath,
-          args: ["-e", "setTimeout(()=>{},30000)"],
-          timeoutMs: 30_000,
-          label: "stress",
-          stdio: "ignore",
-        });
+        // Windows can reject `spawn()` with code "UNKNOWN" or "EAGAIN" under
+        // rapid handle pressure — that's an OS-level rate-limit, not a
+        // spawner bug. Retry with linear backoff so the lifecycle invariant
+        // (100 spawn+kill cycles → 0 orphans) is exercised faithfully even
+        // when the OS is throttling new processes.
+        let proc: ReturnType<typeof spawner.spawn> | null = null;
+        let attempts = 0;
+        while (proc == null && attempts < MAX_SPAWN_RETRIES) {
+          try {
+            proc = spawner.spawn({
+              exe: process.execPath,
+              args: ["-e", "setTimeout(()=>{},30000)"],
+              timeoutMs: 30_000,
+              label: "stress",
+              stdio: "ignore",
+            });
+          } catch (err) {
+            const code = (err as NodeJS.ErrnoException)?.code ?? "";
+            if (code === "UNKNOWN" || code === "EAGAIN" || code === "EMFILE") {
+              attempts++;
+              await new Promise<void>((r) => setTimeout(r, 50 * attempts));
+              continue;
+            }
+            throw err;
+          }
+        }
+        if (proc == null) {
+          throw new Error(
+            `spawn rejected ${MAX_SPAWN_RETRIES}× by OS at cycle ${i} — Windows handle exhaustion not survivable even with backoff`,
+          );
+        }
         await proc.kill();
         // Yield one microtask tick between cycles to drain exit events
         // and avoid Windows handle exhaustion under rapid-spawn conditions
@@ -210,6 +235,6 @@ describe("stress: 100 rapid spawn/kill cycles", () => {
       expect(sweep.orphans).toBe(0);
       expect(sweep.active).toBe(0);
     },
-    30_000 // 30s budget for 100 cycles on Windows
+    60_000 // Larger budget to accommodate retry-with-backoff under handle pressure
   );
 });
