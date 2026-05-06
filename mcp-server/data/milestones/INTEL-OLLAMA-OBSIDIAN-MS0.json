@@ -2041,6 +2041,10 @@
           "title": "Build AuditChainEngine — consolidate 13 audit engines under single dispatcher action",
           "effort": 70,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T17:55:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Built AuditChainEngine.ts (~280 lines) — single-entry router over 9 specialised audit engines (AuditEngine, MachineAuditEngine, MachineDataAuditEngine, AuditManagerEngine [3 methods: hooks/system/security], OperatorActionAuditTrailEngine, PPAGIProgramLibraryAuditorEngine, CSMMemoryDBAuditEngine). 9 audit types covered: code|machine|data|hook|system|security|operator|library|memory with alias map (src→code, cnc→machine, sensor/telemetry→data, hooks→hook, sec→security, operations→operator, programs→library, db/cache→memory). Pure functions exported for tests: AUDIT_BACKEND_TABLE (PascalCase + Engine suffix enforced), normalizeType (case-insensitive + trim + alias resolve), selectBackend (throws on out-of-table), validateRequest (object shape + scope string + options plain-object), mergeAuditResults (multi-backend fan-out aggregator with ok/error/duration roll-up). Uniform AuditChainResult envelope: {type, scope, ok, backend, data?, error?, durationMs, ts}. .run() lazy-imports backend by class name; gracefully degrades when method is missing on backend (returns ok:false envelope, never throws). Wired prism_dev:audit_chain in devDispatcher.ts (added to ACTIONS const + case body before default). Tests: AuditChain.test.ts 26/26 green covering table coverage, alias map, error paths, mergeAuditResults aggregation, and 3 .run() round-trip cases (validation failure, backend-method-missing, singleton sanity).",
           "exit_conditions": [
             "Engine routes audit type: code | machine | data | hook | system | security | etc.",
             "prism_dev:audit_chain { type, scope } as single action",
