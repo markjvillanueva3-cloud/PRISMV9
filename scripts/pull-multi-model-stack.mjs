@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // pull-multi-model-stack.mjs — INTEL-OLLAMA-OBSIDIAN-MS0 / P20-U01
 // Pulls + smoke-tests required Ollama models for tiered routing.
 //
@@ -13,13 +12,47 @@ import { spawn } from "node:child_process";
 const OLLAMA_HOST = process.env.OLLAMA_HOST ?? "http://127.0.0.1:11434";
 const OLLAMA_BIN = process.env.OLLAMA_BIN ?? "H:/Tools/Ollama/ollama.exe";
 
-const MODELS = [
+// Exported so tests can assert canonical model stack contents + tier ordering.
+export const MODELS = [
   { name: "nomic-embed-text",      tier: 0, kind: "embed",  approxSizeGB: 0.27 },
   { name: "qwen2.5-coder:7b",      tier: 1, kind: "chat",   approxSizeGB: 4.7  },
   { name: "qwen2.5-coder:14b",     tier: 2, kind: "chat",   approxSizeGB: 9.0  },
   { name: "deepseek-r1:14b",       tier: 3, kind: "chat",   approxSizeGB: 9.0  },
   { name: "llama3.2-vision:11b",   tier: 4, kind: "vision", approxSizeGB: 7.9  },
 ];
+
+// Pure decision: skip if already present, else mark for pull.
+export function decidePullAction(model, presentSet) {
+  if (!model || typeof model.name !== "string") {
+    return { shouldPull: false, reason: "invalid model" };
+  }
+  if (presentSet && presentSet.has && presentSet.has(model.name)) {
+    return { shouldPull: false, reason: "already present" };
+  }
+  return { shouldPull: true, reason: `not installed (~${model.approxSizeGB} GB pull required)` };
+}
+
+// Pure selector: which smoke endpoint should we use for this model kind?
+export function selectSmokeKind(model) {
+  if (!model) return "chat";
+  if (model.kind === "embed") return "embed";
+  if (model.kind === "vision") return "vision";
+  return "chat";
+}
+
+// Pure aggregator: summarise a list of {pulled, smoked} report rows.
+export function summarizeReport(report) {
+  const total = report.length;
+  const pulled = report.filter((r) => r.pulled).length;
+  const smoked = report.filter((r) => r.smoked).length;
+  const failed = report.filter((r) => !r.smoked).length;
+  return { total, pulled, smoked, failed };
+}
+
+// Pure cumulative-size helper (so MODEL-STACK.md can render exact totals).
+export function totalApproxSizeGB(models) {
+  return (models || []).reduce((sum, m) => sum + (Number(m.approxSizeGB) || 0), 0);
+}
 
 const SMOKE_PROMPT = "Reply with the single word: OK.";
 
@@ -110,4 +143,12 @@ async function main() {
   console.log("\nAll models ready. ModelRouterEngine can route to all 5 tiers.");
 }
 
-main().catch((e) => { console.error(e); process.exit(2); });
+// Only run main() when invoked directly via CLI; importing the module
+// (e.g. from a vitest test for the pure helpers) must not trigger network
+// I/O against Ollama.
+import { fileURLToPath } from "node:url";
+import * as path from "node:path";
+const _isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (_isMain) {
+  main().catch((e) => { console.error(e); process.exit(2); });
+}

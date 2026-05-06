@@ -3340,6 +3340,10 @@
           "effort": 30,
           "dependencies": [],
           "rollback": "ollama rm <model> for each pulled",
+          "status": "completed",
+          "completed_at": "2026-05-06T16:12:30.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: scripts/pull-multi-model-stack.mjs (113 lines, idempotent: hits /api/tags first, only pulls missing models, smoke-tests via /api/generate or /api/embeddings). Stack expanded from 3 → 5 tiered models: tier 0 nomic-embed-text (embed, 0.27GB), tier 1 qwen2.5-coder:7b (chat, 4.7GB), tier 2 qwen2.5-coder:14b (chat, 9.0GB), tier 3 deepseek-r1:14b (chat, 9.0GB), tier 4 llama3.2-vision:11b (vision, 7.9GB) — covers all milestone-required models. MODEL-STACK.md (81 lines) documents per-tier use case + size + version. 2026-05-06: refactored to expose pure functions (decidePullAction, selectSmokeKind, summarizeReport, totalApproxSizeGB) for testability, added isMain guard so importing the module doesn't trigger network I/O. Removed shebang for vite/vitest module-runner compat. New PullMultiModelStack.test.ts: 23 cases / 0 fail, covering tier coverage, decision logic, kind selection, report aggregation, and budget sum sanity (30.87 GB total stack).",
           "exit_conditions": [
             "ollama list shows: nomic-embed-text (~280MB), llama3.2-vision:11b (~7GB), deepseek-r1:14b (~9GB)",
             "Each model smoke-tested with sample prompt",
