@@ -481,4 +481,78 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       expect(typeof mod.PlanTrajectoryExtractorEngine).toBe("function");
     });
   });
+
+  describe("Peer-repo signature mapping (P16-U01) wiring", () => {
+    const PEER_REPO_ACTIONS = [
+      "peer_repo_classify_file",
+      "peer_repo_build_signature",
+      "peer_repo_diff_signatures",
+      "peer_repo_summarize",
+    ];
+
+    it("all 4 peer-repo actions are registered in the action enum", () => {
+      for (const a of PEER_REPO_ACTIONS) {
+        expect(KNOWLEDGE_ACTIONS.includes(a)).toBe(true);
+      }
+    });
+
+    it("peer_repo_classify_file schema requires rel_path string", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.peer_repo_classify_file as z.ZodType;
+      expect(schema.safeParse({ rel_path: "mcp-server/src/engines/Foo.ts" }).success).toBe(true);
+      expect(schema.safeParse({}).success).toBe(false);
+      expect(schema.safeParse({ rel_path: 42 }).success).toBe(false);
+    });
+
+    it("peer_repo_build_signature schema requires repo_root string + rel_paths string[]", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.peer_repo_build_signature as z.ZodType;
+      expect(schema.safeParse({ repo_root: "/r", rel_paths: ["a", "b"] }).success).toBe(true);
+      expect(schema.safeParse({ repo_root: "/r", rel_paths: [] }).success).toBe(true);
+      expect(schema.safeParse({ rel_paths: ["a"] }).success).toBe(false);
+      expect(schema.safeParse({ repo_root: "/r" }).success).toBe(false);
+      expect(schema.safeParse({ repo_root: "/r", rel_paths: [42] }).success).toBe(false);
+    });
+
+    it("peer_repo_diff_signatures schema accepts opaque canonical + peer", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.peer_repo_diff_signatures as z.ZodType;
+      expect(schema.safeParse({ canonical: { engines: [] }, peer: { engines: [] } }).success).toBe(true);
+      // canonical/peer are z.unknown() so even null-canonical parses (engine has runtime null-guard)
+      expect(schema.safeParse({ canonical: null, peer: null }).success).toBe(true);
+    });
+
+    it("peer_repo_summarize schema requires per_repo array", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.peer_repo_summarize as z.ZodType;
+      expect(schema.safeParse({ per_repo: [] }).success).toBe(true);
+      expect(schema.safeParse({ per_repo: [{ repo_root: "/a", peer_only_count: 3 }] }).success).toBe(true);
+      expect(schema.safeParse({ per_repo: "nope" as unknown }).success).toBe(false);
+      expect(schema.safeParse({}).success).toBe(false);
+    });
+
+    it("PeerRepoSignatureEngine module exports singleton — runs build + diff + summarize round-trip", async () => {
+      const mod = await import("../engines/PeerRepoSignatureEngine.js");
+      const canonical = mod.peerRepoSignatureEngine.buildSignature("/canonical", [
+        "mcp-server/src/engines/Alpha.ts",
+        "mcp-server/src/engines/Beta.ts",
+      ]);
+      const peer = mod.peerRepoSignatureEngine.buildSignature("/peer", [
+        "mcp-server/src/engines/Beta.ts",
+        "mcp-server/src/engines/Gamma.ts",
+        ".claude/hooks/new-hook.mjs",
+      ]);
+      expect(canonical.engines.sort()).toEqual(["Alpha", "Beta"]);
+      expect(peer.engines.sort()).toEqual(["Beta", "Gamma"]);
+      const diff = mod.peerRepoSignatureEngine.diffSignatures(canonical, peer);
+      expect(diff.unique_to_peer.engines).toEqual(["Gamma"]);
+      expect(diff.unique_to_peer.hooks).toEqual(["new-hook"]);
+      expect(diff.unique_to_canonical.engines).toEqual(["Alpha"]);
+      const peerOnly = mod.peerRepoSignatureEngine.countUniqueAssets(diff.unique_to_peer);
+      expect(peerOnly).toBe(2);
+      const summary = mod.peerRepoSignatureEngine.summarize([
+        { repo_root: "/peer", unique_to_peer: diff.unique_to_peer, unique_to_canonical: diff.unique_to_canonical, peer_only_count: peerOnly },
+      ]);
+      expect(summary.totalPeers).toBe(1);
+      expect(summary.totalUniqueEnginesAcrossPeers).toBe(1);
+      expect(summary.peerRanking[0].repo_root).toBe("/peer");
+      expect(typeof mod.PeerRepoSignatureEngine).toBe("function");
+    });
+  });
 });
