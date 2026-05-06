@@ -40,7 +40,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
     _xprocQLearning: any, _xprocBandit: any,
     _xprocBayesianMLP: any, _xprocConformal: any,
-    _xprocDeepEnsemble: any, _xprocCalibration: any;
+    _xprocDeepEnsemble: any, _xprocCalibration: any,
+    _xprocFedAvg: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -89,6 +90,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocConformal": return _xprocConformal ??= (await import("../../engines/CrossProcessConformalPredictionEngine.js")).crossProcessConformalPrediction;
     case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
+    case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -348,6 +350,10 @@ const ACTIONS = [
   "xproc_calibration_score",
   "xproc_calibration_recommend",
   "xproc_calibration_constants",
+  // XPROC-NEURAL Tier 6 (T6-01) — FedAvg with PRISM 0.5x shared-client weighting
+  "xproc_fed_aggregate",
+  "xproc_fed_round_summary",
+  "xproc_fed_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -919,6 +925,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_calibration_score: "xprocCalibration",
           xproc_calibration_recommend: "xprocCalibration",
           xproc_calibration_constants: "xprocCalibration",
+          // XPROC-NEURAL Tier 6 (T6-01) — FedAvg
+          xproc_fed_aggregate: "xprocFedAvg",
+          xproc_fed_round_summary: "xprocFedAvg",
+          xproc_fed_constants: "xprocFedAvg",
         };
 
         const engineName = CORE_ROUTING[action];
