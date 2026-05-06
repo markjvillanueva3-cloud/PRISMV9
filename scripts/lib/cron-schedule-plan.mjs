@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * cron-schedule-plan.mjs — INTEL-OLLAMA-OBSIDIAN-MS0/P11-U03.
  *
@@ -20,6 +19,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 // ---------------------------------------------------------------------------
 // CANONICAL TASK LIST
@@ -31,6 +31,8 @@ import * as path from "node:path";
 //   script      → repo-relative path; planForBox skips if file missing on this box
 //   purpose     → one-line description for CRON-SCHEDULE.md
 //   args        → optional CLI args appended after script path
+//   tag         → optional category tag (e.g. "drift") used by separate
+//                 installers (install-drift-detection-cron.ps1) to filter
 //   logChannel  → "cron-runs.jsonl" by default; can override
 export const DEFAULT_TASKS = [
   {
@@ -208,6 +210,15 @@ export function planForBox(tasks, repoRoot, fsAdapter) {
 }
 
 /**
+ * Filter a task array by tag. Tasks without a tag are excluded when a
+ * specific tag is requested. Pass null/undefined to get all tasks unchanged.
+ */
+export function filterByTag(tasks, tag) {
+  if (!tag) return tasks.slice();
+  return tasks.filter((t) => t && t.tag === tag);
+}
+
+/**
  * Summarise a plan for short-form reporting.
  */
 export function summarisePlan(plan) {
@@ -228,8 +239,6 @@ export function summarisePlan(plan) {
 // CLI ENTRYPOINT (called by install-cron-schedule.ps1)
 // ---------------------------------------------------------------------------
 
-import { fileURLToPath, pathToFileURL } from "node:url";
-
 function isMain() {
   return process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 }
@@ -237,8 +246,11 @@ function isMain() {
 if (isMain()) {
   const args = process.argv.slice(2);
   const wantJson = args.includes("--json");
+  const tagIdx = args.indexOf("--tag");
+  const tag = tagIdx >= 0 ? args[tagIdx + 1] : null;
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-  const plan = planForBox(DEFAULT_TASKS, repoRoot);
+  const filteredTasks = filterByTag(DEFAULT_TASKS, tag);
+  const plan = planForBox(filteredTasks, repoRoot);
   const summary = summarisePlan(plan);
   if (wantJson) {
     process.stdout.write(JSON.stringify({ plan, summary, repoRoot }, null, 2));

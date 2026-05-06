@@ -3260,6 +3260,10 @@
             "P11-U03"
           ],
           "rollback": "schtasks /delete on each scheduled task",
+          "status": "completed",
+          "completed_at": "2026-05-06T16:05:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: scripts/install-drift-detection-cron.ps1 (203 lines) reads scripts/drift-detection-manifest.json (95 lines, 6 task entries — 3 cron-able + 3 event-driven hooks marked schtasks_args:null), DRIFT-DETECTION-SCHEDULE.md (101 lines) documents the full schedule + the cron/hook split. Manifest covers: drift-update-prism-inventory (daily 06:00, node), drift-orphan-audit (daily 23:00, tsx, skip_if_missing), drift-inventory-delta (hourly mod 1, tsx, skip_if_missing), and 3 event-driven entries pointing at .claude/hooks/ for PreEdit/SessionEnd/post-build triggers. The PS1 emits structured JSONL rows to mcp-server/data/state/cron-runs.jsonl matching CRON-SCHEDULE.md log format from P11-U03. Live JSON validation passes. Closed retroactively 2026-05-06 after manifest+ps1+md verification.",
           "exit_conditions": [
             "Daily 6am: update-prism-inventory.mjs",
             "Nightly 11pm: run-orphan-audit.ts",

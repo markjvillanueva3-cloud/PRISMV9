@@ -13,14 +13,24 @@
  *      every schedule parses, no id collisions).
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.resolve(HERE, "../../../scripts/lib/cron-schedule-plan.mjs");
-const mod: any = await import(/* @vite-ignore */ pathToFileURL(SCRIPT).href);
-const { DEFAULT_TASKS, validateTask, parseSchedule, planForBox, summarisePlan } = mod;
+
+// Load the .mjs planner module inside beforeAll so vite's transform
+// doesn't try to statically analyse the dynamic import target.
+let DEFAULT_TASKS: any, validateTask: any, parseSchedule: any, planForBox: any, summarisePlan: any;
+beforeAll(async () => {
+  const mod: any = await import(/* @vite-ignore */ pathToFileURL(SCRIPT).href);
+  DEFAULT_TASKS = mod.DEFAULT_TASKS;
+  validateTask = mod.validateTask;
+  parseSchedule = mod.parseSchedule;
+  planForBox = mod.planForBox;
+  summarisePlan = mod.summarisePlan;
+});
 
 describe("P11-U03 parseSchedule grammar", () => {
   it("'hourly' is valid with no extra tokens", () => {
