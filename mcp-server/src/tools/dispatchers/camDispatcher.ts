@@ -1966,6 +1966,8 @@ export const ACTIONS = [
     "cam_serve_set_rate_limit", "cam_serve_list_pending_confirmations",
     "cam_serve_clear_confirmations", "cam_serve_set_metric_buffer_size",
     "cam_serve_clear_all",
+  // CAM-EXHAUST-MS0/U-CAM127 — AI Validation (production-readiness behavioral harness)
+    "cam_ai_validate",
   // CAM-EXHAUST-MS0/U-CAM120 — Feedback Loop (continuous learning, drift detection, LoRA export)
     "cam_feedback_record_correction", "cam_feedback_record_outcome",
     "cam_feedback_get_corrections", "cam_feedback_accuracy_drift",
@@ -16663,6 +16665,14 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
             CAMModelServingEngine.clearAll();
             result = { success: true };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM127 — AI Validation (production-readiness behavioral harness)
+          case "cam_ai_validate": {
+            const { CAMAIValidationEngine } = await import("../../engines/CAMAIValidationEngine.js");
+            const outputPath = params.outputPath as string | undefined;
+            const report = CAMAIValidationEngine.runValidation({ outputPath });
+            result = { success: true, report };
             break;
           }
           // CAM-EXHAUST-MS0/U-CAM120 — Feedback Loop (9 actions)

@@ -1,0 +1,292 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-06T14:15:26.757Z",
+  "unitId": "U-CAM127",
+  "engines_tested": [
+    "CAMReasoningChainEngine",
+    "CAMConfidenceCalibrationEngine",
+    "CAMFeedbackLoopEngine",
+    "CAMTransferLearningEngine",
+    "CAMModelServingEngine"
+  ],
+  "threshold": 0.95,
+  "scenario_count": 15,
+  "match_count": 15,
+  "match_rate": 1,
+  "verdict": "PASS",
+  "scenarios": [
+    {
+      "id": "gate_refuse_below_floor",
+      "description": "Hoeffding gate refuses canary promotion at 30 samples (< 100 floor)",
+      "category": "gate",
+      "verdict": "pass",
+      "expected": {
+        "applied": false,
+        "requires_human_approval": true
+      },
+      "actual": {
+        "applied": false,
+        "requires_human_approval": true
+      },
+      "durationMs": 10
+    },
+    {
+      "id": "gate_apply_above_floor",
+      "description": "Hoeffding gate applies clean canary promotion at 250 samples",
+      "category": "gate",
+      "verdict": "pass",
+      "expected": {
+        "canary_status_pre": "canary",
+        "applied": true,
+        "requires_human_approval": false
+      },
+      "actual": {
+        "canary_status_pre": "canary",
+        "applied": true,
+        "requires_human_approval": false
+      },
+      "durationMs": 19
+    },
+    {
+      "id": "routing_determinism",
+      "description": "Same request_key routes to same (primary, bucket) over 25 trials",
+      "category": "serving",
+      "verdict": "pass",
+      "expected": {
+        "unique_primary": 1,
+        "unique_bucket": 1,
+        "trial_count": 25
+      },
+      "actual": {
+        "unique_primary": 1,
+        "unique_bucket": 1,
+        "trial_count": 25
+      },
+      "durationMs": 8
+    },
+    {
+      "id": "model_health_snapshot",
+      "description": "getModelHealth returns sample-buffered health with monotonic sample count",
+      "category": "serving",
+      "verdict": "pass",
+      "expected": {
+        "model_id": "active_health",
+        "samples_geq": 250,
+        "status_in": [
+          "active",
+          "canary"
+        ]
+      },
+      "actual": {
+        "model_id": "active_health",
+        "samples": 250,
+        "status": "active"
+      },
+      "durationMs": 7
+    },
+    {
+      "id": "invalid_model_spec_rejection",
+      "description": "registerModel throws on empty spec.name",
+      "category": "serving",
+      "verdict": "pass",
+      "expected": {
+        "threw": true,
+        "msg_includes": "spec.name"
+      },
+      "actual": {
+        "threw": true,
+        "errMessage": "spec.name must be a non-empty string"
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "lora_correction_weight",
+      "description": "Correction record emits LoRA pair with weight=1",
+      "category": "lora",
+      "verdict": "pass",
+      "expected": {
+        "count": 1,
+        "weight": 1,
+        "source": "correction"
+      },
+      "actual": {
+        "count": 1,
+        "weight": 1,
+        "source": "correction"
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "lora_confirmation_weight",
+      "description": "Confirmation outcome emits LoRA pair with weight=0.5",
+      "category": "lora",
+      "verdict": "pass",
+      "expected": {
+        "contains_correction": true,
+        "contains_confirmation": true
+      },
+      "actual": {
+        "contains_correction": true,
+        "contains_confirmation": true,
+        "all_weights": [
+          0.5,
+          1
+        ]
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "feedback_per_task_isolation",
+      "description": "Corrections under one task do not pollute drift series for another task",
+      "category": "feedback",
+      "verdict": "pass",
+      "expected": {
+        "verdict": "insufficient_data"
+      },
+      "actual": {
+        "verdict": "insufficient_data"
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "feedback_stats_mixed",
+      "description": "feedbackStats counts corrections and outcomes independently",
+      "category": "feedback",
+      "verdict": "pass",
+      "expected": {
+        "totalCorrections": 3,
+        "totalOutcomes": 2
+      },
+      "actual": {
+        "totalCorrections": 3,
+        "totalOutcomes": 2
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "drift_insufficient_data",
+      "description": "accuracyDrift returns insufficient_data with no recorded outcomes",
+      "category": "drift",
+      "verdict": "pass",
+      "expected": {
+        "verdict": "insufficient_data"
+      },
+      "actual": {
+        "verdict": "insufficient_data"
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "transfer_default_domains",
+      "description": "All 6 tier-1 CAM domains resolve via getDomain()",
+      "category": "transfer",
+      "verdict": "pass",
+      "expected": {
+        "missing": [],
+        "total": 6
+      },
+      "actual": {
+        "missing": [],
+        "total": 6
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "transfer_self_similarity",
+      "description": "domainSimilarity(\"hypermill\", \"hypermill\") ≈ 1.0",
+      "category": "transfer",
+      "verdict": "pass",
+      "expected": {
+        "sim": 1,
+        "tolerance": 0.000001
+      },
+      "actual": {
+        "sim": 1,
+        "numericKernel": 1,
+        "categoricalAgreement": 1
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "transfer_list_supported_spans_tier1",
+      "description": "listSupportedCAMs covers all 6 tier-1 slugs",
+      "category": "transfer",
+      "verdict": "pass",
+      "expected": {
+        "missing": [],
+        "minimum": 6
+      },
+      "actual": {
+        "missing": [],
+        "supported_count": 6
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "calibration_outcome_count",
+      "description": "recordOutcome×5 → getOutcomeCount returns 5",
+      "category": "calibration",
+      "verdict": "pass",
+      "expected": {
+        "count": 5
+      },
+      "actual": {
+        "count": 5
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "calibration_invalid_confidence",
+      "description": "recordOutcome rejects NaN predictedConfidence",
+      "category": "calibration",
+      "verdict": "pass",
+      "expected": {
+        "threw": true,
+        "msg_includes": "predictedConfidence"
+      },
+      "actual": {
+        "threw": true,
+        "msg": "recordOutcome: predictedConfidence must be a finite number"
+      },
+      "durationMs": 0
+    }
+  ],
+  "notes": "Behavioral-contract validation harness. Each scenario drives the live 5-engine CAM AI pipeline against documented contract behavior (docs/cam-ai/*.md, U-CAM126). No mocks of engines under test. Threshold 0.95 = at least 14 of 15 scenarios must match.",
+  "category_match_rates": {
+    "gate": {
+      "passed": 2,
+      "total": 2,
+      "rate": 1
+    },
+    "lora": {
+      "passed": 2,
+      "total": 2,
+      "rate": 1
+    },
+    "drift": {
+      "passed": 1,
+      "total": 1,
+      "rate": 1
+    },
+    "transfer": {
+      "passed": 3,
+      "total": 3,
+      "rate": 1
+    },
+    "calibration": {
+      "passed": 2,
+      "total": 2,
+      "rate": 1
+    },
+    "serving": {
+      "passed": 3,
+      "total": 3,
+      "rate": 1
+    },
+    "feedback": {
+      "passed": 2,
+      "total": 2,
+      "rate": 1
+    }
+  }
+}
