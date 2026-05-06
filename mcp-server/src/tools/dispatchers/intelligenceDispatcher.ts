@@ -28,7 +28,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
     _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
-    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any;
+    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
+    _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -49,6 +50,10 @@ async function getEngine(name: string): Promise<any> {
     case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
     case "xprocSymbolicEnforcer": return _xprocSymbolicEnforcer ??= (await import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js")).crossProcessSymbolicEnforcer;
     case "xprocSafetyVerifier": return _xprocSafetyVerifier ??= (await import("../../engines/CrossProcessNeuroSymbolicSafetyVerifierEngine.js")).crossProcessNeuroSymbolicSafetyVerifier;
+    case "xprocCausalLearner": return _xprocCausalLearner ??= (await import("../../engines/CrossProcessCausalGraphLearnerEngine.js")).crossProcessCausalGraphLearner;
+    case "xprocDoCalculus": return _xprocDoCalculus ??= (await import("../../engines/CrossProcessDoCalculusEngine.js")).crossProcessDoCalculus;
+    case "xprocCounterfactual": return _xprocCounterfactual ??= (await import("../../engines/CrossProcessCounterfactualPredictorEngine.js")).crossProcessCounterfactualPredictor;
+    case "xprocMediation": return _xprocMediation ??= (await import("../../engines/CrossProcessMediationAnalyzerEngine.js")).crossProcessMediationAnalyzer;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -187,6 +192,18 @@ const ACTIONS = [
   // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
   "xproc_safety_verify",
   "xproc_safety_escalate",
+  // XPROC-NEURAL Tier 9 (T9-01) — Causal Graph Learner
+  "xproc_causal_learn_dag",
+  "xproc_causal_test_independence",
+  "xproc_causal_export_graph",
+  // XPROC-NEURAL Tier 9 (T9-02) — Do-Calculus
+  "xproc_do_identify",
+  "xproc_do_intervene",
+  // XPROC-NEURAL Tier 9 (T9-03) — Counterfactual Predictor
+  "xproc_counterfactual_query",
+  // XPROC-NEURAL Tier 9 (T9-04) — Mediation Analyzer
+  "xproc_mediation_decompose",
+  "xproc_mediation_path_strength",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -648,6 +665,15 @@ export function registerIntelligenceDispatcher(server: any): void {
           // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
           xproc_safety_verify: "xprocSafetyVerifier",
           xproc_safety_escalate: "xprocSafetyVerifier",
+          // XPROC-NEURAL Tier 9 (T9-01..T9-04) — Causal Inference Suite
+          xproc_causal_learn_dag: "xprocCausalLearner",
+          xproc_causal_test_independence: "xprocCausalLearner",
+          xproc_causal_export_graph: "xprocCausalLearner",
+          xproc_do_identify: "xprocDoCalculus",
+          xproc_do_intervene: "xprocDoCalculus",
+          xproc_counterfactual_query: "xprocCounterfactual",
+          xproc_mediation_decompose: "xprocMediation",
+          xproc_mediation_path_strength: "xprocMediation",
         };
 
         const engineName = CORE_ROUTING[action];
