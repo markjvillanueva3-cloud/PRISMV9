@@ -43,7 +43,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocBayesianMLP: any, _xprocConformal: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
-    _xprocMAMLLite: any, _xprocProtoNet: any;
+    _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -99,6 +99,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocFedScheduler": return _xprocFedScheduler ??= (await import("../../engines/CrossProcessClientSelectionSchedulerEngine.js")).crossProcessClientSelectionScheduler;
     case "xprocMAMLLite": return _xprocMAMLLite ??= (await import("../../engines/CrossProcessMAMLLiteEngine.js")).crossProcessMAMLLite;
     case "xprocProtoNet": return _xprocProtoNet ??= (await import("../../engines/CrossProcessPrototypicalNetEngine.js")).crossProcessPrototypicalNet;
+    case "xprocLearnedLR": return _xprocLearnedLR ??= (await import("../../engines/CrossProcessLearnedLRSchedulerEngine.js")).crossProcessLearnedLRScheduler;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -397,6 +398,10 @@ const ACTIONS = [
   "xproc_proto_classify",
   "xproc_proto_regress",
   "xproc_proto_constants",
+  // XPROC-NEURAL Tier 7 (T7-03) — Learned LR scheduler (Adam + sign-consistency)
+  "xproc_meta_lr_init",
+  "xproc_meta_lr_step",
+  "xproc_meta_lr_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1000,6 +1005,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_proto_classify: "xprocProtoNet",
           xproc_proto_regress: "xprocProtoNet",
           xproc_proto_constants: "xprocProtoNet",
+          // XPROC-NEURAL Tier 7 (T7-03) — Learned LR scheduler
+          xproc_meta_lr_init: "xprocLearnedLR",
+          xproc_meta_lr_step: "xprocLearnedLR",
+          xproc_meta_lr_constants: "xprocLearnedLR",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
