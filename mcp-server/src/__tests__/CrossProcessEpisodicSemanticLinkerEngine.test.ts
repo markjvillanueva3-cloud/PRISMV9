@@ -81,6 +81,9 @@ describe("input validation", () => {
       ],
     });
     expect(r.enriched).toEqual([]);
+    // Exactly one warning (Zod issues are joined into a single semicolon-
+    // separated message by the engine, so length is exactly 1 — not "≥ 1")
+    expect(r.warnings.length).toBe(1);
     expect(r.warnings[0]).toMatch(/tips\.0\.body/);
   });
 });
