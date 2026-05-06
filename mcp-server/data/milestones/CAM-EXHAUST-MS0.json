@@ -4668,7 +4668,7 @@
       "title": "Monitoring Dashboard â€” AI Health",
       "phase": "PHASE-8",
       "type": "infrastructure",
-      "status": "not_started",
+      "status": "completed",
       "description": "Monitoring dashboard for CAM AI health. Inference latency, accuracy drift, error rates, resource utilization.",
       "entry_conditions": [
         "U-CAM122 complete"
@@ -4687,6 +4687,15 @@
         "SCRUTINIZE",
         "GAP FILL",
         "TIE UP"
+      ],
+      "completed_at": "2026-05-06T01:56:57.027Z",
+      "deliverables_actual": [
+        "mcp-server/src/routes/cam.ts (+6 cam_serve_* HTTP routes)",
+        "mcp-server/web/src/api/camServe.ts (typed API client, 6 read-only methods)",
+        "mcp-server/web/src/data/camAiAlerts.ts (5 SLO-backed thresholds + classifyHealth/classifyFleet)",
+        "mcp-server/web/src/pages/cam-ai-dashboard.tsx (5-tab operator dashboard, 470 lines)",
+        "mcp-server/web/src/__tests__/cam-ai-dashboard.test.tsx (16 tests, all passing)",
+        "mcp-server/web/src/App.tsx (lazy import + secure('lead') route at /cam-ai-dashboard)"
       ]
     },
     {
