@@ -41,7 +41,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocQLearning: any, _xprocBandit: any,
     _xprocBayesianMLP: any, _xprocConformal: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
-    _xprocFedAvg: any, _xprocSecureAgg: any;
+    _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -92,6 +92,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
     case "xprocSecureAgg": return _xprocSecureAgg ??= (await import("../../engines/CrossProcessSecureAggregationEngine.js")).crossProcessSecureAggregation;
+    case "xprocDriftFed": return _xprocDriftFed ??= (await import("../../engines/CrossProcessDriftAwareFederationEngine.js")).crossProcessDriftAwareFederation;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -360,6 +361,10 @@ const ACTIONS = [
   "xproc_secure_unmask",
   "xproc_secure_verify",
   "xproc_secure_constants",
+  // XPROC-NEURAL Tier 6 (T6-03) — Drift-aware federation gate (composes T3-02 + T6-01)
+  "xproc_fed_gate",
+  "xproc_fed_drift_report",
+  "xproc_fed_drift_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -940,6 +945,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_secure_unmask: "xprocSecureAgg",
           xproc_secure_verify: "xprocSecureAgg",
           xproc_secure_constants: "xprocSecureAgg",
+          // XPROC-NEURAL Tier 6 (T6-03) — Drift-aware federation gate
+          xproc_fed_gate: "xprocDriftFed",
+          xproc_fed_drift_report: "xprocDriftFed",
+          xproc_fed_drift_constants: "xprocDriftFed",
         };
 
         const engineName = CORE_ROUTING[action];
