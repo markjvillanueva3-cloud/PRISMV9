@@ -13,6 +13,18 @@
         ]
       },
       {
+        "_comment": "P8-U06: block z.any() reintroduction in **/schemas/*.ts files",
+        "matcher": "^(Write|Edit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism-iooms0/.claude/hooks/zany-reintroduction-block.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
         "matcher": "^(Write|Edit|MultiEdit)$",
         "hooks": [
           {
