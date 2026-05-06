@@ -43,7 +43,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
-    _xprocModalityDropout: any, _xprocVisionFusion: any, _xprocTimeSeriesFusion: any;
+    _xprocModalityDropout: any, _xprocVisionFusion: any, _xprocTimeSeriesFusion: any,
+    _xprocAudioFusion: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -103,6 +104,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocModalityDropout": return _xprocModalityDropout ??= (await import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js")).crossProcessModalityDropoutRobustifier;
     case "xprocVisionFusion": return _xprocVisionFusion ??= (await import("../../engines/CrossProcessVisionTabularFusionEngine.js")).crossProcessVisionTabularFusion;
     case "xprocTimeSeriesFusion": return _xprocTimeSeriesFusion ??= (await import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js")).crossProcessTimeSeriesTabularFusion;
+    case "xprocAudioFusion": return _xprocAudioFusion ??= (await import("../../engines/CrossProcessAudioTabularFusionEngine.js")).crossProcessAudioTabularFusion;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -410,6 +412,11 @@ const ACTIONS = [
   "xproc_timeseries_fuse",
   "xproc_timeseries_segment",
   "xproc_timeseries_constants",
+  // XPROC-NEURAL Tier 10 (T10-03) — Audio-tabular GMU fusion + FFT + chatter score
+  "xproc_audio_fuse",
+  "xproc_audio_chatter_score",
+  "xproc_audio_spectral",
+  "xproc_audio_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1029,6 +1036,11 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_timeseries_fuse: "xprocTimeSeriesFusion",
           xproc_timeseries_segment: "xprocTimeSeriesFusion",
           xproc_timeseries_constants: "xprocTimeSeriesFusion",
+          // XPROC-NEURAL Tier 10 (T10-03) — Audio-tabular GMU fusion + FFT + chatter
+          xproc_audio_fuse: "xprocAudioFusion",
+          xproc_audio_chatter_score: "xprocAudioFusion",
+          xproc_audio_spectral: "xprocAudioFusion",
+          xproc_audio_constants: "xprocAudioFusion",
         };
 
         const engineName = CORE_ROUTING[action];
