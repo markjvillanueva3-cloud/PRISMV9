@@ -446,10 +446,13 @@ describe("U-CAM126: docs/cam-ai/ behavior validation", () => {
 
   // Strips // line comments and extracts top-level (depth-1) object keys
   // from the argument to a function call. Returns null if the call is
-  // not present in `block`. Handles nested objects correctly (only
-  // returns keys at the call's argument depth).
+  // not present in `block`. Handles:
+  //   - nested objects/arrays — only returns keys at the call's argument depth
+  //   - both `,` and `;` separators (interface body uses `;`, object literal `,`)
+  //   - newline as an implicit separator (resets the key buffer)
+  //   - string literals (single, double, backtick) — content inside is ignored
+  //   - line comments (stripped before parsing)
   function extractTopLevelKeys(block: string, callRegex: RegExp): string[] | null {
-    // Strip line comments line-by-line.
     const lines = block.split("\n").map((l) => {
       const idx = l.indexOf("//");
       return idx >= 0 ? l.slice(0, idx) : l;
@@ -457,33 +460,47 @@ describe("U-CAM126: docs/cam-ai/ behavior validation", () => {
     const stripped = lines.join("\n");
     const m = callRegex.exec(stripped);
     if (m === null) return null;
-    // Find the opening `{` after the match end and walk until matching `}`.
     let i = m.index + m[0].length;
     while (i < stripped.length && stripped[i] !== "{") i++;
     if (i >= stripped.length) return null;
     const start = i + 1;
     let depth = 1;
     i++;
+    // Walk to the matching close brace, respecting strings.
+    let inStr: string | null = null;
     while (i < stripped.length && depth > 0) {
       const c = stripped[i];
-      if (c === "{") depth++;
-      else if (c === "}") depth--;
+      if (inStr !== null) {
+        if (c === "\\") { i += 2; continue; }
+        if (c === inStr) inStr = null;
+      } else if (c === "\"" || c === "'" || c === "`") {
+        inStr = c;
+      } else if (c === "{" || c === "[") {
+        depth++;
+      } else if (c === "}" || c === "]") {
+        depth--;
+      }
       if (depth > 0) i++;
     }
     const argBody = stripped.slice(start, i);
-    // Now extract keys at the OUTERMOST depth only — walk the argBody and
-    // record `(\w+)?:` matches that occur at depth 0 within argBody itself.
+
     const keys: string[] = [];
     let d = 0;
     let buf = "";
+    let str: string | null = null;
     for (let k = 0; k < argBody.length; k++) {
       const c = argBody[k];
-      if (c === "{") { if (d === 0) { /* about to nest a value */ } d++; buf = ""; continue; }
-      if (c === "}") { d--; buf = ""; continue; }
-      if (c === "[") { d++; buf = ""; continue; }
-      if (c === "]") { d--; buf = ""; continue; }
+      if (str !== null) {
+        if (c === "\\") { k++; continue; }
+        if (c === str) str = null;
+        continue;
+      }
+      if (c === "\"" || c === "'" || c === "`") { str = c; buf = ""; continue; }
+      if (c === "{" || c === "[") { d++; buf = ""; continue; }
+      if (c === "}" || c === "]") { d--; buf = ""; continue; }
       if (d !== 0) continue;
-      if (c === ",") { buf = ""; continue; }
+      // Separators that end a key/value pair at the outermost depth:
+      if (c === "," || c === ";" || c === "\n") { buf = ""; continue; }
       if (c === ":") {
         const name = buf.trim().replace(/\?$/, "");
         if (/^\w+$/.test(name)) keys.push(name);
@@ -541,11 +558,12 @@ describe("U-CAM126: docs/cam-ai/ behavior validation", () => {
         expChecked++;
       }
     }
-    // Doc must have at least one example of each — guards against silent
-    // example removal that would let the parity test become a no-op.
-    expect(corrChecked).toBeGreaterThanOrEqual(1);
-    expect(outChecked).toBeGreaterThanOrEqual(1);
-    expect(expChecked).toBeGreaterThanOrEqual(1);
+    // Exact counts — lora-training.md ships exactly one example block of each kind.
+    // If a future edit adds another, this assertion forces the test to be updated
+    // alongside (rather than silently letting the parity check become broader).
+    expect(corrChecked).toBe(1);
+    expect(outChecked).toBe(1);
+    expect(expChecked).toBe(1);
   });
 
   it("model-serving.md TypeScript example blocks use real ModelSpec / RouteRequest / MetricSample fields", () => {
@@ -591,9 +609,10 @@ describe("U-CAM126: docs/cam-ai/ behavior validation", () => {
         metricChecked++;
       }
     }
-    expect(specChecked).toBeGreaterThanOrEqual(1);
-    expect(routeChecked).toBeGreaterThanOrEqual(1);
-    expect(metricChecked).toBeGreaterThanOrEqual(1);
+    // Exact counts — model-serving.md ships one block of each kind.
+    expect(specChecked).toBe(1);
+    expect(routeChecked).toBe(1);
+    expect(metricChecked).toBe(1);
   });
 
   // ── architecture.md API table parity ─────────────────────────────────
