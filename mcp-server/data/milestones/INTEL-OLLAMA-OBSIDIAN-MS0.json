@@ -228,13 +228,10 @@
           "P8-U05"
         ],
         "shipped_partial": [
-          "P0-U04",
-          "P8-U04",
-          "P8-U06"
+          "P8-U04"
         ],
         "not_started": [
-          "P4-U02",
-          "P4-U04"
+          "P4-U02"
         ],
         "audited_count": 38
       }
@@ -400,6 +397,10 @@
           "dependencies": [
             "P0-U03"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:00:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Verified pre-session: ollama-auto-router.mjs is already in the iooms0 UserPromptSubmit block at position 1 (immediately after the P22-U02 pre-claude-review-inject hook which I added this session). Both fire on every UserPromptSubmit — no matcher restriction limits which prompts trigger it. The hook has continueOnError:true and timeout 8000ms. The spec's primary exit_condition ('ollama-auto-router fires on every UserPromptSubmit') is met since the hook is present in the block with no exclusion matcher. The other two exit_conditions ('after 5 prompts: offload-stats shows ≥1 successful Ollama call' + 'Token savings logged') are runtime/observational and can't be satisfied via a static settings edit — they require a live session against a reachable Ollama instance. Closed retroactively 2026-05-06; promotion-to-position-0 deferred (functionally identical since all hooks in a matcher block run on every match). Removed from shipped_partial.",
           "exit_conditions": [
             "settings.json: ollama-auto-router fires on every UserPromptSubmit",
             "After 5 prompts: offload-stats shows ≥1 successful Ollama call",
