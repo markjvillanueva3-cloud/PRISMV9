@@ -33,7 +33,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any,
     _xprocTierRouter: any, _xprocOrchestrator: any,
     _xprocRuleExtracted: any, _xprocFormulaNeural: any,
-    _xprocEpisodicMemory: any;
+    _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
+    _xprocReplaySampler: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -67,6 +68,8 @@ async function getEngine(name: string): Promise<any> {
     case "xprocRuleExtracted": return _xprocRuleExtracted ??= (await import("../../engines/CrossProcessRuleExtractedNeuralInferenceEngine.js")).crossProcessRuleExtractedNeuralInference;
     case "xprocFormulaNeural": return _xprocFormulaNeural ??= (await import("../../engines/CrossProcessFormulaNeuralEnsembleEngine.js")).crossProcessFormulaNeuralEnsemble;
     case "xprocEpisodicMemory": return _xprocEpisodicMemory ??= (await import("../../engines/CrossProcessEpisodicMemoryEngine.js")).crossProcessEpisodicMemory;
+    case "xprocPrioritizedReplay": return _xprocPrioritizedReplay ??= (await import("../../engines/CrossProcessPrioritizedReplayEngine.js")).crossProcessPrioritizedReplay;
+    case "xprocReplaySampler": return _xprocReplaySampler ??= (await import("../../engines/CrossProcessExperienceReplaySamplerEngine.js")).crossProcessExperienceReplaySampler;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -245,6 +248,14 @@ const ACTIONS = [
   "xproc_episodic_store",
   "xproc_episodic_recall",
   "xproc_episodic_stats",
+  // XPROC-NEURAL Tier 2 (T2-02) — Prioritized Experience Replay (Schaul 2016)
+  "xproc_replay_add",
+  "xproc_replay_sample",
+  "xproc_replay_update_priority",
+  "xproc_replay_stats",
+  // XPROC-NEURAL Tier 2 (T2-03) — Stratified Replay Sampler (process×material×outcome)
+  "xproc_replay_balanced_batch",
+  "xproc_replay_default_clusters",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -735,6 +746,14 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_episodic_store: "xprocEpisodicMemory",
           xproc_episodic_recall: "xprocEpisodicMemory",
           xproc_episodic_stats: "xprocEpisodicMemory",
+          // XPROC-NEURAL Tier 2 (T2-02) — Prioritized Experience Replay
+          xproc_replay_add: "xprocPrioritizedReplay",
+          xproc_replay_sample: "xprocPrioritizedReplay",
+          xproc_replay_update_priority: "xprocPrioritizedReplay",
+          xproc_replay_stats: "xprocPrioritizedReplay",
+          // XPROC-NEURAL Tier 2 (T2-03) — Stratified Replay Sampler
+          xproc_replay_balanced_batch: "xprocReplaySampler",
+          xproc_replay_default_clusters: "xprocReplaySampler",
         };
 
         const engineName = CORE_ROUTING[action];
