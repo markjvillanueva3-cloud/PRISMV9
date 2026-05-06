@@ -115,11 +115,20 @@ interface CapturedTool {
 let dispatchHandler: CapturedTool["handler"];
 
 async function dispatch(action: string, params: Record<string, unknown> = {}) {
-  const res = await dispatchHandler({ action, params });
+  // Robust against handler shape evolution: handler may throw, omit content,
+  // or return `{isError, content}` on error. Surface a uniform envelope so
+  // tests can assert success/error without crashing on missing fields.
+  let res: { content?: Array<{ text?: string }> };
   try {
-    return JSON.parse(res.content[0]?.text ?? "") as Record<string, unknown>;
+    res = await dispatchHandler({ action, params });
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err) } as Record<string, unknown>;
+  }
+  const text = res.content?.[0]?.text ?? "";
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
   } catch {
-    return {} as Record<string, unknown>;
+    return { success: false, __raw: text } as Record<string, unknown>;
   }
 }
 
@@ -201,8 +210,31 @@ describe("U-CAUT12 / router lifecycle round-trip", () => {
 });
 
 describe("U-CAUT12 / MCP dispatcher pass-through", () => {
-  it("prism_cad_automation exposes exactly 14 actions", () => {
-    expect(CAD_AUTOMATION_ACTIONS.length).toBe(14);
+  it("prism_cad_automation exposes at least the 14 canonical actions (anti-regression floor)", () => {
+    // Later units added AI/planner/decomposer actions on top of the original 14.
+    // The invariant we care about is that the canonical surface never shrinks
+    // below the U-CAUT11 baseline. The exact count is allowed to grow.
+    expect(CAD_AUTOMATION_ACTIONS.length).toBeGreaterThanOrEqual(14);
+  });
+
+  it("CAD_AUTOMATION_ACTIONS contains every original U-CAUT11 canonical name", () => {
+    const canonical: readonly string[] = [
+      "route",
+      "list_supported_extensions",
+      "supports_extension",
+      "open",
+      "close",
+      "get_geometry",
+      "get_operation_tree",
+      "get_toolpaths",
+      "export_step",
+      "mock_geometry",
+      "mock_operation_tree",
+      "mock_toolpaths",
+      "mock_fingerprint",
+      "mock_all_fingerprints",
+    ];
+    for (const a of canonical) expect(CAD_AUTOMATION_ACTIONS).toContain(a);
   });
 
   it("route through the dispatcher for every corpus file", async () => {
