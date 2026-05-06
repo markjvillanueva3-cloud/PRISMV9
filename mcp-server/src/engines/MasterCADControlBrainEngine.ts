@@ -575,6 +575,63 @@ export class MasterCADControlBrainEngine {
   > {
     return listAllCapabilities();
   }
+
+  /**
+   * Neural-link entry to the CAD-FUSION-LIVE-MS0 training surface.
+   *
+   * Given an inferred part class, returns the class-typical feature
+   * decomposition + predicted visual fidelity for a planned feature set.
+   * The CAD master brain calls this BEFORE dispatching a live build so it
+   * can refuse builds whose predicted fidelity is below threshold.
+   *
+   * Wires the master brain to the corpus → library → live-bridge pipeline:
+   *   CADClassFeatureLibraryEngine.templateFor(class) →
+   *   CADClassFeatureLibraryEngine.predictVisualFidelity(class, plan) →
+   *   CADClassFeatureLibraryEngine.buildSequenceFor(class, threshold)
+   *
+   * @param partClass - PartClass identifier from BlueprintVisionOCREngine
+   * @param plannedFeatureKinds - features the orchestrator intends to build
+   * @param prevalenceThreshold - inclusion threshold for build sequence (default 0.5)
+   * @returns visual-fidelity prediction + recommended build sequence
+   */
+  async cadAITrainingSurface(
+    partClass: string,
+    plannedFeatureKinds: ReadonlyArray<string>,
+    prevalenceThreshold = 0.5,
+  ): Promise<{
+    template_present: boolean;
+    template_total: number;
+    predicted_fidelity: number;
+    missing_features: ReadonlyArray<string>;
+    recommended_build_sequence: ReadonlyArray<string>;
+    visual_fidelity_notes: ReadonlyArray<string>;
+  }> {
+    const { cadClassFeatureLibraryEngine } = await import("./CADClassFeatureLibraryEngine.js");
+    const tmpl = cadClassFeatureLibraryEngine.templateFor(partClass as never);
+    if (!tmpl) {
+      return {
+        template_present: false,
+        template_total: 0,
+        predicted_fidelity: 0,
+        missing_features: [],
+        recommended_build_sequence: [],
+        visual_fidelity_notes: [`No template for part_class "${partClass}" — system has no learned visual-fidelity model for this class yet.`],
+      };
+    }
+    const prediction = cadClassFeatureLibraryEngine.predictVisualFidelity(
+      partClass as never,
+      plannedFeatureKinds as never,
+    );
+    const sequence = cadClassFeatureLibraryEngine.buildSequenceFor(partClass as never, prevalenceThreshold);
+    return {
+      template_present: true,
+      template_total: prediction.template_total,
+      predicted_fidelity: prediction.score,
+      missing_features: prediction.missing.map((f) => f.kind),
+      recommended_build_sequence: sequence.map((f) => f.kind),
+      visual_fidelity_notes: tmpl.visual_fidelity_notes,
+    };
+  }
 }
 
 /** Singleton for dispatcher + direct callers. */

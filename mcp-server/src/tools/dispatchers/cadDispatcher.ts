@@ -204,6 +204,14 @@ const ACTIONS = [
   "gear_compute_geometry", "gear_generate_tooth_profile", "gear_compute_contact_ratio",
   // Helical Spring Engine (U-CADC16)
   "spring_compute_geometry", "spring_compute_mechanics", "spring_compute_stress_at_force", "spring_generate_coil_path",
+  // CAD-FUSION-LIVE-MS0 training surface (U-CAD-CORPUS-PHASE1..8)
+  "cad_corpus_ingest", "cad_corpus_load_manifest", "cad_corpus_find_by_class", "cad_corpus_summarize",
+  "cad_corpus_mine_patterns", "cad_corpus_recover_unclassified",
+  "cad_class_template", "cad_class_predict_fidelity", "cad_class_build_sequence",
+  "cad_corpus_learn_prevalence", "cad_corpus_apply_learned",
+  "cad_step_parse_file", "cad_step_parse_string", "cad_step_evidence_for_kinds",
+  "cad_blueprint_infer_class", "cad_blueprint_flag_features",
+  "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1654,6 +1662,147 @@ Params vary by action — pass relevant fields in params object.`,
               { samplesPerCoil: params.samplesPerCoil }
             );
             result = { success: true, path };
+            break;
+          }
+          // ── CAD-FUSION-LIVE-MS0 training surface (U-CAD-CORPUS-PHASE1..8) ──
+          case "cad_corpus_ingest": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const manifest = cadCorpusIngestionEngine.ingestDirectory(params.root, {
+              max_depth: params.max_depth,
+              max_files: params.max_files,
+              skip_segments: params.skip_segments,
+              extensions: params.extensions,
+            });
+            if (params.save_to) cadCorpusIngestionEngine.saveManifest(manifest, params.save_to);
+            result = { success: true, data: manifest };
+            break;
+          }
+          case "cad_corpus_load_manifest": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const manifest = cadCorpusIngestionEngine.loadManifest(params.path);
+            result = { success: manifest !== null, data: manifest };
+            break;
+          }
+          case "cad_corpus_find_by_class": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const manifest = cadCorpusIngestionEngine.loadManifest(params.manifest_path);
+            if (!manifest) { result = { success: false, error: "manifest not found" }; break; }
+            const matches = cadCorpusIngestionEngine.findByClass(manifest, params.part_class, params.limit ?? 50);
+            result = { success: true, data: { matches, count: matches.length } };
+            break;
+          }
+          case "cad_corpus_summarize": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const manifest = cadCorpusIngestionEngine.loadManifest(params.manifest_path);
+            if (!manifest) { result = { success: false, error: "manifest not found" }; break; }
+            result = { success: true, data: cadCorpusIngestionEngine.summarize(manifest) };
+            break;
+          }
+          case "cad_corpus_mine_patterns": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const { cadCorpusPatternEngine } = await import("../../engines/CADCorpusPatternEngine.js");
+            const manifest = cadCorpusIngestionEngine.loadManifest(params.manifest_path);
+            if (!manifest) { result = { success: false, error: "manifest not found" }; break; }
+            result = { success: true, data: cadCorpusPatternEngine.mine(manifest) };
+            break;
+          }
+          case "cad_corpus_recover_unclassified": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const { cadCorpusPatternEngine } = await import("../../engines/CADCorpusPatternEngine.js");
+            const manifest = cadCorpusIngestionEngine.loadManifest(params.manifest_path);
+            if (!manifest) { result = { success: false, error: "manifest not found" }; break; }
+            const recovered = cadCorpusPatternEngine.recoverUnclassified(manifest);
+            const updated = cadCorpusPatternEngine.applyRecoveries(manifest, recovered);
+            result = { success: true, data: { recovered_count: recovered.length, recovered, updated_manifest: updated } };
+            break;
+          }
+          case "cad_class_template": {
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            const tmpl = cadClassFeatureLibraryEngine.templateFor(params.part_class);
+            result = { success: tmpl !== null, data: tmpl };
+            break;
+          }
+          case "cad_class_predict_fidelity": {
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            const prediction = cadClassFeatureLibraryEngine.predictVisualFidelity(
+              params.part_class,
+              params.planned_feature_kinds ?? [],
+            );
+            result = { success: true, data: prediction };
+            break;
+          }
+          case "cad_class_build_sequence": {
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            const seq = cadClassFeatureLibraryEngine.buildSequenceFor(params.part_class, params.prevalence_threshold ?? 0.5);
+            result = { success: true, data: { sequence: seq, count: seq.length } };
+            break;
+          }
+          case "cad_corpus_learn_prevalence": {
+            const { cadCorpusIngestionEngine } = await import("../../engines/CADCorpusIngestionEngine.js");
+            const { cadCorpusFeaturePrevalenceLearnerEngine } = await import("../../engines/CADCorpusFeaturePrevalenceLearnerEngine.js");
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            const manifest = cadCorpusIngestionEngine.loadManifest(params.manifest_path);
+            if (!manifest) { result = { success: false, error: "manifest not found" }; break; }
+            const handTuned = cadClassFeatureLibraryEngine.classesCovered().map((cls: string) => {
+              const t = cadClassFeatureLibraryEngine.templateFor(cls as never);
+              return { part_class: cls as never, features: t?.features ?? [] };
+            }).filter((t) => t.features.length > 0);
+            const report = cadCorpusFeaturePrevalenceLearnerEngine.learnAll(manifest, handTuned, params.divergence_threshold ?? 0.2);
+            result = { success: true, data: report };
+            break;
+          }
+          case "cad_corpus_apply_learned": {
+            const { cadCorpusFeaturePrevalenceLearnerEngine } = await import("../../engines/CADCorpusFeaturePrevalenceLearnerEngine.js");
+            const blended = cadCorpusFeaturePrevalenceLearnerEngine.applyLearned(
+              params.hand_tuned_templates,
+              params.report,
+              params.smoothing_alpha ?? 0.7,
+            );
+            result = { success: true, data: { templates: blended, count: blended.length } };
+            break;
+          }
+          case "cad_step_parse_file": {
+            const { stepGeometryParserEngine } = await import("../../engines/STEPGeometryParserEngine.js");
+            result = { success: true, data: stepGeometryParserEngine.parseFile(params.file_path) };
+            break;
+          }
+          case "cad_step_parse_string": {
+            const { stepGeometryParserEngine } = await import("../../engines/STEPGeometryParserEngine.js");
+            result = { success: true, data: stepGeometryParserEngine.parseString(params.text, params.file_path) };
+            break;
+          }
+          case "cad_step_evidence_for_kinds": {
+            const { stepGeometryParserEngine } = await import("../../engines/STEPGeometryParserEngine.js");
+            const evidence = stepGeometryParserEngine.evidenceForFeatureKinds(params.geometry);
+            result = { success: true, data: { evidence: Array.from(evidence), count: evidence.size } };
+            break;
+          }
+          case "cad_blueprint_infer_class": {
+            const { blueprintVisionOCREngine } = await import("../../engines/BlueprintVisionOCREngine.js");
+            const cls = blueprintVisionOCREngine.inferPartClass(params.blueprint_result);
+            result = { success: true, data: { part_class: cls } };
+            break;
+          }
+          case "cad_blueprint_flag_features": {
+            const { blueprintVisionOCREngine } = await import("../../engines/BlueprintVisionOCREngine.js");
+            const flags = blueprintVisionOCREngine.flagExpectedFeatures(params.blueprint_result);
+            result = { success: true, data: { flags, count: flags.length } };
+            break;
+          }
+          case "cad_harvest_catalog": {
+            const { onlinePrintHarvestEngine } = await import("../../engines/OnlinePrintHarvestEngine.js");
+            result = { success: true, data: onlinePrintHarvestEngine.catalog() };
+            break;
+          }
+          case "cad_harvest_paired_sources": {
+            const { onlinePrintHarvestEngine } = await import("../../engines/OnlinePrintHarvestEngine.js");
+            const sources = onlinePrintHarvestEngine.pairedSourcesForTraining(params.part_class);
+            result = { success: true, data: { sources, count: sources.length } };
+            break;
+          }
+          case "cad_harvest_can_redistribute": {
+            const { onlinePrintHarvestEngine } = await import("../../engines/OnlinePrintHarvestEngine.js");
+            result = { success: true, data: { can_redistribute: onlinePrintHarvestEngine.canRedistribute(params.filter ?? {}) } };
             break;
           }
           default:
