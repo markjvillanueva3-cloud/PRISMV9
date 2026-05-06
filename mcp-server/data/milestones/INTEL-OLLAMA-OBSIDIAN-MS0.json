@@ -2312,6 +2312,10 @@
           "effort": 60,
           "dependencies": [],
           "rollback": "delete the 8 new skill files; preserved in git history",
+          "status": "completed",
+          "completed_at": "2026-05-06T16:50:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "All 8 skill .md files shipped under .claude/commands/: optimize-context.md (auto-slim trigger ≥70% budget, lists what gets slimmed in priority order), token-economy-report.md (4-category breakdown + top-3 waste pattern surface, wraps token-economy-session.json), vault-ingest.md (4 categories: tribal tips / formulas / decisions / notes, uses prism_memory:remember + embed-wiki-index refresh, dry-run default for >5 entries), qdrant-semantic-search.md (replaces /memory-search, exposes new wiki collection, --explain flag, --filter for arbitrary Qdrant predicates), enforce-handoff-topic.md (PreToolUse(Edit|Write) trigger, reads handoffs + chat-bus + file-claims, blocks/warns/clears based on heartbeat freshness), skill-sync-with-mcp.md (verifies skill→dispatcher action mapping, classifies orphan-skill/orphan-action/mistyped/bad-policy buckets), learned-patterns-apply.md (signature-bucket ledger rows, --apply with diff confirm, generates safety guards/hook tightenings/skill triggers/regression tests), context-delta.md (5 axes — git/files/hooks/tasks/decisions — since checkpoint, designed for resume sessions). Each carries a YAML policy block with tier + triggers per the P11-U01 frontmatter convention. Total ~390 lines of structured docs.",
           "exit_conditions": [
             "/optimize-context.md exists with policy frontmatter (auto-invoke on token >70%)",
             "/token-economy-report.md exists",
