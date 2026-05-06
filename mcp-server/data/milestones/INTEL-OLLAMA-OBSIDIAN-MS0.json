@@ -303,7 +303,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-06T13:52:01.414Z",
+          "completed_by": "claude-iooms0-p0",
+          "notes": "Already shipped in code: QdrantMemoryEngineSingleton (auto-injects Ollama nomic-embed-text on first getInstance(), 768-dim, throws on misconfiguration), OllamaEmbedderFactory, .claude/hooks/embedder-inject-qdrant.mjs SessionStart pre-flight (Ollama reachable check + /api/embed round-trip + 768-dim assertion + non-finite guard, never blocks Stop). Wired into iooms0/.claude/settings.json SessionStart block this session (timeout 8s, continueOnError true). Live smoke test: hook emitted {Qdrant embedder ready, model: nomic-embed-text, dim: 768}. QdrantEmbedderInjection.test.ts + MemorySemanticSearch.test.ts together: 33 PASS / 0 FAIL."
         },
         {
           "id": "P0-U02",
@@ -344,7 +348,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID) | git revert; old schema preserved in git history"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID) | git revert; old schema preserved in git history",
+          "status": "completed",
+          "completed_at": "2026-05-06T13:52:01.414Z",
+          "completed_by": "claude-iooms0-p0",
+          "notes": "Already shipped in code: memoryDispatcher.ts z.enum includes \"semantic_search\" (line 66), case body lazy-imports QdrantMemoryEngine + ensureQdrantEmbedder, validates non-empty query, clamps limit to [1, 100], applies optional threshold filter on score, returns {success, data: {kind, query, limit, threshold, hits, items}}. Schema in memoryActionSchemas.ts: SEMANTIC_KIND_VALUES enum + semantic_search Zod schema with {query: string min(1), kind?: SemanticKind, limit?: int 1-100, threshold?: number, filter?: record}. MemorySemanticSearch.test.ts asserts dispatcher round-trip with mocked engine — passes (bundled in 33 PASS sweep above)."
         },
         {
           "id": "P0-U03",
@@ -375,7 +383,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete"
+          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete",
+          "status": "completed",
+          "completed_at": "2026-05-06T13:52:01.414Z",
+          "completed_by": "claude-iooms0-p0",
+          "notes": "Already shipped in code: scripts/ollama-offload-dashboard.mjs (--json/--window/--reset flags, advisory generator), mcp-server/data/state/ollama-offload-stats.json schemaVersion 2.0.0 with totals + perHook fire counts + recentEvents. CLAUDE.md OLLAMA OFFLOAD DASHBOARD section documents the read protocol (resetAt baseline, 24h rolling window, advisory thresholds: offload rate ≥30% target). Live verification on this lane: dashboard runs, returns valid JSON, shows expected empty-state advisory (no events since 2026-05-01 reset)."
         },
         {
           "id": "P0-U04",

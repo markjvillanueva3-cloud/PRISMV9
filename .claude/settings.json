@@ -750,6 +750,12 @@
             "command": "node H:/prism/.claude/hooks/doc-freshness-check.mjs",
             "timeout": 2500,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/embedder-inject-qdrant.mjs",
+            "timeout": 8000,
+            "continueOnError": true
           }
         ]
       },
