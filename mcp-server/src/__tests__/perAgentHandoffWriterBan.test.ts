@@ -96,7 +96,10 @@ describe("per-agent-handoff.mjs writer-ban (INFRA-HANDOFF-MS0/U-WRITER-BAN)", ()
     // misleading negatives.
     const r = runHelper(["register", "--terminal", TEST_TERMINAL, "--agent-family", "Claude"]);
     expect(r.ok, `register failed: ${r.raw}`).toBe(true);
-    expect(r.session?.id, "register must return a session id").toBeTypeOf("string");
+    // Helper preserves the "claude-" prefix verbatim — instance id equals the
+    // terminal name when terminal already starts with "claude-" (no double-prefix).
+    expect(r.session?.id).toBe(TEST_TERMINAL);
+    expect(r.session?.terminal).toBe(TEST_TERMINAL);
     expect(r.session?.family).toBe("Claude");
   });
 
