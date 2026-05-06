@@ -1127,6 +1127,10 @@
           "dependencies": [
             "P0-U02"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T16:33:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: mcp-server/scripts/embed-wiki-index.mjs (108 lines, builds TF-IDF index from H:/prism/knowledge/wiki/index.md (727 entries) and persists to mcp-server/data/state/wiki-query-index.json with --stats and --check modes for cache-freshness checks). WikiIndexQueryEngine wired into prism_memory dispatcher; queries served via prism_memory:semantic_search with kind:'wiki'. Tests: WikiQueryBridge.dispatcher.test.ts 12/12 green. Path differs from spec (scripts/ vs mcp-server/scripts/) but is more correct — engine is mcp-server-scoped. Closed retroactively 2026-05-06 after dispatcher round-trip verification.",
           "exit_conditions": [
             "Existing 722-entry wiki/index.md exposed via prism_memory:semantic_search 'wiki' kind",
             "Hook fires when prompt has 'wiki' or general-knowledge intent",
@@ -1914,6 +1918,10 @@
           "title": "TokenEconomyEngine end-of-session report",
           "effort": 50,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T16:37:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: .claude/hooks/token-economy-report.mjs (291 lines) Stop hook tracks 4 categories (hooks/injections/tool_calls/file_reads), writes mcp-server/data/state/token-economy-session.json with timestamps + token estimates, surfaces top-3 waste patterns to stderr as advisory output (non-blocking via continueOnError:true). Records `estimated:true` flag when session counters are unavailable so downstream dashboards know rows are incomplete. Tests: TokenEconomyReportHook.test.ts 13/13 green. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "Stop hook generates session token report by category (hooks, injections, tool-calls, file-reads)",
             "Report written to data/state/token-economy-session.json",
