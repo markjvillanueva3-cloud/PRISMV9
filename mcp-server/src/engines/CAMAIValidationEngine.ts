@@ -625,59 +625,53 @@ function scenarioCalibrationInvalidConfidence(): ValidationScenarioResult {
 async function scenarioReasoningChainDecideRoundTrip(): Promise<ValidationScenarioResult> {
   const t0 = Date.now();
   resetAllState();
-  // Inject a deterministic orchestrator so decide() returns a known result
-  // (the real CAMDeepLearningOrchestratorEngine with all sources disabled
-  // returns confidence=0/escalate=true; that path is also valid but a
-  // tighter scenario uses an injected adapter for full coverage).
-  CAMReasoningChainEngine.setOrchestrator({
-    async decide<V>(task) {
-      return {
-        task,
-        value: { strategy: "trochoidal" } as V,
-        confidence: 0.42,
-        escalateToHuman: false,
-        rationale: "validation orchestrator stub",
-        voices: [],
-        totalLatencyMs: 0,
-        agreeingSources: [],
-        dissentingSources: [],
-      };
-    },
-  });
+  // Use the production orchestrator path (CAMDeepLearningOrchestratorEngine
+  // via productionOrchestratorAdapter). With all four sources disabled, the
+  // real orchestrator deterministically returns confidence=0,
+  // escalateToHuman=true, value=null. That is a real (non-mocked)
+  // execution path documented in CAMDeepLearningOrchestratorEngine.ts —
+  // exactly the deterministic test fixture the engine docs reference
+  // (architecture.md §Determinism).
   const result = await CAMReasoningChainEngine.decide<{ strategy: string }>(
     TASK,
     "validation_chain_1: hypermill thin-wall finishing strategy",
+    { disableSources: ["physics", "ollama", "nvidia", "tribal"] },
   );
-  // decide returns { decision, chain } — chainId lives on chain.
   const chainId = result.chain.chainId;
   const fetched = CAMReasoningChainEngine.getChain(chainId);
   const expected = {
     chainId_present: true,
-    confidence: 0.42,
     chain_round_trips: true,
+    deterministic_no_consensus: { confidence: 0, escalate: true, value_is_null: true },
   };
   const actual = {
     chainId_present: typeof chainId === "string" && chainId.length > 0,
-    confidence: result.decision.confidence,
     chain_round_trips: fetched?.chainId === chainId,
+    deterministic_no_consensus: {
+      confidence: result.decision.confidence,
+      escalate: result.decision.escalateToHuman,
+      value_is_null: result.decision.value === null,
+    },
   };
   const dur = Date.now() - t0;
   if (
     actual.chainId_present &&
-    actual.confidence === 0.42 &&
-    actual.chain_round_trips
+    actual.chain_round_trips &&
+    actual.deterministic_no_consensus.confidence === 0 &&
+    actual.deterministic_no_consensus.escalate === true &&
+    actual.deterministic_no_consensus.value_is_null === true
   ) {
     return passResult(
       "reasoning_chain_decide_round_trip",
-      "CAMReasoningChainEngine.decide() emits chainId; getChain() retrieves the same chain",
+      "CAMReasoningChainEngine.decide() with all sources disabled returns deterministic no-consensus AGIDecision; chainId round-trips through getChain()",
       "calibration", expected, actual, dur,
     );
   }
   return failResult(
     "reasoning_chain_decide_round_trip",
-    "CAMReasoningChainEngine.decide() emits chainId; getChain() retrieves the same chain",
+    "CAMReasoningChainEngine.decide() with all sources disabled returns deterministic no-consensus AGIDecision; chainId round-trips through getChain()",
     "calibration", expected, actual, dur,
-    `expected chainId round-trip and confidence=0.42; got ${JSON.stringify(actual)}`,
+    `expected chainId round-trip and (confidence=0, escalate=true, value=null); got ${JSON.stringify(actual)}`,
   );
 }
 
@@ -753,6 +747,27 @@ export class CAMAIValidationEngine {
   }
 
   /**
+   * Pure aggregation helper — returns matched/total as a finite number
+   * in [0, 1], or 0 when total is 0. Exposed so boundary tests can
+   * verify the math directly with literal numeric inputs (without
+   * having to run synthetic scenarios through the harness).
+   */
+  static computeMatchRate(matchCount: number, total: number): number {
+    if (total <= 0) return 0;
+    return matchCount / total;
+  }
+
+  /**
+   * Pure aggregation helper — returns "PASS" when match_rate ≥ threshold
+   * AND there is at least one scenario; otherwise "FAIL". An empty suite
+   * is always FAIL (defends against silent no-op pass).
+   */
+  static decideVerdict(matchRate: number, total: number): "PASS" | "FAIL" {
+    if (total <= 0) return "FAIL";
+    return matchRate >= PRODUCTION_READY_THRESHOLD ? "PASS" : "FAIL";
+  }
+
+  /**
    * Runs the validation suite and returns a structured report.
    * If `outputPath` is provided, also writes the report JSON to disk
    * (creating parent directories as needed).
@@ -771,7 +786,7 @@ export class CAMAIValidationEngine {
       if (r.verdict === "pass") matchCount++;
     }
     const total = results.length;
-    const matchRate = total === 0 ? 0 : matchCount / total;
+    const matchRate = CAMAIValidationEngine.computeMatchRate(matchCount, total);
 
     const categories: ScenarioCategory[] = [
       "gate", "lora", "drift", "transfer", "calibration", "serving", "feedback",
@@ -790,8 +805,7 @@ export class CAMAIValidationEngine {
       b.rate = b.total === 0 ? 0 : b.passed / b.total;
     }
 
-    const verdict: "PASS" | "FAIL" =
-      matchRate >= PRODUCTION_READY_THRESHOLD && total > 0 ? "PASS" : "FAIL";
+    const verdict = CAMAIValidationEngine.decideVerdict(matchRate, total);
 
     const report: ValidationReport = {
       schemaVersion: REPORT_SCHEMA_VERSION,

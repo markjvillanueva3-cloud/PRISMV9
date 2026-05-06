@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-06T14:33:57.630Z",
+  "generatedAt": "2026-05-06T14:50:55.036Z",
   "unitId": "U-CAM127",
   "engines_tested": [
     "CAMReasoningChainEngine",
@@ -17,18 +17,26 @@
   "scenarios": [
     {
       "id": "reasoning_chain_decide_round_trip",
-      "description": "CAMReasoningChainEngine.decide() emits chainId; getChain() retrieves the same chain",
+      "description": "CAMReasoningChainEngine.decide() with all sources disabled returns deterministic no-consensus AGIDecision; chainId round-trips through getChain()",
       "category": "calibration",
       "verdict": "pass",
       "expected": {
         "chainId_present": true,
-        "confidence": 0.42,
-        "chain_round_trips": true
+        "chain_round_trips": true,
+        "deterministic_no_consensus": {
+          "confidence": 0,
+          "escalate": true,
+          "value_is_null": true
+        }
       },
       "actual": {
         "chainId_present": true,
-        "confidence": 0.42,
-        "chain_round_trips": true
+        "chain_round_trips": true,
+        "deterministic_no_consensus": {
+          "confidence": 0,
+          "escalate": true,
+          "value_is_null": true
+        }
       },
       "durationMs": 1
     },
@@ -45,7 +53,7 @@
         "applied": false,
         "requires_human_approval": true
       },
-      "durationMs": 8
+      "durationMs": 10
     },
     {
       "id": "gate_apply_above_floor",
@@ -62,7 +70,7 @@
         "applied": true,
         "requires_human_approval": false
       },
-      "durationMs": 11
+      "durationMs": 52
     },
     {
       "id": "routing_determinism",
@@ -79,7 +87,7 @@
         "unique_bucket": 1,
         "trial_count": 25
       },
-      "durationMs": 4
+      "durationMs": 6
     },
     {
       "id": "model_health_snapshot",
@@ -99,7 +107,7 @@
         "samples": 250,
         "status": "active"
       },
-      "durationMs": 4
+      "durationMs": 5
     },
     {
       "id": "invalid_model_spec_rejection",
@@ -131,7 +139,7 @@
         "weight": 1,
         "source": "correction"
       },
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "lora_confirmation_weight",
@@ -150,7 +158,7 @@
           1
         ]
       },
-      "durationMs": 0
+      "durationMs": 1
     },
     {
       "id": "feedback_per_task_isolation",
@@ -178,7 +186,7 @@
         "totalCorrections": 3,
         "totalOutcomes": 2
       },
-      "durationMs": 0
+      "durationMs": 1
     },
     {
       "id": "drift_insufficient_data",
@@ -222,7 +230,7 @@
         "numericKernel": 1,
         "categoricalAgreement": 1
       },
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "transfer_list_supported_spans_tier1",

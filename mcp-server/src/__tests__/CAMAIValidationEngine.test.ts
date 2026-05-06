@@ -317,52 +317,28 @@ describe("CAMAIValidationEngine — production-readiness validation harness", ()
     }
   });
 
-  it("threshold boundary — 4/5 = 0.80 is below 0.95 (FAIL)", async () => {
-    // 4 explicit pass scenarios + 1 fail. Each enumerated literally.
-    const custom = [
-      () => makeSyntheticPassScenario("b1_p1"),
-      () => makeSyntheticPassScenario("b1_p2"),
-      () => makeSyntheticPassScenario("b1_p3"),
-      () => makeSyntheticPassScenario("b1_p4"),
-      () => makeSyntheticFailScenario("b1_f1"),
-    ];
-    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
-    expect(report.match_count).toBe(4);
-    expect(report.scenario_count).toBe(5);
-    expect(report.match_rate).toBe(0.8);
-    expect(report.verdict).toBe("FAIL");
+  it("computeMatchRate — pure aggregation: 4/5 = 0.8, 19/20 = 0.95, 16/16 = 1.0, 0/0 = 0", () => {
+    expect(CAMAIValidationEngine.computeMatchRate(4, 5)).toBe(0.8);
+    expect(CAMAIValidationEngine.computeMatchRate(19, 20)).toBe(0.95);
+    expect(CAMAIValidationEngine.computeMatchRate(16, 16)).toBe(1.0);
+    // Empty-suite guard — division-by-zero defends as 0, not NaN.
+    expect(CAMAIValidationEngine.computeMatchRate(0, 0)).toBe(0);
+    // Negative total also clamps to 0 (defensive).
+    expect(CAMAIValidationEngine.computeMatchRate(0, -1)).toBe(0);
   });
 
-  it("threshold boundary — 19/20 = 0.95 exactly is PASS (≥ not >)", async () => {
-    // 19 explicit pass scenarios + 1 fail. Each enumerated literally so a
-    // future edit that mass-generates scenarios doesn't slip past review.
-    const custom = [
-      () => makeSyntheticPassScenario("b2_p01"),
-      () => makeSyntheticPassScenario("b2_p02"),
-      () => makeSyntheticPassScenario("b2_p03"),
-      () => makeSyntheticPassScenario("b2_p04"),
-      () => makeSyntheticPassScenario("b2_p05"),
-      () => makeSyntheticPassScenario("b2_p06"),
-      () => makeSyntheticPassScenario("b2_p07"),
-      () => makeSyntheticPassScenario("b2_p08"),
-      () => makeSyntheticPassScenario("b2_p09"),
-      () => makeSyntheticPassScenario("b2_p10"),
-      () => makeSyntheticPassScenario("b2_p11"),
-      () => makeSyntheticPassScenario("b2_p12"),
-      () => makeSyntheticPassScenario("b2_p13"),
-      () => makeSyntheticPassScenario("b2_p14"),
-      () => makeSyntheticPassScenario("b2_p15"),
-      () => makeSyntheticPassScenario("b2_p16"),
-      () => makeSyntheticPassScenario("b2_p17"),
-      () => makeSyntheticPassScenario("b2_p18"),
-      () => makeSyntheticPassScenario("b2_p19"),
-      () => makeSyntheticFailScenario("b2_f1"),
-    ];
-    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
-    expect(report.match_count).toBe(19);
-    expect(report.scenario_count).toBe(20);
-    expect(report.match_rate).toBe(EXPECTED_THRESHOLD); // exactly 0.95
-    expect(report.verdict).toBe("PASS");
+  it("decideVerdict — boundary: 0.95 exactly → PASS, 0.9333.. → FAIL, empty suite → FAIL", () => {
+    // ≥0.95 is PASS (>= not >).
+    expect(CAMAIValidationEngine.decideVerdict(0.95, 20)).toBe("PASS");
+    expect(CAMAIValidationEngine.decideVerdict(1.0, 16)).toBe("PASS");
+    // Just below threshold (14/15 ≈ 0.9333) → FAIL.
+    expect(CAMAIValidationEngine.decideVerdict(14 / 15, 15)).toBe("FAIL");
+    // 4/5 = 0.8 → FAIL.
+    expect(CAMAIValidationEngine.decideVerdict(0.8, 5)).toBe("FAIL");
+    // Empty suite → FAIL even at rate=1.0 (defends against silent no-op).
+    expect(CAMAIValidationEngine.decideVerdict(1.0, 0)).toBe("FAIL");
+    // Negative total → FAIL.
+    expect(CAMAIValidationEngine.decideVerdict(1.0, -1)).toBe("FAIL");
   });
 
   it("scenario categories — every default-suite scenario lands in exactly one of the 6 active categories", async () => {
