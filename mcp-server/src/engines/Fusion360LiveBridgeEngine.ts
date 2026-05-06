@@ -636,6 +636,290 @@ export class Fusion360LiveBridgeEngine {
     return this._post("/execute", { code });
   }
 
+  // ── Stepped revolve (typed half-profile builder) ─────────────────
+
+  /**
+   * Build a body of revolution from an ordered list of axial steps and revolve.
+   *
+   * Each step describes one axial segment of the half-profile. Between consecutive
+   * steps where end_diameter ≠ next start_diameter, a perpendicular step face is
+   * inserted automatically. Within a step, set end_diameter_mm to taper the segment
+   * from start to end diameter; omit it for a pure cylindrical section.
+   *
+   * Profile is sketched on the construction plane orthogonal to `axis`:
+   *   - axis="Y" → sketch on XY, X=radial, Y=axial
+   *   - axis="Z" → sketch on XZ, X=radial, Z=axial
+   *   - axis="X" → sketch on XY rotated; uses XY plane with Y=radial, X=axial
+   * Then revolves 360° around the named construction axis.
+   *
+   * Eliminates raw Python from callers driving simple solids of revolution
+   * (punches, shafts, pins, bushings, tapered fittings, etc.).
+   */
+  async revolveStepProfile(params: {
+    steps: Array<{
+      diameter_mm: number;
+      length_mm: number;
+      end_diameter_mm?: number;
+    }>;
+    axis?: "X" | "Y" | "Z";
+    sketch_name?: string;
+  }): Promise<OperationResult> {
+    const steps = params.steps;
+    if (!Array.isArray(steps) || steps.length === 0) {
+      return { success: false, error: "revolveStepProfile: steps must be a non-empty array" };
+    }
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i] as { diameter_mm: number; length_mm: number; end_diameter_mm?: number };
+      if (!Number.isFinite(s.diameter_mm) || s.diameter_mm <= 0) {
+        return { success: false, error: `step[${i}].diameter_mm must be > 0` };
+      }
+      if (!Number.isFinite(s.length_mm) || s.length_mm <= 0) {
+        return { success: false, error: `step[${i}].length_mm must be > 0` };
+      }
+      if (s.end_diameter_mm !== undefined && (!Number.isFinite(s.end_diameter_mm) || s.end_diameter_mm <= 0)) {
+        return { success: false, error: `step[${i}].end_diameter_mm must be > 0` };
+      }
+    }
+
+    const axis = (params.axis ?? "Y").toUpperCase() as "X" | "Y" | "Z";
+    if (axis !== "X" && axis !== "Y" && axis !== "Z") {
+      return { success: false, error: `axis must be X|Y|Z, got "${params.axis}"` };
+    }
+
+    const MM_TO_CM = 0.1;
+    const pts: Array<[number, number]> = [];
+    let z = 0;
+    pts.push([0, 0]);
+    pts.push([(steps[0]?.diameter_mm ?? 0) / 2 * MM_TO_CM, 0]);
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i] as { diameter_mm: number; length_mm: number; end_diameter_mm?: number };
+      const r_start = (s.diameter_mm / 2) * MM_TO_CM;
+      const r_end = ((s.end_diameter_mm ?? s.diameter_mm) / 2) * MM_TO_CM;
+      const L = s.length_mm * MM_TO_CM;
+      const z_start = z;
+      const z_end = z + L;
+      const prev = pts[pts.length - 1] as [number, number];
+      if (Math.abs(prev[0] - r_start) > 1e-9) {
+        pts.push([r_start, z_start]);
+      }
+      pts.push([r_end, z_end]);
+      z = z_end;
+    }
+    pts.push([0, z]);
+
+    const axisMap: Record<"X" | "Y" | "Z", { plane: string; pt: (r: number, a: number) => string; axisProp: string }> = {
+      X: { plane: "xYConstructionPlane", pt: (r, a) => `adsk.core.Point3D.create(${a.toFixed(6)}, ${r.toFixed(6)}, 0)`, axisProp: "xConstructionAxis" },
+      Y: { plane: "xYConstructionPlane", pt: (r, a) => `adsk.core.Point3D.create(${r.toFixed(6)}, ${a.toFixed(6)}, 0)`, axisProp: "yConstructionAxis" },
+      Z: { plane: "xZConstructionPlane", pt: (r, a) => `adsk.core.Point3D.create(${r.toFixed(6)}, 0, ${a.toFixed(6)})`, axisProp: "zConstructionAxis" },
+    };
+    const cfg = axisMap[axis];
+    const sketchName = (params.sketch_name ?? "RevolveProfile").replace(/[^A-Za-z0-9_]/g, "_");
+
+    const ptDecl = pts.map((p, i) => `p${i} = ${cfg.pt(p[0], p[1])}`).join("\n");
+    const lineDecl = pts.map((_, i) => `lines.addByTwoPoints(p${i}, p${(i + 1) % pts.length})`).join("\n");
+
+    const code = `
+app = adsk.core.Application.get()
+design = adsk.fusion.Design.cast(app.activeProduct)
+root = design.rootComponent
+sk = root.sketches.add(root.${cfg.plane})
+sk.name = '${sketchName}'
+lines = sk.sketchCurves.sketchLines
+${ptDecl}
+${lineDecl}
+if sk.profiles.count != 1:
+    result = {'success': False, 'error': f'expected 1 profile, got {sk.profiles.count} (check for self-intersection)'}
+else:
+    profile = sk.profiles.item(0)
+    rev_in = root.features.revolveFeatures.createInput(
+        profile,
+        root.${cfg.axisProp},
+        adsk.fusion.FeatureOperations.NewBodyFeatureOperation,
+    )
+    rev_in.setAngleExtent(False, adsk.core.ValueInput.createByString('360 deg'))
+    feat = root.features.revolveFeatures.add(rev_in)
+    result = {'success': True, 'feature_name': feat.name, 'body_count': root.bRepBodies.count, 'profile_points': ${pts.length}}
+`;
+
+    const raw = await this.executeRaw(code);
+    const r = raw.result as Partial<OperationResult> | undefined;
+    return {
+      success: raw.success && (r?.success !== false),
+      feature_name: r?.feature_name,
+      body_count: typeof r?.body_count === "number" ? r.body_count : undefined,
+      error: raw.error ?? r?.error,
+      profile_points: pts.length,
+    } as OperationResult;
+  }
+
+  // ── Tapered extrude (typed wrapper around executeRaw) ───────────
+
+  /**
+   * Extrude an existing sketch profile with a draft (taper) angle.
+   * Eliminates the executeRaw boilerplate from caller scripts; the live HTTP
+   * bridge `/extrude` does not yet forward `taperAngle` to the F360 add-in.
+   */
+  async extrudeTapered(params: {
+    sketch_name: string;
+    depth_mm: number;
+    taper_angle_deg: number;
+    profile_index?: number;
+    operation?: "new" | "join" | "cut" | "intersect";
+    reversed?: boolean;
+  }): Promise<OperationResult> {
+    if (typeof params.sketch_name !== "string" || params.sketch_name.length === 0) {
+      return { success: false, error: "extrudeTapered: sketch_name must be a non-empty string" };
+    }
+    if (!Number.isFinite(params.depth_mm) || params.depth_mm <= 0) {
+      return { success: false, error: "extrudeTapered: depth_mm must be > 0" };
+    }
+    if (!Number.isFinite(params.taper_angle_deg) || Math.abs(params.taper_angle_deg) >= 89) {
+      return { success: false, error: "extrudeTapered: taper_angle_deg must be in (-89, 89)" };
+    }
+    const opMap: Record<string, string> = {
+      new: "NewBodyFeatureOperation",
+      cut: "CutFeatureOperation",
+      join: "JoinFeatureOperation",
+      intersect: "IntersectFeatureOperation",
+    };
+    const fusionOp = opMap[params.operation ?? "new"] ?? "NewBodyFeatureOperation";
+    const profileIdx = Number.isInteger(params.profile_index) ? (params.profile_index as number) : 0;
+    const sketchName = params.sketch_name.replace(/[^A-Za-z0-9_]/g, "_");
+    const depth_cm = (params.reversed ? -1 : 1) * params.depth_mm * 0.1;
+    const taper_rad = (params.taper_angle_deg * Math.PI) / 180;
+
+    const code = `
+app = adsk.core.Application.get()
+design = adsk.fusion.Design.cast(app.activeProduct)
+root = design.rootComponent
+target_sk = None
+for s in root.sketches:
+    if s.name == '${sketchName}':
+        target_sk = s
+        break
+if target_sk is None:
+    result = {'success': False, 'error': f"sketch '${sketchName}' not found"}
+elif target_sk.profiles.count <= ${profileIdx}:
+    result = {'success': False, 'error': f"profile_index ${profileIdx} out of range (count={target_sk.profiles.count})"}
+else:
+    profile = target_sk.profiles.item(${profileIdx})
+    ext_in = root.features.extrudeFeatures.createInput(profile, adsk.fusion.FeatureOperations.${fusionOp})
+    ext_in.setDistanceExtent(False, adsk.core.ValueInput.createByReal(${depth_cm.toFixed(6)}))
+    ext_in.taperAngle = adsk.core.ValueInput.createByReal(${taper_rad.toFixed(6)})
+    feat = root.features.extrudeFeatures.add(ext_in)
+    result = {'success': True, 'feature_name': feat.name, 'body_count': root.bRepBodies.count}
+`;
+    const raw = await this.executeRaw(code);
+    const r = raw.result as Partial<OperationResult> | undefined;
+    return {
+      success: raw.success && (r?.success !== false),
+      feature_name: r?.feature_name,
+      body_count: typeof r?.body_count === "number" ? r.body_count : undefined,
+      error: raw.error ?? r?.error,
+    } as OperationResult;
+  }
+
+  // ── Cross-drilled relief holes (typed wrapper around executeRaw) ──
+
+  /**
+   * Cut N cross-drilled holes radially through a body of revolution.
+   * Common feature on extrude punches/dies/shafts (Ø.05 / Ø.06 callouts).
+   */
+  async crossDrillHoles(params: {
+    diameter_mm: number;
+    axial_position_mm: number;
+    part_radius_mm: number;
+    count?: number;
+    revolution_axis?: "X" | "Y" | "Z";
+  }): Promise<OperationResult> {
+    if (!Number.isFinite(params.diameter_mm) || params.diameter_mm <= 0) {
+      return { success: false, error: "crossDrillHoles: diameter_mm must be > 0" };
+    }
+    if (!Number.isFinite(params.axial_position_mm)) {
+      return { success: false, error: "crossDrillHoles: axial_position_mm must be finite" };
+    }
+    if (!Number.isFinite(params.part_radius_mm) || params.part_radius_mm <= 0) {
+      return { success: false, error: "crossDrillHoles: part_radius_mm must be > 0" };
+    }
+    const count = params.count ?? 1;
+    if (!Number.isInteger(count) || count < 1 || count > 64) {
+      return { success: false, error: "crossDrillHoles: count must be an integer in [1, 64]" };
+    }
+    const revAxis = (params.revolution_axis ?? "Y").toUpperCase() as "X" | "Y" | "Z";
+    if (revAxis !== "X" && revAxis !== "Y" && revAxis !== "Z") {
+      return { success: false, error: `crossDrillHoles: revolution_axis must be X|Y|Z, got "${params.revolution_axis}"` };
+    }
+
+    const r_cm = (params.diameter_mm / 2) * 0.1;
+    const axial_cm = params.axial_position_mm * 0.1;
+    const partR_cm = params.part_radius_mm * 0.1;
+    const cutDepth_cm = partR_cm * 2.2;
+
+    const axisCfg: Record<"X" | "Y" | "Z", {
+      sketchPlane: string;
+      circleCenter: string;
+      patternAxis: string;
+      cutOffsetExpr: string;
+    }> = {
+      X: {
+        sketchPlane: "xZConstructionPlane",
+        circleCenter: `adsk.core.Point3D.create(${axial_cm.toFixed(6)}, 0, 0)`,
+        patternAxis: "xConstructionAxis",
+        cutOffsetExpr: `${cutDepth_cm.toFixed(6)}`,
+      },
+      Y: {
+        sketchPlane: "xYConstructionPlane",
+        circleCenter: `adsk.core.Point3D.create(0, ${axial_cm.toFixed(6)}, 0)`,
+        patternAxis: "yConstructionAxis",
+        cutOffsetExpr: `${cutDepth_cm.toFixed(6)}`,
+      },
+      Z: {
+        sketchPlane: "yZConstructionPlane",
+        circleCenter: `adsk.core.Point3D.create(0, 0, ${axial_cm.toFixed(6)})`,
+        patternAxis: "zConstructionAxis",
+        cutOffsetExpr: `${cutDepth_cm.toFixed(6)}`,
+      },
+    };
+    const cfg = axisCfg[revAxis];
+
+    const code = `
+app = adsk.core.Application.get()
+design = adsk.fusion.Design.cast(app.activeProduct)
+root = design.rootComponent
+planes = root.constructionPlanes
+plane_in = planes.createInput()
+plane_in.setByOffset(root.${cfg.sketchPlane}, adsk.core.ValueInput.createByReal(-${partR_cm.toFixed(6)}))
+offset_plane = planes.add(plane_in)
+sk = root.sketches.add(offset_plane)
+sk.name = 'CrossDrill_${revAxis}_${(params.axial_position_mm).toFixed(2).replace(/[^0-9]/g, "_")}'
+sk.sketchCurves.sketchCircles.addByCenterRadius(${cfg.circleCenter}, ${r_cm.toFixed(6)})
+profile = sk.profiles.item(0)
+ext_in = root.features.extrudeFeatures.createInput(profile, adsk.fusion.FeatureOperations.CutFeatureOperation)
+ext_in.setDistanceExtent(False, adsk.core.ValueInput.createByReal(${cfg.cutOffsetExpr}))
+feat = root.features.extrudeFeatures.add(ext_in)
+holes_made = 1
+if ${count} > 1:
+    pat_in = root.features.circularPatternFeatures.createInput(
+        adsk.core.ObjectCollection.createWithArray([feat]),
+        root.${cfg.patternAxis},
+    )
+    pat_in.quantity = adsk.core.ValueInput.createByReal(${count})
+    pat_in.totalAngle = adsk.core.ValueInput.createByString('360 deg')
+    pat_in.isSymmetric = False
+    pat_feat = root.features.circularPatternFeatures.add(pat_in)
+    holes_made = ${count}
+result = {'success': True, 'feature_name': feat.name, 'body_count': root.bRepBodies.count, 'holes_made': holes_made}
+`;
+    const raw = await this.executeRaw(code);
+    const r = raw.result as Partial<OperationResult> & { holes_made?: number } | undefined;
+    return {
+      success: raw.success && (r?.success !== false),
+      feature_name: r?.feature_name,
+      body_count: typeof r?.body_count === "number" ? r.body_count : undefined,
+      error: raw.error ?? r?.error,
+    } as OperationResult;
+  }
+
   // ── Action Sequence Execution ──────────────────────────────────
 
   /**
