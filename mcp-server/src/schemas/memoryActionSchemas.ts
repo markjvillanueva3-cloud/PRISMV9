@@ -98,6 +98,15 @@ const remember = z.object({
   metadata: z.record(z.string(), z.unknown()).optional().describe("Extra payload — source, tags, indexed_at, etc."),
 }).passthrough();
 
+// INTEL-OLLAMA-OBSIDIAN-MS0/P15-U02 — federated cross-session recall
+const cross_session_recall = z.object({
+  query: z.string().min(1).describe("User prompt or recall query"),
+  db_paths: z.array(z.string().min(1)).describe("Absolute paths of memory.db files to federate over"),
+  top_k: z.number().int().positive().optional().describe("Per-merge top-K (default 10)"),
+  min_score: z.number().nonnegative().optional().describe("Score floor (default 0.5)"),
+  max_rows_per_db: z.number().int().positive().optional().describe("Hard cap on rows pulled per DB (default 5000)"),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -113,4 +122,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   pressure_recommend,
   semantic_search,
   remember,
+  cross_session_recall,
 };

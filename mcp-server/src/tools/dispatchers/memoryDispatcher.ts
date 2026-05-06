@@ -43,11 +43,12 @@ function ok(data: unknown) {
 
 // Static metadata pinned by GsdRouterAndRetrieve.test.ts source-shape regex
 // matching the literal advertise list below.
+// INTEL-OLLAMA-OBSIDIAN-MS0/P15-U02 added 'cross_session_recall' (15th action).
 const META = {
   available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node',
               'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns',
               'pressure_record', 'pressure_get', 'pressure_recommend',
-              'semantic_search', 'remember'],
+              'semantic_search', 'remember', 'cross_session_recall'],
 };
 
 /** Registers prism_memory dispatcher.
@@ -62,7 +63,7 @@ export function registerMemoryDispatcher(server: any): void {
       action: z.enum(["get_health", "trace_decision", "find_similar", "get_session", "get_node",
                       "run_integrity", "consolidate", "consolidation_stats", "consolidation_patterns",
                       "pressure_record", "pressure_get", "pressure_recommend",
-                      "semantic_search", "remember"]),
+                      "semantic_search", "remember", "cross_session_recall"]),
       params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: typeof META.available[number]; params: Record<string, any> }) => {
@@ -286,6 +287,55 @@ export function registerMemoryDispatcher(server: any): void {
               return ok({ success: false, error: r.error ?? "remember failed" });
             }
             return ok({ success: true, data: { kind, id, stored: true } });
+          }
+
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P15-U02 — federated cross-session recall
+          // across every per-worktree memory.db. Driver injects a better-sqlite3
+          // backed reader; engine handles ranking + merge.
+          case "cross_session_recall": {
+            const query = (params as { query?: unknown }).query;
+            const dbPathsRaw = (params as { db_paths?: unknown; dbPaths?: unknown }).db_paths
+              ?? (params as { dbPaths?: unknown }).dbPaths;
+            if (typeof query !== "string" || query.length === 0) {
+              return ok({ success: false, error: "cross_session_recall requires non-empty 'query'" });
+            }
+            if (!Array.isArray(dbPathsRaw)) {
+              return ok({ success: false, error: "cross_session_recall requires 'db_paths' array" });
+            }
+            const { crossSessionMemoryBridgeEngine } = await import("../../engines/CrossSessionMemoryBridgeEngine.js");
+            // Lazy-load the better-sqlite3 reader so failures here don't break
+            // engine instantiation in environments where sqlite isn't available.
+            let reader;
+            try {
+              const { createBetterSqliteRowReader } = await import("../../engines/CSMSqliteRowReaderFactory.js");
+              reader = createBetterSqliteRowReader();
+            } catch (err) {
+              return ok({
+                success: false,
+                error: `cross_session_recall: sqlite reader unavailable — ${(err as Error)?.message ?? String(err)}`,
+              });
+            }
+            const result = crossSessionMemoryBridgeEngine.recall({
+              query,
+              dbPaths: dbPathsRaw.filter((p): p is string => typeof p === "string" && p.length > 0),
+              reader,
+              topK: typeof (params as { top_k?: unknown }).top_k === "number"
+                ? (params as { top_k: number }).top_k
+                : (typeof (params as { topK?: unknown }).topK === "number"
+                    ? (params as { topK: number }).topK
+                    : undefined),
+              minScore: typeof (params as { min_score?: unknown }).min_score === "number"
+                ? (params as { min_score: number }).min_score
+                : (typeof (params as { minScore?: unknown }).minScore === "number"
+                    ? (params as { minScore: number }).minScore
+                    : undefined),
+              maxRowsPerDB: typeof (params as { max_rows_per_db?: unknown }).max_rows_per_db === "number"
+                ? (params as { max_rows_per_db: number }).max_rows_per_db
+                : (typeof (params as { maxRowsPerDB?: unknown }).maxRowsPerDB === "number"
+                    ? (params as { maxRowsPerDB: number }).maxRowsPerDB
+                    : undefined),
+            });
+            return ok({ success: true, data: result });
           }
 
           default: {

@@ -275,9 +275,10 @@ describe("memoryDispatcher remember wiring — P4-U01-FOLLOWUP-2", () => {
     const enumBody = enumMatch![1];
     expect(enumBody).toContain('"remember"');
     expect(enumBody).toContain('"semantic_search"');
-    // 14 actions total post-FOLLOWUP-2: 9 graph/consolidation + 3 pressure + 2 vector
+    expect(enumBody).toContain('"cross_session_recall"');
+    // 15 actions: 9 graph/consolidation + 3 pressure + 2 vector + 1 cross-session (P15-U02)
     const actionCount = (enumBody.match(/"[a-z_]+"/g) ?? []).length;
-    expect(actionCount).toBe(14);
+    expect(actionCount).toBe(15);
   });
 
   it("switch has case 'remember' that calls qdrantMemoryEngine.remember", async () => {
@@ -299,8 +300,9 @@ describe("memoryDispatcher remember wiring — P4-U01-FOLLOWUP-2", () => {
     const list = m![1];
     expect(list).toContain("'remember'");
     expect(list).toContain("'semantic_search'");
+    expect(list).toContain("'cross_session_recall'");
     const itemCount = (list.match(/'[a-z_]+'/g) ?? []).length;
-    expect(itemCount).toBe(14);
+    expect(itemCount).toBe(15);
   });
 });
 
