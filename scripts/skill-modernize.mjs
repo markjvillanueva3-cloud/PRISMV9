@@ -31,10 +31,19 @@ import { fileURLToPath } from "node:url";
 //   2 — moderate-frequency, trigger on explicit keyword phrases
 //   3 — niche / opt-in, only triggered by explicit /command invocation
 const TIER_HEURISTICS = {
-  // tier-1 keywords surfaced often in normal conversation
-  tier1: ["audit", "review", "memory", "search", "validate", "learn", "context", "optimize", "remember", "recall"],
-  // tier-2 keywords that signal a specific specialised flow
-  tier2: ["scrutinize", "dedup", "handoff", "forge", "harden", "ingest", "modernize", "consolidate"],
+  // tier-1 keywords surfaced often in normal conversation. The Ollama-routing
+  // skills (ollama-summarize, ollama-explain, etc.) belong here too — they
+  // catch high-frequency content verbs that would otherwise burn Claude tokens.
+  tier1: [
+    "audit", "review", "memory", "search", "validate", "learn", "context",
+    "optimize", "remember", "recall", "summarize", "explain",
+  ],
+  // tier-2 keywords for specialised but-still-frequent flows
+  tier2: [
+    "scrutinize", "dedup", "handoff", "forge", "harden", "ingest", "modernize",
+    "consolidate", "classify", "docstring", "boilerplate", "triage", "extract",
+    "diff-summary", "test-stub",
+  ],
   // anything not matched → tier-3
 };
 
@@ -169,10 +178,13 @@ export function modernizeSkill(content, skillName, opts = {}) {
 // I/O
 // ---------------------------------------------------------------------------
 
-function listSkillFiles(dir) {
+function listSkillFiles(dir, pattern) {
   if (!fs.existsSync(dir)) return [];
+  // pattern is a literal prefix (e.g. "ollama-") that filenames must begin
+  // with. We avoid full glob to keep the tool dependency-free.
   return fs.readdirSync(dir)
     .filter((n) => n.endsWith(".md"))
+    .filter((n) => !pattern || n.startsWith(pattern))
     .map((n) => path.join(dir, n));
 }
 
@@ -181,9 +193,11 @@ async function main() {
   const wantWrite = args.includes("--write");
   const force = args.includes("--force");
   const dirArg = args.find((a) => a.startsWith("--dir="));
+  const filterArg = args.find((a) => a.startsWith("--filter="));
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const dir = dirArg ? dirArg.slice("--dir=".length) : path.join(repoRoot, ".claude", "commands");
-  const files = listSkillFiles(dir);
+  const filterPrefix = filterArg ? filterArg.slice("--filter=".length) : null;
+  const files = listSkillFiles(dir, filterPrefix);
 
   const report = [];
   for (const f of files) {
