@@ -1,0 +1,37 @@
+# docker-compose.peerci.yml — INTEL-OLLAMA-OBSIDIAN-MS0/P13-U04
+#
+# Runs the peer-repo schema diff inside a containerised node:22 so the
+# audit produces identical output regardless of the host machine. Mounts
+# the entire H:/ drive read-only so it can walk H:/prism + every
+# H:/prism-* sibling repo without copying source.
+#
+# Usage:
+#   docker compose -f docker-compose.peerci.yml run --rm peerci
+#   docker compose -f docker-compose.peerci.yml run --rm peerci --json
+#   docker compose -f docker-compose.peerci.yml run --rm peerci --canonical=/h/prism
+#
+# Output: PEER-REPO-DRIFT.md is written into the iooms0 worktree root
+# (mounted at /workspace inside the container).
+
+services:
+  peerci:
+    image: node:22-alpine
+    working_dir: /workspace
+    # Mount H:/ read-only as /h/ so the script can scan every prism-* sibling
+    # repo without ambiguity. Mount this worktree as /workspace read-write
+    # so PEER-REPO-DRIFT.md can be written back.
+    volumes:
+      - type: bind
+        source: H:/
+        target: /h
+        read_only: true
+      - type: bind
+        source: .
+        target: /workspace
+    # The script defaults to scanning H:/prism — inside the container that
+    # path is /h/prism. We pass --canonical explicitly so the runner is
+    # explicit about the path.
+    entrypoint: ["node", "/workspace/scripts/peer-repo-schema-diff.mjs"]
+    # Default args produce the markdown report. Override with `--json` for
+    # CI consumers that want structured data.
+    command: ["--write", "--canonical=/h/prism"]

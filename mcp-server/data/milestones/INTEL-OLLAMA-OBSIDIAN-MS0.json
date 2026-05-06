@@ -2697,6 +2697,10 @@
             "P13-U01"
           ],
           "rollback": "remove ci compose file",
+          "status": "completed",
+          "completed_at": "2026-05-06T18:24:30.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "3 deliverables shipped: (a) scripts/peer-repo-schema-diff.mjs (~200 lines, pure-fn diff engine: extractActionsFromDispatcher [supports both `const ACTIONS = [...] as const` AND `z.enum([...])` patterns, multi-line aware], listDispatchers [injectable fs adapter], diffActionSets [partitions into onlyInCanonical/onlyInPeer/common, sorted+deduped], summarizeDrift [per-repo aggregation], renderMarkdown [summary table + per-dispatcher drift detail, skips zero-drift repos]); (b) docker-compose.peerci.yml (read-only H:/ bind + read-write workspace bind, node:22-alpine entrypoint runs the diff script with --write --canonical=/h/prism inside container so output is reproducible across hosts); (c) PEER-REPO-DRIFT.md generated live: 43 sibling prism-* repos scanned, 3561 dispatcher files, 81,279 drifted actions tabulated. Tests: PeerRepoSchemaDiff.test.ts 26/26 green covering 7 extractActionsFromDispatcher cases (ACTIONS const, z.enum single+multi-line, dedup, empty/non-string, no-match, mixed-case strings), 4 listDispatchers cases (sort, missing-dir, shape, calcDispatcher special-case), 6 diffActionSets cases (canonical-larger, peer-larger, full-overlap, empty inputs, sort, null-safe), 4 summarizeDrift cases (counts, totals, per-repo split, empty), 3 renderMarkdown cases (summary present, by-repo table, zero-drift skip), 2 deliverable-existence cases. The 43-repos finding (vs spec's '20') reflects how the prism-* sibling tree has grown organically; the tool scales without modification.",
           "exit_conditions": [
             "docker-compose.peerci.yml runs schema validation across H:/prism-*/",
             "Reports drift: which sibling repo has dispatcher actions absent in canonical",
