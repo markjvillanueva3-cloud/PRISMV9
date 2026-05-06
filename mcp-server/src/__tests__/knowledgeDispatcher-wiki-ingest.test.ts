@@ -427,4 +427,58 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       expect(typeof mod.CSMMemoryDBAuditEngine).toBe("function");
     });
   });
+
+  describe("Plan-trajectory extraction (P15-U03) wiring", () => {
+    const PLAN_ACTIONS = [
+      "plan_trajectory_parse",
+      "plan_trajectory_summarize",
+      "plan_trajectory_derive_id",
+    ];
+
+    it("all 3 plan-trajectory actions are registered in the action enum", () => {
+      for (const a of PLAN_ACTIONS) {
+        expect(KNOWLEDGE_ACTIONS.includes(a)).toBe(true);
+      }
+    });
+
+    it("plan_trajectory_parse schema requires raw_markdown + source_path strings", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.plan_trajectory_parse as z.ZodType;
+      expect(schema.safeParse({ raw_markdown: "# T", source_path: "/x.md" }).success).toBe(true);
+      expect(schema.safeParse({ source_path: "/x.md" }).success).toBe(false);
+      expect(schema.safeParse({ raw_markdown: "# T" }).success).toBe(false);
+      expect(schema.safeParse({ raw_markdown: 42, source_path: "/x.md" }).success).toBe(false);
+    });
+
+    it("plan_trajectory_summarize schema accepts an array (PlanTrajectory shape opaque)", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.plan_trajectory_summarize as z.ZodType;
+      expect(schema.safeParse({ trajectories: [] }).success).toBe(true);
+      expect(schema.safeParse({ trajectories: [{ id: "x", title: "T" }] }).success).toBe(true);
+      expect(schema.safeParse({ trajectories: "nope" as unknown }).success).toBe(false);
+    });
+
+    it("plan_trajectory_derive_id schema requires source_path string", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.plan_trajectory_derive_id as z.ZodType;
+      expect(schema.safeParse({ source_path: "/foo/bar.md" }).success).toBe(true);
+      expect(schema.safeParse({}).success).toBe(false);
+      expect(schema.safeParse({ source_path: 42 }).success).toBe(false);
+    });
+
+    it("PlanTrajectoryExtractorEngine module exports singleton — runs round-trip parse + summarize", async () => {
+      const mod = await import("../engines/PlanTrajectoryExtractorEngine.js");
+      const traj = mod.planTrajectoryExtractorEngine.parsePlan(
+        "# Plan\nWe chose X.\n- [x] Done\n",
+        "/plans/sample.md",
+      );
+      expect(traj.title).toBe("Plan");
+      expect(traj.decisions.length).toBe(1);
+      expect(traj.decisions[0].kind).toBe("chose");
+      expect(traj.milestones.length).toBe(1);
+      expect(traj.milestones[0].state).toBe("done");
+      expect(traj.status).toBe("completed");
+      const s = mod.planTrajectoryExtractorEngine.summarize([traj]);
+      expect(s.totalPlans).toBe(1);
+      expect(s.byStatus.completed).toBe(1);
+      expect(typeof mod.PlanTrajectoryExtractorEngine).toBe("function");
+    });
+  });
 });
