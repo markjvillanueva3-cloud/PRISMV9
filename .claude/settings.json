@@ -553,6 +553,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-auto-router.mjs",
+            "timeout": 8000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/hooks/user-prompt-submit-p1.mjs",
             "timeout": 2000,
             "continueOnError": true

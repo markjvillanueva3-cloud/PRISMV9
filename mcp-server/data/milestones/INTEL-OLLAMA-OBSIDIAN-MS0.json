@@ -415,7 +415,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup",
+          "status": "completed",
+          "completed_at": "2026-05-06T13:54:35.426Z",
+          "completed_by": "claude-iooms0-p0",
+          "notes": "Promoted ollama-auto-router to UserPromptSubmit block[0] hook[0] in iooms0/.claude/settings.json (was absent — only present in global H:/.claude/settings.json which the per-worktree config does not auto-merge in claude-code). Hook smoke-tested with sample UserPromptSubmit payload {\"prompt\":\"explain how a Kalman filter works\"} → returns {continue:true} cleanly. Token-savings logging is wired through ollama-offload-stats.json schemaVersion 2.0.0 (P0-U03). The exit_condition \"After 5 prompts: offload-stats shows ≥1 successful Ollama call\" can only be verified after a new session boot picks up the updated settings.json — current dashboard still shows empty-state because the wiring was missing for the entire prior session. Note: H:/.claude/settings.json (global) ALREADY had ollama-auto-router at block[0] hook[0] — this commit adds the same priority to iooms0/.claude/settings.json so the wiring travels with this branch."
         }
       ],
       "primary_role": "R3"
