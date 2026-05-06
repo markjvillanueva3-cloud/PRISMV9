@@ -34,7 +34,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocTierRouter: any, _xprocOrchestrator: any,
     _xprocRuleExtracted: any, _xprocFormulaNeural: any,
     _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
-    _xprocReplaySampler: any;
+    _xprocReplaySampler: any, _xprocSemanticLinker: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -70,6 +70,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocEpisodicMemory": return _xprocEpisodicMemory ??= (await import("../../engines/CrossProcessEpisodicMemoryEngine.js")).crossProcessEpisodicMemory;
     case "xprocPrioritizedReplay": return _xprocPrioritizedReplay ??= (await import("../../engines/CrossProcessPrioritizedReplayEngine.js")).crossProcessPrioritizedReplay;
     case "xprocReplaySampler": return _xprocReplaySampler ??= (await import("../../engines/CrossProcessExperienceReplaySamplerEngine.js")).crossProcessExperienceReplaySampler;
+    case "xprocSemanticLinker": return _xprocSemanticLinker ??= (await import("../../engines/CrossProcessEpisodicSemanticLinkerEngine.js")).crossProcessEpisodicSemanticLinker;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -256,6 +257,8 @@ const ACTIONS = [
   // XPROC-NEURAL Tier 2 (T2-03) — Stratified Replay Sampler (process×material×outcome)
   "xproc_replay_balanced_batch",
   "xproc_replay_default_clusters",
+  // XPROC-NEURAL Tier 2 (T2-04) — Episodic↔Semantic Linker (tips + Kienzle citations)
+  "xproc_episodic_semantic_join",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -754,6 +757,8 @@ export function registerIntelligenceDispatcher(server: any): void {
           // XPROC-NEURAL Tier 2 (T2-03) — Stratified Replay Sampler
           xproc_replay_balanced_batch: "xprocReplaySampler",
           xproc_replay_default_clusters: "xprocReplaySampler",
+          // XPROC-NEURAL Tier 2 (T2-04) — Episodic↔Semantic Linker
+          xproc_episodic_semantic_join: "xprocSemanticLinker",
         };
 
         const engineName = CORE_ROUTING[action];
