@@ -33,6 +33,7 @@ import { toleranceExtractionEngine } from "../src/engines/ToleranceExtractionEng
 import { printToFusion360Bridge, type DetailView } from "../src/engines/PrintToFusion360Bridge.js";
 import { onlinePrintHarvestEngine } from "../src/engines/OnlinePrintHarvestEngine.js";
 import { fusion360LiveBridgeEngine as fb } from "../src/engines/Fusion360LiveBridgeEngine.js";
+import { cadClassFeatureLibraryEngine } from "../src/engines/CADClassFeatureLibraryEngine.js";
 import { INCH_TO_MM, INCH3_TO_MM3, MM_TO_CM } from "../src/physics/unit-conversions.js";
 
 const PART_NUMBER = "2475-037";
@@ -183,6 +184,39 @@ async function main(): Promise<void> {
   console.log(`  ${paired.length} paired print+CAD sources catalogued (sorted by license permissiveness):`);
   for (const s of paired.slice(0, 6)) {
     console.log(`    • ${s.id.padEnd(20)} license=${s.license.padEnd(12)} rpm=${s.rate_limit_rpm.toString().padStart(2)}  ${s.name}`);
+  }
+
+  // ── Stage 6.5: class-feature-library plan vs prior-attempt fidelity ──
+  sep("Stage 6.5: Class Feature Library — Visual Fidelity Plan");
+  const tmpl = cadClassFeatureLibraryEngine.templateFor(partClass);
+  if (!tmpl) {
+    console.log(`  ✗ no template for ${partClass} — system has no learned visual-fidelity model for this class yet`);
+  } else {
+    console.log(`  Class-typical features for ${partClass} (${tmpl.features.length} total, expected weight ${tmpl.expected_feature_count.toFixed(2)}):`);
+    for (const f of tmpl.features) {
+      const sizeStr = f.typical_size_mm ? `Ø${f.typical_size_mm}mm` : "";
+      const angStr = f.typical_angle_deg !== undefined ? `${f.typical_angle_deg}°` : "";
+      const meta = [sizeStr, angStr].filter((s) => s.length > 0).join("/").padEnd(10);
+      console.log(`    • ${f.kind.padEnd(28)} prev=${f.prevalence.toFixed(2)}  ${meta}  → ${f.build_hint}`);
+    }
+    // Score the build plan we're about to execute.
+    const plannedKinds: ReadonlyArray<typeof tmpl.features[number]["kind"]> = [
+      "stepped_revolved_axis",
+      "central_oil_hole",
+      "cross_drilled_relief_holes",
+    ];
+    const fidelity = cadClassFeatureLibraryEngine.predictVisualFidelity(partClass, plannedKinds);
+    console.log(`\n  Plan: ${plannedKinds.length} features → predicted fidelity score ${(fidelity.score * 100).toFixed(1)}%`);
+    if (fidelity.missing.length > 0) {
+      console.log(`  Missing (${fidelity.missing.length}):`);
+      for (const m of fidelity.missing) {
+        console.log(`    ✗ ${m.kind.padEnd(28)} prev=${m.prevalence.toFixed(2)}  — ${m.rationale.slice(0, 80)}`);
+      }
+    }
+    console.log(`\n  Visual-fidelity notes for ${partClass}:`);
+    for (const note of tmpl.visual_fidelity_notes) {
+      console.log(`    · ${note}`);
+    }
   }
 
   // ── Stage 7: Fusion live build (revolveStepProfile + crossDrillHoles) ──
