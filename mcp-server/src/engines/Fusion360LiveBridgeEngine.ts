@@ -422,12 +422,18 @@ export class Fusion360LiveBridgeEngine {
   /**
    * Fillet edges of a body.
    * @param params.radius_mm - Fillet radius in mm
-   * @param params.edge_selection - "all" | "top" | "bottom" | "vertical" | number[]
+   * @param params.edge_selection - "all" | "top" | "bottom" | "vertical" | "internal_horizontal" | number[]
+   *   "internal_horizontal" matches circular edges perpendicular to the revolution
+   *   axis at NON-extreme axial positions — i.e. OD step transitions on a stepped
+   *   revolved part. Used for shoulder fillets that must not touch the tip/base.
+   * @param params.revolution_axis - "X" | "Y" | "Z" — axis used to interpret
+   *   top/bottom/vertical/internal_horizontal selectors. Defaults to "Z".
    */
   async fillet(params: {
     radius_mm: number;
     edge_selection?: string | number[];
     body_index?: number;
+    revolution_axis?: "X" | "Y" | "Z";
   }): Promise<OperationResult> {
     return this._post<OperationResult>("/fillet", params);
   }
@@ -435,12 +441,15 @@ export class Fusion360LiveBridgeEngine {
   /**
    * Chamfer edges of a body.
    * @param params.distance_mm - Chamfer distance in mm
-   * @param params.edge_selection - "all" | "top" | "bottom" | "vertical" | number[]
+   * @param params.edge_selection - "all" | "top" | "bottom" | "vertical" | "internal_horizontal" | number[]
+   * @param params.revolution_axis - "X" | "Y" | "Z" — axis used to interpret
+   *   top/bottom/vertical/internal_horizontal selectors. Defaults to "Z".
    */
   async chamfer(params: {
     distance_mm: number;
     edge_selection?: string | number[];
     body_index?: number;
+    revolution_axis?: "X" | "Y" | "Z";
   }): Promise<OperationResult> {
     return this._post<OperationResult>("/chamfer", params);
   }

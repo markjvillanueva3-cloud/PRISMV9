@@ -292,7 +292,7 @@ result = {'success': True}
           const stubRadiusMm = 0.06 * INCH_TO_MM;
           const distMm = Math.tan((ft.typical_angle_deg ?? 8) * Math.PI / 180) * stubRadiusMm;
           ok(`${ft.kind} (${ft.typical_angle_deg}°, dist ${distMm.toFixed(3)}mm) — bottom edge`,
-             await fb.chamfer({ distance_mm: Math.max(distMm, 0.05), edge_selection: "bottom" }));
+             await fb.chamfer({ distance_mm: Math.max(distMm, 0.05), edge_selection: "bottom", revolution_axis: "Y" }));
           builtKinds.push(ft.kind);
           break;
         }
@@ -302,14 +302,17 @@ result = {'success': True}
           const tipRadiusMm = 0.456 * INCH_TO_MM / 2;
           const distMm = Math.tan((ft.typical_angle_deg ?? 2) * Math.PI / 180) * tipRadiusMm;
           ok(`${ft.kind} (${ft.typical_angle_deg}° approx, dist ${distMm.toFixed(3)}mm) — top edge`,
-             await fb.chamfer({ distance_mm: Math.max(distMm, 0.05), edge_selection: "top" }));
+             await fb.chamfer({ distance_mm: Math.max(distMm, 0.05), edge_selection: "top", revolution_axis: "Y" }));
           builtKinds.push(ft.kind);
           break;
         }
         case "fillet": {
-          // edge_selection "all" would clobber the just-built chamfers; defer
-          // until the bridge exposes an internal-horizontal edge selector.
-          skippedKinds.push({ kind: ft.kind, reason: "Fusion bridge needs internal-horizontal edge selector." });
+          // internal_horizontal selects only the circular step-transition edges,
+          // skipping the just-chamfered tip and back-stub extreme faces.
+          const radiusMm = ft.typical_size_mm ?? 0.25;
+          ok(`${ft.kind} (R${radiusMm}mm) — internal_horizontal edges`,
+             await fb.fillet({ radius_mm: radiusMm, edge_selection: "internal_horizontal", revolution_axis: "Y" }));
+          builtKinds.push(ft.kind);
           break;
         }
         default:
