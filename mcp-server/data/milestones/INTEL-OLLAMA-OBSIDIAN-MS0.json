@@ -2823,7 +2823,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T01:25:00Z",
+          "completed_by": "claude-1f96b0f4",
+          "notes": "CSMMemoryDBAuditEngine — pure functions for classifyDBPath / buildSchemaFingerprint / detectSchemaVariants / summarize / formatReport. Live walk found 5 memory.db files (.claude/memory.db × 3 + .swarm/memory.db × 2) — milestone description's '18 worktree DBs' is stale; engine handles N correctly. 5 new dispatcher actions (csm_audit_*) on prism_knowledge (NOT prism_memory — memoryDispatcher enum is locked at 14 by source-shape regression). 26 engine tests + 6 dispatcher tests = +32 new tests. Zero new tsc errors. Driver: scripts/csm-inventory.mjs uses better-sqlite3 readonly + PRAGMA table_info to extract schema fingerprints; writes report + JSON to state/shared/CSM_INVENTORY.{md,json}."
         },
         {
           "id": "P15-U02",
