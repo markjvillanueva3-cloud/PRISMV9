@@ -291,4 +291,68 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       expect(typeof mod.vaultBacklinkEngine.parseDigest).toBe("function");
     });
   });
+
+  describe("Wiki bootstrap (P14-U04) wiring", () => {
+    const BOOTSTRAP_ACTIONS = [
+      "wiki_bootstrap_filter_courses",
+      "wiki_bootstrap_filter_algorithms",
+      "wiki_bootstrap_render_course",
+      "wiki_bootstrap_render_algorithm",
+      "wiki_bootstrap_build_index_line",
+      "wiki_bootstrap_insert_index",
+    ];
+
+    it("all 6 bootstrap actions are registered in the action enum", () => {
+      for (const a of BOOTSTRAP_ACTIONS) {
+        expect(KNOWLEDGE_ACTIONS.includes(a)).toBe(true);
+      }
+    });
+
+    it("wiki_bootstrap_render_course schema rejects empty course_id", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_bootstrap_render_course as z.ZodType;
+      expect(schema.safeParse({ course: { category: "x", priority: "TIER_1", course_id: "", course_name: "X", course_file: "x.zip", topics: [] } }).success).toBe(false);
+      expect(schema.safeParse({ course: { category: "x", priority: "TIER_1", course_id: "6.046", course_name: "Good", course_file: "g.zip", topics: ["a"] } }).success).toBe(true);
+    });
+
+    it("wiki_bootstrap_render_algorithm schema rejects empty algorithm_name", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_bootstrap_render_algorithm as z.ZodType;
+      expect(schema.safeParse({ alg: { category: "x", subcategory: "y", algorithm_name: "", course_id: "1.001", prism_engines: [] } }).success).toBe(false);
+      expect(schema.safeParse({ alg: { category: "x", subcategory: "y", algorithm_name: "Simplex", course_id: "1.001", prism_engines: ["E1"] } }).success).toBe(true);
+    });
+
+    it("wiki_bootstrap_build_index_line schema rejects empty entry id and invalid kind", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_bootstrap_build_index_line as z.ZodType;
+      const baseEntry = (id: string, kind: string) => ({
+        entry: {
+          id, title: "X", kind, body: "",
+          citation: { course_id: "1", course_name: "X", topic: "x" },
+          related_engines: [],
+        },
+      });
+      expect(schema.safeParse(baseEntry("", "course")).success).toBe(false);
+      expect(schema.safeParse(baseEntry("good-id", "invalid-kind")).success).toBe(false);
+      expect(schema.safeParse(baseEntry("good-id", "course")).success).toBe(true);
+      expect(schema.safeParse(baseEntry("good-id", "algorithm")).success).toBe(true);
+    });
+
+    it("wiki_bootstrap_insert_index schema requires existing_index string + lines array", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.wiki_bootstrap_insert_index as z.ZodType;
+      expect(schema.safeParse({ existing_index: "", lines: [] }).success).toBe(true);
+      expect(schema.safeParse({ existing_index: "# Index", lines: ["- [A](a.md) — x"] }).success).toBe(true);
+      expect(schema.safeParse({ existing_index: 42, lines: [] }).success).toBe(false);
+      expect(schema.safeParse({ existing_index: "", lines: "nope" as unknown }).success).toBe(false);
+    });
+
+    it("WikiBootstrapEngine module exports the singleton — invokes filterIndex with real fixture", async () => {
+      const mod = await import("../engines/WikiBootstrapEngine.js");
+      const result = mod.wikiBootstrapEngine.filterIndex({
+        coursesByCategory: {
+          algorithms: { priority: "TIER_1", courses: [{ id: "x.1", name: "X", file: "", topics: [] }] },
+        },
+      });
+      expect(result.length).toBe(1);
+      expect(result[0].course_id).toBe("x.1");
+      expect(typeof mod.WikiBootstrapEngine).toBe("function");
+    });
+  });
 });

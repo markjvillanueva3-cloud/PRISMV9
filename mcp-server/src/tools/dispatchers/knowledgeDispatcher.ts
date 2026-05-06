@@ -199,6 +199,16 @@ const VAULT_BACKLINK_ACTIONS = [
   "wiki_backlink_parse_digest", // Parse ENGINE_DIGEST.md / DISPATCHER_DIGEST.md text → BacklinkCandidate[]
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P14-U04: MIT-registry → wiki bootstrap — surfaces WikiBootstrapEngine. */
+const WIKI_BOOTSTRAP_ACTIONS = [
+  "wiki_bootstrap_filter_courses",     // MIT_COURSE_INDEX → MITCourseSource[] (filtered by category)
+  "wiki_bootstrap_filter_algorithms",  // ALGORITHM_REGISTRY → MITAlgorithmSource[] (filtered by category)
+  "wiki_bootstrap_render_course",      // MITCourseSource → WikiEntry (markdown body + citation)
+  "wiki_bootstrap_render_algorithm",   // MITAlgorithmSource → WikiEntry (with PRISM engine cross-links)
+  "wiki_bootstrap_build_index_line",   // WikiEntry → wiki/index.md line
+  "wiki_bootstrap_insert_index",       // Append lines to existing index (idempotent dedup)
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -223,6 +233,7 @@ const ACTIONS = [
   ...KIP_INGEST_ACTIONS,
   ...VAULT_RAG_ACTIONS,
   ...VAULT_BACKLINK_ACTIONS,
+  ...WIKI_BOOTSTRAP_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2281,6 +2292,53 @@ export function registerKnowledgeDispatcher(server: any): void {
               throw new Error("wiki_backlink_parse_digest: kind must be one of engine|dispatcher_action|skill");
             }
             result = { candidates: vaultBacklinkEngine.parseDigest(text, kind) };
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P14-U04: MIT → wiki bootstrap (WikiBootstrapEngine) ──
+          case "wiki_bootstrap_filter_courses": {
+            const { wikiBootstrapEngine } = await import("../../engines/WikiBootstrapEngine.js");
+            const allowed = Array.isArray(params.allowed_categories) ? params.allowed_categories : undefined;
+            result = { courses: wikiBootstrapEngine.filterIndex(params.raw_index, allowed) };
+            break;
+          }
+          case "wiki_bootstrap_filter_algorithms": {
+            const { wikiBootstrapEngine } = await import("../../engines/WikiBootstrapEngine.js");
+            const allowed = Array.isArray(params.allowed_categories) ? params.allowed_categories : undefined;
+            result = { algorithms: wikiBootstrapEngine.filterAlgorithms(params.raw_registry, allowed) };
+            break;
+          }
+          case "wiki_bootstrap_render_course": {
+            const { wikiBootstrapEngine } = await import("../../engines/WikiBootstrapEngine.js");
+            const c = params.course;
+            if (!c || typeof c !== "object") {
+              throw new Error("wiki_bootstrap_render_course: course required (MITCourseSource shape)");
+            }
+            result = { entry: wikiBootstrapEngine.renderCourseEntry(c) };
+            break;
+          }
+          case "wiki_bootstrap_render_algorithm": {
+            const { wikiBootstrapEngine } = await import("../../engines/WikiBootstrapEngine.js");
+            const a = params.alg;
+            if (!a || typeof a !== "object") {
+              throw new Error("wiki_bootstrap_render_algorithm: alg required (MITAlgorithmSource shape)");
+            }
+            result = { entry: wikiBootstrapEngine.renderAlgorithmEntry(a) };
+            break;
+          }
+          case "wiki_bootstrap_build_index_line": {
+            const { wikiBootstrapEngine } = await import("../../engines/WikiBootstrapEngine.js");
+            const entry = params.entry;
+            if (!entry || typeof entry !== "object") {
+              throw new Error("wiki_bootstrap_build_index_line: entry required (WikiEntry shape)");
+            }
+            result = { line: wikiBootstrapEngine.buildIndexLine(entry) };
+            break;
+          }
+          case "wiki_bootstrap_insert_index": {
+            const { wikiBootstrapEngine } = await import("../../engines/WikiBootstrapEngine.js");
+            const existing = typeof params.existing_index === "string" ? params.existing_index : "";
+            const lines = Array.isArray(params.lines) ? params.lines : [];
+            result = { index: wikiBootstrapEngine.insertIndexEntries(existing, lines) };
             break;
           }
         }

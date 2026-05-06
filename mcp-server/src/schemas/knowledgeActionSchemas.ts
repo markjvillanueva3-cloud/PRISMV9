@@ -119,6 +119,62 @@ const wiki_backlink_parse_digest = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P14-U04 — wiki bootstrap from MIT registries
+// (wires WikiBootstrapEngine to knowledge dispatcher)
+// ============================================================================
+
+const wiki_bootstrap_filter_courses = z.object({
+  raw_index: z.unknown().describe("MIT_COURSE_INDEX.json contents (parsed object)"),
+  allowed_categories: z.array(z.string()).optional().describe("Override the DEFAULT_GENERAL_CATEGORIES set"),
+}).passthrough();
+
+const wiki_bootstrap_filter_algorithms = z.object({
+  raw_registry: z.unknown().describe("ALGORITHM_REGISTRY.json contents (parsed object)"),
+  allowed_categories: z.array(z.string()).optional().describe("Override the DEFAULT_GENERAL_CATEGORIES set"),
+}).passthrough();
+
+const wiki_bootstrap_render_course = z.object({
+  course: z.object({
+    category: z.string(),
+    priority: z.string(),
+    course_id: z.string().min(1),
+    course_name: z.string().min(1),
+    course_file: z.string(),
+    topics: z.array(z.string()),
+  }).describe("MITCourseSource record"),
+}).passthrough();
+
+const wiki_bootstrap_render_algorithm = z.object({
+  alg: z.object({
+    category: z.string(),
+    subcategory: z.string(),
+    algorithm_name: z.string().min(1),
+    course_id: z.string(),
+    prism_engines: z.array(z.string()),
+  }).describe("MITAlgorithmSource record"),
+}).passthrough();
+
+const wiki_bootstrap_build_index_line = z.object({
+  entry: z.object({
+    id: z.string().min(1),
+    title: z.string(),
+    kind: z.enum(["concept", "algorithm", "course"]),
+    body: z.string(),
+    citation: z.object({
+      course_id: z.string(),
+      course_name: z.string(),
+      topic: z.string(),
+    }),
+    related_engines: z.array(z.string()),
+  }).describe("WikiEntry from a render call"),
+}).passthrough();
+
+const wiki_bootstrap_insert_index = z.object({
+  existing_index: z.string().describe("Current wiki/index.md text"),
+  lines: z.array(z.string()).describe("New index lines to append (idempotent)"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1203,4 +1259,10 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   wiki_backlink_for_chunk,
   wiki_backlink_render,
   wiki_backlink_parse_digest,
+  wiki_bootstrap_filter_courses,
+  wiki_bootstrap_filter_algorithms,
+  wiki_bootstrap_render_course,
+  wiki_bootstrap_render_algorithm,
+  wiki_bootstrap_build_index_line,
+  wiki_bootstrap_insert_index,
 };
