@@ -403,4 +403,33 @@ export const ACTION_DEV_SCHEMAS: ActionSchemaMap = {
   }).passthrough(),
   tool_fingerprint_stats: z.object({}).passthrough(),
   tool_fingerprint_reset: z.object({}).passthrough(),
+
+  // ── Extraction Framework (INTEL-OLLAMA-OBSIDIAN-MS0/P18-U02) ──
+  catalog_extract: z.object({
+    input: z.string().describe("Raw text/JSON content (already loaded by caller). Max 64MB."),
+    schema: z.object({
+      schemaVersion: z.literal("1.0.0").describe("ExtractionSchema version"),
+      format: z.enum(["csv-table", "regex-rows", "json-array", "key-value-pairs"]).describe(
+        "Extraction format — must match the shape of `input`",
+      ),
+      columns: z.array(z.object({
+        name: z.string().min(1).describe("Output field name"),
+        source: z.union([z.number().int().nonnegative(), z.string()]).describe(
+          "0-based source-column index OR JSON-pointer / regex-group key",
+        ),
+        required: z.boolean().optional().describe("Reject row if this field is missing"),
+        defaultValue: z.unknown().optional().describe("Used with 'default' normalizer"),
+        normalizers: z.array(z.enum([
+          "trim", "lower", "upper", "number",
+          "fraction-to-decimal", "inch-to-mm", "mm-to-inch",
+          "drop-empty", "default",
+        ])).optional().describe("Normalizer chain applied left-to-right"),
+      })).min(1).describe("Output column specs"),
+      delimiter: z.string().min(1).max(4).optional().describe("csv-table column delimiter"),
+      skipLines: z.number().int().nonnegative().optional().describe("csv-table header lines to skip"),
+      rowPattern: z.string().min(1).optional().describe("regex-rows pattern (named groups, /g flag added)"),
+      arrayPointer: z.string().optional().describe("json-array root pointer (default '/')"),
+      maxRows: z.number().int().positive().optional().describe("Cap on extracted rows (default 100000)"),
+    }).describe("Declarative ExtractionSchema describing how to parse `input`"),
+  }).passthrough(),
 };

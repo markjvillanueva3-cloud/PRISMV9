@@ -3221,7 +3221,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T14:18:03.161Z",
+          "completed_by": "claude-iooms0-p18",
+          "notes": "Built mcp-server/src/engines/ExtractionFrameworkEngine.ts (319 lines) — schema-driven post-extraction normalizer with class+static methods per CLAUDE.md engine convention. Public API: parse(input, schema) → ParseResult. Supports 4 ExtractionSchema formats: csv-table (skip-lines + delimiter), regex-rows (named groups), json-array (json-pointer arrayPointer), key-value-pairs (one record per call). Eight named normalizers: trim, lower, upper, number (NaN/Infinity guard), fraction-to-decimal (with divide-by-zero guard), inch-to-mm (canonical 25.4), mm-to-inch (exact inverse), drop-empty, default. Pure — no fs, no fetch, no exec — all I/O stays in the calling scripts. Wired to prism_dev dispatcher: added catalog_extract to ACTIONS const + case body that lazy-imports ExtractionFrameworkEngine and validates input/schema typing before calling parse(). Schema entry added to ACTION_DEV_SCHEMAS map in devActionSchemas.ts (Zod with .describe() on every field, action enum match, normalizer enum strict). Tests: mcp-server/src/__tests__/ExtractionFramework.test.ts — 48 vitest cases / 0 failures across 11 describe blocks. Coverage includes: every normalizer kind + 3 adversarial (NaN/Infinity/divide-by-zero), every parse format with happy path + 3 failure modes, top-level guards (non-string input, oversize, bad schemaVersion), dispatcher round-trip (4 schema validation cases + source-shape regression check + end-to-end CSV + JSON parse-error surface), variability floor (3 spanning catalog shapes: ISCAR PDF table, Sandvik regex cutting data, API JSON catalog). Anti-regression test reads dispatcher source and asserts catalog_extract in ACTIONS const, z.enum, AND case body all reference ExtractionFrameworkEngine.parse — guards against the schema-vs-enum drift the U-AF07 schema-engine sync gate (P16-U03-1) catches at autonomous-mode edit time."
         }
       ]
     },
