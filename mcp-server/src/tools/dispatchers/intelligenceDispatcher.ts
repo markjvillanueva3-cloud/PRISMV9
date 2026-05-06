@@ -39,7 +39,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocOnlineMLP: any, _xprocDriftDetector: any,
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
-    _xprocQLearning: any;
+    _xprocQLearning: any, _xprocBandit: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -84,6 +84,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocRewardShaper": return _xprocRewardShaper ??= (await import("../../engines/CrossProcessRewardShaperEngine.js")).crossProcessRewardShaper;
     case "xprocPolicyGradient": return _xprocPolicyGradient ??= (await import("../../engines/CrossProcessPolicyGradientEngine.js")).crossProcessPolicyGradient;
     case "xprocQLearning": return _xprocQLearning ??= (await import("../../engines/CrossProcessQLearningTabularEngine.js")).crossProcessQLearningTabular;
+    case "xprocBandit": return _xprocBandit ??= (await import("../../engines/CrossProcessMultiArmedBanditEngine.js")).crossProcessMultiArmedBandit;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -331,6 +332,13 @@ const ACTIONS = [
   "xproc_qlearn_reset",
   "xproc_qlearn_stats",
   "xproc_qlearn_constants",
+  // XPROC-NEURAL Tier 4 (T4-04) — Multi-Armed Bandit (UCB1 + Thompson Sampling)
+  "xproc_bandit_register_arm",
+  "xproc_bandit_select",
+  "xproc_bandit_update",
+  "xproc_bandit_stats",
+  "xproc_bandit_reset",
+  "xproc_bandit_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -883,6 +891,13 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_qlearn_reset: "xprocQLearning",
           xproc_qlearn_stats: "xprocQLearning",
           xproc_qlearn_constants: "xprocQLearning",
+          // XPROC-NEURAL Tier 4 (T4-04) — Multi-Armed Bandit
+          xproc_bandit_register_arm: "xprocBandit",
+          xproc_bandit_select: "xprocBandit",
+          xproc_bandit_update: "xprocBandit",
+          xproc_bandit_stats: "xprocBandit",
+          xproc_bandit_reset: "xprocBandit",
+          xproc_bandit_constants: "xprocBandit",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
