@@ -1,13 +1,33 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Last updated:** 2026-05-05 ~18:50 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
+**Last updated:** 2026-05-05 ~20:00 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
 
 ---
 
-## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 LANDED ON work/ppgh05
+## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 + U-PPGMU02 LANDED ON work/ppgh05
+
+### U-PPGMU02 — Multus dispatcher wiring (NEW)
+
+**SHIPPED:** `[CAM-EXHAUST-MS0]/U-PPGMU02: master_post_okuma_multus_b250 dispatcher wiring`
+
+Three layers wired:
+1. **Schema** — `ACTION_CAM_SCHEMAS.master_post_okuma_multus_b250` (camActionSchemas.ts) — accepts optional `cps_content` / `cps_path` / `repo_root` (DI-friendly facade params; `min(1)` guards reject empty strings; non-string types rejected by Zod). Inserted before the `master_post_by_machine` entry.
+2. **Action enum** — `master_post_okuma_multus_b250` appended to the master_post_* group at camDispatcher.ts line 1149.
+3. **Case handler** — lazy-imports `okumaMultusB250IIMillTurnMasterPostEngine` and calls `inspectCanonical({cpsContent, cpsPath, repoRoot})`. Inserted between Mitsubishi and master_post_by_machine cases.
+
+**Tests** (`camDispatcher.MultusMasterPost.test.ts`, 16/16 GREEN):
+- 7 schema-layer tests (5 happy-path shapes + 2 Zod rejection guards + 1 schema-vs-enum coherence check)
+- 3 action-enum tests (membership, no duplication, all `master_post_*` schemas have enum entries)
+- 6 round-trip handler tests (cps_content happy path + drift FORKID + oversize 280 KB padding + cps_path absolute + repo_root resolution + non-existent repo_root surfaces ENOENT)
+
+Mirrors what the dispatcher case does (validate via Zod → call engine.inspectCanonical with same params) without standing up a full MCP server runtime.
+
+**META-FIX prerequisite committed alongside:** `[CAM-EXHAUST-MS0] META-FIX/CAMX-MS22-U01-RECOVERY-PPGH05`. The dispatcher already imported `camxMs22U01ActionSchemas.js` but the file was never tracked on ppgh05 (only its U02 sibling was). Restored verbatim from main worktree (mirrors main's `04aa7da45 META-FIX/CAMX-MS22-U01-AND-U-WIRE12-RECOVERY`).
+
+### U-PPGMU01 — Multus B250II facade scaffold
 
 ### U-PPGMU01 — Multus B250II facade scaffold (NEW ENGINE)
 
@@ -43,8 +63,7 @@
 ## NEXT ACTIONS (priority order, refreshed 2026-05-05 ~18:50)
 
 ### Priority 1 — Continue the U-PPGMU0N Multus progression
-The facade is shipped (U-PPGMU01). Next units, smallest-first:
-- **U-PPGMU02** — wire the engine to camDispatcher: add `master_post_okuma_multus_b250` action that invokes `inspectCanonical()` and threads the result through `sealMasterPostOutput`. **Caution:** camDispatcher.ts in **main** worktree is permanently churned by peer chats — edit ppgh05's copy here, cherry-pick later.
+Facade (U-PPGMU01) and dispatcher wiring (U-PPGMU02) shipped. Next units, smallest-first:
 - **U-PPGMU03** — Kienzle Fc cross-check: when `usePRISMCuttingForceEstimate` is on, parse the .cps's emitted `(Fc=XXX N)` comment lines and verify against `CANONICAL_KIENZLE` for each op's `material_iso` + `axial_depth_mm` + `fz`. Hard-block if drift > 15%.
 - **U-PPGMU04** — Taylor T cross-check: when `usePRISMToolLifeTracking` is on, verify the post's emitted tool-life estimate against `CANONICAL_TAYLOR`. Same drift threshold.
 - **U-PPGMU05** — BlockAnnotation envelope: parse the .cps output stream, attribute each block to an op, emit `block_annotations[]` so `sealMasterPostOutput` can seal Multus output the same way it seals Hurco/OkumaOSP/Mitsubishi.

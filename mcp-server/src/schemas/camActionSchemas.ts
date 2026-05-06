@@ -273,6 +273,29 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     verify_tier: z.enum(["sim", "proven_out", "production", "shop_floor"]).optional().describe("PPG-WIRE-MS6/U-PPGM17d — when set, run verifyWEDMBlockAnnotations and attach the WEDMVerifyResult to the response. Tier semantics: sim ±20% drift / proven_out ±10% / production ±5% (HARD_BLOCK) / shop_floor ±2% + heat-soak invariant + servo voltage range gate."),
   }),
 
+  /**
+   * Okuma Multus B250II mill-turn master post — facade over the canonical
+   * Mastercam/Fusion CPS post (`JM DIE/PRISM MODIFIED POST PROCESSORS/
+   * OKUMA_MULTUS_B250IIW-PRISM-Enhanced-v5_2_7.cps`, OSP-P300SA controller).
+   *
+   * The .cps does the actual G-code emission. This action returns the
+   * post's identity + capability + property catalog + drift validation
+   * envelope. Operations[] is intentionally absent — Mastercam/Fusion drives
+   * the .cps when the user wants real G-code; PRISM's role here is to
+   * inspect, validate, and surface PRISM intelligence flag state.
+   *
+   * All three input fields are optional. Resolution priority:
+   *   1. cps_content   (direct injection — wins, used by tests)
+   *   2. cps_path      (absolute path override)
+   *   3. repo_root + CANONICAL_POST_RELATIVE_PATH (default)
+   *   4. process.cwd() + CANONICAL_POST_RELATIVE_PATH (final fallback)
+   */
+  master_post_okuma_multus_b250: z.object({
+    cps_content: z.string().min(1).optional().describe("CPS source content for direct inspection (test injection — wins over cps_path/repo_root)"),
+    cps_path: z.string().min(1).optional().describe("Absolute path to the canonical .cps post (override default)"),
+    repo_root: z.string().min(1).optional().describe("Repository root for resolving CANONICAL_POST_RELATIVE_PATH (defaults to process.cwd())"),
+  }),
+
   /** Auto-route to correct master post engine by machine model */
   master_post_by_machine: z.object({
     machine_model: z.string().describe("Machine model identifier (e.g., 'HURCO_VMX24', 'OKUMA_LB250', 'MITSUBISHI_MV1200R')"),

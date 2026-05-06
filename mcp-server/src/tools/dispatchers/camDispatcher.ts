@@ -1146,7 +1146,7 @@ export const ACTIONS = [
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
   // Master Post Engines (JM Die canonical posts) — PPG-WIRE-MS0 + MS5
-  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_okuma_osp", "master_post_mitsubishi_mv1200r", "master_post_by_machine",
+  "master_post_hurco_v11", "master_post_okuma_b250", "master_post_okuma_osp", "master_post_mitsubishi_mv1200r", "master_post_okuma_multus_b250", "master_post_by_machine",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
   // Orphan CAM engines (11 engines, 30 actions)
   "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
@@ -5715,6 +5715,26 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = sealWEDM(wedmEngineOutput, {
               source_engine_versions: { "MitsubishiMV1200RWireEDMMasterPostEngine": "1.0.0" },
               verify_tier: p.verify_tier,
+            });
+            break;
+          }
+          case "master_post_okuma_multus_b250": {
+            // U-PPGMU02 — facade for the canonical PRISM-Enhanced .cps:
+            //   JM DIE/PRISM MODIFIED POST PROCESSORS/OKUMA_MULTUS_B250IIW-PRISM-Enhanced-v5_2_7.cps
+            // Returns identity + capability + property catalog + drift
+            // validation. The .cps does emission; PRISM does inspect.
+            const { okumaMultusB250IIMillTurnMasterPostEngine } = await import(
+              "../../engines/OkumaMultusB250IIMillTurnMasterPostEngine.js"
+            );
+            const p = params as {
+              cps_content?: string;
+              cps_path?: string;
+              repo_root?: string;
+            };
+            result = okumaMultusB250IIMillTurnMasterPostEngine.inspectCanonical({
+              cpsContent: p.cps_content,
+              cpsPath: p.cps_path,
+              repoRoot: p.repo_root,
             });
             break;
           }
