@@ -1,6 +1,9 @@
 import path from "node:path";
 import process from "node:process";
+import { readFileSync } from "node:fs";
 import { appendLine, cachePath } from "./hook-cache.mjs";
+
+const STDIN_FD = 0;
 
 function basenameSafe(target) {
   try {
@@ -10,14 +13,80 @@ function basenameSafe(target) {
   }
 }
 
+/**
+ * Read the Claude Code hook envelope from stdin.
+ *
+ * Modern contract: hooks receive a JSON envelope on stdin like
+ *   {tool_name, tool_input: {command|file_path|pattern|...},
+ *    tool_response: {output, is_error, ...}, hook_event_name, session_id}
+ *
+ * Legacy contract: env vars TOOL_NAME / TOOL_INPUT_* / TOOL_ERROR.
+ *
+ * The legacy contract has been dead since ~2026-03-28 04:09 UTC, which is when
+ * every appended row in cache/error-log went to {tool:"unknown",input:"",error:""}.
+ * We read stdin first, fall back to env vars only if stdin is empty/invalid.
+ */
+function readEnvelope() {
+  let raw = "";
+  try {
+    raw = readFileSync(STDIN_FD, "utf8");
+  } catch {
+    raw = "";
+  }
+  if (raw && raw.trim().length > 0) {
+    try {
+      const j = JSON.parse(raw);
+      if (j && typeof j === "object") return j;
+    } catch {
+      // fall through to env-var fallback
+    }
+  }
+  return null;
+}
+
+function pickToolInput(toolInput) {
+  if (!toolInput || typeof toolInput !== "object") return "";
+  return (
+    toolInput.command ||
+    toolInput.file_path ||
+    toolInput.pattern ||
+    toolInput.url ||
+    toolInput.notebook_path ||
+    ""
+  );
+}
+
+function pickToolError(envelope) {
+  if (!envelope) return "";
+  const tr = envelope.tool_response;
+  if (tr && typeof tr === "object") {
+    if (tr.is_error && typeof tr.output === "string") return tr.output.slice(0, 2000);
+    if (typeof tr.error === "string") return tr.error.slice(0, 2000);
+    if (typeof tr.stderr === "string" && tr.stderr) return tr.stderr.slice(0, 2000);
+  }
+  if (typeof envelope.error === "string") return envelope.error.slice(0, 2000);
+  return "";
+}
+
 async function main() {
-  const toolName = process.env.TOOL_NAME ?? "unknown";
-  const toolInput =
-    process.env.TOOL_INPUT_command ??
-    process.env.TOOL_INPUT_file_path ??
-    process.env.TOOL_INPUT_pattern ??
-    "";
-  const toolError = process.env.TOOL_ERROR ?? "";
+  const envelope = readEnvelope();
+
+  let toolName, toolInput, toolError;
+  if (envelope) {
+    toolName = envelope.tool_name || envelope.toolName || "unknown";
+    toolInput = pickToolInput(envelope.tool_input || envelope.toolInput);
+    toolError = pickToolError(envelope);
+  } else {
+    // Legacy fallback (kept for backward compat with any harness still
+    // setting these env vars).
+    toolName = process.env.TOOL_NAME ?? "unknown";
+    toolInput =
+      process.env.TOOL_INPUT_command ??
+      process.env.TOOL_INPUT_file_path ??
+      process.env.TOOL_INPUT_pattern ??
+      "";
+    toolError = process.env.TOOL_ERROR ?? "";
+  }
 
   await appendLine(
     cachePath("error-log"),

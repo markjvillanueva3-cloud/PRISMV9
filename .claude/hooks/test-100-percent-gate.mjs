@@ -309,20 +309,42 @@ function resolveGitExecutable() {
 }
 
 function gitTouchedMachiningFiles(mcpServerPath) {
-  // Returns list of machining-related source/test files changed since HEAD.
-  // Returns empty array when only docs/state/json churned → skip vitest.
-  // Returns null if git unavailable → caller falls through to full run.
+  // Returns list of machining-related source/test files changed in the
+  // recent session window (last ≤5 commits + working tree).
+  //
+  // Why both: the previous version inspected only `git diff HEAD`
+  // (uncommitted only). Under the YOLO commit-after-each-unit workflow
+  // the tree is clean immediately after a commit → diff returns nothing →
+  // gate skipped on the very edits that should have triggered it. We
+  // union `git log -5 --name-only` with the working-tree diff so the
+  // gate covers both freshly-committed work and in-flight edits.
+  //
+  // Returns empty array when only docs/state/json churned → skip vitest
+  // (legitimate: no machining files in scope).
+  // Returns null if git unavailable OR no diff data at all → caller
+  // falls through to full vitest run (conservative).
   const gitExe = resolveGitExecutable();
   if (!gitExe) return null;
   try {
-    const diff = spawnSync(gitExe,
+    const calls = [
+      ['log', '-5', '--name-only', '--pretty=format:'],
       ['diff', '--name-only', 'HEAD'],
-      { cwd: mcpServerPath, encoding: 'utf-8', timeout: GIT_TIMEOUT_MS }
-    );
-    if (diff.status !== 0 || typeof diff.stdout !== 'string') return null;
-    return diff.stdout
-      .split(/\r?\n/)
-      .filter(Boolean)
+    ];
+    const collected = new Set();
+    let anySuccess = false;
+    for (const args of calls) {
+      const r = spawnSync(gitExe, args,
+        { cwd: mcpServerPath, encoding: 'utf-8', timeout: GIT_TIMEOUT_MS }
+      );
+      if (r.status !== 0 || typeof r.stdout !== 'string') continue;
+      anySuccess = true;
+      for (const line of r.stdout.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (trimmed) collected.add(trimmed);
+      }
+    }
+    if (!anySuccess) return null;
+    return [...collected]
       .filter(isCodeFile)
       .filter(isMachiningTest);
   } catch { return null; }

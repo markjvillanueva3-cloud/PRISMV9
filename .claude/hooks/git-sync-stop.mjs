@@ -20,7 +20,7 @@
  * Companion to permanent cross-PC sync fix from 2026-04-21.
  */
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -141,6 +141,44 @@ function pushWithRemoteLock(args) {
   }
 }
 
+/**
+ * Detached push. Acquires the remote lock, spawns `git push` as a
+ * detached child whose stdio is ignored, and returns immediately. The
+ * lock is NOT explicitly released by this process — it relies on the
+ * REMOTE_LOCK_TTL_MS expiration (default 180s, well above realistic
+ * push time on any reasonable network).
+ *
+ * Why this exists: prior implementation used pushWithRemoteLock() which
+ * blocks on git push for up to PUSH_TIMEOUT_MS (30s). Failure is
+ * non-fatal anyway (process.exit(0) at end of file), so the synchronous
+ * wait is pure user-perceived Stop-hook latency.
+ */
+function detachedPush(args) {
+  const lock = acquireRemoteLock();
+  if (!lock.ok) {
+    return { blocked: true, error: lock.message };
+  }
+  if (DRY_RUN) {
+    releaseRemoteLock(lock.holder);
+    return { dryRun: true, message: `dry-run: git ${args.join(" ")}` };
+  }
+  try {
+    const child = spawn("git", args, {
+      cwd: REPO,
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    child.unref();
+    return { detached: true };
+  } catch (e) {
+    // Spawn itself failed — release the lock and surface the error.
+    releaseRemoteLock(lock.holder);
+    return { error: e.message };
+  }
+  // No release: child runs after we exit; the lock TTL covers cleanup.
+}
+
 function main() {
   const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
   if (!isOk(branch) || branch === "HEAD") {
@@ -154,18 +192,19 @@ function main() {
 
   if (!hasUpstream) {
     // First-ever push for this branch — establish upstream.
-    process.stdout.write(`git-sync-stop: '${branch}' has no upstream — pushing with -u\n`);
-    const r = pushWithRemoteLock(["push", "-u", "origin", branch]);
-    if (isOk(r) && r.startsWith("dry-run:")) {
-      process.stdout.write(`git-sync-stop: ${r}\n`);
-    } else if (isOk(r)) {
-      process.stdout.write(`git-sync-stop: ✓ pushed ${branch} → origin/${branch} (upstream set)\n`);
+    // Detached: we don't wait for the network round-trip. Stop returns
+    // immediately; the push completes in the background.
+    process.stdout.write(`git-sync-stop: '${branch}' has no upstream — pushing with -u (detached)\n`);
+    const r = detachedPush(["push", "-u", "origin", branch]);
+    if (r.dryRun) {
+      process.stdout.write(`git-sync-stop: ${r.message}\n`);
+    } else if (r.detached) {
+      process.stdout.write(`git-sync-stop: ✓ queued push ${branch} → origin/${branch} (upstream set, detached)\n`);
     } else if (r.blocked) {
       process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
     } else {
       process.stdout.write(
-        `git-sync-stop: push failed for ${branch}\n` +
-        `  ${r.stderr?.split("\n").slice(0, 4).join("\n  ") || r.error}\n` +
+        `git-sync-stop: push spawn failed for ${branch}: ${r.error}\n` +
         `  Other PC will not see this branch's commits until you push manually.\n`
       );
     }
@@ -195,19 +234,18 @@ function main() {
     return;
   }
 
-  // Pure ahead — safe to push.
-  process.stdout.write(`git-sync-stop: pushing ${ahead} commit(s) ${branch} → ${upstream}\n`);
-  const r = pushWithRemoteLock(["push"]);
-  if (isOk(r) && r.startsWith("dry-run:")) {
-    process.stdout.write(`git-sync-stop: ${r}\n`);
-  } else if (isOk(r)) {
-    process.stdout.write(`git-sync-stop: ✓ pushed ${branch} (${ahead} commits)\n`);
+  // Pure ahead — safe to push. Detached: don't block Stop on the network.
+  process.stdout.write(`git-sync-stop: pushing ${ahead} commit(s) ${branch} → ${upstream} (detached)\n`);
+  const r = detachedPush(["push"]);
+  if (r.dryRun) {
+    process.stdout.write(`git-sync-stop: ${r.message}\n`);
+  } else if (r.detached) {
+    process.stdout.write(`git-sync-stop: ✓ queued push ${branch} (${ahead} commits, detached)\n`);
   } else if (r.blocked) {
     process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
   } else {
     process.stdout.write(
-      `git-sync-stop: push failed for ${branch}\n` +
-      `  ${r.stderr?.split("\n").slice(0, 4).join("\n  ") || r.error}\n`
+      `git-sync-stop: push spawn failed for ${branch}: ${r.error}\n`
     );
   }
 }
