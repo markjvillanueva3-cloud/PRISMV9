@@ -175,6 +175,60 @@ const wiki_bootstrap_insert_index = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P15-U01 — CSM memory.db audit
+// (wires CSMMemoryDBAuditEngine to knowledge dispatcher; memoryDispatcher is
+//  locked at 14 actions by GsdRouterAndRetrieve.test.ts source-shape regex)
+// ============================================================================
+
+const _dbReport = z.object({
+  path: z.string(),
+  exists: z.boolean(),
+  sizeBytes: z.number().nonnegative(),
+  lastModifiedISO: z.string(),
+  rowCount: z.number().nullable(),
+  schemaFingerprint: z.string().nullable(),
+  tableNames: z.array(z.string()),
+  error: z.string(),
+});
+
+const csm_audit_classify_path = z.object({
+  path: z.string().describe("Path to a memory.db file"),
+}).passthrough();
+
+const csm_audit_summarize = z.object({
+  reports: z.array(_dbReport).describe("DBReport[] from disk inspection"),
+}).passthrough();
+
+const csm_audit_detect_variants = z.object({
+  reports: z.array(_dbReport).describe("DBReport[] to group by schemaFingerprint"),
+}).passthrough();
+
+const csm_audit_format_report = z.object({
+  reports: z.array(_dbReport),
+  summary: z.object({
+    totalDBs: z.number().int().nonnegative(),
+    readableDBs: z.number().int().nonnegative(),
+    totalSizeBytes: z.number().nonnegative(),
+    totalRows: z.number().nonnegative(),
+    byClass: z.record(z.string(), z.object({
+      count: z.number().int().nonnegative(),
+      sizeBytes: z.number().nonnegative(),
+      rows: z.number().nonnegative(),
+    })),
+    schemaVariantCount: z.number().int().nonnegative(),
+    oldestModifiedISO: z.string(),
+    newestModifiedISO: z.string(),
+  }),
+}).passthrough();
+
+const csm_audit_build_fingerprint = z.object({
+  tables: z.array(z.object({
+    name: z.string(),
+    colCount: z.number().int().nonnegative(),
+  })).describe("Table metadata as { name, colCount } pairs"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1265,4 +1319,9 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   wiki_bootstrap_render_algorithm,
   wiki_bootstrap_build_index_line,
   wiki_bootstrap_insert_index,
+  csm_audit_classify_path,
+  csm_audit_summarize,
+  csm_audit_detect_variants,
+  csm_audit_format_report,
+  csm_audit_build_fingerprint,
 };
