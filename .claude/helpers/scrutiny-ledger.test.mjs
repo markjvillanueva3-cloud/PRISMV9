@@ -476,6 +476,46 @@ describe("parseVerdictLine — VERDICT regex (Gemini blocker #2)", () => {
     expect(r.verdict).toBe("fail");
     expect(r.firstLine).toBe("VERDICT: FAIL — saw issue X");
   });
+
+  it("skips Windows shim taskkill chatter prepended to Codex output", async () => {
+    // Reproduces the bug from session 1f96b0f4 (2026-05-05) where the Codex
+    // .cmd shim emitted Windows `taskkill /T` exit chatter on stdout BEFORE
+    // Codex's actual VERDICT, defaulting every Codex review to FAIL.
+    const { parseVerdictLine } = await loadLedger();
+    const text = [
+      "SUCCESS: The process with PID 28544 (child process of PID 20796) has been terminated.",
+      "VERDICT: PASS",
+    ].join("\n");
+    const r = parseVerdictLine(text);
+    expect(r.verdict).toBe("pass");
+    expect(r.firstLine).toBe("VERDICT: PASS");
+  });
+
+  it("skips multiple Windows shim noise lines before finding VERDICT", async () => {
+    const { parseVerdictLine } = await loadLedger();
+    const text = [
+      "SUCCESS: Sent termination signal to process 1234",
+      "INFO: No tasks running matching the criteria",
+      "SUCCESS: The process with PID 1234 has been terminated.",
+      "VERDICT: FAIL",
+      "BLOCKER: stub function detected",
+    ].join("\n");
+    const r = parseVerdictLine(text);
+    expect(r.verdict).toBe("fail");
+    expect(r.firstLine).toBe("VERDICT: FAIL");
+  });
+
+  it("does NOT mistake legitimate prose for shim noise", async () => {
+    // The shim-noise patterns are anchored to start-of-line and tightly
+    // worded; user prose mentioning "success" elsewhere must NOT match.
+    const { parseVerdictLine } = await loadLedger();
+    const text = "SUCCESS criteria met for this commit.\nVERDICT: PASS";
+    const r = parseVerdictLine(text);
+    // First non-empty non-shim line is "SUCCESS criteria met..." which is
+    // NOT a recognized VERDICT line, so the parser correctly returns null
+    // (the shim filter is conservative — it only suppresses exact known noise).
+    expect(r.verdict).toBe(null);
+  });
 });
 
 describe("saveLedger error propagation (Gemini blocker #1)", () => {

@@ -166,12 +166,34 @@ function saveLedger(data) {
  * @returns {{ verdict: "pass"|"fail"|null, firstLine: string }}
  *   verdict is null when no recognizable VERDICT line was found.
  */
+// Lines emitted by environmental wrappers / shims that show up BEFORE the
+// reviewer's actual output. We must skip these so the parser can find the
+// real VERDICT line. Adding a new entry is safe — anything that doesn't match
+// is treated as a real first line.
+//
+// Discovered via 3-way scrutiny session 1f96b0f4 (2026-05-05) where Codex's
+// Windows .cmd shim emitted Windows `taskkill /T` "SUCCESS: The process with
+// PID X has been terminated." on stdout BEFORE Codex's verdict, defaulting
+// every Codex review on Windows to FAIL despite empty blocker lists.
+const SHIM_NOISE_PATTERNS = [
+  /^SUCCESS:\s*The process with PID\b.*has been terminated\.?$/i,  // Windows taskkill /T
+  /^INFO:\s*No tasks running\b/i,                                   // Windows tasklist when nothing matched
+  /^SUCCESS:\s*Sent termination signal\b/i,                         // Windows taskkill alt format
+];
+
+function isShimNoise(line) {
+  for (const re of SHIM_NOISE_PATTERNS) {
+    if (re.test(line)) return true;
+  }
+  return false;
+}
+
 export function parseVerdictLine(text) {
   if (typeof text !== "string") return { verdict: null, firstLine: "" };
   const firstLine = text
     .split(/\r?\n/)
     .map((l) => l.trim())
-    .find((l) => l.length > 0) ?? "";
+    .find((l) => l.length > 0 && !isShimNoise(l)) ?? "";
   const m = firstLine.match(/^VERDICT:\s*(PASS|FAIL)\b/i);
   if (!m) return { verdict: null, firstLine };
   return { verdict: m[1].toLowerCase(), firstLine };
