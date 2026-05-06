@@ -40,6 +40,7 @@
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { CANONICAL_KIENZLE, type ISOGroup } from "../physics/constants.js";
 
 // ============================================================================
 // CONSTANTS — pinned to the canonical asset shipped at JM Die
@@ -177,6 +178,65 @@ export interface MultusPostMetadata {
   /** Subset of properties that match `usePRISMxxx`. */
   prismFlagsDeclared: PRISMIntelligenceFlag[];
 }
+
+/**
+ * U-PPGMU06: Kienzle Fc cross-check input — one entry per .cps op that we
+ * expect to have emitted a `(PRISM EST. CUTTING FORCE: NNN N)` comment.
+ * Match against emitted comments is by ORDINAL POSITION (1st emitted Fc
+ * pairs with ops[0], 2nd with ops[1], etc.) — keeps the API simple and
+ * doesn't require us to scrape op-ID banners that may not exist.
+ */
+export interface MultusOpKienzleSpec {
+  /** Operator-facing label (used only in result.perOp[i].op_id, not matching). */
+  op_id: string | number;
+  material_iso: ISOGroup;
+  /** Axial depth of cut [mm] — must be positive. */
+  ap_mm: number;
+  /** Feed per tooth [mm] — must be positive. */
+  fz_mm: number;
+}
+
+/**
+ * U-PPGMU06: per-op Fc drift entry. `emitted_fc_n` may be null when the
+ * gcode has fewer Fc comments than ops (the .cps may have skipped some
+ * operations because `usePRISMCuttingForceEstimate` was off mid-run).
+ */
+export interface MultusForceEstimatePerOp {
+  op_id: string | number;
+  emitted_fc_n: number | null;
+  canonical_fc_n: number;
+  drift_pct: number | null;
+  flagged: boolean;
+}
+
+/**
+ * U-PPGMU06: Kienzle Fc cross-check result.
+ *   - `ok = false` when ANY op exceeds the drift threshold OR there is a
+ *     surplus emitted Fc that could not be associated with an op spec.
+ *   - `ok = true` when no Fc comments were found at all (treated as
+ *     "feature disabled" — not a failure).
+ */
+export interface MultusForceEstimateDriftResult {
+  ok: boolean;
+  warnings: string[];
+  perOp: MultusForceEstimatePerOp[];
+  fc_estimates_found_count: number;
+  drift_threshold_pct: number;
+  /** Surplus emitted Fc count when emittedFcs.length > ops.length. */
+  surplus_emitted_count: number;
+}
+
+/** Default drift threshold — operator-tunable per `verifyEmittedForceEstimates`. */
+export const MULTUS_KIENZLE_DRIFT_THRESHOLD_PCT_DEFAULT = 15;
+
+/**
+ * Regex matching the .cps `writePRISMCuttingForce` comment format (line 2171
+ * of v5.2.7 .cps). Tolerant of whitespace variations inside the parens —
+ * future Mastercam/Fusion versions or alternative Okuma dialects may add
+ * pretty-print spacing without changing the semantic content.
+ */
+const RX_PRISM_FC_COMMENT =
+  /\(\s*PRISM\s+EST\.?\s+CUTTING\s+FORCE:\s*(-?\d+(?:\.\d+)?)\s*N\s*\)/gi;
 
 export interface MultusEngineLoadOptions {
   /** Absolute path to the .cps. Wins over repoRoot+relativePath. */
@@ -365,6 +425,139 @@ export class OkumaMultusB250IIMillTurnMasterPostEngine {
     }
 
     return { ok: warnings.length === 0, warnings };
+  }
+
+  /**
+   * U-PPGMU06: Cross-check the cutting-force estimates the v5.2.7 .cps emits
+   * (when `usePRISMCuttingForceEstimate` is on) against the canonical Kienzle
+   * computation derived from `physics/constants.ts:CANONICAL_KIENZLE`.
+   *
+   * The .cps's `writePRISMCuttingForce` (lines 2160-2172) computes:
+   *   Fc = prismMaterialKc × ap × fz^(1 - mc)    with mc hardcoded to 0.25
+   * and emits `(PRISM EST. CUTTING FORCE: NNN N)` per op block.
+   *
+   * The canonical computation uses the ISO-group-specific kc1_1 + mc table
+   * and produces what the .cps WOULD emit if the operator had set
+   * `prismMaterialKc` correctly for the part's actual material. Drift > 15%
+   * (default threshold) means the operator left the property at the default
+   * 2000 N/mm² OR set it to a wrong value — a typical shop-floor mistake
+   * that this gate is designed to catch.
+   *
+   * Match strategy: ORDINAL — 1st emitted Fc pairs with ops[0], 2nd with
+   * ops[1], etc. Op-ID labels are reported but not used for matching, so
+   * the caller doesn't need to scrape `(OP N: ...)` banners (which the
+   * v5.2.7 post may not emit reliably across all op types).
+   *
+   * @param gcodeLines  Lines of emitted G-code (split by \n).
+   * @param ops         Per-op Kienzle inputs (material, ap, fz). Order MUST
+   *                    match the order in which the .cps emitted Fc comments.
+   * @param driftThresholdPct  Defaults to 15. Operator may tighten to 5 for
+   *                    proven-out runs or loosen to 25 for sim/explore tier.
+   */
+  static verifyEmittedForceEstimates(
+    gcodeLines: string[],
+    ops: MultusOpKienzleSpec[],
+    driftThresholdPct: number = MULTUS_KIENZLE_DRIFT_THRESHOLD_PCT_DEFAULT,
+  ): MultusForceEstimateDriftResult {
+    if (!Array.isArray(gcodeLines)) {
+      throw new Error(
+        "OkumaMultusB250IIMillTurnMasterPostEngine.verifyEmittedForceEstimates: gcodeLines must be an array of strings",
+      );
+    }
+    if (!Array.isArray(ops)) {
+      throw new Error(
+        "OkumaMultusB250IIMillTurnMasterPostEngine.verifyEmittedForceEstimates: ops must be an array",
+      );
+    }
+    if (!Number.isFinite(driftThresholdPct) || driftThresholdPct <= 0) {
+      throw new Error(
+        `OkumaMultusB250IIMillTurnMasterPostEngine.verifyEmittedForceEstimates: driftThresholdPct must be > 0 (got ${driftThresholdPct})`,
+      );
+    }
+    for (const op of ops) {
+      if (!op || typeof op !== "object") {
+        throw new Error("verifyEmittedForceEstimates: each op must be a non-null object");
+      }
+      if (!Number.isFinite(op.ap_mm) || op.ap_mm <= 0) {
+        throw new Error(
+          `verifyEmittedForceEstimates: op_id=${op.op_id} has invalid ap_mm=${op.ap_mm} (must be positive finite)`,
+        );
+      }
+      if (!Number.isFinite(op.fz_mm) || op.fz_mm <= 0) {
+        throw new Error(
+          `verifyEmittedForceEstimates: op_id=${op.op_id} has invalid fz_mm=${op.fz_mm} (must be positive finite)`,
+        );
+      }
+      if (!(op.material_iso in CANONICAL_KIENZLE)) {
+        throw new Error(
+          `verifyEmittedForceEstimates: op_id=${op.op_id} has unknown material_iso="${op.material_iso}" (not in CANONICAL_KIENZLE)`,
+        );
+      }
+    }
+
+    // Parse all (PRISM EST. CUTTING FORCE: NNN N) comments from the gcode
+    // stream in emission order.
+    const emittedFcs: number[] = [];
+    for (const line of gcodeLines) {
+      if (typeof line !== "string") continue;
+      RX_PRISM_FC_COMMENT.lastIndex = 0;
+      let m: RegExpExecArray | null;
+      while ((m = RX_PRISM_FC_COMMENT.exec(line)) !== null) {
+        const v = parseFloat(m[1]);
+        if (Number.isFinite(v) && v >= 0) emittedFcs.push(v);
+      }
+    }
+
+    const warnings: string[] = [];
+    const perOp: MultusForceEstimatePerOp[] = ops.map((op, i) => {
+      const { kc1_1, mc } = CANONICAL_KIENZLE[op.material_iso];
+      const canonical = kc1_1 * op.ap_mm * Math.pow(op.fz_mm, 1 - mc);
+      const emitted = i < emittedFcs.length ? emittedFcs[i] : null;
+      let drift_pct: number | null = null;
+      let flagged = false;
+      if (emitted !== null) {
+        // canonical is always > 0 here (ap, fz, kc1_1 all positive).
+        drift_pct = Math.abs(emitted - canonical) / canonical * 100;
+        if (drift_pct > driftThresholdPct) {
+          flagged = true;
+          warnings.push(
+            `Op ${op.op_id} (${op.material_iso}): emitted Fc=${emitted.toFixed(0)} N drifts ${drift_pct.toFixed(1)}% from canonical ${canonical.toFixed(0)} N (kc1_1=${kc1_1}, mc=${mc}, ap=${op.ap_mm} mm, fz=${op.fz_mm} mm) — verify operator set prismMaterialKc to ${kc1_1} N/mm² for ISO ${op.material_iso}`,
+          );
+        }
+      }
+      return {
+        op_id: op.op_id,
+        emitted_fc_n: emitted,
+        canonical_fc_n: canonical,
+        drift_pct,
+        flagged,
+      };
+    });
+
+    // Surplus: more emitted Fcs than ops described — usually means the spec
+    // forgot to enumerate some Fc-emitting ops, or the gcode had stale Fc
+    // comments from an earlier run pasted in. Report and fail.
+    const surplus_emitted_count = Math.max(0, emittedFcs.length - ops.length);
+    if (surplus_emitted_count > 0) {
+      warnings.push(
+        `${surplus_emitted_count} surplus (PRISM EST. CUTTING FORCE: ...) comment(s) found beyond the ${ops.length} op spec(s) provided — extend ops[] or trim the gcode`,
+      );
+    }
+
+    // No Fc comments at all = feature disabled in the .cps, NOT a failure.
+    // Caller can still inspect perOp[].canonical_fc_n for what the .cps
+    // would have emitted had the property been on.
+    const fc_estimates_found_count = emittedFcs.length;
+    const ok = warnings.length === 0;
+
+    return {
+      ok,
+      warnings,
+      perOp,
+      fc_estimates_found_count,
+      drift_threshold_pct: driftThresholdPct,
+      surplus_emitted_count,
+    };
   }
 
   /**

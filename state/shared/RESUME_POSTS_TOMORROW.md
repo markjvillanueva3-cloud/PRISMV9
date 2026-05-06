@@ -1,7 +1,7 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Last updated:** 2026-05-05 ~21:35 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
+**Last updated:** 2026-05-05 ~21:50 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
 
@@ -146,8 +146,8 @@ Mirrors what the dispatcher case does (validate via Zod → call engine.inspectC
 ## NEXT ACTIONS (priority order, refreshed 2026-05-05 ~18:50)
 
 ### Priority 1 — Continue the U-PPGMU0N Multus progression
-Facade (U-PPGMU01) and dispatcher wiring (U-PPGMU02) shipped. Next units, smallest-first:
-- **U-PPGMU03** — Kienzle Fc cross-check: when `usePRISMCuttingForceEstimate` is on, parse the .cps's emitted `(Fc=XXX N)` comment lines and verify against `CANONICAL_KIENZLE` for each op's `material_iso` + `axial_depth_mm` + `fz`. Hard-block if drift > 15%.
+Facade (U-PPGMU01), dispatcher wiring (U-PPGMU02), audit refinement (U-PPGMU03), Hurco/Okuma canonical companions (U-PPGMU04+05), Kienzle Fc cross-check (U-PPGMU06) shipped. Next units, smallest-first:
+- **U-PPGMU07** — Taylor T cross-check: when `usePRISMToolLifeTracking` is on, parse the .cps's emitted tool-life-estimate comments and verify against `CANONICAL_TAYLOR`. Hard-block if drift > 15%. Same shape as U-PPGMU06's `verifyEmittedForceEstimates` but for the Taylor formula.
 - **U-PPGMU04** — Taylor T cross-check: when `usePRISMToolLifeTracking` is on, verify the post's emitted tool-life estimate against `CANONICAL_TAYLOR`. Same drift threshold.
 - **U-PPGMU05** — BlockAnnotation envelope: parse the .cps output stream, attribute each block to an op, emit `block_annotations[]` so `sealMasterPostOutput` can seal Multus output the same way it seals Hurco/OkumaOSP/Mitsubishi.
 - **U-PPGMU06+** — feature parity sweep against the 11 PRISM flags one at a time (warmup, thermal-comp, arc-feed, corner-decel, tool-break, chip-load, stability, cycle-time, surface-finish, force-est, tool-life).
