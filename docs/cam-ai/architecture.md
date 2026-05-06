@@ -56,7 +56,7 @@ operator request
           ├→ CAMFeedbackLoopEngine.recordCorrectionFromDecision(decideResult, opts)
           │    when operator overrides the recommendation
           │
-          └→ CAMFeedbackLoopEngine.recordOutcome({ decisionId, success, ... })
+          └→ CAMFeedbackLoopEngine.recordOutcome({ decisionId, wasCorrect, ... })
                when shop-floor outcome arrives
 ```
 
@@ -135,7 +135,7 @@ static setOrchestrator(adapter: OrchestratorAdapter): void
 static resetOrchestrator(): void
 
 // CAMConfidenceCalibrationEngine
-static recordOutcome(args: { decisionId: string; task: AGIDecisionTask; rawConfidence: number; correct: boolean; ts?: number }): CalibrationOutcome
+static recordOutcome(args: { decisionId: string; task: AGIDecisionTask; predictedConfidence: number; wasCorrect: boolean; recordedAt?: number }): CalibrationOutcome
 static calibrate(rawConfidence: number, opts?: CalibrationOptions): CalibrateResult
 static calibrateDecision<V>(decision: AGIDecision<V>, opts?: CalibrationOptions): CalibrateResult
 static metrics(opts?: { task?: AGIDecisionTask; binCount?: number }): CalibrationMetrics
