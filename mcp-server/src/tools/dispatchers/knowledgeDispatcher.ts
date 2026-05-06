@@ -10,6 +10,7 @@ import { validateActionParams, dispatcherError } from "../../utils/dispatcherMid
 import { ACTION_KNOWLEDGE_SCHEMAS } from "../../schemas/knowledgeActionSchemas.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 import type { RepoSignature, PerRepoUniques } from "../../engines/PeerRepoSignatureEngine.js";
+import type { AssetEntry, ScoringConfig, CandidateReport } from "../../engines/MergeCandidateScorerEngine.js";
 
 const ACADEMY_ACTIONS = [
   "academy_courses", "academy_course_detail",
@@ -236,6 +237,14 @@ const PEER_REPO_SIGNATURE_ACTIONS = [
   "peer_repo_summarize",         // PerRepoUniques[] → AuditSummary with peer ranking
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P16-U02: Merge candidate scoring — surfaces MergeCandidateScorerEngine. */
+const MERGE_CANDIDATE_ACTIONS = [
+  "merge_candidate_build_index", // PerRepoUniques[] → AssetEntry[] (cross-peer aggregated, deduped, sorted)
+  "merge_candidate_score_asset", // AssetEntry → ScoredAsset with infra/peer/lead-lane composite score
+  "merge_candidate_rank",        // PerRepoUniques[] → CandidateReport (filtered + ranked)
+  "merge_candidate_render_md",   // CandidateReport → markdown triage doc
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -264,6 +273,7 @@ const ACTIONS = [
   ...CSM_AUDIT_ACTIONS,
   ...PLAN_TRAJECTORY_ACTIONS,
   ...PEER_REPO_SIGNATURE_ACTIONS,
+  ...MERGE_CANDIDATE_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2480,6 +2490,41 @@ export function registerKnowledgeDispatcher(server: any): void {
                       : Array.isArray(params.perRepo) ? params.perRepo : [];
             const perRepo = raw as readonly PerRepoUniques[];
             result = { summary: peerRepoSignatureEngine.summarize(perRepo) };
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P16-U02: Merge-candidate scoring (MergeCandidateScorerEngine) ──
+          case "merge_candidate_build_index": {
+            const { mergeCandidateScorerEngine } = await import("../../engines/MergeCandidateScorerEngine.js");
+            const raw = Array.isArray(params.per_repo) ? params.per_repo
+                      : Array.isArray(params.perRepo) ? params.perRepo : [];
+            const perRepo = raw as readonly PerRepoUniques[];
+            result = { index: mergeCandidateScorerEngine.buildAssetIndex(perRepo) };
+            break;
+          }
+          case "merge_candidate_score_asset": {
+            const { mergeCandidateScorerEngine } = await import("../../engines/MergeCandidateScorerEngine.js");
+            const asset = params.asset as AssetEntry;
+            const config = (params.config ?? {}) as ScoringConfig;
+            result = { scored: mergeCandidateScorerEngine.scoreAsset(asset, config) };
+            break;
+          }
+          case "merge_candidate_rank": {
+            const { mergeCandidateScorerEngine } = await import("../../engines/MergeCandidateScorerEngine.js");
+            const raw = Array.isArray(params.per_repo) ? params.per_repo
+                      : Array.isArray(params.perRepo) ? params.perRepo : [];
+            const perRepo = raw as readonly PerRepoUniques[];
+            const config = (params.config ?? {}) as ScoringConfig;
+            result = { report: mergeCandidateScorerEngine.rankCandidates(perRepo, config) };
+            break;
+          }
+          case "merge_candidate_render_md": {
+            const { mergeCandidateScorerEngine } = await import("../../engines/MergeCandidateScorerEngine.js");
+            const report = params.report as CandidateReport;
+            const config = (params.config ?? {}) as ScoringConfig;
+            const generatedAt = typeof params.generated_at === "string" ? params.generated_at
+                              : typeof params.generatedAt === "string" ? params.generatedAt
+                              : undefined;
+            result = { markdown: mergeCandidateScorerEngine.renderMarkdown(report, config, generatedAt) };
             break;
           }
         }
