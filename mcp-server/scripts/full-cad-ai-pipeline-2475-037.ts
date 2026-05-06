@@ -33,10 +33,11 @@ import { toleranceExtractionEngine } from "../src/engines/ToleranceExtractionEng
 import { printToFusion360Bridge, type DetailView } from "../src/engines/PrintToFusion360Bridge.js";
 import { onlinePrintHarvestEngine } from "../src/engines/OnlinePrintHarvestEngine.js";
 import { fusion360LiveBridgeEngine as fb } from "../src/engines/Fusion360LiveBridgeEngine.js";
+import { INCH_TO_MM, INCH3_TO_MM3, MM_TO_CM } from "../src/physics/unit-conversions.js";
 
-const IN_TO_MM = 25.4;
 const PART_NUMBER = "2475-037";
 const PRINT_PDF = "H:/PRISM/JM DIE/JM DIE COMPANY/2475-037 (EXTRUDE PUNCH) Drawing v3.pdf";
+const VOLUME_TOLERANCE_PCT = 0.5;
 
 // ── Synthesized OCR ground truth from the print ────────────────────
 // (Replays the dimensions extracted in the prior session — saves a Vision API
@@ -205,9 +206,9 @@ async function main(): Promise<void> {
       { d_in: 0.12, len_in: 0.3375, note: "back stub Ø.12" },
     ];
     const steps_mm = STEPS_IN.map((s) => ({
-      diameter_mm: s.d_in * IN_TO_MM,
-      length_mm: s.len_in * IN_TO_MM,
-      end_diameter_mm: s.d_end_in !== undefined ? s.d_end_in * IN_TO_MM : undefined,
+      diameter_mm: s.d_in * INCH_TO_MM,
+      length_mm: s.len_in * INCH_TO_MM,
+      end_diameter_mm: s.d_end_in !== undefined ? s.d_end_in * INCH_TO_MM : undefined,
     }));
 
     ok("revolveStepProfile (9 steps, 2 tapered)", await fb.revolveStepProfile({
@@ -221,18 +222,18 @@ design = adsk.fusion.Design.cast(app.activeProduct)
 root = design.rootComponent
 sk = root.sketches.add(root.xZConstructionPlane)
 sk.name = 'OilHole'
-sk.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(0,0,0), ${(0.05 / 2 * IN_TO_MM * 0.1).toFixed(6)})
+sk.sketchCurves.sketchCircles.addByCenterRadius(adsk.core.Point3D.create(0,0,0), ${(0.05 / 2 * INCH_TO_MM * MM_TO_CM).toFixed(6)})
 result = {'success': True}
 `);
     ok("oil hole sketch", oilHoleSk);
     ok("oil hole through-cut", await fb.extrude({
-      depth_mm: 4.11 * IN_TO_MM, operation: "cut", sketch_name: "OilHole",
+      depth_mm: 4.11 * INCH_TO_MM, operation: "cut", sketch_name: "OilHole",
     }));
 
     ok("4× cross-drilled relief Ø.06", await fb.crossDrillHoles({
-      diameter_mm: 0.06 * IN_TO_MM,
-      axial_position_mm: 2.0 * IN_TO_MM,
-      part_radius_mm: 0.5 * IN_TO_MM,
+      diameter_mm: 0.06 * INCH_TO_MM,
+      axial_position_mm: 2.0 * INCH_TO_MM,
+      part_radius_mm: 0.5 * INCH_TO_MM,
       count: 4,
       revolution_axis: "Y",
     }));
@@ -248,7 +249,7 @@ result = {'success': True}
     }
     v_in3 -= Math.PI * (0.05 / 2) ** 2 * 4.11; // central oil hole
     v_in3 -= 4 * (Math.PI * (0.06 / 2) ** 2 * 0.94); // 4× relief through Ø.94 outer flange
-    const expected_mm3 = v_in3 * 16387.064;
+    const expected_mm3 = v_in3 * INCH3_TO_MM3;
     const actual_mm3 = geo.bodies[0]?.volume_mm3 ?? 0;
     const delta = actual_mm3 - expected_mm3;
     const tolPct = Math.abs(delta / expected_mm3) * 100;
@@ -258,7 +259,12 @@ result = {'success': True}
     console.log(`  Body count:  ${geo.body_count}`);
     console.log(`  Bbox:        ${geo.bodies[0]?.bounding_box_mm.map((v) => v.toFixed(2)).join(" × ")} mm`);
     console.log(`  Face count:  ${geo.bodies[0]?.face_count}`);
-    console.log(`\n  ${tolPct < 0.5 ? "✓ PASS — within 0.5%" : "✗ DEVIATES — investigate"}`);
+    if (tolPct < VOLUME_TOLERANCE_PCT) {
+      console.log(`\n  ✓ PASS — within ${VOLUME_TOLERANCE_PCT}%`);
+    } else {
+      console.error(`\n  ✗ FAIL — volume delta ${tolPct.toFixed(2)}% exceeds ${VOLUME_TOLERANCE_PCT}% tolerance`);
+      process.exit(3);
+    }
   }
 
   sep("Pipeline Complete");
