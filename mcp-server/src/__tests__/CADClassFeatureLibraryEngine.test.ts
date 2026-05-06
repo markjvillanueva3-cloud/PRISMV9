@@ -50,7 +50,7 @@ describe("CADClassFeatureLibraryEngine.templateFor", () => {
   });
 
   it("returns null for classes without a template (no shadow fallbacks)", () => {
-    const t = engine.templateFor("bushing");
+    const t = engine.templateFor("plate");
     expect(t === null).toBe(true);
   });
 
@@ -124,7 +124,7 @@ describe("CADClassFeatureLibraryEngine.predictVisualFidelity", () => {
   });
 
   it("returns score 0 + empty arrays for unknown class", () => {
-    const result = engine.predictVisualFidelity("bushing", ["stepped_revolved_axis"]);
+    const result = engine.predictVisualFidelity("plate", ["stepped_revolved_axis"]);
     expect(result.score).toBe(0);
     expect(result.template_total).toBe(0);
     expect(result.missing.length).toBe(0);
@@ -165,7 +165,7 @@ describe("CADClassFeatureLibraryEngine.buildSequenceFor", () => {
   });
 
   it("returns empty array for unknown classes (no extrapolation)", () => {
-    const seq = engine.buildSequenceFor("bushing");
+    const seq = engine.buildSequenceFor("plate");
     expect(seq.length).toBe(0);
   });
 

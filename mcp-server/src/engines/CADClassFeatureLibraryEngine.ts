@@ -253,6 +253,201 @@ const MEDICAL_IMPLANT_FEATURES: FeatureTemplate[] = [
   },
 ];
 
+const IMPELLER_FEATURES: FeatureTemplate[] = [
+  {
+    kind: "stepped_revolved_axis",
+    label: "Hub disk + back disc (revolved profile)",
+    prevalence: 1.0,
+    build_hint: "revolveStepProfile",
+    rationale: "Every impeller is built around a revolved hub. Blades attach to its outer face.",
+  },
+  {
+    kind: "blade_root_fillet",
+    label: "Blade-to-hub root fillet (R.020–.060)",
+    prevalence: 1.0,
+    typical_size_mm: 1.0,
+    build_hint: "fillet",
+    rationale: "Centrifugal stress at the blade root governs impeller life. R.020 minimum on every CFD-validated design.",
+  },
+  {
+    kind: "leading_edge_fillet",
+    label: "Vane leading-edge radius (Ø.005–.020\")",
+    prevalence: 0.95,
+    typical_size_mm: 0.4,
+    build_hint: "fillet",
+    rationale: "Inlet stagnation control + erosion resistance.",
+  },
+  {
+    kind: "trailing_edge_fillet",
+    label: "Vane trailing-edge radius (Ø.005–.015\")",
+    prevalence: 0.9,
+    typical_size_mm: 0.25,
+    build_hint: "fillet",
+    rationale: "Wake characteristics + stress concentration.",
+  },
+  {
+    kind: "balance_hole",
+    label: "Balance holes at the rim",
+    prevalence: 0.85,
+    typical_size_mm: 4.0,
+    build_hint: "extrude:cut",
+    rationale: "All centrifugal impellers carry balance corrections after first-spin test.",
+  },
+];
+
+const TURBINE_BLADE_FEATURES: FeatureTemplate[] = [
+  {
+    kind: "leading_edge_fillet",
+    label: "Leading edge radius (Ø.005–.015\")",
+    prevalence: 1.0,
+    typical_size_mm: 0.25,
+    build_hint: "fillet",
+    rationale: "Aero stagnation point — controls stage efficiency.",
+  },
+  {
+    kind: "trailing_edge_fillet",
+    label: "Trailing edge radius (Ø.003–.010\")",
+    prevalence: 1.0,
+    typical_size_mm: 0.15,
+    build_hint: "fillet",
+    rationale: "Wake geometry + tool-deflection management on 5-axis finish.",
+  },
+  {
+    kind: "blade_root_fillet",
+    label: "Blade-to-platform root fillet (R.030–.080)",
+    prevalence: 1.0,
+    typical_size_mm: 1.5,
+    build_hint: "fillet",
+    rationale: "Highest-stress location on a turbine blade. Fatigue-critical.",
+  },
+  {
+    kind: "tip_clearance",
+    label: "Tip-shroud or squealer relief",
+    prevalence: 0.9,
+    typical_size_mm: 0.5,
+    build_hint: "extrude:cut",
+    rationale: "Active tip clearance control. HPT blades carry this almost universally.",
+  },
+];
+
+const BRACKET_FEATURES: FeatureTemplate[] = [
+  {
+    kind: "edge_distance_callout",
+    label: "Bolt-hole edge distance (e/D ≥ 1.5)",
+    prevalence: 0.85,
+    build_hint: "executeRaw",
+    rationale: "Aerospace structural rule — fatigue + bearing strength.",
+  },
+  {
+    kind: "shoulder_fillet",
+    label: "Internal-corner fillets (R.060–.250)",
+    prevalence: 0.9,
+    typical_size_mm: 3.0,
+    build_hint: "fillet",
+    rationale: "Brackets get most of their fatigue life from their fillet radius. No sharp internal corners.",
+  },
+  {
+    kind: "fatigue_finish_callout",
+    label: "Surface finish on fillet radii",
+    prevalence: 0.7,
+    build_hint: "executeRaw",
+    rationale: "Aerospace brackets routinely call out Ra ≤ 1.6 μm in fatigue zones.",
+  },
+];
+
+const BUSHING_FEATURES: FeatureTemplate[] = [
+  {
+    kind: "stepped_revolved_axis",
+    label: "Bore + OD revolved profile",
+    prevalence: 1.0,
+    build_hint: "revolveStepProfile",
+    rationale: "All bushings are revolved bodies.",
+  },
+  {
+    kind: "bevel_face_chamfer",
+    label: "Lead chamfers on bore + OD ends",
+    prevalence: 0.95,
+    typical_angle_deg: 30,
+    typical_size_mm: 0.5,
+    build_hint: "chamfer",
+    rationale: "Press-fit installation requires a lead chamfer on the entering end. Typically 30°×.030.",
+  },
+  {
+    kind: "shoulder_fillet",
+    label: "Internal flange fillet",
+    prevalence: 0.5,
+    typical_size_mm: 0.5,
+    build_hint: "fillet",
+    rationale: "Flanged bushings get a small fillet at the flange-to-shank transition for rotation life.",
+  },
+];
+
+const CASING_FEATURES: FeatureTemplate[] = [
+  {
+    kind: "shoulder_fillet",
+    label: "Internal corner fillets (R.030–.125)",
+    prevalence: 0.95,
+    typical_size_mm: 2.0,
+    build_hint: "fillet",
+    rationale: "Cast/forged casings have fillets everywhere — never sharp internal corners.",
+  },
+  {
+    kind: "datum_relief",
+    label: "Mounting-flange relief",
+    prevalence: 0.7,
+    typical_size_mm: 1.0,
+    build_hint: "extrude:cut",
+    rationale: "Bolt-circle flanges commonly have a relieved mating surface to ensure flatness contact.",
+  },
+  {
+    kind: "central_oil_hole",
+    label: "Lubrication / coolant passages",
+    prevalence: 0.6,
+    typical_size_mm: 4.0,
+    build_hint: "extrude:cut",
+    rationale: "Bearing casings + gearbox housings carry internal oil/coolant feed channels.",
+  },
+];
+
+const LUG_FEATURES: FeatureTemplate[] = [
+  {
+    kind: "edge_distance_callout",
+    label: "Eye-hole edge distance (e/D ≥ 2.0)",
+    prevalence: 1.0,
+    build_hint: "executeRaw",
+    rationale: "Aerospace clevis lug rule — bearing + tear-out strength. NASA-CR/MIL-HDBK-5 mandate.",
+  },
+  {
+    kind: "fatigue_finish_callout",
+    label: "Eye-bore Ra ≤ 1.6 μm (fatigue surface)",
+    prevalence: 0.95,
+    build_hint: "executeRaw",
+    rationale: "Lug eye is the load-bearing fatigue surface. Polished bore standard.",
+  },
+  {
+    kind: "shot_peen_zone",
+    label: "Shot-peen zone around the eye",
+    prevalence: 0.7,
+    build_hint: "executeRaw",
+    rationale: "Almen .010–.016A peening doubles fatigue life. Common spec on flight-critical lugs.",
+  },
+  {
+    kind: "bushing_press_fit",
+    label: "Pressed-in bushing in the eye",
+    prevalence: 0.65,
+    build_hint: "executeRaw",
+    rationale: "Steel/bronze bushing protects the lug from bolt fretting. Press-fit interference toleranced.",
+  },
+  {
+    kind: "lockwire_hole",
+    label: "Lockwire hole through retaining bolt area",
+    prevalence: 0.5,
+    typical_size_mm: 1.0,
+    build_hint: "extrude:cut",
+    rationale: "AS567 / NAS768 lockwire on flight-critical fasteners.",
+  },
+];
+
 const VALVE_BODY_FEATURES: FeatureTemplate[] = [
   {
     kind: "valve_seat_angle",
@@ -331,6 +526,62 @@ const LIBRARY: Record<string, ClassFeatureTemplate> = {
     visual_fidelity_notes: [
       "Valve seat geometry is sealing-critical — get the dual-angle right or the part fails.",
       "Guide bore concentricity to seat is mandatory — single-setup machining.",
+    ],
+  },
+  impeller: {
+    part_class: "impeller",
+    features: IMPELLER_FEATURES,
+    expected_feature_count: IMPELLER_FEATURES.reduce((a, f) => a + f.prevalence, 0),
+    visual_fidelity_notes: [
+      "Vane profile is sweep-revolved 3D — never simplify to a 2D extrusion.",
+      "Hub/back-disc thickness ratio drives stress profile under spin — match the print.",
+      "Balance holes are typically NOT on the macro print but ARE on every produced impeller.",
+    ],
+  },
+  turbine_blade: {
+    part_class: "turbine_blade",
+    features: TURBINE_BLADE_FEATURES,
+    expected_feature_count: TURBINE_BLADE_FEATURES.reduce((a, f) => a + f.prevalence, 0),
+    visual_fidelity_notes: [
+      "Airfoil profile is non-trivial — coordinate-defined per ASME B89.4.1, never approximate with simple curves.",
+      "LE/TE radii are sub-millimeter and tightly toleranced — the visual difference between R.005 and R.015 is huge.",
+      "Root attachment (fir-tree, dovetail) is platform-specific — verify against engine family before building.",
+    ],
+  },
+  bracket: {
+    part_class: "bracket",
+    features: BRACKET_FEATURES,
+    expected_feature_count: BRACKET_FEATURES.reduce((a, f) => a + f.prevalence, 0),
+    visual_fidelity_notes: [
+      "Internal corners are ALWAYS filleted on aerospace brackets — apply default R if not specified.",
+      "Bolt-hole edge-distance violations are immediate cause for rework. Validate before commit.",
+    ],
+  },
+  bushing: {
+    part_class: "bushing",
+    features: BUSHING_FEATURES,
+    expected_feature_count: BUSHING_FEATURES.reduce((a, f) => a + f.prevalence, 0),
+    visual_fidelity_notes: [
+      "Lead chamfers are nearly universal — render them even if the print doesn't show.",
+      "Press-fit interference dimensions matter more than nominal — capture upper deviation.",
+    ],
+  },
+  casing: {
+    part_class: "casing",
+    features: CASING_FEATURES,
+    expected_feature_count: CASING_FEATURES.reduce((a, f) => a + f.prevalence, 0),
+    visual_fidelity_notes: [
+      "Casings are 3D solid bodies, NOT revolved profiles — use box/extrude primitives, not revolveStepProfile.",
+      "Internal coolant/oil passages are commonly hidden in section views — easy to miss without Detail recursion.",
+    ],
+  },
+  lug: {
+    part_class: "lug",
+    features: LUG_FEATURES,
+    expected_feature_count: LUG_FEATURES.reduce((a, f) => a + f.prevalence, 0),
+    visual_fidelity_notes: [
+      "Edge-distance / fatigue finish / shot peen / bushing press-fit are the FOUR aerospace musts on every clevis lug.",
+      "Lockwire hole orientation matters — drilled at 90° to bolt axis, position determined by fastener geometry.",
     ],
   },
 };
