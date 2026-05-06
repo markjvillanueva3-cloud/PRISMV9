@@ -38,7 +38,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocReplaySampler: any, _xprocSemanticLinker: any,
     _xprocOnlineMLP: any, _xprocDriftDetector: any,
     _xprocShiftHandler: any, _xprocEWC: any,
-    _xprocRewardShaper: any, _xprocPolicyGradient: any;
+    _xprocRewardShaper: any, _xprocPolicyGradient: any,
+    _xprocQLearning: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -82,6 +83,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocEWC": return _xprocEWC ??= (await import("../../engines/CrossProcessEWCMemoryPreservationEngine.js")).crossProcessEWCMemoryPreservation;
     case "xprocRewardShaper": return _xprocRewardShaper ??= (await import("../../engines/CrossProcessRewardShaperEngine.js")).crossProcessRewardShaper;
     case "xprocPolicyGradient": return _xprocPolicyGradient ??= (await import("../../engines/CrossProcessPolicyGradientEngine.js")).crossProcessPolicyGradient;
+    case "xprocQLearning": return _xprocQLearning ??= (await import("../../engines/CrossProcessQLearningTabularEngine.js")).crossProcessQLearningTabular;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -320,6 +322,15 @@ const ACTIONS = [
   "xproc_policy_reset",
   "xproc_policy_stats",
   "xproc_policy_constants",
+  // XPROC-NEURAL Tier 4 (T4-03) — Q-Learning Tabular (Watkins 1989)
+  "xproc_qlearn_update",
+  "xproc_qlearn_argmax",
+  "xproc_qlearn_epsilon_greedy",
+  "xproc_qlearn_get_q_row",
+  "xproc_qlearn_configure",
+  "xproc_qlearn_reset",
+  "xproc_qlearn_stats",
+  "xproc_qlearn_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -863,6 +874,15 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_policy_reset: "xprocPolicyGradient",
           xproc_policy_stats: "xprocPolicyGradient",
           xproc_policy_constants: "xprocPolicyGradient",
+          // XPROC-NEURAL Tier 4 (T4-03) — Q-Learning Tabular
+          xproc_qlearn_update: "xprocQLearning",
+          xproc_qlearn_argmax: "xprocQLearning",
+          xproc_qlearn_epsilon_greedy: "xprocQLearning",
+          xproc_qlearn_get_q_row: "xprocQLearning",
+          xproc_qlearn_configure: "xprocQLearning",
+          xproc_qlearn_reset: "xprocQLearning",
+          xproc_qlearn_stats: "xprocQLearning",
+          xproc_qlearn_constants: "xprocQLearning",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
