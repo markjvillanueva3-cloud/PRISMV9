@@ -31,7 +31,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
     _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any,
     _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any,
-    _xprocTierRouter: any, _xprocOrchestrator: any;
+    _xprocTierRouter: any, _xprocOrchestrator: any,
+    _xprocRuleExtracted: any, _xprocFormulaNeural: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -62,6 +63,8 @@ async function getEngine(name: string): Promise<any> {
     case "xprocDOE": return _xprocDOE ??= (await import("../../engines/CrossProcessBayesianDOEPlannerEngine.js")).crossProcessBayesianDOEPlanner;
     case "xprocTierRouter": return _xprocTierRouter ??= (await import("../../engines/CrossProcessTierRouterEngine.js")).crossProcessTierRouter;
     case "xprocOrchestrator": return _xprocOrchestrator ??= (await import("../../engines/CrossProcessHierarchicalNeuralOrchestratorEngine.js")).crossProcessHierarchicalNeuralOrchestrator;
+    case "xprocRuleExtracted": return _xprocRuleExtracted ??= (await import("../../engines/CrossProcessRuleExtractedNeuralInferenceEngine.js")).crossProcessRuleExtractedNeuralInference;
+    case "xprocFormulaNeural": return _xprocFormulaNeural ??= (await import("../../engines/CrossProcessFormulaNeuralEnsembleEngine.js")).crossProcessFormulaNeuralEnsemble;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -230,6 +233,12 @@ const ACTIONS = [
   // XPROC-NEURAL Tier 12 (T12-02) — Hierarchical Neural Orchestrator
   "xproc_orchestrate_full",
   "xproc_orchestrate_brief",
+  // XPROC-NEURAL Tier 8 (T8-02) — Rule-Extracted Neural Inference
+  "xproc_extract_rules",
+  "xproc_rule_explain_prediction",
+  // XPROC-NEURAL Tier 8 (T8-04) — Formula-Neural Ensemble
+  "xproc_blend_predict",
+  "xproc_blend_weight_report",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -712,6 +721,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_route_explain: "xprocTierRouter",
           xproc_orchestrate_full: "xprocOrchestrator",
           xproc_orchestrate_brief: "xprocOrchestrator",
+          xproc_extract_rules: "xprocRuleExtracted",
+          xproc_rule_explain_prediction: "xprocRuleExtracted",
+          xproc_blend_predict: "xprocFormulaNeural",
+          xproc_blend_weight_report: "xprocFormulaNeural",
         };
 
         const engineName = CORE_ROUTING[action];

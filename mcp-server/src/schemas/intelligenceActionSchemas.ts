@@ -662,6 +662,47 @@ const xproc_orchestrate_full = z.object({
 }).passthrough().describe("Route query, fan out to available tiers, return unified answer + provenance.");
 const xproc_orchestrate_brief = xproc_orchestrate_full.describe("Brief mode: headline + top-3 provenance, drops low-confidence tiers.");
 
+// XPROC-NEURAL Tier 8 (T8-02) — Rule-Extracted Neural Inference (TREPAN)
+const xproc_extract_rules = z.object({
+  samples: z.array(z.object({
+    features: z.record(z.string(), z.number().finite()),
+    prediction: z.string().min(1),
+  })).min(20).describe("Network output samples — ≥20 needed for reliable extraction"),
+  feature_names: z.array(z.string().min(1)).min(1),
+  max_depth: z.number().int().min(1).max(10).default(4),
+  min_leaf_size: z.number().int().min(1).max(100).default(5),
+  purity_threshold: z.number().min(0.5).max(1).default(0.9),
+}).passthrough().describe("Extract IF-THEN rules approximating network behavior.");
+const xproc_rule_explain_prediction = z.object({
+  rules: z.array(z.object({}).passthrough()).min(1),
+  query_features: z.record(z.string(), z.number().finite()),
+}).passthrough().describe("Apply extracted rules to a query; return matching rule + class.");
+
+// XPROC-NEURAL Tier 8 (T8-04) — Formula-Neural Ensemble
+const xproc_blend_predict = z.object({
+  formula_prediction: z.number().finite(),
+  neural_prediction: z.number().finite(),
+  calibration_score: z.number().min(0).max(1).default(0.5),
+  drift_score: z.number().min(0).max(1).default(0),
+  alpha_base: z.number().min(0).max(1).default(0.5),
+  kappa_calib: z.number().min(0).max(1).default(0.4),
+  kappa_drift: z.number().min(0).max(1).default(0.3),
+  alpha_min: z.number().min(0).max(0.5).default(0.05),
+  alpha_max: z.number().min(0.5).max(1).default(0.95),
+  disagreement_threshold: z.number().min(0).max(1).default(0.3),
+  formula_label: z.string().min(1).default("kienzle"),
+  neural_label: z.string().min(1).default("T1-02"),
+}).passthrough().describe("Adaptive α-weighted blend of formula and neural predictions; escalates on high disagreement.");
+const xproc_blend_weight_report = z.object({
+  calibration_score: z.number().min(0).max(1),
+  drift_score: z.number().min(0).max(1),
+  alpha_base: z.number().min(0).max(1).default(0.5),
+  kappa_calib: z.number().min(0).max(1).default(0.4),
+  kappa_drift: z.number().min(0).max(1).default(0.3),
+  alpha_min: z.number().min(0).max(0.5).default(0.05),
+  alpha_max: z.number().min(0.5).max(1).default(0.95),
+}).passthrough().describe("Decompose α into base/calib/drift contributions for audit.");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -781,4 +822,9 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   xproc_route_explain,
   xproc_orchestrate_full,
   xproc_orchestrate_brief,
+  // XPROC-NEURAL Tier 8 (4 more — T8-02, T8-04) — Rule-Extracted + Formula-Neural Ensemble
+  xproc_extract_rules,
+  xproc_rule_explain_prediction,
+  xproc_blend_predict,
+  xproc_blend_weight_report,
 };
