@@ -177,6 +177,8 @@ const ACTIONS = [
   "lathe_replay_frame_compile",
   // LATHE-MASTER U-LTH24: Post-processor generator full pipeline
   "postgen_full",
+  // LATHE-PRO-V3 MS2 / U-LPT01: Wear-to-offset superposition
+  "turning_offset_compensation",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -2502,6 +2504,13 @@ Actions: ${ACTIONS.join(", ")}.`,
               warnings,
               errors,
             };
+            break;
+          }
+
+          // LATHE-PRO-V3 MS2 / U-LPT01: Wear-to-offset superposition
+          case "turning_offset_compensation": {
+            const { latheOffsetSuperpositionEngine } = await import("../../engines/LatheOffsetSuperpositionEngine.js");
+            result = latheOffsetSuperpositionEngine.calculate(params as any);
             break;
           }
 
