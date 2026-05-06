@@ -229,6 +229,24 @@ const csm_audit_build_fingerprint = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P15-U03 — plan-trajectory extraction
+// (wires PlanTrajectoryExtractorEngine to knowledge dispatcher)
+// ============================================================================
+
+const plan_trajectory_parse = z.object({
+  raw_markdown: z.string().describe("Plan-file markdown content"),
+  source_path: z.string().describe("Source file path (used for id derivation)"),
+}).passthrough();
+
+const plan_trajectory_summarize = z.object({
+  trajectories: z.array(z.unknown()).describe("Array of PlanTrajectory records to aggregate"),
+}).passthrough();
+
+const plan_trajectory_derive_id = z.object({
+  source_path: z.string().describe("Source file path to slugify into a stable id"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1324,4 +1342,7 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   csm_audit_detect_variants,
   csm_audit_format_report,
   csm_audit_build_fingerprint,
+  plan_trajectory_parse,
+  plan_trajectory_summarize,
+  plan_trajectory_derive_id,
 };

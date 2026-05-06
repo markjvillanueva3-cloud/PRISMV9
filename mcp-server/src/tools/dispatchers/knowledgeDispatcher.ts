@@ -220,6 +220,13 @@ const CSM_AUDIT_ACTIONS = [
   "csm_audit_build_fingerprint",     // [{name, colCount}] → "name1:N1,name2:N2,..."
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P15-U03: Plan-trajectory extraction — surfaces PlanTrajectoryExtractorEngine. */
+const PLAN_TRAJECTORY_ACTIONS = [
+  "plan_trajectory_parse",       // markdown → PlanTrajectory { decisions, milestones, sections, status }
+  "plan_trajectory_summarize",   // PlanTrajectory[] → aggregated stats (byStatus, decisionsByKind, milestonesByState)
+  "plan_trajectory_derive_id",   // path → stable filename-slug id
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -246,6 +253,7 @@ const ACTIONS = [
   ...VAULT_BACKLINK_ACTIONS,
   ...WIKI_BOOTSTRAP_ACTIONS,
   ...CSM_AUDIT_ACTIONS,
+  ...PLAN_TRAJECTORY_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2393,6 +2401,35 @@ export function registerKnowledgeDispatcher(server: any): void {
             const { csmMemoryDBAuditEngine } = await import("../../engines/CSMMemoryDBAuditEngine.js");
             const tables = Array.isArray(params.tables) ? params.tables : [];
             result = { fingerprint: csmMemoryDBAuditEngine.buildSchemaFingerprint(tables) };
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P15-U03: Plan-trajectory extraction (PlanTrajectoryExtractorEngine) ──
+          case "plan_trajectory_parse": {
+            const { planTrajectoryExtractorEngine } = await import("../../engines/PlanTrajectoryExtractorEngine.js");
+            const md = params.raw_markdown ?? params.rawMarkdown;
+            const sourcePath = params.source_path ?? params.sourcePath;
+            if (typeof md !== "string") {
+              throw new Error("plan_trajectory_parse: raw_markdown required (string)");
+            }
+            if (typeof sourcePath !== "string") {
+              throw new Error("plan_trajectory_parse: source_path required (string)");
+            }
+            result = { trajectory: planTrajectoryExtractorEngine.parsePlan(md, sourcePath) };
+            break;
+          }
+          case "plan_trajectory_summarize": {
+            const { planTrajectoryExtractorEngine } = await import("../../engines/PlanTrajectoryExtractorEngine.js");
+            const trajectories = Array.isArray(params.trajectories) ? params.trajectories : [];
+            result = { summary: planTrajectoryExtractorEngine.summarize(trajectories) };
+            break;
+          }
+          case "plan_trajectory_derive_id": {
+            const { planTrajectoryExtractorEngine } = await import("../../engines/PlanTrajectoryExtractorEngine.js");
+            const sourcePath = params.source_path ?? params.sourcePath;
+            if (typeof sourcePath !== "string") {
+              throw new Error("plan_trajectory_derive_id: source_path required (string)");
+            }
+            result = { id: planTrajectoryExtractorEngine.deriveId(sourcePath) };
             break;
           }
         }

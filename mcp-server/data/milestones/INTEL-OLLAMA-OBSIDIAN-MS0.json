@@ -2868,7 +2868,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T01:35:00Z",
+          "completed_by": "claude-1f96b0f4",
+          "notes": "CrossSessionMemoryBridgeEngine — pure-keyword token-overlap scoring with injected DBReader interface (sqlite-free engine). CSMSqliteRowReaderFactory bridges better-sqlite3 → DBReader; schema-adaptive (memories/messages/events fallthrough), body-column priority (text>content>body>message), Buffer→placeholder, ORDER BY rowid DESC LIMIT ?. prism_memory enum bumped 14→15 to add cross_session_recall (regression test in GsdRouterAndRetrieve.test.ts updated in lockstep). 24 engine tests + 16 reader tests + 25 GSD regression + 26 audit (P15-U01) = 91 tests across 4 files; all green. Zero new tsc errors."
         },
         {
           "id": "P15-U03",
@@ -2896,7 +2900,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T01:55:00Z",
+          "completed_by": "claude-1f96b0f4",
+          "notes": "PlanTrajectoryExtractorEngine — pure parser for .claude/plans/*.md → PlanTrajectory{id, title, status, decisions[], milestones[], sections[]}. Decision detection: chose|rejected|considered prefixes. Milestone detection: GFM checkboxes [x]/[ ], emoji ✅❌⏳🚧✔, keywords DONE/TODO/WIP/FIXME/BLOCKED. Status inference: explicit Status: line first, fallback to milestone-distribution heuristic. 3 dispatcher actions on prism_knowledge (plan_trajectory_parse, _summarize, _derive_id) — wired here rather than prism_ai because prism_ai's trajectory_query surface is its own downstream concern. Driver: scripts/ingest-plans-trajectories.mjs walks ~/.claude/plans (125 .md files on this host), writes per-trajectory JSON + aggregated summary markdown. 36 engine tests + 5 dispatcher tests = +41 new tests; all green. Zero new tsc errors."
         }
       ]
     },
