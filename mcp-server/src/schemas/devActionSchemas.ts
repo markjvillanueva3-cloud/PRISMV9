@@ -349,11 +349,11 @@ export const ACTION_DEV_SCHEMAS: ActionSchemaMap = {
   // ── Cost-Aware Router ──
   cost_route: z.object({
     intent: z.enum(["find-file", "search-content", "read-section", "read-full", "count-matches", "list-files", "check-exists", "compare-files", "get-structure", "modify-file"]).describe("Query intent to route"),
-    context: z.record(z.string(), z.any()).optional().describe("Additional context (pattern, file, path, etc.)"),
+    context: z.record(z.string(), z.unknown()).optional().describe("Additional context (pattern, file, path, etc.)"),
   }).passthrough(),
   cost_route_infer: z.object({
     query: z.string().describe("Natural language query to infer intent from"),
-    context: z.record(z.string(), z.any()).optional().describe("Additional context for routing"),
+    context: z.record(z.string(), z.unknown()).optional().describe("Additional context for routing"),
   }).passthrough(),
 
   // ── Import Cost (TypeScript dependency analysis) ──
@@ -386,12 +386,12 @@ export const ACTION_DEV_SCHEMAS: ActionSchemaMap = {
   tool_cost_predict: z.object({
     tool: z.string().optional().describe("Tool name to predict cost for (e.g. Read, Grep, Bash)"),
     tool_name: z.string().optional().describe("Tool name alias"),
-    tool_params: z.record(z.string(), z.any()).optional().describe("Tool parameters to factor into prediction"),
+    tool_params: z.record(z.string(), z.unknown()).optional().describe("Tool parameters to factor into prediction"),
   }).passthrough(),
   tool_cost_affordable: z.object({
     tool: z.string().optional().describe("Tool name to check affordability for"),
     tool_name: z.string().optional().describe("Tool name alias"),
-    tool_params: z.record(z.string(), z.any()).optional().describe("Tool parameters to factor into prediction"),
+    tool_params: z.record(z.string(), z.unknown()).optional().describe("Tool parameters to factor into prediction"),
     remaining_budget: z.number().nonnegative().optional().describe("Remaining token budget"),
   }).passthrough(),
 

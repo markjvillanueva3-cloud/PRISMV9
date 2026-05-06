@@ -28,8 +28,8 @@ const prediction_validate = z.object({
 
 const calibration_run = z.object({
   model: z.string().optional(),
-  reference_data: z.array(z.record(z.string(), z.any())).optional(),
-  parameters: z.record(z.string(), z.any()).optional(),
+  reference_data: z.array(z.record(z.string(), z.unknown())).optional(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -39,7 +39,7 @@ const calibration_run = z.object({
 const benchmark_run = z.object({
   scenario: z.string().optional(),
   category: z.string().optional(),
-  parameters: z.record(z.string(), z.any()).optional(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -55,7 +55,7 @@ const benchmark_list = z.object({
 // ============================================================================
 
 const uncertainty_quantify = z.object({
-  parameters: z.array(z.record(z.string(), z.any())).optional(),
+  parameters: z.array(z.record(z.string(), z.unknown())).optional(),
   model: z.string().optional(),
   samples: z.number().int().positive().optional(),
 }).passthrough();
@@ -65,9 +65,9 @@ const uncertainty_quantify = z.object({
 // ============================================================================
 
 const improvement_run = z.object({
-  process_data: z.record(z.string(), z.any()).optional(),
+  process_data: z.record(z.string(), z.unknown()).optional(),
   target: z.string().optional(),
-  constraints: z.record(z.string(), z.any()).optional(),
+  constraints: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================

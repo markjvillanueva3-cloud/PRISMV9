@@ -30,15 +30,15 @@ const shell_employee_profiles = z.object({}).passthrough();
 
 const shell_employee_bootstrap = z.object({
   profileId: z.string().optional().describe("Role profile ID: machinist, programmer, lead, quality, manager, engineer"),
-  jobs: z.array(z.any()).optional().describe("Active job records"),
-  hotJobs: z.array(z.any()).optional().describe("Hot job records"),
+  jobs: z.array(z.unknown()).optional().describe("Active job records"),
+  hotJobs: z.array(z.unknown()).optional().describe("Hot job records"),
   approvalCount: optNum.describe("Pending approval count"),
 }).passthrough();
 
 // ─── Desk (1) ─────────────────────────────────────────────────────────────────
 
 const desk_counts = z.object({
-  jobs: z.array(z.any()).optional().describe("Active job records for count derivation"),
+  jobs: z.array(z.unknown()).optional().describe("Active job records for count derivation"),
   approvalCount: optNum.describe("Pending approval count"),
 }).passthrough();
 
@@ -51,8 +51,8 @@ const job_desk = z.object({
     customer: optStr,
     part_number: optStr,
     due_date: optStr,
-    routing: z.array(z.any()).optional(),
-    status_history: z.array(z.any()).optional(),
+    routing: z.array(z.unknown()).optional(),
+    status_history: z.array(z.unknown()).optional(),
   }).describe("Job record with routing"),
   hotJobIds: z.array(z.string()).optional().describe("Hot job IDs"),
 }).passthrough();
@@ -74,10 +74,10 @@ const program_release_workspace = z.object({
 // ─── Scheduling (1) ──────────────────────────────────────────────────────────
 
 const scheduling_studies = z.object({
-  jobShopResult: z.any().optional().describe("Job-shop scheduling result"),
-  singleResult: z.any().optional().describe("Single-machine scheduling result"),
-  johnsonsResult: z.any().optional().describe("Johnson's two-machine result"),
-  cpmResult: z.any().optional().describe("CPM analysis result"),
+  jobShopResult: z.unknown().optional().describe("Job-shop scheduling result"),
+  singleResult: z.unknown().optional().describe("Single-machine scheduling result"),
+  johnsonsResult: z.unknown().optional().describe("Johnson's two-machine result"),
+  cpmResult: z.unknown().optional().describe("CPM analysis result"),
 }).passthrough();
 
 // ─── Shop Floor (1) ──────────────────────────────────────────────────────────
@@ -93,12 +93,12 @@ const deskRoleEnum = z.enum(["admin", "engineer", "operator", "viewer"]);
 const desk_payload = z.object({
   role: deskRoleEnum.describe("Desk role: admin, engineer, operator, viewer"),
   data: z.object({
-    jobs: z.array(z.any()).optional().describe("Active job records"),
-    quotes: z.array(z.any()).optional().describe("Active quote records"),
-    machines: z.array(z.any()).optional().describe("Machine status records"),
-    ncrs: z.array(z.any()).optional().describe("NCR records"),
-    invoices: z.array(z.any()).optional().describe("Invoice records"),
-    programs: z.array(z.any()).optional().describe("Program records"),
+    jobs: z.array(z.unknown()).optional().describe("Active job records"),
+    quotes: z.array(z.unknown()).optional().describe("Active quote records"),
+    machines: z.array(z.unknown()).optional().describe("Machine status records"),
+    ncrs: z.array(z.unknown()).optional().describe("NCR records"),
+    invoices: z.array(z.unknown()).optional().describe("Invoice records"),
+    programs: z.array(z.unknown()).optional().describe("Program records"),
     operator_id: optStr.describe("Operator ID for operator desk"),
     clock_in_time: optStr.describe("Clock-in timestamp"),
   }).optional().describe("Live data sources"),
@@ -106,10 +106,10 @@ const desk_payload = z.object({
 
 const desk_kpi_counts = z.object({
   data: z.object({
-    jobs: z.array(z.any()).optional(),
-    quotes: z.array(z.any()).optional(),
-    ncrs: z.array(z.any()).optional(),
-    invoices: z.array(z.any()).optional(),
+    jobs: z.array(z.unknown()).optional(),
+    quotes: z.array(z.unknown()).optional(),
+    ncrs: z.array(z.unknown()).optional(),
+    invoices: z.array(z.unknown()).optional(),
   }).optional().describe("Data for count derivation"),
 }).passthrough();
 
@@ -219,7 +219,7 @@ const presetTypeEnum = z.enum(["speed_feed", "toolpath", "ppg_controller", "mach
 
 const preset_save = z.object({
   user_id: z.string(), preset_type: presetTypeEnum, name: z.string(),
-  description: optStr, params: z.record(z.string(), z.any()),
+  description: optStr, params: z.record(z.string(), z.unknown()),
   tags: z.array(z.string()).optional(), machine_id: optStr, material_id: optStr, operation: optStr,
 }).passthrough();
 const preset_get = z.object({ preset_id: z.string(), user_id: optStr }).passthrough();

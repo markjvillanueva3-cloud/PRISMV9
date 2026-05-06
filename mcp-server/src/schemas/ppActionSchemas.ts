@@ -346,21 +346,21 @@ const pp_physics_wear = z.object({
 // ============================================================================
 
 const pp_neural_predict = z.object({
-  input: z.record(z.any()),
+  input: z.record(z.unknown()),
   targetVariable: z.string().optional(),
   model: z.enum(["feedforward", "lstm", "transformer"]).optional(),
 }).passthrough();
 
 const pp_neural_classify = z.object({
   gcode: z.string().optional(),
-  features: z.record(z.any()).optional(),
+  features: z.record(z.unknown()).optional(),
   classType: z.enum(["controller", "operation", "material", "machine"]).optional(),
 }).passthrough();
 
 const pp_neural_optimize = z.object({
   gcode: z.string().min(1),
   objective: z.enum(["cycle_time", "tool_life", "surface_finish", "energy"]).optional(),
-  constraints: z.record(z.any()).optional(),
+  constraints: z.record(z.unknown()).optional(),
 }).passthrough();
 
 const pp_neural_anomaly = z.object({
@@ -370,8 +370,8 @@ const pp_neural_anomaly = z.object({
 
 const pp_neural_learn = z.object({
   samples: z.array(z.object({
-    input: z.record(z.any()),
-    output: z.record(z.any()),
+    input: z.record(z.unknown()),
+    output: z.record(z.unknown()),
   })).optional(),
   model: z.enum(["feedforward", "lstm", "transformer"]).optional(),
 }).passthrough();
@@ -688,7 +688,7 @@ const pp_learning_execute_formula = z.object({
 
 const pp_learning_execute_algo = z.object({
   id: z.string(),
-  config: z.record(z.string(), z.any()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const pp_learning_search = z.object({

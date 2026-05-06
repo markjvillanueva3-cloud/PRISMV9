@@ -17,9 +17,9 @@ import type { ActionSchemaMap } from "./actionSchemaTypes.js";
 // ============================================================================
 
 const rest_analyze = z.object({
-  geometry: z.record(z.string(), z.any()).optional(),
-  previous_tool: z.record(z.string(), z.any()).optional(),
-  new_tool: z.record(z.string(), z.any()).optional(),
+  geometry: z.record(z.string(), z.unknown()).optional(),
+  previous_tool: z.record(z.string(), z.unknown()).optional(),
+  new_tool: z.record(z.string(), z.unknown()).optional(),
   material: z.string().optional(),
 }).passthrough();
 
@@ -28,8 +28,8 @@ const rest_analyze = z.object({
 // ============================================================================
 
 const rest_quick_check = z.object({
-  geometry: z.record(z.string(), z.any()).optional(),
-  previous_tool: z.record(z.string(), z.any()).optional(),
+  geometry: z.record(z.string(), z.unknown()).optional(),
+  previous_tool: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -37,8 +37,8 @@ const rest_quick_check = z.object({
 // ============================================================================
 
 const operation_sequence = z.object({
-  operations: z.array(z.record(z.string(), z.any())).optional(),
-  constraints: z.record(z.string(), z.any()).optional(),
+  operations: z.array(z.record(z.string(), z.unknown())).optional(),
+  constraints: z.record(z.string(), z.unknown()).optional(),
   material: z.string().optional(),
 }).passthrough();
 
@@ -47,9 +47,9 @@ const operation_sequence = z.object({
 // ============================================================================
 
 const transition_plan = z.object({
-  from_op: z.record(z.string(), z.any()).optional(),
-  to_op: z.record(z.string(), z.any()).optional(),
-  machine: z.record(z.string(), z.any()).optional(),
+  from_op: z.record(z.string(), z.unknown()).optional(),
+  to_op: z.record(z.string(), z.unknown()).optional(),
+  machine: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -57,8 +57,8 @@ const transition_plan = z.object({
 // ============================================================================
 
 const transition_batch = z.object({
-  transitions: z.array(z.record(z.string(), z.any())).optional(),
-  machine: z.record(z.string(), z.any()).optional(),
+  transitions: z.array(z.record(z.string(), z.unknown())).optional(),
+  machine: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -66,8 +66,8 @@ const transition_batch = z.object({
 // ============================================================================
 
 const adaptive_refine = z.object({
-  toolpath: z.record(z.string(), z.any()).optional(),
-  feedback: z.record(z.string(), z.any()).optional(),
+  toolpath: z.record(z.string(), z.unknown()).optional(),
+  feedback: z.record(z.string(), z.unknown()).optional(),
   tolerance: z.number().positive().optional(),
 }).passthrough();
 
@@ -76,9 +76,9 @@ const adaptive_refine = z.object({
 // ============================================================================
 
 const multi_setup_plan = z.object({
-  part: z.record(z.string(), z.any()).optional(),
-  features: z.array(z.record(z.string(), z.any())).optional(),
-  machine: z.record(z.string(), z.any()).optional(),
+  part: z.record(z.string(), z.unknown()).optional(),
+  features: z.array(z.record(z.string(), z.unknown())).optional(),
+  machine: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 // ============================================================================

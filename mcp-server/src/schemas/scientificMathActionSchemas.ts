@@ -52,8 +52,8 @@ const information_entropy = z.object({
 
 const optimal_control = z.object({
   method: z.enum(["pontryagin", "lqr", "hjb"]).optional(),
-  segments: z.array(z.record(z.string(), z.any())).optional(),
-  constraints: z.record(z.string(), z.any()).optional(),
+  segments: z.array(z.record(z.string(), z.unknown())).optional(),
+  constraints: z.record(z.string(), z.unknown()).optional(),
   Q_diag: z.array(z.number()).optional(),
   R_scalar: z.number().optional(),
   dt_sec: z.number().positive().optional(),
@@ -65,8 +65,8 @@ const optimal_control = z.object({
 
 const graph_solve = z.object({
   method: z.enum(["topological_sort", "critical_path", "mst", "tsp", "coloring"]).optional(),
-  nodes: z.array(z.record(z.string(), z.any())).optional(),
-  edges: z.array(z.record(z.string(), z.any())).optional(),
+  nodes: z.array(z.record(z.string(), z.unknown())).optional(),
+  edges: z.array(z.record(z.string(), z.unknown())).optional(),
 }).passthrough();
 
 // ============================================================================
@@ -75,10 +75,10 @@ const graph_solve = z.object({
 
 const fuzzy_neural = z.object({
   method: z.enum(["anfis", "fuzzy_taguchi", "fuzzy_ahp"]).optional(),
-  inputs: z.array(z.record(z.string(), z.any())).optional(),
-  rules: z.array(z.record(z.string(), z.any())).optional(),
-  training_data: z.array(z.record(z.string(), z.any())).optional(),
-  criteria: z.array(z.record(z.string(), z.any())).optional(),
+  inputs: z.array(z.record(z.string(), z.unknown())).optional(),
+  rules: z.array(z.record(z.string(), z.unknown())).optional(),
+  training_data: z.array(z.record(z.string(), z.unknown())).optional(),
+  criteria: z.array(z.record(z.string(), z.unknown())).optional(),
   comparison_matrix: z.array(z.array(z.number())).optional(),
 }).passthrough();
 

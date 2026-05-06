@@ -153,7 +153,7 @@ export const TransformDefinitionSchema = z.object({
   field_mappings: z.record(z.string(), z.string()),
 
   /** Default values for missing fields */
-  defaults: z.record(z.string(), z.any()).optional(),
+  defaults: z.record(z.string(), z.unknown()).optional(),
 
   /** Validation rules */
   validations: z.array(z.string()).optional(),

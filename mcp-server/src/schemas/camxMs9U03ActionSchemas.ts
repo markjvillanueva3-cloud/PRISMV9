@@ -114,7 +114,7 @@ const jobToolZ = z.object({
 
 export const ACTION_CAMX_MS9_U03_SCHEMAS: ActionSchemaMap = {
   hypermill_tool_export: z.object({
-    tools: z.array(z.record(z.string(), z.any())).optional().describe(
+    tools: z.array(z.record(z.string(), z.unknown())).optional().describe(
       "PRISM tool objects to export. Omit to export from the full PRISM catalog (up to filter.max_tools).",
     ),
     filter: filterZ.optional().describe(

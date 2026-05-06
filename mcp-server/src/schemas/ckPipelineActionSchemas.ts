@@ -360,7 +360,7 @@ const waterjet_uncertainty = z.object({
 
 const featureZ = z.object({
   feature_type: z.string(),
-  geometry: z.record(z.string(), z.any()).optional(),
+  geometry: z.record(z.string(), z.unknown()).optional(),
   material: z.string().optional(),
   tolerance_mm: z.number().optional(),
   roughness_ra_um: z.number().optional(),
@@ -369,7 +369,7 @@ const featureZ = z.object({
 
 const routeZ = z.object({
   part_id: z.string().optional(),
-  processes: z.array(z.record(z.string(), z.any())).optional(),
+  processes: z.array(z.record(z.string(), z.unknown())).optional(),
   total_cost: z.number().optional(),
   total_time_min: z.number().optional(),
 }).passthrough();
@@ -381,7 +381,7 @@ const multi_process_route = z.object({
   batch_size: z.number().int().positive().optional(),
   available_processes: z.array(z.string()).optional(),
   optimize_for: z.enum(["cost", "time", "quality", "balanced"]).optional(),
-  constraints: z.record(z.string(), z.any()).optional(),
+  constraints: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const multi_process_analyze = z.object({
@@ -391,8 +391,8 @@ const multi_process_analyze = z.object({
 }).passthrough();
 
 const multi_process_sequence = z.object({
-  analyses: z.array(z.record(z.string(), z.any())),
-  constraints: z.record(z.string(), z.any()).optional(),
+  analyses: z.array(z.record(z.string(), z.unknown())),
+  constraints: z.record(z.string(), z.unknown()).optional(),
   optimize_for: z.enum(["cost", "time", "quality", "balanced"]).optional(),
 }).passthrough();
 
@@ -453,7 +453,7 @@ const mill_turn_sub_spindle = z.object({
 const mill_turn_multi_channel = z.object({
   channels: z.array(z.object({
     channel_id: z.number().int(),
-    operations: z.array(z.record(z.string(), z.any())),
+    operations: z.array(z.record(z.string(), z.unknown())),
   })),
   sync_code_style: z.enum(["fanuc_wait_m", "siemens_waitm", "mazak_smooth", "index_cline", "citizen_cincom", "generic"]).optional(),
   cycle_time_target_s: z.number().positive().optional(),
@@ -485,7 +485,7 @@ const mill_turn_swiss = z.object({
   overhang_mm: z.number().positive().optional(),
   material: materialZ,
   iso_group: isoGroupZ,
-  operations: z.array(z.record(z.string(), z.any())).optional(),
+  operations: z.array(z.record(z.string(), z.unknown())).optional(),
   b_axis_available: z.boolean().optional(),
   gang_slide: z.boolean().optional(),
   back_working_spindle: z.boolean().optional(),
@@ -566,7 +566,7 @@ const self_learn_anomaly = z.object({
 const self_learn_fleet = z.object({
   machines: z.array(z.object({
     machineId: z.string(),
-    observations: z.array(z.record(z.string(), z.any())).optional(),
+    observations: z.array(z.record(z.string(), z.unknown())).optional(),
   })).optional(),
   shrinkage_weight: z.number().min(0).max(1).optional(),
   materialGroup: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
