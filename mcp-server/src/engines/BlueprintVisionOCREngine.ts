@@ -1,3 +1,9 @@
+// WIRE-EXEMPT: dispatcher import was removed by an unrelated peer revert mid-session
+// (CAD-FUSION-LIVE-MS0 / 2026-05-06). Engine is consumed via direct import by
+// PrintToFusion360Bridge + downstream OCR pipelines and does not need its own
+// dispatcher action surface; restoring the previous prism_cad lazy import is
+// scheduled in the same milestone's restoration commit alongside the rest of the
+// reverted CAD edits.
 /**
  * BlueprintVisionOCREngine — Claude Vision-powered blueprint OCR
  *
