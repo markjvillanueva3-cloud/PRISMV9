@@ -22,7 +22,7 @@
 import { fusion360CADGeneratorAdapter } from "../src/engines/Fusion360CADGeneratorAdapter.js";
 import type { CADOperation } from "../src/interfaces/ICADCodeGenerator.js";
 import { writeFileSync, mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 
 // ── Op stream ────────────────────────────────────────────────────────────────
 
