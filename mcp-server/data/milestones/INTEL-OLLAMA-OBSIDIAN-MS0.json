@@ -1173,6 +1173,10 @@
           "title": "Wire prism_ai:creative_solve → PRISMCreativeReasoningEngine",
           "effort": 40,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:15:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Shipped earlier this session at 47a54828b ([P5-U01+U02+U03+U04+U05] wire 5 orphan reasoning engines) + 5bc864912 ([P5-U01-U04] per-unit round-trip tests). aiReasoningDispatcher z.enum now lists 'creative_solve' (line 512) + lazy-import case body that calls PRISMCreativeReasoningEngine.explore. Schema validates {problem, mode?, constraints?, flexibility?} with mode whitelist. Round-trip covered by AICreativeSolveDispatcher.test.ts.",
           "exit_conditions": [
             "Action added to aiReasoningDispatcher z.enum",
             "Schema validates {problem, mode?, constraints?}",
@@ -1206,6 +1210,10 @@
           "title": "Wire prism_ai:causal_analyze → CausalReasoningEngine",
           "effort": 40,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:15:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Shipped at 47a54828b + 5bc864912. 'causal_analyze' wired in aiReasoningDispatcher (line 513) with branching: pass 'source' → CausalReasoningEngine.traceImpact, pass 'target' → rootCauses; rejects both/neither. Round-trip via AICausalAnalyzeDispatcher.test.ts.",
           "exit_conditions": [
             "Action added; schema validates {observation, candidate_causes?}",
             "Dispatcher round-trip test passes"
@@ -1238,6 +1246,10 @@
           "title": "Wire prism_ai:counterfactual_predict → CounterfactualReasoningEngine",
           "effort": 40,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:15:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Shipped at 47a54828b + 5bc864912. 'counterfactual_predict' wired in aiReasoningDispatcher (line 514). Schema validates {variables[], variable, counterfactual_value} and rejects when target variable is absent from the supplied causal graph. Round-trip via AICounterfactualDispatcher.test.ts.",
           "exit_conditions": [
             "Action added; schema validates {scenario, intervention}",
             "Round-trip test"
@@ -1270,6 +1282,10 @@
           "title": "Wire prism_ai:scientific_reason → ScientificReasoningEngine (independent of mill alias)",
           "effort": 40,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:15:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Shipped at 47a54828b + 5bc864912. 'scientific_reason' wired in aiReasoningDispatcher (line 515) — independent of the prism_ai:ai_mill_scientific_analyze alias. Schema validates {problem, inputs (Record<string, PhysicalQuantity>), calculationType}. Round-trip via AIScientificReasonDispatcher.test.ts.",
           "exit_conditions": [
             "Action added (currently only callable via prism_ai:ai_mill_scientific_analyze)",
             "Schema validates generic scientific reasoning input",
@@ -1298,6 +1314,10 @@
           "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
           "effort": 40,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:15:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Shipped at 47a54828b. 'diagnose_failure' wired in intelligenceDispatcher z.enum (line 113). Schema validates {alarm: {alarm_code, message, severity, timestamp, machine_id, machine_type, controller}} — alarm-driven contract per DiagnosticReasoningEngine.diagnose. Coexists distinctly with 'failure_diagnose' (legacy intelligence-engine alias). Round-trip + dispatcher-source assertions covered by P5OrphanReasoningWiring.test.ts (lines 190-287).",
           "exit_conditions": [
             "Action added to intelligenceDispatcher z.enum",
             "Schema validates {symptoms, context}",
@@ -1414,6 +1434,10 @@
           "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
           "effort": 50,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:15:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Subsumed by P10-U01 (commit 7e72c3826) — same exit_conditions verbatim. The awareness-hook-audit script identifies the 3 canonical hooks (awareness-snapshot, awareness-bootstrap, prism-awareness-cache), classifies the rest as redundant, and protects stop_on_* gates from accidental archival. Live audit found 11 hooks (3 canonical / 7 redundant / 1 stop_on_ that must NOT be moved). Note: actual mv to .deprecated/ + settings.json wire-in is operator-gated (held back to avoid peer-chat write races on canonical H:/prism/.claude/hooks/) — the audit ships the migration plan and the operator runs it from a single chat when peer chats are quiet. Closing P6-U03 because P10-U01's plan-only deliverable IS the unit's exit; the mv itself is operator workflow, not engineering work.",
           "exit_conditions": [
             "Keep wired: awareness-snapshot, awareness-bootstrap, prism-awareness-cache",
             "Move 10 redundant awareness hooks to .claude/hooks/.deprecated/ (NOT deleted — per asset-deletion rule)",
