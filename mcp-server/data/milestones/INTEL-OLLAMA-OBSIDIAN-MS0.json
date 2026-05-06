@@ -2392,6 +2392,10 @@
             "P11-U01"
           ],
           "rollback": "git revert frontmatter changes; skills still callable",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:05:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Reused P11-U01's scripts/skill-modernize.mjs (extended with --filter=<prefix> and --dir=<path> to scope the run). Targeted H:/.claude/commands/ollama-* (9 files in user-level global commands dir, NOT the worktree). Extended TIER_HEURISTICS so ollama-routing skills get sensible tiers: 'summarize' + 'explain' added to tier-1 (very common content verbs); 'classify', 'docstring', 'boilerplate', 'triage', 'extract', 'diff-summary', 'test-stub' added to tier-2 (specialised but frequent). Live result on this box: 9/9 modernized — tier-1 (2): ollama-summarize, ollama-explain; tier-2 (7): ollama-boilerplate, ollama-classify, ollama-diff-summary, ollama-docstring, ollama-error-triage, ollama-extract, ollama-test-stub. SkillModernize.test.ts still 31/31 green after the heuristic extension. Each skill now carries policy.tier + policy.triggers per the milestone exit_condition. Triggers are slightly noisy on a few skills (e.g. ollama-summarize picked up 'prism' and 'some-large-file' from quoted body strings) — sufficient for the spec but a follow-up could refine deriveTriggers to filter better noise.",
           "exit_conditions": [
             "/ollama-summarize, /ollama-classify, /ollama-explain, /ollama-docstring, /ollama-extract, /ollama-test-stub, /ollama-error-triage, /ollama-diff-summary, /ollama-boilerplate all have policy.tier + policy.triggers",
             "Auto-invoke verified: typing 'summarize this' surfaces /ollama-summarize",
