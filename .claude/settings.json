@@ -807,6 +807,13 @@
             "command": "node H:/prism/.claude/helpers/agent-coordination-daemon.mjs heartbeat",
             "timeout": 3000,
             "continueOnError": true
+          },
+          {
+            "_comment": "P19-U02: surface cron-runs.jsonl alerts at SessionStart (quiet by default)",
+            "type": "command",
+            "command": "node H:/prism-iooms0/.claude/hooks/drift-alert-surface.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       }

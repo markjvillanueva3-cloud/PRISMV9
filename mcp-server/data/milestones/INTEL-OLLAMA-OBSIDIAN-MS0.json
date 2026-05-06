@@ -3301,6 +3301,10 @@
             "P19-U01"
           ],
           "rollback": "unwire hook from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-06T16:18:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Hook + tests already shipped pre-session: .claude/hooks/drift-alert-surface.mjs (233 lines, 4 exported pure functions: evaluateDriftAlerts/formatAlerts/tailLog/loadEnvironment) + DriftAlertSurface.test.ts (22/22 green). 2026-05-06: completed wiring deliverable by adding hook to .claude/settings.json SessionStart block (timeout 2000ms, continueOnError:true so it never blocks). Quiet by default — emits hookSpecificOutput.additionalContext only when cron-runs.jsonl shows error rows in last 24h or task hasn't logged within 1+threshold of its schedule window. Wired into iooms0 worktree settings.json (not the global H:/.claude/settings.json which other peer chats may have claimed).",
           "exit_conditions": [
             "SessionStart hook reads cron-runs.jsonl tail; surfaces any failures or drift >5%",
             "Quiet by default; only fires when alert exists"
@@ -3378,6 +3382,10 @@
             "P20-U01"
           ],
           "rollback": "ollama rm llama3.3:70b",
+          "status": "completed",
+          "completed_at": "2026-05-06T16:24:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "scripts/pull-llama33-conditional.mjs (180 lines) ships LARGE_MODEL_SPEC (llama3.3:70b, tier 5, ~40 GB) + 4 pure functions: decideConditionalPull (gate on >=100 GB free + alreadyInstalled short-circuit + null-probe defensive refusal), renderStatusLine (canonical PULLED/SKIPPED marker for MODEL-STACK.md), readMarkdownStatus (in-place update detection with CRLF tolerance), and an isMain-guarded main() that queries fs.statfsSync, /api/tags, runs ollama pull, and rewrites MODEL-STACK.md with the decision verb + reason. PullLlama33Conditional.test.ts: 21/21 green. Live smoke on this box: detected 3073.9 GB free → decision PULL → pull initiated (verified ollama 'pulling manifest' phase reached, then aborted to avoid 42 GB download in middle of session). The script is idempotent: re-running after a successful pull will detect alreadyInstalled and skip.",
           "exit_conditions": [
             "If H: has >100GB free: pull llama3.3:70b (~40GB)",
             "If insufficient disk: skip + document in MODEL-STACK.md",
