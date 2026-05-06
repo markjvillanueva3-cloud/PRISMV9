@@ -36,7 +36,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
     _xprocReplaySampler: any, _xprocSemanticLinker: any,
     _xprocOnlineMLP: any, _xprocDriftDetector: any,
-    _xprocShiftHandler: any;
+    _xprocShiftHandler: any, _xprocEWC: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -76,6 +76,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocOnlineMLP": return _xprocOnlineMLP ??= (await import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js")).crossProcessOnlineMLPUpdater;
     case "xprocDriftDetector": return _xprocDriftDetector ??= (await import("../../engines/CrossProcessDriftDetectorEngine.js")).crossProcessDriftDetector;
     case "xprocShiftHandler": return _xprocShiftHandler ??= (await import("../../engines/CrossProcessConceptShiftHandlerEngine.js")).crossProcessConceptShiftHandler;
+    case "xprocEWC": return _xprocEWC ??= (await import("../../engines/CrossProcessEWCMemoryPreservationEngine.js")).crossProcessEWCMemoryPreservation;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -279,6 +280,13 @@ const ACTIONS = [
   "xproc_shift_history",
   "xproc_shift_reset",
   "xproc_shift_constants",
+  // XPROC-NEURAL Tier 3 (T3-04) — EWC++ memory preservation (Kirkpatrick 2017 + Schwarz 2018)
+  "xproc_ewc_compute_fisher",
+  "xproc_ewc_reg_loss",
+  "xproc_ewc_consolidate",
+  "xproc_ewc_get_fisher",
+  "xproc_ewc_reset",
+  "xproc_ewc_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -794,6 +802,13 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_shift_history: "xprocShiftHandler",
           xproc_shift_reset: "xprocShiftHandler",
           xproc_shift_constants: "xprocShiftHandler",
+          // XPROC-NEURAL Tier 3 (T3-04) — EWC++ memory preservation
+          xproc_ewc_compute_fisher: "xprocEWC",
+          xproc_ewc_reg_loss: "xprocEWC",
+          xproc_ewc_consolidate: "xprocEWC",
+          xproc_ewc_get_fisher: "xprocEWC",
+          xproc_ewc_reset: "xprocEWC",
+          xproc_ewc_constants: "xprocEWC",
         };
 
         const engineName = CORE_ROUTING[action];
