@@ -1202,7 +1202,7 @@ const knowledge_wiring_consumers = z.object({
 
 // Atom Management (U-KAR26)
 const knowledge_atom_validate = z.object({
-  atom: z.record(z.unknown()).describe("Knowledge atom to validate"),
+  atom: z.record(z.string(), z.unknown()).describe("Knowledge atom to validate"),
 }).passthrough();
 
 const knowledge_atom_create = z.object({
