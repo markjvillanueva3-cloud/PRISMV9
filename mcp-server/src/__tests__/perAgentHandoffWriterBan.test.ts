@@ -38,7 +38,17 @@ const PRECOMPACT_HOOK = "H:/prism/.claude/helpers/precompact-handoff.mjs";
 const TEST_TERMINAL = `claude-banwtest-${Date.now().toString(36)}`;
 const HANDOFFS_DIR = "H:/prism/state/shared/handoffs";
 
-function runHelper(args: string[], stdin?: string): { ok?: boolean; error?: string; op?: string; file?: string; instance?: string; raw: string } {
+interface HelperResult {
+  ok?: boolean;
+  error?: string;
+  op?: string;
+  file?: string;
+  instance?: string;
+  session?: { id?: string; family?: string; terminal?: string };
+  raw: string;
+}
+
+function runHelper(args: string[], stdin?: string): HelperResult {
   const r = spawnSync(process.execPath, [HELPER, ...args], {
     encoding: "utf-8",
     timeout: 8000,
@@ -46,11 +56,29 @@ function runHelper(args: string[], stdin?: string): { ok?: boolean; error?: stri
     input: stdin,
   });
   const stdout = (r.stdout || "").trim();
+  let parsed: unknown;
   try {
-    return { ...JSON.parse(stdout), raw: stdout };
+    parsed = JSON.parse(stdout);
   } catch {
     return { raw: stdout };
   }
+  // Narrow `unknown` to a typed result. Any field absent in JSON simply stays
+  // undefined — no any-spread, no silent mistypes.
+  const p = (parsed && typeof parsed === "object") ? parsed as Record<string, unknown> : {};
+  const sessRaw = p.session && typeof p.session === "object" ? p.session as Record<string, unknown> : undefined;
+  return {
+    ok: typeof p.ok === "boolean" ? p.ok : undefined,
+    error: typeof p.error === "string" ? p.error : undefined,
+    op: typeof p.op === "string" ? p.op : undefined,
+    file: typeof p.file === "string" ? p.file : undefined,
+    instance: typeof p.instance === "string" ? p.instance : undefined,
+    session: sessRaw ? {
+      id: typeof sessRaw.id === "string" ? sessRaw.id : undefined,
+      family: typeof sessRaw.family === "string" ? sessRaw.family : undefined,
+      terminal: typeof sessRaw.terminal === "string" ? sessRaw.terminal : undefined,
+    } : undefined,
+    raw: stdout,
+  };
 }
 
 function findHandoffFile(terminal: string): string | null {
@@ -63,7 +91,13 @@ function findHandoffFile(terminal: string): string | null {
 describe("per-agent-handoff.mjs writer-ban (INFRA-HANDOFF-MS0/U-WRITER-BAN)", () => {
   beforeAll(() => {
     // Ensure the test terminal is registered so the helper can resolve it.
-    runHelper(["register", "--terminal", TEST_TERMINAL, "--agent-family", "Claude"]);
+    // Assert on the result — a silent registration failure here would let the
+    // ban tests proceed against an unregistered terminal and produce
+    // misleading negatives.
+    const r = runHelper(["register", "--terminal", TEST_TERMINAL, "--agent-family", "Claude"]);
+    expect(r.ok, `register failed: ${r.raw}`).toBe(true);
+    expect(r.session?.id, "register must return a session id").toBeTypeOf("string");
+    expect(r.session?.family).toBe("Claude");
   });
 
   afterAll(() => {
