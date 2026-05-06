@@ -3049,7 +3049,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T13:15:32.518Z",
+          "completed_by": "claude-iooms0-p17",
+          "notes": "Built scripts/setup-embedding-model.mjs (314 lines) + scripts/setup-embedding-model.test.mjs (40 vitest cases, all PASS). Pure decision functions exported for static testing: isModelInstalled, validateEmbeddingResponse, median, decideSmokePass, parseArgs. I/O glue (fetchTags/pullModel/callEmbedding) calls live Ollama. Live smoke run on this lane: nomic-embed-text already installed (274MB, 137M params, F16 nomic-bert family), cold latency 142ms (model load), warm p50 43ms (well under 100ms budget), dim=768 confirmed against EXPECTED_DIM constant. Exit conditions all satisfied: model pulled to H:/Tools/ollama/models/, hello world → 768-dim vector, latency < 100ms per warm embedding. Idempotent: skips pull when present, --force-pull overrides. Test coverage: 9 cases for isModelInstalled (incl. version-tag boundary), 8 for validateEmbeddingResponse (incl. NaN/Infinity adversarial), 8 for median (incl. mutation guard), 6 for decideSmokePass (incl. failure ordering contract), 7 for parseArgs (incl. unknown-flag collection)."
         },
         {
           "id": "P17-U02",
