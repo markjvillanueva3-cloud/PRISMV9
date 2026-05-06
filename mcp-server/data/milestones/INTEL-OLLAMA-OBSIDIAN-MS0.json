@@ -1606,6 +1606,10 @@
           "dependencies": [
             "P8-U01"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:33:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Mechanical replacement of `z.record(z.string(), z.any())` → `z.record(z.string(), z.unknown())` across the 3 high-traffic schema files driven by the P8-U01 inventory. Sites swapped: autonomousActionSchemas (10 sites incl. line-33 double), adaptiveControlActionSchemas (5 sites incl. nested z.array(z.record(...))), atcsActionSchemas (1 site). Re-running scripts/audit-zany.mjs confirms 0 z.any() remaining in those 3 files (138 → 122 total inventory sites, exact 16-site delta). Semantic effect: identical runtime acceptance set (passthrough on the outer z.object preserves shape latitude) but TypeScript inference improves from `any` to `unknown`, forcing call sites to narrow before use — exactly what the P8 phase exists to achieve. Pre-commit z.any()-block hook (P8-U06) was not triggered because no NEW z.any() was added.",
           "exit_conditions": [
             "Three target schemas: 0 z.any() remaining",
             "Replaced with explicit z.object / z.union / z.record(z.unknown())",
