@@ -42,12 +42,46 @@ describe("input validation", () => {
     expect(r.tipCoverageRatio).toBe(0);
   });
 
-  it("rejects malformed schema → warning emitted, no crash", () => {
+  it("rejects malformed episode (bad process) → warning identifies the field path", () => {
     const r = CrossProcessEpisodicSemanticLinkerEngine.enrich({
       episodes: [{ id: "x", process: "edm", material: "P", feature: "pocket" }],  // bad process
     });
     expect(r.enriched).toEqual([]);
-    expect(r.warnings.length).toBeGreaterThan(0);
+    expect(r.warnings.length).toBe(1);
+    // Content assertion: the warning must identify the offending field, not
+    // just report "something failed". Zod issues use dot-paths like
+    // "episodes.0.process".
+    expect(r.warnings[0]).toMatch(/episodes\.0\.process/);
+    expect(r.warnings[0].toLowerCase()).toContain("invalid");
+  });
+
+  it("rejects malformed tip (zero keywords) → warning identifies tip path, zero results", () => {
+    // Failure mode 4 layer (a): Zod rejects whole request when a tip has
+    // zero-keyword array. Caller sees fail-fast with structured warning.
+    const r = CrossProcessEpisodicSemanticLinkerEngine.enrich({
+      episodes: [ep("e1", "mill", "P", "pocket")],
+      tips: [
+        { tipId: "t-good", keywords: ["pocket"], body: "good tip" },
+        { tipId: "t-bad", keywords: [], body: "bad — empty keywords" },  // Zod rejects
+      ],
+    });
+    expect(r.enriched).toEqual([]);
+    expect(r.totalEpisodes).toBe(0);
+    expect(r.warnings.length).toBe(1);
+    // Warning must identify the tips array index that failed (Zod path)
+    expect(r.warnings[0]).toMatch(/tips\.1\.keywords/);
+  });
+
+  it("rejects malformed tip (missing body) with structured field-path warning", () => {
+    const r = CrossProcessEpisodicSemanticLinkerEngine.enrich({
+      episodes: [ep("e1", "mill", "P", "pocket")],
+      tips: [
+        // Missing required `body` field
+        { tipId: "t1", keywords: ["pocket"] } as never,
+      ],
+    });
+    expect(r.enriched).toEqual([]);
+    expect(r.warnings[0]).toMatch(/tips\.0\.body/);
   });
 });
 
