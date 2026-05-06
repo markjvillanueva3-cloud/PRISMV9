@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * docker-audit.mjs — INTEL-OLLAMA-OBSIDIAN-MS0/P13-U01
  *
