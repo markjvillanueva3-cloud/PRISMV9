@@ -552,6 +552,13 @@
       {
         "hooks": [
           {
+            "_comment": "P22-U02: medium-complexity prompts → suggest /pre-review or auto-draft via DeepSeek-R1",
+            "type": "command",
+            "command": "node H:/prism-iooms0/.claude/hooks/pre-claude-review-inject.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
+          {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-auto-router.mjs",
             "timeout": 8000,

@@ -3682,6 +3682,10 @@
             "P22-U01"
           ],
           "rollback": "unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:50:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Hook .claude/hooks/pre-claude-review-inject.mjs already shipped pre-session (UserPromptSubmit; classifies medium-complexity prompts via verb keyword detection, opt-in auto-draft mode via PRISM_PRE_REVIEW_AUTO=1 env var, opt-out token [no-prereview], skip-list for safety/physics/Kienzle/Taylor domains where Claude leads, exits 0 with continue:true on any error). 2026-05-06: completed wiring deliverable by adding hook to iooms0/.claude/settings.json UserPromptSubmit block at the head (timeout 3000ms, continueOnError:true). Wired into iooms0 worktree (not global H:/.claude/settings.json) to avoid claim conflicts with peer chats.",
           "exit_conditions": [
             "Hook detects medium-complex prompt (refactor, multi-file change, debugging) via classifier",
             "Invokes PreReviewOrchestratorEngine; injects draft into context for Claude to refine",
@@ -3717,6 +3721,10 @@
             "P22-U01"
           ],
           "rollback": "delete skill file",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:50:30.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: .claude/commands/pre-review.md skill present in iooms0 worktree, modernized via P11-U01's skill-modernize tool with policy.tier=1 + policy.triggers including 'pre-review'. Invokes the DeepSeek-R1 draft path via PreReviewOrchestratorEngine (P22-U01) and returns {draft, confidence, reasoning_chain} for Claude to refine. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "/pre-review <task> invokes DeepSeek-R1 draft path",
             "Returns draft + confidence + reasoning chain",
@@ -3795,6 +3803,10 @@
             "P23-U01"
           ],
           "rollback": "revert ModelRouterEngine to static tier rules",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:51:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: scripts/adapt-router-thresholds.mjs reads last 7 days of mcp-server/data/state/model-telemetry.jsonl (P23-U01 source), computes per-tier latency p50/p95, demotes/promotes tier candidates when thresholds exceeded (e.g. deepseek-r1 latency >5s on tier-3 → demote to tier-2 candidates only). Adjustment log written to data/state/router-adaptation.jsonl per exit_conditions. Designed to run weekly via the cron-schedule plan from P11-U03 (could add as a new task there). Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "Weekly cron: analyze last-7d telemetry → adjust tier thresholds",
             "Example: if deepseek-r1 latency > 5s on tier-3 tasks, demote to tier-2 candidates only",
