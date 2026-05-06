@@ -127,22 +127,12 @@
             "timeout": 1500,
             "continueOnError": true,
             "_wrapped": "WHY: BM25-lite query against knowledge/wiki/index.md; injects top-3 matching entries on keyword overlap so Claude doesn't re-derive what the wiki already documents. Disable via PRISM_WIKI_PRECHECK=0."
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-obsidian-rag.mjs",
             "timeout": 3000
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-auto-router.mjs",

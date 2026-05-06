@@ -18,7 +18,12 @@ import {
 
 const BASELINE_RELATIVE = "state/shared/TSC_BASELINE_ERRORS.json";
 const CACHE_RELATIVE = "state/shared/TSC_BASELINE_CACHE.json";
-const TSC_TIMEOUT_MS = 90 * 1000;
+// Internal subprocess budget. MUST stay strictly below the hook's own
+// timeout in settings.json (currently 60s on PreToolUse). Previously 90s,
+// which let the harness SIGTERM tsc on a cold cache → null result →
+// silent gate bypass. Held at 50s to leave 10s margin for stdout parsing
+// and JSON write.
+const TSC_TIMEOUT_MS = 50 * 1000;
 // Source roots to fingerprint for cache invalidation. tsc only matters when
 // these change. Build artifacts (dist/, node_modules/) are excluded.
 const TSC_SCAN_ROOTS = ["mcp-server/src"];

@@ -84,7 +84,27 @@ function cleanStaleLocks() {
   return cleaned;
 }
 
+// fsck is expensive (full object graph walk). The TTL below caps how
+// often we actually run it; in between, we trust the cached result.
+// 30 minutes balances freshness against cold-start latency — corruption
+// that develops mid-session will still be caught at the next interval.
+const FSCK_TTL_MS = 30 * 60 * 1000;
+
 function quickFsck() {
+  // Cache wrapper around the real fsck. We persist {fsckErrors,
+  // lastFsckTimestamp} into the same state file the rest of this hook
+  // already uses, so this fits into the existing schema additively.
+  const state = loadState();
+  const lastTs = Number(new Date(state.lastFsckTimestamp || 0).getTime() || 0);
+  if (Number.isFinite(lastTs) && lastTs > 0 && Date.now() - lastTs < FSCK_TTL_MS) {
+    const cachedErrors = Number(state.fsckErrors || 0);
+    if (cachedErrors === 0) {
+      return { ok: true, errors: 0, cached: true };
+    }
+    // Last run had errors — re-run to verify they are still present
+    // rather than silently returning a stale failure verdict.
+  }
+
   // Use --connectivity-only for speed — checks object graph without reading all blobs
   const result = git(["fsck", "--connectivity-only", "--no-progress"], { timeout: 30000 });
   if (!isOk(result)) {
@@ -148,11 +168,16 @@ function main() {
     }
   }
 
-  // Update state
+  // Update state. We bump lastFsckTimestamp ONLY when we actually ran
+  // fsck (cached:true short-circuits), so the TTL is honest — a stale
+  // verdict cannot keep refreshing its own freshness marker.
   const newState = {
     lastPC: currentPC,
     lastBranch: isOk(branch) ? branch : state.lastBranch,
     lastTimestamp: new Date().toISOString(),
+    lastFsckTimestamp: fsck.cached
+      ? state.lastFsckTimestamp
+      : new Date().toISOString(),
     fsckErrors: fsck.errors || 0,
     uncommittedCount,
   };
