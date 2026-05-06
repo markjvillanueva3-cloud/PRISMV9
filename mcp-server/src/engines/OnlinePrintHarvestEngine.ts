@@ -56,6 +56,13 @@ export interface PrintSource {
   rate_limit_rpm: number;
   /** Whether the source needs an account / API key for bulk access. */
   requires_auth: boolean;
+  /**
+   * Whether the source publishes BOTH a 2D dimensioned print AND a 3D CAD model
+   * for the same part — the ground-truth pair PRISM needs to learn the print →
+   * CAD mapping. McMaster-Carr is the canonical example: every catalog item
+   * has a dimensioned PDF and a STEP/IGES download referenced to the same SKU.
+   */
+  provides_paired_print_cad: boolean;
   /** Notes on how to use this source — citation requirements, redistribution rules. */
   notes: string;
 }
@@ -73,6 +80,8 @@ export interface SourceFilter {
   format?: ReadonlyArray<PrintSource["formats"][number]>;
   /** Only sources that don't need login. */
   no_auth_only?: boolean;
+  /** Only sources that publish paired print + CAD ground-truth pairs. */
+  paired_print_cad_only?: boolean;
 }
 
 // ── Catalog ────────────────────────────────────────────────────────
@@ -87,7 +96,8 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     formats: ["pdf", "image"],
     rate_limit_rpm: 30,
     requires_auth: false,
-    notes: "US government works are public domain in the US. Cite as NASA-TM, NASA-CR, or NASA-TP. Contains thousands of aerospace structural and propulsion drawings + analysis reports.",
+    provides_paired_print_cad: false,
+    notes: "US government works are public domain in the US. Cite as NASA-TM, NASA-CR, or NASA-TP. Contains thousands of aerospace structural and propulsion drawings + analysis reports. Drawings are PDF only — paired CAD rare.",
   },
   {
     id: "nist-publications",
@@ -98,7 +108,8 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     formats: ["pdf"],
     rate_limit_rpm: 30,
     requires_auth: false,
-    notes: "Metrology + materials + manufacturing publications. Useful for tolerance and surface-finish standards data.",
+    provides_paired_print_cad: false,
+    notes: "Metrology + materials + manufacturing publications. Useful for tolerance and surface-finish standards data. PDF only.",
   },
   {
     id: "grabcad-cc0",
@@ -106,10 +117,11 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     base_url: "https://grabcad.com/library",
     license: "cc0",
     domains: ["bracket", "fitting", "lug", "bushing", "shaft", "general"],
-    formats: ["step", "iges", "stl"],
+    formats: ["step", "iges", "stl", "pdf"],
     rate_limit_rpm: 10,
     requires_auth: true,
-    notes: "Filter to CC0 license only — most uploads are under various restrictions. ToS prohibits bulk download without permission.",
+    provides_paired_print_cad: true,
+    notes: "Filter to CC0 license only — most uploads are under various restrictions. Many uploaders include both a dimensioned PDF drawing and the STEP/IGES — a strong paired-training source. ToS prohibits bulk download without permission.",
   },
   {
     id: "github-cad-public",
@@ -117,10 +129,11 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     base_url: "https://api.github.com/search/code?q=extension:step+OR+extension:iges",
     license: "mit",
     domains: ["bracket", "general"],
-    formats: ["step", "iges", "stl"],
+    formats: ["step", "iges", "stl", "pdf"],
     rate_limit_rpm: 30,
     requires_auth: true,
-    notes: "Use GitHub API with auth token. Filter results by repo license. Many open-source hardware projects (e.g. Mr. Beam, Prusa) publish CAD under MIT/CC-BY.",
+    provides_paired_print_cad: true,
+    notes: "Use GitHub API with auth token. Open-source hardware projects (Prusa, Voron, Reach, OpenFlexure) often ship CAD + dimensioned PDFs in the same repo — filter by repo for paired training data.",
   },
   {
     id: "asme-open-archive",
@@ -131,6 +144,7 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     formats: ["pdf"],
     rate_limit_rpm: 10,
     requires_auth: false,
+    provides_paired_print_cad: false,
     notes: "Open-access subset only. Contains turbomachinery + mechanical design papers with detailed drawings. Strict redistribution rules — extract for analysis, do not republish.",
   },
   {
@@ -139,10 +153,11 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     base_url: "https://www.thingiverse.com",
     license: "cc_by",
     domains: ["bracket", "fitting", "general"],
-    formats: ["stl", "step"],
+    formats: ["stl", "step", "pdf"],
     rate_limit_rpm: 20,
     requires_auth: false,
-    notes: "Filter by license at search time. Most relevant for jigs, fixtures, brackets. Industrial parts are rare here.",
+    provides_paired_print_cad: false,
+    notes: "Filter by license at search time. Most uploads are STL only — only a small subset includes a dimensioned PDF.",
   },
   {
     id: "openscad-libraries",
@@ -153,6 +168,7 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     formats: ["stl"],
     rate_limit_rpm: 30,
     requires_auth: false,
+    provides_paired_print_cad: false,
     notes: "GPL constraints apply — use only for ingestion/learning, never re-export commercially without GPL compliance.",
   },
   {
@@ -164,6 +180,7 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     formats: ["pdf"],
     rate_limit_rpm: 30,
     requires_auth: false,
+    provides_paired_print_cad: false,
     notes: "1500+ airfoil profile coordinate tables. Useful as ground-truth references for blade leading/trailing edge geometry.",
   },
   {
@@ -175,7 +192,81 @@ const SOURCES: ReadonlyArray<PrintSource> = [
     formats: ["pdf"],
     rate_limit_rpm: 10,
     requires_auth: false,
+    provides_paired_print_cad: false,
     notes: "Public 510(k) submissions sometimes contain redacted drawings + biocompatibility callouts. Strong source of medical device convention examples.",
+  },
+  // ── Paired print + CAD sources (canonical training surface for print-to-CAD) ──
+  {
+    id: "mcmaster-carr",
+    name: "McMaster-Carr",
+    base_url: "https://www.mcmaster.com",
+    license: "fair_use_research_only",
+    domains: ["fitting", "bushing", "shaft", "bracket", "general"],
+    formats: ["step", "iges", "pdf"],
+    rate_limit_rpm: 5,
+    requires_auth: false,
+    provides_paired_print_cad: true,
+    notes: "EVERY catalog item has both a dimensioned PDF specification sheet and a STEP/IGES download keyed to the same SKU — the canonical paired-training source. Includes fasteners, fittings, bushings, shafts, brackets. ToS allows individual download; bulk scraping prohibited. 5 rpm conservative.",
+  },
+  {
+    id: "misumi-usa",
+    name: "MISUMI USA Configurable Components",
+    base_url: "https://us.misumi-ec.com",
+    license: "fair_use_research_only",
+    domains: ["fitting", "bushing", "shaft", "bracket", "general"],
+    formats: ["step", "iges", "dxf", "pdf"],
+    rate_limit_rpm: 5,
+    requires_auth: true,
+    provides_paired_print_cad: true,
+    notes: "Configurable components (linear-motion, fixturing, fasteners, plates) with paired PDF datasheet + STEP/IGES download. Free login required. Strong training source for jig/fixture geometry.",
+  },
+  {
+    id: "3d-content-central",
+    name: "3D ContentCentral (Dassault Systèmes)",
+    base_url: "https://www.3dcontentcentral.com",
+    license: "fair_use_research_only",
+    domains: ["fitting", "bracket", "bushing", "shaft", "general"],
+    formats: ["step", "iges", "stl", "pdf"],
+    rate_limit_rpm: 10,
+    requires_auth: true,
+    provides_paired_print_cad: true,
+    notes: "Manufacturer-published parts (700K+) with paired drawings. Each item has a specification PDF and one or more 3D formats. Filter results by 'has 2D drawing' flag for paired set.",
+  },
+  {
+    id: "traceparts",
+    name: "TraceParts CAD Library",
+    base_url: "https://www.traceparts.com",
+    license: "fair_use_research_only",
+    domains: ["fitting", "bracket", "shaft", "bushing", "general"],
+    formats: ["step", "iges", "stl", "pdf"],
+    rate_limit_rpm: 10,
+    requires_auth: true,
+    provides_paired_print_cad: true,
+    notes: "100M+ parts from 1000+ manufacturers (DIN/ISO/ANSI standards). Paired 2D drawing + 3D model for nearly all entries. Free login.",
+  },
+  {
+    id: "reprap-wiki",
+    name: "RepRap Open Hardware Wiki",
+    base_url: "https://reprap.org/wiki",
+    license: "gpl",
+    domains: ["bracket", "fitting", "shaft", "general"],
+    formats: ["step", "stl", "dxf", "pdf"],
+    rate_limit_rpm: 30,
+    requires_auth: false,
+    provides_paired_print_cad: true,
+    notes: "Open-hardware 3D printer parts (Prusa, RepRap, Voron) — most parts have both a STL/STEP and a dimensioned drawing. GPL constraints on derivative works.",
+  },
+  {
+    id: "mit-pset-cad",
+    name: "MIT OpenCourseWare 2.007/2.008/2.13 PSET CAD bundles",
+    base_url: "https://ocw.mit.edu",
+    license: "cc_by_nc",
+    domains: ["bracket", "shaft", "bushing", "fitting", "general"],
+    formats: ["step", "stl", "pdf"],
+    rate_limit_rpm: 30,
+    requires_auth: false,
+    provides_paired_print_cad: true,
+    notes: "Mechanical engineering course problem sets (2.007 Design and Manufacturing, 2.008 Design + Mfg II, 2.13 Engineering Mechanics) include paired drawing + CAD bundles. CC-BY-NC — no commercial redistribution.",
   },
 ];
 
@@ -215,6 +306,7 @@ export class OnlinePrintHarvestEngine {
         if (!overlap) return false;
       }
       if (filter.no_auth_only && s.requires_auth) return false;
+      if (filter.paired_print_cad_only && !s.provides_paired_print_cad) return false;
       return true;
     });
   }
@@ -270,6 +362,37 @@ export class OnlinePrintHarvestEngine {
       if (s.rate_limit_rpm < bottleneck.rate_limit_rpm) bottleneck = s;
     }
     return { rpm: bottleneck.rate_limit_rpm, bottleneck_id: bottleneck.id };
+  }
+
+  /**
+   * Returns sources that publish BOTH a 2D dimensioned print AND a 3D CAD
+   * model for the same part — the ground-truth surface for training the
+   * print-to-CAD pipeline. Optionally filter by part class.
+   *
+   * Sorted by license permissiveness then rate-limit (faster crawl first).
+   */
+  pairedSourcesForTraining(partClass?: PartClass): PrintSource[] {
+    const filter: SourceFilter = { paired_print_cad_only: true };
+    if (partClass) filter.domain = [partClass];
+    const matches = this.filterSources(filter);
+    const licenseRank: Record<LicenseClass, number> = {
+      public_domain: 0,
+      us_gov_work: 1,
+      cc0: 2,
+      mit: 3,
+      apache_2: 4,
+      cc_by: 5,
+      cc_by_sa: 6,
+      cc_by_nc: 7,
+      gpl: 8,
+      fair_use_research_only: 9,
+      redistribution_prohibited: 10,
+    };
+    return [...matches].sort((a, b) => {
+      const lr = (licenseRank[a.license] ?? 99) - (licenseRank[b.license] ?? 99);
+      if (lr !== 0) return lr;
+      return b.rate_limit_rpm - a.rate_limit_rpm;
+    });
   }
 }
 

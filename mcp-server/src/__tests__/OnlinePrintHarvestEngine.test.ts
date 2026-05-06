@@ -105,6 +105,50 @@ describe("OnlinePrintHarvestEngine.canRedistribute", () => {
   });
 });
 
+describe("OnlinePrintHarvestEngine.pairedSourcesForTraining", () => {
+  it("returns at least 6 paired sources (catalog includes McMaster, Misumi, 3DCC, TraceParts, RepRap, MIT OCW + GrabCAD/GitHub)", () => {
+    const out = engine.pairedSourcesForTraining();
+    expect(out.length).toBeGreaterThanOrEqual(6);
+    const nonPaired = out.filter((s) => s.provides_paired_print_cad !== true).length;
+    expect(nonPaired).toBe(0);
+  });
+
+  it("includes McMaster-Carr in paired set (canonical training source)", () => {
+    const out = engine.pairedSourcesForTraining();
+    const hasMcMaster = out.some((s) => s.id === "mcmaster-carr");
+    expect(hasMcMaster).toBe(true);
+  });
+
+  it("filtering by part class narrows the result and all matches cover that class", () => {
+    const fullSet = engine.pairedSourcesForTraining();
+    const fittingOnly = engine.pairedSourcesForTraining("fitting");
+    expect(fittingOnly.length).toBeLessThanOrEqual(fullSet.length);
+    const wrongCount = fittingOnly.filter((s) => !s.domains.some((d) => d === "fitting")).length;
+    expect(wrongCount).toBe(0);
+  });
+
+  it("results sorted by license permissiveness first", () => {
+    const out = engine.pairedSourcesForTraining();
+    const rank: Record<string, number> = {
+      public_domain: 0, us_gov_work: 1, cc0: 2, mit: 3, apache_2: 4,
+      cc_by: 5, cc_by_sa: 6, cc_by_nc: 7, gpl: 8,
+      fair_use_research_only: 9, redistribution_prohibited: 10,
+    };
+    let outOfOrder = 0;
+    for (let i = 1; i < out.length; i++) {
+      if ((rank[out[i - 1]!.license] ?? 99) > (rank[out[i]!.license] ?? 99)) outOfOrder++;
+    }
+    expect(outOfOrder).toBe(0);
+    expect(out.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("filterSources with paired_print_cad_only=true matches pairedSourcesForTraining count", () => {
+    const a = engine.filterSources({ paired_print_cad_only: true });
+    const b = engine.pairedSourcesForTraining();
+    expect(a.length).toBe(b.length);
+  });
+});
+
 describe("OnlinePrintHarvestEngine.totalRateBudget", () => {
   it("returns slowest source's rpm as the bottleneck (us_gov_work filter)", () => {
     const b = engine.totalRateBudget({ license: ["us_gov_work"] });
