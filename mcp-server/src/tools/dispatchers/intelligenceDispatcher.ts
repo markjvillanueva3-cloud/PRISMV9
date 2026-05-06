@@ -35,7 +35,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocTierRouter: any, _xprocOrchestrator: any,
     _xprocRuleExtracted: any, _xprocFormulaNeural: any,
     _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
-    _xprocReplaySampler: any, _xprocSemanticLinker: any;
+    _xprocReplaySampler: any, _xprocSemanticLinker: any,
+    _xprocOnlineMLP: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -73,6 +74,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocPrioritizedReplay": return _xprocPrioritizedReplay ??= (await import("../../engines/CrossProcessPrioritizedReplayEngine.js")).crossProcessPrioritizedReplay;
     case "xprocReplaySampler": return _xprocReplaySampler ??= (await import("../../engines/CrossProcessExperienceReplaySamplerEngine.js")).crossProcessExperienceReplaySampler;
     case "xprocSemanticLinker": return _xprocSemanticLinker ??= (await import("../../engines/CrossProcessEpisodicSemanticLinkerEngine.js")).crossProcessEpisodicSemanticLinker;
+    case "xprocOnlineMLP": return _xprocOnlineMLP ??= (await import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js")).crossProcessOnlineMLPUpdater;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -274,6 +276,10 @@ const ACTIONS = [
   "xproc_replay_default_clusters",
   // XPROC-NEURAL Tier 2 (T2-04) — Episodic↔Semantic Linker (tips + Kienzle citations)
   "xproc_episodic_semantic_join",
+  // XPROC-NEURAL Tier 3 (T3-01) — Online MLP Updater (Adam streaming gradient)
+  "xproc_online_update",
+  "xproc_online_init_state",
+  "xproc_online_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -780,6 +786,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_replay_default_clusters: "xprocReplaySampler",
           // XPROC-NEURAL Tier 2 (T2-04) — Episodic↔Semantic Linker
           xproc_episodic_semantic_join: "xprocSemanticLinker",
+          // XPROC-NEURAL Tier 3 (T3-01) — Online MLP Updater (Adam)
+          xproc_online_update: "xprocOnlineMLP",
+          xproc_online_init_state: "xprocOnlineMLP",
+          xproc_online_constants: "xprocOnlineMLP",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
