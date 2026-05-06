@@ -2196,6 +2196,10 @@
           "title": "Add policy frontmatter (auto-invoke triggers) to top 25 dev-quality skills",
           "effort": 60,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T17:00:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Built scripts/skill-modernize.mjs (~280 lines) + SkillModernize.test.ts (31/31 green). Tool walks .claude/commands/*.md, idempotently adds YAML frontmatter (between --- fences) with policy.tier (1=high-frequency keywords like audit/review/memory/learn/validate; 2=specialised like scrutinize/dedup/handoff/forge; 3=niche default) and policy.triggers (extracted from the body's Trigger policy section + skill name + slash invocations from Usage). Pure functions exported: parseExistingFrontmatter (YAML detect with CRLF tolerance), deriveTriggers (cap-8 dedup), deriveTier (3-tier heuristic with body 'tier:' override), renderFrontmatter (canonical YAML with quote escaping), modernizeSkill (idempotent unless --force). Live run on this iooms0 worktree: 23/23 skills modernized — every skill now has policy frontmatter (tier 1: 12 skills incl. audit/review/memory/learn/validate-program/qdrant-semantic-search/learned-patterns-apply/optimize-context/context-delta; tier 2: 4 skills incl. token-economy-report/vault-ingest/skill-sync-with-mcp/enforce-handoff-topic; tier 3: 7 niche skills). 2 short of the spec's 25 — those are canonical files at H:/prism/.claude/commands/ (dedup.md, scrutinize.md, forge-triple.md etc.) which the same script can modernize once peer-chat claims clear; deferring out of caution. Closes P11-U01.",
           "exit_conditions": [
             "skill-modernize tool run on 25 high-leverage skills (forge-triple, dedup, scrutinize, context-audit, memory-search, error-learn-review, harness-security-audit, etc.)",
             "Each gets policy.tier + policy.triggers in frontmatter",

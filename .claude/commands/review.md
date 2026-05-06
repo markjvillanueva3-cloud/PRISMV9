@@ -1,3 +1,11 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "review"
+    - "how does this look"
+    - "second opinion"
+---
 # Review — Unified Dispatcher
 
 Single entry point for the review family of skills. Routes to the right specialised review based on the first argument. Reviews are subjective-quality checks (style, tradeoffs, gut-feel) — distinct from `/audit` (invariant verification).

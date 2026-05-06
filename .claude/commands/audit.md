@@ -1,3 +1,10 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "audit"
+    - "audit x"
+---
 # Audit — Unified Dispatcher
 
 Single entry point for the audit family of skills. Routes to the right specialised audit based on the first argument; preserves all existing specialised skills (`/context-audit`, `/security-audit`, etc.) for direct invocation.

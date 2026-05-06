@@ -1,3 +1,14 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "learn"
+    - "learn from"
+    - "ingest"
+    - "extract from"
+    - "read this pdf"
+    - "watch this video"
+---
 # Learn — Unified Knowledge-Ingest Dispatcher
 
 Single entry point for ingesting knowledge from any source format. Auto-detects input type (PDF / video / web URL / plain text / markdown / image / archive) and routes to the right specialised extractor.

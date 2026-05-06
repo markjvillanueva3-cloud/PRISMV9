@@ -1,3 +1,13 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "qdrant-semantic-search"
+    - "search memory"
+    - "find similar"
+    - "have we seen"
+    - "any prior"
+---
 # Qdrant Semantic Search — Replaces /memory-search
 
 Direct semantic search against PRISM's Qdrant vector store, with full control over the embedder, collection routing, payload filters, and score thresholds. Replaces the older `/memory-search` skill — this version exposes the full `prism_memory:semantic_search` surface and supports the new `wiki` collection (P4-U04).

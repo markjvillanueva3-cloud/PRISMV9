@@ -1,3 +1,13 @@
+---
+policy:
+  tier: 2
+  triggers:
+    - "vault-ingest"
+    - "save to vault"
+    - "add to wiki"
+    - "document this"
+    - "capture learning"
+---
 # Vault Ingest — Push Session Learnings to Obsidian
 
 Take new tribal tips, formulas, decisions, or working-notes captured during this session and append them to the Obsidian vault at `H:/prism/knowledge/wiki/` with proper frontmatter, links, and a wiki-index update so future sessions can find them.

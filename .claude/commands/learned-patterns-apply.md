@@ -1,3 +1,12 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "learned-patterns-apply"
+    - "learned patterns"
+    - "apply lessons"
+    - "why did this break"
+---
 # Learned Patterns Apply — Extract + Apply From Error-Learn Ledger
 
 Read the unified error ledger (`mcp-server/data/state/UNIFIED_ERROR_LEDGER.jsonl`), find recurring error+fix pairs, and either preview the lessons or apply them as code edits / hook tightening / skill updates. Closes the loop between "Claude broke something, the user fixed it" and "Claude knows not to break that thing again."

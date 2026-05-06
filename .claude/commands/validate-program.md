@@ -1,3 +1,12 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "validate-program"
+    - "validate program"
+    - "check this nc"
+    - "is this safe to run"
+---
 # Validate Program — Unified NC Code Validation Dispatcher
 
 Single entry point for NC program validation. Routes by `--machine=` to the correct specialised validator (lathe / mill / wire EDM / sinker EDM / 5-axis / Swiss). Each routed validator runs collision, syntax, controller-grammar, force, and tribal-rule checks specific to its kinematics.

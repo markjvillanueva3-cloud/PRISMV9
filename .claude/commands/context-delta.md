@@ -1,3 +1,13 @@
+---
+policy:
+  tier: 1
+  triggers:
+    - "context-delta"
+    - "what changed"
+    - "catch me up"
+    - "context delta"
+    - "since i left"
+---
 # Context Delta — What Changed Since Last Checkpoint
 
 Show the *delta* between this point in the conversation and a prior checkpoint — git changes, file edits, decisions reached, hooks fired, tasks closed. Designed to give a fresh agent (or the user returning after a break) a tight catch-up without re-reading the whole transcript.
