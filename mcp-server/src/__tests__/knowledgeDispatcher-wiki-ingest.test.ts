@@ -555,4 +555,91 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       expect(typeof mod.PeerRepoSignatureEngine).toBe("function");
     });
   });
+
+  describe("Merge candidate scoring (P16-U02) wiring", () => {
+    const MERGE_CANDIDATE_ACTIONS = [
+      "merge_candidate_build_index",
+      "merge_candidate_score_asset",
+      "merge_candidate_rank",
+      "merge_candidate_render_md",
+    ];
+
+    it("all 4 merge-candidate actions are registered in the action enum", () => {
+      for (const a of MERGE_CANDIDATE_ACTIONS) {
+        expect(KNOWLEDGE_ACTIONS.includes(a)).toBe(true);
+      }
+    });
+
+    it("merge_candidate_build_index schema requires per_repo array", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.merge_candidate_build_index as z.ZodType;
+      expect(schema.safeParse({ per_repo: [] }).success).toBe(true);
+      expect(schema.safeParse({ per_repo: [{ x: 1 }] }).success).toBe(true);
+      expect(schema.safeParse({}).success).toBe(false);
+      expect(schema.safeParse({ per_repo: "nope" as unknown }).success).toBe(false);
+    });
+
+    it("merge_candidate_score_asset schema accepts opaque asset + optional config (z.unknown lets missing keys through)", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.merge_candidate_score_asset as z.ZodType;
+      expect(schema.safeParse({ asset: { kind: "engine", name: "Foo", peers: [], peer_count: 0 } }).success).toBe(true);
+      expect(schema.safeParse({ asset: null }).success).toBe(true);
+      // Runtime guard in the dispatcher case body handles missing asset; schema is lenient by design.
+      expect(schema.safeParse({ asset: { kind: "hook" }, config: { leadLane: "/x" } }).success).toBe(true);
+      expect(schema.safeParse({ asset: 42, config: 99 }).success).toBe(true);
+    });
+
+    it("merge_candidate_rank schema requires per_repo array and accepts config", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.merge_candidate_rank as z.ZodType;
+      expect(schema.safeParse({ per_repo: [] }).success).toBe(true);
+      expect(schema.safeParse({ per_repo: [], config: { leadLane: "/x", topN: 10 } }).success).toBe(true);
+      expect(schema.safeParse({ config: {} }).success).toBe(false);
+    });
+
+    it("merge_candidate_render_md schema accepts opaque report + typed generated_at", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.merge_candidate_render_md as z.ZodType;
+      expect(schema.safeParse({ report: {} }).success).toBe(true);
+      expect(schema.safeParse({ report: {}, generated_at: "2026-01-01" }).success).toBe(true);
+      // generated_at is z.string().optional() so wrong type must fail
+      expect(schema.safeParse({ report: {}, generated_at: 42 }).success).toBe(false);
+      // report is z.unknown() so missing report still parses; runtime guard in dispatcher
+      expect(schema.safeParse({ generated_at: "2026-01-01" }).success).toBe(true);
+    });
+
+    it("MergeCandidateScorerEngine module exports singleton — runs index + rank + render round-trip", async () => {
+      const mod = await import("../engines/MergeCandidateScorerEngine.js");
+      const inputs = [
+        {
+          repo_root: "/peer1",
+          unique_to_peer: { engines: ["AuditRegistry"], dispatchers: [], hooks: ["audit-hook"], skills: [], scripts: [] },
+          unique_to_canonical: { engines: [], dispatchers: [], hooks: [], skills: [], scripts: [] },
+          peer_only_count: 2,
+        },
+        {
+          repo_root: "/peer2",
+          unique_to_peer: { engines: ["AuditRegistry"], dispatchers: [], hooks: [], skills: [], scripts: [] },
+          unique_to_canonical: { engines: [], dispatchers: [], hooks: [], skills: [], scripts: [] },
+          peer_only_count: 1,
+        },
+      ];
+      const idx = mod.mergeCandidateScorerEngine.buildAssetIndex(inputs);
+      expect(idx).toHaveLength(2);
+      // AuditRegistry shows up in both peers
+      const auditEng = idx.find((e) => e.name === "AuditRegistry")!;
+      expect(auditEng.peer_count).toBe(2);
+      expect(auditEng.peers).toEqual(["/peer1", "/peer2"]);
+
+      const report = mod.mergeCandidateScorerEngine.rankCandidates(inputs);
+      expect(report.totalAssets).toBe(2);
+      expect(report.scoredAssets).toBe(2);
+      // Hook should rank ahead of engine for same name signal due to kind weight,
+      // but AuditRegistry has peer_count=2 vs audit-hook peer_count=1
+      // peer_count dominates: AuditRegistry first
+      expect(report.candidates[0].name).toBe("AuditRegistry");
+
+      const md = mod.mergeCandidateScorerEngine.renderMarkdown(report, { leadLane: "/peer1" }, "2026-01-01T00:00:00Z");
+      expect(md).toContain("# Peer-Repo Merge Candidates");
+      expect(md).toContain("AuditRegistry");
+      expect(md).toContain("audit-hook");
+      expect(typeof mod.MergeCandidateScorerEngine).toBe("function");
+    });
+  });
 });

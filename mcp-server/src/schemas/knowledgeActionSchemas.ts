@@ -270,6 +270,31 @@ const peer_repo_summarize = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P16-U02 — merge candidate scoring
+// (wires MergeCandidateScorerEngine to knowledge dispatcher)
+// ============================================================================
+
+const merge_candidate_build_index = z.object({
+  per_repo: z.array(z.unknown()).describe("Array of PerRepoUniques records from peer-repo audit"),
+}).passthrough();
+
+const merge_candidate_score_asset = z.object({
+  asset: z.unknown().describe("AssetEntry { kind, name, peers, peer_count }"),
+  config: z.unknown().optional().describe("Optional ScoringConfig { leadLane, minScore, topN }"),
+}).passthrough();
+
+const merge_candidate_rank = z.object({
+  per_repo: z.array(z.unknown()).describe("Array of PerRepoUniques records to rank"),
+  config: z.unknown().optional().describe("Optional ScoringConfig { leadLane, minScore, topN }"),
+}).passthrough();
+
+const merge_candidate_render_md = z.object({
+  report: z.unknown().describe("CandidateReport from rank_candidates"),
+  config: z.unknown().optional().describe("Optional ScoringConfig used during render"),
+  generated_at: z.string().optional().describe("ISO timestamp for deterministic output"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1372,4 +1397,8 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   peer_repo_build_signature,
   peer_repo_diff_signatures,
   peer_repo_summarize,
+  merge_candidate_build_index,
+  merge_candidate_score_asset,
+  merge_candidate_rank,
+  merge_candidate_render_md,
 };
