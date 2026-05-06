@@ -43,7 +43,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
-    _xprocModalityDropout: any;
+    _xprocModalityDropout: any, _xprocVisionFusion: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -101,6 +101,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocLearnedLR": return _xprocLearnedLR ??= (await import("../../engines/CrossProcessLearnedLRSchedulerEngine.js")).crossProcessLearnedLRScheduler;
     case "xprocHyperTuner": return _xprocHyperTuner ??= (await import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js")).crossProcessHyperparameterMetaTuner;
     case "xprocModalityDropout": return _xprocModalityDropout ??= (await import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js")).crossProcessModalityDropoutRobustifier;
+    case "xprocVisionFusion": return _xprocVisionFusion ??= (await import("../../engines/CrossProcessVisionTabularFusionEngine.js")).crossProcessVisionTabularFusion;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -400,6 +401,10 @@ const ACTIONS = [
   "xproc_modality_predict",
   "xproc_modality_availability",
   "xproc_modality_constants",
+  // XPROC-NEURAL Tier 10 (T10-01) — Vision-tabular late fusion (concat + projection)
+  "xproc_vision_fuse",
+  "xproc_vision_explain_attention",
+  "xproc_vision_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1011,6 +1016,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_modality_predict: "xprocModalityDropout",
           xproc_modality_availability: "xprocModalityDropout",
           xproc_modality_constants: "xprocModalityDropout",
+          // XPROC-NEURAL Tier 10 (T10-01) — Vision-tabular fusion
+          xproc_vision_fuse: "xprocVisionFusion",
+          xproc_vision_explain_attention: "xprocVisionFusion",
+          xproc_vision_constants: "xprocVisionFusion",
         };
 
         const engineName = CORE_ROUTING[action];
