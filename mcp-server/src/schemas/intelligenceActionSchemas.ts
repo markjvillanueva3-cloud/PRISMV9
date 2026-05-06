@@ -558,6 +558,89 @@ const xproc_mediation_path_strength = z.object({
   outcome: z.string(),
 }).passthrough().describe("Rank all candidate mediators by |α_X · β_M| path strength.");
 
+// XPROC-NEURAL Tier 11 (T11-01..T11-04) — Active Learning & Curiosity
+const xproc_active_select = z.object({
+  pending: z.array(z.object({
+    job_id: z.string().min(1),
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1).describe("Pending jobs to rank by predictive uncertainty."),
+  history: z.array(z.object({
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    outcome: z.number().finite(),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1).describe("Historical outcomes for k-NN variance estimate."),
+  k: z.number().int().min(1).max(50).default(5).describe("k for k-nearest neighbors."),
+  top_n: z.number().int().min(1).max(20).default(5).describe("Top-N picks to surface."),
+}).passthrough().describe("k-NN variance ranking for active-learning candidate selection.");
+const xproc_active_rationale = z.object({
+  job_id: z.string().min(1),
+  result: z.object({}).passthrough(),
+}).passthrough().describe("Look up rationale string for a previously ranked job_id.");
+const xproc_novelty_score = z.object({
+  candidates: z.array(z.object({
+    job_id: z.string().min(1),
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1),
+  history: z.array(z.object({
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1),
+  novelty_threshold: z.number().finite().min(0).max(10).default(2).describe("Median-normalized distance threshold."),
+  k: z.number().int().min(1).max(20).default(3),
+}).passthrough().describe("Score candidates for novelty via median-normalized k-NN distance.");
+const xproc_novelty_alert = xproc_novelty_score.describe("Filter candidates to novel-only entries crossing threshold.");
+const xproc_curiosity_propose = z.object({
+  candidates: z.array(z.object({
+    candidate_id: z.string().min(1),
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    ap: z.number().finite().positive().default(1),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1),
+  history: z.array(z.object({}).passthrough()).min(3),
+  state_for_safety: z.object({}).passthrough(),
+  k: z.number().int().min(1).max(50).default(5),
+  tier: z.enum(["shop_floor", "production", "proven_out", "sim"]).default("production"),
+}).passthrough().describe("Schmidhuber curiosity proposal gated by T8-03 safety verifier.");
+const xproc_curiosity_score = xproc_curiosity_propose.describe("Return curiosity scores only (no admit/block decisions).");
+const xproc_doe_plan = z.object({
+  candidates: z.array(z.object({
+    candidate_id: z.string().min(1),
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1),
+  history: z.array(z.object({
+    material_iso: z.string().min(1),
+    sf: z.number().finite().positive(),
+    fz: z.number().finite().positive(),
+    outcome: z.number().finite(),
+    process: z.enum(["mill", "lathe", "wedm"]).default("mill"),
+  })).min(1),
+  budget_k: z.number().int().min(1).max(100),
+  noise_variance: z.number().finite().min(0).max(1).default(0.0025),
+  rbf_length_scale: z.number().finite().positive().default(1),
+}).passthrough().describe("Greedy MI-max Bayesian DOE plan with GP surrogate.");
+const xproc_doe_evaluate_completion = z.object({
+  plan: z.array(z.object({}).passthrough()),
+  realized: z.array(z.object({
+    candidate_id: z.string().min(1),
+    outcome: z.number().finite(),
+  })),
+}).passthrough().describe("Coverage check: how many planned runs were realized.");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -663,4 +746,13 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   xproc_counterfactual_query,
   xproc_mediation_decompose,
   xproc_mediation_path_strength,
+  // XPROC-NEURAL Tier 11 (8) — Active Learning & Curiosity
+  xproc_active_select,
+  xproc_active_rationale,
+  xproc_novelty_score,
+  xproc_novelty_alert,
+  xproc_curiosity_propose,
+  xproc_curiosity_score,
+  xproc_doe_plan,
+  xproc_doe_evaluate_completion,
 };

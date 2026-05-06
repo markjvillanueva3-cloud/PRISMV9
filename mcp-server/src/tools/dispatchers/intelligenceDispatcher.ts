@@ -29,7 +29,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
     _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
     _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
-    _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any;
+    _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any,
+    _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -54,6 +55,10 @@ async function getEngine(name: string): Promise<any> {
     case "xprocDoCalculus": return _xprocDoCalculus ??= (await import("../../engines/CrossProcessDoCalculusEngine.js")).crossProcessDoCalculus;
     case "xprocCounterfactual": return _xprocCounterfactual ??= (await import("../../engines/CrossProcessCounterfactualPredictorEngine.js")).crossProcessCounterfactualPredictor;
     case "xprocMediation": return _xprocMediation ??= (await import("../../engines/CrossProcessMediationAnalyzerEngine.js")).crossProcessMediationAnalyzer;
+    case "xprocUncertainty": return _xprocUncertainty ??= (await import("../../engines/CrossProcessUncertaintyDrivenSamplerEngine.js")).crossProcessUncertaintyDrivenSampler;
+    case "xprocNovelty": return _xprocNovelty ??= (await import("../../engines/CrossProcessNoveltyDetectorEngine.js")).crossProcessNoveltyDetector;
+    case "xprocCuriosity": return _xprocCuriosity ??= (await import("../../engines/CrossProcessCuriosityDrivenExplorationEngine.js")).crossProcessCuriosityDrivenExploration;
+    case "xprocDOE": return _xprocDOE ??= (await import("../../engines/CrossProcessBayesianDOEPlannerEngine.js")).crossProcessBayesianDOEPlanner;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -204,6 +209,18 @@ const ACTIONS = [
   // XPROC-NEURAL Tier 9 (T9-04) — Mediation Analyzer
   "xproc_mediation_decompose",
   "xproc_mediation_path_strength",
+  // XPROC-NEURAL Tier 11 (T11-01) — Uncertainty-Driven Sampler (active learning)
+  "xproc_active_select",
+  "xproc_active_rationale",
+  // XPROC-NEURAL Tier 11 (T11-02) — Novelty Detector
+  "xproc_novelty_score",
+  "xproc_novelty_alert",
+  // XPROC-NEURAL Tier 11 (T11-03) — Curiosity-Driven Exploration
+  "xproc_curiosity_propose",
+  "xproc_curiosity_score",
+  // XPROC-NEURAL Tier 11 (T11-04) — Bayesian DOE Planner
+  "xproc_doe_plan",
+  "xproc_doe_evaluate_completion",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -674,6 +691,14 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_counterfactual_query: "xprocCounterfactual",
           xproc_mediation_decompose: "xprocMediation",
           xproc_mediation_path_strength: "xprocMediation",
+          xproc_active_select: "xprocUncertainty",
+          xproc_active_rationale: "xprocUncertainty",
+          xproc_novelty_score: "xprocNovelty",
+          xproc_novelty_alert: "xprocNovelty",
+          xproc_curiosity_propose: "xprocCuriosity",
+          xproc_curiosity_score: "xprocCuriosity",
+          xproc_doe_plan: "xprocDOE",
+          xproc_doe_evaluate_completion: "xprocDOE",
         };
 
         const engineName = CORE_ROUTING[action];
