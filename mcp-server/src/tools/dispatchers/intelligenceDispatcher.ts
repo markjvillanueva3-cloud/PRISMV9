@@ -42,7 +42,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocQLearning: any, _xprocBandit: any,
     _xprocBayesianMLP: any, _xprocConformal: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
-    _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any;
+    _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
+    _xprocMAMLLite: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -96,6 +97,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocSecureAgg": return _xprocSecureAgg ??= (await import("../../engines/CrossProcessSecureAggregationEngine.js")).crossProcessSecureAggregation;
     case "xprocDriftFed": return _xprocDriftFed ??= (await import("../../engines/CrossProcessDriftAwareFederationEngine.js")).crossProcessDriftAwareFederation;
     case "xprocFedScheduler": return _xprocFedScheduler ??= (await import("../../engines/CrossProcessClientSelectionSchedulerEngine.js")).crossProcessClientSelectionScheduler;
+    case "xprocMAMLLite": return _xprocMAMLLite ??= (await import("../../engines/CrossProcessMAMLLiteEngine.js")).crossProcessMAMLLite;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -385,6 +387,10 @@ const ACTIONS = [
   "xproc_fed_select_clients",
   "xproc_fed_round_plan",
   "xproc_fed_scheduler_constants",
+  // XPROC-NEURAL Tier 7 (T7-01) — FOMAML meta-learning (Finn 2017)
+  "xproc_maml_inner_loop",
+  "xproc_maml_meta_train",
+  "xproc_maml_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -979,6 +985,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_fed_select_clients: "xprocFedScheduler",
           xproc_fed_round_plan: "xprocFedScheduler",
           xproc_fed_scheduler_constants: "xprocFedScheduler",
+          // XPROC-NEURAL Tier 7 (T7-01) — FOMAML meta-learning
+          xproc_maml_inner_loop: "xprocMAMLLite",
+          xproc_maml_meta_train: "xprocMAMLLite",
+          xproc_maml_constants: "xprocMAMLLite",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
