@@ -27,7 +27,14 @@ type HookContext = any;
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
-    _userAssistanceSkills: any, _prismSelfAwareness: any;
+    _userAssistanceSkills: any, _prismSelfAwareness: any,
+    _aiFeatureRegistry: any, _aiSystemRouter: any,
+    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
+    _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any,
+    _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any,
+    _xprocTierRouter: any, _xprocOrchestrator: any,
+    _xprocRuleExtracted: any, _xprocFormulaNeural: any,
+    _xprocEpisodicMemory: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -44,6 +51,24 @@ async function getEngine(name: string): Promise<any> {
     case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
     case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
     case "prismSelfAwareness": return _prismSelfAwareness ??= (await import("../../engines/PRISMSelfAwarenessEngine.js")).prismSelfAwarenessEngine;
+    case "aiFeatureRegistry":    return _aiFeatureRegistry ??= (await import("../../engines/AIFeatureAutoRegistryEngine.js")).aiFeatureRegistryDispatch;
+    case "aiSystemRouter":       return _aiSystemRouter ??= (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterDispatch;
+    case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
+    case "xprocSymbolicEnforcer": return _xprocSymbolicEnforcer ??= (await import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js")).crossProcessSymbolicEnforcer;
+    case "xprocSafetyVerifier": return _xprocSafetyVerifier ??= (await import("../../engines/CrossProcessNeuroSymbolicSafetyVerifierEngine.js")).crossProcessNeuroSymbolicSafetyVerifier;
+    case "xprocCausalLearner": return _xprocCausalLearner ??= (await import("../../engines/CrossProcessCausalGraphLearnerEngine.js")).crossProcessCausalGraphLearner;
+    case "xprocDoCalculus": return _xprocDoCalculus ??= (await import("../../engines/CrossProcessDoCalculusEngine.js")).crossProcessDoCalculus;
+    case "xprocCounterfactual": return _xprocCounterfactual ??= (await import("../../engines/CrossProcessCounterfactualPredictorEngine.js")).crossProcessCounterfactualPredictor;
+    case "xprocMediation": return _xprocMediation ??= (await import("../../engines/CrossProcessMediationAnalyzerEngine.js")).crossProcessMediationAnalyzer;
+    case "xprocUncertainty": return _xprocUncertainty ??= (await import("../../engines/CrossProcessUncertaintyDrivenSamplerEngine.js")).crossProcessUncertaintyDrivenSampler;
+    case "xprocNovelty": return _xprocNovelty ??= (await import("../../engines/CrossProcessNoveltyDetectorEngine.js")).crossProcessNoveltyDetector;
+    case "xprocCuriosity": return _xprocCuriosity ??= (await import("../../engines/CrossProcessCuriosityDrivenExplorationEngine.js")).crossProcessCuriosityDrivenExploration;
+    case "xprocDOE": return _xprocDOE ??= (await import("../../engines/CrossProcessBayesianDOEPlannerEngine.js")).crossProcessBayesianDOEPlanner;
+    case "xprocTierRouter": return _xprocTierRouter ??= (await import("../../engines/CrossProcessTierRouterEngine.js")).crossProcessTierRouter;
+    case "xprocOrchestrator": return _xprocOrchestrator ??= (await import("../../engines/CrossProcessHierarchicalNeuralOrchestratorEngine.js")).crossProcessHierarchicalNeuralOrchestrator;
+    case "xprocRuleExtracted": return _xprocRuleExtracted ??= (await import("../../engines/CrossProcessRuleExtractedNeuralInferenceEngine.js")).crossProcessRuleExtractedNeuralInference;
+    case "xprocFormulaNeural": return _xprocFormulaNeural ??= (await import("../../engines/CrossProcessFormulaNeuralEnsembleEngine.js")).crossProcessFormulaNeuralEnsemble;
+    case "xprocEpisodicMemory": return _xprocEpisodicMemory ??= (await import("../../engines/CrossProcessEpisodicMemoryEngine.js")).crossProcessEpisodicMemory;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -163,6 +188,78 @@ const ACTIONS = [
   "sa_jm_die_summary",           // SA: Get JM Die program summary
   "sa_full_awareness",           // SA: Get full drive awareness
   "sa_proactive_check",          // SA: Quick proactive reasoning check
+  // AI Feature Auto-Registry (U-AI-WIRE)
+  "ai_feature_discover",
+  "ai_feature_find",
+  "ai_feature_route",
+  "ai_feature_list",
+  "ai_domain_list",
+  "ai_feature_stats",
+  "ai_feature_by_category",
+  // AI System Router (U-WIRE-ROUTER)
+  "ai_route_task",
+  "ai_classify_task",
+  "ai_backend_health",
+  "ai_backend_probe",
+  "ai_router_stats",
+  // Autonomous AI Orchestration (U-WIRE-ORCH)
+  "ai_orchestrate_autonomous",
+  "ai_select_skills",
+  "ai_select_algorithms",
+  "ai_select_formulas",
+  "ai_knowledge_plan",
+  "ai_query_mit",
+  "ai_query_catalogs",
+  "ai_generate_gsd",
+  "ai_orchestration_history",
+  "ai_orchestration_stats",
+  "ai_orchestration_summary",
+  // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+  "xproc_symbolic_project",
+  "xproc_symbolic_violations",
+  // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+  "xproc_safety_verify",
+  "xproc_safety_escalate",
+  // XPROC-NEURAL Tier 9 (T9-01) — Causal Graph Learner
+  "xproc_causal_learn_dag",
+  "xproc_causal_test_independence",
+  "xproc_causal_export_graph",
+  // XPROC-NEURAL Tier 9 (T9-02) — Do-Calculus
+  "xproc_do_identify",
+  "xproc_do_intervene",
+  // XPROC-NEURAL Tier 9 (T9-03) — Counterfactual Predictor
+  "xproc_counterfactual_query",
+  // XPROC-NEURAL Tier 9 (T9-04) — Mediation Analyzer
+  "xproc_mediation_decompose",
+  "xproc_mediation_path_strength",
+  // XPROC-NEURAL Tier 11 (T11-01) — Uncertainty-Driven Sampler (active learning)
+  "xproc_active_select",
+  "xproc_active_rationale",
+  // XPROC-NEURAL Tier 11 (T11-02) — Novelty Detector
+  "xproc_novelty_score",
+  "xproc_novelty_alert",
+  // XPROC-NEURAL Tier 11 (T11-03) — Curiosity-Driven Exploration
+  "xproc_curiosity_propose",
+  "xproc_curiosity_score",
+  // XPROC-NEURAL Tier 11 (T11-04) — Bayesian DOE Planner
+  "xproc_doe_plan",
+  "xproc_doe_evaluate_completion",
+  // XPROC-NEURAL Tier 12 (T12-01) — Tier Router (query → tiers)
+  "xproc_route_query",
+  "xproc_route_explain",
+  // XPROC-NEURAL Tier 12 (T12-02) — Hierarchical Neural Orchestrator
+  "xproc_orchestrate_full",
+  "xproc_orchestrate_brief",
+  // XPROC-NEURAL Tier 8 (T8-02) — Rule-Extracted Neural Inference
+  "xproc_extract_rules",
+  "xproc_rule_explain_prediction",
+  // XPROC-NEURAL Tier 8 (T8-04) — Formula-Neural Ensemble
+  "xproc_blend_predict",
+  "xproc_blend_weight_report",
+  // XPROC-NEURAL Tier 2 (T2-01) — Episodic Memory (hierarchical hot/warm/cold)
+  "xproc_episodic_store",
+  "xproc_episodic_recall",
+  "xproc_episodic_stats",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -610,6 +707,55 @@ export function registerIntelligenceDispatcher(server: any): void {
           sa_search_tribal: "prismSelfAwareness", sa_search_playbook: "prismSelfAwareness",
           sa_recommend_ai_features: "prismSelfAwareness", sa_jm_die_summary: "prismSelfAwareness",
           sa_full_awareness: "prismSelfAwareness", sa_proactive_check: "prismSelfAwareness",
+          // AI Feature Auto-Registry (U-AI-WIRE)
+          ai_feature_discover: "aiFeatureRegistry", ai_feature_find: "aiFeatureRegistry", ai_feature_route: "aiFeatureRegistry",
+          ai_feature_list: "aiFeatureRegistry", ai_domain_list: "aiFeatureRegistry", ai_feature_stats: "aiFeatureRegistry",
+          ai_feature_by_category: "aiFeatureRegistry",
+          // AI System Router (U-WIRE-ROUTER)
+          ai_route_task: "aiSystemRouter", ai_classify_task: "aiSystemRouter", ai_backend_health: "aiSystemRouter",
+          ai_backend_probe: "aiSystemRouter", ai_router_stats: "aiSystemRouter",
+          // Autonomous AI Orchestration (U-WIRE-ORCH)
+          ai_orchestrate_autonomous: "autonomousOrchestration", ai_select_skills: "autonomousOrchestration",
+          ai_select_algorithms: "autonomousOrchestration", ai_select_formulas: "autonomousOrchestration",
+          ai_knowledge_plan: "autonomousOrchestration", ai_query_mit: "autonomousOrchestration",
+          ai_query_catalogs: "autonomousOrchestration", ai_generate_gsd: "autonomousOrchestration",
+          ai_orchestration_history: "autonomousOrchestration", ai_orchestration_stats: "autonomousOrchestration",
+          ai_orchestration_summary: "autonomousOrchestration",
+          // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+          xproc_symbolic_project: "xprocSymbolicEnforcer",
+          xproc_symbolic_violations: "xprocSymbolicEnforcer",
+          // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+          xproc_safety_verify: "xprocSafetyVerifier",
+          xproc_safety_escalate: "xprocSafetyVerifier",
+          // XPROC-NEURAL Tier 9 (T9-01..T9-04) — Causal Inference Suite
+          xproc_causal_learn_dag: "xprocCausalLearner",
+          xproc_causal_test_independence: "xprocCausalLearner",
+          xproc_causal_export_graph: "xprocCausalLearner",
+          xproc_do_identify: "xprocDoCalculus",
+          xproc_do_intervene: "xprocDoCalculus",
+          xproc_counterfactual_query: "xprocCounterfactual",
+          xproc_mediation_decompose: "xprocMediation",
+          xproc_mediation_path_strength: "xprocMediation",
+          xproc_active_select: "xprocUncertainty",
+          xproc_active_rationale: "xprocUncertainty",
+          xproc_novelty_score: "xprocNovelty",
+          xproc_novelty_alert: "xprocNovelty",
+          xproc_curiosity_propose: "xprocCuriosity",
+          xproc_curiosity_score: "xprocCuriosity",
+          xproc_doe_plan: "xprocDOE",
+          xproc_doe_evaluate_completion: "xprocDOE",
+          xproc_route_query: "xprocTierRouter",
+          xproc_route_explain: "xprocTierRouter",
+          xproc_orchestrate_full: "xprocOrchestrator",
+          xproc_orchestrate_brief: "xprocOrchestrator",
+          xproc_extract_rules: "xprocRuleExtracted",
+          xproc_rule_explain_prediction: "xprocRuleExtracted",
+          xproc_blend_predict: "xprocFormulaNeural",
+          xproc_blend_weight_report: "xprocFormulaNeural",
+          // XPROC-NEURAL Tier 2 (T2-01) — Episodic Memory
+          xproc_episodic_store: "xprocEpisodicMemory",
+          xproc_episodic_recall: "xprocEpisodicMemory",
+          xproc_episodic_stats: "xprocEpisodicMemory",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
