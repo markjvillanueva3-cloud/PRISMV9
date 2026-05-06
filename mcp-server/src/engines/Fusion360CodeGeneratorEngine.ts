@@ -37,6 +37,14 @@ import type {
 import { log } from "../utils/Logger.js";
 import type { ExtractedAction } from "./VideoActionExtractorEngine.js";
 
+// Re-export the typed-CADOperation Adapter so callers can import either surface
+// (legacy ExtractedAction Engine vs. typed CADOperation Adapter) from one path.
+export {
+  Fusion360CADGeneratorAdapter,
+  fusion360CADGeneratorAdapter,
+  type Fusion360AdapterContext,
+} from "./Fusion360CADGeneratorAdapter.js";
+
 // ── Fusion 360-specific types ────────────────────────────────────────────────
 
 export interface Fusion360GenerationContext {
