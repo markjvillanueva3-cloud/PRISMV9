@@ -1,0 +1,32 @@
+# PRISM "Intel" override — pins Qdrant + Ollama state to H:\prism\state\
+# so the vector store and pulled models survive:
+#   • worktree churn (working tree rewrites under .claude/, dist/, etc)
+#   • repo moves (new clone, different path)
+#   • cross-PC SSD swaps (eject H: from PC1, plug into PC2 → same data)
+#
+# The base docker-compose.yml binds these to ./data/docker-volumes/, which
+# resolves to whichever working tree is `cwd` at compose-time. That defeats
+# the cross-PC story this milestone needs — H:\prism\state\ is the canonical
+# anchor every PRISM PC mounts at the same absolute path.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.intel.yml up -d qdrant ollama
+#   docker compose -f docker-compose.yml -f docker-compose.intel.yml up -d qdrant ollama prism-server
+#
+# Verify:
+#   node scripts/intel-stack-bootstrap.mjs --json
+#
+# Auto-start on Docker Desktop launch: inherited from the base compose
+# (restart: unless-stopped on both qdrant and ollama).
+#
+# Closes INTEL-OLLAMA-OBSIDIAN-MS0/P17-U02 (Qdrant H: volume) and delivers
+# the orchestrated stack requested by P13-U02 (Qdrant + Ollama together).
+
+services:
+  qdrant:
+    volumes:
+      - H:/prism/state/qdrant:/qdrant/storage
+
+  ollama:
+    volumes:
+      - H:/prism/state/ollama:/root/.ollama
