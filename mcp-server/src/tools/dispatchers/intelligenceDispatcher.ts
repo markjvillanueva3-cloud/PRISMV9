@@ -35,7 +35,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocRuleExtracted: any, _xprocFormulaNeural: any,
     _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
     _xprocReplaySampler: any, _xprocSemanticLinker: any,
-    _xprocOnlineMLP: any;
+    _xprocOnlineMLP: any, _xprocDriftDetector: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -73,6 +73,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocReplaySampler": return _xprocReplaySampler ??= (await import("../../engines/CrossProcessExperienceReplaySamplerEngine.js")).crossProcessExperienceReplaySampler;
     case "xprocSemanticLinker": return _xprocSemanticLinker ??= (await import("../../engines/CrossProcessEpisodicSemanticLinkerEngine.js")).crossProcessEpisodicSemanticLinker;
     case "xprocOnlineMLP": return _xprocOnlineMLP ??= (await import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js")).crossProcessOnlineMLPUpdater;
+    case "xprocDriftDetector": return _xprocDriftDetector ??= (await import("../../engines/CrossProcessDriftDetectorEngine.js")).crossProcessDriftDetector;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -265,6 +266,12 @@ const ACTIONS = [
   "xproc_online_update",
   "xproc_online_init_state",
   "xproc_online_constants",
+  // XPROC-NEURAL Tier 3 (T3-02) — Drift Detector (DDM/EDDM/ADWIN consensus)
+  "xproc_drift_observe",
+  "xproc_drift_observe_batch",
+  "xproc_drift_history",
+  "xproc_drift_reset",
+  "xproc_drift_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -769,6 +776,12 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_online_update: "xprocOnlineMLP",
           xproc_online_init_state: "xprocOnlineMLP",
           xproc_online_constants: "xprocOnlineMLP",
+          // XPROC-NEURAL Tier 3 (T3-02) — Drift Detector (DDM/EDDM/ADWIN)
+          xproc_drift_observe: "xprocDriftDetector",
+          xproc_drift_observe_batch: "xprocDriftDetector",
+          xproc_drift_history: "xprocDriftDetector",
+          xproc_drift_reset: "xprocDriftDetector",
+          xproc_drift_constants: "xprocDriftDetector",
         };
 
         const engineName = CORE_ROUTING[action];
