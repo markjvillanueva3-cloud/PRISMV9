@@ -64,6 +64,7 @@ import { registerAutoPilotDispatcher } from "./tools/dispatchers/autoPilotDispat
 // Phase 2B: Dispatcher Imports (128 tools → 8 dispatchers)
 import { registerOrchestrationDispatcher } from "./tools/dispatchers/orchestrationDispatcher.js";
 import { registerHookDispatcher } from "./tools/dispatchers/hookDispatcher.js";
+import { registerBuildDispatcher } from "./tools/dispatchers/buildDispatcher.js";
 import { registerSpDispatcher } from "./tools/dispatchers/spDispatcher.js";
 import { registerContextDispatcher } from "./tools/dispatchers/contextDispatcher.js";
 import { registerSessionDispatcher } from "./tools/dispatchers/sessionDispatcher.js";
@@ -502,6 +503,9 @@ async function registerTools(): Promise<void> {
   
   // Hook & Event Management (18 actions)
   registerHookDispatcher(server);
+
+  // Build Dispatcher (4 actions: pre_edit/post_edit/quality_summary/score_for_file) — INTEL-OLLAMA-OBSIDIAN-MS0/P9-U04
+  registerBuildDispatcher(server);
   
   // Skills + Scripts + Knowledge V2 (23 actions)
   registerSkillScriptDispatcher(server);
