@@ -2562,7 +2562,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T13:23:58.719Z",
+          "completed_by": "claude-iooms0-p17",
+          "notes": "Closed alongside P17-U02 — same deliverable (docker-compose.intel.yml) satisfies both. Override binds Qdrant + Ollama to H:/prism/state/, exposes ports 6333/6334 (Qdrant REST/gRPC) + 11434 (Ollama) inherited from base compose, healthchecks + restart:unless-stopped inherited (auto-start on Docker Desktop launch). nomic-embed-text model already pulled (verified by P17-U01 live smoke). Validation: scripts/intel-stack-bootstrap.mjs --json on this repo returns bindings.ok=true."
         },
         {
           "id": "P13-U03",
@@ -3080,7 +3084,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T13:23:58.718Z",
+          "completed_by": "claude-iooms0-p17",
+          "notes": "Created docker-compose.intel.yml override file: pins qdrant volume to H:/prism/state/qdrant:/qdrant/storage and ollama volume to H:/prism/state/ollama:/root/.ollama (cross-PC persistent — survives worktree churn, repo moves, SSD swaps). Built scripts/intel-stack-bootstrap.mjs (266 lines) — validates the override file structure, idempotently mkdirs the H: state dirs, and offers --smoke that exercises full round-trip: compose up qdrant → upsert vector → compose stop (forces flush to disk) → compose start (remounts H: volume) → search → expect id=1 + score≥0.99. The stop/start cycle simulates the cross-PC eject/remount scenario without requiring two physical machines. Exported pure functions: parseComposeOverride (minimal YAML parser, comment + quote tolerant), validateRequiredBindings (host/container path matching), matchesHostPath (slash-normalized + case-insensitive), decideBootstrapPlan (truth table), parseArgs. Tests: 39 vitest cases / 0 failures, including anti-regression that the actual docker-compose.intel.yml in this repo passes parse + validate. Live validation confirmed: bindings.ok=true. Also satisfies P13-U02 (Qdrant + Ollama orchestrated together with H: drive volumes + auto-start via inherited restart:unless-stopped + healthchecks inherited from base compose)."
         },
         {
           "id": "P17-U03",
