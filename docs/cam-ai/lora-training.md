@@ -55,9 +55,9 @@ independently:
 CAMFeedbackLoopEngine.recordOutcome({
   decisionId: "dec_abc123",
   task: "strategy_recommend",
-  success: true,
-  metrics: { cycle_time_min: 12.4, tool_wear_um: 38 },
-  ts: Date.now(),
+  wasCorrect: true,
+  predictedConfidence: 0.82,
+  recordedAt: Date.now(),
 });
 ```
 
