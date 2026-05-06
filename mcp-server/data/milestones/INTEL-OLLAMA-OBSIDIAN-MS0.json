@@ -2543,8 +2543,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
-        },
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T15:17:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "scripts/docker-audit.mjs walks H:/prism, H:/prism-iooms0, H:/PRISM + every H:/prism-* peer repo (41 siblings), classifies via classifyComposeFile/classifyDockerfile, flags broken builds via isBuildable (with multi-stage --from= awareness, absolute-path skip, glob/var/URL skip, CRLF tolerance). Live audit: 154 assets (121 compose + 33 Dockerfile) across 3 buckets (24 canonical, 10 iooms0, 120 peer); 154/154 buildable, 0 likely broken. Categories: 88 infra (Qdrant/Ollama/postgres), 34 prod (alpine/nginx), 26 unknown, 6 dev. DockerAudit.test.ts 40/40 green. Two real bugs fixed during build: (a) multi-stage COPY --from=stage was false-flagging stage-internal absolute paths as missing host files; (b) CRLF line endings on Windows compose files were leaving \\r in captured build contexts so '.' resolved to '.\\r' (non-existent). Both regressions tested."
         {
           "id": "P13-U02",
           "title": "Create docker-compose.intel.yml — Qdrant + Ollama orchestrated together",
