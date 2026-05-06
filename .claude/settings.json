@@ -110,6 +110,12 @@
             "command": "node H:/prism/.claude/hooks/dep-graph-impact.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-schema-engine-sync-gate.mjs",
+            "timeout": 5000,
+            "continueOnError": false
           }
         ]
       },
