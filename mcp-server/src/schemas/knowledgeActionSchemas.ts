@@ -247,6 +247,29 @@ const plan_trajectory_derive_id = z.object({
 }).passthrough();
 
 // ============================================================================
+// INTEL-OLLAMA-OBSIDIAN-MS0/P16-U01 — peer-repo signature mapping
+// (wires PeerRepoSignatureEngine to knowledge dispatcher)
+// ============================================================================
+
+const peer_repo_classify_file = z.object({
+  rel_path: z.string().describe("Repo-relative file path (forward-slash; backslashes accepted)"),
+}).passthrough();
+
+const peer_repo_build_signature = z.object({
+  repo_root: z.string().describe("Repo root path (preserved verbatim, separator-normalized)"),
+  rel_paths: z.array(z.string()).describe("Flat list of repo-relative paths to classify"),
+}).passthrough();
+
+const peer_repo_diff_signatures = z.object({
+  canonical: z.unknown().describe("Canonical RepoSignature record"),
+  peer: z.unknown().describe("Peer RepoSignature record to diff against canonical"),
+}).passthrough();
+
+const peer_repo_summarize = z.object({
+  per_repo: z.array(z.unknown()).describe("Array of PerRepoUniques records to aggregate"),
+}).passthrough();
+
+// ============================================================================
 // search
 // ============================================================================
 
@@ -1345,4 +1368,8 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   plan_trajectory_parse,
   plan_trajectory_summarize,
   plan_trajectory_derive_id,
+  peer_repo_classify_file,
+  peer_repo_build_signature,
+  peer_repo_diff_signatures,
+  peer_repo_summarize,
 };

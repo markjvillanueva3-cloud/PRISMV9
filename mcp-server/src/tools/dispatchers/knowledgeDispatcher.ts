@@ -9,6 +9,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_KNOWLEDGE_SCHEMAS } from "../../schemas/knowledgeActionSchemas.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
+import type { RepoSignature, PerRepoUniques } from "../../engines/PeerRepoSignatureEngine.js";
 
 const ACADEMY_ACTIONS = [
   "academy_courses", "academy_course_detail",
@@ -227,6 +228,14 @@ const PLAN_TRAJECTORY_ACTIONS = [
   "plan_trajectory_derive_id",   // path → stable filename-slug id
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P16-U01: Peer-repo signature mapping — surfaces PeerRepoSignatureEngine. */
+const PEER_REPO_SIGNATURE_ACTIONS = [
+  "peer_repo_classify_file",     // rel path → "engine"|"dispatcher"|"hook"|"skill"|"script"|"other"
+  "peer_repo_build_signature",   // (repo_root, rel_paths[]) → RepoSignature with machining-domain assets segregated
+  "peer_repo_diff_signatures",   // (canonical, peer) → { unique_to_peer, unique_to_canonical } symmetric diff
+  "peer_repo_summarize",         // PerRepoUniques[] → AuditSummary with peer ranking
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -254,6 +263,7 @@ const ACTIONS = [
   ...WIKI_BOOTSTRAP_ACTIONS,
   ...CSM_AUDIT_ACTIONS,
   ...PLAN_TRAJECTORY_ACTIONS,
+  ...PEER_REPO_SIGNATURE_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2430,6 +2440,46 @@ export function registerKnowledgeDispatcher(server: any): void {
               throw new Error("plan_trajectory_derive_id: source_path required (string)");
             }
             result = { id: planTrajectoryExtractorEngine.deriveId(sourcePath) };
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P16-U01: Peer-repo signature mapping (PeerRepoSignatureEngine) ──
+          case "peer_repo_classify_file": {
+            const { peerRepoSignatureEngine } = await import("../../engines/PeerRepoSignatureEngine.js");
+            const relPath = params.rel_path ?? params.relPath;
+            if (typeof relPath !== "string") {
+              throw new Error("peer_repo_classify_file: rel_path required (string)");
+            }
+            result = { kind: peerRepoSignatureEngine.classifyFile(relPath) };
+            break;
+          }
+          case "peer_repo_build_signature": {
+            const { peerRepoSignatureEngine } = await import("../../engines/PeerRepoSignatureEngine.js");
+            const repoRoot = params.repo_root ?? params.repoRoot;
+            const relPaths = params.rel_paths ?? params.relPaths;
+            if (typeof repoRoot !== "string") {
+              throw new Error("peer_repo_build_signature: repo_root required (string)");
+            }
+            if (!Array.isArray(relPaths)) {
+              throw new Error("peer_repo_build_signature: rel_paths required (string[])");
+            }
+            result = { signature: peerRepoSignatureEngine.buildSignature(repoRoot, relPaths) };
+            break;
+          }
+          case "peer_repo_diff_signatures": {
+            const { peerRepoSignatureEngine } = await import("../../engines/PeerRepoSignatureEngine.js");
+            const canonical = params.canonical as RepoSignature;
+            const peer = params.peer as RepoSignature;
+            const diff = peerRepoSignatureEngine.diffSignatures(canonical, peer);
+            const peer_only_count = peerRepoSignatureEngine.countUniqueAssets(diff.unique_to_peer);
+            result = { ...diff, peer_only_count };
+            break;
+          }
+          case "peer_repo_summarize": {
+            const { peerRepoSignatureEngine } = await import("../../engines/PeerRepoSignatureEngine.js");
+            const raw = Array.isArray(params.per_repo) ? params.per_repo
+                      : Array.isArray(params.perRepo) ? params.perRepo : [];
+            const perRepo = raw as readonly PerRepoUniques[];
+            result = { summary: peerRepoSignatureEngine.summarize(perRepo) };
             break;
           }
         }
