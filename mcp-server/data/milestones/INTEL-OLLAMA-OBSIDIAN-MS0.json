@@ -1815,6 +1815,10 @@
           "dependencies": [
             "P9-U01"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T17:42:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: AutoChainOrchestratorEngine.ts wires SelfImprovementPattern emit → AutoFixPipeline.suggest() round-trip; AutoChainOrchestrator.test.ts 12/12 green. Auto-fix candidates persist to data/state/auto-fix-pipeline.json per exit_condition. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "Patterns emit to AutoFixPipelineEngine.suggest()",
             "Auto-fix candidates persist to data/state/auto-fix-pipeline.json",
@@ -1850,6 +1854,10 @@
           "dependencies": [
             "P9-U01"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T17:42:30.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: .claude/hooks/quality-dashboard-alert.mjs wires Stop + PreCompact event surfaces; H:/.claude/settings.json contains 2 quality-dashboard-alert references (Stop + PreCompact slots). QualityDashboardEngine.test.ts passes (part of the 53/53 AUTO test bundle). Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "Stop hook surfaces quality alerts (regression, threshold breach)",
             "PreCompact hook runs quality_dashboard before compaction",
@@ -3634,6 +3642,10 @@
             "P20-U03"
           ],
           "rollback": "remove engine; tasks go directly to Claude as before",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:43:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: PreReviewOrchestratorEngine.ts (engine) + PreReviewOrchestrator.test.ts (live: passes as part of 4-engine 68/68 batch). prism_ai:pre_review action wired into aiReasoningDispatcher.ts (4 grep hits). Engine accepts {task} → invokes deepseek-r1:14b draft → returns {draft, confidence, reasoning_chain} for Claude refinement per exit_conditions. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "Engine accepts task → invokes deepseek-r1:14b for draft → returns {draft, confidence, reasoning_chain} to Claude",
             "Claude can accept / refine / override the draft",
@@ -3744,6 +3756,10 @@
             "P20-U03"
           ],
           "rollback": "remove engine; routing still works without telemetry",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:43:30.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: ModelTelemetryEngine.ts logs each model invocation with {model, prompt_tokens, completion_tokens, latency_ms, timestamp} per exit_conditions. ModelTelemetry.test.ts passes (part of 4-engine 68/68 batch). prism_dev:model_telemetry_report dispatcher action exists in devDispatcher.ts (8 grep hits — case body, schema, helper refs). Persists to data/state/model-telemetry.jsonl per exit_conditions. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "Every Ollama call logs: model, prompt_tokens, completion_tokens, latency_ms, timestamp",
             "Persisted to data/state/model-telemetry.jsonl",
