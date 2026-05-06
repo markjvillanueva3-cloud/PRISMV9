@@ -1116,6 +1116,35 @@
           {"branch": "meta/file-claim-fix", "ahead": 482, "phase": "META-FILE-CLAIM-CONSOLIDATE-MS"}
         ],
         "note_on_strategy": "All branches >= ~50 commits ahead are graduation candidates, not blind-cherry-pick targets. Each needs scrutiny on its own — single-track audits are good but per-commit conflicts and peer-claim collisions still apply. Recommend one consolidate-phase per candidate, processed in order of (a) safety-criticality, (b) freshness, (c) commit count (smaller first)."
+      },
+      "cross_tree_leakage_finding": {
+        "discovered_at": "2026-05-06 (during P4-5 inventory)",
+        "user_report": "User explicitly reported: 'work was getting committed from other chats inside worktrees they don't belong to so you need to go through those branches accordingly'",
+        "scale_audit": "Counted SHAs across all 33 alive+orphan branches: 3026 distinct stranded commits, of which 1953 unique-to-one-branch and 1073 (35%) appear in 2+ branches — confirming massive cross-tree leakage.",
+        "scope_prefix_histogram_top_10": {
+          "<no-prefix>": 1106,
+          "[MAIN]": 592,
+          "[CAM-EXHAUST-MS0]": 149,
+          "[INTEL-OLLAMA-OBSIDIAN-MS0]": 92,
+          "[INTEL-OLLAMA-OBSIDIAN-MS1]": 26,
+          "INFRA-FIX": 16,
+          "[LATHE-PROD-READY-MS0]": 15,
+          "[INFRA-NEURAL-LEDGER-MS1]": 14,
+          "R10-R": 10,
+          "MS-P1": 10
+        },
+        "strategy_shift_required": "Branch-by-branch cherry-pick is wrong because the same commit may exist in 5 worktrees but should only land once. Use SCOPE-by-SCOPE cherry-pick instead: (1) build SHA→[branches]→scope_prefix map; (2) for each scope, find canonical home (matching work/<scope> branch when present); (3) cherry-pick in topological order from canonical home; git-cherry on other branches will then mark same commits `-` automatically. The 1106 no-prefix commits need separate older-archive triage (likely oldest work, may be safe to archive-tag without landing).",
+        "verification_method": "git cherry uses patch-id, so cross-branch patch-equivalence detection works correctly: when SHA-A on branch X has been cherry-picked to SHA-A' on main, branch X's git-cherry shows `- A` (already applied). Same for any branch Y that contains A — its git-cherry will also show `- A`. So one canonical pick clears N branches.",
+        "priority_order_for_next_session": [
+          "1. WEDM safety scopes (ai-aware-harden +22 — 5 missing safety engines) — SAFETY-CRITICAL",
+          "2. [INFRA-NEURAL-LEDGER-MS1] (14 commits) — companion of MS1 just landing on main",
+          "3. [LATHE-PROD-READY-MS0] (15 commits)",
+          "4. [INTEL-OLLAMA-OBSIDIAN-MS0] (92 commits) — large but already partially landed via different SHAs (so true new work may be much smaller)",
+          "5. [CAM-EXHAUST-MS0] (149 commits) — largest active scope; multiple peer chats touch it; coordinate via chat bus",
+          "6. [MAIN]-tagged commits (592) — explicit human-tagged 'land me' commits, need scope sub-classification first",
+          "7. <no-prefix> commits (1106) — last; mostly historical; may be tag-and-archive instead of land"
+        ],
+        "next_session_first_step": "Run scope-prefix audit script to produce scope-keyed cherry-pick plan. Don't blindly cherry-pick branches; cherry-pick by scope from canonical home. Skill /scope-audit or /branch-graduate would be useful here."
       }
     }
   ],
