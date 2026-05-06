@@ -42,7 +42,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocBayesianMLP: any, _xprocConformal: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
-    _xprocMAMLLite: any;
+    _xprocMAMLLite: any, _xprocProtoNet: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -96,6 +96,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocDriftFed": return _xprocDriftFed ??= (await import("../../engines/CrossProcessDriftAwareFederationEngine.js")).crossProcessDriftAwareFederation;
     case "xprocFedScheduler": return _xprocFedScheduler ??= (await import("../../engines/CrossProcessClientSelectionSchedulerEngine.js")).crossProcessClientSelectionScheduler;
     case "xprocMAMLLite": return _xprocMAMLLite ??= (await import("../../engines/CrossProcessMAMLLiteEngine.js")).crossProcessMAMLLite;
+    case "xprocProtoNet": return _xprocProtoNet ??= (await import("../../engines/CrossProcessPrototypicalNetEngine.js")).crossProcessPrototypicalNet;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -376,6 +377,11 @@ const ACTIONS = [
   "xproc_maml_inner_loop",
   "xproc_maml_meta_train",
   "xproc_maml_constants",
+  // XPROC-NEURAL Tier 7 (T7-02) — Prototypical networks (Snell 2017)
+  "xproc_proto_compute",
+  "xproc_proto_classify",
+  "xproc_proto_regress",
+  "xproc_proto_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -968,6 +974,11 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_maml_inner_loop: "xprocMAMLLite",
           xproc_maml_meta_train: "xprocMAMLLite",
           xproc_maml_constants: "xprocMAMLLite",
+          // XPROC-NEURAL Tier 7 (T7-02) — Prototypical networks
+          xproc_proto_compute: "xprocProtoNet",
+          xproc_proto_classify: "xprocProtoNet",
+          xproc_proto_regress: "xprocProtoNet",
+          xproc_proto_constants: "xprocProtoNet",
         };
 
         const engineName = CORE_ROUTING[action];
