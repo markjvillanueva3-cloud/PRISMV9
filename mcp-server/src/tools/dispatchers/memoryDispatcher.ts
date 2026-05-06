@@ -63,7 +63,7 @@ export function registerMemoryDispatcher(server: any): void {
       action: z.enum(["get_health", "trace_decision", "find_similar", "get_session", "get_node",
                       "run_integrity", "consolidate", "consolidation_stats", "consolidation_patterns",
                       "pressure_record", "pressure_get", "pressure_recommend",
-                      "semantic_search", "remember", "cross_session_recall"]),
+                      "semantic_search", "remember", "cross_session_recall", "fabric_route"]),
       params: z.record(z.string(), z.any()).optional(),
     },
     async ({ action, params: rawParams = {} }: { action: typeof META.available[number]; params: Record<string, any> }) => {
@@ -334,6 +334,26 @@ export function registerMemoryDispatcher(server: any): void {
                 : (typeof (params as { maxRowsPerDB?: unknown }).maxRowsPerDB === "number"
                     ? (params as { maxRowsPerDB: number }).maxRowsPerDB
                     : undefined),
+            });
+            return ok({ success: true, data: result });
+          }
+
+          case "fabric_route": {
+            // INTEL-OLLAMA-OBSIDIAN-MS0/P10-U04 — single-entry router over 12 memory engines.
+            const { memoryFabricRouterEngine } = await import("../../engines/MemoryFabricRouterEngine.js");
+            const intent = (params as Record<string, unknown>).intent;
+            if (typeof intent !== "string" || intent.length === 0) {
+              return ok({ success: false, error: "fabric_route requires 'intent' string (store|recall|consolidate|semantic_search|persist|sync|graph|pressure|obsidian|program|agent|audit)" });
+            }
+            const payload = (params as Record<string, unknown>).payload;
+            const opts = (params as Record<string, unknown>).options;
+            const options = (opts && typeof opts === "object" && !Array.isArray(opts))
+              ? (opts as Record<string, unknown>)
+              : undefined;
+            const result = await memoryFabricRouterEngine.run({
+              intent: intent as any,
+              payload: payload as any,
+              options,
             });
             return ok({ success: true, data: result });
           }
