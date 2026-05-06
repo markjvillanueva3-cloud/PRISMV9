@@ -36,7 +36,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocRuleExtracted: any, _xprocFormulaNeural: any,
     _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
     _xprocReplaySampler: any, _xprocSemanticLinker: any,
-    _xprocOnlineMLP: any, _xprocDriftDetector: any;
+    _xprocOnlineMLP: any, _xprocDriftDetector: any,
+    _xprocShiftHandler: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -76,6 +77,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocSemanticLinker": return _xprocSemanticLinker ??= (await import("../../engines/CrossProcessEpisodicSemanticLinkerEngine.js")).crossProcessEpisodicSemanticLinker;
     case "xprocOnlineMLP": return _xprocOnlineMLP ??= (await import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js")).crossProcessOnlineMLPUpdater;
     case "xprocDriftDetector": return _xprocDriftDetector ??= (await import("../../engines/CrossProcessDriftDetectorEngine.js")).crossProcessDriftDetector;
+    case "xprocShiftHandler": return _xprocShiftHandler ??= (await import("../../engines/CrossProcessConceptShiftHandlerEngine.js")).crossProcessConceptShiftHandler;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -287,6 +289,11 @@ const ACTIONS = [
   "xproc_drift_history",
   "xproc_drift_reset",
   "xproc_drift_constants",
+  // XPROC-NEURAL Tier 3 (T3-03) — Concept Shift Handler (recovery decision tree)
+  "xproc_shift_decide",
+  "xproc_shift_history",
+  "xproc_shift_reset",
+  "xproc_shift_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -803,6 +810,11 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_drift_history: "xprocDriftDetector",
           xproc_drift_reset: "xprocDriftDetector",
           xproc_drift_constants: "xprocDriftDetector",
+          // XPROC-NEURAL Tier 3 (T3-03) — Concept Shift Handler
+          xproc_shift_decide: "xprocShiftHandler",
+          xproc_shift_history: "xprocShiftHandler",
+          xproc_shift_reset: "xprocShiftHandler",
+          xproc_shift_constants: "xprocShiftHandler",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
