@@ -384,16 +384,16 @@ const error_remediation_suggest = z.object({
   actionPath: z.string().optional().describe("Alias for action_path"),
   error_code: z.string().optional().describe("Machine-readable error code from the engine"),
   errorCode: z.string().optional().describe("Alias for error_code"),
-  original_params: z.record(z.string(), z.any()).optional().describe("Original input params"),
-  originalParams: z.record(z.string(), z.any()).optional().describe("Alias for original_params"),
+  original_params: z.record(z.string(), z.unknown()).optional().describe("Original input params"),
+  originalParams: z.record(z.string(), z.unknown()).optional().describe("Alias for original_params"),
   response_level,
 }).passthrough();
 
 /** error_remediation_apply — Apply suggested adjustments to params */
 const error_remediation_apply = z.object({
-  original_params: z.record(z.string(), z.any()).optional().describe("Original input params to adjust"),
-  originalParams: z.record(z.string(), z.any()).optional().describe("Alias for original_params"),
-  adjustments: z.record(z.string(), z.any()).optional().describe("Adjustments map from a suggestion"),
+  original_params: z.record(z.string(), z.unknown()).optional().describe("Original input params to adjust"),
+  originalParams: z.record(z.string(), z.unknown()).optional().describe("Alias for original_params"),
+  adjustments: z.record(z.string(), z.unknown()).optional().describe("Adjustments map from a suggestion"),
   response_level,
 }).passthrough();
 

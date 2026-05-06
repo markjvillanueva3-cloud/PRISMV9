@@ -14,7 +14,7 @@ import type { ActionSchemaMap } from "./actionSchemaTypes.js";
 // ── Shared sub-schemas ────────────────────────────────────────────────────────
 
 /** Accepts raw native-format tool data (JSON object or array) */
-const nativeDataSchema = z.object({}).catchall(z.any()).passthrough().describe(
+const nativeDataSchema = z.object({}).catchall(z.unknown()).passthrough().describe(
   "Native CAM tool library data (JSON-parsed). Pass top-level object with 'tools' array, or pass array directly as { tools: [...] }."
 );
 

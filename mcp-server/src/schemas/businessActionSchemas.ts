@@ -1495,7 +1495,7 @@ const productivity_log = z.object({
     "cycle_time_improved", "material_used",
     "operation_used",
   ]),
-  details: z.record(z.string(), z.any()).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const productivity_summary = z.object({
@@ -1831,7 +1831,7 @@ const portal_validate_token = z.object({
 
 const portal_quote_view = z.object({
   quote_id: str.describe("Quote ID"),
-  revision: z.record(z.string(), z.any()).optional().describe("Quote revision data"),
+  revision: z.record(z.string(), z.unknown()).optional().describe("Quote revision data"),
   status: optStr.describe("Quote status"),
 }).passthrough();
 
@@ -1845,8 +1845,8 @@ const portal_quote_respond = z.object({
 
 const portal_order_status = z.object({
   job_id: str.describe("Job ID"),
-  job: z.record(z.string(), z.any()).optional().describe("Job data"),
-  timeline: z.record(z.string(), z.any()).optional().describe("Timeline data"),
+  job: z.record(z.string(), z.unknown()).optional().describe("Job data"),
+  timeline: z.record(z.string(), z.unknown()).optional().describe("Timeline data"),
 }).passthrough();
 
 const portal_add_quality_doc = z.object({
@@ -2298,7 +2298,7 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
     }).passthrough().describe("Baseline job input"),
     scenarios: z.array(z.object({
       name: str.describe("Scenario name"),
-      changes: z.record(z.string(), z.any()).describe("Parameter overrides"),
+      changes: z.record(z.string(), z.unknown()).describe("Parameter overrides"),
     })).describe("What-if scenarios"),
   }).passthrough(),
   // Quote Generation (QuoteEngine)
@@ -2340,7 +2340,7 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
     complexity: z.enum(["simple", "moderate", "complex", "extreme"]).describe("Part complexity"),
     urgency: z.enum(["standard", "rush", "emergency"]).describe("Order urgency"),
   }).passthrough(),
-  // �                                ──
+  // �                                ──
   tool_inv_check_availability: z.object({
     operations: z.array(z.object({
       type: z.string().describe("Operation type (face_mill, pocket, drill, turn, thread, etc.)"),
@@ -2365,11 +2365,11 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
     required_diameter: z.number().positive().describe("Required tool diameter in mm"),
     required_type: z.string().describe("Required tool type (endmill, drill, tap, etc.)"),
     material: z.string().describe("Workpiece material (ISO group or name)"),
-    on_hand_tools: z.array(z.any()).optional().describe("On-hand tool inventory"),
+    on_hand_tools: z.array(z.unknown()).optional().describe("On-hand tool inventory"),
     max_results: z.number().int().positive().optional().describe("Max substitutes to return (default 5)"),
   }).passthrough(),
   tool_inv_reorder_list: z.object({
-    on_hand_tools: z.array(z.any()).optional().describe("On-hand tool inventory"),
+    on_hand_tools: z.array(z.unknown()).optional().describe("On-hand tool inventory"),
     min_stock_level: z.number().int().positive().optional().describe("Minimum stock level per tool type (default 1)"),
     upcoming_jobs: z.array(z.object({
       job_name: z.string().optional(),
@@ -2386,7 +2386,7 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
       jobs_completed: z.number().int().nonnegative().describe("Number of jobs completed"),
       last_used: z.string().describe("ISO date of last usage"),
     })).describe("Historical tool usage records"),
-    on_hand_tools: z.array(z.any()).optional().describe("On-hand tool inventory"),
+    on_hand_tools: z.array(z.unknown()).optional().describe("On-hand tool inventory"),
     max_tools: z.number().int().positive().optional().describe("Max tool crib capacity"),
     idle_days_threshold: z.number().int().positive().optional().describe("Days idle before flagging for retirement (default 90)"),
   }).passthrough(),

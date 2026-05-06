@@ -183,7 +183,7 @@ const extraction_maintenance_status = z.object({}).passthrough();
 const extraction_enforce = z.object({
   operation: z.string().optional().describe("Operation to check (build, commit, deploy)"),
   phase: z.string().optional().describe("Phase (pre, post)"),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 /** extraction_enforce_check — Dry-run enforcement check */
