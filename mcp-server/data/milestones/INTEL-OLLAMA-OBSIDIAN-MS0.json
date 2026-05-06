@@ -1766,6 +1766,10 @@
           "title": "Add tests for 4 untested AUTO engines",
           "effort": 80,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T17:35:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: AutoFixPipelineEngine.test.ts, QualityDashboardEngine.test.ts, SelfImprovementPatternEngine.test.ts, SystemVariabilityIndexEngine.test.ts — all 4 deliverable test files exist under mcp-server/src/__tests__/. Verified live: 4 test files together pass 53/53 cases (vitest run, 2.75s). Each file has happy-path + multiple failure-path coverage per the milestone exit_condition. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "AutoFixPipelineEngine.test.ts created (happy + 3 failure paths)",
             "QualityDashboardEngine.test.ts created",
@@ -3438,6 +3442,10 @@
             "P20-U01"
           ],
           "rollback": "remove engine + dispatcher action; routing falls back to qwen-only",
+          "status": "completed",
+          "completed_at": "2026-05-06T17:35:30.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Already shipped pre-session: mcp-server/src/engines/ModelRouterEngine.ts implements 5-tier classification (0=embed nomic, 1=qwen-7b, 2=qwen-14b, 3=deepseek-r1, 4=llama3.2-vision); prism_ai:model_route action wired in aiReasoningDispatcher.ts (8 grep hits — case body + schema + helper refs). ModelRouter.test.ts: 53/53 green (vitest run 327ms). Round-trip exit_condition met: routeForTask({kind, complexity?, hasImage?, ...}) accepts 5 task types including embed/code/reason/vision/review. Closed retroactively 2026-05-06.",
           "exit_conditions": [
             "ModelRouterEngine.ts classifies task → tier (0=embed, 1=simple, 2=medium, 3=complex, 4=vision)",
             "Tier → model: 0=nomic-embed, 1=qwen-7b, 2=qwen-14b, 3=deepseek-r1 (or qwen-32b fallback), 4=llama3.2-vision",
