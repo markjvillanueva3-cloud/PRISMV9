@@ -641,6 +641,27 @@ const xproc_doe_evaluate_completion = z.object({
   })),
 }).passthrough().describe("Coverage check: how many planned runs were realized.");
 
+// XPROC-NEURAL Tier 12 (T12-01..T12-02) — Master Orchestration
+const xproc_route_query = z.object({
+  query: z.string().min(1).max(2000).describe("Natural-language operator question"),
+  context_hint: z.enum([
+    "prediction", "safety", "explanation", "exploration",
+    "calibration", "fleet", "novel_material", "auto",
+  ]).default("auto").describe("Disambiguator when keyword matchers do not fire"),
+  max_tiers: z.number().int().min(1).max(11).default(4).describe("Cap on returned tier count"),
+}).passthrough().describe("Classify operator query → ordered tier list with availability flags.");
+const xproc_route_explain = xproc_route_query.describe("Return per-tier reason + availability for audit trail.");
+const xproc_orchestrate_full = z.object({
+  query: z.string().min(1).max(2000),
+  context_hint: z.enum([
+    "prediction", "safety", "explanation", "exploration",
+    "calibration", "fleet", "novel_material", "auto",
+  ]).default("auto"),
+  max_tiers: z.number().int().min(1).max(11).default(4),
+  payload: z.record(z.string(), z.unknown()).default({}).describe("Tier-specific inputs (events, candidates, history, etc.)"),
+}).passthrough().describe("Route query, fan out to available tiers, return unified answer + provenance.");
+const xproc_orchestrate_brief = xproc_orchestrate_full.describe("Brief mode: headline + top-3 provenance, drops low-confidence tiers.");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -755,4 +776,9 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   xproc_curiosity_score,
   xproc_doe_plan,
   xproc_doe_evaluate_completion,
+  // XPROC-NEURAL Tier 12 (4) — Master Orchestration
+  xproc_route_query,
+  xproc_route_explain,
+  xproc_orchestrate_full,
+  xproc_orchestrate_brief,
 };

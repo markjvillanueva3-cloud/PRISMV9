@@ -30,7 +30,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
     _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
     _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any,
-    _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any;
+    _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any,
+    _xprocTierRouter: any, _xprocOrchestrator: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -59,6 +60,8 @@ async function getEngine(name: string): Promise<any> {
     case "xprocNovelty": return _xprocNovelty ??= (await import("../../engines/CrossProcessNoveltyDetectorEngine.js")).crossProcessNoveltyDetector;
     case "xprocCuriosity": return _xprocCuriosity ??= (await import("../../engines/CrossProcessCuriosityDrivenExplorationEngine.js")).crossProcessCuriosityDrivenExploration;
     case "xprocDOE": return _xprocDOE ??= (await import("../../engines/CrossProcessBayesianDOEPlannerEngine.js")).crossProcessBayesianDOEPlanner;
+    case "xprocTierRouter": return _xprocTierRouter ??= (await import("../../engines/CrossProcessTierRouterEngine.js")).crossProcessTierRouter;
+    case "xprocOrchestrator": return _xprocOrchestrator ??= (await import("../../engines/CrossProcessHierarchicalNeuralOrchestratorEngine.js")).crossProcessHierarchicalNeuralOrchestrator;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -221,6 +224,12 @@ const ACTIONS = [
   // XPROC-NEURAL Tier 11 (T11-04) — Bayesian DOE Planner
   "xproc_doe_plan",
   "xproc_doe_evaluate_completion",
+  // XPROC-NEURAL Tier 12 (T12-01) — Tier Router (query → tiers)
+  "xproc_route_query",
+  "xproc_route_explain",
+  // XPROC-NEURAL Tier 12 (T12-02) — Hierarchical Neural Orchestrator
+  "xproc_orchestrate_full",
+  "xproc_orchestrate_brief",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -699,6 +708,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_curiosity_score: "xprocCuriosity",
           xproc_doe_plan: "xprocDOE",
           xproc_doe_evaluate_completion: "xprocDOE",
+          xproc_route_query: "xprocTierRouter",
+          xproc_route_explain: "xprocTierRouter",
+          xproc_orchestrate_full: "xprocOrchestrator",
+          xproc_orchestrate_brief: "xprocOrchestrator",
         };
 
         const engineName = CORE_ROUTING[action];
