@@ -981,6 +981,10 @@
             "P0-U01",
             "P0-U02"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T18:06:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Built MemoryFabricRouterEngine.ts (~310 lines) — third in the P10 unifying-router trio (alongside AuditChainEngine P10-U03, ValidationOrchestratorEngine P10-U02). 12 memory intents: store/recall/consolidate/semantic_search/persist/sync/graph/pressure/obsidian/program/agent/audit. Backend table maps each to: PersistentMemoryEngine, ConsensusRecallCacheEngine, MemoryConsolidationEngine, QdrantMemoryEngine, ConversationalMemoryEngine, CrossSessionMemoryBridgeEngine, MemoryGraphEngine, MemoryPressureMonitorEngine, ObsidianMemoryRagEngine, ProgramMemoryEngine, AgentMemoryFabricEngine, CSMMemoryDBAuditEngine. Each descriptor flagged with isVector boolean (true for semantic_search, obsidian, program); shouldRouteToVectorStore() exposes this for caller alerting (e.g. degrade gracefully when Ollama embedder offline). Alias map: write/save/remember→store, read/get/fetch→recall, search/knn/vector→semantic_search, flush→persist, bridge→sync, traverse→graph, budget/oom→pressure, vault/rag→obsidian, history/programs→program, fabric/agents→agent, integrity→audit. Result envelope: {intent, ok, backend, data?, error?, durationMs, ts}. Wired prism_memory:fabric_route in memoryDispatcher.ts. Tests: MemoryFabricRouter.test.ts 31/31 green covering 12-intent table coverage + 4-test isVector classification (3 vector intents = obsidian/program/semantic_search, 9 non-vector) + alias map (20+ aliases) + payload union type (string OR plain object) + dash→underscore normalisation + .run() round-trip. Combined with the other 2 P10 routers: 90/90 green.",
           "exit_conditions": [
             "Routes by intent: store | recall | consolidate | semantic_search | persist | sync",
             "prism_memory:* surface unified across PersistentMemory + Qdrant + Conversational + Graph + Fabric",
@@ -2085,6 +2089,10 @@
             "P0-U01",
             "P0-U02"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-06T18:06:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Built MemoryFabricRouterEngine.ts (~310 lines) — third in the P10 unifying-router trio (alongside AuditChainEngine P10-U03, ValidationOrchestratorEngine P10-U02). 12 memory intents: store/recall/consolidate/semantic_search/persist/sync/graph/pressure/obsidian/program/agent/audit. Backend table maps each to: PersistentMemoryEngine, ConsensusRecallCacheEngine, MemoryConsolidationEngine, QdrantMemoryEngine, ConversationalMemoryEngine, CrossSessionMemoryBridgeEngine, MemoryGraphEngine, MemoryPressureMonitorEngine, ObsidianMemoryRagEngine, ProgramMemoryEngine, AgentMemoryFabricEngine, CSMMemoryDBAuditEngine. Each descriptor flagged with isVector boolean (true for semantic_search, obsidian, program); shouldRouteToVectorStore() exposes this for caller alerting (e.g. degrade gracefully when Ollama embedder offline). Alias map: write/save/remember→store, read/get/fetch→recall, search/knn/vector→semantic_search, flush→persist, bridge→sync, traverse→graph, budget/oom→pressure, vault/rag→obsidian, history/programs→program, fabric/agents→agent, integrity→audit. Result envelope: {intent, ok, backend, data?, error?, durationMs, ts}. Wired prism_memory:fabric_route in memoryDispatcher.ts. Tests: MemoryFabricRouter.test.ts 31/31 green covering 12-intent table coverage + 4-test isVector classification (3 vector intents = obsidian/program/semantic_search, 9 non-vector) + alias map (20+ aliases) + payload union type (string OR plain object) + dash→underscore normalisation + .run() round-trip. Combined with the other 2 P10 routers: 90/90 green.",
           "exit_conditions": [
             "Routes by intent: store | recall | consolidate | semantic_search | persist | sync",
             "prism_memory:* surface unified across PersistentMemory + Qdrant + Conversational + Graph + Fabric",
