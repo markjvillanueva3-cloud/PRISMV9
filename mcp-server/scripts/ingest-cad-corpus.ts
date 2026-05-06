@@ -8,11 +8,16 @@ import { cadCorpusIngestionEngine, type CorpusManifest } from "../src/engines/CA
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+// Scan every CAD-bearing root the shop carries: BOX archive, JM Die full archive,
+// Resources/ root (recursive — covers all CAD subfolders: PART MODELS FOR LEARNING
+// ENGINE, MACHINE MODELS, GENERIC MACHINE MODELS, Inventor, Freecad, MasterCam,
+// HSMWorks, FUSION360, MANUFACTURER_CATALOGS, HYPERMILL, OPEN MIND, etc.), plus
+// the engine's own export directory.
 const ROOTS = [
   "H:/prism/BOX",
   "H:/prism/cad-engine/exports",
   "H:/prism/JM DIE",
-  "H:/prism/Resources/CAD FILES",
+  "H:/prism/Resources",
 ];
 
 const MANIFEST_PATH = "H:/prism/mcp-server/data/state/cad-corpus-manifest.json";
@@ -28,8 +33,8 @@ function ingestRoot(root: string): CorpusManifest | null {
   }
   const start = Date.now();
   const m = cadCorpusIngestionEngine.ingestDirectory(root, {
-    skip_segments: [".git", "node_modules", ".cache", "_archive"],
-    max_files: 50_000,
+    skip_segments: [".git", "node_modules", ".cache", "_archive", "$recycle.bin"],
+    max_files: 200_000,
   });
   const elapsed = Date.now() - start;
   console.log(`✓ ${root}: ${fmtCount(m.total_entries)} files (${elapsed}ms)`);
