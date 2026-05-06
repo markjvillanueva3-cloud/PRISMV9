@@ -40,7 +40,18 @@
  *   2. Empty tip+citation catalogs → enriched episodes with zero attachments
  *      (and per-episode hasCitation=false flag for caller to surface)
  *   3. No tips/citations match any episode → coverageRatio = 0 reported
- *   4. Bad tip entry (missing keywords) → tip is skipped, warning emitted
+ *   4. Bad tip entry (missing keywords) — handled in two layers:
+ *      (a) Zod EnrichInputSchema/TipInputSchema rejects the WHOLE request if
+ *          any tip violates the schema (zero-keyword arrays, oversize fields).
+ *          The caller gets a structured warning identifying the offending
+ *          path (e.g. "tips.3.keywords: Array must contain at least 1
+ *          element") and zero enriched results — fail-fast, no silent
+ *          half-application of a polluted catalog.
+ *      (b) For the rare case where a tip somehow passes Zod with an empty
+ *          keyword array (future schema relaxation, version skew on a
+ *          replay), the runtime `validTips` filter drops it with a per-tip
+ *          warning identifying the tipId. This belt-and-braces guard exists
+ *          so a single bad entry can't poison the whole batch in production.
  *   5. Excessive K → bounded by tip catalog size + min_combined_score gate
  *   6. Categorical filter mismatch → tip is excluded for that episode (not
  *      forced via fallback)
