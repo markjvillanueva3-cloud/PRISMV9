@@ -2101,6 +2101,10 @@
           "title": "Skill cluster consolidation — create /audit /review /validate-program /learn /memory dispatchers",
           "effort": 60,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T17:00:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "5 unifying dispatcher skills shipped: audit.md (12 scopes incl. context/program/security/system/hook/inventory/docker/extractor/drift/wiki/skill), review.md (10 targets incl. cad/error/code/github/sparc/pr/branch/engine/dispatcher/test, distinct from /audit by being subjective-quality vs invariant-verification), validate-program.md (NC code by machine class — 7 routes: lathe/mill/5-axis/mill-turn/wedm/sinker-edm/swiss with auto-detect via filename/extension/folder/program-content-fingerprint), learn.md (knowledge ingest by source format — 7 routes: pdf/video/url/text/markdown/image/archive auto-detected from URL scheme + extension), memory.md (9 ops: search/list/prune/sync/export/stats/recall/remember/forget over Qdrant collections, replaces older /memory-search). Each dispatcher carries policy frontmatter (tier-1 with keyword + UserPromptSubmit triggers), preserves all existing specialized skills (no breaking changes), and links explicitly to the related dispatchers (/audit ↔ /review for verification-vs-quality split). Closes P10-U05 — total ~430 lines of structured routing docs.",
           "exit_conditions": [
             "/audit routes to: context, program, harness, security, system, hook, etc.",
             "/review routes to: cad, error, code, github, sparc",
