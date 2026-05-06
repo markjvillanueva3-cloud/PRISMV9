@@ -52,5 +52,52 @@ export function createCamRouter(callTool: CallToolFn): Router {
     } catch (e) { next(e); }
   });
 
+  // ─── U-CAM123: AI Health Dashboard read-only surfaces ───
+  // Bridges CAMModelServingEngine (U-CAM122) to the operator dashboard.
+  // All POST + JSON for parity with the rest of this router; bodies are
+  // optional filter objects for list_models / list_pending_confirmations.
+
+  router.post("/serve/list-models", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cam", "cam_serve_list_models", req.body ?? {});
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  router.post("/serve/get-model", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cam", "cam_serve_get_model", req.body ?? {});
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  router.post("/serve/list-health", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cam", "cam_serve_list_health", req.body ?? {});
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  router.post("/serve/get-health", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cam", "cam_serve_get_health", req.body ?? {});
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  router.post("/serve/list-routing-policies", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cam", "cam_serve_list_routing_policies", req.body ?? {});
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
+  router.post("/serve/list-pending-confirmations", async (req, res, next) => {
+    try {
+      const result = await callTool("prism_cam", "cam_serve_list_pending_confirmations", req.body ?? {});
+      res.json({ result });
+    } catch (e) { next(e); }
+  });
+
   return router;
 }

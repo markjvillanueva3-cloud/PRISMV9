@@ -184,6 +184,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const PostProcessorStorePage = lazy(() => import('./pages/PostProcessorStorePage'));
 const PpgPage = lazy(() => import('./pages/PpgPage'));
 const QualityPage = lazy(() => import('./pages/QualityPage'));
+const CamAiDashboardPage = lazy(() => import('./pages/cam-ai-dashboard'));
 const SafetyDashboardPage = lazy(() => import('./pages/SafetyDashboardPage'));
 const SfcCalculatorPage = lazy(() => import('./pages/SfcCalculatorPage'));
 const ShopDashboardPage = lazyNamed(() => import('./pages/ShopDashboardPage'), 'DashboardPage');
@@ -343,6 +344,7 @@ export function App() {
               <Route path="settings" element={lazyElement(<SettingsPage />)} />
               {/* WIRE-MS0: Additional merged routes */}
               <Route path="admin" element={lazyElement(secure(<AdminPage />, 'admin'))} />
+              <Route path="cam-ai-dashboard" element={lazyElement(secure(<CamAiDashboardPage />, 'lead'))} />
               <Route path="cam-strategy" element={lazyElement(<CamStrategyPage />)} />
               <Route path="compliance" element={lazyElement(secure(<CompliancePage />, 'lead'))} />
               <Route path="cost-estimator" element={lazyElement(<CostEstimatorPage />)} />
