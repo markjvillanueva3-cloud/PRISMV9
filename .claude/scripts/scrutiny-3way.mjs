@@ -233,7 +233,9 @@ function spawnReview(provider, bin, args, stdinPayload) {
       // a word boundary — trailing notes are allowed (e.g.
       // "VERDICT: PASS — confidence high") since the system prompt itself
       // shows trailing parens. Missing or malformed VERDICT defaults to
-      // FAIL ("if unsure choose FAIL").
+      // FAIL ("if unsure choose FAIL"). The helper also strips known
+      // Windows shim noise ("SUCCESS: The process with PID X has been
+      // terminated.") that the Codex .cmd shim prepends on Windows.
       const { verdict: parsedVerdict, firstLine } = parseVerdictLine(text);
       const verdict = parsedVerdict ?? "fail";
       const blockerLines = text
@@ -243,13 +245,25 @@ function spawnReview(provider, bin, args, stdinPayload) {
         .join("\n");
       const exitInfo = code === 0 ? "" : `[exit ${code}]`;
       const stderrPeek = stderr.length > 0 ? `\nstderr: ${stderr.slice(0, 500)}` : "";
+      // Detect environmental failures that should be obvious to the operator.
+      // These default to FAIL (correct — we got no real review) but the note
+      // makes clear it's env-broken, not code-broken, so the operator knows
+      // to wait for env recovery (quota reset, network) or use the 3-block
+      // escape hatch rather than chasing phantom blockers.
+      const envFailMarker = (() => {
+        if (/TerminalQuotaError|exhausted your daily/i.test(stderr)) return "[ENV_FAIL: gemini-daily-quota — quota resets at UTC midnight]";
+        if (/not running in a trusted directory/i.test(stderr)) return "[ENV_FAIL: gemini-trust-dir — set GEMINI_CLI_TRUST_WORKSPACE=true]";
+        if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN/i.test(stderr)) return "[ENV_FAIL: network — provider host unreachable]";
+        if (!parsedVerdict && code !== 0 && text.length === 0) return "[ENV_FAIL: empty-stdout — provider crashed before any output]";
+        return "";
+      })();
       const verdictNote = parsedVerdict
         ? ""
         : `[VERDICT line missing or malformed; defaulted to FAIL. firstLine="${firstLine.slice(0, 120)}"]`;
       finish(
         verdict,
         blockerLines,
-        `${verdictNote}${exitInfo}${stderrPeek}`.trim(),
+        `${envFailMarker}${envFailMarker ? "\n" : ""}${verdictNote}${exitInfo}${stderrPeek}`.trim(),
         "",
       );
     });
