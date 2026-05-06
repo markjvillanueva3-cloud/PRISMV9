@@ -40,7 +40,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
     _xprocQLearning: any, _xprocBandit: any,
-    _xprocBayesianMLP: any, _xprocConformal: any;
+    _xprocBayesianMLP: any, _xprocConformal: any,
+    _xprocDeepEnsemble: any, _xprocCalibration: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -88,6 +89,8 @@ async function getEngine(name: string): Promise<any> {
     case "xprocBandit": return _xprocBandit ??= (await import("../../engines/CrossProcessMultiArmedBanditEngine.js")).crossProcessMultiArmedBandit;
     case "xprocBayesianMLP": return _xprocBayesianMLP ??= (await import("../../engines/CrossProcessBayesianMLPEngine.js")).crossProcessBayesianMLP;
     case "xprocConformal": return _xprocConformal ??= (await import("../../engines/CrossProcessConformalPredictionEngine.js")).crossProcessConformalPrediction;
+    case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
+    case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -352,6 +355,14 @@ const ACTIONS = [
   "xproc_conformal_stats",
   "xproc_conformal_reset",
   "xproc_conformal_constants",
+  // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble disagreement
+  "xproc_ensemble_predict",
+  "xproc_ensemble_disagreement",
+  "xproc_ensemble_constants",
+  // XPROC-NEURAL Tier 5 (T5-04) — Calibration Auditor (ECE/MCE/Brier + recalibration)
+  "xproc_calibration_score",
+  "xproc_calibration_recommend",
+  "xproc_calibration_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -921,6 +932,14 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_conformal_stats: "xprocConformal",
           xproc_conformal_reset: "xprocConformal",
           xproc_conformal_constants: "xprocConformal",
+          // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble
+          xproc_ensemble_predict: "xprocDeepEnsemble",
+          xproc_ensemble_disagreement: "xprocDeepEnsemble",
+          xproc_ensemble_constants: "xprocDeepEnsemble",
+          // XPROC-NEURAL Tier 5 (T5-04) — Calibration Auditor
+          xproc_calibration_score: "xprocCalibration",
+          xproc_calibration_recommend: "xprocCalibration",
+          xproc_calibration_constants: "xprocCalibration",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)
