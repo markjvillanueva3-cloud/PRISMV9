@@ -1966,6 +1966,12 @@ export const ACTIONS = [
     "cam_serve_set_rate_limit", "cam_serve_list_pending_confirmations",
     "cam_serve_clear_confirmations", "cam_serve_set_metric_buffer_size",
     "cam_serve_clear_all",
+  // CAM-EXHAUST-MS0/U-CAM120 — Feedback Loop (continuous learning, drift detection, LoRA export)
+    "cam_feedback_record_correction", "cam_feedback_record_outcome",
+    "cam_feedback_get_corrections", "cam_feedback_accuracy_drift",
+    "cam_feedback_correction_patterns", "cam_feedback_lora_training_export",
+    "cam_feedback_stats", "cam_feedback_set_buffer_cap",
+    "cam_feedback_clear_all",
   // CAM-EXHAUST-MS0/U-CAM51 — SURFCAM Function Index (TrueMill HSM flagship)
     "surfcam_function_index_get", "surfcam_function_index_list_sections",
     "surfcam_function_index_get_section", "surfcam_function_index_list_operations",
@@ -16656,6 +16662,61 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_serve_clear_all": {
             const { CAMModelServingEngine } = await import("../../engines/CAMModelServingEngine.js");
             CAMModelServingEngine.clearAll();
+            result = { success: true };
+            break;
+          }
+          // CAM-EXHAUST-MS0/U-CAM120 — Feedback Loop (9 actions)
+          case "cam_feedback_record_correction": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const input = params.input as Parameters<typeof CAMFeedbackLoopEngine.recordCorrection>[0];
+            result = { success: true, record: CAMFeedbackLoopEngine.recordCorrection(input) };
+            break;
+          }
+          case "cam_feedback_record_outcome": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const input = params.input as Parameters<typeof CAMFeedbackLoopEngine.recordOutcome>[0];
+            result = { success: true, record: CAMFeedbackLoopEngine.recordOutcome(input) };
+            break;
+          }
+          case "cam_feedback_get_corrections": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const filter = (params.filter as Parameters<typeof CAMFeedbackLoopEngine.getCorrections>[0]) ?? {};
+            result = { success: true, corrections: CAMFeedbackLoopEngine.getCorrections(filter) };
+            break;
+          }
+          case "cam_feedback_accuracy_drift": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const opts = (params.opts as Parameters<typeof CAMFeedbackLoopEngine.accuracyDrift>[0]) ?? {};
+            result = { success: true, report: CAMFeedbackLoopEngine.accuracyDrift(opts) };
+            break;
+          }
+          case "cam_feedback_correction_patterns": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const opts = (params.opts as Parameters<typeof CAMFeedbackLoopEngine.correctionPatterns>[0]) ?? {};
+            result = { success: true, report: CAMFeedbackLoopEngine.correctionPatterns(opts) };
+            break;
+          }
+          case "cam_feedback_lora_training_export": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const opts = (params.opts as Parameters<typeof CAMFeedbackLoopEngine.loraTrainingExport>[0]) ?? {};
+            result = { success: true, pairs: CAMFeedbackLoopEngine.loraTrainingExport(opts) };
+            break;
+          }
+          case "cam_feedback_stats": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            result = { success: true, stats: CAMFeedbackLoopEngine.feedbackStats() };
+            break;
+          }
+          case "cam_feedback_set_buffer_cap": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            const cap = params.cap as number;
+            CAMFeedbackLoopEngine.setBufferCap(cap);
+            result = { success: true, cap };
+            break;
+          }
+          case "cam_feedback_clear_all": {
+            const { CAMFeedbackLoopEngine } = await import("../../engines/CAMFeedbackLoopEngine.js");
+            CAMFeedbackLoopEngine.clearAll();
             result = { success: true };
             break;
           }
