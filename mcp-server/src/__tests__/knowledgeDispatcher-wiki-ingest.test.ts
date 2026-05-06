@@ -355,4 +355,76 @@ describe("knowledgeDispatcher — KIP ingest wiring (P14-U02)", () => {
       expect(typeof mod.WikiBootstrapEngine).toBe("function");
     });
   });
+
+  describe("CSM memory.db audit (P15-U01) wiring", () => {
+    const CSM_AUDIT_ACTIONS = [
+      "csm_audit_classify_path",
+      "csm_audit_summarize",
+      "csm_audit_detect_variants",
+      "csm_audit_format_report",
+      "csm_audit_build_fingerprint",
+    ];
+
+    it("all 5 CSM audit actions are registered in the action enum", () => {
+      for (const a of CSM_AUDIT_ACTIONS) {
+        expect(KNOWLEDGE_ACTIONS.includes(a)).toBe(true);
+      }
+    });
+
+    it("csm_audit_classify_path schema requires path string", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.csm_audit_classify_path as z.ZodType;
+      expect(schema.safeParse({ path: "H:/prism/.claude/memory.db" }).success).toBe(true);
+      expect(schema.safeParse({}).success).toBe(false);
+      expect(schema.safeParse({ path: 42 }).success).toBe(false);
+    });
+
+    it("csm_audit_summarize schema accepts a reports array of full DBReport shape", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.csm_audit_summarize as z.ZodType;
+      const validReport = {
+        path: "H:/x/.claude/memory.db",
+        exists: true,
+        sizeBytes: 100,
+        lastModifiedISO: "2026-01-01T00:00:00.000Z",
+        rowCount: 5,
+        schemaFingerprint: "t:3",
+        tableNames: ["t"],
+        error: "",
+      };
+      expect(schema.safeParse({ reports: [validReport] }).success).toBe(true);
+      // rowCount and schemaFingerprint must accept null per the schema
+      expect(schema.safeParse({ reports: [{ ...validReport, rowCount: null, schemaFingerprint: null }] }).success).toBe(true);
+      // Negative sizeBytes rejected
+      expect(schema.safeParse({ reports: [{ ...validReport, sizeBytes: -1 }] }).success).toBe(false);
+    });
+
+    it("csm_audit_build_fingerprint schema requires {name, colCount} pairs with non-negative ints", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.csm_audit_build_fingerprint as z.ZodType;
+      expect(schema.safeParse({ tables: [{ name: "t1", colCount: 3 }, { name: "t2", colCount: 0 }] }).success).toBe(true);
+      expect(schema.safeParse({ tables: [{ name: "t", colCount: -1 }] }).success).toBe(false);
+      expect(schema.safeParse({ tables: [{ name: "t", colCount: 1.5 }] }).success).toBe(false);
+      expect(schema.safeParse({ tables: "nope" as unknown }).success).toBe(false);
+    });
+
+    it("csm_audit_format_report schema requires both reports + summary", () => {
+      const schema = ACTION_KNOWLEDGE_SCHEMAS.csm_audit_format_report as z.ZodType;
+      const validSummary = {
+        totalDBs: 1, readableDBs: 1, totalSizeBytes: 100, totalRows: 5,
+        byClass: { "claude-memory": { count: 1, sizeBytes: 100, rows: 5 } },
+        schemaVariantCount: 1,
+        oldestModifiedISO: "2026-01-01T00:00:00.000Z",
+        newestModifiedISO: "2026-01-01T00:00:00.000Z",
+      };
+      expect(schema.safeParse({ reports: [], summary: validSummary }).success).toBe(true);
+      expect(schema.safeParse({ reports: [] }).success).toBe(false);
+    });
+
+    it("CSMMemoryDBAuditEngine module exports singleton — invokes classifyDBPath with real path", async () => {
+      const mod = await import("../engines/CSMMemoryDBAuditEngine.js");
+      // Real-behavior round trip rather than presence-only check
+      expect(mod.csmMemoryDBAuditEngine.classifyDBPath("H:/prism/.claude/memory.db")).toBe("claude-memory");
+      expect(mod.csmMemoryDBAuditEngine.classifyDBPath("H:/x/.swarm/memory.db")).toBe("swarm-memory");
+      expect(mod.csmMemoryDBAuditEngine.classifyDBPath("H:/x/foo.db")).toBe("unknown");
+      expect(typeof mod.CSMMemoryDBAuditEngine).toBe("function");
+    });
+  });
 });

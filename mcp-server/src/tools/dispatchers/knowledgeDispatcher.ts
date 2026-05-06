@@ -209,6 +209,17 @@ const WIKI_BOOTSTRAP_ACTIONS = [
   "wiki_bootstrap_insert_index",       // Append lines to existing index (idempotent dedup)
 ] as const;
 
+/** INTEL-OLLAMA-OBSIDIAN-MS0/P15-U01: CSM memory.db audit — surfaces CSMMemoryDBAuditEngine.
+ *  Wired here (not memoryDispatcher) because memoryDispatcher's enum is locked at 14
+ *  actions by source-shape regression tests (GsdRouterAndRetrieve.test.ts). */
+const CSM_AUDIT_ACTIONS = [
+  "csm_audit_classify_path",         // path → "claude-memory" | "swarm-memory" | "unknown"
+  "csm_audit_summarize",             // DBReport[] → AuditSummary
+  "csm_audit_detect_variants",       // DBReport[] → Map<fingerprint, DBReport[]> (as plain object)
+  "csm_audit_format_report",         // (reports, summary) → markdown report
+  "csm_audit_build_fingerprint",     // [{name, colCount}] → "name1:N1,name2:N2,..."
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -234,6 +245,7 @@ const ACTIONS = [
   ...VAULT_RAG_ACTIONS,
   ...VAULT_BACKLINK_ACTIONS,
   ...WIKI_BOOTSTRAP_ACTIONS,
+  ...CSM_AUDIT_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2339,6 +2351,48 @@ export function registerKnowledgeDispatcher(server: any): void {
             const existing = typeof params.existing_index === "string" ? params.existing_index : "";
             const lines = Array.isArray(params.lines) ? params.lines : [];
             result = { index: wikiBootstrapEngine.insertIndexEntries(existing, lines) };
+            break;
+          }
+          // ── INTEL-OLLAMA-OBSIDIAN-MS0/P15-U01: CSM memory.db audit (CSMMemoryDBAuditEngine) ──
+          case "csm_audit_classify_path": {
+            const { csmMemoryDBAuditEngine } = await import("../../engines/CSMMemoryDBAuditEngine.js");
+            const p = params.path;
+            if (typeof p !== "string") {
+              throw new Error("csm_audit_classify_path: path required (string)");
+            }
+            result = { class: csmMemoryDBAuditEngine.classifyDBPath(p) };
+            break;
+          }
+          case "csm_audit_summarize": {
+            const { csmMemoryDBAuditEngine } = await import("../../engines/CSMMemoryDBAuditEngine.js");
+            const reports = Array.isArray(params.reports) ? params.reports : [];
+            result = { summary: csmMemoryDBAuditEngine.summarize(reports) };
+            break;
+          }
+          case "csm_audit_detect_variants": {
+            const { csmMemoryDBAuditEngine } = await import("../../engines/CSMMemoryDBAuditEngine.js");
+            const reports = Array.isArray(params.reports) ? params.reports : [];
+            const variants = csmMemoryDBAuditEngine.detectSchemaVariants(reports);
+            // Map → plain object for JSON-RPC transport
+            const obj: Record<string, unknown[]> = {};
+            for (const [k, v] of variants) obj[k] = v;
+            result = { variants: obj };
+            break;
+          }
+          case "csm_audit_format_report": {
+            const { csmMemoryDBAuditEngine } = await import("../../engines/CSMMemoryDBAuditEngine.js");
+            const reports = Array.isArray(params.reports) ? params.reports : [];
+            const summary = params.summary;
+            if (!summary || typeof summary !== "object") {
+              throw new Error("csm_audit_format_report: summary required (AuditSummary shape)");
+            }
+            result = { markdown: csmMemoryDBAuditEngine.formatReport(reports, summary) };
+            break;
+          }
+          case "csm_audit_build_fingerprint": {
+            const { csmMemoryDBAuditEngine } = await import("../../engines/CSMMemoryDBAuditEngine.js");
+            const tables = Array.isArray(params.tables) ? params.tables : [];
+            result = { fingerprint: csmMemoryDBAuditEngine.buildSchemaFingerprint(tables) };
             break;
           }
         }
