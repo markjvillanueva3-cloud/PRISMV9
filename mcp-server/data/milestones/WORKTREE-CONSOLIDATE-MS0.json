@@ -1078,7 +1078,45 @@
       ],
       "branch_count_change": "before=54 → after=41 (-13)",
       "worktree_count_change": "before=43 → after=32 (-11)",
-      "remaining_targets": "Branches not yet triaged (alive worktrees): work/cad-complete-ms0, work/cam-engine-fixes, work/cam-exhaust-cam43-plus, work/cad-fidx-fus-93a0, work/cad-fidx-solidworks, work/cam-spcfai-ms0, work/cam-fusion-ms1, work/cam-hypermill-ms1, work/engine-wire-cad-ms0, work/engine-wire-ms0, work/intel-ollama-obsidian-ms0/ms1, work/intel-p8-schema, work/knowledge-wiki-ms0, work/lathe-pro-v3-ms2, work/lathe-pro-v3-bookkeeping, work/lathe-prod-ready-ms0, work/mill-master, work/ppg-advancedpost, work/ppgh05, work/psau-sav2, work/session-efficiency, work/tsc-cleanup-ms0, plus meta/* + claude/* + worktree-u-fus-api01/02 + 1 stale locked agent worktree (ac117174afd81e7bb at e91b79d6f)"
+      "small_branches_cherry_picked_in_session": [
+        {
+          "branch": "work/lathe-pro-v3-ms2",
+          "commits_picked": 1,
+          "sha": "3481bdfceb4a6c780e730388a45f75c44c193f37 → ab91f8ffb on origin/main",
+          "content": "LatheOffsetSuperpositionEngine (407 LOC, 26 tests, ISO 230-3 + ISO 8688-1 + Altintas + Bryan 1990) + turning_offset_compensation dispatcher action",
+          "verification": "git cherry shows single commit (+); cherry-pick clean (no conflicts); peer claim audit clean"
+        }
+      ],
+      "remaining_targets_full_inventory": {
+        "documented_2026_05_06": "Survey of every alive branch via `git rev-list --count origin/main..<branch>` and prefix audit. NOTE: numeric +counts are accurate as of session end; will drift as peer chats land work.",
+        "single_track_clean_candidates_for_graduation": [
+          {"branch": "work/mill-master", "ahead": 63, "all_prefixes": ["MILL-MASTER", "MILL-MASTER-AI-WIRING", "MILL-MASTER-P1", "MILL-MASTER-P3"], "phase": "MILL-MASTER-CONSOLIDATE-MS"},
+          {"branch": "work/cam-engine-fixes", "ahead": 709, "primary_prefix": "[CAM-EXHAUST-MS0] + [WEDM-SEAL]", "phase": "CAM-EXHAUST-CONSOLIDATE-MS"},
+          {"branch": "work/cam-spcfai-ms0", "ahead": 759, "phase": "CAM-SPCFAI-CONSOLIDATE-MS"},
+          {"branch": "work/cam-hypermill-ms1", "ahead": 601, "phase": "HYPERMILL-MS1-CONSOLIDATE-MS"},
+          {"branch": "work/cam-fusion-ms1", "ahead": 598, "phase": "FUSION-MS1-CONSOLIDATE-MS"},
+          {"branch": "work/engine-wire-cad-ms0", "ahead": 675, "phase": "ENGINE-WIRE-CAD-CONSOLIDATE-MS"},
+          {"branch": "work/engine-wire-ms0", "ahead": 613, "phase": "ENGINE-WIRE-CONSOLIDATE-MS"},
+          {"branch": "work/lathe-pro-v3-bookkeeping", "ahead": 791, "phase": "LATHE-PRO-V3-CONSOLIDATE-MS"},
+          {"branch": "work/lathe-prod-ready-ms0", "ahead": 335, "phase": "LATHE-PROD-CONSOLIDATE-MS"},
+          {"branch": "work/cad-fidx-solidworks", "ahead": 652, "phase": "CAD-FIDX-SW-CONSOLIDATE-MS"},
+          {"branch": "work/knowledge-wiki-ms0", "ahead": 493, "phase": "WIKI-CONSOLIDATE-MS"},
+          {"branch": "work/tsc-cleanup-ms0", "ahead": 590, "phase": "TSC-CLEANUP-CONSOLIDATE-MS"},
+          {"branch": "work/ppgh05", "ahead": 804, "phase": "PPGH05-CONSOLIDATE-MS", "peer_claim": "claude-093e69ac actively editing — DO NOT cherry-pick until released"},
+          {"branch": "work/ppg-advancedpost", "ahead": 682, "phase": "PPG-ADVANCEDPOST-CONSOLIDATE-MS"},
+          {"branch": "work/intel-ollama-obsidian-ms0", "ahead": 77, "phase": "IOOMS0-CONSOLIDATE-MS", "note": "freshest branch, only 8 behind main"},
+          {"branch": "work/intel-ollama-obsidian-ms1", "ahead": 612, "phase": "IOOMS1-CONSOLIDATE-MS"},
+          {"branch": "work/intel-p8-schema", "ahead": 616, "phase": "INTEL-P8-CONSOLIDATE-MS", "note": "NO WORKTREE — branch alone, safest to graduate independently"},
+          {"branch": "work/session-efficiency", "ahead": 78, "phase": "SESSION-EFF-CONSOLIDATE-MS", "primary_prefix": "SESSION-EFFICIENCY/U-EFF*"},
+          {"branch": "work/psau-sav2", "ahead": 52, "phase": "PSAU-MIXED-CONSOLIDATE-MS", "note": "mixed-track (PSAU/LATHE/CAM/MILL/WEDM) — needs commit-by-commit triage"},
+          {"branch": "work/cad-complete-ms0", "ahead": 26, "phase": "CAD-COMPLETE-CONSOLIDATE-MS", "note": "kitchen-sink with [MAIN]-tagged commits from LATHE-MASTER + CAM-UIX-MS0 + WEDM-CONSOLIDATED — needs careful audit"},
+          {"branch": "work/cam-exhaust-cam43-plus", "ahead": 158, "phase": "CAM43-CONSOLIDATE-MS"},
+          {"branch": "work/cad-fidx-fus-93a0", "ahead": 626, "phase": "CAM-MS1-93A0-CONSOLIDATE-MS (graduated U-FF03 phase)"},
+          {"branch": "meta/claudemd-enforcement", "ahead": 468, "phase": "META-CLAUDEMD-CONSOLIDATE-MS"},
+          {"branch": "meta/file-claim-fix", "ahead": 482, "phase": "META-FILE-CLAIM-CONSOLIDATE-MS"}
+        ],
+        "note_on_strategy": "All branches >= ~50 commits ahead are graduation candidates, not blind-cherry-pick targets. Each needs scrutiny on its own — single-track audits are good but per-commit conflicts and peer-claim collisions still apply. Recommend one consolidate-phase per candidate, processed in order of (a) safety-criticality, (b) freshness, (c) commit count (smaller first)."
+      }
     }
   ],
   "out_of_scope": [
