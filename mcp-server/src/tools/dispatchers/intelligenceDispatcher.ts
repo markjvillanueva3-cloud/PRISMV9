@@ -41,7 +41,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocQLearning: any, _xprocBandit: any,
     _xprocBayesianMLP: any, _xprocConformal: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
-    _xprocFedAvg: any;
+    _xprocFedAvg: any, _xprocSecureAgg: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -91,6 +91,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
+    case "xprocSecureAgg": return _xprocSecureAgg ??= (await import("../../engines/CrossProcessSecureAggregationEngine.js")).crossProcessSecureAggregation;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -354,6 +355,11 @@ const ACTIONS = [
   "xproc_fed_aggregate",
   "xproc_fed_round_summary",
   "xproc_fed_constants",
+  // XPROC-NEURAL Tier 6 (T6-02) — Bonawitz secure aggregation (pairwise additive masks)
+  "xproc_secure_mask",
+  "xproc_secure_unmask",
+  "xproc_secure_verify",
+  "xproc_secure_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -929,6 +935,11 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_fed_aggregate: "xprocFedAvg",
           xproc_fed_round_summary: "xprocFedAvg",
           xproc_fed_constants: "xprocFedAvg",
+          // XPROC-NEURAL Tier 6 (T6-02) — Bonawitz secure aggregation
+          xproc_secure_mask: "xprocSecureAgg",
+          xproc_secure_unmask: "xprocSecureAgg",
+          xproc_secure_verify: "xprocSecureAgg",
+          xproc_secure_constants: "xprocSecureAgg",
         };
 
         const engineName = CORE_ROUTING[action];
