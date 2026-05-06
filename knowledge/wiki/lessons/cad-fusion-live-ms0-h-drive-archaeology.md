@@ -224,3 +224,27 @@ Stale artifacts surfaced as a side-effect:
 **Maintenance recommendation (not blocking the archaeology task):** schedule a `git gc --aggressive` off-hours when no chats are active. Will reclaim ~16 GB of redundant loose objects and consolidate packs, making future fsck runs feasible.
 
 **Final archaeology verdict:** discovery is complete. No further git-archaeology surface to mine. All 10 agents have closed their search slices. Ready to execute the 10-step recovery sequence.
+
+---
+
+## ADDENDUM B — Tier 0 Recovery Resolved by Discovery (2026-05-06, post-compact)
+
+When the next session began executing Tier 0, byte-level diff revealed the stray-tree premise was wrong:
+
+| File | Stray (`H:/prism/src/engines/`) | Canon (`H:/prism/mcp-server/src/engines/`) | Verdict |
+|------|---------------------------------|--------------------------------------------|---------|
+| `StepImportEngine.ts` | 39080 B, Mar 16 | 39080 B, tracked | **byte-identical** — already mirrored |
+| `MultiAxisPrintToProgramEngine.ts` | 39 KB, Apr 4 | tracked | **byte-identical** — already mirrored |
+| `TurningCADImportEngine.ts` | 33 KB, Apr 6 | tracked | **byte-identical** — already mirrored |
+| `PrintToProgramPipelineEngine.ts` | 91594 B, Apr 7 | 102064 B, Apr 12, tracked | Canon is **strict superset** (+255 lines: `pipelineOptimizationEngine` integration, async pipeline, infrastructure tracking). Zero lines unique to stray. |
+| `AutoPrintToProgramBridgeEngine.ts` | 23830 B, Mar 23 | 19006 B, Apr 23, tracked | Canon is a **deliberate refactor** to route-only (delegates generation to `WEDMPrintToProgramEngine`). Stray was the older monolithic version. Shrink is intentional. |
+
+**Conclusion:** the "1,511 untracked engines" in `H:/prism/src/` are an **out-of-date mirror**, not lost work. Every Tier 0 high-value file already exists in the canonical `mcp-server/src/engines/` tree, equal or newer. The recovery sequence is moot.
+
+**Followup actions taken:**
+1. Added `Python/`, `archives/`, `.sessions/`, `**/__pycache__/`, `dist.bak-*/`, `cad-engine/output/` to `.gitignore` (stops the bleed in build artifacts).
+2. Did NOT delete `H:/prism/src/` — leaving for an explicit cleanup pass once Tier 1-6 strays are validated against canon by the same byte-diff method.
+
+**Reframed Tier 0:** there is no Tier 0 recovery. Pivot back to the active CAD AI training surface — close the loop from `MasterCADControlBrainEngine.cadAITrainingSurface()` → fidelity prediction → Fusion 360 build sequence retry on JM Die 2475-037.
+
+**Methodology note for future archaeology:** the 10-agent fan-out treated mtime + size as evidence of unique content. It isn't. Run `cmp -s stray canon` BEFORE drafting recovery plans. Cheap byte-diff on a candidate set of N files is O(N) and rules out the duplicate case in seconds. The 12-hour Tier 0 plan would have been 5 minutes of `cmp` if the agents had been instructed to verify-then-recover.
