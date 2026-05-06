@@ -175,6 +175,12 @@
             "command": "node H:/prism/.claude/hooks/allow-superseding.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tsc-baseline-regression-gate.mjs",
+            "timeout": 60000,
+            "continueOnError": false
           }
         ]
       },
