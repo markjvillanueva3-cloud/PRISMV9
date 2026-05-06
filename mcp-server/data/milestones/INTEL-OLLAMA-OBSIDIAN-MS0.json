@@ -3182,7 +3182,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T14:04:16.516Z",
+          "completed_by": "claude-iooms0-p18",
+          "notes": "Built scripts/extractor-audit.mjs (313 lines) — pure-logic classifier on 5 axes (inputFormat/outputTarget/patternType/vendor/keepInFramework) for every extract-*.{py,mjs,ts} script under mcp-server/scripts/. Heuristics inspect the first 8KB of each script for import patterns (pymupdf/pdf-parse → pdf, openpyxl/xlsx → xlsx, requests/fetch → api, etc.) and pattern shapes (find_tables → table-extract, ollama → llm-prompted, re.match → regex-scrape, json.dump → structured-parse). Live audit on this lane discovered 41 extractors (milestone said 22 — reality larger), classified: 25 KEEP (reusable framework patterns: table-extract/structured-parse/api-fetch/llm-prompted) and 16 ARCHIVE (vendor-specific regex-scrape and manual-record one-shots). Distribution: 32 PDF inputs, 23 table-extract pattern, 19 distinct vendors. Tests: 47 vitest cases / 0 failures including 9 classifier branches per axis + 4 adversarial wrong-type inputs + 3 end-to-end synthetic-body classifications + 2 anti-regression live checks (≥30 scripts present, ≥3 spanning vendors). Generated EXTRACTOR-INVENTORY.md (5899 bytes, full per-script disposition table). Pure decision functions (classifyInputFormat, classifyOutputTarget, classifyPatternType, extractVendor, decideKeepInFramework, classifyExtractor, summarize, renderInventoryMarkdown) all exported for downstream P18-U02 consumption."
         },
         {
           "id": "P18-U02",
