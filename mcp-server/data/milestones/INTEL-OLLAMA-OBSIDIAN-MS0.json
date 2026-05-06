@@ -3010,7 +3010,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-06T12:45:38.911Z",
+          "completed_by": "claude-iooms0-p16",
+          "notes": "5/5 top-ranked hooks merged from prism-intel-p8 lane into canonical (work/intel-ollama-obsidian-ms0). Each hook landed in its own commit with provenance comment // Origin: prism-intel-p8 :: <hash> · Merged via INTEL-OLLAMA-OBSIDIAN-MS0/P16-U03. Order matches MERGE-CANDIDATES.json rank: (1) ollama-schema-engine-sync-gate de60c11be PreToolUse Edit|Write|MultiEdit timeout 5s · 0788b1bea — also bundled the shared lib autonomous-foolproof-logic.mjs 8c3c754ff that all 5 hooks import from; (2) tsc-baseline-regression-gate 5854bb818 PreToolUse Bash timeout 60s · 17d85ef70; (3) anti-regression-auto-sweep 2b546d5d9 PostToolUse Bash|Read timeout 130s · 80788fe43; (4) ollama-engine-api-extractor 30f938e7b PreToolUse Read timeout 10s · ff39f7a64; (5) autonomous-loop-watchdog 5854bb818 Stop timeout 3s · e98957be0. duplicationGuardEngine.copilot_check_duplication consulted before each merge: all returned is_duplicate:false. settings.json wired all 5 hooks under their respective event blocks. P16-U03 ships intel-ollama-obsidian-ms0 head from ac1c24e66 → e98957be0 (5 commits, 5 files added + 1 lib + settings.json updates)."
         }
       ]
     },
