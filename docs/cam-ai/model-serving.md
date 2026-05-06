@@ -127,12 +127,18 @@ Routing policy kinds:
 ```ts
 interface ModelSpec {
   id: string;                              // unique within registry
-  cam_system: string;                      // "hypermill" | "mastercam" | ...
-  task: AGIDecisionTask;                   // "strategy_recommend" | ...
+  name: string;                            // human-readable label
+  version: string;                         // semver / tag
   backend: ModelBackend;                   // "ollama" | "triton" | "vllm" | "nim" | "openai" | "anthropic" | "custom"
-  endpoint: string;                        // URL the inference adapter calls
-  metadata?: { derived_from_chain?: string; ... };  // identity propagation
-  // ...
+  endpoint_url: string;                    // URL the inference adapter calls
+  cam_systems: string[];                   // ["hypermill", "mastercam", ...] — multi-CAM models supported
+  tasks: string[];                         // ["strategy_recommend", "parameter_extract", ...]
+  weight?: number;                         // initial canary weight (0..1)
+  rate_capacity?: number;                  // token-bucket capacity
+  rate_refill_per_sec?: number;            // token-bucket refill rate
+  max_batch_size?: number;                 // batching: max requests batched together
+  max_batch_wait_ms?: number;              // batching: max ms before flush
+  metadata?: Record<string, string>;       // free-form (commit hash, training run id, derived_from_chain)
 }
 ```
 

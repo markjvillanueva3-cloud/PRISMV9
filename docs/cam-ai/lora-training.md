@@ -69,8 +69,8 @@ records evict FIFO.
 ```ts
 const pairs = CAMFeedbackLoopEngine.loraTrainingExport({
   task: "strategy_recommend",
-  cam_system: "hypermill",
-  since: Date.now() - 30 * 24 * 3600 * 1000,  // 30 days
+  includeConfirmed: true,   // include weight=0.5 confirmation pairs alongside weight=1.0 corrections
+  limit: 5000,              // cap on emitted pairs (default unlimited)
 });
 // pairs: LoRATrainingPair[]
 ```
