@@ -115,9 +115,13 @@
           "P5-U05"
         ],
         "commits": {
-          "all_via_test": "P5OrphanReasoningDispatchers.test.ts (21/21 green)"
+          "all_via_test": "P5OrphanReasoningDispatchers.test.ts (21/21 green)",
+          "P5-U01_per_unit_test": "AICreativeSolveDispatcher.test.ts (11 cases) — 2026-05-06 [iooms0]",
+          "P5-U02_per_unit_test": "AICausalAnalyzeDispatcher.test.ts (18 cases) — 2026-05-06 [iooms0]",
+          "P5-U03_per_unit_test": "AICounterfactualDispatcher.test.ts (23 cases) — 2026-05-06 [iooms0]",
+          "P5-U04_per_unit_test": "AIScientificReasonDispatcher.test.ts (21 cases) — 2026-05-06 [iooms0]"
         },
-        "notes": "All 5 reasoning-engine actions wired in code: creative_solve, causal_analyze, counterfactual_predict, scientific_reason (aiReasoningDispatcher.ts:670,679,699,721); diagnose_failure (intelligenceDispatcher.ts:59,214,671). Schemas in aiReasoningActionSchemas.ts. Test file P5OrphanReasoningDispatchers.test.ts passes 21/21 (verified 2026-05-01 by claude-ba192f8a). P6-U02 close-out commit retroactively documents this."
+        "notes": "All 5 reasoning-engine actions wired in code: creative_solve, causal_analyze, counterfactual_predict, scientific_reason (aiReasoningDispatcher.ts:670,679,699,721); diagnose_failure (intelligenceDispatcher.ts:59,214,671). Schemas in aiReasoningActionSchemas.ts. Test file P5OrphanReasoningDispatchers.test.ts passes 21/21 (verified 2026-05-01 by claude-ba192f8a). P6-U02 close-out commit retroactively documents this. 2026-05-06 [iooms0]: per-unit dedicated test files (called out by P5-U01..U03 deliverables) added — 4 files, 73 cases total, anti-regression on dispatcher source + engine round-trip + param-validation parity. P5-U05 still needs a per-unit file but intelligenceDispatcher.ts is currently claimed by peer chat aa6cc55c."
       },
       "P6": {
         "branch": "work/intel-ollama-obsidian-ms1 + work/intel-p8-schema",
