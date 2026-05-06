@@ -16671,7 +16671,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_ai_validate": {
             const { CAMAIValidationEngine } = await import("../../engines/CAMAIValidationEngine.js");
             const outputPath = params.outputPath as string | undefined;
-            const report = CAMAIValidationEngine.runValidation({ outputPath });
+            const report = await CAMAIValidationEngine.runValidation({ outputPath });
             result = { success: true, report };
             break;
           }

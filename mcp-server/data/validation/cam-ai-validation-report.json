@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-06T14:15:26.757Z",
+  "generatedAt": "2026-05-06T14:33:57.630Z",
   "unitId": "U-CAM127",
   "engines_tested": [
     "CAMReasoningChainEngine",
@@ -10,11 +10,28 @@
     "CAMModelServingEngine"
   ],
   "threshold": 0.95,
-  "scenario_count": 15,
-  "match_count": 15,
+  "scenario_count": 16,
+  "match_count": 16,
   "match_rate": 1,
   "verdict": "PASS",
   "scenarios": [
+    {
+      "id": "reasoning_chain_decide_round_trip",
+      "description": "CAMReasoningChainEngine.decide() emits chainId; getChain() retrieves the same chain",
+      "category": "calibration",
+      "verdict": "pass",
+      "expected": {
+        "chainId_present": true,
+        "confidence": 0.42,
+        "chain_round_trips": true
+      },
+      "actual": {
+        "chainId_present": true,
+        "confidence": 0.42,
+        "chain_round_trips": true
+      },
+      "durationMs": 1
+    },
     {
       "id": "gate_refuse_below_floor",
       "description": "Hoeffding gate refuses canary promotion at 30 samples (< 100 floor)",
@@ -28,7 +45,7 @@
         "applied": false,
         "requires_human_approval": true
       },
-      "durationMs": 10
+      "durationMs": 8
     },
     {
       "id": "gate_apply_above_floor",
@@ -45,7 +62,7 @@
         "applied": true,
         "requires_human_approval": false
       },
-      "durationMs": 19
+      "durationMs": 11
     },
     {
       "id": "routing_determinism",
@@ -62,7 +79,7 @@
         "unique_bucket": 1,
         "trial_count": 25
       },
-      "durationMs": 8
+      "durationMs": 4
     },
     {
       "id": "model_health_snapshot",
@@ -82,7 +99,7 @@
         "samples": 250,
         "status": "active"
       },
-      "durationMs": 7
+      "durationMs": 4
     },
     {
       "id": "invalid_model_spec_rejection",
@@ -114,7 +131,7 @@
         "weight": 1,
         "source": "correction"
       },
-      "durationMs": 0
+      "durationMs": 1
     },
     {
       "id": "lora_confirmation_weight",
@@ -161,7 +178,7 @@
         "totalCorrections": 3,
         "totalOutcomes": 2
       },
-      "durationMs": 1
+      "durationMs": 0
     },
     {
       "id": "drift_insufficient_data",
@@ -251,7 +268,7 @@
       "durationMs": 0
     }
   ],
-  "notes": "Behavioral-contract validation harness. Each scenario drives the live 5-engine CAM AI pipeline against documented contract behavior (docs/cam-ai/*.md, U-CAM126). No mocks of engines under test. Threshold 0.95 = at least 14 of 15 scenarios must match.",
+  "notes": "Behavioral-contract validation harness. Each scenario drives the live 5-engine CAM AI pipeline against documented contract behavior (docs/cam-ai/*.md, U-CAM126). No mocks of engines under test. Threshold 0.95 = match_rate must be ≥0.95 (e.g. 16/16=1.0 PASS, 19/20=0.95 PASS, 14/15≈0.933 FAIL, 4/5=0.80 FAIL).",
   "category_match_rates": {
     "gate": {
       "passed": 2,
@@ -274,8 +291,8 @@
       "rate": 1
     },
     "calibration": {
-      "passed": 2,
-      "total": 2,
+      "passed": 3,
+      "total": 3,
       "rate": 1
     },
     "serving": {

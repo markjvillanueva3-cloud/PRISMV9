@@ -37,6 +37,7 @@
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 
+import { CAMReasoningChainEngine } from "./CAMReasoningChainEngine.js";
 import { CAMConfidenceCalibrationEngine } from "./CAMConfidenceCalibrationEngine.js";
 import { CAMFeedbackLoopEngine } from "./CAMFeedbackLoopEngine.js";
 import { CAMTransferLearningEngine } from "./CAMTransferLearningEngine.js";
@@ -108,9 +109,13 @@ export interface ValidationReport {
   category_match_rates: Record<ScenarioCategory, { passed: number; total: number; rate: number }>;
 }
 
+export type ScenarioFn = () =>
+  | ValidationScenarioResult
+  | Promise<ValidationScenarioResult>;
+
 export interface RunValidationOptions {
   /** Optional override of the scenario suite. Defaults to getDefaultScenarios(). */
-  scenarios?: Array<() => ValidationScenarioResult>;
+  scenarios?: ScenarioFn[];
   /** If set, write the report JSON to this path. Creates parent directories. */
   outputPath?: string;
 }
@@ -142,6 +147,8 @@ function failResult(
 
 // ── Per-engine state reset (must run before every scenario) ─────────────
 function resetAllState(): void {
+  CAMReasoningChainEngine.clearChains();
+  CAMReasoningChainEngine.resetOrchestrator();
   CAMConfidenceCalibrationEngine.clearOutcomes();
   CAMFeedbackLoopEngine.clearAll();
   CAMTransferLearningEngine.clearAll();
@@ -615,6 +622,65 @@ function scenarioCalibrationInvalidConfidence(): ValidationScenarioResult {
   );
 }
 
+async function scenarioReasoningChainDecideRoundTrip(): Promise<ValidationScenarioResult> {
+  const t0 = Date.now();
+  resetAllState();
+  // Inject a deterministic orchestrator so decide() returns a known result
+  // (the real CAMDeepLearningOrchestratorEngine with all sources disabled
+  // returns confidence=0/escalate=true; that path is also valid but a
+  // tighter scenario uses an injected adapter for full coverage).
+  CAMReasoningChainEngine.setOrchestrator({
+    async decide<V>(task) {
+      return {
+        task,
+        value: { strategy: "trochoidal" } as V,
+        confidence: 0.42,
+        escalateToHuman: false,
+        rationale: "validation orchestrator stub",
+        voices: [],
+        totalLatencyMs: 0,
+        agreeingSources: [],
+        dissentingSources: [],
+      };
+    },
+  });
+  const result = await CAMReasoningChainEngine.decide<{ strategy: string }>(
+    TASK,
+    "validation_chain_1: hypermill thin-wall finishing strategy",
+  );
+  // decide returns { decision, chain } — chainId lives on chain.
+  const chainId = result.chain.chainId;
+  const fetched = CAMReasoningChainEngine.getChain(chainId);
+  const expected = {
+    chainId_present: true,
+    confidence: 0.42,
+    chain_round_trips: true,
+  };
+  const actual = {
+    chainId_present: typeof chainId === "string" && chainId.length > 0,
+    confidence: result.decision.confidence,
+    chain_round_trips: fetched?.chainId === chainId,
+  };
+  const dur = Date.now() - t0;
+  if (
+    actual.chainId_present &&
+    actual.confidence === 0.42 &&
+    actual.chain_round_trips
+  ) {
+    return passResult(
+      "reasoning_chain_decide_round_trip",
+      "CAMReasoningChainEngine.decide() emits chainId; getChain() retrieves the same chain",
+      "calibration", expected, actual, dur,
+    );
+  }
+  return failResult(
+    "reasoning_chain_decide_round_trip",
+    "CAMReasoningChainEngine.decide() emits chainId; getChain() retrieves the same chain",
+    "calibration", expected, actual, dur,
+    `expected chainId round-trip and confidence=0.42; got ${JSON.stringify(actual)}`,
+  );
+}
+
 function scenarioFeedbackStatsAfterMixedRecords(): ValidationScenarioResult {
   const t0 = Date.now();
   resetAllState();
@@ -653,9 +719,11 @@ function scenarioFeedbackStatsAfterMixedRecords(): ValidationScenarioResult {
 // ── Engine ──────────────────────────────────────────────────────────────
 
 export class CAMAIValidationEngine {
-  /** Default 15-scenario suite covering all 5 engines. */
-  static getDefaultScenarios(): Array<() => ValidationScenarioResult> {
+  /** Default 16-scenario suite covering all 5 engines. */
+  static getDefaultScenarios(): ScenarioFn[] {
     return [
+      // Reasoning chain (1) — exercises CAMReasoningChainEngine
+      scenarioReasoningChainDecideRoundTrip,
       // Serving / FSM / gate (5)
       scenarioGateRefuseBelowFloor,
       scenarioGateApplyAboveFloorCleanCanary,
@@ -688,13 +756,17 @@ export class CAMAIValidationEngine {
    * Runs the validation suite and returns a structured report.
    * If `outputPath` is provided, also writes the report JSON to disk
    * (creating parent directories as needed).
+   *
+   * Async because at least one scenario (CAMReasoningChainEngine round-trip)
+   * exercises an async API. Sync scenarios are still allowed — a sync
+   * return value is awaited as a no-op.
    */
-  static runValidation(opts: RunValidationOptions = {}): ValidationReport {
+  static async runValidation(opts: RunValidationOptions = {}): Promise<ValidationReport> {
     const scenarios = opts.scenarios ?? CAMAIValidationEngine.getDefaultScenarios();
     const results: ValidationScenarioResult[] = [];
     let matchCount = 0;
     for (const fn of scenarios) {
-      const r = fn();
+      const r = await fn();
       results.push(r);
       if (r.verdict === "pass") matchCount++;
     }
@@ -741,7 +813,8 @@ export class CAMAIValidationEngine {
       notes:
         "Behavioral-contract validation harness. Each scenario drives the live 5-engine " +
         "CAM AI pipeline against documented contract behavior (docs/cam-ai/*.md, U-CAM126). " +
-        "No mocks of engines under test. Threshold 0.95 = at least 14 of 15 scenarios must match.",
+        "No mocks of engines under test. Threshold 0.95 = match_rate must be ≥0.95 (e.g. " +
+        "16/16=1.0 PASS, 19/20=0.95 PASS, 14/15≈0.933 FAIL, 4/5=0.80 FAIL).",
       category_match_rates: categoryRates,
     };
 

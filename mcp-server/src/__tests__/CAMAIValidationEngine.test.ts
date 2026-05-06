@@ -54,7 +54,37 @@ const EXPECTED_ENGINES = [
 
 const EXPECTED_THRESHOLD = 0.95;
 const EXPECTED_SCHEMA_VERSION = "1.0.0";
-const DEFAULT_SCENARIO_COUNT = 15;
+const DEFAULT_SCENARIO_COUNT = 16;
+const DEFAULT_SUITE_PASS_COUNT = 16;       // all 16 default scenarios match
+const DEFAULT_SUITE_MATCH_RATE = 1.0;      // 16 / 16
+
+// Helper to build a single literal pass scenario without using Array.from /
+// synthetic mass-generation. Each call site must explicitly enumerate the
+// scenarios it needs.
+function makeSyntheticPassScenario(id: string): ValidationScenarioResult {
+  return {
+    id,
+    description: "synthetic pass for harness aggregation tests",
+    category: "gate",
+    verdict: "pass",
+    expected: 1,
+    actual: 1,
+    durationMs: 0,
+  };
+}
+
+function makeSyntheticFailScenario(id: string): ValidationScenarioResult {
+  return {
+    id,
+    description: "synthetic fail for harness aggregation tests",
+    category: "lora",
+    verdict: "fail",
+    expected: 1,
+    actual: 0,
+    durationMs: 0,
+    reason: "synthetic fail",
+  };
+}
 
 describe("CAMAIValidationEngine — production-readiness validation harness", () => {
   beforeEach(() => {
@@ -74,23 +104,21 @@ describe("CAMAIValidationEngine — production-readiness validation harness", ()
     expect(CAMAIValidationEngine.getThreshold()).toBe(EXPECTED_THRESHOLD);
   });
 
-  it("getDefaultScenarios ships exactly 15 scenarios", () => {
+  it("getDefaultScenarios ships exactly 16 scenarios", () => {
     const defaults = CAMAIValidationEngine.getDefaultScenarios();
     expect(defaults.length).toBe(DEFAULT_SCENARIO_COUNT);
   });
 
-  it("runValidation against default suite produces match_rate ≥ 0.95 (PASS verdict)", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("runValidation against default suite produces match_rate=1.0 (16/16) PASS verdict", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     expect(report.scenario_count).toBe(DEFAULT_SCENARIO_COUNT);
-    expect(report.match_rate).toBeGreaterThanOrEqual(EXPECTED_THRESHOLD);
+    expect(report.match_count).toBe(DEFAULT_SUITE_PASS_COUNT);
+    expect(report.match_rate).toBe(DEFAULT_SUITE_MATCH_RATE);
     expect(report.verdict).toBe("PASS");
-    expect(report.match_count).toBeGreaterThanOrEqual(
-      Math.ceil(EXPECTED_THRESHOLD * DEFAULT_SCENARIO_COUNT),
-    );
   });
 
-  it("report shape — schemaVersion, unitId, threshold, generatedAt are exactly the documented values", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("report shape — schemaVersion, unitId, threshold, generatedAt are exactly the documented values", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     expect(report.schemaVersion).toBe(EXPECTED_SCHEMA_VERSION);
     expect(report.unitId).toBe("U-CAM127");
     expect(report.threshold).toBe(EXPECTED_THRESHOLD);
@@ -98,126 +126,103 @@ describe("CAMAIValidationEngine — production-readiness validation harness", ()
     expect(Number.isFinite(Date.parse(report.generatedAt))).toBe(true);
   });
 
-  it("engines_tested lists exactly the five U-CAM117..122 engines in canonical order", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("engines_tested lists exactly the five U-CAM117..122 engines in canonical order", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     expect(report.engines_tested).toEqual(EXPECTED_ENGINES);
   });
 
-  it("category_match_rates totals reconcile with scenario_count", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("category_match_rates totals reconcile exactly with scenario_count", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     let aggregateTotal = 0;
     let aggregatePassed = 0;
     for (const cat of Object.keys(report.category_match_rates) as ScenarioCategory[]) {
       const bucket = report.category_match_rates[cat];
       aggregateTotal += bucket.total;
       aggregatePassed += bucket.passed;
-      // Each bucket's rate is its own passed/total (or 0 if empty).
       const expectedRate = bucket.total === 0 ? 0 : bucket.passed / bucket.total;
-      expect(bucket.rate).toBeCloseTo(expectedRate, 10);
+      expect(bucket.rate).toBe(expectedRate);
     }
     expect(aggregateTotal).toBe(report.scenario_count);
     expect(aggregatePassed).toBe(report.match_count);
   });
 
-  it("per-scenario duration is a finite non-negative number", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("every scenario in the default suite reports a finite non-negative duration", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     for (const r of report.scenarios) {
       expect(Number.isFinite(r.durationMs)).toBe(true);
-      expect(r.durationMs).toBeGreaterThanOrEqual(0);
+      // Lower bound is exact 0 (instantaneous scenarios are valid); only
+      // upper bound is the test-suite wall-clock budget.
+      expect(r.durationMs >= 0).toBe(true);
     }
   });
 
-  it("scenario IDs in the default suite are all unique", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("scenario IDs in the default suite are all unique (size matches count)", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     const ids = report.scenarios.map((s) => s.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
+    expect(unique.size).toBe(DEFAULT_SCENARIO_COUNT);
   });
 
-  it("every scenario in the default suite produces a verdict (no missing field)", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("every scenario in the default suite has populated id/description and verdict in {pass,fail}", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     for (const r of report.scenarios) {
       expect(r.verdict === "pass" || r.verdict === "fail").toBe(true);
       expect(typeof r.id).toBe("string");
-      expect(r.id.length).toBeGreaterThan(0);
+      expect(r.id.length > 0).toBe(true);
       expect(typeof r.description).toBe("string");
-      expect(r.description.length).toBeGreaterThan(0);
+      expect(r.description.length > 0).toBe(true);
     }
   });
 
-  it("custom scenarios option overrides the default suite", () => {
-    const custom: Array<() => ValidationScenarioResult> = [
-      () => ({
-        id: "custom_pass",
-        description: "always passes",
-        category: "gate",
-        verdict: "pass",
-        expected: { ok: true },
-        actual: { ok: true },
-        durationMs: 0,
-      }),
-      () => ({
-        id: "custom_pass_2",
-        description: "also passes",
-        category: "lora",
-        verdict: "pass",
-        expected: 1,
-        actual: 1,
-        durationMs: 0,
-      }),
+  it("custom scenarios option overrides the default suite", async () => {
+    const custom = [
+      () => makeSyntheticPassScenario("custom_pass_1"),
+      () => makeSyntheticPassScenario("custom_pass_2"),
     ];
-    const report = CAMAIValidationEngine.runValidation({ scenarios: custom });
+    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
     expect(report.scenario_count).toBe(2);
     expect(report.match_count).toBe(2);
     expect(report.match_rate).toBe(1);
     expect(report.verdict).toBe("PASS");
-    expect(report.scenarios[0].id).toBe("custom_pass");
+    expect(report.scenarios[0].id).toBe("custom_pass_1");
     expect(report.scenarios[1].id).toBe("custom_pass_2");
   });
 
-  it("FAIL verdict emerges when match_rate falls below threshold", () => {
-    // 4 pass + 1 fail = 0.80 < 0.95 threshold
-    const custom: Array<() => ValidationScenarioResult> = [
-      ...Array.from({ length: 4 }, (_, i) => () => ({
-        id: `pass_${i}`,
-        description: "pass",
-        category: "gate" as ScenarioCategory,
-        verdict: "pass" as const,
-        expected: 1,
-        actual: 1,
-        durationMs: 0,
-      })),
-      () => ({
-        id: "fail_1",
-        description: "fail",
-        category: "lora" as ScenarioCategory,
-        verdict: "fail" as const,
-        expected: 1,
-        actual: 0,
-        durationMs: 0,
-        reason: "synthetic failure",
-      }),
-    ];
-    const report = CAMAIValidationEngine.runValidation({ scenarios: custom });
-    expect(report.match_rate).toBeCloseTo(0.8, 10);
-    expect(report.match_count).toBe(4);
-    expect(report.scenario_count).toBe(5);
+  it("FAIL verdict — match_rate=0.0 (1 fail / 1 total)", async () => {
+    const custom = [() => makeSyntheticFailScenario("only_fail")];
+    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
+    expect(report.match_rate).toBe(0);
+    expect(report.match_count).toBe(0);
+    expect(report.scenario_count).toBe(1);
     expect(report.verdict).toBe("FAIL");
   });
 
-  it("empty scenarios array → match_rate=0, verdict=FAIL (defends against silent no-op pass)", () => {
-    const report = CAMAIValidationEngine.runValidation({ scenarios: [] });
+  it("FAIL verdict — match_rate=0.5 (1 pass / 1 fail) below 0.95 threshold", async () => {
+    const custom = [
+      () => makeSyntheticPassScenario("p1"),
+      () => makeSyntheticFailScenario("f1"),
+    ];
+    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
+    expect(report.match_rate).toBe(0.5);
+    expect(report.match_count).toBe(1);
+    expect(report.scenario_count).toBe(2);
+    expect(report.verdict).toBe("FAIL");
+  });
+
+  it("empty scenarios array → match_rate=0, verdict=FAIL (defends against silent no-op pass)", async () => {
+    const report = await CAMAIValidationEngine.runValidation({ scenarios: [] });
     expect(report.scenario_count).toBe(0);
     expect(report.match_count).toBe(0);
     expect(report.match_rate).toBe(0);
     expect(report.verdict).toBe("FAIL");
   });
 
-  it("outputPath option writes a JSON file that round-trips to an equivalent report", () => {
+  it("outputPath option writes a JSON file that round-trips to an equivalent report", async () => {
     const tmpRoot = mkdtempSync(join(tmpdir(), "prism-cam-val-"));
     const outPath = join(tmpRoot, "validation-report.json");
     try {
-      const report = CAMAIValidationEngine.runValidation({ outputPath: outPath });
+      const report = await CAMAIValidationEngine.runValidation({ outputPath: outPath });
       expect(existsSync(outPath)).toBe(true);
       const onDisk = JSON.parse(readFileSync(outPath, "utf8")) as ValidationReport;
       expect(onDisk.schemaVersion).toBe(report.schemaVersion);
@@ -232,17 +237,12 @@ describe("CAMAIValidationEngine — production-readiness validation harness", ()
     }
   });
 
-  it("outputPath creates parent directories if missing", () => {
+  it("outputPath creates parent directories if missing", async () => {
     const tmpRoot = mkdtempSync(join(tmpdir(), "prism-cam-val-mk-"));
     const nestedPath = join(tmpRoot, "deep", "nested", "report.json");
     try {
-      CAMAIValidationEngine.runValidation({
-        scenarios: [
-          () => ({
-            id: "tiny", description: "tiny", category: "gate",
-            verdict: "pass", expected: 1, actual: 1, durationMs: 0,
-          }),
-        ],
+      await CAMAIValidationEngine.runValidation({
+        scenarios: [() => makeSyntheticPassScenario("tiny")],
         outputPath: nestedPath,
       });
       expect(existsSync(nestedPath)).toBe(true);
@@ -277,7 +277,8 @@ describe("CAMAIValidationEngine — production-readiness validation harness", ()
     expect(out.report.unitId).toBe("U-CAM127");
     expect(out.report.schemaVersion).toBe(EXPECTED_SCHEMA_VERSION);
     expect(out.report.scenario_count).toBe(DEFAULT_SCENARIO_COUNT);
-    expect(out.report.match_rate).toBeGreaterThanOrEqual(EXPECTED_THRESHOLD);
+    expect(out.report.match_count).toBe(DEFAULT_SUITE_PASS_COUNT);
+    expect(out.report.match_rate).toBe(DEFAULT_SUITE_MATCH_RATE);
     expect(out.report.verdict).toBe("PASS");
     expect(out.report.engines_tested).toEqual(EXPECTED_ENGINES);
   });
@@ -316,71 +317,65 @@ describe("CAMAIValidationEngine — production-readiness validation harness", ()
     }
   });
 
-  it("threshold boundary — exactly 14/15 matches counts as PASS (≥ not >)", () => {
-    const custom: Array<() => ValidationScenarioResult> = [
-      ...Array.from({ length: 14 }, (_, i) => () => ({
-        id: `b_pass_${i}`,
-        description: "pass",
-        category: "gate" as ScenarioCategory,
-        verdict: "pass" as const,
-        expected: 1,
-        actual: 1,
-        durationMs: 0,
-      })),
-      () => ({
-        id: "b_fail",
-        description: "fail",
-        category: "lora" as ScenarioCategory,
-        verdict: "fail" as const,
-        expected: 1,
-        actual: 0,
-        durationMs: 0,
-        reason: "synthetic boundary failure",
-      }),
+  it("threshold boundary — 4/5 = 0.80 is below 0.95 (FAIL)", async () => {
+    // 4 explicit pass scenarios + 1 fail. Each enumerated literally.
+    const custom = [
+      () => makeSyntheticPassScenario("b1_p1"),
+      () => makeSyntheticPassScenario("b1_p2"),
+      () => makeSyntheticPassScenario("b1_p3"),
+      () => makeSyntheticPassScenario("b1_p4"),
+      () => makeSyntheticFailScenario("b1_f1"),
     ];
-    const report = CAMAIValidationEngine.runValidation({ scenarios: custom });
-    // 14/15 = 0.9333...  which is BELOW 0.95 threshold → FAIL
-    expect(report.match_rate).toBeLessThan(EXPECTED_THRESHOLD);
+    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
+    expect(report.match_count).toBe(4);
+    expect(report.scenario_count).toBe(5);
+    expect(report.match_rate).toBe(0.8);
     expect(report.verdict).toBe("FAIL");
   });
 
-  it("threshold boundary — 19/20 matches counts as PASS (0.95 exactly)", () => {
-    const custom: Array<() => ValidationScenarioResult> = [
-      ...Array.from({ length: 19 }, (_, i) => () => ({
-        id: `e_pass_${i}`,
-        description: "pass",
-        category: "gate" as ScenarioCategory,
-        verdict: "pass" as const,
-        expected: 1,
-        actual: 1,
-        durationMs: 0,
-      })),
-      () => ({
-        id: "e_fail",
-        description: "fail",
-        category: "lora" as ScenarioCategory,
-        verdict: "fail" as const,
-        expected: 1,
-        actual: 0,
-        durationMs: 0,
-      }),
+  it("threshold boundary — 19/20 = 0.95 exactly is PASS (≥ not >)", async () => {
+    // 19 explicit pass scenarios + 1 fail. Each enumerated literally so a
+    // future edit that mass-generates scenarios doesn't slip past review.
+    const custom = [
+      () => makeSyntheticPassScenario("b2_p01"),
+      () => makeSyntheticPassScenario("b2_p02"),
+      () => makeSyntheticPassScenario("b2_p03"),
+      () => makeSyntheticPassScenario("b2_p04"),
+      () => makeSyntheticPassScenario("b2_p05"),
+      () => makeSyntheticPassScenario("b2_p06"),
+      () => makeSyntheticPassScenario("b2_p07"),
+      () => makeSyntheticPassScenario("b2_p08"),
+      () => makeSyntheticPassScenario("b2_p09"),
+      () => makeSyntheticPassScenario("b2_p10"),
+      () => makeSyntheticPassScenario("b2_p11"),
+      () => makeSyntheticPassScenario("b2_p12"),
+      () => makeSyntheticPassScenario("b2_p13"),
+      () => makeSyntheticPassScenario("b2_p14"),
+      () => makeSyntheticPassScenario("b2_p15"),
+      () => makeSyntheticPassScenario("b2_p16"),
+      () => makeSyntheticPassScenario("b2_p17"),
+      () => makeSyntheticPassScenario("b2_p18"),
+      () => makeSyntheticPassScenario("b2_p19"),
+      () => makeSyntheticFailScenario("b2_f1"),
     ];
-    const report = CAMAIValidationEngine.runValidation({ scenarios: custom });
+    const report = await CAMAIValidationEngine.runValidation({ scenarios: custom });
+    expect(report.match_count).toBe(19);
+    expect(report.scenario_count).toBe(20);
     expect(report.match_rate).toBe(EXPECTED_THRESHOLD); // exactly 0.95
     expect(report.verdict).toBe("PASS");
   });
 
-  it("scenario categories cover all 5 declared categories used by the default suite", () => {
-    const report = CAMAIValidationEngine.runValidation();
+  it("scenario categories — every default-suite scenario lands in exactly one of the 6 active categories", async () => {
+    const report = await CAMAIValidationEngine.runValidation();
     const categoriesSeen = new Set(report.scenarios.map((s) => s.category));
-    // The default suite spans gate, lora, drift, transfer, calibration,
-    // serving, feedback. At minimum we expect: gate, lora, drift, transfer,
-    // calibration, feedback (serving is folded into gate/serving categories).
     expect(categoriesSeen.has("gate")).toBe(true);
     expect(categoriesSeen.has("lora")).toBe(true);
     expect(categoriesSeen.has("drift")).toBe(true);
     expect(categoriesSeen.has("transfer")).toBe(true);
     expect(categoriesSeen.has("calibration")).toBe(true);
+    expect(categoriesSeen.has("serving")).toBe(true);
     expect(categoriesSeen.has("feedback")).toBe(true);
+    // Exact count of distinct categories used by the default suite.
+    expect(categoriesSeen.size).toBe(7);
   });
 });
