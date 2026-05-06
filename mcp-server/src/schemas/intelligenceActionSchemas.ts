@@ -507,6 +507,57 @@ const xproc_safety_escalate = z.object({
   reason: z.string().describe("Caller-provided escalation rationale"),
 }).passthrough().describe("Force a verify() result to 'review' verdict with caller-provided escalation reason. Useful for upfront ambiguity.");
 
+// XPROC-NEURAL Tier 9 (T9-01..T9-04) — Causal Inference Suite
+// Each engine has deep Zod validation internally; dispatcher schemas are passthrough gates.
+const xproc_causal_learn_dag = z.object({
+  events: z.array(z.object({}).passthrough()).min(1).describe("CrossProcessOutcomeEvent ledger rows"),
+  alpha: z.number().finite().min(0).max(1).optional().describe("CI test significance level (default 0.05)"),
+  max_cond_size: z.number().int().min(0).max(2).optional(),
+}).passthrough().describe("Run PC-stable algorithm over outcome ledger to learn causal DAG over 6 PRISM-XPROC variables.");
+const xproc_causal_test_independence = z.object({
+  events: z.array(z.object({}).passthrough()).min(1),
+  x: z.string(),
+  y: z.string(),
+  cond: z.array(z.string()).optional(),
+  alpha: z.number().finite().min(0).max(1).optional(),
+}).passthrough().describe("Test conditional independence X ⊥ Y | S directly via Fisher Z-transform on partial correlation.");
+const xproc_causal_export_graph = z.object({}).passthrough().describe("Compact JSON export shape (nodes + directed/undirected edges).");
+const xproc_do_identify = z.object({
+  dag: z.object({}).passthrough(),
+  treatment: z.string(),
+  target: z.string(),
+}).passthrough().describe("Identify back-door admissible set Z (Pearl's back-door criterion).");
+const xproc_do_intervene = z.object({
+  events: z.array(z.object({}).passthrough()).min(1),
+  dag: z.object({}).passthrough(),
+  treatment: z.string(),
+  x_value: z.number().finite(),
+  target: z.string(),
+}).passthrough().describe("Estimate E[Y | do(X = x_value)] via back-door adjustment formula.");
+const xproc_counterfactual_query = z.object({
+  events: z.array(z.object({}).passthrough()).min(1),
+  dag: z.object({}).passthrough(),
+  treatment: z.string(),
+  target: z.string(),
+  factual: z.object({ x: z.number().finite(), y: z.number().finite() }),
+  counterfactual_x: z.number().finite(),
+}).passthrough().describe("Pearl's twin-network counterfactual via 3-step abduction-action-prediction.");
+const xproc_mediation_decompose = z.object({
+  events: z.array(z.object({}).passthrough()).min(1),
+  dag: z.object({}).passthrough(),
+  treatment: z.string(),
+  mediator: z.string(),
+  outcome: z.string(),
+  x_treat: z.number().finite(),
+  x_ref: z.number().finite(),
+}).passthrough().describe("Decompose total effect into NDE + NIE via mediator (Baron-Kenny).");
+const xproc_mediation_path_strength = z.object({
+  events: z.array(z.object({}).passthrough()).min(1),
+  dag: z.object({}).passthrough(),
+  treatment: z.string(),
+  outcome: z.string(),
+}).passthrough().describe("Rank all candidate mediators by |α_X · β_M| path strength.");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -603,4 +654,13 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   xproc_symbolic_violations,
   xproc_safety_verify,
   xproc_safety_escalate,
+  // XPROC-NEURAL Tier 9 (8)
+  xproc_causal_learn_dag,
+  xproc_causal_test_independence,
+  xproc_causal_export_graph,
+  xproc_do_identify,
+  xproc_do_intervene,
+  xproc_counterfactual_query,
+  xproc_mediation_decompose,
+  xproc_mediation_path_strength,
 };
