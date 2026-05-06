@@ -208,6 +208,7 @@ const ACTIONS = [
   "cad_corpus_ingest", "cad_corpus_load_manifest", "cad_corpus_find_by_class", "cad_corpus_summarize",
   "cad_corpus_mine_patterns", "cad_corpus_recover_unclassified",
   "cad_class_template", "cad_class_predict_fidelity", "cad_class_build_sequence",
+  "cad_class_drive_build",
   "cad_corpus_learn_prevalence", "cad_corpus_apply_learned",
   "cad_step_parse_file", "cad_step_parse_string", "cad_step_evidence_for_kinds",
   "cad_blueprint_infer_class", "cad_blueprint_flag_features",
@@ -1735,6 +1736,115 @@ Params vary by action — pass relevant fields in params object.`,
             const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
             const seq = cadClassFeatureLibraryEngine.buildSequenceFor(params.part_class, params.prevalence_threshold ?? 0.5);
             result = { success: true, data: { sequence: seq, count: seq.length } };
+            break;
+          }
+          case "cad_class_drive_build": {
+            const { masterCADControlBrainEngine } = await import("../../engines/MasterCADControlBrainEngine.js");
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            const { fusion360LiveBridgeEngine } = await import("../../engines/Fusion360LiveBridgeEngine.js");
+
+            const partClass: string = params.part_class;
+            const builtKinds: string[] = Array.isArray(params.built_kinds) ? [...params.built_kinds] : [];
+            const revolutionAxis: "X" | "Y" | "Z" = params.revolution_axis ?? "Y";
+            const prevalenceThreshold: number = params.prevalence_threshold ?? 0.5;
+            const overrides: Record<string, { distance_mm?: number; radius_mm?: number; angle_deg?: number; reference_radius_mm?: number }> =
+              params.feature_overrides ?? {};
+            const dryRunOnly: boolean = params.dry_run === true;
+
+            const baseline = await masterCADControlBrainEngine.cadAITrainingSurface(
+              partClass, builtKinds, prevalenceThreshold,
+            );
+            if (!baseline.template_present) {
+              result = { success: false, error: `no template for part_class "${partClass}"`, data: baseline };
+              break;
+            }
+
+            const tmpl = cadClassFeatureLibraryEngine.templateFor(partClass as never);
+            const bridgeUp = dryRunOnly ? false : await fusion360LiveBridgeEngine.healthCheck();
+
+            const dispatched: Array<{ kind: string; build_hint: string; params: Record<string, unknown>; ok: boolean; error?: string }> = [];
+            const skipped: Array<{ kind: string; reason: string }> = [];
+
+            for (const missingKind of baseline.missing_features) {
+              const ft = tmpl?.features.find((f) => f.kind === missingKind);
+              if (!ft) {
+                skipped.push({ kind: missingKind, reason: "feature not in template (template/missing-list mismatch)" });
+                continue;
+              }
+              if (ft.prevalence < prevalenceThreshold) {
+                skipped.push({ kind: ft.kind, reason: `prevalence ${ft.prevalence} below threshold ${prevalenceThreshold}` });
+                continue;
+              }
+              const ovr = overrides[ft.kind] ?? {};
+
+              switch (ft.build_hint) {
+                case "chamfer": {
+                  const refRadius = ovr.reference_radius_mm ?? (ft.typical_size_mm ?? 1.5);
+                  const ang = ovr.angle_deg ?? (ft.typical_angle_deg ?? 8);
+                  const dist = ovr.distance_mm ?? Math.max(Math.tan(ang * Math.PI / 180) * refRadius, 0.05);
+                  const callParams = { distance_mm: dist, edge_selection: "bottom" as const, revolution_axis: revolutionAxis };
+                  if (!bridgeUp) { dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: false, error: "dry_run" }); builtKinds.push(ft.kind); break; }
+                  try {
+                    const r = await fusion360LiveBridgeEngine.chamfer(callParams);
+                    dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: r.success !== false });
+                    if (r.success !== false) builtKinds.push(ft.kind);
+                  } catch (e: unknown) {
+                    dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: false, error: e instanceof Error ? e.message : String(e) });
+                  }
+                  break;
+                }
+                case "extrudeTapered": {
+                  const refRadius = ovr.reference_radius_mm ?? (ft.typical_size_mm ?? 5);
+                  const ang = ovr.angle_deg ?? (ft.typical_angle_deg ?? 2);
+                  const dist = ovr.distance_mm ?? Math.max(Math.tan(ang * Math.PI / 180) * refRadius, 0.05);
+                  const callParams = { distance_mm: dist, edge_selection: "top" as const, revolution_axis: revolutionAxis };
+                  if (!bridgeUp) { dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: false, error: "dry_run" }); builtKinds.push(ft.kind); break; }
+                  try {
+                    const r = await fusion360LiveBridgeEngine.chamfer(callParams);
+                    dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: r.success !== false });
+                    if (r.success !== false) builtKinds.push(ft.kind);
+                  } catch (e: unknown) {
+                    dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: false, error: e instanceof Error ? e.message : String(e) });
+                  }
+                  break;
+                }
+                case "fillet": {
+                  const radius = ovr.radius_mm ?? (ft.typical_size_mm ?? 0.25);
+                  const callParams = { radius_mm: radius, edge_selection: "internal_horizontal" as const, revolution_axis: revolutionAxis };
+                  if (!bridgeUp) { dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: false, error: "dry_run" }); builtKinds.push(ft.kind); break; }
+                  try {
+                    const r = await fusion360LiveBridgeEngine.fillet(callParams);
+                    dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: r.success !== false });
+                    if (r.success !== false) builtKinds.push(ft.kind);
+                  } catch (e: unknown) {
+                    dispatched.push({ kind: ft.kind, build_hint: ft.build_hint, params: callParams, ok: false, error: e instanceof Error ? e.message : String(e) });
+                  }
+                  break;
+                }
+                default:
+                  skipped.push({ kind: ft.kind, reason: `no dispatcher mapping for build_hint "${ft.build_hint}"` });
+              }
+            }
+
+            const upgraded = await masterCADControlBrainEngine.cadAITrainingSurface(
+              partClass, builtKinds, prevalenceThreshold,
+            );
+            result = {
+              success: true,
+              data: {
+                part_class: partClass,
+                bridge_up: bridgeUp,
+                dry_run: !bridgeUp,
+                baseline_fidelity: baseline.predicted_fidelity,
+                upgraded_fidelity: upgraded.predicted_fidelity,
+                lift_pct: (upgraded.predicted_fidelity - baseline.predicted_fidelity) * 100,
+                built_features: builtKinds,
+                still_missing: upgraded.missing_features,
+                dispatched,
+                skipped,
+                visual_fidelity_notes: upgraded.visual_fidelity_notes,
+              },
+            };
             break;
           }
           case "cad_corpus_learn_prevalence": {
