@@ -37,7 +37,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocReplaySampler: any, _xprocSemanticLinker: any,
     _xprocOnlineMLP: any, _xprocDriftDetector: any,
     _xprocShiftHandler: any, _xprocEWC: any,
-    _xprocRewardShaper: any;
+    _xprocRewardShaper: any, _xprocPolicyGradient: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -79,6 +79,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocShiftHandler": return _xprocShiftHandler ??= (await import("../../engines/CrossProcessConceptShiftHandlerEngine.js")).crossProcessConceptShiftHandler;
     case "xprocEWC": return _xprocEWC ??= (await import("../../engines/CrossProcessEWCMemoryPreservationEngine.js")).crossProcessEWCMemoryPreservation;
     case "xprocRewardShaper": return _xprocRewardShaper ??= (await import("../../engines/CrossProcessRewardShaperEngine.js")).crossProcessRewardShaper;
+    case "xprocPolicyGradient": return _xprocPolicyGradient ??= (await import("../../engines/CrossProcessPolicyGradientEngine.js")).crossProcessPolicyGradient;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -294,6 +295,16 @@ const ACTIONS = [
   "xproc_reward_audit",
   "xproc_reward_default_weights",
   "xproc_reward_constants",
+  // XPROC-NEURAL Tier 4 (T4-02) — Policy Gradient (REINFORCE-with-baseline)
+  "xproc_policy_step",
+  "xproc_policy_commit",
+  "xproc_policy_select_action",
+  "xproc_policy_get_policy",
+  "xproc_policy_get_baseline",
+  "xproc_policy_configure",
+  "xproc_policy_reset",
+  "xproc_policy_stats",
+  "xproc_policy_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -821,6 +832,16 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_reward_audit: "xprocRewardShaper",
           xproc_reward_default_weights: "xprocRewardShaper",
           xproc_reward_constants: "xprocRewardShaper",
+          // XPROC-NEURAL Tier 4 (T4-02) — Policy Gradient (REINFORCE)
+          xproc_policy_step: "xprocPolicyGradient",
+          xproc_policy_commit: "xprocPolicyGradient",
+          xproc_policy_select_action: "xprocPolicyGradient",
+          xproc_policy_get_policy: "xprocPolicyGradient",
+          xproc_policy_get_baseline: "xprocPolicyGradient",
+          xproc_policy_configure: "xprocPolicyGradient",
+          xproc_policy_reset: "xprocPolicyGradient",
+          xproc_policy_stats: "xprocPolicyGradient",
+          xproc_policy_constants: "xprocPolicyGradient",
         };
 
         const engineName = CORE_ROUTING[action];
