@@ -28,7 +28,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
     _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
-    _autonomousOrchestration: any;
+    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -47,6 +47,7 @@ async function getEngine(name: string): Promise<any> {
     case "aiFeatureRegistry":    return _aiFeatureRegistry ??= (await import("../../engines/AIFeatureAutoRegistryEngine.js")).aiFeatureRegistryDispatch;
     case "aiSystemRouter":       return _aiSystemRouter ??= (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterDispatch;
     case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
+    case "xprocSymbolicEnforcer": return _xprocSymbolicEnforcer ??= (await import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js")).crossProcessSymbolicEnforcer;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -179,6 +180,9 @@ const ACTIONS = [
   "ai_orchestration_history",
   "ai_orchestration_stats",
   "ai_orchestration_summary",
+  // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+  "xproc_symbolic_project",
+  "xproc_symbolic_violations",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -634,6 +638,9 @@ export function registerIntelligenceDispatcher(server: any): void {
           ai_query_catalogs: "autonomousOrchestration", ai_generate_gsd: "autonomousOrchestration",
           ai_orchestration_history: "autonomousOrchestration", ai_orchestration_stats: "autonomousOrchestration",
           ai_orchestration_summary: "autonomousOrchestration",
+          // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+          xproc_symbolic_project: "xprocSymbolicEnforcer",
+          xproc_symbolic_violations: "xprocSymbolicEnforcer",
         };
 
         const engineName = CORE_ROUTING[action];

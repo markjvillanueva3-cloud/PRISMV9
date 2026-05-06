@@ -476,6 +476,19 @@ const ai_orchestration_history = z.object({}).passthrough().describe("Get orches
 const ai_orchestration_stats = z.object({}).passthrough().describe("Get orchestration learning statistics");
 const ai_orchestration_summary = z.object({}).passthrough().describe("Get orchestration engine summary");
 
+// XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+// Engine has its own deep Zod validation (ProjectionInputSchema in
+// CrossProcessSymbolicConstraintEnforcerEngine.ts), so this dispatcher-level
+// schema is a passthrough gate.
+const xproc_symbolic_project = z.object({
+  prediction: z.object({}).passthrough().describe("Cutting-condition prediction (vc_m_min, fz_mm_tooth, ap_mm, rpm — all optional)"),
+  state: z.object({}).passthrough().describe("Material/tool/machine/operation state for envelope checks"),
+}).passthrough().describe("Project a cutting-condition prediction onto the physics-feasible region (Kienzle/Taylor/spindle/rapid envelopes). Returns nearest-feasible point + violations.");
+const xproc_symbolic_violations = z.object({
+  prediction: z.object({}).passthrough().describe("Cutting-condition prediction"),
+  state: z.object({}).passthrough().describe("Material/tool/machine/operation state"),
+}).passthrough().describe("Return only the constraint violations for a prediction without projecting (audit-only).");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
@@ -567,4 +580,7 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   ai_orchestration_history,
   ai_orchestration_stats,
   ai_orchestration_summary,
+  // XPROC-NEURAL Tier 8 (2)
+  xproc_symbolic_project,
+  xproc_symbolic_violations,
 };
