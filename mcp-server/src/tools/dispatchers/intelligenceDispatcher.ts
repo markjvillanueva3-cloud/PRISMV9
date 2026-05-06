@@ -36,7 +36,8 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
     _xprocReplaySampler: any, _xprocSemanticLinker: any,
     _xprocOnlineMLP: any, _xprocDriftDetector: any,
-    _xprocShiftHandler: any, _xprocEWC: any;
+    _xprocShiftHandler: any, _xprocEWC: any,
+    _xprocRewardShaper: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -77,6 +78,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocDriftDetector": return _xprocDriftDetector ??= (await import("../../engines/CrossProcessDriftDetectorEngine.js")).crossProcessDriftDetector;
     case "xprocShiftHandler": return _xprocShiftHandler ??= (await import("../../engines/CrossProcessConceptShiftHandlerEngine.js")).crossProcessConceptShiftHandler;
     case "xprocEWC": return _xprocEWC ??= (await import("../../engines/CrossProcessEWCMemoryPreservationEngine.js")).crossProcessEWCMemoryPreservation;
+    case "xprocRewardShaper": return _xprocRewardShaper ??= (await import("../../engines/CrossProcessRewardShaperEngine.js")).crossProcessRewardShaper;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -287,6 +289,11 @@ const ACTIONS = [
   "xproc_ewc_get_fisher",
   "xproc_ewc_reset",
   "xproc_ewc_constants",
+  // XPROC-NEURAL Tier 4 (T4-01) — Reward Shaper (RL gradient signal)
+  "xproc_reward_shape",
+  "xproc_reward_audit",
+  "xproc_reward_default_weights",
+  "xproc_reward_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -809,6 +816,11 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_ewc_get_fisher: "xprocEWC",
           xproc_ewc_reset: "xprocEWC",
           xproc_ewc_constants: "xprocEWC",
+          // XPROC-NEURAL Tier 4 (T4-01) — Reward Shaper
+          xproc_reward_shape: "xprocRewardShaper",
+          xproc_reward_audit: "xprocRewardShaper",
+          xproc_reward_default_weights: "xprocRewardShaper",
+          xproc_reward_constants: "xprocRewardShaper",
         };
 
         const engineName = CORE_ROUTING[action];
