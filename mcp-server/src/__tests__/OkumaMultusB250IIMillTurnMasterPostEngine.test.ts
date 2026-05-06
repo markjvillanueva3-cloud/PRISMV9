@@ -33,6 +33,12 @@ import {
   CANONICAL_FORKID,
   CANONICAL_REVISION_TAG,
   CANONICAL_MINIMUM_RUNTIME_REVISION,
+  CANONICAL_DESCRIPTION,
+  CANONICAL_VENDOR,
+  CANONICAL_EXTENSION,
+  CANONICAL_PROGRAM_NAME_IS_INTEGER,
+  CANONICAL_PROPERTY_GROUPS,
+  CANONICAL_PROPERTY_COUNT_BASELINE,
   PRISM_INTELLIGENCE_FLAGS,
 } from "../engines/OkumaMultusB250IIMillTurnMasterPostEngine.js";
 
@@ -109,6 +115,32 @@ describe("OkumaMultusB250IIMillTurnMasterPostEngine — pinned constants", () =>
     // No flag should appear twice
     const unique = new Set(PRISM_INTELLIGENCE_FLAGS);
     expect(unique.size).toBe(PRISM_INTELLIGENCE_FLAGS.length);
+  });
+
+  it("post-audit constants pin the .cps line-2 description, vendor, extension and programNameIsInteger fields", () => {
+    expect(CANONICAL_DESCRIPTION).toBe("Okuma Multus B250IIW Ultra Enhanced");
+    expect(CANONICAL_VENDOR).toBe("OKUMA");
+    expect(CANONICAL_EXTENSION).toBe("min");
+    expect(CANONICAL_PROGRAM_NAME_IS_INTEGER).toBe(false);
+  });
+
+  it("CANONICAL_PROPERTY_GROUPS lists the 13 .cps property groups in declaration order", () => {
+    expect(CANONICAL_PROPERTY_GROUPS).toHaveLength(13);
+    // Spot-check that the OSP-P300SA + PRISM enhancement groups are present —
+    // these are the audit-confirmed group labels the operator dashboard relies on.
+    expect(CANONICAL_PROPERTY_GROUPS).toContain("ospP300SA");
+    expect(CANONICAL_PROPERTY_GROUPS).toContain("prismEnhancements");
+    expect(CANONICAL_PROPERTY_GROUPS).toContain("spindle2Offset");
+    expect(CANONICAL_PROPERTY_GROUPS).toContain("cycleTimeAdvanced");
+    expect(CANONICAL_PROPERTY_GROUPS).toContain("fileSize");
+    // Configuration is always first; fileSize is always last (operator
+    // dashboard renders bottom-up significance).
+    expect(CANONICAL_PROPERTY_GROUPS[0]).toBe("configuration");
+    expect(CANONICAL_PROPERTY_GROUPS[CANONICAL_PROPERTY_GROUPS.length - 1]).toBe("fileSize");
+  });
+
+  it("CANONICAL_PROPERTY_COUNT_BASELINE matches the audited v5.2.7 declaration count", () => {
+    expect(CANONICAL_PROPERTY_COUNT_BASELINE).toBe(88);
   });
 });
 
@@ -215,6 +247,39 @@ describe("OkumaMultusB250IIMillTurnMasterPostEngine.validateCanonical", () => {
     const result = OkumaMultusB250IIMillTurnMasterPostEngine.validateCanonical(meta);
     expect(result.ok).toBe(false);
     expect(result.warnings.some((w) => w.includes("CAPABILITY_MILLING"))).toBe(true);
+  });
+
+  it("flags description swap (someone substituted an unrelated Okuma post)", () => {
+    // U-PPGMU02-FOLLOWUP: an unrelated Okuma post (e.g. a Multus U3000 or
+    // an LB250II-M) would have a different description while still passing
+    // the vendor=OKUMA check. The description constant catches that.
+    const drifted = CPS_FIXTURE.replace(
+      'description = "Okuma Multus B250IIW Ultra Enhanced";',
+      'description = "Okuma Multus U3000W";',
+    );
+    const meta = OkumaMultusB250IIMillTurnMasterPostEngine.parseMetadata(drifted);
+    const result = OkumaMultusB250IIMillTurnMasterPostEngine.validateCanonical(meta);
+    expect(result.ok).toBe(false);
+    expect(result.warnings.some((w) => w.includes("description"))).toBe(true);
+  });
+
+  it("flags extension drift (Mastercam emitting Fanuc .NC instead of Okuma .min)", () => {
+    const drifted = CPS_FIXTURE.replace('extension = "min";', 'extension = "nc";');
+    const meta = OkumaMultusB250IIMillTurnMasterPostEngine.parseMetadata(drifted);
+    const result = OkumaMultusB250IIMillTurnMasterPostEngine.validateCanonical(meta);
+    expect(result.ok).toBe(false);
+    expect(result.warnings.some((w) => w.includes("extension"))).toBe(true);
+  });
+
+  it("flags programNameIsInteger drift (Fanuc-style integer-only names)", () => {
+    const drifted = CPS_FIXTURE.replace(
+      "programNameIsInteger = false;",
+      "programNameIsInteger = true;",
+    );
+    const meta = OkumaMultusB250IIMillTurnMasterPostEngine.parseMetadata(drifted);
+    const result = OkumaMultusB250IIMillTurnMasterPostEngine.validateCanonical(meta);
+    expect(result.ok).toBe(false);
+    expect(result.warnings.some((w) => w.includes("programNameIsInteger"))).toBe(true);
   });
 });
 

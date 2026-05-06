@@ -1,13 +1,52 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Last updated:** 2026-05-05 ~20:00 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
+**Last updated:** 2026-05-05 ~21:00 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
 
 ---
 
-## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 + U-PPGMU02 LANDED ON work/ppgh05
+## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 + U-PPGMU02 + U-PPGMU03 LANDED ON work/ppgh05
+
+### U-PPGMU03 — Multi-agent research & accuracy refinement (NEW)
+
+**SHIPPED:** `[CAM-EXHAUST-MS0]/U-PPGMU03: OkumaMultus engine accuracy refinement (multi-agent audit findings)`
+
+**Research methodology:** 10 parallel research agents + Codex CLI (gpt-5.3-codex, web-search-augmented) launched to validate the U-PPGMU01 facade against the canonical .cps post, the OSP-P300SA controller dialect, JM Die's tribal emission patterns, and PRISM's internal documentation. 6/10 Claude agents returned rich content; Gemini Pro 3 failed (free-tier `limit:0` on the API key — billing not enabled); Codex ran ~30 web searches against okuma.com but didn't synthesize within 180s (workable, just incomplete). Findings saved to `state/shared/multus-research/codex-multus-audit.txt`.
+
+**Engine refinements based on findings:**
+- 4 new pinned constants exported: `CANONICAL_DESCRIPTION` ("Okuma Multus B250IIW Ultra Enhanced"), `CANONICAL_VENDOR` ("OKUMA"), `CANONICAL_EXTENSION` ("min"), `CANONICAL_PROGRAM_NAME_IS_INTEGER` (false). All four match the actual .cps line 2 / 210 / 224 / 225 declarations.
+- `CANONICAL_PROPERTY_GROUPS` (13-entry tuple) + `CANONICAL_PROPERTY_COUNT_BASELINE` (88 properties at v5.2.7) added — operator dashboard / property-surface generation now has a typed group enum sourced from the actual .cps audit.
+- `validateCanonical()` extended with 3 new drift checks: description mismatch (catches "swapped to U3000W variant"), extension drift (catches "Mastercam emitting Fanuc .NC"), programNameIsInteger drift (catches Fanuc-style integer-only names). Vendor check now uses the constant instead of inline literal.
+
+**Tests** (`OkumaMultusB250IIMillTurnMasterPostEngine.test.ts`, 21/21 GREEN + 1 skipped — was 15/15 + 1 skipped):
+- 4 new pinned-constant assertions (description/vendor/extension/programNameIsInteger)
+- 1 new property-groups assertion (13 entries, ordering, key membership)
+- 1 new property-count-baseline assertion (88)
+- 3 new drift detection tests (description swap, extension swap, programNameIsInteger swap)
+
+Regression sweep: 199/199 GREEN across HurcoV11 + OkumaOSP + Mitsubishi + sealMasterPostOutput. Dispatcher round-trip: 16/16 unchanged.
+
+### What the research told us about emission (queued for U-PPGMU04+)
+
+Agent 2 deep-read the canonical .cps and surfaced 10 emission patterns the next units will need to validate:
+- **G140 / G141** for spindle select (main vs sub) — modal via `gSelectSpindleModal`
+- **TD=R#** turret position encoding — B0→R1/2, B45→R3/4, B90→R5/6 (main); 7-12 (sub)
+- **BA=** for non-standard B-angles + optional `G52` shift for tilted-plane work
+- **G20 HP=1** safe retract (v5.2.5 fix) before B-axis change to avoid ALARM-D
+- **getPolarFeed scaling** — `scaleFactor = referenceRadius / radius` capped at `polarFeedMaxScale` (default 3.0)
+- **G101** for polar interpolation with C-axis active
+- **G17/G18/G19** plane select — XY for face mill, ZX for ID/OD turning, YZ for cross drilling
+- **M151 / M150** sub-spindle sync on/off + **M249/M250** chuck clamp/unclamp
+- **M11 / M10 + G8** C-axis engage / disengage (modal)
+- **VOESSION[1]/[3] = 0** at program close to clear Spindle 2 offsets
+
+Agent 4 documented JM Die tribal patterns (8 production programs sampled): `TD=<offset> M323` (NOT `T<n>M06`), G97-before-S-M3 ordering, G97→G96 mid-cycle for finishing, the Mark grab-pull-cutoff sequence (`M41/M151/M249/M84/G1 W-/M248/M84/G1 W+/M150`), `VWKCC[1]` part counter loop pattern.
+
+Agent 8 confirmed v5.2.7 added 67 properties on top of REV A (2024-03-15) — all 11 PRISM intelligence flags are v5.2.7-only; FORKID is unchanged across versions (canonical lineage preserved).
+
+### U-PPGMU02 — Multus dispatcher wiring
 
 ### U-PPGMU02 — Multus dispatcher wiring (NEW)
 

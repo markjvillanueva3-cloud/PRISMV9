@@ -57,6 +57,22 @@ export const CANONICAL_POST_RELATIVE_PATH =
 export const CANONICAL_POST_FILENAME =
   "OKUMA_MULTUS_B250IIW-PRISM-Enhanced-v5_2_7.cps";
 
+/** Operator-facing description string (line 2 of the .cps `description = "..."`). */
+export const CANONICAL_DESCRIPTION = "Okuma Multus B250IIW Ultra Enhanced";
+
+/** Vendor field (line 210 of the .cps `vendor = "..."`). */
+export const CANONICAL_VENDOR = "OKUMA";
+
+/** Output file extension Mastercam writes (line 224 of the .cps `extension = "..."`). */
+export const CANONICAL_EXTENSION = "min";
+
+/**
+ * Whether program names must parse as integers (line 225 of the .cps
+ * `programNameIsInteger = ...`). The Multus post is `false` — programs may
+ * use string names like "MAINPRG.MIN".
+ */
+export const CANONICAL_PROGRAM_NAME_IS_INTEGER = false;
+
 /** Controller variant — OSP-P300S**A** is the latest specialty Multus console. */
 export const CANONICAL_CONTROLLER = "OSP-P300SA";
 
@@ -91,6 +107,45 @@ export const PRISM_INTELLIGENCE_FLAGS = [
 ] as const;
 
 export type PRISMIntelligenceFlag = (typeof PRISM_INTELLIGENCE_FLAGS)[number];
+
+/**
+ * Property `group` labels declared in the v5.2.7 .cps `properties = {...}`
+ * block (88 properties total, sourced via U-PPGMU02-FOLLOWUP audit). The
+ * operator dashboard renders properties grouped by these labels; the order
+ * here matches the .cps declaration order so the dashboard produces a
+ * consistent surface across post versions.
+ *
+ * Group counts at v5.2.7:
+ *   configuration(10) · formats(9) · homePositions(5) · preferences(20) ·
+ *   ssvControl(4) · toolChange(1) · spindle2Offset(3) · ospP300SA(9) ·
+ *   feedOptimization(11) · cycleTime(2) · prismEnhancements(15 incl. 4
+ *   non-flag knobs) · cycleTimeAdvanced(6) · fileSize(9)
+ */
+export const CANONICAL_PROPERTY_GROUPS = [
+  "configuration",
+  "formats",
+  "homePositions",
+  "preferences",
+  "ssvControl",
+  "toolChange",
+  "spindle2Offset",
+  "ospP300SA",
+  "feedOptimization",
+  "cycleTime",
+  "prismEnhancements",
+  "cycleTimeAdvanced",
+  "fileSize",
+] as const;
+
+export type CanonicalPropertyGroup = (typeof CANONICAL_PROPERTY_GROUPS)[number];
+
+/**
+ * Total property count declared in v5.2.7 (audit baseline). Used by the
+ * drift detector — if propertyCount diverges by more than 5 from this
+ * baseline, the post likely has additions/removals worth reviewing.
+ */
+export const CANONICAL_PROPERTY_COUNT_BASELINE = 88;
+export const CANONICAL_PROPERTY_COUNT_TOLERANCE = 5;
 
 // ============================================================================
 // PUBLIC TYPES
@@ -253,6 +308,11 @@ export class OkumaMultusB250IIMillTurnMasterPostEngine {
    * swapped in an unrelated .cps, or downgraded the version, or stripped
    * PRISM flags). Returns warnings rather than throwing so callers can
    * decide how to respond per safety tier.
+   *
+   * Multi-agent research (U-PPGMU02-FOLLOWUP) expanded the canonical contract
+   * to also cover description / extension / programNameIsInteger — the gap
+   * audit confirmed all three are stable identity fields the .cps declares
+   * and an unrelated post would not match.
    */
   static validateCanonical(meta: MultusPostMetadata): {
     ok: boolean;
@@ -260,8 +320,13 @@ export class OkumaMultusB250IIMillTurnMasterPostEngine {
   } {
     const warnings: string[] = [];
 
-    if (meta.vendor !== "OKUMA") {
-      warnings.push(`Expected vendor=OKUMA, got "${meta.vendor}"`);
+    if (meta.vendor !== CANONICAL_VENDOR) {
+      warnings.push(`Expected vendor=${CANONICAL_VENDOR}, got "${meta.vendor}"`);
+    }
+    if (meta.description !== CANONICAL_DESCRIPTION) {
+      warnings.push(
+        `Expected description="${CANONICAL_DESCRIPTION}", got "${meta.description}" — likely an unrelated Okuma post or a stale build`,
+      );
     }
     if (meta.forkid !== CANONICAL_FORKID) {
       warnings.push(`Expected FORKID=${CANONICAL_FORKID}, got "${meta.forkid}"`);
@@ -274,6 +339,16 @@ export class OkumaMultusB250IIMillTurnMasterPostEngine {
     if (meta.minimumRuntimeRevision !== CANONICAL_MINIMUM_RUNTIME_REVISION) {
       warnings.push(
         `minimumRevision drift: expected ${CANONICAL_MINIMUM_RUNTIME_REVISION}, got ${meta.minimumRuntimeRevision}`,
+      );
+    }
+    if (meta.extension !== CANONICAL_EXTENSION) {
+      warnings.push(
+        `Expected extension="${CANONICAL_EXTENSION}", got "${meta.extension}" — Okuma posts must emit .min files`,
+      );
+    }
+    if (meta.programNameIsInteger !== CANONICAL_PROGRAM_NAME_IS_INTEGER) {
+      warnings.push(
+        `Expected programNameIsInteger=${CANONICAL_PROGRAM_NAME_IS_INTEGER}, got ${meta.programNameIsInteger} — string program names are required for OSP-P300SA`,
       );
     }
     if (!meta.capabilities.includes("CAPABILITY_MILLING")) {
