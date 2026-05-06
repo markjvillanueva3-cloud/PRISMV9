@@ -99,6 +99,99 @@ export interface BlueprintVisionResult extends BlueprintAnalysis {
   processing_time_ms: number;
   /** Raw Vision API response (for debugging) */
   raw_response?: string;
+  /** Inferred part class (punch/die/shaft/bushing/plate/blisk/turbine_blade/medical_implant/...) */
+  part_class?: PartClass;
+  /** Features the part class typically carries that the OCR did not surface — flagged as expected-but-absent. */
+  expected_features?: ExpectedFeatureFlag[];
+}
+
+/** Coarse part class — used to apply feature-prior expectations.
+ *
+ * Covers tooling, turbomachinery, medical, automotive, aerospace, and structural
+ * domains. Each member has a corresponding rule set in `flagExpectedFeatures`.
+ */
+export type PartClass =
+  // Tooling
+  | "extrude_punch"
+  | "die"
+  | "shaft"
+  | "bushing"
+  | "plate"
+  // Turbomachinery
+  | "blisk"
+  | "impeller"
+  | "turbine_blade"
+  | "turbine_vane"
+  | "turbine_nozzle"
+  | "turbine_disk"
+  | "casing"
+  // Medical
+  | "medical_implant"
+  | "surgical_instrument"
+  | "bone_screw"
+  // Automotive
+  | "engine_block"
+  | "transmission_housing"
+  | "valve_body"
+  | "brake_caliper"
+  | "connecting_rod"
+  // Aerospace structural
+  | "structural_frame"
+  | "bulkhead"
+  | "bracket"
+  | "fitting"
+  | "lug"
+  | "pylon"
+  // Catch-all
+  | "general";
+
+/** A feature the inferred part class typically carries that we did NOT see in OCR. */
+export interface ExpectedFeatureFlag {
+  /** Stable identifier — kind of feature expected. */
+  kind:
+    // Tooling priors
+    | "central_oil_hole"
+    | "cross_drilled_relief_holes"
+    | "ejector_pin_hole"
+    | "lifter_groove"
+    | "vent_groove"
+    | "cooling_lines"
+    | "datum_relief"
+    | "bevel_face_chamfer"
+    // Turbomachinery priors
+    | "leading_edge_fillet"
+    | "trailing_edge_fillet"
+    | "blade_root_fillet"
+    | "balance_hole"
+    | "tip_clearance"
+    | "shroud_seal"
+    // Medical priors
+    | "polish_callout"
+    | "biocompat_note"
+    | "radiopaque_marker"
+    | "thread_chamfer"
+    | "cannulation"
+    // Automotive priors
+    | "valve_seat_angle"
+    | "valve_guide_bore"
+    | "main_bearing_bore"
+    | "deck_flatness_callout"
+    | "head_bolt_pattern"
+    // Aerospace priors
+    | "edge_distance_callout"
+    | "fatigue_finish_callout"
+    | "shot_peen_zone"
+    | "anti_fretting_coating"
+    | "bushing_press_fit"
+    | "lockwire_hole";
+  /** Why we expect it (part class + reasoning). */
+  reason: string;
+  /** Suggested nominal callout from common shop conventions, in mm. */
+  typical_size_mm?: number;
+  /** Whether the OCR found anything matching this kind (true => no flag emitted). */
+  found: boolean;
+  /** [0,1] confidence that this feature is genuinely missing vs. just unlabeled. */
+  confidence: number;
 }
 
 // ============================================================================
@@ -368,7 +461,7 @@ export class BlueprintVisionOCREngine {
       .filter(d => d.tolerance && Math.abs(d.tolerance.upper - d.tolerance.lower) < 0.05)
       .map(d => d.location_hint || d.raw_text);
 
-    return {
+    const baseResult: BlueprintVisionResult = {
       dimensions,
       gdt_frames: gdt,
       title_block: titleBlock,
@@ -388,6 +481,328 @@ export class BlueprintVisionOCREngine {
       tokens_used,
       processing_time_ms: elapsed,
     };
+
+    // Apply feature-prior post-processing: classify part, then flag features
+    // the class typically carries that the OCR did not surface. Catches "punch
+    // with no oil hole detected" early — before the print-to-program pipeline
+    // drops the feature silently.
+    baseResult.part_class = this.inferPartClass(baseResult);
+    baseResult.expected_features = this.flagExpectedFeatures(baseResult);
+    return baseResult;
+  }
+
+  // ── Part-Class Inference + Feature Priors ─────────────────────────
+
+  /**
+   * Coarse part-class classifier driven by title-block fields, drawing-number
+   * patterns, and detected geometry. Pure function of the BlueprintVisionResult —
+   * no Vision API calls.
+   */
+  inferPartClass(r: BlueprintVisionResult): PartClass {
+    const fields: string[] = [];
+    if (r.title_block.title) fields.push(r.title_block.title);
+    if (r.title_block.drawing_number) fields.push(r.title_block.drawing_number);
+    if (r.title_block.part_number) fields.push(r.title_block.part_number);
+    for (const n of r.notes) if (n.text) fields.push(n.text);
+    const blob = fields.join(" | ").toUpperCase();
+
+    // Turbomachinery (check before generic shaft)
+    if (/\bBLISK\b|BLADED\s*DISK|INTEGRAL\s*BLADED/.test(blob)) return "blisk";
+    if (/\bIMPELLER\b|COMPRESSOR\s*WHEEL|PUMP\s*WHEEL/.test(blob)) return "impeller";
+    if (/TURBINE\s*BLADE|HPT\s*BLADE|LPT\s*BLADE|FAN\s*BLADE/.test(blob)) return "turbine_blade";
+    if (/TURBINE\s*VANE|STATOR\s*VANE|NGV/.test(blob)) return "turbine_vane";
+    if (/TURBINE\s*NOZZLE|NOZZLE\s*SEGMENT|NOZZLE\s*GUIDE/.test(blob)) return "turbine_nozzle";
+    if (/TURBINE\s*DISK|ROTOR\s*DISK|HPT\s*DISK|LPT\s*DISK/.test(blob)) return "turbine_disk";
+    if (/\bCASING\b|TURBINE\s*CASING|COMPRESSOR\s*CASING|HOUSING\s*ASSY/.test(blob)) return "casing";
+
+    // Medical
+    if (/IMPLANT|HIP\s*STEM|KNEE\s*COMPONENT|DENTAL\s*ABUTMENT|SPINAL\s*CAGE|BONE\s*PLATE/.test(blob)) return "medical_implant";
+    if (/SURGICAL\s*INSTRUMENT|FORCEP|RETRACTOR|OSTEOTOME|RONGEUR/.test(blob)) return "surgical_instrument";
+    if (/BONE\s*SCREW|CORTICAL\s*SCREW|CANNULATED\s*SCREW|PEDICLE\s*SCREW/.test(blob)) return "bone_screw";
+
+    // Automotive
+    if (/ENGINE\s*BLOCK|CYLINDER\s*BLOCK|V[0-9]\s*BLOCK|I[0-9]\s*BLOCK/.test(blob)) return "engine_block";
+    if (/TRANSMISSION\s*HOUSING|TRANS\s*HOUSING|GEARBOX\s*HOUSING|BELL\s*HOUSING/.test(blob)) return "transmission_housing";
+    if (/VALVE\s*BODY|VALVE\s*COVER\s*ASSY|HYDRAULIC\s*VALVE\s*BODY/.test(blob)) return "valve_body";
+    if (/BRAKE\s*CALIPER|CALIPER\s*BODY/.test(blob)) return "brake_caliper";
+    if (/CONNECTING\s*ROD|CONROD|PISTON\s*ROD/.test(blob)) return "connecting_rod";
+
+    // Aerospace structural
+    if (/\bPYLON\b|ENGINE\s*MOUNT|NACELLE\s*MOUNT/.test(blob)) return "pylon";
+    if (/\bBULKHEAD\b|PRESSURE\s*BULKHEAD|FWD\s*BULKHEAD|AFT\s*BULKHEAD/.test(blob)) return "bulkhead";
+    if (/STRUCTURAL\s*FRAME|FUSELAGE\s*FRAME|RIB\s*ASSY|WING\s*RIB|LONGERON/.test(blob)) return "structural_frame";
+    if (/CLEVIS\s*LUG|SHEAR\s*LUG|\bLUG\b\s*(?:AT|ON|—|FOR)|ATTACH\s*LUG/.test(blob)) return "lug";
+    if (/HYDRAULIC\s*FITTING|FUEL\s*FITTING|AN\s*FITTING|MS\s*FITTING/.test(blob)) return "fitting";
+    if (/\bBRACKET\b|MOUNTING\s*BRACKET|SUPPORT\s*BRACKET/.test(blob)) return "bracket";
+
+    // Tooling
+    if (/EXTRUDE\s*PUNCH|PIERCE\s*PUNCH|FORM\s*PUNCH/.test(blob)) return "extrude_punch";
+    if (/\bDIE\b|DIE\s*PLATE|DIE\s*BLOCK/.test(blob)) return "die";
+    if (/\bSHAFT\b|SPINDLE\s*SHAFT|DRIVE\s*SHAFT/.test(blob)) return "shaft";
+    if (/BUSHING|BUSH\b/.test(blob)) return "bushing";
+    if (/\bPLATE\b/.test(blob)) return "plate";
+
+    // Geometry-based fallback: aspect ratio of bounds.
+    const b = r.part_bounds_mm;
+    if (b && b.width > 0 && b.height > 0) {
+      const aspect = Math.max(b.width, b.height) / Math.min(b.width, b.height);
+      if (aspect > 4) return "shaft";
+    }
+    return "general";
+  }
+
+  /**
+   * Returns expected-but-absent features for the inferred part class.
+   * Detection rules per class are deliberately conservative — they prefer
+   * false-positive flags (operator confirms absent) over silent misses.
+   */
+  flagExpectedFeatures(r: BlueprintVisionResult): ExpectedFeatureFlag[] {
+    const cls = r.part_class ?? this.inferPartClass(r);
+    const flags: ExpectedFeatureFlag[] = [];
+    const dimsByLocation = new Set(r.dimensions.map((d) => (d.location_hint || d.raw_text || "").toLowerCase()));
+    const allText = [
+      ...r.notes.map((n) => n.text),
+      ...r.dimensions.map((d) => d.raw_text || ""),
+      ...r.dimensions.map((d) => d.location_hint || ""),
+    ].join(" ").toLowerCase();
+
+    const has = (re: RegExp): boolean => re.test(allText);
+    const hasSmallDiameter = (maxMm: number): boolean =>
+      r.dimensions.some((d) => d.type === "diameter" && d.nominal > 0 && d.nominal <= maxMm);
+
+    // Punch / die priors
+    if (cls === "extrude_punch" || cls === "die") {
+      const oilHoleFound = has(/oil\s*hole|coolant\s*hole|through.?hole|thru\s*hole/) || hasSmallDiameter(2.0);
+      flags.push({
+        kind: "central_oil_hole",
+        reason: `${cls === "extrude_punch" ? "Extrude punches" : "Dies"} typically carry a small Ø.04–.08" central oil/lubrication hole.`,
+        typical_size_mm: 1.27,
+        found: oilHoleFound,
+        confidence: oilHoleFound ? 0.0 : 0.85,
+      });
+      const reliefFound = has(/cross.?drill|relief\s*hole|vent\s*hole/) ||
+        r.dimensions.filter((d) => d.type === "diameter" && d.nominal > 0 && d.nominal <= 2.5).length >= 2;
+      flags.push({
+        kind: "cross_drilled_relief_holes",
+        reason: `${cls === "extrude_punch" ? "Extrude punches" : "Dies"} carrying lubrication frequently have Ø.05–.10" cross-drilled relief holes.`,
+        typical_size_mm: 1.524,
+        found: reliefFound,
+        confidence: reliefFound ? 0.0 : 0.65,
+      });
+    }
+    if (cls === "die") {
+      const ejectorFound = has(/ejector|knockout|kick.?out/) || dimsByLocation.has("ejector");
+      flags.push({
+        kind: "ejector_pin_hole",
+        reason: "Dies typically have ejector pin holes for part release.",
+        found: ejectorFound,
+        confidence: ejectorFound ? 0.0 : 0.55,
+      });
+      const ventFound = has(/vent|gas\s*relief|air\s*relief/);
+      flags.push({
+        kind: "vent_groove",
+        reason: "Closed-cavity dies often need vent grooves to release trapped air during forming.",
+        found: ventFound,
+        confidence: ventFound ? 0.0 : 0.4,
+      });
+    }
+    if (cls === "shaft") {
+      const reliefFound = has(/relief|undercut|neck/);
+      flags.push({
+        kind: "datum_relief",
+        reason: "Stepped shafts almost always carry a small relief/undercut at each shoulder transition for grinding/clamping clearance.",
+        typical_size_mm: 0.5,
+        found: reliefFound,
+        confidence: reliefFound ? 0.0 : 0.55,
+      });
+      const chamferFound = has(/chamfer|×\s*\d|x\s*\d+\s*°|x\s*\d+\.\d+\s*x\s*\d+/);
+      flags.push({
+        kind: "bevel_face_chamfer",
+        reason: "Shaft ends typically carry a small chamfer (.5×45° or 1×30°) for assembly.",
+        typical_size_mm: 0.5,
+        found: chamferFound,
+        confidence: chamferFound ? 0.0 : 0.6,
+      });
+    }
+
+    // Turbomachinery priors
+    const isAirfoil = cls === "blisk" || cls === "impeller" || cls === "turbine_blade" || cls === "turbine_vane";
+    if (isAirfoil) {
+      const leFound = has(/leading\s*edge|le\s*radius|le\s*fillet/);
+      flags.push({
+        kind: "leading_edge_fillet",
+        reason: `${cls} airfoils require a controlled leading-edge radius (typ. Ø.005-.015") for aero performance + stress.`,
+        typical_size_mm: 0.25,
+        found: leFound,
+        confidence: leFound ? 0.0 : 0.85,
+      });
+      const teFound = has(/trailing\s*edge|te\s*radius|te\s*fillet/);
+      flags.push({
+        kind: "trailing_edge_fillet",
+        reason: `${cls} airfoils require a controlled trailing-edge radius (typ. Ø.003-.010") for wake + tool deflection.`,
+        typical_size_mm: 0.15,
+        found: teFound,
+        confidence: teFound ? 0.0 : 0.85,
+      });
+      const rootFound = has(/root\s*fillet|hub\s*fillet|fillet\s*at\s*root/);
+      flags.push({
+        kind: "blade_root_fillet",
+        reason: "Airfoil-to-hub junctions require a generous fillet (R.020-.050) to relieve fatigue stress at the root.",
+        typical_size_mm: 1.0,
+        found: rootFound,
+        confidence: rootFound ? 0.0 : 0.8,
+      });
+    }
+    if (cls === "blisk" || cls === "impeller" || cls === "turbine_disk") {
+      const balanceFound = has(/balance|imbalance|grams\s*ip/);
+      flags.push({
+        kind: "balance_hole",
+        reason: "Rotating turbomachinery components carry rotor-balancing material removal callouts.",
+        typical_size_mm: 3.0,
+        found: balanceFound,
+        confidence: balanceFound ? 0.0 : 0.6,
+      });
+    }
+    if (cls === "turbine_blade" || cls === "turbine_vane") {
+      const tipFound = has(/tip\s*clearance|tip\s*gap|shroud\s*clearance/);
+      flags.push({
+        kind: "tip_clearance",
+        reason: "Turbine blades/vanes have a tip-clearance callout against shroud — affects performance and grinding allowance.",
+        typical_size_mm: 0.5,
+        found: tipFound,
+        confidence: tipFound ? 0.0 : 0.55,
+      });
+    }
+
+    // Medical priors
+    if (cls === "medical_implant") {
+      const polishFound = has(/ra\s*[≤<]?\s*0?\.[0-9]|polish|mirror\s*finish|electropolish/);
+      flags.push({
+        kind: "polish_callout",
+        reason: "Medical implants require a polish callout (typ. Ra ≤ 0.4 μm) on biocontact surfaces.",
+        found: polishFound,
+        confidence: polishFound ? 0.0 : 0.85,
+      });
+      const biocompatFound = has(/iso\s*10993|biocompat|astm\s*f136|astm\s*f1537|cytotoxicity/);
+      flags.push({
+        kind: "biocompat_note",
+        reason: "Medical implants require a biocompatibility specification reference (ISO 10993, ASTM F136 for Ti-6Al-4V ELI).",
+        found: biocompatFound,
+        confidence: biocompatFound ? 0.0 : 0.9,
+      });
+    }
+    if (cls === "bone_screw") {
+      const cannFound = has(/cannulat|through\s*hole.*screw|axial\s*hole/);
+      flags.push({
+        kind: "cannulation",
+        reason: "Modern bone screws are commonly cannulated for guidewire-assisted insertion.",
+        typical_size_mm: 1.5,
+        found: cannFound,
+        confidence: cannFound ? 0.0 : 0.55,
+      });
+      const threadChamFound = has(/lead\s*chamfer|thread\s*chamfer|thread\s*lead/);
+      flags.push({
+        kind: "thread_chamfer",
+        reason: "Self-tapping bone screws require a lead chamfer at the entering threads.",
+        typical_size_mm: 0.5,
+        found: threadChamFound,
+        confidence: threadChamFound ? 0.0 : 0.7,
+      });
+    }
+    if (cls === "surgical_instrument") {
+      const polishFound = has(/ra\s*[≤<]?\s*0?\.[0-9]|polish|electropolish|passivat/);
+      flags.push({
+        kind: "polish_callout",
+        reason: "Surgical instruments require polish + passivation callouts to meet sterilization/corrosion specs.",
+        found: polishFound,
+        confidence: polishFound ? 0.0 : 0.8,
+      });
+    }
+
+    // Automotive priors
+    if (cls === "engine_block") {
+      const deckFound = has(/flatness|deck\s*surface|gasket\s*surface/);
+      flags.push({
+        kind: "deck_flatness_callout",
+        reason: "Engine block deck surfaces (head-mating face) need a flatness callout (typ. .002\" / .05mm).",
+        typical_size_mm: 0.05,
+        found: deckFound,
+        confidence: deckFound ? 0.0 : 0.85,
+      });
+      const mainBoreFound = has(/main\s*bearing|crankshaft\s*bore|main\s*journal/);
+      flags.push({
+        kind: "main_bearing_bore",
+        reason: "Engine blocks have line-bored main-bearing journals — requires concentricity + roundness callouts.",
+        found: mainBoreFound,
+        confidence: mainBoreFound ? 0.0 : 0.8,
+      });
+    }
+    if (cls === "valve_body") {
+      const seatFound = has(/seat\s*angle|valve\s*seat|45\s*°|30\s*°/);
+      flags.push({
+        kind: "valve_seat_angle",
+        reason: "Valve seats need angle callouts (typ. 30°/45° dual-angle).",
+        found: seatFound,
+        confidence: seatFound ? 0.0 : 0.85,
+      });
+      const guideFound = has(/valve\s*guide|guide\s*bore|stem\s*bore/);
+      flags.push({
+        kind: "valve_guide_bore",
+        reason: "Valve bodies have valve-guide bores with .015-.025\" tolerance to stem.",
+        typical_size_mm: 7.0,
+        found: guideFound,
+        confidence: guideFound ? 0.0 : 0.85,
+      });
+    }
+
+    // Aerospace priors
+    if (cls === "lug" || cls === "bracket" || cls === "fitting") {
+      const edgeDistFound = has(/edge\s*distance|e\/d\s*ratio|edge\s*to\s*hole/);
+      flags.push({
+        kind: "edge_distance_callout",
+        reason: "Aerospace lugs/brackets/fittings require an edge-distance callout (typ. e/D ≥ 1.5–2.0).",
+        found: edgeDistFound,
+        confidence: edgeDistFound ? 0.0 : 0.7,
+      });
+    }
+    if (cls === "lug" || cls === "bulkhead" || cls === "structural_frame") {
+      const fatigueFound = has(/fatigue|sn\s*curve|surface\s*finish.*ra|ra\s*[<≤]?\s*[0-9]/);
+      flags.push({
+        kind: "fatigue_finish_callout",
+        reason: "Fatigue-critical aerospace structural parts require a surface finish callout (Ra ≤ 1.6 μm typical).",
+        found: fatigueFound,
+        confidence: fatigueFound ? 0.0 : 0.65,
+      });
+      const peenFound = has(/shot\s*peen|laser\s*peen|peening/);
+      flags.push({
+        kind: "shot_peen_zone",
+        reason: "Fatigue-critical surfaces are commonly shot-peened (Almen .010–.016A typical).",
+        found: peenFound,
+        confidence: peenFound ? 0.0 : 0.5,
+      });
+    }
+    if (cls === "lug") {
+      const bushFound = has(/bushing|press\s*fit|interference\s*fit/);
+      flags.push({
+        kind: "bushing_press_fit",
+        reason: "Aerospace clevis/shear lugs commonly carry a pressed-in bushing for the eye bolt.",
+        found: bushFound,
+        confidence: bushFound ? 0.0 : 0.55,
+      });
+    }
+    if (cls === "fitting" || cls === "lug") {
+      const lockFound = has(/lockwire|safety\s*wire|cotter|castle\s*nut/);
+      flags.push({
+        kind: "lockwire_hole",
+        reason: "Aerospace fittings/lugs commonly require lockwire holes drilled at 90° to bolt centerlines.",
+        typical_size_mm: 1.0,
+        found: lockFound,
+        confidence: lockFound ? 0.0 : 0.45,
+      });
+    }
+
+    // Filter out found features (consumer asked for expected-but-absent).
+    return flags.filter((f) => !f.found);
   }
 
   /**
