@@ -1566,6 +1566,10 @@
           "title": "Inventory all 161 z.any() instances + classify by replacement type",
           "effort": 50,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-06T19:27:00.000Z",
+          "completed_by": "claude-iooms0-87e9bcc0",
+          "notes": "Built scripts/audit-zany.mjs with pure-function exports (classifyZAnySite, suggestReplacement, scanFileForZAny, buildInventory, stripLineCommentIndex). Classifier uses paren-balance walk over the preceding ~64 chars to decide which Zod wrapper encloses each z.any() site: z.record(...) → 'record' (suggest z.unknown()), .catchall(...) → 'object-shape', z.array(...) → 'union', else 'unknown'. Comment-stripper rejects // line-comment occurrences while leaving in-string '//' (e.g. URLs) alone. Live run on src/schemas/: 138 sites across 25 files — record=111 (80%, mechanical swap), object-shape=1, union=21, unknown=5 (all 5 require human review per their .describe() text). Top hot file operatingSystemActionSchemas.ts (20 sites) is the natural target for P8-U02. ZANY-INVENTORY.json written to mcp-server/data/state/ with schemaVersion=1, summary.byCategory counts, and per-file site arrays sorted descending by site count. 34/34 vitest cases pass. Note: spec said '161 z.any() instances' but live count is 138 — intervening P8-U02..U03 inventories already shaved some off; the inventory script is now the source of truth going forward.",
           "exit_conditions": [
             "scripts/audit-zany.mjs lists every occurrence with file:line + suggested replacement",
             "ZANY-INVENTORY.json categorizes each: object-shape | union | record | unknown"
