@@ -43,7 +43,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
-    _xprocModalityDropout: any, _xprocVisionFusion: any;
+    _xprocModalityDropout: any, _xprocVisionFusion: any, _xprocTimeSeriesFusion: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -102,6 +102,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocHyperTuner": return _xprocHyperTuner ??= (await import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js")).crossProcessHyperparameterMetaTuner;
     case "xprocModalityDropout": return _xprocModalityDropout ??= (await import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js")).crossProcessModalityDropoutRobustifier;
     case "xprocVisionFusion": return _xprocVisionFusion ??= (await import("../../engines/CrossProcessVisionTabularFusionEngine.js")).crossProcessVisionTabularFusion;
+    case "xprocTimeSeriesFusion": return _xprocTimeSeriesFusion ??= (await import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js")).crossProcessTimeSeriesTabularFusion;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -405,6 +406,10 @@ const ACTIONS = [
   "xproc_vision_fuse",
   "xproc_vision_explain_attention",
   "xproc_vision_constants",
+  // XPROC-NEURAL Tier 10 (T10-02) — TimeSeries-tabular GMU fusion + windowing
+  "xproc_timeseries_fuse",
+  "xproc_timeseries_segment",
+  "xproc_timeseries_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1020,6 +1025,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_vision_fuse: "xprocVisionFusion",
           xproc_vision_explain_attention: "xprocVisionFusion",
           xproc_vision_constants: "xprocVisionFusion",
+          // XPROC-NEURAL Tier 10 (T10-02) — TimeSeries-tabular fusion (GMU)
+          xproc_timeseries_fuse: "xprocTimeSeriesFusion",
+          xproc_timeseries_segment: "xprocTimeSeriesFusion",
+          xproc_timeseries_constants: "xprocTimeSeriesFusion",
         };
 
         const engineName = CORE_ROUTING[action];
