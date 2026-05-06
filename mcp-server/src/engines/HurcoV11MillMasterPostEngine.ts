@@ -1,21 +1,28 @@
 /**
  * HurcoV11MillMasterPostEngine — JM Die Mill Master Post Processor
  *
- * Comprehensive master post processor for JM Die's Hurco VMX24 with WinMax V11 control.
+ * Comprehensive master post processor for JM Die's Hurco **VM30i** with WinMax V11 control.
  * This is the CANONICAL mill post for PRISM — all mill post logic derives from here.
  *
- * MACHINE SPECIFICATIONS (JM Die Hurco VMX24):
- *   - Controller: WinMax V11 (conversational + NC mode)
- *   - Axes: X=24", Y=20", Z=24" (610x508x610mm)
+ * MACHINE SPECIFICATIONS (JM Die Hurco VM30i):
+ *   - Controller: WinMax V11 (ISNC/BNC compatible, conversational + NC mode)
+ *   - Type: 3-axis vertical machining center
  *   - Spindle: 10,000 RPM, 15 HP, CT40 taper
- *   - Table: 1050x510mm with T-slots
- *   - Rapids: X/Y=1300 IPM, Z=1000 IPM (33/25.4 m/min)
- *   - Accuracy: ±0.0001" (0.0025mm)
- *   - Tool Changer: 24-tool side-mount ATC
+ *   - Tool Changer: side-mount ATC
+ *
+ *   *Note: prior versions of this docstring referenced a VMX24 — JM Die's actual
+ *   Hurco fleet is the VM30i (corrected via the U-PPGMU04 audit, 2026-05-05).
+ *   The WinMax V11 controller is identical across both machines so all U-PPGH01..15
+ *   feature work transfers without change.*
  *
  * HURCO-SPECIFIC G-CODE FEATURES:
  *   - G65 conversational macros (unique to Hurco)
  *   - UltiMotion trajectory control
+ *   - G05.3 smoothing (P35 rough / P10 finish)
+ *   - M16 automatic buffering
+ *   - M98 air-through-spindle subprograms
+ *   - M140 Z-axis retract
+ *   - M59/M61 chip conveyor + M68/M69 washdown coolant
  *   - DXF import capability
  *   - Work surface definition (G68.2 equivalent)
  *   - Probing with Renishaw OMP40
@@ -27,13 +34,92 @@
  *   - JM Die tribal knowledge embedded (20+ tips)
  *   - Learning from production feedback
  *
+ * CANONICAL COMPANION POST (U-PPGMU04 cross-reference):
+ *   This TypeScript engine emits G-code from a structured `MillOperation[]`
+ *   input. JM Die also operates the v11 PRISM-modified Mastercam/Fusion CPS
+ *   post for the same machine (`HURCO_VM30i_PRISM_v11.cps`, FORKID
+ *   1B14E478-..., revision tag "PRISM v10.9 DRILLFIX"). The two paths are
+ *   PARALLEL emitters — Mastercam drives the .cps when running through CAM,
+ *   PRISM drives this engine when generating physics-validated G-code from
+ *   a process plan. The canonical-companion constants below let downstream
+ *   consumers verify the .cps hasn't drifted out from under us.
+ *
  * @module engines/HurcoV11MillMasterPostEngine
- * @milestone CAM-PARITY-AGI-MS0/U-CAMP-PP02
+ * @milestone CAM-PARITY-AGI-MS0/U-CAMP-PP02 (origin) · CAM-EXHAUST-MS0/U-PPGMU04 (canonical companion + VM30i correction)
  */
 
 import { log } from "../utils/Logger.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
 import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
+
+// ============================================================================
+// CANONICAL COMPANION POST — U-PPGMU04 (cross-reference for the parallel
+// Mastercam/Fusion CPS post in JM DIE/PRISM MODIFIED POST PROCESSORS/).
+// These constants are SUPPLEMENTARY: this engine still emits its own G-code
+// via generateProgram(); the constants exist so downstream verifiers can
+// detect when the .cps has drifted (FORKID swap, revision regression, etc).
+// ============================================================================
+
+/** Path to the canonical .cps Mastercam post for the Hurco VM30i, relative to the repo root. */
+export const HURCO_CANONICAL_POST_RELATIVE_PATH =
+  "JM DIE/PRISM MODIFIED POST PROCESSORS/HURCO_VM30i_PRISM_v11.cps";
+
+/** .cps filename only — used for setup-sheet rendering and operator displays. */
+export const HURCO_CANONICAL_POST_FILENAME = "HURCO_VM30i_PRISM_v11.cps";
+
+/** Mastercam/Fusion FORKID extracted from .cps line 50. */
+export const HURCO_CANONICAL_FORKID = "1B14E478-26FE-4db2-A3E7-FB814E8C0B4E";
+
+/** Operator-facing description string (line 173 of the .cps `description = "..."`). */
+export const HURCO_CANONICAL_DESCRIPTION = "PRISM Enhanced - HURCO VM30i";
+
+/** Vendor field (line 174). */
+export const HURCO_CANONICAL_VENDOR = "HURCO";
+
+/** $Revision: ... $ tag from the .cps source-control banner (line 44). */
+export const HURCO_CANONICAL_REVISION_TAG =
+  "PRISM v10.9 DRILLFIX - Runtime Drilling Multiplier Exclusion (Speed + Feed)";
+
+/** Output extension Mastercam writes for Hurco (line 182, .hnc — Hurco's native WinMax format). */
+export const HURCO_CANONICAL_EXTENSION = "hnc";
+
+/** Hurco WinMax demands integer program names (line 183, programNameIsInteger=true). */
+export const HURCO_CANONICAL_PROGRAM_NAME_IS_INTEGER = true;
+
+/** Minimum Mastercam/Fusion runtime revision (line 178). */
+export const HURCO_CANONICAL_MINIMUM_RUNTIME_REVISION = 45793;
+
+/**
+ * PRISM intelligence feature families declared in HURCO_VM30i_PRISM_v11.cps.
+ * Distinct from the Multus engine's `usePRISMxxx` flat list — Hurco's .cps
+ * organizes features into machine-spec / process / safety / display tiers.
+ * Listed here so cross-engine consumers know what the .cps offers.
+ */
+export const HURCO_CANONICAL_PRISM_FEATURE_FAMILIES = [
+  "aggressiveness_8_level",
+  "dynamic_depth_feed_adjustment",
+  "chip_thinning_compensation",
+  "corner_deceleration_g_force_limit",
+  "arc_feed_correction",
+  "direction_change_feed_reduction",
+  "stickout_deflection_compensation",
+  "hsm_hem_physics_engine",
+  "finishing_optimization_engine",
+  "g053_smoothing_rough_finish",
+  "ultimotion_per_op_tolerance",
+  "drillfix_runtime_exclusion",
+  "sister_tool_management",
+  "tool_break_check_subprogram",
+  "loc_engagement_safety_override",
+  "speed_up_suggestions_in_comments",
+  "min_z_retract_between_offsets",
+  "spindle_warmup_routine",
+  "safe_start_block",
+  "variable_rpm_ssv",
+] as const;
+
+export type HurcoCanonicalPrismFeatureFamily =
+  (typeof HURCO_CANONICAL_PRISM_FEATURE_FAMILIES)[number];
 import { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
 import { machineStrategyConstraintEngine } from "./MachineStrategyConstraintEngine.js";
 import {

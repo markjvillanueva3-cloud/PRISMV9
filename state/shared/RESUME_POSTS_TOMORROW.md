@@ -1,13 +1,57 @@
 # RESUME — "continue post processor work" (NEXT SESSION'S START)
 
 **Trigger phrase:** `continue post processor work`
-**Last updated:** 2026-05-05 ~21:00 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
+**Last updated:** 2026-05-05 ~21:35 UTC by claude-32612444 (prior: ~14:55 by claude-9435742c, ~08:10 by claude-803437e0)
 **For:** the next post-processor chat (any session ID)
 **Companion:** `RESUME_POSTS.md` (full PPG history) · this file is the focused next-action brief.
 
 ---
 
-## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 + U-PPGMU02 + U-PPGMU03 LANDED ON work/ppgh05
+## 2026-05-05 SESSION (claude-32612444) — U-PPGM18 + U-PPGMU01 + U-PPGMU02 + U-PPGMU03 + U-PPGMU04 + U-PPGMU05 LANDED ON work/ppgh05
+
+### U-PPGMU04 + U-PPGMU05 — 3-way master-post audit & canonical-companion bridges (NEW)
+
+**SHIPPED:**
+- `[CAM-EXHAUST-MS0]/U-PPGMU04: HurcoV11 canonical-.cps companion + VM30i correction`
+- `[CAM-EXHAUST-MS0]/U-PPGMU05: OkumaOSPMill canonical-.cps companion (M460V-5AX)`
+
+**Driver:** user asked for a 3-way audit of the PRISM-modified .cps posts in `JM DIE/PRISM MODIFIED POST PROCESSORS/` against the corresponding TypeScript master-post engines. Multus was already done (U-PPGMU01-03). This pair handles Hurco V11 + Okuma OSP M460V-5AX.
+
+**Critical fix in U-PPGMU04 (Hurco):** the engine docstring claimed "JM Die's Hurco VMX24" — wrong. JM Die actually runs a **VM30i**. Docstring corrected; the WinMax V11 controller is identical between machines so all U-PPGH01-15 feature work transfers without change.
+
+**Pattern:** both engines stay as full G-code emitters (they consume `MillOperation[]` and emit canned-cycle expansion + BlockAnnotation envelope). The new `HURCO_CANONICAL_*` and `OKUMA_M460V_CANONICAL_*` constants are SUPPLEMENTARY — they document the parallel Mastercam-driven .cps companion so downstream verifiers can detect drift (FORKID swap, revision regression, missing PRISM features).
+
+**Hurco constants (from `HURCO_VM30i_PRISM_v11.cps`):**
+- `HURCO_CANONICAL_FORKID = "1B14E478-26FE-4db2-A3E7-FB814E8C0B4E"`
+- `HURCO_CANONICAL_DESCRIPTION = "PRISM Enhanced - HURCO VM30i"`
+- `HURCO_CANONICAL_REVISION_TAG = "PRISM v10.9 DRILLFIX - Runtime Drilling Multiplier Exclusion (Speed + Feed)"`
+- `HURCO_CANONICAL_EXTENSION = "hnc"` (Hurco WinMax native, NOT `min` or `nc`)
+- `HURCO_CANONICAL_PROGRAM_NAME_IS_INTEGER = true`
+- `HURCO_CANONICAL_MINIMUM_RUNTIME_REVISION = 45793`
+- `HURCO_CANONICAL_PRISM_FEATURE_FAMILIES` (20-entry tuple): aggressiveness_8_level, dynamic_depth_feed, chip_thinning, corner_decel, arc_feed_correction, direction_change, stickout_deflection, hsm_hem_physics, finishing_optimization, g053_smoothing, ultimotion, drillfix, sister_tools, tool_break_check, loc_engagement_safety, speed_up_suggestions, min_z_retract, spindle_warmup, safe_start, variable_rpm
+
+**Okuma M460V-5AX constants (from `OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps`):**
+- `OKUMA_M460V_CANONICAL_FORKID = "2F9AB8A9-6D4F-4087-81B1-3E14AE260F81"`
+- `OKUMA_M460V_CANONICAL_DESCRIPTION = "OKUMA M460V-5AX Ultra Enhanced"`
+- `OKUMA_M460V_CANONICAL_CONTROLLER = "OSP-P300MA-H"` (5-axis specialty trim, NOT base P300M)
+- `OKUMA_M460V_CANONICAL_EXTENSION = "MIN"` (uppercase — distinct from Multus's lowercase `min`)
+- `OKUMA_M460V_CANONICAL_MINIMUM_RUNTIME_REVISION = 45917`
+- `OKUMA_M460V_CANONICAL_PRISM_FEATURE_FAMILIES` (27-entry tuple): five_axis_tcp_g169_g170, high_precision_g08_p1, look_ahead_10_to_200, corner_rounding_g62, singularity_avoidance, rotary_feed_limiting, five_axis_smoothing, axis_priority_rapids, c_axis_repositioning, imachining_variable_feed, arc_feed_correction, direction_change, dynamic_depth_feed, stickout_analysis, chip_thinning, minimum_z_retract, super_nurbs_g131, spindle_warmup, safe_start, tool_breakage_detection, auto_door, chip_conveyor, air_blast, coolant_ramp, fixture_offset_oo88, use_clamp_codes, subprogram_files
+
+**Tests** (NEW dedicated test files, 19/19 GREEN + 2 skipped live reads):
+- `HurcoV11MillMasterPostEngine.CanonicalCompanion.test.ts` — 5 tests covering path, identity, PRISM features, extension uniqueness (`hnc` not `min`/`nc`), live `.cps` header verification (skipped because `JM DIE/` not checked out)
+- `OkumaOSPMillMasterPostEngine.CanonicalCompanion.test.ts` — 6 tests covering path, identity, controller specialty, PRISM features, extension uniqueness (uppercase `MIN`), live `.cps` header verification
+
+**3-way comparison report:** `state/shared/multus-research/POST-AUDIT-3WAY-COMPARISON.md` documents the bidirectional feature gap for each engine — what the .cps has the engine doesn't (full-emit features), what the engine has the .cps doesn't (process-plan-only features). Net: keep both emitters; canonical-companion constants bridge them via cross-reference, not replacement.
+
+**Test state across all 3 master-post engines after U-PPGMU05:**
+- HurcoV11 engine 88/88 + canonical-companion 5/5 + 1 skipped = 93/93 + 1 skipped
+- OkumaOSP engine 67/67 + canonical-companion 6/6 + 1 skipped = 73/73 + 1 skipped
+- Multus engine 21/21 + 1 skipped + dispatcher 16/16 = 37/37 + 1 skipped
+- Mitsubishi WEDM 23/23 + sealMasterPostOutput 21/21 = 44/44
+- **Total: 247/247 GREEN + 3 skipped live reads, zero regressions**
+
+### U-PPGMU03 — Multi-agent research & accuracy refinement
 
 ### U-PPGMU03 — Multi-agent research & accuracy refinement (NEW)
 

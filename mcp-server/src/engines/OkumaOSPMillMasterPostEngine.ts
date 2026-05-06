@@ -48,6 +48,87 @@ import {
 } from "../physics/constants.js";
 import type { BlockAnnotation } from "../schemas/postPhysicsSidecarSchema.js";
 import { controllerDialectEngine } from "./ControllerDialectEngine.js";
+
+// ============================================================================
+// CANONICAL COMPANION POST — U-PPGMU05 (cross-reference for the parallel
+// Mastercam/Fusion CPS post for the JM Die OKUMA Genos M460V-5AX with the
+// OSP-P300MA-H 5-axis specialty controller). Same pattern as the Hurco
+// engine's HURCO_CANONICAL_* block: this engine still emits its own G-code
+// via generateProgram(); these constants let downstream verifiers detect
+// when the .cps has drifted.
+//
+// Note this engine is family-level (P300M / P500M handle MB-V / MU-V / Genos
+// M-series across 3-axis and 5-axis). The M460V-5AX .cps is a machine-specific
+// PRISM-enhanced variant for one particular Genos M460V (the 5AX trim).
+// ============================================================================
+
+/** Path to the canonical .cps Mastercam post, relative to the repo root. */
+export const OKUMA_M460V_CANONICAL_POST_RELATIVE_PATH =
+  "JM DIE/PRISM MODIFIED POST PROCESSORS/OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps";
+
+/** .cps filename only — used for setup-sheet rendering. */
+export const OKUMA_M460V_CANONICAL_POST_FILENAME =
+  "OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps";
+
+/** Mastercam/Fusion FORKID extracted from .cps line 10. */
+export const OKUMA_M460V_CANONICAL_FORKID = "2F9AB8A9-6D4F-4087-81B1-3E14AE260F81";
+
+/** Operator-facing description (line 92 of the .cps). */
+export const OKUMA_M460V_CANONICAL_DESCRIPTION = "OKUMA M460V-5AX Ultra Enhanced";
+
+/** Vendor field (line 93). */
+export const OKUMA_M460V_CANONICAL_VENDOR = "OKUMA";
+
+/** $Revision: ... $ tag from the .cps source-control banner (line 7). */
+export const OKUMA_M460V_CANONICAL_REVISION_TAG = "44100 Enhanced Edition";
+
+/** Output extension (line 101 — note: uppercase MIN, the post emits .MIN files). */
+export const OKUMA_M460V_CANONICAL_EXTENSION = "MIN";
+
+/** Minimum Mastercam/Fusion runtime revision (line 97). */
+export const OKUMA_M460V_CANONICAL_MINIMUM_RUNTIME_REVISION = 45917;
+
+/** OSP variant the .cps targets — P300MA-H is the 5-axis specialty trim. */
+export const OKUMA_M460V_CANONICAL_CONTROLLER = "OSP-P300MA-H";
+
+/**
+ * PRISM intelligence feature families declared in the Okuma M460V-5AX .cps.
+ * Includes 5-axis simultaneous controls, cycle-time-reduction features, and
+ * iMachining-style variable feed control.
+ */
+export const OKUMA_M460V_CANONICAL_PRISM_FEATURE_FAMILIES = [
+  "five_axis_tcp_g169_g170",
+  "high_precision_mode_g08_p1",
+  "look_ahead_buffer_10_to_200_blocks",
+  "corner_rounding_g62",
+  "singularity_avoidance_warning",
+  "rotary_axis_feed_limiting",
+  "five_axis_specific_smoothing",
+  "axis_priority_for_rapids",
+  "c_axis_rotary_repositioning",
+  "imachining_variable_feed_8_level",
+  "arc_feed_correction",
+  "direction_change_feed_reduction",
+  "dynamic_depth_feed_adjustment",
+  "advanced_feed_optimization_stickout",
+  "chip_thinning_compensation",
+  "minimum_z_retract_between_offsets",
+  "super_nurbs_g131",
+  "spindle_warmup_routine",
+  "safe_start_block",
+  "tool_breakage_detection",
+  "auto_door_control",
+  "chip_conveyor_control",
+  "air_blast_with_duration",
+  "coolant_ramp",
+  "fixture_offset_call_oo88",
+  "use_clamp_codes",
+  "subprogram_files",
+] as const;
+
+export type OkumaM460VCanonicalPrismFeatureFamily =
+  (typeof OKUMA_M460V_CANONICAL_PRISM_FEATURE_FAMILIES)[number];
+
 import { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
 import { machineStrategyConstraintEngine } from "./MachineStrategyConstraintEngine.js";
 import {
