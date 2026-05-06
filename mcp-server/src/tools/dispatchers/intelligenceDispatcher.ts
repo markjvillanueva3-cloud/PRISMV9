@@ -41,7 +41,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocQLearning: any, _xprocBandit: any,
     _xprocBayesianMLP: any, _xprocConformal: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
-    _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any;
+    _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -93,6 +93,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
     case "xprocSecureAgg": return _xprocSecureAgg ??= (await import("../../engines/CrossProcessSecureAggregationEngine.js")).crossProcessSecureAggregation;
     case "xprocDriftFed": return _xprocDriftFed ??= (await import("../../engines/CrossProcessDriftAwareFederationEngine.js")).crossProcessDriftAwareFederation;
+    case "xprocFedScheduler": return _xprocFedScheduler ??= (await import("../../engines/CrossProcessClientSelectionSchedulerEngine.js")).crossProcessClientSelectionScheduler;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -365,6 +366,10 @@ const ACTIONS = [
   "xproc_fed_gate",
   "xproc_fed_drift_report",
   "xproc_fed_drift_constants",
+  // XPROC-NEURAL Tier 6 (T6-04) — Client selection scheduler (multi-criteria ranking)
+  "xproc_fed_select_clients",
+  "xproc_fed_round_plan",
+  "xproc_fed_scheduler_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -949,6 +954,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_fed_gate: "xprocDriftFed",
           xproc_fed_drift_report: "xprocDriftFed",
           xproc_fed_drift_constants: "xprocDriftFed",
+          // XPROC-NEURAL Tier 6 (T6-04) — Client selection scheduler
+          xproc_fed_select_clients: "xprocFedScheduler",
+          xproc_fed_round_plan: "xprocFedScheduler",
+          xproc_fed_scheduler_constants: "xprocFedScheduler",
         };
 
         const engineName = CORE_ROUTING[action];
