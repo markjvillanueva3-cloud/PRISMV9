@@ -121,6 +121,26 @@ export const AI_REASONING_ACTIONS = [
   "exception_record_outcome",  // U-WIRE31 → finalize event outcome; success generates tribal tip + envelope proposal
   "exception_pending",         // U-WIRE31 → list captured events not yet recorded
   "exception_stats",           // U-WIRE31 → totalEvents, learnedCount, successRate, tipsGenerated, proposalsGenerated
+  // INFRA-NEURAL-LEDGER-MS1/U-XPROC-T10-PRISM-AI-WIRE: dual-wire 4 Tier 10 fusion engines into prism_ai
+  // Per CLAUDE.md "wire to all consumers" mandate: reasoning engines belong on both prism_intelligence AND prism_ai.
+  // T10-01 — CrossProcessVisionTabularFusionEngine (concat + projection)
+  "xproc_vision_fuse",
+  "xproc_vision_explain_attention",
+  "xproc_vision_constants",
+  // T10-02 — CrossProcessTimeSeriesTabularFusionEngine (Gated Multimodal Unit + windowing)
+  "xproc_timeseries_fuse",
+  "xproc_timeseries_segment",
+  "xproc_timeseries_constants",
+  // T10-03 — CrossProcessAudioTabularFusionEngine (FFT + chatter score + GMU)
+  "xproc_audio_fuse",
+  "xproc_audio_chatter_score",
+  "xproc_audio_spectral",
+  "xproc_audio_constants",
+  // T10-04 — CrossProcessModalityDropoutRobustifierEngine (graceful missing-modality fusion)
+  "xproc_modality_dropout",
+  "xproc_modality_predict",
+  "xproc_modality_availability",
+  "xproc_modality_constants",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1115,4 +1135,21 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   }).passthrough(),
   exception_pending: z.object({}).passthrough(),
   exception_stats: z.object({}).passthrough(),
+  // U-XPROC-T10-PRISM-AI-WIRE — Tier 10 fusion engines.
+  // Each engine performs its own Zod validation inside its static method (Cross-Process*Engine.fuse/segment/...).
+  // The dispatcher schema is intentionally a passthrough so we don't duplicate the engine's strict shape checks.
+  xproc_vision_fuse: z.object({}).passthrough(),
+  xproc_vision_explain_attention: z.object({}).passthrough(),
+  xproc_vision_constants: z.object({}).passthrough(),
+  xproc_timeseries_fuse: z.object({}).passthrough(),
+  xproc_timeseries_segment: z.object({}).passthrough(),
+  xproc_timeseries_constants: z.object({}).passthrough(),
+  xproc_audio_fuse: z.object({}).passthrough(),
+  xproc_audio_chatter_score: z.object({}).passthrough(),
+  xproc_audio_spectral: z.object({}).passthrough(),
+  xproc_audio_constants: z.object({}).passthrough(),
+  xproc_modality_dropout: z.object({}).passthrough(),
+  xproc_modality_predict: z.object({}).passthrough(),
+  xproc_modality_availability: z.object({}).passthrough(),
+  xproc_modality_constants: z.object({}).passthrough(),
 };

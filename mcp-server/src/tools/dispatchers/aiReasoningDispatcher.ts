@@ -1161,6 +1161,46 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // U-XPROC-T10-PRISM-AI-WIRE — Tier 10 fusion engines (4 engines / 14 actions)
+      // Per CLAUDE.md "wire to all consumers" rule, mirroring prism_intelligence.
+      // Engines validate their own params via internal Zod schemas; the wrapper
+      // function dispatches by action name with no extra normalization.
+      // ─────────────────────────────────────────────────────────────────────
+      case "xproc_vision_fuse":
+      case "xproc_vision_explain_attention":
+      case "xproc_vision_constants": {
+        const { crossProcessVisionTabularFusion } = await import("../../engines/CrossProcessVisionTabularFusionEngine.js");
+        result = crossProcessVisionTabularFusion(action, params);
+        break;
+      }
+
+      case "xproc_timeseries_fuse":
+      case "xproc_timeseries_segment":
+      case "xproc_timeseries_constants": {
+        const { crossProcessTimeSeriesTabularFusion } = await import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js");
+        result = crossProcessTimeSeriesTabularFusion(action, params);
+        break;
+      }
+
+      case "xproc_audio_fuse":
+      case "xproc_audio_chatter_score":
+      case "xproc_audio_spectral":
+      case "xproc_audio_constants": {
+        const { crossProcessAudioTabularFusion } = await import("../../engines/CrossProcessAudioTabularFusionEngine.js");
+        result = crossProcessAudioTabularFusion(action, params);
+        break;
+      }
+
+      case "xproc_modality_dropout":
+      case "xproc_modality_predict":
+      case "xproc_modality_availability":
+      case "xproc_modality_constants": {
+        const { crossProcessModalityDropoutRobustifier } = await import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js");
+        result = crossProcessModalityDropoutRobustifier(action, params);
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
