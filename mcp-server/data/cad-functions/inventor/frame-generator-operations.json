@@ -1,0 +1,272 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Frame Generator Operations — Structural Framing Skeleton (Inventor-only)",
+    "description": "Parameter catalog for the Inventor Frame Generator environment — an Inventor-only assembly-level workspace with no Fusion 360 / hyperCAD-S equivalent. Frame Generator is skeleton-driven: a 3D wireframe (typically a single skeletal part with sketch lines) defines structural member centerlines, and Frame Members are placed by selecting skeleton edges and choosing a Content Center library family + size. End treatments (Mitre, Notch, Trim, Extend) are applied as separate features on the frame assembly. Catalog covers ~12 operations across member placement (Insert / Change / Reuse / Author), end treatments (Mitre, Notch, Trim, Extend, Trim-and-Extend, Lengthen/Shorten, Remove End Treatment), and frame output (Frame BOM). Bindings reference the FrameAssembly + FrameMember COM API (FrameMembers / MitreFrameMembers / NotchFrameMembers / TrimFrameMembers / ExtendFrameMembers / TrimExtendFrameMembers / LengthenShortenFrameMembers collections). Inventor Frame Generator is a writable + repairable workflow: changing a skeleton edge length or replacing an underlying family member triggers automatic regeneration of all dependent end treatments, so the catalog explicitly surfaces the parameters that control treatment persistence vs detach.",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-05",
+    "source": "Autodesk Inventor 2025 Help — Frame Generator Reference; Inventor API Reference — Frame namespace (FrameComponentDefinition, FrameMember, FrameMemberDefinition, MitreFrameMembers, NotchFrameMembers, TrimFrameMembers, ExtendFrameMembers, TrimExtendFrameMembers, LengthenShortenFrameMembers, RemoveEndTreatments); Content Center Editor (Author Frame Member workflow); iLogic Frame Member iLogicVb cookbook",
+    "totalParameters": 83,
+    "operationCount": 12,
+    "cad_concepts_used": [
+      "SKELETON_SKETCH",
+      "FRAME_MEMBER",
+      "CONTENT_CENTER_FAMILY",
+      "ORIENTATION_NINE_POSITION",
+      "END_TREATMENT",
+      "FRAME_GROUP",
+      "FRAME_BOM",
+      "ILOGIC_FRAME_API"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor Frame Generator features. Insert Frame Member fans across Lines / Family / Orientation / Treatments tabs because of the breadth of options; treatment ops collapse to a single tab.",
+    "tabs": ["Lines", "Family", "Orientation", "Treatments", "Selection", "Output"]
+  },
+  "operations": {
+    "INSERT_FRAME_MEMBER": {
+      "description": "Place one or more frame members on selected skeleton edges. The frame member is sourced from a Content Center family (e.g., ANSI Square Tube, ISO Round Tube, AISC Wide-Flange) and oriented around its centerline using a 9-position alignment grid (TopLeft / Top / TopRight / Left / Center / Right / BottomLeft / Bottom / BottomRight) plus optional Custom1/Custom2 offsets and rotation. Each placement creates one part file per unique geometric instance plus an iAssembly grouping under the parent FrameAssemblyDocument. Inventor renames the member with a frame-group tag for downstream BOM filtering. End treatments can be pre-applied at insert time (Trim/Mitre/None per end) to shortcut the most common workflow.",
+      "category": "FrameGenerator_Member_Insert",
+      "python_api": "FrameComponentDefinition.FrameMembers.Add",
+      "parameterCount": 20,
+      "tabs": {
+        "Lines": {
+          "parameters": [
+            {"name": "Lines", "type": "selection", "description": "Skeleton edges, sketch lines, or work-axes that define member centerlines (one frame member per selected line)", "required": true},
+            {"name": "Frame Group", "type": "string", "description": "Tag name applied to all members placed in this insertion — used by Frame BOM filtering and renaming patterns", "default": "Frame_Default"}
+          ]
+        },
+        "Family": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["ansi", "iso", "din", "jis", "as", "aisc", "bsi", "gb", "custom"], "default": "ansi", "description": "Content Center library standard"},
+            {"name": "Family", "type": "string", "description": "Content Center family (e.g., 'ANSI Square Tube', 'ISO Round Tube', 'AISC Wide-Flange')", "required": true},
+            {"name": "Family Member", "type": "string", "description": "Specific size designation within the family (e.g., '2 x 2 x 0.250' or 'W12x26')", "required": true},
+            {"name": "Material Style", "type": "string", "description": "Override the family default material (e.g., 'Steel, Mild', 'Aluminum 6061')"},
+            {"name": "Appearance Override", "type": "string", "description": "Render appearance override; defaults to material's appearance"},
+            {"name": "Show Material in BOM", "type": "checkbox", "description": "Surface the material designator in BOM rows", "default": true}
+          ]
+        },
+        "Orientation": {
+          "parameters": [
+            {"name": "Alignment Position", "type": "dropdown", "options": ["top_left", "top", "top_right", "left", "center", "right", "bottom_left", "bottom", "bottom_right"], "default": "center", "description": "9-position grid alignment of the member cross-section relative to the skeleton line"},
+            {"name": "Horizontal Offset", "type": "numeric", "unit": "mm", "description": "Custom-1 offset perpendicular to the skeleton line, in the cross-section's horizontal axis", "default": 0},
+            {"name": "Vertical Offset", "type": "numeric", "unit": "mm", "description": "Custom-2 offset perpendicular to the skeleton line, in the cross-section's vertical axis", "default": 0},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "description": "Rotation of the cross-section about the skeleton line", "default": 0},
+            {"name": "Mirror", "type": "checkbox", "description": "Mirror the cross-section across the skeleton line", "default": false},
+            {"name": "Reference Endpoint", "type": "dropdown", "options": ["start", "end", "midpoint"], "default": "start", "description": "Which line endpoint anchors the member's local coordinate system"},
+            {"name": "Custom Direction", "type": "selection", "description": "Optional override of the member's longitudinal direction (when skeleton edge direction is ambiguous)"},
+            {"name": "Flush Side", "type": "dropdown", "options": ["none", "near_end", "far_end", "both"], "description": "Auto-flush the member's cross-section to the skeleton line endpoint(s)", "default": "none"}
+          ]
+        },
+        "Treatments": {
+          "parameters": [
+            {"name": "Start End Treatment", "type": "dropdown", "options": ["none", "trim", "mitre", "trim_extend", "auto"], "default": "none", "description": "Pre-applied treatment at the start endpoint"},
+            {"name": "End End Treatment", "type": "dropdown", "options": ["none", "trim", "mitre", "trim_extend", "auto"], "default": "none", "description": "Pre-applied treatment at the end endpoint"},
+            {"name": "Apply Default Mitre", "type": "checkbox", "description": "When two newly inserted members share an endpoint, automatically mitre them", "default": false},
+            {"name": "Naming Prefix", "type": "string", "description": "Prefix prepended to each generated part filename (e.g., 'M_'); appended with size + index"}
+          ]
+        }
+      }
+    },
+    "CHANGE": {
+      "description": "Replace an existing frame member with a different family / size / material while preserving the underlying skeleton edge and (optionally) end treatments. Reorient flag controls whether the new member adopts the prior orientation/offsets or resets to the family default.",
+      "category": "FrameGenerator_Member_Change",
+      "python_api": "FrameComponentDefinition.FrameMembers.Item(n).Change",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Frame Member", "type": "selection", "description": "Existing frame member to replace", "required": true},
+            {"name": "New Standard", "type": "dropdown", "options": ["ansi", "iso", "din", "jis", "as", "aisc", "bsi", "gb", "custom"], "description": "Target Content Center standard (defaults to current)"},
+            {"name": "New Family", "type": "string", "description": "Target Content Center family"},
+            {"name": "New Family Member", "type": "string", "description": "Target size designation within new family"},
+            {"name": "Preserve End Treatments", "type": "checkbox", "description": "Re-apply existing mitre/notch/trim/extend treatments to the replacement", "default": true},
+            {"name": "Reorient", "type": "checkbox", "description": "Reset orientation/offsets to family default rather than preserving", "default": false}
+          ]
+        }
+      }
+    },
+    "REUSE_FRAME_MEMBER": {
+      "description": "Place an additional instance of an existing frame member on new skeleton edges, sharing the same source part file (so changes to one instance ripple to all). Useful for repeated structural members in symmetric frames.",
+      "category": "FrameGenerator_Member_Reuse",
+      "python_api": "FrameComponentDefinition.FrameMembers.Reuse",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Source Member", "type": "selection", "description": "Existing frame member to reuse as the geometric source", "required": true},
+            {"name": "Target Lines", "type": "selection", "description": "Skeleton edges to place reused instances on (one per edge)", "required": true},
+            {"name": "Match Orientation", "type": "checkbox", "description": "Copy alignment/offsets/rotation from source", "default": true},
+            {"name": "Match Material Override", "type": "checkbox", "description": "Copy material override from source", "default": true},
+            {"name": "Naming Suffix", "type": "string", "description": "Suffix appended to reused-instance filenames (e.g., '_R')"}
+          ]
+        }
+      }
+    },
+    "MITRE": {
+      "description": "Mitre cut between two (single mitre) or three (double mitre) adjacent frame members sharing a vertex. Inventor uses British spelling 'Mitre' in API + UI. The mitre plane bisects the angle between members; gap parameter controls weld preparation. Three-member mitre handles tubular T-junctions and corner posts.",
+      "category": "FrameGenerator_Treatment_Mitre",
+      "python_api": "FrameComponentDefinition.MitreFrameMembers.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Mitre Type", "type": "dropdown", "options": ["single_mitre", "double_mitre"], "default": "single_mitre", "description": "Single mitre = 2-member joint; Double mitre = 3-member tubular T or corner"},
+            {"name": "Member 1", "type": "selection", "description": "First mitred member", "required": true},
+            {"name": "Member 2", "type": "selection", "description": "Second mitred member", "required": true},
+            {"name": "Member 3", "type": "selection", "description": "Third mitred member (Double mitre only)"},
+            {"name": "Mitre Gap", "type": "numeric", "unit": "mm", "description": "Material gap left between mitred faces (for weld root opening)", "default": 0},
+            {"name": "Mitre Plane Override", "type": "selection", "description": "Optional explicit mitre plane (defaults to bisecting plane of member centerlines)"},
+            {"name": "Cope Both Members", "type": "checkbox", "description": "Apply mitre to all selected members (default: only the longer member is coped)", "default": false}
+          ]
+        }
+      }
+    },
+    "NOTCH": {
+      "description": "Notch one or more frame members so they fit cleanly against another (typically larger) member. Profile Notch removes material along the notching member's profile boundary; Face Notch follows a planar face; Dual-Face Notch handles intersections with two faces (e.g., webs of an I-beam). Through-cut option fully removes the notched cross-section, useful for through-welds.",
+      "category": "FrameGenerator_Treatment_Notch",
+      "python_api": "FrameComponentDefinition.NotchFrameMembers.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Notching Members", "type": "selection", "description": "Member(s) to receive the notch (material removed)", "required": true},
+            {"name": "Notched-To Member", "type": "selection", "description": "Member providing the obstacle profile/face the notch conforms to", "required": true},
+            {"name": "Notch Type", "type": "dropdown", "options": ["profile_notch", "face_notch", "dual_face_notch"], "default": "profile_notch", "description": "Profile = follows whole cross-section; Face = follows one planar face; Dual-Face = follows two webs/flanges"},
+            {"name": "Notch Gap", "type": "numeric", "unit": "mm", "description": "Material gap between notched member and the obstacle", "default": 0},
+            {"name": "Axial Offset", "type": "numeric", "unit": "mm", "description": "Shift the notch along the notching member's axis", "default": 0},
+            {"name": "Through Cut", "type": "checkbox", "description": "Cut entirely through the notching member (for through-welds rather than copes)", "default": false},
+            {"name": "Notch Plane", "type": "dropdown", "options": ["perpendicular_to_member", "aligned_to_obstacle"], "default": "perpendicular_to_member", "description": "Whether the notch plane is normal to the notching member or to the obstacle face"}
+          ]
+        }
+      }
+    },
+    "TRIM_TO_FRAME": {
+      "description": "Trim one frame member's end so it terminates flush against another frame member's face/edge. Distinct from Trim-To-Plane (which uses an arbitrary work-plane); Trim-to-Frame keeps the joint dependent on the target member, so moving the target re-trims automatically.",
+      "category": "FrameGenerator_Treatment_TrimToFrame",
+      "python_api": "FrameComponentDefinition.TrimFrameMembers.Add",
+      "parameterCount": 4,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Member", "type": "selection", "description": "Frame member to trim", "required": true},
+            {"name": "Trim Side", "type": "dropdown", "options": ["start", "end", "both"], "default": "end", "description": "Which end(s) of the member to trim"},
+            {"name": "Trim Target", "type": "selection", "description": "Frame member, face, edge, or work-plane the trim plane is derived from", "required": true},
+            {"name": "Trim Offset", "type": "numeric", "unit": "mm", "description": "Offset the trim plane along the member's axis (signed)", "default": 0}
+          ]
+        }
+      }
+    },
+    "EXTEND_TO_FRAME": {
+      "description": "Extend one frame member's end so it reaches a target frame member's face/edge. Mirror operation of Trim-To-Frame; both share the same Auto-Trim-Extend parent in the Inventor UI but are stored as separate features.",
+      "category": "FrameGenerator_Treatment_ExtendToFrame",
+      "python_api": "FrameComponentDefinition.ExtendFrameMembers.Add",
+      "parameterCount": 4,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Member", "type": "selection", "description": "Frame member to extend", "required": true},
+            {"name": "Extend Side", "type": "dropdown", "options": ["start", "end", "both"], "default": "end", "description": "Which end(s) of the member to extend"},
+            {"name": "Extend Target", "type": "selection", "description": "Frame member, face, edge, or work-plane the extension terminates at", "required": true},
+            {"name": "Extend Offset", "type": "numeric", "unit": "mm", "description": "Offset past (or short of) the target plane along the member's axis (signed)", "default": 0}
+          ]
+        }
+      }
+    },
+    "TRIM_AND_EXTEND": {
+      "description": "Combined Trim/Extend treatment that automatically picks Trim or Extend per-end based on whether the member overshoots or falls short of the target. Used when batch-processing multiple members at once or when the member configuration is changing.",
+      "category": "FrameGenerator_Treatment_TrimAndExtend",
+      "python_api": "FrameComponentDefinition.TrimExtendFrameMembers.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Members", "type": "selection", "description": "One or more frame members to trim/extend", "required": true},
+            {"name": "Target", "type": "selection", "description": "Frame member, face, edge, or work-plane the operation aligns to", "required": true},
+            {"name": "Treatment Side", "type": "dropdown", "options": ["start", "end", "both", "auto"], "default": "auto", "description": "Auto picks the end closest to target"},
+            {"name": "Offset", "type": "numeric", "unit": "mm", "description": "Signed offset past the target", "default": 0},
+            {"name": "Auto-Detect Direction", "type": "checkbox", "description": "Inventor decides Trim vs Extend per-end (false forces uniform behavior)", "default": true}
+          ]
+        }
+      }
+    },
+    "LENGTHEN_SHORTEN": {
+      "description": "Adjust a frame member's length by an absolute delta (signed) at one or both ends, without referencing an external target. Used for fine-tuning fits after end-treatments are applied. Preserve End Treatment carries the existing miter/notch/trim/extend forward to the new length.",
+      "category": "FrameGenerator_Treatment_LengthenShorten",
+      "python_api": "FrameComponentDefinition.LengthenShortenFrameMembers.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Member", "type": "selection", "description": "Frame member to adjust", "required": true},
+            {"name": "End", "type": "dropdown", "options": ["start", "end", "both"], "default": "end", "description": "Which end(s) to adjust"},
+            {"name": "Delta", "type": "numeric", "unit": "mm", "description": "Signed length change (+ lengthen, − shorten)", "required": true},
+            {"name": "Preserve End Treatment", "type": "checkbox", "description": "Re-apply existing mitre/notch/trim/extend at the new length", "default": true},
+            {"name": "Reference Length Display", "type": "dropdown", "options": ["overall", "skeleton_edge", "between_treatments"], "default": "overall", "description": "Which length basis the Delta is measured against"}
+          ]
+        }
+      }
+    },
+    "REMOVE_END_TREATMENT": {
+      "description": "Strip mitre/notch/trim/extend treatments from a frame member end, returning it to the raw skeleton-edge length. Useful when reworking a joint after upstream changes invalidate the prior treatment.",
+      "category": "FrameGenerator_Treatment_RemoveEnd",
+      "python_api": "FrameComponentDefinition.RemoveEndTreatments.Add",
+      "parameterCount": 3,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Member", "type": "selection", "description": "Frame member whose end treatment is being removed", "required": true},
+            {"name": "End", "type": "dropdown", "options": ["start", "end", "both"], "default": "both", "description": "Which end's treatment to remove"},
+            {"name": "Treatment Filter", "type": "dropdown", "options": ["all", "mitre_only", "notch_only", "trim_only", "extend_only", "lengthen_shorten_only"], "default": "all", "description": "Limit removal to one treatment family (default: all treatments at the chosen end)"}
+          ]
+        }
+      }
+    },
+    "FRAME_BOM": {
+      "description": "Emit a frame-specific Bill of Materials filtered to one or more Frame Group tags. Inventor's Frame BOM differs from the assembly BOM by adding cut-list grouping (group identical cross-section + length combinations), member-end-treatment summaries, and total cut length. Output supports CSV / XLSX / XML / parts-list table for drawing insertion.",
+      "category": "FrameGenerator_Output_BOM",
+      "python_api": "FrameComponentDefinition.GenerateFrameBOM",
+      "parameterCount": 7,
+      "tabs": {
+        "Output": {
+          "parameters": [
+            {"name": "Frame Group Filter", "type": "string", "description": "Frame group tag to include (blank = all groups)"},
+            {"name": "Output Format", "type": "dropdown", "options": ["csv", "xlsx", "xml", "inventor_parts_list", "iam_drawing_table"], "default": "xlsx", "description": "Emission format"},
+            {"name": "Include Cut List", "type": "checkbox", "description": "Group identical cross-section + length combinations into cut-list rows", "default": true},
+            {"name": "Include Mass", "type": "checkbox", "description": "Add per-row mass column", "default": true},
+            {"name": "Include End Treatments", "type": "checkbox", "description": "Surface mitre/notch/trim/extend treatments per member", "default": false},
+            {"name": "Group By", "type": "dropdown", "options": ["family", "size", "frame_group", "custom_property", "material"], "default": "size", "description": "Top-level grouping in the BOM output"},
+            {"name": "Output Path", "type": "string", "description": "Filesystem path for emitted file (only meaningful for csv/xlsx/xml)"}
+          ]
+        }
+      }
+    },
+    "AUTHOR_FRAME_MEMBER": {
+      "description": "Author a custom Content Center frame member from a closed sketch profile. Creates a new family + family-member entry in the read-write Content Center library, callable via Insert Frame Member afterward. Used for non-standard structural shapes (proprietary extrusions, custom rolled sections). The authored profile's centroid becomes the alignment-grid Center; Inventor computes section-property metadata (area, second moment of area) automatically.",
+      "category": "FrameGenerator_Member_Author",
+      "python_api": "ContentCenterEditor.AuthorFrameMember",
+      "parameterCount": 10,
+      "tabs": {
+        "Family": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "description": "Closed 2D sketch profile (in a part file) defining the cross-section", "required": true},
+            {"name": "Family Name", "type": "string", "description": "New Content Center family name", "required": true},
+            {"name": "Member Type", "type": "dropdown", "options": ["structural_steel", "pipe_tube", "square_tube", "rectangular_tube", "channel", "angle", "wide_flange", "custom"], "default": "structural_steel", "description": "Classification used by Frame BOM grouping"},
+            {"name": "Standard", "type": "dropdown", "options": ["ansi", "iso", "din", "jis", "as", "aisc", "bsi", "gb", "custom"], "default": "custom"},
+            {"name": "Default Material", "type": "string", "description": "Material assigned to new family-member instances", "default": "Steel, Mild"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Size Designation", "type": "string", "description": "First family-member size identifier (e.g., '50 x 50 x 3')", "required": true},
+            {"name": "Display Name", "type": "string", "description": "Human-readable name shown in Insert Frame Member dialog"},
+            {"name": "Description", "type": "string", "description": "Long-form description for the family member"},
+            {"name": "Library", "type": "dropdown", "options": ["read_write_library", "shared_content_center", "project_library"], "default": "read_write_library", "description": "Target Content Center library for the new family"},
+            {"name": "Compute Section Properties", "type": "checkbox", "description": "Auto-compute area / second moment of area / radius of gyration from profile", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}

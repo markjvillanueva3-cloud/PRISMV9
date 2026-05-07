@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "mastercam",
+  "module_id": "cad_function_index",
+  "module_name": "Mastercam CAD Unified Function Index",
+  "description": "Top-level index for Mastercam CAD-side authoring operations. Mastercam combines a CAD authoring layer with its CAM-side toolpath engine; this index covers ONLY the CAD authoring surface (wireframe / solid / surface / drafting / transformation / analysis / modify / file_layer). The CAM-side toolpath catalogs live separately under cam-functions/mastercam/ and are owned by the dedicated CAM exhaust roadmap. Coverage spans 8 modules following the Inventor parity pattern. Consumed by MastercamCADFunctionIndexEngine for parameter discovery and AI orchestration of Mastercam CAD authoring via NET-Hook in-host execution and Mastercam ChooseAndPick C-Hook surface.",
+  "indexed_at": "2026-05-02T03:55:00Z",
+  "modules": [
+    {
+      "module_id": "wireframe_operations",
+      "path": "cad-functions/mastercam/wireframe-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-01"],
+      "parameter_count_estimate": 153,
+      "description": "Wireframe entity creation: 8 line variants (Endpoints / Parallel / Perpendicular / Closest / Tangent), 5 circle variants (Center+Point / Center+Radius / 3-Points / 2-Points / Tangent), 3 arc variants (3-Point / Endpoints+Center / Tangent), Ellipse (full + partial), Polygon (regular 3..256 sides w/ optional fillet), Rectangle (4 placement modes), Shape (oval/slot/hexagon/diamond/D-shape/rounded_rect from built-in library), 2 spline variants (Parametric through-points + NURBS control-point), Curve Derive (from solid edges / surfaces / intersection / projection), Wireframe Text on path or straight, Helix (constant or conical), Spiral, and Point (8 creation modes including parametric / endpoint / intersection / perpendicular / on-entity). 24 operations total.",
+      "dependencies": []
+    },
+    {
+      "module_id": "solid_operations",
+      "path": "cad-functions/mastercam/solid-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-02"],
+      "parameter_count_estimate": 140,
+      "description": "Solid modeling layer: 4 sweep features (Extrude / Revolve / Sweep / Loft) with 4 corresponding cut variants (Extrude_Cut / Revolve_Cut / Sweep_Cut / Loft_Cut), Boolean (add/subtract/intersect/common), 4 modify ops (Fillet — constant/variable/face_face with G1/G2/G3 continuity, Chamfer — distance/distance_distance/distance_angle/two_distances, Shell — multi-thickness override, Draft — neutral/parting modes), Thicken Surface (surface→solid bridge), Primitive (box/cylinder/cone/sphere/torus), Hole (5 types: simple/c-bore/c-sink/threaded/tapered) with 4 termination modes, and 2 patterns (Linear in 1 or 2 directions, Circular about axis). 18 operations total.",
+      "dependencies": ["wireframe_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/mastercam/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-03"],
+      "parameter_count_estimate": 110,
+      "description": "Surface modeling layer: 6 generation methods (Loft / Sweep / Revolve / Ruled / Draft / Net) with G0/G1/G2 continuity control, 1 primitive (Box/Cylinder/Cone/Sphere/Torus surfaces with surface_only or closed_set output), surface extraction from solid faces (From Solid w/ optional NURBS conversion), 7 modification ops (Trim with multi-boundary, Untrim restoring original, Extend with G0/G1/G2 continuity, Fillet face-face with G1/G2/G3 continuity + roll direction control, Blend with independent G0..G3 per side + bias + tangent strength, Offset with side selector, Knit with manifold validation, Split with seam vs two-surface result modes). 16 operations total.",
+      "dependencies": ["wireframe_operations", "solid_operations"]
+    },
+    {
+      "module_id": "drafting_operations",
+      "path": "cad-functions/mastercam/drafting-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-04"],
+      "parameter_count_estimate": 124,
+      "description": "Drafting workspace — 2D drawing output. 16 operations: Sheet (11 size formats), 7 view types (Base / Projected / Section in 6 ASME methods / Detail / Auxiliary / Break), Dimension (8 subtypes: linear/aligned/angular/radial/diameter/arc_length/jogged/ordinate + 7 ASME tolerance forms), GD&T (14 ASME Y14.5 geometric characteristics + datum reference frame + material modifiers), 2D Centerline (5 generation modes), Surface Finish (per ASME Y14.36 / ISO 1302 with 7 lay directions), 4 annotation tools (Leader, Note, Hatch with 12 ANSI/ISO patterns, GD&T frame), Parts List BOM, and Title Block configuration.",
+      "dependencies": ["wireframe_operations", "solid_operations", "surface_operations"]
+    },
+    {
+      "module_id": "transformation_operations",
+      "path": "cad-functions/mastercam/transformation-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-05"],
+      "parameter_count_estimate": 75,
+      "description": "Geometry transformation layer: 4 basic transforms (Translate, Rotate, Mirror, Scale with uniform/non_uniform/along_axis modes) — all support copy/move/join semantics, 3 array variants (Linear 1D, Rectangular 2D, Circular about axis with equal or incremental spacing + skip-index suppression), Dynamic Transform (interactive multi-DOF manipulator with per-axis translation/rotation/scale locks), Project to Plane (orthogonal or specified-vector projection with project-through-surfaces option), and Unroll (flatten developable surfaces — cylindrical/conical — onto a target plane with linear/spline/refit_nurbs approximation). 10 operations total.",
+      "dependencies": ["wireframe_operations", "solid_operations", "surface_operations"]
+    },
+    {
+      "module_id": "analysis_operations",
+      "path": "cad-functions/mastercam/analysis-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-06"],
+      "parameter_count_estimate": 60,
+      "description": "Geometry analysis layer: chain integrity (closed/open/gap detection — pre-flight for CAM toolpath chaining), distance (point-to-point with 3d_euclidean / projected_2d / axis_components, entity-to-entity closest/farthest), angle between lines (acute/reflex), area (closed planar profile with inner-loop subtraction, surface area with hole-boundary handling), volume of solid (with optional centroid + mass via density), entity inspection (basic/full/verbose detail levels), dynamic interactive measurement (distance/angle/area with snap modes), and validation (gaps/overlaps/self_intersect/manifold/small_features with optional auto-heal + severity-filtered reporting). 10 operations total.",
+      "dependencies": ["wireframe_operations", "solid_operations", "surface_operations"]
+    },
+    {
+      "module_id": "modify_operations",
+      "path": "cad-functions/mastercam/modify-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-07"],
+      "parameter_count_estimate": 86,
+      "description": "Wireframe modify layer (distinct from solid_operations modify): TRIM (trim_one/trim_both/divide + power-trim cursor path), EXTEND (fixed_distance/to_boundary/specified_curve with G0/G1/G2 continuity), 2 break ops (at_point with 3 modes, at_intersection with auto-find), JOIN (chain assembly with auto-heal + reverse detection), 2D FILLET (radius with trim/no_trim modes + multi-corner), 2D CHAMFER (3 parameterizations), BLEND_CURVES (independent G0..G3 per side, bias 0..1, tangent strength), SMOOTH_CURVE (iterative Laplacian with locked endpoints), SIMPLIFY_CURVE (reduce_points/refit/decimate), REVERSE_DIRECTION (with match_pair for chain alignment), CONVERT_TO_SPLINE (NURBS degree 1..7), EDIT_SPLINE (5 interactive edit modes), MODIFY_LENGTH (lengthen/shorten/total_length). 14 operations total.",
+      "dependencies": ["wireframe_operations"]
+    },
+    {
+      "module_id": "file_layer_operations",
+      "path": "cad-functions/mastercam/file-layer-operations.json",
+      "covered_units": ["U-CAD-FIDX-MC-08"],
+      "parameter_count_estimate": 67,
+      "description": "File I/O + document organization layer: 4 file ops (Open, Save with overwrite/version/incremental + backup, Import w/ heal + units conversion + 9 source formats, Export w/ 9 target formats), 4 Mastercam Levels operations (Create with color + visibility + activity, Delete with orphan-redirect, SetActive with auto-create, Visibility with isolate-mode + apply-to-all), 3 Group operations (Create with optional lock, Delete with release/delete-members disband modes, AddMembers with replace/append), and Attribute Set (color/line width/style/level/group/lock with optional recursive cascade). 12 operations total.",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "WIREFRAME_GEOMETRY",
+      "PARAMETRIC_POINT",
+      "CONSTRUCTION_GEOMETRY",
+      "SKETCH_PLANE_DEFINITION",
+      "TANGENT_CONSTRUCTION",
+      "PERPENDICULAR_CONSTRUCTION",
+      "PARALLEL_CONSTRUCTION",
+      "NURBS_SPLINE",
+      "PARAMETRIC_SPLINE",
+      "HELIX_GENERATION",
+      "SPIRAL_GENERATION",
+      "POLYGON_GENERATION",
+      "CURVE_DERIVATION",
+      "WIREFRAME_TEXT_PATH"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "MastercamCADFunctionIndexEngine",
+      "MastercamInHostRunnerEngine",
+      "MastercamFunctionIndexEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 8,
+    "total_units_covered": [
+      "U-CAD-FIDX-MC-01",
+      "U-CAD-FIDX-MC-02",
+      "U-CAD-FIDX-MC-03",
+      "U-CAD-FIDX-MC-04",
+      "U-CAD-FIDX-MC-05",
+      "U-CAD-FIDX-MC-06",
+      "U-CAD-FIDX-MC-07",
+      "U-CAD-FIDX-MC-08"
+    ],
+    "estimated_parameter_total": 815,
+    "api_surface": {
+      "net_hook_items": 120,
+      "c_hook_items": 120,
+      "mastercam_2024_compatible": true,
+      "mastercam_2025_compatible": true,
+      "coverage_state": "COMPLETE",
+      "phase_1_target_modules": 8,
+      "phase_1_target_modules_remaining": 0,
+      "phase_1_modules_pending": [],
+      "mastercam_cad_8_of_8": true,
+      "inventor_parity": true
+    },
+    "pdf_sources_bound": [
+      "Mastercam 2024 Reference — Wireframe",
+      "Mastercam .NET-Hook API Reference",
+      "Mastercam C-Hook (ChooseAndPick) Reference"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "wireframe_authoring",
+      "solid_modeling",
+      "surface_modeling",
+      "drafting_output",
+      "transform_workflow",
+      "analysis_query",
+      "modify_workflow",
+      "file_layer_management"
+    ]
+  },
+  "platform_integration": {
+    "net_hook_enabled": true,
+    "c_hook_enabled": true,
+    "wireframe_layer": true,
+    "solid_layer": true,
+    "surface_layer": true,
+    "drafting_layer": true,
+    "transformation_layer": true,
+    "analysis_layer": true,
+    "modify_layer": true,
+    "file_layer": true
+  },
+  "future_modules": []
+}

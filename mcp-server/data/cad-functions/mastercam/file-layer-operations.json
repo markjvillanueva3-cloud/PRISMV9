@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD File / Layer Operations — File I/O + organization layer",
+    "description": "Parameter catalog for Mastercam CAD file I/O (open, save, import, export) and document organization (Mastercam-specific Levels — analog of CAD layers, plus Groups for entity sets). Mastercam Levels carry visibility / color / number identity and are the canonical organization unit for shop drawings. Levels are persistent across files via .mcam-rules attached to the document. 12 operations / 67 parameters. Bindings target Mastercam .NET-Hook API (Mastercam.IO + Mastercam.Database namespaces).",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-08",
+    "source": "Mastercam 2024 Reference — File ribbon + Levels Manager + Groups Manager; Mastercam .NET-Hook API Reference (Mastercam.IO / Mastercam.Database / Mastercam.Levels / Mastercam.Groups)",
+    "totalParameters": 67,
+    "operationCount": 12,
+    "cad_concepts_used": [
+      "FILE_FORMAT_INTERCHANGE",
+      "GEOMETRY_HEALING",
+      "UNITS_CONVERSION",
+      "COORDINATE_SYSTEM_REMAP",
+      "LEVEL_VISIBILITY",
+      "ENTITY_GROUPING",
+      "ATTRIBUTE_INHERITANCE",
+      "BACKUP_VERSIONING"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam file/layer operations",
+    "tabs": ["Shape"]
+  },
+  "operations": {
+    "FILE_OPEN": {
+      "description": "Open a Mastercam document (.mcam) or imported CAD format. Open mode controls whether the file replaces the current document, appends to it, or opens in a new window. Format auto-detection examines the file extension + magic bytes.",
+      "category": "File_Open",
+      "mastercam_command": "FileOpen",
+      "mastercam_api": "Mastercam.IO.File.Open",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "required": true},
+            {"name": "Format", "type": "dropdown", "options": ["mcam", "mcx", "step", "iges", "parasolid", "sldprt", "iam", "dxf", "dwg", "stl", "obj", "auto"], "default": "auto"},
+            {"name": "Open Mode", "type": "dropdown", "options": ["new_window", "replace", "append"], "default": "new_window"},
+            {"name": "Auto-Detect Format", "type": "checkbox", "default": true},
+            {"name": "Encoding", "type": "dropdown", "options": ["utf8", "ascii", "latin1", "auto"], "default": "auto"},
+            {"name": "Show Preview", "type": "checkbox", "default": true},
+            {"name": "Recent Files", "type": "checkbox", "description": "Add to recent-files menu", "default": true}
+          ]
+        }
+      }
+    },
+    "FILE_SAVE": {
+      "description": "Save the current document. Save mode controls overwrite / version (creates timestamped copy) / incremental (saves diff against last save). Backup Original makes a .bak copy before overwriting.",
+      "category": "File_Save",
+      "mastercam_command": "FileSave",
+      "mastercam_api": "Mastercam.IO.File.Save",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "description": "Defaults to current document path"},
+            {"name": "Format", "type": "dropdown", "options": ["mcam", "step", "iges", "parasolid", "dxf", "dwg"], "default": "mcam"},
+            {"name": "Save Mode", "type": "dropdown", "options": ["overwrite", "version", "incremental"], "default": "overwrite"},
+            {"name": "Compression", "type": "dropdown", "options": ["none", "fast", "best"], "default": "fast"},
+            {"name": "Include History", "type": "checkbox", "description": "Embed feature history tree", "default": true},
+            {"name": "Embed Materials", "type": "checkbox", "description": "Embed material library references", "default": true},
+            {"name": "Backup Original", "type": "checkbox", "description": "Save .bak before overwriting", "default": false}
+          ]
+        }
+      }
+    },
+    "FILE_IMPORT": {
+      "description": "Import external CAD format into the current document. Heal Geometry repairs gaps + non-manifold issues during import. Units Conversion auto-scales between mm / inch / meter etc. Merge Mode controls overwrite vs append vs replace-by-name.",
+      "category": "File_Import",
+      "mastercam_command": "FileImport",
+      "mastercam_api": "Mastercam.IO.File.Import",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "required": true},
+            {"name": "Format", "type": "dropdown", "options": ["step", "iges", "parasolid", "sldprt", "iam", "dxf", "dwg", "stl", "obj"], "required": true},
+            {"name": "Heal Geometry", "type": "checkbox", "description": "Repair gaps + non-manifold during import", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Coordinate System", "type": "dropdown", "options": ["world", "current_cplane", "named"], "default": "current_cplane"},
+            {"name": "Units Conversion", "type": "dropdown", "options": ["auto", "mm_to_inch", "inch_to_mm", "no_convert"], "default": "auto"},
+            {"name": "Merge Mode", "type": "dropdown", "options": ["overwrite", "append", "replace_by_name"], "default": "append"}
+          ]
+        }
+      }
+    },
+    "FILE_EXPORT": {
+      "description": "Export to external CAD format. Selection controls which entities are exported (all / visible-only / current selection). Export History includes feature history (only meaningful for Mastercam-native formats).",
+      "category": "File_Export",
+      "mastercam_command": "FileExport",
+      "mastercam_api": "Mastercam.IO.File.Export",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "required": true},
+            {"name": "Format", "type": "dropdown", "options": ["step", "iges", "parasolid", "dxf", "dwg", "stl", "obj", "x3d", "pdf3d"], "required": true},
+            {"name": "Selection", "type": "dropdown", "options": ["all", "visible_only", "selected"], "default": "all"},
+            {"name": "Export Hidden", "type": "checkbox", "default": false},
+            {"name": "Export History", "type": "checkbox", "description": "Include feature history (Mastercam-native formats only)", "default": false},
+            {"name": "Coordinate System", "type": "dropdown", "options": ["world", "current_cplane", "named"], "default": "world"},
+            {"name": "Output Units", "type": "dropdown", "options": ["mm", "inch", "m", "ft", "match_source"], "default": "match_source"}
+          ]
+        }
+      }
+    },
+    "LEVEL_CREATE": {
+      "description": "Create a new Mastercam Level (analog of CAD layer). Levels are numbered (1..2048) and carry independent color / visibility / activity state. The active level receives all newly-created entities.",
+      "category": "Level_Create",
+      "mastercam_command": "LevelCreate",
+      "mastercam_api": "Mastercam.Levels.Level.Create",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Level Number", "type": "integer", "required": true, "min": 1, "max": 2048},
+            {"name": "Name", "type": "string", "description": "Descriptive name (e.g. 'WIREFRAME', 'TOOLPATHS')"},
+            {"name": "Color", "type": "integer", "description": "Mastercam color index (1..255)", "min": 1, "max": 255, "default": 1},
+            {"name": "Visible", "type": "checkbox", "default": true},
+            {"name": "Active", "type": "checkbox", "description": "Set as the active level", "default": false},
+            {"name": "Description", "type": "string", "description": "Long-form note attached to level"}
+          ]
+        }
+      }
+    },
+    "LEVEL_DELETE": {
+      "description": "Delete a Mastercam level. Move-Entities-To redirects orphaned entities to a target level (default: level 1). Disabling Confirm bypasses interactive confirmation dialog.",
+      "category": "Level_Delete",
+      "mastercam_command": "LevelDelete",
+      "mastercam_api": "Mastercam.Levels.Level.Delete",
+      "parameterCount": 3,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Level Number", "type": "integer", "required": true, "min": 1, "max": 2048},
+            {"name": "Move Entities To", "type": "integer", "description": "Target level for orphaned entities (default: 1)", "default": 1, "min": 1, "max": 2048},
+            {"name": "Confirm", "type": "checkbox", "description": "Show interactive confirmation", "default": true}
+          ]
+        }
+      }
+    },
+    "LEVEL_SET_ACTIVE": {
+      "description": "Set a level as the active level for new entity creation. Auto-Create If Missing creates the level on the fly if it doesn't exist.",
+      "category": "Level_SetActive",
+      "mastercam_command": "LevelSetActive",
+      "mastercam_api": "Mastercam.Levels.Level.SetActive",
+      "parameterCount": 3,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Level Number", "type": "integer", "required": true, "min": 1, "max": 2048},
+            {"name": "Auto-Create If Missing", "type": "checkbox", "default": true},
+            {"name": "Update UI", "type": "checkbox", "description": "Refresh Levels Manager display", "default": true}
+          ]
+        }
+      }
+    },
+    "LEVEL_VISIBILITY": {
+      "description": "Show or hide a level. Hide-Others isolates the target level (hides all others). Apply-To-All operates on all levels at once with the same visibility state.",
+      "category": "Level_Visibility",
+      "mastercam_command": "LevelVisibility",
+      "mastercam_api": "Mastercam.Levels.Level.SetVisibility",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Level Number", "type": "integer", "min": 1, "max": 2048},
+            {"name": "Visible", "type": "checkbox", "required": true},
+            {"name": "Hide Others", "type": "checkbox", "description": "Isolate target level", "default": false},
+            {"name": "Apply To All", "type": "checkbox", "description": "Apply Visible to every level", "default": false},
+            {"name": "Sync With Display", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "GROUP_CREATE": {
+      "description": "Create an entity group. Groups bundle entities by purpose (e.g., 'fixtures', 'rough_stock') without affecting their level / color attributes. Lock prevents members from being modified or deleted as long as the group exists.",
+      "category": "Group_Create",
+      "mastercam_command": "GroupCreate",
+      "mastercam_api": "Mastercam.Groups.Group.Create",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Name", "type": "string", "required": true},
+            {"name": "Members", "type": "selection", "description": "Initial entity set"},
+            {"name": "Color Override", "type": "integer", "description": "Mastercam color index (1..255)"},
+            {"name": "Description", "type": "string"},
+            {"name": "Lock", "type": "checkbox", "description": "Prevent member modification / deletion", "default": false}
+          ]
+        }
+      }
+    },
+    "GROUP_DELETE": {
+      "description": "Delete a group. Disband mode controls whether members are released (kept in scene) or deleted entirely.",
+      "category": "Group_Delete",
+      "mastercam_command": "GroupDelete",
+      "mastercam_api": "Mastercam.Groups.Group.Delete",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Group Name", "type": "string", "required": true},
+            {"name": "Disband Mode", "type": "dropdown", "options": ["release", "delete_members"], "default": "release"},
+            {"name": "Confirm", "type": "checkbox", "default": true},
+            {"name": "Update Dependents", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "GROUP_ADD_MEMBERS": {
+      "description": "Add entities to an existing group. Replace Existing clears the current member set before adding (default: append).",
+      "category": "Group_AddMembers",
+      "mastercam_command": "GroupAddMembers",
+      "mastercam_api": "Mastercam.Groups.Group.AddMembers",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Group Name", "type": "string", "required": true},
+            {"name": "Members", "type": "selection", "description": "Entities to add", "required": true},
+            {"name": "Replace Existing", "type": "checkbox", "description": "Clear current members before adding", "default": false},
+            {"name": "Update Dependents", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "ATTRIBUTE_SET": {
+      "description": "Set entity attributes (color / line width / line style / level / group / lock). Attributes can cascade to child entities via Apply Recursive (e.g. for swept solids whose source profile + path are also affected).",
+      "category": "Attribute_Set",
+      "mastercam_command": "AttributeSet",
+      "mastercam_api": "Mastercam.Database.Attribute.Set",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Color", "type": "integer", "description": "Mastercam color index (1..255)", "min": 1, "max": 255},
+            {"name": "Line Width", "type": "numeric", "unit": "mm", "min": 0},
+            {"name": "Line Style", "type": "dropdown", "options": ["solid", "dashed", "phantom", "chain", "hidden", "construction"], "default": "solid"},
+            {"name": "Level Override", "type": "integer", "min": 1, "max": 2048},
+            {"name": "Group Assignment", "type": "string", "description": "Group name to assign membership"},
+            {"name": "Lock State", "type": "dropdown", "options": ["unlocked", "locked", "no_change"], "default": "no_change"},
+            {"name": "Apply Recursive", "type": "checkbox", "description": "Cascade to child entities (swept profiles, etc.)", "default": false},
+            {"name": "Apply To Children Only", "type": "checkbox", "description": "Skip the parent entity itself", "default": false}
+          ]
+        }
+      }
+    }
+  }
+}

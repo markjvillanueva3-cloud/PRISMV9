@@ -1,0 +1,277 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Mesh Operations - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 Design workspace mesh operations: import (Insert Mesh), conversion (Convert to BRep), decimation (Reduce), smoothing (Smooth), healing (Repair), splitting (Plane Cut), and local edits (Erase and Fill). Aligns with Autodesk Fusion 360 Python API MeshFeatures + MeshBody surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-FUS-05",
+    "source": "Autodesk Fusion 360 Help — Design workspace > Mesh > Modify panel + Python API MeshFeatures reference",
+    "totalParameters": 66,
+    "operationCount": 7,
+    "cad_concepts_used": [
+      "TRIANGLE_DECIMATION",
+      "LAPLACIAN_SMOOTHING",
+      "MESH_HEALING",
+      "NON_MANIFOLD_TOPOLOGY",
+      "WATERTIGHT_MESH",
+      "MESH_TO_BREP_FACETED",
+      "BOOLEAN_PLANE_CUT"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs for mesh operations",
+    "tabs": ["Selection", "Configuration", "Operation", "Properties"]
+  },
+  "operations": {
+    "INSERT_MESH": {
+      "description": "Imports an external mesh file (OBJ / STL / 3MF) into the active design as a mesh body. Supports unit scaling, axis remapping (Y-up vs Z-up), and merge-coplanar-faces optimization.",
+      "category": "Mesh_Import",
+      "fusion_command": "InsertMesh",
+      "python_api": "rootComp.meshBodies.add | meshBodyInputs",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "File Path", "type": "string", "description": "Local file path to .obj / .stl / .3mf", "required": true},
+            {"name": "File Format", "type": "dropdown", "description": "Forced format override (auto-detected from extension)", "options": ["auto", "obj", "stl", "3mf"], "default": "auto"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Unit Type", "type": "dropdown", "description": "Source mesh's unit assumption", "options": ["mm", "cm", "m", "in", "ft"], "default": "mm"},
+            {"name": "Up Axis", "type": "dropdown", "description": "Source mesh's up direction (auto-rotate to Fusion's Z-up)", "options": ["Y_up", "Z_up"], "default": "Z_up"},
+            {"name": "Merge Coplanar Faces", "type": "checkbox", "description": "Combine adjacent triangles on the same plane (saves triangle count)", "default": true},
+            {"name": "Place At", "type": "dropdown", "description": "Where the mesh origin lands", "options": ["world_origin", "selected_point", "imported_origin"], "default": "world_origin"},
+            {"name": "Insertion Point", "type": "selection", "description": "Sketch point / vertex for selected_point mode"},
+            {"name": "Scale Factor", "type": "numeric", "description": "Uniform scale applied after unit conversion", "default": 1.0, "min": 0.0001}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "new_component"], "default": "new_body"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "CONVERT_TO_BREP": {
+      "description": "Converts a mesh body to a faceted BRep solid. Each triangle becomes a planar face. Use sparingly — output BRep has very high face count (one per triangle); preferable to first Reduce + Smooth, then Convert.",
+      "category": "Mesh_Convert",
+      "fusion_command": "ConvertToBRep",
+      "python_api": "rootComp.features.meshToBRepFeatures.add | createInput",
+      "parameterCount": 7,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Mesh Bodies", "type": "selection_list", "description": "Mesh body / bodies to convert", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Output Type", "type": "dropdown", "description": "Faceted (every triangle = face) or stitched (planar regions = face)", "options": ["faceted", "stitched_planar"], "default": "stitched_planar"},
+            {"name": "Stitch Tolerance", "type": "numeric", "unit": "mm", "description": "Coplanar tolerance for stitched_planar mode", "default": 0.01, "min": 0.0001},
+            {"name": "Preserve Mesh", "type": "checkbox", "description": "Keep the original mesh body alongside the new BRep", "default": false}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "new_component"], "default": "new_body"},
+            {"name": "Warn On Triangle Count", "type": "integer", "description": "Confirmation prompt threshold (0 = no prompt)", "default": 100000, "min": 0}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REDUCE": {
+      "description": "Decimates the mesh to a lower triangle count while preserving overall shape. Three target modes: target triangle count, target percentage, or target deviation. Supports edge-length and curvature-aware preservation.",
+      "category": "Mesh_Decimate",
+      "fusion_command": "Reduce",
+      "python_api": "rootComp.features.meshReduceFeatures.add | createInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Mesh Bodies", "type": "selection_list", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Target Mode", "type": "dropdown", "options": ["triangle_count", "percentage", "deviation"], "default": "percentage"},
+            {"name": "Target Triangle Count", "type": "integer", "description": "Final triangle count (triangle_count mode)", "min": 1},
+            {"name": "Target Percentage", "type": "numeric", "description": "Fraction of original to keep (0..1, percentage mode)", "min": 0.001, "max": 1.0, "default": 0.5},
+            {"name": "Max Deviation", "type": "numeric", "unit": "mm", "description": "Maximum allowed deviation (deviation mode)", "default": 0.1, "min": 0.0001},
+            {"name": "Preserve Boundaries", "type": "checkbox", "description": "Lock open boundary edges", "default": true},
+            {"name": "Preserve Sharp Edges", "type": "checkbox", "description": "Detect and preserve sharp creases above angle threshold", "default": true},
+            {"name": "Sharp Edge Angle", "type": "numeric", "unit": "deg", "description": "Crease detection threshold", "default": 30, "min": 1, "max": 180}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["modify_existing", "new_body"], "default": "modify_existing"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SMOOTH": {
+      "description": "Laplacian (or Taubin λ-μ) smoothing of mesh vertices. Reduces noise from scan data. Iteration count controls strength. Supports masking by face selection so only selected regions are smoothed.",
+      "category": "Mesh_Modify",
+      "fusion_command": "Smooth",
+      "python_api": "rootComp.features.meshSmoothFeatures.add | createInput",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Mesh Bodies", "type": "selection_list", "required": true},
+            {"name": "Mask Faces", "type": "selection_list", "description": "Optional subset of faces to smooth (rest are locked)"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Algorithm", "type": "dropdown", "options": ["laplacian", "taubin"], "default": "taubin"},
+            {"name": "Iterations", "type": "integer", "description": "Number of smoothing passes", "default": 5, "min": 1, "max": 100},
+            {"name": "Smoothness Factor", "type": "numeric", "description": "λ — Laplacian step (0..1)", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Shrinkage Factor", "type": "numeric", "description": "μ — Taubin reverse step (taubin only, must be > λ)", "default": 0.55, "min": 0, "max": 1},
+            {"name": "Preserve Boundaries", "type": "checkbox", "default": true},
+            {"name": "Preserve Sharp Edges", "type": "checkbox", "default": true}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["modify_existing", "new_body"], "default": "modify_existing"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REPAIR": {
+      "description": "Heals invalid mesh topology. Detects and fixes: holes (fill), non-manifold edges (split or remove), self-intersections (resolve), duplicate vertices (merge), inverted normals (flip), small components (delete). Choose individual fixes or run all.",
+      "category": "Mesh_Modify",
+      "fusion_command": "Repair",
+      "python_api": "rootComp.features.meshRepairFeatures.add | createInput",
+      "parameterCount": 13,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Mesh Bodies", "type": "selection_list", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Repair Mode", "type": "dropdown", "options": ["full_auto", "selective"], "default": "full_auto"},
+            {"name": "Fill Holes", "type": "checkbox", "default": true},
+            {"name": "Hole Max Boundary Length", "type": "numeric", "unit": "mm", "description": "Don't fill holes whose perimeter exceeds this (selective mode)", "default": 50, "min": 0.001},
+            {"name": "Fix Non-Manifold Edges", "type": "checkbox", "default": true},
+            {"name": "Resolve Self-Intersections", "type": "checkbox", "default": true},
+            {"name": "Merge Duplicate Vertices", "type": "checkbox", "default": true},
+            {"name": "Vertex Merge Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0},
+            {"name": "Flip Inverted Normals", "type": "checkbox", "default": true},
+            {"name": "Delete Small Components", "type": "checkbox", "description": "Remove disconnected mesh components below threshold", "default": false},
+            {"name": "Component Triangle Threshold", "type": "integer", "description": "Components with fewer triangles are deleted (delete_small_components mode)", "default": 100, "min": 1}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["modify_existing", "new_body"], "default": "modify_existing"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PLANE_CUT": {
+      "description": "Splits a mesh body using a plane. Resulting halves are independently selectable. Optionally fill the cross-section with a triangulated cap to keep the body watertight.",
+      "category": "Mesh_Boolean",
+      "fusion_command": "PlaneCut",
+      "python_api": "rootComp.features.meshPlaneCutFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Mesh Bodies", "type": "selection_list", "required": true},
+            {"name": "Cut Plane", "type": "selection", "description": "Construction plane / planar face", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Cut Direction", "type": "dropdown", "description": "Which side to keep / discard / split", "options": ["keep_positive", "keep_negative", "split"], "default": "split"},
+            {"name": "Fill Cross-Section", "type": "checkbox", "description": "Cap the cut with new triangles (watertight result)", "default": true},
+            {"name": "Cross-Section Resolution", "type": "numeric", "unit": "mm", "description": "Edge length for cap triangles", "default": 1.0, "min": 0.001},
+            {"name": "Plane Offset", "type": "numeric", "unit": "mm", "description": "Distance from cut_plane (signed)", "default": 0}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["modify_existing", "new_body"], "default": "new_body"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "ERASE_AND_FILL": {
+      "description": "Local mesh edit: deletes selected faces and fills the resulting hole with new triangulation. Used to clean noisy regions, remove undesired protrusions, or rebuild non-manifold patches.",
+      "category": "Mesh_Modify",
+      "fusion_command": "EraseAndFill",
+      "python_api": "rootComp.features.meshEraseAndFillFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Faces to Erase", "type": "selection_list", "description": "Triangles or face groups to delete", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Auto-extend to tangent-connected faces", "default": false}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Fill Method", "type": "dropdown", "description": "Hole-filling algorithm", "options": ["flat", "tangent", "smooth_curvature"], "default": "tangent"},
+            {"name": "Refinement Level", "type": "integer", "description": "Number of subdivision passes on the fill triangulation", "default": 2, "min": 0, "max": 5},
+            {"name": "Preserve Boundary Continuity", "type": "checkbox", "description": "Match the curvature of adjacent retained faces", "default": true}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["modify_existing", "new_body"], "default": "modify_existing"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "design_workspace_required": true,
+    "mesh_workspace_subtab": "Mesh operations live under Design > Mesh subworkspace, accessible only when a mesh body is in the active document",
+    "convert_to_brep_caveat": "Faceted BRep output has one face per triangle — Fusion warns at 100k triangles by default because downstream operations (fillet, pattern, shell) become slow and may fail",
+    "smooth_taubin_lambda_mu_constraint": "Taubin λ-μ smoothing requires μ > λ for non-shrinking behavior; default 0.5 / 0.55 is canonical from Taubin's 1995 SIGGRAPH paper",
+    "supported_import_formats": ["obj", "stl_ascii", "stl_binary", "3mf"],
+    "stl_binary_preferred": "STL binary is ~6× smaller than ASCII for equivalent triangle count"
+  }
+}

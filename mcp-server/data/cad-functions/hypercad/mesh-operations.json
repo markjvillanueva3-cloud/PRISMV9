@@ -1,0 +1,349 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Mesh Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S Mesh Modeler. Mesh inputs (STL / OBJ / PLY / 3MF / scan data) feed two downstream paths: conversion to NURBS surface or BRep solid for parametric machining, or feature-line extraction for direct toolpath generation in hyperMILL. Catalog covers: 1 import op (Insert), 2 conversion ops (Convert-to-BRep / Convert-to-Surface), 4 modify ops (Reduce / Smooth / Repair / Remesh), 1 Boolean op (mesh-mesh union/subtract/intersect), 2 cut ops (Plane-Cut / Clip-Volume), 1 feature-extraction op (Extract-Feature-Lines for hyperMILL), and 1 additive prep op (Slice-For-Additive).",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-05",
+    "source": "OPEN MIND hyperCAD-S Mesh Reference, hyperMILL Feature-Line Toolpath Reference",
+    "totalParameters": 66,
+    "operationCount": 12,
+    "cad_concepts_used": [
+      "TRIANGULAR_MESH",
+      "DECIMATION_TOLERANCE",
+      "MESH_TO_BREP",
+      "MESH_TO_NURBS",
+      "FEATURE_LINE",
+      "MESH_BOOLEAN",
+      "PLANE_SLICE",
+      "ADDITIVE_LAYER_HEIGHT",
+      "MESH_REPAIR_NON_MANIFOLD"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S mesh operations",
+    "tabs": ["Source", "Geometry", "Tolerance", "Output"]
+  },
+  "operations": {
+    "MESH_INSERT": {
+      "description": "Import a mesh body from STL / OBJ / PLY / 3MF / SCAN file. Optional automatic repair pass and unit-system conversion at import time.",
+      "category": "Mesh_Import",
+      "fusion_command": "n/a (hyperCAD-S macro: MESH.INSERT)",
+      "python_api": "Mesh.insert",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "File Path", "type": "text", "description": "Absolute path to mesh file", "required": true},
+            {"name": "File Format", "type": "dropdown", "options": ["stl_binary", "stl_ascii", "obj", "ply", "3mf", "scan_xyz"], "default": "stl_binary"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Units", "type": "dropdown", "options": ["mm", "cm", "m", "inch", "auto_detect"], "default": "auto_detect"},
+            {"name": "Placement Origin", "type": "point3d", "description": "World-coordinate insertion point (defaults to origin)"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Auto Repair On Import", "type": "checkbox", "description": "Run a basic repair pass (close gaps, drop zero-area facets) at insert time", "default": true},
+            {"name": "Result Body Name", "type": "text"}
+          ]
+        }
+      }
+    },
+    "MESH_CONVERT_TO_BREP": {
+      "description": "Convert a mesh body into a BRep solid by faceted-surface fit. Each triangle becomes a planar face; output volume matches mesh enclosed volume within tolerance. Coarser than CONVERT_TO_SURFACE but faster and watertight by construction.",
+      "category": "Mesh_Convert",
+      "fusion_command": "MESH.CONVERT.BREP",
+      "python_api": "Mesh.toBrep",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Volume Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum volume difference between mesh and BRep result", "default": 0.01, "min": 0},
+            {"name": "Coplanar Merge Angle", "type": "numeric", "unit": "deg", "description": "Adjacent faces within this normal-angle threshold get merged into one BRep face", "default": 1, "min": 0, "max": 90}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Mode", "type": "dropdown", "options": ["solid", "shell", "per_face_brep"], "default": "solid"},
+            {"name": "Suppress Source Mesh", "type": "checkbox", "description": "Hide source mesh after conversion", "default": false}
+          ]
+        }
+      }
+    },
+    "MESH_CONVERT_TO_SURFACE": {
+      "description": "Convert a mesh into a NURBS surface set by region segmentation + per-region surface fit. Mesh-workspace entry point with mesh-domain defaults — pairs with surface_operations.MESH_TO_SURFACE which is the surface-workspace entry.",
+      "category": "Mesh_Convert",
+      "fusion_command": "MESH.CONVERT.SURFACE",
+      "python_api": "Mesh.toSurface",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Segmentation Mode", "type": "dropdown", "options": ["auto_curvature", "by_feature_lines", "by_seed_faces", "single_region"], "default": "auto_curvature"},
+            {"name": "Curvature Threshold", "type": "numeric", "unit": "deg", "description": "Crease angle separating regions (Segmentation Mode = auto_curvature)", "default": 30, "min": 0, "max": 180}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Fit Tolerance", "type": "numeric", "unit": "mm", "description": "Max deviation of surface from mesh", "default": 0.05, "min": 0},
+            {"name": "Target Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Stitch Output", "type": "checkbox", "description": "Stitch result surfaces into a shell", "default": true}
+          ]
+        }
+      }
+    },
+    "MESH_REDUCE": {
+      "description": "Decimate (reduce) triangle count while staying within deviation tolerance. Used to shrink dense scan-data meshes for faster downstream processing.",
+      "category": "Mesh_Modify",
+      "fusion_command": "MESH.MODIFY.REDUCE",
+      "python_api": "Mesh.reduce",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Reduction Mode", "type": "dropdown", "options": ["target_count", "target_ratio", "max_deviation"], "default": "max_deviation"},
+            {"name": "Target Triangle Count", "type": "numeric", "description": "Absolute triangle count target (Reduction Mode = target_count)", "min": 4},
+            {"name": "Target Ratio", "type": "numeric", "description": "Fraction of original count, 0..1 (Reduction Mode = target_ratio)", "default": 0.5, "min": 0.001, "max": 1}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Maximum Deviation", "type": "numeric", "unit": "mm", "description": "Hard upper bound on geometry displacement", "default": 0.05, "min": 0},
+            {"name": "Preserve Sharp Features", "type": "checkbox", "description": "Lock sharp-feature edges during decimation", "default": true}
+          ]
+        }
+      }
+    },
+    "MESH_SMOOTH": {
+      "description": "Smooth (denoise) mesh by repositioning vertices toward neighborhood average within tolerance. Used for scan-data noise removal.",
+      "category": "Mesh_Modify",
+      "fusion_command": "MESH.MODIFY.SMOOTH",
+      "python_api": "Mesh.smooth",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Smoothing Method", "type": "dropdown", "options": ["laplacian", "taubin", "bilateral"], "default": "taubin"},
+            {"name": "Iterations", "type": "numeric", "default": 5, "min": 1, "max": 100}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Smoothing Weight", "type": "numeric", "description": "0 = preserve shape, 1 = maximum smoothing", "default": 0.3, "min": 0, "max": 1},
+            {"name": "Preserve Sharp Features", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "MESH_REPAIR": {
+      "description": "Repair common mesh defects: holes, zero-area facets, duplicate vertices, non-manifold edges, inverted normals. Mesh-domain analog of healing AUTO_HEAL.",
+      "category": "Mesh_Modify",
+      "fusion_command": "MESH.MODIFY.REPAIR",
+      "python_api": "Mesh.repair",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Stages", "type": "selection_list", "options": ["fill_holes", "remove_zero_area", "merge_duplicate_vertices", "fix_non_manifold", "fix_normals", "remove_disconnected"], "default": ["fill_holes", "remove_zero_area", "merge_duplicate_vertices", "fix_non_manifold", "fix_normals"]}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Hole Fill Max Size", "type": "numeric", "unit": "mm", "description": "Largest hole that gets auto-filled", "default": 5, "min": 0},
+            {"name": "Vertex Merge Tolerance", "type": "numeric", "unit": "mm", "description": "Vertices closer than this get merged", "default": 0.001, "min": 0},
+            {"name": "Stop On First Failure", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MESH_REMESH": {
+      "description": "Re-tessellate mesh with controlled triangle size and shape. Used to produce uniform meshes from non-uniform scan data or to refine coarse meshes for finer toolpath sampling.",
+      "category": "Mesh_Modify",
+      "fusion_command": "MESH.MODIFY.REMESH",
+      "python_api": "Mesh.remesh",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Edge Length", "type": "numeric", "unit": "mm", "description": "Desired edge length for output triangles", "required": true, "min": 0.001},
+            {"name": "Adaptive", "type": "checkbox", "description": "Vary edge length by curvature (smaller in high-curvature regions)", "default": true},
+            {"name": "Curvature Sensitivity", "type": "numeric", "description": "How aggressively edge length shrinks with curvature, 0..1 (Adaptive = true)", "default": 0.5, "min": 0, "max": 1}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Maximum Deviation", "type": "numeric", "unit": "mm", "description": "Hard upper bound on geometry displacement", "default": 0.01, "min": 0}
+          ]
+        }
+      }
+    },
+    "MESH_BOOLEAN": {
+      "description": "Boolean op (union / subtract / intersect) between two mesh bodies. Faster than BRep Boolean but produces non-watertight results that often require MESH_REPAIR after.",
+      "category": "Mesh_Boolean",
+      "fusion_command": "MESH.BOOLEAN",
+      "python_api": "Mesh.boolean",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true},
+            {"name": "Tool Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["union", "subtract", "intersect"], "default": "union", "required": true},
+            {"name": "Auto Repair Result", "type": "checkbox", "description": "Run MESH_REPAIR on result before returning", "default": true}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Snap Tolerance", "type": "numeric", "unit": "mm", "description": "Coplanar-edge snap distance during intersection", "default": 0.001, "min": 0}
+          ]
+        }
+      }
+    },
+    "MESH_PLANE_CUT": {
+      "description": "Cut mesh by a plane. Returns one or both sides; optionally caps the cut with a planar face for closed result.",
+      "category": "Mesh_Cut",
+      "fusion_command": "MESH.CUT.PLANE",
+      "python_api": "Mesh.planeCut",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true},
+            {"name": "Cutting Plane", "type": "selection", "description": "Origin plane / planar face / reference plane", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Side To Keep", "type": "dropdown", "options": ["positive_normal", "negative_normal", "both_sides"], "default": "positive_normal"},
+            {"name": "Cap Cut", "type": "checkbox", "description": "Insert planar face along the cut to keep result closed", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "MESH_CLIP_VOLUME": {
+      "description": "Clip mesh by a closed volume body. Retains mesh region inside (or outside) the clipping volume.",
+      "category": "Mesh_Cut",
+      "fusion_command": "MESH.CUT.CLIP_VOLUME",
+      "python_api": "Mesh.clipVolume",
+      "parameterCount": 5,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Target Mesh", "type": "selection", "required": true},
+            {"name": "Clipping Volume", "type": "selection", "description": "Closed solid / mesh body acting as clip", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Region To Keep", "type": "dropdown", "options": ["inside", "outside"], "default": "inside"},
+            {"name": "Cap Cut", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "MESH_EXTRACT_FEATURE_LINES": {
+      "description": "Extract feature lines (sharp edges and silhouette curves) from a mesh. Output curve set is the canonical input to hyperMILL feature-line toolpaths — direct path from scan data to NC code without going through surface fit.",
+      "category": "Mesh_Extract",
+      "fusion_command": "MESH.EXTRACT.FEATURE_LINES",
+      "python_api": "Mesh.extractFeatureLines",
+      "parameterCount": 6,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source Mesh", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Sharp Angle Threshold", "type": "numeric", "unit": "deg", "description": "Edges with normal-angle defect above this are flagged as sharp", "default": 25, "min": 0, "max": 180},
+            {"name": "Include Silhouettes", "type": "checkbox", "description": "Also extract view-dependent silhouette curves", "default": false},
+            {"name": "View Direction", "type": "vector3d", "description": "View direction for silhouettes (Include Silhouettes = true)"}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Curve Smoothing", "type": "numeric", "description": "Smoothing weight applied to extracted curves, 0..1", "default": 0.1, "min": 0, "max": 1},
+            {"name": "Minimum Curve Length", "type": "numeric", "unit": "mm", "description": "Drop extracted segments shorter than this", "default": 0.5, "min": 0}
+          ]
+        }
+      }
+    },
+    "MESH_SLICE_FOR_ADDITIVE": {
+      "description": "Slice mesh into a stack of planar contours for additive manufacturing (FDM / SLA / SLS). Output is per-layer 2D contour set ready for slicer software.",
+      "category": "Mesh_Slice",
+      "fusion_command": "MESH.SLICE.ADDITIVE",
+      "python_api": "Mesh.sliceForAdditive",
+      "parameterCount": 7,
+      "tabs": {
+        "Source": {
+          "parameters": [
+            {"name": "Source Mesh", "type": "selection", "required": true},
+            {"name": "Build Direction", "type": "vector3d", "description": "Layer-stack axis (defaults to +Z)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Layer Height", "type": "numeric", "unit": "mm", "description": "Slice spacing along build direction", "required": true, "min": 0.001},
+            {"name": "Adaptive Layers", "type": "checkbox", "description": "Vary layer height with surface curvature", "default": false},
+            {"name": "Min Adaptive Layer", "type": "numeric", "unit": "mm", "description": "Lower bound on adaptive layer height", "min": 0.001},
+            {"name": "Max Adaptive Layer", "type": "numeric", "unit": "mm", "description": "Upper bound on adaptive layer height", "min": 0.001}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["contour_curves", "svg_per_layer", "gcode_outline"], "default": "contour_curves"}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "two_paths": "Mesh inputs feed two paths in hyperCAD/hyperMILL: (1) MESH_CONVERT_TO_SURFACE / MESH_CONVERT_TO_BREP for parametric machining, (2) MESH_EXTRACT_FEATURE_LINES for direct toolpath generation without surface fit.",
+    "non_watertight": "MESH_BOOLEAN results are commonly non-watertight; chain MESH_REPAIR after for downstream BRep conversion.",
+    "scan_workflow": "Typical scan-import workflow: MESH_INSERT → MESH_REPAIR → MESH_REDUCE → MESH_SMOOTH → MESH_CONVERT_TO_SURFACE → hyperMILL toolpaths."
+  }
+}

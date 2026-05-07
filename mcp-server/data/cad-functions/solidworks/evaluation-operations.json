@@ -1,0 +1,475 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Evaluation Operations — Geometry analysis + verification + sustainability layer",
+    "description": "Parameter catalog for the SolidWorks CAD evaluation / verification / sustainability layer. Final 8th module in the SolidWorks CAD function-index track. Covers basic measurement (MEASURE / MASS_PROPERTIES / SECTION_PROPERTIES), assembly verification (INTERFERENCE_DETECTION_PART_LEVEL / CLEARANCE_VERIFICATION_PART_LEVEL / COLLISION_DETECTION), part-quality analyses (DRAFT_ANALYSIS / UNDERCUT_ANALYSIS / DEVIATION_ANALYSIS / THICKNESS_ANALYSIS / SYMMETRY_CHECK / ZEBRA_STRIPES / CURVATURE), DESIGN_CHECKER + DFM_CHECKER quality gates, PERFORMANCE_EVALUATION (large-assembly profiling), COSTING (manufacturing cost estimation), SUSTAINABILITY (life-cycle assessment), and PARAMETRIC_LINK_CHECK (external reference health). 18 operations / 145 parameters total. Bindings target IModelDocExtension.GetMeasureManager / IMassProperty / ISectionProperty / IInterferenceDetectionMgr / IClearanceVerification / ICollisionDetectionMgr / IDraftAnalysis / IUndercutAnalysis / IDeviationAnalysis / IThickAnalysis / IDesignChecker / ICostingManager / ISustainabilityManager — the canonical SolidWorks 2024 evaluation API surface.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-08",
+    "source": "SolidWorks 2024 API Help — Evaluation; SolidWorks API Reference — IModelDocExtension (measure / mass / section) / IInterferenceDetectionMgr / IClearanceVerification / IDraftAnalysis / IUndercutAnalysis / IDeviationAnalysis / IThickAnalysis / IDesignChecker / ICostingManager / ISustainabilityManager; SolidWorks 2024 Evaluate toolbar; ISO 14040 (life-cycle assessment); ISO 1101 (geometric tolerancing terminology)",
+    "totalParameters": 123,
+    "operationCount": 19,
+    "cad_concepts_used": [
+      "GEOMETRIC_MEASUREMENT_3D",
+      "MASS_INERTIA_TENSOR",
+      "SECTION_AREA_CENTROID_MOMENT",
+      "VOLUME_INTERFERENCE",
+      "MIN_DISTANCE_CLEARANCE",
+      "DRAFT_ANGLE_DEGREE_RELATIVE_TO_PULL",
+      "UNDERCUT_TOOL_ACCESS_VOLUME",
+      "BREP_DEVIATION_ROOT_MEAN_SQUARE",
+      "WALL_THICKNESS_FIELD",
+      "ZEBRA_STRIPE_CURVATURE_VISUALIZATION",
+      "GAUSSIAN_MEAN_PRINCIPAL_CURVATURE",
+      "DESIGN_CHECKER_RULE_BASED_AUDIT",
+      "DFM_RULE_BASED_AUDIT",
+      "MANUFACTURING_COST_ROLLUP",
+      "ISO_14040_LIFE_CYCLE_ASSESSMENT",
+      "PARAMETRIC_DEPENDENCY_GRAPH"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks evaluation operations",
+    "tabs": ["Selections", "Options", "Output"]
+  },
+  "operations": {
+    "MEASURE": {
+      "description": "Basic geometric measurement between selected entities. Measure Type selects auto-detect (smart-pick from selection topology) or specific (length / angle / radius / arc-length / distance-between-faces). Units control output unit override (otherwise inherits document units).",
+      "category": "Evaluation_Measure",
+      "solidworks_command": "Tools > Evaluate > Measure",
+      "solidworks_api": "IModelDocExtension.GetMeasureManager.Measure3",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Entities", "type": "string", "description": "Comma-separated list of vertices / edges / faces / points", "required": true},
+            {"name": "Measure Type", "type": "dropdown", "options": ["auto", "length", "angle", "radius", "diameter", "arc_length", "distance_min", "distance_max", "distance_between_faces", "perpendicular_distance", "center_to_center"], "required": true, "default": "auto"}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Units Override", "type": "dropdown", "options": ["use_document_units", "mm", "cm", "m", "inch", "feet", "deg", "rad"], "default": "use_document_units"},
+            {"name": "Show XYZ Components", "type": "checkbox", "default": false},
+            {"name": "Project To Plane", "type": "selection", "description": "Optional projection plane for distance measurements"},
+            {"name": "Use Center To Center", "type": "checkbox", "description": "Auto-resolve hole/cylinder selections to centerlines", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Save Result To Property", "type": "string", "description": "Optional custom property name to receive result"}
+          ]
+        }
+      }
+    },
+    "MASS_PROPERTIES": {
+      "description": "Compute mass properties — mass, volume, surface area, density, center of mass, principal axes of inertia, moment of inertia tensor (about COM and about output coordinate system). Override Material Density allows what-if mass with hypothetical material.",
+      "category": "Evaluation_Measure",
+      "solidworks_command": "Tools > Evaluate > Mass Properties",
+      "solidworks_api": "IModelDocExtension.CreateMassProperty2",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bodies / Components", "type": "string", "description": "Comma-separated list, or 'all' for entire model", "default": "all"},
+            {"name": "Reference Coordinate System", "type": "selection", "description": "Coordinate system for output (default: model origin)"}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Override Material Density", "type": "checkbox", "default": false},
+            {"name": "Custom Density", "type": "numeric", "unit": "kg/m^3", "description": "Required when Override Material Density = true", "default": 7850, "min": 0.001},
+            {"name": "Include Hidden Bodies", "type": "checkbox", "default": false},
+            {"name": "Show Output In", "type": "dropdown", "options": ["scientific", "engineering", "engineering_with_inertia"], "default": "engineering_with_inertia"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Save Report To Path", "type": "string", "description": "Optional .txt report output"}
+          ]
+        }
+      }
+    },
+    "SECTION_PROPERTIES": {
+      "description": "Compute 2D section properties — area, perimeter, centroid, moments of inertia, polar moment of inertia, radius of gyration, principal axes — for one or more planar sections. Used for structural analysis and beam-section verification.",
+      "category": "Evaluation_Measure",
+      "solidworks_command": "Tools > Evaluate > Section Properties",
+      "solidworks_api": "IModelDocExtension.CreateSectionProperty",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Planar Faces", "type": "string", "description": "Comma-separated list of planar faces / sketches", "required": true}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Reference Coordinate System", "type": "selection", "description": "Coordinate system for principal-axis output"},
+            {"name": "Include Polar Moment", "type": "checkbox", "default": true},
+            {"name": "Include Radius Of Gyration", "type": "checkbox", "default": true},
+            {"name": "Output Units", "type": "dropdown", "options": ["use_document_units", "mm", "cm", "m", "inch"], "default": "use_document_units"}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Save Report To Path", "type": "string"}
+          ]
+        }
+      }
+    },
+    "INTERFERENCE_DETECTION_PART_LEVEL": {
+      "description": "Multi-body part interference detection — find overlapping volumes between selected bodies of a multi-body part. Distinct from the assembly_operations INTERFERENCE_DETECTION (which scans assembly components); this op operates within a single .sldprt with multiple bodies.",
+      "category": "Evaluation_Verification",
+      "solidworks_command": "Tools > Evaluate > Interference Detection (Part)",
+      "solidworks_api": "IModelDocExtension.CheckInterference",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bodies To Check", "type": "string", "description": "Comma-separated, or 'all'", "default": "all"}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Treat Coincidence As Interference", "type": "checkbox", "default": false},
+            {"name": "Coincident Faces Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0},
+            {"name": "Show Ignored Interferences", "type": "checkbox", "default": false},
+            {"name": "Group By Body Pair", "type": "checkbox", "default": true},
+            {"name": "Make Interfering Bodies Transparent", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Save Results To File", "type": "string"}
+          ]
+        }
+      }
+    },
+    "CLEARANCE_VERIFICATION_PART_LEVEL": {
+      "description": "Verify minimum clearance between bodies in a multi-body part. Reports each pair whose closest-point distance falls below the threshold. Counterpart to assembly-level CLEARANCE_VERIFICATION but at part-body granularity.",
+      "category": "Evaluation_Verification",
+      "solidworks_command": "Tools > Evaluate > Clearance Verification (Part)",
+      "solidworks_api": "IClearanceVerification.GetMinimumDistances (part-body mode)",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bodies A", "type": "string", "required": true},
+            {"name": "Bodies B", "type": "string", "required": true}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Minimum Acceptable Clearance", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0},
+            {"name": "Pair Strategy", "type": "dropdown", "options": ["between_groups", "within_groups", "all_pairs"], "default": "between_groups"},
+            {"name": "Show Failing Pairs Only", "type": "checkbox", "default": true}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Save Results To File", "type": "string"}
+          ]
+        }
+      }
+    },
+    "COLLISION_DETECTION": {
+      "description": "Real-time collision detection during component dragging in an assembly. Sensitivity controls how close components can approach before flagging. Stop On Collision freezes drag motion at first contact (vs continuing to log multiple collisions).",
+      "category": "Evaluation_Verification",
+      "solidworks_command": "Tools > Evaluate > Collision Detection",
+      "solidworks_api": "ICollisionDetectionMgr.SetCollisionDetection",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Components To Watch", "type": "string", "description": "Comma-separated, or 'all_components'", "default": "all_components"}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Stop On Collision", "type": "checkbox", "default": true},
+            {"name": "Sensitivity", "type": "dropdown", "options": ["low", "medium", "high"], "default": "medium"},
+            {"name": "Audible Alarm", "type": "checkbox", "default": false},
+            {"name": "Highlight Faces On Collision", "type": "checkbox", "default": true},
+            {"name": "Detection Mode", "type": "dropdown", "options": ["these_components", "all_others", "all_dragged"], "default": "these_components"}
+          ]
+        }
+      }
+    },
+    "DRAFT_ANALYSIS": {
+      "description": "Color-map of draft angle relative to a pull direction. Used to verify mold-friendliness — surfaces below the minimum draft cannot be ejected without die damage. Color Bands segment the spectrum into per-band thresholds.",
+      "category": "Evaluation_PartQuality",
+      "solidworks_command": "Tools > Evaluate > Draft Analysis",
+      "solidworks_api": "IDraftAnalysis.AnalyzeDraft",
+      "parameterCount": 8,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Pull Direction", "type": "selection", "description": "Plane / face / axis defining mold opening direction", "required": true}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Required Draft Angle", "type": "numeric", "unit": "deg", "required": true, "default": 1, "min": 0, "max": 89},
+            {"name": "Number Of Color Bands", "type": "numeric", "default": 5, "min": 2, "max": 20},
+            {"name": "Show Positive Draft", "type": "checkbox", "default": true},
+            {"name": "Show Negative Draft", "type": "checkbox", "default": true},
+            {"name": "Show Vertical Faces", "type": "checkbox", "default": true},
+            {"name": "Show Faces Requiring Draft", "type": "checkbox", "default": true},
+            {"name": "Edge Highlighting", "type": "checkbox", "description": "Highlight transition edges between draft regions", "default": true}
+          ]
+        }
+      }
+    },
+    "UNDERCUT_ANALYSIS": {
+      "description": "Identify undercuts that would prevent mold release along a pull direction. Reports occluded regions of the model surface that would lock against the mold half. Distinct from draft analysis: draft is angular, undercut is topological visibility.",
+      "category": "Evaluation_PartQuality",
+      "solidworks_command": "Tools > Evaluate > Undercut Analysis",
+      "solidworks_api": "IUndercutAnalysis.Analyze",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Pull Direction", "type": "selection", "required": true}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Show Direction 1 Undercut", "type": "checkbox", "default": true},
+            {"name": "Show Direction 2 Undercut", "type": "checkbox", "default": true},
+            {"name": "Show Occluded Undercut", "type": "checkbox", "description": "Self-occluded faces (not visible from either side)", "default": true},
+            {"name": "Show Straddle Faces", "type": "checkbox", "description": "Faces visible from both directions", "default": true},
+            {"name": "Auto-Detect Parting Line", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "DEVIATION_ANALYSIS": {
+      "description": "Compute deviation between two surfaces (typically: original CAD vs reverse-engineered scan, or pre-deformation vs post-deformation FEA). Outputs RMS / max / min / per-vertex deviation as a color map.",
+      "category": "Evaluation_PartQuality",
+      "solidworks_command": "Tools > Evaluate > Deviation Analysis",
+      "solidworks_api": "IDeviationAnalysis.Analyze",
+      "parameterCount": 6,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Reference Surface", "type": "selection", "required": true},
+            {"name": "Compare To Surface", "type": "selection", "required": true}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Sample Density", "type": "dropdown", "options": ["coarse", "medium", "fine", "very_fine"], "default": "medium"},
+            {"name": "Direction Mode", "type": "dropdown", "options": ["normal_to_reference", "shortest_distance", "specified_axis"], "default": "normal_to_reference"},
+            {"name": "Maximum Deviation", "type": "numeric", "unit": "mm", "description": "Threshold for color-map saturation", "default": 1, "min": 0.0001},
+            {"name": "Color Bands", "type": "numeric", "default": 9, "min": 2, "max": 20}
+          ]
+        }
+      }
+    },
+    "THICKNESS_ANALYSIS": {
+      "description": "Wall-thickness color map across the part. Reports thin walls (below Minimum Thickness threshold) and thick walls (above Maximum Thickness threshold) — critical for injection molding and casting feasibility.",
+      "category": "Evaluation_PartQuality",
+      "solidworks_command": "Tools > Evaluate > Thickness Analysis",
+      "solidworks_api": "IThickAnalysis.Analyze",
+      "parameterCount": 7,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Bodies", "type": "string", "default": "all"}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Minimum Thickness", "type": "numeric", "unit": "mm", "required": true, "default": 1, "min": 0.001},
+            {"name": "Maximum Thickness", "type": "numeric", "unit": "mm", "default": 10, "min": 0.001},
+            {"name": "Resolution", "type": "dropdown", "options": ["coarse", "medium", "fine", "very_fine"], "default": "medium"},
+            {"name": "Show Thin Regions Only", "type": "checkbox", "default": true},
+            {"name": "Show Thick Regions Only", "type": "checkbox", "default": false},
+            {"name": "Color Map Range", "type": "string", "description": "Range string e.g. '0..5 mm'"}
+          ]
+        }
+      }
+    },
+    "SYMMETRY_CHECK": {
+      "description": "Verify model symmetry about a plane / axis / point. Reports asymmetry magnitude (max distance / mean distance / asymmetric face count). Used as an inspection / QA gate before part release.",
+      "category": "Evaluation_PartQuality",
+      "solidworks_command": "Tools > Evaluate > Symmetry Check",
+      "solidworks_api": "IModelDocExtension.SymmetryCheck",
+      "parameterCount": 5,
+      "tabs": {
+        "Selections": {
+          "parameters": [
+            {"name": "Symmetry Reference", "type": "selection", "description": "Plane / axis / point", "required": true},
+            {"name": "Symmetry Type", "type": "dropdown", "options": ["mirror_plane", "rotational_axis", "point_inversion"], "required": true, "default": "mirror_plane"}
+          ]
+        },
+        "Options": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.01, "min": 0.0001},
+            {"name": "Rotational Order", "type": "numeric", "description": "Required when Symmetry Type = rotational_axis (e.g. 4 for 4-fold)", "default": 2, "min": 2, "max": 360},
+            {"name": "Highlight Asymmetric Faces", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "ZEBRA_STRIPES": {
+      "description": "Surface continuity visualization via projected zebra stripes. Stripe alignment / smoothness across surface boundaries reveals C0 / C1 / C2 continuity defects. Stripe density and direction control visualization fidelity.",
+      "category": "Evaluation_SurfaceContinuity",
+      "solidworks_command": "View > Display > Zebra Stripes",
+      "solidworks_api": "IModelDoc2.SetupZebraStripes",
+      "parameterCount": 5,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Number Of Stripes", "type": "numeric", "default": 30, "min": 4, "max": 200},
+            {"name": "Color Mode", "type": "dropdown", "options": ["black_white", "rainbow", "user_defined"], "default": "black_white"},
+            {"name": "Stripe Width", "type": "numeric", "default": 1, "min": 0.1, "max": 10},
+            {"name": "Stripe Direction", "type": "dropdown", "options": ["x_axis", "y_axis", "z_axis", "view_axis"], "default": "view_axis"},
+            {"name": "Precision", "type": "dropdown", "options": ["coarse", "medium", "fine"], "default": "medium"}
+          ]
+        }
+      }
+    },
+    "CURVATURE_ANALYSIS": {
+      "description": "Color-mapped Gaussian / mean / principal / absolute curvature visualization. Used to detect surface continuity flaws not visible to zebra stripes (low-amplitude flat-ish defects) and to validate manufacturability of molded surfaces.",
+      "category": "Evaluation_SurfaceContinuity",
+      "solidworks_command": "View > Display > Curvature",
+      "solidworks_api": "IModelDoc2.SetupCurvatureDisplay",
+      "parameterCount": 5,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Curvature Type", "type": "dropdown", "options": ["gaussian", "mean", "principal_max", "principal_min", "absolute"], "required": true, "default": "gaussian"},
+            {"name": "Color Range Min", "type": "numeric", "unit": "1/mm", "default": -0.1},
+            {"name": "Color Range Max", "type": "numeric", "unit": "1/mm", "default": 0.1},
+            {"name": "Resolution", "type": "dropdown", "options": ["coarse", "medium", "fine", "very_fine"], "default": "medium"},
+            {"name": "Show Inflection Points", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "DESIGN_CHECKER": {
+      "description": "Run a SolidWorks Design Checker rule-based audit against drafting / modeling standards. Standards Path resolves to a .swstd file (created in the SWDesign Checker app). Auto-Fix attempts non-destructive corrections of failed rules.",
+      "category": "Evaluation_QualityGate",
+      "solidworks_command": "Tools > Design Checker",
+      "solidworks_api": "IDesignChecker.RunCheck",
+      "parameterCount": 7,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Standards Path", "type": "string", "description": "Path to .swstd standards file", "required": true},
+            {"name": "Check Categories", "type": "string", "description": "Comma-separated subset, or 'all'", "default": "all"},
+            {"name": "Severity Filter", "type": "dropdown", "options": ["critical_only", "warning_and_above", "all"], "default": "all"},
+            {"name": "Auto-Fix Failed Rules", "type": "checkbox", "default": false},
+            {"name": "Show Pass / Fail Summary", "type": "checkbox", "default": true},
+            {"name": "Block Save On Failure", "type": "checkbox", "description": "Reject document save if critical-rule failures exist", "default": false}
+          ]
+        },
+        "Output": {
+          "parameters": [
+            {"name": "Save Report To Path", "type": "string"}
+          ]
+        }
+      }
+    },
+    "DFM_CHECKER": {
+      "description": "DFMXpress design-for-manufacturing audit — checks part geometry against fabrication-process rules (machining / sheet metal / casting / molding). Process Selection scopes the rule set; Aggressiveness governs how strict the cutoff thresholds are.",
+      "category": "Evaluation_QualityGate",
+      "solidworks_command": "Tools > DFMXpress",
+      "solidworks_api": "IDFMXpressManager.RunCheck",
+      "parameterCount": 6,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Process Selection", "type": "dropdown", "options": ["machined", "sheet_metal", "molded", "cast", "additive"], "required": true, "default": "machined"},
+            {"name": "Aggressiveness", "type": "dropdown", "options": ["lenient", "default", "strict"], "default": "default"},
+            {"name": "Custom Rule Set Path", "type": "string", "description": "Optional path to custom DFM .xml rule file"},
+            {"name": "Material Override", "type": "string", "description": "Optional material name for rule scoping"},
+            {"name": "Show Pass / Fail Summary", "type": "checkbox", "default": true},
+            {"name": "Save Report To Path", "type": "string"}
+          ]
+        }
+      }
+    },
+    "PERFORMANCE_EVALUATION": {
+      "description": "Profile rebuild / open / save performance for the active document. Reports per-feature rebuild time, total feature count, mate solver time, graphics tessellation cost, and recommendations (lightweight conversion, design-table simplification, suppression candidates).",
+      "category": "Evaluation_Performance",
+      "solidworks_command": "Tools > Evaluate > Performance Evaluation",
+      "solidworks_api": "IModelDocExtension.PerformanceEvaluation",
+      "parameterCount": 5,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Profile Mode", "type": "dropdown", "options": ["rebuild_only", "open_close", "full_lifecycle"], "required": true, "default": "rebuild_only"},
+            {"name": "Repeat Count", "type": "numeric", "description": "Number of profiling runs to average", "default": 1, "min": 1, "max": 100},
+            {"name": "Include Graphics Cost", "type": "checkbox", "default": true},
+            {"name": "Include Recommendations", "type": "checkbox", "default": true},
+            {"name": "Save Report To Path", "type": "string"}
+          ]
+        }
+      }
+    },
+    "COSTING": {
+      "description": "Manufacturing cost estimation per the SolidWorks Costing tool. Costing Template selects machining / sheet metal / mold / cast process database. Computes raw stock cost + setup time + machine time + tool cost + labor + overhead + margin.",
+      "category": "Evaluation_Cost",
+      "solidworks_command": "Tools > SolidWorks Costing",
+      "solidworks_api": "ICostingManager.RunCostingCalculation",
+      "parameterCount": 8,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Costing Template", "type": "dropdown", "options": ["machining", "sheet_metal", "mold", "cast", "weldment", "additive_metal", "additive_polymer"], "required": true, "default": "machining"},
+            {"name": "Template Path", "type": "string", "description": "Path to .sldcostt template (overrides built-in)"},
+            {"name": "Quantity", "type": "numeric", "default": 1, "min": 1, "max": 999999},
+            {"name": "Material Override", "type": "string", "description": "Optional material name override"},
+            {"name": "Custom Operations", "type": "string", "description": "Comma-separated list of additional manual operations"},
+            {"name": "Include Setup Cost", "type": "checkbox", "default": true},
+            {"name": "Include Margin Markup", "type": "checkbox", "default": true},
+            {"name": "Margin Percent", "type": "numeric", "description": "Used when Include Margin Markup = true", "default": 30, "min": 0, "max": 1000}
+          ]
+        }
+      }
+    },
+    "SUSTAINABILITY": {
+      "description": "ISO 14040 life-cycle assessment via SolidWorks Sustainability — computes carbon footprint, total energy, air acidification, water eutrophication for the part across the manufacturing -> use -> end-of-life cycle. Region / energy mix scopes electricity carbon intensity.",
+      "category": "Evaluation_Sustainability",
+      "solidworks_command": "Tools > SolidWorks Sustainability",
+      "solidworks_api": "ISustainabilityManager.AnalyzeImpact",
+      "parameterCount": 9,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Material Source Region", "type": "dropdown", "options": ["north_america", "europe", "asia", "australia", "africa", "south_america", "global_average"], "required": true, "default": "north_america"},
+            {"name": "Manufacturing Region", "type": "dropdown", "options": ["north_america", "europe", "asia", "australia", "africa", "south_america", "global_average"], "required": true, "default": "north_america"},
+            {"name": "Use Region", "type": "dropdown", "options": ["north_america", "europe", "asia", "australia", "africa", "south_america", "global_average"], "default": "north_america"},
+            {"name": "End Of Life Treatment", "type": "dropdown", "options": ["recycled", "incinerated", "landfilled", "user_defined"], "required": true, "default": "recycled"},
+            {"name": "Recyclable Content Percent", "type": "numeric", "description": "Fraction of material from recycled stock", "default": 0, "min": 0, "max": 100},
+            {"name": "Transportation Distance", "type": "numeric", "unit": "km", "description": "Optional manufacturer-to-use transport distance", "default": 0, "min": 0},
+            {"name": "Use Phase Energy", "type": "numeric", "unit": "kWh/year", "description": "Optional use-phase energy consumption", "default": 0, "min": 0},
+            {"name": "Service Life", "type": "numeric", "unit": "years", "default": 5, "min": 0.1, "max": 100},
+            {"name": "Save LCA Report To Path", "type": "string"}
+          ]
+        }
+      }
+    },
+    "PARAMETRIC_LINK_CHECK": {
+      "description": "Audit external references — out-of-context parametric links to other parts / assemblies, broken design-table references, missing material library references, missing texture / decal references. Critical pre-release gate to ensure model portability.",
+      "category": "Evaluation_QualityGate",
+      "solidworks_command": "File > Find References",
+      "solidworks_api": "IModelDoc2.GetExternalReferences",
+      "parameterCount": 7,
+      "tabs": {
+        "Options": {
+          "parameters": [
+            {"name": "Check External Geometry References", "type": "checkbox", "default": true},
+            {"name": "Check Design Table Sources", "type": "checkbox", "default": true},
+            {"name": "Check Material Library Refs", "type": "checkbox", "default": true},
+            {"name": "Check Texture / Decal Refs", "type": "checkbox", "default": true},
+            {"name": "Check Linked Custom Properties", "type": "checkbox", "default": true},
+            {"name": "Resolve Light References", "type": "checkbox", "default": true},
+            {"name": "Save Audit To Path", "type": "string"}
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,620 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Surface Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S Surface Modeler. Surfaces are hyperCAD's strength: Coons / network / refit are first-class for smoothing imported geometry, and stitching is automatic when continuity matches. Catalog covers: 12 surface-creation ops (Patch / Boundary / Coons / Network / Sweep / Loft / Revolve / Extrude / Plane / Ruled / Tabulated / Helical), 13 modify ops (Trim / Extend / Untrim / Offset / Stitch / Unstitch / Reverse / Match / Blend / Fillet / Chamfer / Replace / Refit), and 3 conversion ops (Surface-to-Solid / Solid-to-Surface / Mesh-to-Surface). Conversion ops feed downstream hyperMILL toolpath generation that requires either watertight solids or trimmed surface sets.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-03",
+    "source": "OPEN MIND hyperCAD-S User Manual + Macro Reference, hyperMILL Surface Machining Reference",
+    "totalParameters": 148,
+    "operationCount": 28,
+    "cad_concepts_used": [
+      "PARAMETRIC_SURFACE",
+      "G0_G1_G2_CONTINUITY",
+      "COONS_PATCH",
+      "NETWORK_SURFACE",
+      "TRIM_BOUNDARY",
+      "SURFACE_OFFSET",
+      "STITCH_TOLERANCE",
+      "UV_PARAMETERIZATION",
+      "RULED_SURFACE",
+      "REFIT_DEGREE_REDUCTION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S surface operations",
+    "tabs": ["Profile", "Geometry", "Continuity", "Properties"]
+  },
+  "operations": {
+    "PATCH": {
+      "description": "Single-region surface patch fitted to a closed boundary loop. Optionally constrained by interior points and tangent references.",
+      "category": "Surface_Create",
+      "fusion_command": "n/a (hyperCAD-S macro: SURFACE.CREATE.PATCH)",
+      "python_api": "Surface.createPatch",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Boundary Loop", "type": "selection_list", "description": "Closed chain of edges / curves bounding the patch", "required": true},
+            {"name": "Interior Points", "type": "selection_list", "description": "Optional 3D points the patch must pass through"},
+            {"name": "Tangent References", "type": "selection_list", "description": "Adjacent faces whose tangency the patch should respect"}
+          ]
+        },
+        "Continuity": {
+          "parameters": [
+            {"name": "Continuity Order", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent", "required": true},
+            {"name": "Tangent Magnitude", "type": "numeric", "description": "Tangent weight at boundary edges", "default": 1, "min": 0.001}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "U Degree", "type": "numeric", "description": "Surface u-direction polynomial degree", "default": 3, "min": 1, "max": 9},
+            {"name": "V Degree", "type": "numeric", "description": "Surface v-direction polynomial degree", "default": 3, "min": 1, "max": 9}
+          ]
+        }
+      }
+    },
+    "BOUNDARY": {
+      "description": "Boundary surface defined by 2 / 3 / 4 boundary curves; opposite sides may differ in length and direction. Standard NURBS Coons-patch math.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.BOUNDARY",
+      "python_api": "Surface.createBoundary",
+      "parameterCount": 6,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Boundary Curves", "type": "selection_list", "description": "2, 3, or 4 ordered curves", "required": true}
+          ]
+        },
+        "Continuity": {
+          "parameters": [
+            {"name": "Side 1 Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g0_position"},
+            {"name": "Side 2 Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g0_position"},
+            {"name": "Side 3 Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g0_position"},
+            {"name": "Side 4 Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g0_position"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Auto Degree", "type": "checkbox", "description": "Pick lowest u/v degree that satisfies continuity", "default": true}
+          ]
+        }
+      }
+    },
+    "COONS": {
+      "description": "Bilinear Coons patch — interpolates four boundary curves with bilinear blend. Lower-quality than Network but predictable for ruled-edge inputs.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.COONS",
+      "python_api": "Surface.createCoons",
+      "parameterCount": 4,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "U-Min Curve", "type": "selection", "required": true},
+            {"name": "U-Max Curve", "type": "selection", "required": true},
+            {"name": "V-Min Curve", "type": "selection", "required": true},
+            {"name": "V-Max Curve", "type": "selection", "required": true}
+          ]
+        }
+      }
+    },
+    "NETWORK": {
+      "description": "Network surface fitted through a grid of u-direction and v-direction curves. hyperCAD-S strength — handles unequal counts and produces clean G2 continuity when curves cross at G2.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.NETWORK",
+      "python_api": "Surface.createNetwork",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "U Curves", "type": "selection_list", "description": "Ordered list of u-direction curves (>=2)", "required": true},
+            {"name": "V Curves", "type": "selection_list", "description": "Ordered list of v-direction curves (>=2)", "required": true}
+          ]
+        },
+        "Continuity": {
+          "parameters": [
+            {"name": "U Boundary Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "V Boundary Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "Tangent Magnitude", "type": "numeric", "default": 1, "min": 0.001}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum deviation from input curves at intersections", "default": 0.001},
+            {"name": "Auto Degree", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_SWEEP": {
+      "description": "Surface sweep — sweep a generator curve along a path; optional second rail for non-uniform scaling.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.SWEEP",
+      "python_api": "Surface.createSweep",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Generator Curve", "type": "selection", "description": "Cross-section curve", "required": true},
+            {"name": "Path Curve", "type": "selection", "description": "Sweep path", "required": true},
+            {"name": "Guide Rail", "type": "selection", "description": "Optional second rail"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Section Orientation", "type": "dropdown", "options": ["keep_perpendicular_to_path", "keep_parallel_to_start", "guide_rail_driven"], "default": "keep_perpendicular_to_path"},
+            {"name": "Twist Angle", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Scale Factor", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "Trim Surface to Path Length", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_LOFT": {
+      "description": "Surface loft — blend through 2+ section curves with optional guide rails. Same kernel as Solid_Loft but produces an open surface, with no Boolean stage.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.LOFT",
+      "python_api": "Surface.createLoft",
+      "parameterCount": 8,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Section Curves", "type": "selection_list", "description": "Ordered list of 2+ profile curves", "required": true},
+            {"name": "Guide Rails", "type": "selection_list", "description": "Optional cross-flow rails"}
+          ]
+        },
+        "Continuity": {
+          "parameters": [
+            {"name": "Start Continuity", "type": "dropdown", "options": ["none", "g1_tangent", "g2_curvature"], "default": "none"},
+            {"name": "Start Tangent Magnitude", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "End Continuity", "type": "dropdown", "options": ["none", "g1_tangent", "g2_curvature"], "default": "none"},
+            {"name": "End Tangent Magnitude", "type": "numeric", "default": 1, "min": 0.001}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Closed Loft", "type": "checkbox", "default": false},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "SURFACE_REVOLVE": {
+      "description": "Surface of revolution — revolve a profile curve about an axis. Open boundary if profile doesn't touch axis.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.REVOLVE",
+      "python_api": "Surface.createRevolve",
+      "parameterCount": 5,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile Curve", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Edge / sketch line / reference axis", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Start Angle", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "End Angle", "type": "numeric", "unit": "deg", "default": 360, "min": -360, "max": 360},
+            {"name": "Flip Axis Direction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_EXTRUDE": {
+      "description": "Surface extrude — linear sweep of a profile curve. Open profile produces a single-sheet surface; closed profile produces a 4-sided tube.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.EXTRUDE",
+      "python_api": "Surface.createExtrude",
+      "parameterCount": 6,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Profile Curve", "type": "selection", "required": true},
+            {"name": "Direction Vector", "type": "vector3d", "description": "Extrude direction (defaults to curve plane normal)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Flip Direction", "type": "checkbox", "default": false},
+            {"name": "Symmetric", "type": "checkbox", "description": "Extrude equally on both sides", "default": false},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "description": "Per-side draft angle on side surfaces", "default": 0}
+          ]
+        }
+      }
+    },
+    "SURFACE_PLANE": {
+      "description": "Bounded planar surface — defined by an outer boundary curve loop. Useful for closing model openings before STL / mesh export.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.PLANE",
+      "python_api": "Surface.createBoundedPlane",
+      "parameterCount": 4,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Boundary Loop", "type": "selection_list", "description": "Closed coplanar curves", "required": true},
+            {"name": "Inner Loops", "type": "selection_list", "description": "Optional hole boundaries"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Plane Override", "type": "selection", "description": "Optional plane reference (auto-detected from boundary if omitted)"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Coplanarity tolerance for Boundary Loop", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "RULED": {
+      "description": "Ruled surface — straight lines connecting two rail curves at matching parameter values. Common for sheet-metal developables and electrode flanks.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.RULED",
+      "python_api": "Surface.createRuled",
+      "parameterCount": 5,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Rail 1", "type": "selection", "required": true},
+            {"name": "Rail 2", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Parameter Matching", "type": "dropdown", "options": ["arc_length", "natural_parameter", "by_points"], "default": "arc_length"},
+            {"name": "Reverse Rail 2", "type": "checkbox", "description": "Flip Rail 2 direction (resolves twisted ruled surfaces)", "default": false},
+            {"name": "Closed", "type": "checkbox", "description": "Close surface in v-direction (rail-to-rail wrap)", "default": false}
+          ]
+        }
+      }
+    },
+    "TABULATED": {
+      "description": "Tabulated surface — single rail extruded along a fixed vector. Specialized form of Ruled where Rail 2 is a translated copy of Rail 1.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.TABULATED",
+      "python_api": "Surface.createTabulated",
+      "parameterCount": 4,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Rail Curve", "type": "selection", "required": true},
+            {"name": "Direction Vector", "type": "vector3d", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Length", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Flip Direction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_HELICAL": {
+      "description": "Helical sweep producing an open surface — generator curve advances helically along an axis. Used for thread profiles, screw conveyors, and helical baffles.",
+      "category": "Surface_Create",
+      "fusion_command": "SURFACE.CREATE.HELICAL",
+      "python_api": "Surface.createHelical",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Generator Curve", "type": "selection", "required": true},
+            {"name": "Helix Axis", "type": "selection", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Pitch", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Revolutions", "type": "numeric", "description": "Alternate driver to Height", "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["right_hand", "left_hand"], "default": "right_hand"},
+            {"name": "Start Angle", "type": "numeric", "unit": "deg", "default": 0}
+          ]
+        }
+      }
+    },
+    "TRIM": {
+      "description": "Trim surface using a cutting curve / surface / plane. Retains chosen side of the cut.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.TRIM",
+      "python_api": "Surface.trim",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surfaces", "type": "selection_list", "required": true},
+            {"name": "Cutting Tool", "type": "selection", "description": "Curve / surface / plane that cuts the target", "required": true},
+            {"name": "Side to Keep", "type": "dropdown", "options": ["positive_normal", "negative_normal", "interactive_pick"], "default": "interactive_pick"},
+            {"name": "Extend Cutter If Short", "type": "checkbox", "description": "Auto-extend cutter to fully bisect target", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "EXTEND_SURFACE": {
+      "description": "Extend a surface beyond its current boundary along selected edges. Linear or natural curvature extension.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.EXTEND",
+      "python_api": "Surface.extend",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Extend Edges", "type": "selection_list", "description": "Edges to extend", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Extension Type", "type": "dropdown", "options": ["linear", "natural", "reflective"], "default": "natural"},
+            {"name": "Merge with Original", "type": "checkbox", "description": "Output single merged surface vs separate extension piece", "default": true}
+          ]
+        }
+      }
+    },
+    "UNTRIM": {
+      "description": "Untrim — restore a previously trimmed surface to its full untrimmed form. Discards trim boundaries.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.UNTRIM",
+      "python_api": "Surface.untrim",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Boundaries to Drop", "type": "dropdown", "options": ["all", "outer", "inner_holes"], "default": "all"},
+            {"name": "Restore Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "SURFACE_OFFSET": {
+      "description": "Offset surface along its normal by a constant or variable distance. Used for thin-wall machining clearance and shell pre-step.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.OFFSET",
+      "python_api": "Surface.offset",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surfaces", "type": "selection_list", "required": true},
+            {"name": "Offset Mode", "type": "dropdown", "options": ["constant", "variable"], "default": "constant"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Constant offset distance (signed)", "required": true},
+            {"name": "Variable Distance Map", "type": "table", "description": "Per-vertex offset (Offset Mode = variable)"},
+            {"name": "Direction", "type": "dropdown", "options": ["positive_normal", "negative_normal"], "default": "positive_normal"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "STITCH": {
+      "description": "Stitch adjacent surfaces into a closed shell or open sheet body. Surfaces with edge gap less than tolerance are joined.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.STITCH",
+      "python_api": "Surface.stitch",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Surfaces", "type": "selection_list", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum edge gap that gets stitched", "default": 0.01},
+            {"name": "Force Closed Solid", "type": "checkbox", "description": "Throw if result is not closed (forces watertight check)", "default": false},
+            {"name": "Auto-Heal Small Gaps", "type": "checkbox", "description": "Insert blend strip for gaps below tolerance", "default": true},
+            {"name": "Result Body Name", "type": "text"}
+          ]
+        }
+      }
+    },
+    "UNSTITCH": {
+      "description": "Unstitch — break a sheet / shell body back into individual surface pieces.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.UNSTITCH",
+      "python_api": "Surface.unstitch",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "required": true},
+            {"name": "Selected Edges", "type": "selection_list", "description": "Edges along which to break apart (empty = unstitch everywhere)"},
+            {"name": "Preserve Adjacency Map", "type": "checkbox", "description": "Tag pieces with original neighbor IDs for round-trip restitch", "default": true}
+          ]
+        }
+      }
+    },
+    "REVERSE": {
+      "description": "Reverse surface normal direction. Affects orientation-dependent operations (offset, thicken, draft).",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.REVERSE",
+      "python_api": "Surface.reverseNormal",
+      "parameterCount": 2,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surfaces", "type": "selection_list", "required": true},
+            {"name": "Cascade to Stitched Neighbors", "type": "checkbox", "description": "Re-orient adjacent surfaces in the same shell", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_MATCH": {
+      "description": "Match a target surface edge to a reference edge with G0 / G1 / G2 continuity. Reshapes target to enforce continuity.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.MATCH",
+      "python_api": "Surface.matchEdge",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Target Edge", "type": "selection", "required": true},
+            {"name": "Reference Edge", "type": "selection", "description": "Edge whose continuity the target adopts", "required": true}
+          ]
+        },
+        "Continuity": {
+          "parameters": [
+            {"name": "Continuity Order", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent", "required": true},
+            {"name": "Tangent Magnitude", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "Preserve Opposite Edge", "type": "checkbox", "description": "Lock the target's far edge while reshaping near edge", "default": true}
+          ]
+        }
+      }
+    },
+    "BLEND": {
+      "description": "Blend surface bridging two surface edges with controlled continuity. Used for fairing and cosmetic transitions.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.BLEND",
+      "python_api": "Surface.blend",
+      "parameterCount": 7,
+      "tabs": {
+        "Profile": {
+          "parameters": [
+            {"name": "Edge 1", "type": "selection", "required": true},
+            {"name": "Edge 2", "type": "selection", "required": true}
+          ]
+        },
+        "Continuity": {
+          "parameters": [
+            {"name": "Edge 1 Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "Edge 1 Magnitude", "type": "numeric", "default": 1, "min": 0.001},
+            {"name": "Edge 2 Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"},
+            {"name": "Edge 2 Magnitude", "type": "numeric", "default": 1, "min": 0.001}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Cross Section", "type": "dropdown", "options": ["circular", "conic", "g2_continuous"], "default": "g2_continuous"}
+          ]
+        }
+      }
+    },
+    "SURFACE_FILLET": {
+      "description": "Fillet between two surfaces — generates a constant- or variable-radius rolling-ball blend along the surface intersection.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.FILLET",
+      "python_api": "Surface.fillet",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Surface 1", "type": "selection", "required": true},
+            {"name": "Surface 2", "type": "selection", "required": true},
+            {"name": "Fillet Type", "type": "dropdown", "options": ["constant", "variable"], "default": "constant"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Variable Radius Map", "type": "table"},
+            {"name": "Trim Source Surfaces", "type": "checkbox", "description": "Trim sources back to fillet limit (vs leave overlapping)", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_CHAMFER": {
+      "description": "Chamfer between two surfaces — flat blend strip with constant or variable distance.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.CHAMFER",
+      "python_api": "Surface.chamfer",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Surface 1", "type": "selection", "required": true},
+            {"name": "Surface 2", "type": "selection", "required": true},
+            {"name": "Chamfer Type", "type": "dropdown", "options": ["equal_distance", "two_distance", "distance_angle"], "default": "equal_distance"},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm"},
+            {"name": "Angle", "type": "numeric", "unit": "deg"}
+          ]
+        }
+      }
+    },
+    "SURFACE_REPLACE": {
+      "description": "Replace a region of a target surface with selected replacement surface. Re-trims target to replacement boundary.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.REPLACE",
+      "python_api": "Surface.replace",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Replacement Surface", "type": "selection", "required": true},
+            {"name": "Extend If Short", "type": "checkbox", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.01}
+          ]
+        }
+      }
+    },
+    "REFIT": {
+      "description": "Refit a surface — re-fit underlying NURBS to a target degree / knot count, optionally smoothing high-frequency oscillation. hyperCAD-S signature operation for cleaning imported geometry.",
+      "category": "Surface_Modify",
+      "fusion_command": "SURFACE.MODIFY.REFIT",
+      "python_api": "Surface.refit",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Surface", "type": "selection", "required": true},
+            {"name": "Target U Degree", "type": "numeric", "min": 1, "max": 9, "default": 3},
+            {"name": "Target V Degree", "type": "numeric", "min": 1, "max": 9, "default": 3},
+            {"name": "Knot Reduction", "type": "dropdown", "options": ["none", "moderate", "aggressive"], "default": "moderate"},
+            {"name": "Smoothing", "type": "numeric", "description": "Smoothing weight (0=preserve shape, 1=maximum smoothing)", "default": 0.1, "min": 0, "max": 1},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum deviation from original surface", "default": 0.005},
+            {"name": "Preserve Boundaries", "type": "checkbox", "description": "Lock outer boundary curves during refit", "default": true}
+          ]
+        }
+      }
+    },
+    "SURFACE_TO_SOLID": {
+      "description": "Convert a closed surface shell into a solid body. Validates watertightness; throws on open shells unless Force is set.",
+      "category": "Surface_Conversion",
+      "fusion_command": "SURFACE.CONVERT.TO_SOLID",
+      "python_api": "Surface.toSolid",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Target Shell", "type": "selection", "description": "Closed sheet body / shell", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Stitch tolerance for marginal edges", "default": 0.001},
+            {"name": "Force Open Shell", "type": "checkbox", "description": "Allow conversion of non-watertight shell (uses bounding-box closure)", "default": false},
+            {"name": "Result Body Name", "type": "text"}
+          ]
+        }
+      }
+    },
+    "SOLID_TO_SURFACE": {
+      "description": "Convert a solid body into its surface shell — extracts each face as a separate surface. Common preprocess for surface-edit on imported solids.",
+      "category": "Surface_Conversion",
+      "fusion_command": "SURFACE.CONVERT.FROM_SOLID",
+      "python_api": "Surface.fromSolid",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Body", "type": "selection", "description": "Solid body to convert", "required": true},
+            {"name": "Suppress Source", "type": "checkbox", "description": "Hide original solid after extraction", "default": false},
+            {"name": "Output Mode", "type": "dropdown", "options": ["per_face", "stitched_shell"], "default": "stitched_shell"}
+          ]
+        }
+      }
+    },
+    "MESH_TO_SURFACE": {
+      "description": "Convert a mesh body into a smooth surface set via segmentation + NURBS fit per region. Required input for hyperMILL surface toolpaths on STL / OBJ imports.",
+      "category": "Surface_Conversion",
+      "fusion_command": "SURFACE.CONVERT.FROM_MESH",
+      "python_api": "Surface.fromMesh",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Mesh", "type": "selection", "required": true},
+            {"name": "Segmentation Mode", "type": "dropdown", "options": ["auto_curvature", "by_feature_lines", "by_seed_faces"], "default": "auto_curvature"},
+            {"name": "Curvature Threshold", "type": "numeric", "unit": "deg", "description": "Crease angle separating regions (auto_curvature mode)", "default": 30},
+            {"name": "Feature Lines", "type": "selection_list", "description": "Predefined feature lines (by_feature_lines mode)"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum deviation of fit surface from mesh", "default": 0.05},
+            {"name": "Target Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g1_tangent"}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "open_vs_closed": "Surface ops produce open sheet bodies by default. Closing into solid requires SURFACE_TO_SOLID with watertightness check.",
+    "continuity_orders": "G0 = position, G1 = tangent (slope), G2 = curvature. Higher continuity → smoother light reflection but harder to fit when input curvatures conflict.",
+    "hypermill_handoff": "MESH_TO_SURFACE is the entry point for hyperMILL toolpath generation on imported scan / STL / OBJ data — toolpath kernels require parametric surfaces, not facets."
+  }
+}

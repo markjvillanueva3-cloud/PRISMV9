@@ -1,0 +1,367 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Assembly Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S Assembly workspace. Assemblies in hyperCAD are flat (single-level by default) with optional sub-assembly nesting; the focus is on fixturing layouts and multi-part jobs for hyperMILL machining rather than full PDM-grade kinematic chains. Catalog covers: 4 component ops (Insert / Replace / Edit-In-Place / Fix), 1 joint op (with 6 joint kinematics — rigid/revolute/slider/cylindrical/planar/ball), 2 pattern ops (Component-Pattern / Component-Mirror), 4 visibility ops (Hide / Show-Only / Suppress / Group), 1 tree-navigation op, and 3 analysis ops (BOM / Mass-Properties / Interference-Check).",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-06",
+    "source": "OPEN MIND hyperCAD-S Assembly Reference, hyperMILL Multi-Part Machining Guide",
+    "totalParameters": 74,
+    "operationCount": 15,
+    "cad_concepts_used": [
+      "COMPONENT_REFERENCE",
+      "ASSEMBLY_MATE",
+      "JOINT_KINEMATICS",
+      "BILL_OF_MATERIALS",
+      "MASS_PROPERTIES",
+      "INTERFERENCE_DETECTION",
+      "FIXED_VS_FLOATING",
+      "SUB_ASSEMBLY_NESTING"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S assembly operations",
+    "tabs": ["Component", "Placement", "Constraint", "Properties"]
+  },
+  "operations": {
+    "INSERT_COMPONENT": {
+      "description": "Insert a part / sub-assembly into the active assembly. Component is referenced (linked) by default; optional embed-on-insert breaks the link.",
+      "category": "Assembly_Component",
+      "fusion_command": "n/a (hyperCAD-S macro: ASSEMBLY.COMPONENT.INSERT)",
+      "python_api": "Assembly.insertComponent",
+      "parameterCount": 8,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Source Path", "type": "text", "description": "Absolute path to part / sub-assembly file", "required": true},
+            {"name": "Reference Mode", "type": "dropdown", "options": ["linked", "embedded", "linked_with_local_overrides"], "default": "linked"},
+            {"name": "Configuration", "type": "text", "description": "Configuration name when source has multiple"}
+          ]
+        },
+        "Placement": {
+          "parameters": [
+            {"name": "Placement Origin", "type": "point3d", "description": "World-coordinate insertion point", "required": true},
+            {"name": "Orientation", "type": "selection", "description": "Reference plane / face / axis system to align component frame to (defaults to world)"},
+            {"name": "Auto Mate To Selected", "type": "checkbox", "description": "If selected reference is a face, auto-create planar mate", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Component Name", "type": "text", "description": "Display name in component tree (defaults to source filename)"},
+            {"name": "Quantity", "type": "numeric", "description": "Multi-instance count (creates linked siblings rather than copies)", "default": 1, "min": 1}
+          ]
+        }
+      }
+    },
+    "REPLACE_COMPONENT": {
+      "description": "Replace an existing component with a different source while preserving its mates / joints when geometry references are still resolvable.",
+      "category": "Assembly_Component",
+      "fusion_command": "ASSEMBLY.COMPONENT.REPLACE",
+      "python_api": "Assembly.replaceComponent",
+      "parameterCount": 5,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Component", "type": "selection", "required": true},
+            {"name": "Replacement Source Path", "type": "text", "required": true},
+            {"name": "Reference Mode", "type": "dropdown", "options": ["linked", "embedded"], "default": "linked"}
+          ]
+        },
+        "Constraint": {
+          "parameters": [
+            {"name": "Mate Resolution", "type": "dropdown", "options": ["preserve_by_face_id", "preserve_by_name", "preserve_by_topology", "drop_unresolved"], "default": "preserve_by_topology"},
+            {"name": "On Mate Failure", "type": "dropdown", "options": ["report_only", "raise_error", "auto_drop_failed"], "default": "report_only"}
+          ]
+        }
+      }
+    },
+    "EDIT_IN_PLACE": {
+      "description": "Open a component for editing within the assembly context (parent assembly is visible but not editable). Used for top-down design where component sketches reference parent assembly geometry.",
+      "category": "Assembly_Component",
+      "fusion_command": "ASSEMBLY.COMPONENT.EDIT_IN_PLACE",
+      "python_api": "Assembly.editInPlace",
+      "parameterCount": 4,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Component", "type": "selection", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Hide Other Components", "type": "checkbox", "description": "Hide siblings during in-place edit for clarity", "default": false},
+            {"name": "Allow External References", "type": "checkbox", "description": "Permit sketches in this component to reference parent assembly geometry", "default": true},
+            {"name": "Lock Other Components", "type": "checkbox", "description": "Prevent accidental edits to siblings during edit-in-place", "default": true}
+          ]
+        }
+      }
+    },
+    "FIX_COMPONENT": {
+      "description": "Fix (ground) a component — remove all degrees of freedom relative to assembly origin. Mandatory on at least one component per assembly.",
+      "category": "Assembly_Component",
+      "fusion_command": "ASSEMBLY.COMPONENT.FIX",
+      "python_api": "Assembly.fixComponent",
+      "parameterCount": 3,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "required": true},
+            {"name": "Fix Mode", "type": "dropdown", "options": ["full_6dof", "translation_only", "rotation_only"], "default": "full_6dof"},
+            {"name": "Fix Relative To", "type": "selection", "description": "Optional reference frame (defaults to assembly origin)"}
+          ]
+        }
+      }
+    },
+    "JOINT": {
+      "description": "Create a kinematic joint between two components. Six standard joint types covering machinist/fixture-design needs from rigid bolt-up through spherical pivot.",
+      "category": "Assembly_Joint",
+      "fusion_command": "ASSEMBLY.JOINT.CREATE",
+      "python_api": "Assembly.createJoint",
+      "parameterCount": 9,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Component A", "type": "selection", "required": true},
+            {"name": "Component B", "type": "selection", "required": true},
+            {"name": "Reference A", "type": "selection", "description": "Edge / face / origin point on Component A defining the joint frame", "required": true},
+            {"name": "Reference B", "type": "selection", "required": true}
+          ]
+        },
+        "Constraint": {
+          "parameters": [
+            {"name": "Joint Type", "type": "dropdown", "options": ["rigid", "revolute", "slider", "cylindrical", "planar", "ball"], "default": "rigid", "required": true},
+            {"name": "Primary Axis", "type": "vector3d", "description": "Rotation / translation axis (revolute / slider / cylindrical)"},
+            {"name": "Translation Limit", "type": "table", "description": "{min, max} mm bounds (slider / cylindrical)"},
+            {"name": "Rotation Limit", "type": "table", "description": "{min, max} deg bounds (revolute / cylindrical / ball)"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Lock Joint", "type": "checkbox", "description": "Temporarily fix the joint at its current pose without removing it", "default": false}
+          ]
+        }
+      }
+    },
+    "COMPONENT_PATTERN": {
+      "description": "Pattern (instance) a component along a linear / circular / sketch / path layout. Patterned instances are linked siblings.",
+      "category": "Assembly_Pattern",
+      "fusion_command": "ASSEMBLY.PATTERN.COMPONENT",
+      "python_api": "Assembly.patternComponent",
+      "parameterCount": 8,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Source Components", "type": "selection_list", "required": true}
+          ]
+        },
+        "Placement": {
+          "parameters": [
+            {"name": "Pattern Type", "type": "dropdown", "options": ["linear", "circular", "sketch_points", "along_path"], "default": "linear", "required": true},
+            {"name": "Direction 1", "type": "selection", "description": "Edge / axis / vector (linear / along_path)"},
+            {"name": "Spacing 1", "type": "numeric", "unit": "mm", "description": "Distance between instances (linear / along_path)", "min": 0.001},
+            {"name": "Count 1", "type": "numeric", "description": "Total instances incl. seed", "required": true, "min": 1},
+            {"name": "Axis", "type": "selection", "description": "Rotation axis (circular)"},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "description": "Spread of circular pattern", "default": 360},
+            {"name": "Suppressed Instances", "type": "selection_list", "description": "Pattern indices to skip"}
+          ]
+        }
+      }
+    },
+    "COMPONENT_MIRROR": {
+      "description": "Mirror components about a plane. Mirrored instances are linked siblings unless 'Create New Components' is set.",
+      "category": "Assembly_Pattern",
+      "fusion_command": "ASSEMBLY.PATTERN.MIRROR",
+      "python_api": "Assembly.mirrorComponent",
+      "parameterCount": 4,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Source Components", "type": "selection_list", "required": true}
+          ]
+        },
+        "Placement": {
+          "parameters": [
+            {"name": "Mirror Plane", "type": "selection", "required": true},
+            {"name": "Create New Components", "type": "checkbox", "description": "Mirror produces handed copies (left/right parts) rather than linked instances", "default": false},
+            {"name": "Suffix For New Components", "type": "text", "description": "Suffix added to mirrored copy name (Create New Components = true)", "default": "_mirror"}
+          ]
+        }
+      }
+    },
+    "HIDE_COMPONENT": {
+      "description": "Hide a component in the active viewport. Component remains in component tree and contributes to mass / interference. Display-only operation.",
+      "category": "Assembly_Visibility",
+      "fusion_command": "ASSEMBLY.VISIBILITY.HIDE",
+      "python_api": "Assembly.hideComponent",
+      "parameterCount": 3,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Cascade To Children", "type": "checkbox", "description": "Hide all sub-components recursively", "default": true},
+            {"name": "Scope", "type": "dropdown", "options": ["active_viewport", "all_viewports"], "default": "active_viewport"}
+          ]
+        }
+      }
+    },
+    "SHOW_ONLY": {
+      "description": "Show only the selected components, hiding the remainder of the assembly. Inverse of HIDE_COMPONENT — useful for isolating one component for hyperMILL setup.",
+      "category": "Assembly_Visibility",
+      "fusion_command": "ASSEMBLY.VISIBILITY.SHOW_ONLY",
+      "python_api": "Assembly.showOnly",
+      "parameterCount": 3,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Include Ancestors", "type": "checkbox", "description": "Also show parent assemblies of target", "default": true},
+            {"name": "Include Descendants", "type": "checkbox", "description": "Also show sub-components of target", "default": true}
+          ]
+        }
+      }
+    },
+    "SUPPRESS_COMPONENT": {
+      "description": "Suppress a component — remove it from rebuild graph entirely. Suppressed components do NOT contribute to mass / interference / BOM, unlike hidden components.",
+      "category": "Assembly_Visibility",
+      "fusion_command": "ASSEMBLY.VISIBILITY.SUPPRESS",
+      "python_api": "Assembly.suppressComponent",
+      "parameterCount": 3,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Cascade To Children", "type": "checkbox", "default": true},
+            {"name": "Reason Tag", "type": "text", "description": "Optional audit string explaining why component is suppressed (e.g. 'work-in-progress')"}
+          ]
+        }
+      }
+    },
+    "GROUP_COMPONENTS": {
+      "description": "Bundle selected components into a logical group within the component tree. Group is purely organizational — no kinematic effect.",
+      "category": "Assembly_Visibility",
+      "fusion_command": "ASSEMBLY.VISIBILITY.GROUP",
+      "python_api": "Assembly.groupComponents",
+      "parameterCount": 3,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "required": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Group Name", "type": "text", "required": true},
+            {"name": "Group Color", "type": "text", "description": "Optional display color (hex / named) for component-tree highlighting"}
+          ]
+        }
+      }
+    },
+    "COMPONENT_TREE": {
+      "description": "Read-only diagnostic — return the component-tree topology with parent / child relationships, suppression flags, and mate counts. Foundation for downstream BOM and audit operations.",
+      "category": "Assembly_Tree",
+      "fusion_command": "ASSEMBLY.TREE.QUERY",
+      "python_api": "Assembly.componentTree",
+      "parameterCount": 4,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Root Component", "type": "selection", "description": "Optional sub-tree root (defaults to assembly root)"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Include Suppressed", "type": "checkbox", "default": false},
+            {"name": "Max Depth", "type": "numeric", "description": "Cap recursion depth (0 = unlimited)", "default": 0, "min": 0},
+            {"name": "Output Format", "type": "dropdown", "options": ["nested_json", "flat_list", "indented_text"], "default": "nested_json"}
+          ]
+        }
+      }
+    },
+    "BOM_EXTRACT": {
+      "description": "Extract a Bill of Materials from the assembly. Aggregates linked-instance counts, applies configuration overrides, and exports per-row metadata for ERP / quoting handoff.",
+      "category": "Assembly_Analysis",
+      "fusion_command": "ASSEMBLY.ANALYSIS.BOM",
+      "python_api": "Assembly.extractBOM",
+      "parameterCount": 6,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Root Component", "type": "selection", "description": "Optional sub-assembly root"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Aggregation", "type": "dropdown", "options": ["flat", "indented", "parts_only"], "default": "indented"},
+            {"name": "Include Suppressed", "type": "checkbox", "default": false},
+            {"name": "Custom Fields", "type": "selection_list", "description": "Per-component metadata fields to include (e.g. material, finish, vendor)"},
+            {"name": "Output Format", "type": "dropdown", "options": ["json", "csv", "excel"], "default": "csv"},
+            {"name": "Output Path", "type": "text", "description": "File path for csv / excel output"}
+          ]
+        }
+      }
+    },
+    "MASS_PROPERTIES": {
+      "description": "Compute mass / center-of-gravity / inertia tensor for the assembly. Honors per-component material density overrides and excludes suppressed components.",
+      "category": "Assembly_Analysis",
+      "fusion_command": "ASSEMBLY.ANALYSIS.MASS_PROPERTIES",
+      "python_api": "Assembly.massProperties",
+      "parameterCount": 5,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "description": "Empty selection = whole assembly"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Reference Frame", "type": "dropdown", "options": ["world", "assembly_origin", "selected_axis_system"], "default": "world"},
+            {"name": "Selected Axis System", "type": "selection", "description": "Custom frame (Reference Frame = selected_axis_system)"},
+            {"name": "Density Override", "type": "table", "description": "Per-component material density override map"},
+            {"name": "Output Detail", "type": "dropdown", "options": ["summary", "per_component", "full_inertia_tensor"], "default": "summary"}
+          ]
+        }
+      }
+    },
+    "INTERFERENCE_CHECK": {
+      "description": "Detect interferences (overlapping volumes) and clearance violations between components. Required QA gate before fixture / multi-part hyperMILL job submission.",
+      "category": "Assembly_Analysis",
+      "fusion_command": "ASSEMBLY.ANALYSIS.INTERFERENCE",
+      "python_api": "Assembly.interferenceCheck",
+      "parameterCount": 6,
+      "tabs": {
+        "Component": {
+          "parameters": [
+            {"name": "Target Components", "type": "selection_list", "description": "Empty selection = pairwise check across whole assembly"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["interference_only", "clearance_check", "both"], "default": "interference_only"},
+            {"name": "Minimum Clearance", "type": "numeric", "unit": "mm", "description": "Required clearance distance (Mode = clearance_check / both)", "default": 0.5, "min": 0},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Distances under this count as touching, not interfering", "default": 0.001, "min": 0},
+            {"name": "Highlight In Viewport", "type": "checkbox", "default": true},
+            {"name": "Output Mode", "type": "dropdown", "options": ["summary", "pair_list", "marked_geometry"], "default": "pair_list"}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "linked_vs_embedded": "Linked components track source-file changes; embedded components are independent copies. Default linked is preferred for production workflows.",
+    "fixture_design": "Typical fixture-design workflow: INSERT_COMPONENT (workpiece) → FIX_COMPONENT → INSERT_COMPONENT (fixture parts) → JOINT (rigid mates) → INTERFERENCE_CHECK before sending to hyperMILL.",
+    "hide_vs_suppress": "HIDE = visibility-only, component still in mass/BOM/interference. SUPPRESS = removed from rebuild, drops from all analyses. Use HIDE for review clarity, SUPPRESS for what-if studies."
+  }
+}

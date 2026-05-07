@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "hypercad_s",
+  "module_id": "cad_function_index",
+  "module_name": "hyperCAD-S Unified Function Index",
+  "description": "Top-level index for hyperCAD-S (OPEN MIND) CAD operations. hyperCAD-S is a hybrid CAD system designed specifically for CAM workflows, with deep integration to hyperMILL CAM. Coverage spans: 2D Sketcher (extensive — more variants per primitive than Fusion), 3D Solid Modeler (with direct-edit), Surface Modeler (Coons / network / refit — hyperCAD's strength), Healing/Repair (hyperCAD's killer feature for imported geometry), Mesh Modeler (with feature-line extraction for hyperMILL), Assembly, Drawing (2D-from-3D output), and Datum/Reference geometry. Consumed by HyperCADCADFunctionIndexEngine for lookup, parameter discovery, and AI orchestration of CAD generation.",
+  "indexed_at": "2026-04-29T05:00:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/hypercad/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-01"],
+      "parameter_count_estimate": 242,
+      "description": "2D sketching with hyperCAD-S extensive variant set: Line (8 creation modes including ortho / parallel / perpendicular / tangent / polar / offset), Rectangle (4 methods), Circle (5 methods including tangent-2-circles and tangent-3-elements), Arc (4 methods), Ellipse (3-axis), Polygon (regular + irregular + by-points), Spline (interpolation / control-polygon / tangent), Slot (linear / arc / multi-arc), Point (single / by-intersection / by-parameter / by-projection), Editing (Trim / Extend / Break / Mirror / Offset / Scale / Rotate / Translate / Stretch / Sketch-Fillet / Sketch-Chamfer / Match), Constraints (15 types incl. Concentric / Collinear / Symmetric / Lock-distance), Dimensions (Linear / Angular / Diameter / Radius / Distance-between / Driven / Driving / Reference), Reference geometry (Project edge / Project face / Intersect surface / Project silhouette), and Query (Length / Area / Distance / Angle / Coordinates).",
+      "dependencies": []
+    },
+    {
+      "module_id": "solid_operations",
+      "path": "cad-functions/hypercad/solid-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-02"],
+      "parameter_count_estimate": 214,
+      "description": "3D solid modeling: 6 primitives (Box / Cylinder / Cone / Sphere / Torus / stock-Block), 6 sweep features (Extrude / Revolve / Sweep / Loft / Pipe-Along-Curve / Helix), 5 modify ops (Fillet / Chamfer / Shell / Draft / Thicken), 3 Boolean ops (Union / Subtract / Intersect), 4 pattern ops (Linear / Circular / Mirror / Path), 3 direct-edit ops (Move-Face / Push-Pull / Replace-Face) for imported-geometry workflows, and 3 hole cycles (Simple / Counterbore / Tapped) that write hyperMILL feature-recognition attributes for automatic drill/tap cycle assignment.",
+      "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/hypercad/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-03"],
+      "parameter_count_estimate": 148,
+      "description": "Surface modeling: 12 surface-creation ops (Patch / Boundary / Coons / Network / Sweep / Loft / Revolve / Extrude / Plane / Ruled / Tabulated / Helical), 13 modify ops (Trim / Extend / Untrim / Offset / Stitch / Unstitch / Reverse / Match / Blend / Fillet / Chamfer / Replace / Refit), and 3 conversion ops (Surface-to-Solid / Solid-to-Surface / Mesh-to-Surface). Continuity is first-class throughout: G0/G1/G2 selectors on Patch, Boundary, Network, Loft, Match, and Blend. MESH_TO_SURFACE feeds hyperMILL surface toolpaths on STL/OBJ imports.",
+      "dependencies": ["solid_operations"]
+    },
+    {
+      "module_id": "healing_operations",
+      "path": "cad-functions/hypercad/healing-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-04"],
+      "parameter_count_estimate": 83,
+      "description": "Healing & repair (hyperCAD-S signature feature): 3 auto/diagnostic ops (Auto-Heal / Gap-Detector / Validate-Watertight), 8 manual repair ops (Manual-Gap-Fill / Knit-Faces / Force-Stitch / Remove-Feature / Remove-Fillet / Replace-Face / Edge-Blend / Repair-Self-Intersect), 5 edge/curve cleanup ops (Decimate-Edge / Smooth-Curve / Fix-Tangent / Snap-To-Grid / Detect-Non-Manifold). Validate-Watertight is the canonical gate before any volume-toolpath generation in hyperMILL.",
+      "dependencies": ["surface_operations", "solid_operations"]
+    },
+    {
+      "module_id": "mesh_operations",
+      "path": "cad-functions/hypercad/mesh-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-05"],
+      "parameter_count_estimate": 66,
+      "description": "Mesh modeling: 1 import op (Insert STL/OBJ/PLY/3MF/scan), 2 conversion ops (Convert-to-BRep / Convert-to-Surface), 4 modify ops (Reduce / Smooth / Repair / Remesh), 1 Boolean op (mesh-mesh union/subtract/intersect), 2 cut ops (Plane-Cut / Clip-Volume), 1 feature-extraction op (Extract-Feature-Lines for hyperMILL toolpaths), and 1 additive prep op (Slice-For-Additive). Extract-Feature-Lines is a direct path from scan data to NC code without going through surface fit.",
+      "dependencies": ["surface_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/hypercad/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-06"],
+      "parameter_count_estimate": 74,
+      "description": "Assembly modeling: 4 component ops (Insert / Replace / Edit-In-Place / Fix), 1 joint op covering 6 kinematic types (rigid/revolute/slider/cylindrical/planar/ball), 2 pattern ops (Component-Pattern / Component-Mirror), 4 visibility ops (Hide / Show-Only / Suppress / Group), 1 tree-navigation op (Component-Tree), and 3 analysis ops (BOM-Extract / Mass-Properties / Interference-Check). Interference-Check is the QA gate before fixture / multi-part hyperMILL job submission.",
+      "dependencies": ["solid_operations"]
+    },
+    {
+      "module_id": "drawing_operations",
+      "path": "cad-functions/hypercad/drawing-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-07"],
+      "parameter_count_estimate": 118,
+      "description": "2D drawing output: 6 view ops (Projection / Auxiliary / Section / Detail / Broken-Out / Crop), 8 annotation ops (Linear/Angular/Radius/Diameter/Chamfer dims + Note / Symbol / GD&T-Frame), 1 hatch op, 3 table ops (Title-Block / Revision-Table / BOM-Table), and 3 style ops (Layer / Linetype / Plot-Style). Section view supports full / half / aligned / offset / broken sub-types. GD&T_Frame covers all 14 ASME Y14.5-2018 / ISO 1101:2017 symbols with MMC/LMC/RFS material conditions.",
+      "dependencies": ["solid_operations", "assembly_operations"]
+    },
+    {
+      "module_id": "datum_operations",
+      "path": "cad-functions/hypercad/datum-operations.json",
+      "covered_units": ["U-CAD-FIDX-HCAD-08"],
+      "parameter_count_estimate": 56,
+      "description": "Datum / reference geometry — the scaffolding behind every other module: 1 reference-plane op (10 creation modes incl. offset / 3-points / tangent / midplane / normal-to-curve / 2-edges / angle / projection / coordinate / from-axes), 1 reference-axis op (8 creation modes), 1 reference-point op (12 creation modes), 1 coordinate-system op (6 alignment strategies, with WCS Tag for hyperMILL post emission as G54..G59 / G54.1 P# offsets), and 2 reference-curve ops (Spline-3D / Polyline-3D). COORDINATE_SYSTEM is the bridge between CAD reference frames and CNC controller offset registers.",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "PROJECTED_GEOMETRY",
+      "TANGENT_REFERENCE",
+      "DRIVING_VS_DRIVEN_DIMENSION"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "HyperCADCADFunctionIndexEngine",
+      "HyperCADSCodeGeneratorEngine",
+      "HyperMillStrategyKnowledgeEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 8,
+    "total_units_covered": ["U-CAD-FIDX-HCAD-01", "U-CAD-FIDX-HCAD-02", "U-CAD-FIDX-HCAD-03", "U-CAD-FIDX-HCAD-04", "U-CAD-FIDX-HCAD-05", "U-CAD-FIDX-HCAD-06", "U-CAD-FIDX-HCAD-07", "U-CAD-FIDX-HCAD-08"],
+    "estimated_parameter_total": 1001,
+    "api_surface": {
+      "macro_api_items": 160,
+      "hypercad_workspace": "Sketcher + 3D_Solid_Modeler + Surface_Modeler + Healing_Repair + Mesh_Modeler + Assembly + Drawing + Datum_Reference",
+      "coverage_state": "COMPLETE"
+    },
+    "pdf_sources_bound": [
+      "OPEN MIND hyperCAD-S User Manual",
+      "OPEN MIND hyperCAD-S Macro Reference",
+      "OPEN MIND hyperCAD-S Healing Reference",
+      "OPEN MIND hyperCAD-S Mesh Reference",
+      "OPEN MIND hyperCAD-S Assembly Reference",
+      "OPEN MIND hyperCAD-S Drawing Reference",
+      "OPEN MIND hyperCAD-S Reference Geometry Manual",
+      "ASME Y14.5-2018",
+      "ISO 1101:2017",
+      "hyperMILL Integration Reference",
+      "hyperMILL Hole Feature Reference",
+      "hyperMILL Surface Machining Reference",
+      "hyperMILL Feature-Line Toolpath Reference",
+      "hyperMILL Multi-Part Machining Guide",
+      "hyperMILL WCS / Datum Frame Reference"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "sketch_constraint_strategy",
+      "tangent_reference_pitfalls",
+      "spline_smoothing",
+      "imported_sketch_healing"
+    ]
+  },
+  "platform_integration": {
+    "hypermill_native": true,
+    "supports_step_iges_import": true,
+    "supports_parasolid": true,
+    "supports_acis": true,
+    "direct_modeling_mode": true,
+    "macro_recording": true
+  },
+  "future_modules": []
+}

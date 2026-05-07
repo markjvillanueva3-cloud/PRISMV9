@@ -1,0 +1,221 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Analysis Operations — Geometry analysis layer",
+    "description": "Parameter catalog for Mastercam CAD analysis operations: chain integrity, distance, angle, area, volume, entity inspection, dynamic measurement, and validation. Used by CAD authors to verify geometry before downstream CAM toolpath chaining (which requires closed, gap-free chains) and by mass-properties workflows for engineering analysis. 10 operations / 60 parameters. Bindings target Mastercam .NET-Hook API (Mastercam.Analysis namespace).",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-06",
+    "source": "Mastercam 2024 Reference — Analyze ribbon; Mastercam .NET-Hook API Reference (Mastercam.Analysis / Mastercam.Operations.Analyze)",
+    "totalParameters": 60,
+    "operationCount": 10,
+    "cad_concepts_used": [
+      "CHAIN_INTEGRITY",
+      "GAP_DETECTION",
+      "PARAMETRIC_QUERY",
+      "MASS_PROPERTIES",
+      "PLANAR_AREA",
+      "SURFACE_AREA",
+      "MANIFOLD_VALIDATION",
+      "SELF_INTERSECTION",
+      "DYNAMIC_PICK",
+      "TOLERANCE_THRESHOLD"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam analysis operations",
+    "tabs": ["Shape"]
+  },
+  "operations": {
+    "CHAIN_ANALYZE": {
+      "description": "Analyze a wireframe chain for closed/open status, total chained length, ordered endpoints, and gap detection between adjacent entities. Critical pre-flight check before CAM toolpath chaining (which requires closed gap-free chains in most contour modes).",
+      "category": "Analysis_Chain",
+      "mastercam_command": "AnalyzeChain",
+      "mastercam_api": "Mastercam.Analysis.Chain.Analyze",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Chain", "type": "selection", "description": "Wireframe chain to analyze", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Show Gaps", "type": "checkbox", "description": "Highlight gaps that exceed tolerance", "default": true},
+            {"name": "Gap Threshold", "type": "numeric", "unit": "mm", "description": "Minimum gap to flag (overrides tolerance for this op)"},
+            {"name": "Show Endpoints", "type": "checkbox", "default": true},
+            {"name": "Output Mode", "type": "dropdown", "options": ["display_only", "log_to_file", "highlight_in_view", "all"], "default": "highlight_in_view"},
+            {"name": "Highlight Style", "type": "dropdown", "options": ["color_red", "color_yellow", "thick_line", "blink"], "default": "color_red"}
+          ]
+        }
+      }
+    },
+    "DISTANCE_TWO_POINTS": {
+      "description": "Compute distance between two points. Display mode selects 3D Euclidean distance vs projected 2D distance on a reference plane.",
+      "category": "Analysis_Distance_TwoPoints",
+      "mastercam_command": "AnalyzeDistanceTwoPoints",
+      "mastercam_api": "Mastercam.Analysis.Distance.BetweenPoints",
+      "parameterCount": 4,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Point 1", "type": "selection", "required": true},
+            {"name": "Point 2", "type": "selection", "required": true},
+            {"name": "Display Mode", "type": "dropdown", "options": ["3d_euclidean", "projected_2d", "axis_components"], "default": "3d_euclidean"},
+            {"name": "Reference Plane", "type": "selection", "description": "Used with projected_2d / axis_components"}
+          ]
+        }
+      }
+    },
+    "DISTANCE_TWO_ENTITIES": {
+      "description": "Compute closest or farthest distance between two entities. Show Closest Points marks the two closest points on the entities; Show Distance Line draws a connecting line entity.",
+      "category": "Analysis_Distance_TwoEntities",
+      "mastercam_command": "AnalyzeDistanceTwoEntities",
+      "mastercam_api": "Mastercam.Analysis.Distance.BetweenEntities",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "required": true},
+            {"name": "Entity 2", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["closest", "farthest", "both"], "default": "closest"},
+            {"name": "Show Closest Points", "type": "checkbox", "default": true},
+            {"name": "Show Distance Line", "type": "checkbox", "default": false},
+            {"name": "Reference Plane", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "ANGLE_TWO_LINES": {
+      "description": "Compute angle between two lines or edges. Reflex Mode controls reporting of acute angle vs reflex (>180°) angle between the two directions.",
+      "category": "Analysis_Angle",
+      "mastercam_command": "AnalyzeAngleTwoLines",
+      "mastercam_api": "Mastercam.Analysis.Angle.BetweenLines",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Line 1", "type": "selection", "required": true},
+            {"name": "Line 2", "type": "selection", "required": true},
+            {"name": "Reference Plane", "type": "selection", "description": "Optional projection plane"},
+            {"name": "Reflex Mode", "type": "dropdown", "options": ["acute", "reflex", "both"], "default": "acute"},
+            {"name": "Display Style", "type": "dropdown", "options": ["arc_with_label", "value_only", "both"], "default": "both"}
+          ]
+        }
+      }
+    },
+    "AREA_PROFILE": {
+      "description": "Compute area enclosed by a closed planar profile. Include Inner Loops subtracts inner-loop areas (e.g., holes) from outer-loop area for net area.",
+      "category": "Analysis_Area_Profile",
+      "mastercam_command": "AnalyzeAreaProfile",
+      "mastercam_api": "Mastercam.Analysis.Area.OfProfile",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Closed planar profile (chain or face)", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001},
+            {"name": "Reference Plane", "type": "selection", "description": "Used for non-planar profiles (project first)"},
+            {"name": "Include Inner Loops", "type": "checkbox", "description": "Subtract inner-loop areas (net area)", "default": true},
+            {"name": "Display Result", "type": "checkbox", "default": true},
+            {"name": "Output Units", "type": "dropdown", "options": ["mm2", "cm2", "m2", "in2", "ft2"], "default": "mm2"}
+          ]
+        }
+      }
+    },
+    "AREA_SURFACE": {
+      "description": "Compute total surface area of a 3D surface (or surface set). Include Hole Boundaries treats trimmed boundaries as removed area; Per-Patch Breakdown reports per-face area for multi-patch surfaces.",
+      "category": "Analysis_Area_Surface",
+      "mastercam_command": "AnalyzeAreaSurface",
+      "mastercam_api": "Mastercam.Analysis.Area.OfSurface",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001},
+            {"name": "Include Hole Boundaries", "type": "checkbox", "description": "Subtract trimmed-out hole areas", "default": true},
+            {"name": "Per-Patch Breakdown", "type": "checkbox", "default": false},
+            {"name": "Display Result", "type": "checkbox", "default": true},
+            {"name": "Output Units", "type": "dropdown", "options": ["mm2", "cm2", "m2", "in2", "ft2"], "default": "mm2"}
+          ]
+        }
+      }
+    },
+    "VOLUME_SOLID": {
+      "description": "Compute volume of a solid body with optional centroid + mass calculation. Mass requires Density (g/cm³ or lb/in³); centroid is reported as XYZ in active CPlane.",
+      "category": "Analysis_Volume_Solid",
+      "mastercam_command": "AnalyzeVolumeSolid",
+      "mastercam_api": "Mastercam.Analysis.Volume.OfSolid",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Solid", "type": "selection", "required": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001},
+            {"name": "Include Centroid", "type": "checkbox", "default": true},
+            {"name": "Include Mass", "type": "checkbox", "description": "Requires Density", "default": false},
+            {"name": "Density", "type": "numeric", "unit": "g/cm3", "description": "Material density (e.g., 7.85 for steel, 2.70 for aluminum)"},
+            {"name": "Display Result", "type": "checkbox", "default": true},
+            {"name": "Output Units", "type": "dropdown", "options": ["mm3", "cm3", "m3", "in3", "ft3"], "default": "mm3"}
+          ]
+        }
+      }
+    },
+    "ENTITY_INFO": {
+      "description": "Detailed query of an entity's properties: type, parametric range, endpoints, length, sketch plane, layer assignment, color, line type. Display Detail Level controls verbose vs basic reporting.",
+      "category": "Analysis_EntityInfo",
+      "mastercam_command": "AnalyzeEntityInfo",
+      "mastercam_api": "Mastercam.Analysis.Query.EntityInfo",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entity", "type": "selection", "required": true},
+            {"name": "Display Detail Level", "type": "dropdown", "options": ["basic", "full", "verbose"], "default": "basic"},
+            {"name": "Show Parametric Range", "type": "checkbox", "default": false},
+            {"name": "Show Construction Coords", "type": "checkbox", "description": "Show endpoints in active CPlane coords", "default": true},
+            {"name": "Show Endpoints", "type": "checkbox", "default": true},
+            {"name": "Output Format", "type": "dropdown", "options": ["dialog", "log_to_file", "json", "csv"], "default": "dialog"}
+          ]
+        }
+      }
+    },
+    "DYNAMIC_INSPECT": {
+      "description": "Interactive measurement — pick entities/points dynamically and the measurement updates live as the cursor moves. Useful for sketch validation and shop-floor estimation.",
+      "category": "Analysis_DynamicInspect",
+      "mastercam_command": "AnalyzeDynamicInspect",
+      "mastercam_api": "Mastercam.Analysis.DynamicInspect.Begin",
+      "parameterCount": 5,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["distance", "angle", "area", "length"], "default": "distance"},
+            {"name": "Pick Mode", "type": "dropdown", "options": ["snap_to_grid", "snap_to_endpoint", "snap_to_intersection", "free"], "default": "snap_to_endpoint"},
+            {"name": "Live Update", "type": "checkbox", "default": true},
+            {"name": "Reference Plane", "type": "selection"},
+            {"name": "Display Style", "type": "dropdown", "options": ["floating_label", "status_bar", "dialog"], "default": "floating_label"}
+          ]
+        }
+      }
+    },
+    "ENTITY_VERIFY": {
+      "description": "Validate geometry for gaps, overlaps, self-intersections, manifold conformance. Auto-Heal attempts to repair detected issues. Severity Filter controls reporting threshold (warnings vs errors).",
+      "category": "Analysis_Verify",
+      "mastercam_command": "AnalyzeVerify",
+      "mastercam_api": "Mastercam.Analysis.Verify.Apply",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Validation Type", "type": "dropdown", "options": ["gaps", "overlaps", "self_intersect", "manifold", "small_features", "all"], "default": "all"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Auto-Heal", "type": "checkbox", "description": "Attempt repair of detected issues", "default": false},
+            {"name": "Show Issues", "type": "checkbox", "default": true},
+            {"name": "Severity Filter", "type": "dropdown", "options": ["errors_only", "warnings_and_errors", "all"], "default": "warnings_and_errors"},
+            {"name": "Output Mode", "type": "dropdown", "options": ["display_only", "log_to_file", "highlight_in_view", "all"], "default": "highlight_in_view"},
+            {"name": "Highlight Style", "type": "dropdown", "options": ["color_red", "color_yellow", "thick_line", "blink"], "default": "color_red"}
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Surface Operations — Surface Modeling Workspace",
+    "description": "Parameter catalog for the Inventor Surface Modeling environment. Inventor's surface tools are thinner than hyperCAD-S because most CAD work stays solid; surfaces are used for closure (Boundary Patch / Stitch), repair (Repair Bodies / Replace Face), and conversion (Sculpt / Ruled Surface). Catalog covers 12 operations: boundary closure, stitch / unstitch, trim / extend, replace / move face, sculpt (surface→solid), ruled surface, repair bodies, and 2 reference-curve generators (silhouette + surface intersection).",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-03",
+    "source": "Autodesk Inventor 2025 Help — Surface Modeling Reference; Inventor API Reference — PartFeatures (BoundaryPatchFeatures, StitchFeatures, TrimFeatures, ExtendSurfaceFeatures, ReplaceFaceFeatures, SculptFeatures, RuledSurfaceFeatures, RepairBodyFeatures, MoveFaceFeatures, SilhouetteCurveFeatures, IntersectionCurveFeatures)",
+    "totalParameters": 63,
+    "operationCount": 12,
+    "cad_concepts_used": [
+      "SURFACE_QUILT",
+      "BOUNDARY_CONTINUITY",
+      "PARAMETRIC_SURFACE",
+      "STITCH_TOLERANCE",
+      "FACE_SUBSTITUTION",
+      "SCULPT_VOLUME",
+      "RULED_DIRECTION"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor surface features",
+    "tabs": ["Geometry", "Properties"]
+  },
+  "operations": {
+    "BOUNDARY_PATCH": {
+      "description": "Close a gap bounded by edges / curves with a fitted patch surface. Inventor supports per-edge continuity conditions (G0 / G1 tangent / G2 curvature). Optional weight per edge biases the patch toward / away from each boundary.",
+      "category": "Surface_Boundary_Patch",
+      "python_api": "ComponentDefinition.Features.BoundaryPatchFeatures.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Boundary", "type": "selection_list", "description": "Closed loop of edges / sketch curves / surface edges", "required": true},
+            {"name": "Continuity", "type": "dropdown", "options": ["g0_position", "g1_tangent", "g2_curvature"], "default": "g0_position"},
+            {"name": "Per-Edge Conditions", "type": "object_list", "description": "Per-edge {edge, continuity, weight} overrides"},
+            {"name": "Weight", "type": "numeric", "description": "Default boundary weight 0.0–1.0", "default": 1.0, "min": 0, "max": 1},
+            {"name": "Internal Constraint Curves", "type": "selection_list", "description": "Optional internal curves the patch must pass through"},
+            {"name": "Output", "type": "dropdown", "options": ["surface", "solid_if_closed"], "default": "surface"},
+            {"name": "Auto Approximate", "type": "checkbox", "description": "Allow automatic refit to remove kinks", "default": true}
+          ]
+        }
+      }
+    },
+    "STITCH": {
+      "description": "Combine adjacent surface bodies into a single quilt or, when the result is watertight, into a solid body. Stitch tolerance controls how loose adjacent edges are allowed to be before stitching fails.",
+      "category": "Surface_Stitch_Combine",
+      "python_api": "ComponentDefinition.Features.StitchFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Surfaces", "type": "selection_list", "required": true, "min": 2},
+            {"name": "Output Type", "type": "dropdown", "options": ["quilt", "solid_when_watertight", "solid_force"], "default": "solid_when_watertight"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Maximum gap to bridge", "default": 0.01},
+            {"name": "Maintain Original", "type": "checkbox", "description": "Keep source surfaces as separate bodies", "default": false},
+            {"name": "Stitch Topology Report", "type": "checkbox", "description": "Emit unstitched-edge diagnostic report", "default": false}
+          ]
+        }
+      }
+    },
+    "UNSTITCH": {
+      "description": "Reverse-of-stitch: separate a stitched quilt or solid back into its constituent surface bodies. Optional face-list selection partial-unstitches only specific faces.",
+      "category": "Surface_Stitch_Separate",
+      "python_api": "ComponentDefinition.Features.StitchFeatures.AddByUnstitching",
+      "parameterCount": 3,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Body", "type": "selection", "required": true},
+            {"name": "Faces to Unstitch", "type": "selection_list", "description": "Subset of faces (omit for full unstitch)"},
+            {"name": "Keep Source", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "TRIM_SURFACE": {
+      "description": "Cut a surface with a curve, surface, or plane and discard one side. Inventor supports planar / curve / surface cutters and a Side selector that picks which fragment to keep.",
+      "category": "Surface_Modify_Trim",
+      "python_api": "ComponentDefinition.Features.TrimFeatures.Add",
+      "parameterCount": 7,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Surface", "type": "selection", "required": true},
+            {"name": "Cutter Type", "type": "dropdown", "options": ["curve", "surface", "plane"], "default": "curve"},
+            {"name": "Cutter", "type": "selection", "description": "Curve / surface / plane to trim against", "required": true},
+            {"name": "Side", "type": "dropdown", "options": ["keep_one_side", "keep_other_side", "keep_both"], "default": "keep_one_side"},
+            {"name": "Reference Point", "type": "point3d", "description": "Picks side when keep_one_side"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "description": "Snap tolerance for non-coincident cutter", "default": 0.001},
+            {"name": "Keep Source", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "EXTEND_SURFACE": {
+      "description": "Extend the boundary of a surface by a given distance, or up to a target surface / face. Two extension styles: Tangent (continuous derivative) and Linear (flat extension along boundary tangent).",
+      "category": "Surface_Modify_Extend",
+      "python_api": "ComponentDefinition.Features.ExtendSurfaceFeatures.AddByDistance / AddToSurface",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Surface", "type": "selection", "required": true},
+            {"name": "Edges", "type": "selection_list", "description": "Edges to extend (one or more)", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["distance", "to_surface", "to_edge"], "default": "distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Extension length (distance mode)"},
+            {"name": "Target", "type": "selection", "description": "Target surface / edge (to_surface / to_edge mode)"},
+            {"name": "Style", "type": "dropdown", "options": ["tangent", "linear"], "default": "tangent"}
+          ]
+        }
+      }
+    },
+    "REPLACE_FACE": {
+      "description": "Substitute a face on a solid body with a target surface. The substitute surface must extend beyond the original face footprint; trimming is automatic.",
+      "category": "Surface_Modify_ReplaceFace",
+      "python_api": "ComponentDefinition.Features.ReplaceFaceFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Existing Faces", "type": "selection_list", "description": "Faces to replace", "required": true},
+            {"name": "New Faces", "type": "selection_list", "description": "Substitute surface (must overhang originals)", "required": true},
+            {"name": "Auto Chain", "type": "checkbox", "description": "Auto-include tangent-connected faces", "default": true},
+            {"name": "Heal Adjacent", "type": "checkbox", "description": "Auto-trim/extend adjacent faces to match new face boundary", "default": true},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.01}
+          ]
+        }
+      }
+    },
+    "SCULPT": {
+      "description": "Combine surface bodies with solid bodies in a single boolean step. Add (build solid bounded by surfaces) or Subtract (carve solid using surface as cutter). Sculpt is Inventor's primary surface→solid bridge.",
+      "category": "Surface_Sculpt_Combine",
+      "python_api": "ComponentDefinition.Features.SculptFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Bounding Geometry", "type": "selection_list", "description": "Surfaces / faces / planes that define the volume", "required": true},
+            {"name": "Operation", "type": "dropdown", "options": ["add", "subtract", "new_solid"], "default": "add"},
+            {"name": "Target Body", "type": "selection", "description": "Solid to operate on (for add / subtract)"},
+            {"name": "Direction", "type": "dropdown", "options": ["normal_inward", "normal_outward", "auto"], "default": "auto"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    },
+    "RULED_SURFACE": {
+      "description": "Generate a ruled surface from edges or curves. Inventor supports 3 ruling directions: Normal (perpendicular to source face), Tangent (smooth continuation), Vector (along an explicit direction). Optional alternate-direction toggle for sweep-back rulings.",
+      "category": "Surface_Create_Ruled",
+      "python_api": "ComponentDefinition.Features.RuledSurfaceFeatures.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Edges", "type": "selection_list", "required": true},
+            {"name": "Direction Mode", "type": "dropdown", "options": ["normal", "tangent", "vector"], "default": "normal"},
+            {"name": "Reference Face", "type": "selection", "description": "Face providing direction (normal / tangent modes)"},
+            {"name": "Direction Vector", "type": "vector3d", "description": "Explicit ruling direction (vector mode)"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Ruling length", "required": true, "min": 0.001},
+            {"name": "Alternate", "type": "checkbox", "description": "Flip ruling direction", "default": false}
+          ]
+        }
+      }
+    },
+    "REPAIR_BODIES": {
+      "description": "Heal / diagnose surface bodies: detect open edges, sliver faces, self-intersections, and small gaps. Optional auto-repair attempts to close gaps within tolerance and remove slivers below the area threshold.",
+      "category": "Surface_Repair_Diagnose",
+      "python_api": "ComponentDefinition.Features.RepairBodyFeatures.Add",
+      "parameterCount": 5,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Bodies", "type": "selection_list", "required": true},
+            {"name": "Detect Open Edges", "type": "checkbox", "default": true},
+            {"name": "Detect Sliver Faces", "type": "checkbox", "default": true},
+            {"name": "Auto Repair", "type": "checkbox", "description": "Attempt automatic close-gap + remove-sliver", "default": false},
+            {"name": "Sliver Area Threshold", "type": "numeric", "unit": "mm^2", "default": 0.01}
+          ]
+        }
+      }
+    },
+    "MOVE_FACE": {
+      "description": "Direct-edit translation of selected faces. Three modes: Triad (3-axis gizmo), Free-Drag (preview), and From-To (point-to-point). Operates without re-evaluating the feature tree, so it bypasses parametric history.",
+      "category": "Surface_DirectEdit_MoveFace",
+      "python_api": "ComponentDefinition.Features.MoveFaceFeatures.AddByTriadAtFaceCenter / AddByFromToPoints / AddByFreeDrag",
+      "parameterCount": 6,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Faces", "type": "selection_list", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["triad", "from_to", "free_drag"], "default": "triad"},
+            {"name": "From Point", "type": "point3d", "description": "Required for from_to mode"},
+            {"name": "To Point", "type": "point3d", "description": "Required for from_to mode"},
+            {"name": "Translation", "type": "vector3d", "description": "Triad-mode translation"},
+            {"name": "Heal Adjacent", "type": "checkbox", "description": "Auto-extend adjacent faces", "default": true}
+          ]
+        }
+      }
+    },
+    "SILHOUETTE_CURVE": {
+      "description": "Generate the silhouette curve of a surface or solid relative to a viewing direction. Used as input for trim, draft, or projection workflows.",
+      "category": "Surface_Reference_Silhouette",
+      "python_api": "ComponentDefinition.Features.SilhouetteCurveFeatures.Add",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Source Body", "type": "selection", "required": true},
+            {"name": "Direction", "type": "selection", "description": "Plane / axis / face whose normal defines view direction", "required": true},
+            {"name": "Output", "type": "dropdown", "options": ["3d_curve", "sketch_projection"], "default": "3d_curve"},
+            {"name": "Construction", "type": "checkbox", "description": "Mark output as construction geometry", "default": false}
+          ]
+        }
+      }
+    },
+    "SURFACE_INTERSECT": {
+      "description": "Generate the intersection curve(s) between two surface bodies or between a surface and a solid. Returns a 3D curve usable as a sketch path or sweep guide.",
+      "category": "Surface_Reference_Intersection",
+      "python_api": "ComponentDefinition.Features.IntersectionCurveFeatures.Add",
+      "parameterCount": 4,
+      "tabs": {
+        "Geometry": {
+          "parameters": [
+            {"name": "Surface A", "type": "selection", "required": true},
+            {"name": "Surface B", "type": "selection", "required": true},
+            {"name": "Output", "type": "dropdown", "options": ["3d_curve", "sketch_projection"], "default": "3d_curve"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001}
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "fusion360",
+  "module_id": "cad_function_index",
+  "module_name": "Fusion 360 CAD Unified Function Index",
+  "description": "Top-level index for Fusion 360 CAD-side (Design workspace) operations: sketch tools, 3D feature creation, modify ops, surface ops, mesh ops. CAD-side parity to the existing CAM-side Fusion360FunctionIndexEngine. Consumed by Fusion360CADFunctionIndexEngine for lookup, parameter discovery, and AI orchestration of CAD generation.",
+  "indexed_at": "2026-05-01T23:25:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/fusion360/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-01"],
+      "parameter_count_estimate": 115,
+      "description": "2D sketch creation and editing: Line, Rectangle (3 variants), Circle (5 variants), Polygon (3 variants), Arc (3 variants), Ellipse, Spline (2 variants), Slot (4 variants), Conic, Point, Project/Intersect/Project-to-Surface, Mirror, Offset, Trim/Extend/Break, Scale, Sketch Dimensions (linear/angular/radial/diameter), Geometric Constraints (13 types), Construction Geometry toggle.",
+      "dependencies": []
+    },
+    {
+      "module_id": "feature_operations",
+      "path": "cad-functions/fusion360/feature-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-02"],
+      "parameter_count_estimate": 206,
+      "description": "3D feature creation: solid sweeps (Extrude, Revolve, Sweep, Loft), thin features (Rib, Web), holes/threads (Hole with 5 head variants, Thread with ANSI/ISO/UNJ standards), modify-by-removal (Shell, Draft), patterns (Linear/Circular/On-Path/On-Sketch), Mirror, Boolean (Combine, Split Body, Boundary Fill). 18 operations.",
+      "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "modify_operations",
+      "path": "cad-functions/fusion360/modify-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-03"],
+      "parameter_count_estimate": 101,
+      "description": "Post-feature modify and construction operations: edge filleting (4 types), chamfering (3 types), Press Pull (4 inferred modes), rigid Move (5 transform types), Scale (uniform / non-uniform), construction Plane (7 variants), Axis (5 variants), Point (8 variants), and Section Analysis (single + multi-section). 9 operations.",
+      "dependencies": ["feature_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/fusion360/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-04"],
+      "parameter_count_estimate": 74,
+      "description": "Surface modeling: gap-filling (Patch), connectivity (Stitch / Unstitch), boundary modification (Trim Surface / Extend Surface), normal correction (Reverse Normal), offset (Offset Surface), and surface-to-solid conversion (Thicken). Boundary Fill lives in feature_operations to avoid duplication. 8 operations.",
+      "dependencies": ["feature_operations"]
+    },
+    {
+      "module_id": "mesh_operations",
+      "path": "cad-functions/fusion360/mesh-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-05"],
+      "parameter_count_estimate": 66,
+      "description": "Mesh modeling: import (Insert Mesh from OBJ/STL/3MF), conversion (Convert to BRep), decimation (Reduce — count/percentage/deviation modes), smoothing (Smooth — Laplacian + Taubin λ-μ), healing (Repair — fill holes / fix non-manifold / merge duplicates), splitting (Plane Cut), local edits (Erase and Fill). 7 operations.",
+      "dependencies": ["surface_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/fusion360/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-06"],
+      "parameter_count_estimate": 112,
+      "description": "Assembly modeling: kinematic Joint (7 motion types: rigid/revolute/slider/cylindrical/pin_slot/planar/ball), As-Built Joint (from current geometry), Rigid Group (lock components together), Component From Bodies, Component Insert (copy or derive), Component Ground, Motion Link (gear/rack/leadscrew ratios), Drive Joints (kinematic animation), Motion Study (keyframe + dynamic simulation with gravity/friction/contact), Contact Set (collision pairs). 10 operations.",
+      "dependencies": ["mesh_operations"]
+    },
+    {
+      "module_id": "sheet_metal_operations",
+      "path": "cad-functions/fusion360/sheet-metal-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-07"],
+      "parameter_count_estimate": 121,
+      "description": "Sheet Metal toolspace within Design workspace — Fusion's rule-driven sheet metal. 13 operations: rule management (Sheet Metal Rule), body conversion (Convert to Sheet Metal), base creation (Flange in 3 modes — edge/profile/edge_distance, Tab from closed profile), edge features (Bend at edge or between faces, Hem in 5 types — closed/open/teardrop/rolled/double, Insert Bend at sketch line), separation (Rip), unfold/refold workflow, sheet-metal-aware Cut (with Affect-Bend + Through-Bend modes), Bend Order Edit for press-brake sequencing, and Flat Pattern emission with full annotation control (centerlines / extent lines / radius / direction / K-factor in BOM).",
+      "dependencies": ["feature_operations", "modify_operations"]
+    },
+    {
+      "module_id": "drawing_operations",
+      "path": "cad-functions/fusion360/drawing-operations.json",
+      "covered_units": ["U-CAD-FIDX-FUS-08"],
+      "parameter_count_estimate": 155,
+      "description": "Drawing workspace — 2D drawing output for Design / Sheet Metal / Assembly bodies. 18 operations: Sheet (ANSI A..E + ISO A0..A4 + custom), 7 view types (Base / Projected / Section in 6 methods / Detail / Auxiliary / Break / view-internal Crop), dimensioning (8 dimension subtypes: linear/aligned/angular/radial/diameter/arc_length/jogged/ordinate + 7 tolerance types incl. inspection frame), GD&T (14 ASME Y14.5 geometric characteristics with M/L/S material modifiers + Datum Feature symbols), annotation (Centerline in 5 modes, Centermark in 5 styles, Text with leader), tables (Parts List BOM, Hole Table XY/polar, Revision Table per ASME Y14.35 letter sequence), Title Block configuration, and multi-format Export (PDF / DWG / DXF / PNG / JPG / SVG).",
+      "dependencies": ["assembly_operations", "sheet_metal_operations"]
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "PARAMETRIC_SKETCH",
+      "DIMENSIONAL_CONSTRAINT",
+      "GEOMETRIC_CONSTRAINT",
+      "CONSTRUCTION_GEOMETRY",
+      "SKETCH_PLANE_DEFINITION",
+      "PROJECTED_GEOMETRY",
+      "SPLINE_INTERPOLATION",
+      "CONIC_SECTION",
+      "PARAMETRIC_SWEEP",
+      "PROFILE_CONSUMPTION",
+      "TAPER_ANGLE",
+      "BOOLEAN_OPERATION",
+      "GUIDE_RAIL",
+      "PATTERN_DISTRIBUTION",
+      "DRAFT_NEUTRAL_PLANE",
+      "SHELL_THICKNESS",
+      "HOLE_TYPE_VARIANT",
+      "THREAD_DESIGNATION"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "Fusion360CADFunctionIndexEngine",
+      "AutodeskFusionMCPProxyEngine",
+      "Fusion360CADGeneratorAdapter",
+      "Fusion360CodeGeneratorEngine",
+      "PartGeometryEngine",
+      "FeatureRecognitionEngine",
+      "SketchConstraintSolverEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 8,
+    "total_units_covered": [
+      "U-CAD-FIDX-FUS-01",
+      "U-CAD-FIDX-FUS-02",
+      "U-CAD-FIDX-FUS-03",
+      "U-CAD-FIDX-FUS-04",
+      "U-CAD-FIDX-FUS-05",
+      "U-CAD-FIDX-FUS-06",
+      "U-CAD-FIDX-FUS-07",
+      "U-CAD-FIDX-FUS-08"
+    ],
+    "estimated_parameter_total": 950,
+    "api_surface": {
+      "python_api_items": 98,
+      "fusion_design_workspace": true,
+      "fusion_animation_workspace": true,
+      "fusion_sheet_metal_workspace": true,
+      "fusion_drawing_workspace": true,
+      "coverage_state": "COMPLETE",
+      "phase_1_target_modules": 6,
+      "phase_1_target_modules_remaining": 0,
+      "phase_1_modules_pending": [],
+      "phase_2_coverage_state": "COMPLETE",
+      "phase_2_target_modules": 2,
+      "phase_2_target_modules_remaining": 0,
+      "phase_2_modules_pending": [],
+      "fusion_cad_8_of_8": true,
+      "inventor_parity": true
+    },
+    "pdf_sources_bound": [
+      "Autodesk Fusion 360 Design Fundamentals.pdf",
+      "Autodesk Fusion 360 Sketching Guide.pdf",
+      "Autodesk Fusion 360 Python API Reference — Sketches Module",
+      "Autodesk Fusion 360 Modeling Fundamentals.pdf",
+      "Autodesk Fusion 360 Python API Reference — Features Module"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "sketch_constraint_strategy",
+      "construction_geometry_use",
+      "spline_smoothing",
+      "projected_geometry_pitfalls"
+    ]
+  },
+  "platform_integration": {
+    "cloud_enabled": true,
+    "design_workspace": true,
+    "form_workspace": false,
+    "sheet_metal_workspace": true,
+    "drawing_workspace": true,
+    "render_workspace": false
+  },
+  "future_modules": []
+}

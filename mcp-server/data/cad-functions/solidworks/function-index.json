@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "solidworks",
+  "module_id": "cad_function_index",
+  "module_name": "SolidWorks CAD Unified Function Index",
+  "description": "Top-level index for SolidWorks CAD authoring operations. SolidWorks is a feature-tree-based parametric CAD system with discrete environments (Part, Assembly, Drawing) and explicit Sheet Metal + Weldment modes. This index covers the full CAD authoring surface: sketch_operations (2D constraint solver + dimensions + relations), part_operations (features + bodies + patterns + boolean), surface_operations (lofted/swept/boundary/fill + knit/trim/extend), assembly_operations (16+ mate types + components + configurations), drawing_operations (views + dimensions + GD&T + BOM), sheet_metal_operations (flange/bend/unfold + K-factor), weldment_operations (structural members + cut list + welds), and evaluation_operations (measure/mass/interference/cost/sustainability). Consumed by SolidWorksCADFunctionIndexEngine for parameter discovery and AI orchestration of SolidWorks CAD authoring via SolidWorks API COM (ISldWorks/IModelDoc2/IPartDoc/IAssemblyDoc/IDrawingDoc), VBA macro execution, and VSTA add-ins. Mirrors Inventor (8 modules, 983 params) and Mastercam (8 modules, 815 params) parity.",
+  "indexed_at": "2026-05-02T04:00:00Z",
+  "modules": [
+    {
+      "module_id": "sketch_operations",
+      "path": "cad-functions/solidworks/sketch-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-01"],
+      "parameter_count_estimate": 132,
+      "description": "2D sketching layer: 22 operations covering primitive geometry (line / centerline / circle / arc / spline / style_spline / polygon / rectangle / slot / ellipse / partial_ellipse / conic / point / text), constraints (smart_dimension across 10 modes + add_relation across 16 geometric relation types), and sketch modify ops (sketch_fillet / sketch_chamfer / trim_entities / extend_entities / offset_entities / mirror_entities). Bindings target SolidWorks API ISketchManager + IFeatureManager.InsertSketch. Foundation layer for part_operations (every extrude/revolve/sweep/loft starts from a sketch) and the lineage anchor for design-table-driven dimensional relationships.",
+      "dependencies": []
+    },
+    {
+      "module_id": "part_operations",
+      "path": "cad-functions/solidworks/part-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-02"],
+      "parameter_count_estimate": 190,
+      "description": "Solid feature layer: 30 operations covering the four sweep families with boss + cut variants (extrude / revolve / sweep / loft — 8 ops with 8 termination modes on extrude), boundary surface→solid, the hole wizard (5 hole types × 5 termination modes folded into one op), 5 apply features (rib / dome / indent / flex / thicken), 4 modify features (fillet / chamfer / shell / draft including variable-radius and neutral-plane modes), 6 patterns (linear / circular / curve-driven / sketch-driven / table-driven / fill), mirror_feature, and 4 body operations (move-copy / scale / combine / split). Bindings target SolidWorks API IFeatureManager (FeatureExtrusion3 / FeatureRevolve2 / FeatureSweep / FeatureLoft / etc.) and IModelDoc2 body operations. Foundation for assembly_operations (components are part instances), drawing_operations (views derive from feature-tree topology), sheet_metal_operations (sheet metal subsets the part-modeling environment), and weldment_operations (weldment is multi-body part topology).",
+      "dependencies": ["sketch_operations"]
+    },
+    {
+      "module_id": "surface_operations",
+      "path": "cad-functions/solidworks/surface-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-03"],
+      "parameter_count_estimate": 150,
+      "description": "Surface modeling layer: 20 operations covering 7 sweep families (extrude / revolve / sweep / loft / boundary / ruled / radiated), 3 patch creators (fill / planar / extracted-from-body), 6 modify ops (offset / trim / untrim / extend / knit / replace_face), 3 face-level ops (delete_face / move_face / delete_hole-via-trim), and 2 surface→solid converters (thicken / knit-to-solid). Bindings target SolidWorks API IFeatureManager surface methods (FeatureExtruRefSurface3 / FeatureRevolveSurface2 / FeatureSurfaceLoft / FeatureBoundarySurface / InsertFilledSurfaceFeature2 / InsertOffsetSurface2 / InsertRuledSurface2 / RadiatedSurfaceFeature / InsertPlanarSurface / InsertSurfaceFromBody / InsertSurfaceTrim2 / FeatureUntrimSurface / InsertExtendSurfaceFeature / InsertSewingFeature / InsertReplaceFace2 / InsertDeleteFace / InsertMoveFace2 / InsertThickenFeature). Foundation for hybrid solid-surface workflows on imported geometry, mold parting surfaces, and class-A automotive/consumer surfacing.",
+      "dependencies": ["sketch_operations", "part_operations"]
+    },
+    {
+      "module_id": "assembly_operations",
+      "path": "cad-functions/solidworks/assembly-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-04"],
+      "parameter_count_estimate": 172,
+      "description": "Assembly authoring layer: 26 operations across mate authoring (MATE_ADD with 26 mate types — 10 standard + 8 advanced + 8 mechanical), mate lifecycle (MATE_DELETE / MATE_EDIT / MATE_FLIP_ALIGNMENT / MATE_SUPPRESS), component management (INSERT_COMPONENT / DELETE_COMPONENT / REPLACE_COMPONENT / FIX_COMPONENT / SUPPRESS_COMPONENT / SMART_FASTENER), component patterns (COMPONENT_LINEAR_PATTERN / COMPONENT_CIRCULAR_PATTERN / COMPONENT_PATTERN_DRIVEN / MIRROR_COMPONENTS), sub-assembly authoring (INSERT_SUBASSEMBLY / INSERT_NEW_PART / DISSOLVE_SUBASSEMBLY / FLEXIBLE_SUBASSEMBLY), configurations (ADD_CONFIGURATION / SWITCH_CONFIGURATION), exploded view + step (EXPLODE_VIEW_CREATE / EXPLODED_STEP_ADD / SMART_EXPLODE_LINE), and verification (INTERFERENCE_DETECTION / CLEARANCE_VERIFICATION). Bindings target SolidWorks API IAssemblyDoc.AddMate3 / AddComponent5 / FeatureLinearComponentPattern / FeatureCircularComponentPattern / FeatureMirrorComponent / SmartFastener / Dissolve / IComponent2.SetSuppression2 / IConfigurationManager.AddConfiguration2 / IExplodeStep.AddStep / IInterferenceDetectionMgr.GetInterferences / IClearanceVerification.GetMinimumDistances. Foundation for drawing_operations (assembly drawings derive from this layer's component + mate topology) and downstream CAM-fixture assembly setup.",
+      "dependencies": ["part_operations"]
+    },
+    {
+      "module_id": "drawing_operations",
+      "path": "cad-functions/solidworks/drawing-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-05"],
+      "parameter_count_estimate": 165,
+      "description": "2D drawing authoring layer: 24 operations across drawing document (DRAWING_NEW / SHEET_ADD / SHEET_FORMAT_EDIT — first/third-angle projection + 13 standard paper sizes), 9 SolidWorks view types (VIEW_MODEL / VIEW_PROJECTED / VIEW_AUXILIARY / VIEW_SECTION / VIEW_DETAIL / VIEW_BROKEN / VIEW_BREAK_OUT / VIEW_CROP — covers full ASME Y14.3 view taxonomy), 3 dimension authoring ops (DIMENSION_SMART with 10 dimensioning modes / DIMENSION_BASELINE / DIMENSION_ORDINATE), GD&T (GDT_ADD with all 14 ASME Y14.5-2018 geometric characteristics + MMC/LMC/RFS material conditions + tolerance zone modifiers + tertiary datum chain / DATUM_FEATURE), 4 annotation symbols (SURFACE_FINISH_SYMBOL per ASME Y14.36 / WELD_SYMBOL per AWS A2.4 with 12 weld types / CENTER_MARK), and 5 table types (BOM_TABLE with top_level/parts_only/indented modes / REVISION_TABLE per ASME Y14.35 / GENERAL_TABLE / HOLE_TABLE / DESIGN_TABLE_ATTACH). Bindings target IDrawingDoc.CreateModelView / CreateUnfoldedViewAt5 / CreateAuxiliaryView2 / CreateSectionView5 / CreateDetailViewAt4 / CreateBrokenView / CreateBreakOutSection / CreateCropView · IModelDoc2.AddDimension2 · IModelDocExtension.InsertGtol / InsertDatumFeature / InsertSurfaceFinishSymbol / InsertWeldSymbol / InsertCenterMark · IDrawingDoc.InsertBomTable4 / InsertRevisionTable3 / InsertHoleTable / InsertDesignTable.",
+      "dependencies": ["part_operations", "assembly_operations"]
+    },
+    {
+      "module_id": "sheet_metal_operations",
+      "path": "cad-functions/solidworks/sheet-metal-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-06"],
+      "parameter_count_estimate": 148,
+      "description": "Sheet metal authoring layer: 22 operations covering BASE_FLANGE_TAB (foundational with thickness + K-factor + bend allowance type + auto-relief defaults), 6 flange creators (EDGE_FLANGE / MITER_FLANGE / TAB / SWEPT_FLANGE / LOFTED_BEND / SKETCHED_BEND), 5 bend lifecycle ops (HEM with 4 hem types / JOG / CROSS_BREAK / CORNER_RELIEF / CLOSED_CORNER), 4 form features (GUSSET / VENT / FORMING_TOOL / RIP), 4 flat-pattern ops (UNFOLD / FOLD / FLATTEN / NO_BEND_REGION), and 2 parameter editors (SHEET_METAL_PARAMS / BEND_TABLE_ATTACH). Carries the K-factor / bend allowance / bend deduction / bend table taxonomy throughout — every flange and bend op exposes Override Bend Radius for per-feature override of the part-level default. Bindings target IFeatureManager.InsertSheetMetalBaseFlange2 / InsertSheetMetalEdgeFlange3 / InsertSheetMetalMiterFlange / InsertSheetMetalHem / InsertSheetMetalJog2 / InsertSketchedBend / InsertSheetMetalLoftedBend / InsertSheetMetalSweptFlange / InsertSheetMetalTab / InsertSheetMetalCrossBreak / InsertCornerRelief / InsertClosedCorner / InsertSheetMetalGusset / InsertSheetMetalVent / InsertFormToolFromCatalog / InsertSheetMetalRip / InsertSheetMetalUnfold / InsertSheetMetalFold / InsertSheetMetalNoBendRegion / IModelDoc2.SheetMetalFlatten / ISheetMetalFeatureData / IModelDocExtension.AddBendTable.",
+      "dependencies": ["part_operations"]
+    },
+    {
+      "module_id": "weldment_operations",
+      "path": "cad-functions/solidworks/weldment-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-07"],
+      "parameter_count_estimate": 104,
+      "description": "Multi-body weldment authoring layer: 15 operations covering WELDMENT (foundational marker), STRUCTURAL_MEMBER (sketch-driven member with 9-standard profile library + 12 profile types + 3 corner treatments + per-segment rotation/mirror), 3 trim/extend ops (TRIM_EXTEND / EXTEND_BY_PLANE / END_TRIM_TO_BODY with face_to_face/weld_gap/nominal_butt coping), 3 reinforcement ops (END_CAP with inward/outward/centered thickness directions / GUSSET with triangular/polygonal profile / FILLET_WELD_BEAD with full_length/intermittent/staggered_intermittent bead types), 2 weld authoring ops (WELD_BEAD with 9 AWS A2.4 weld types / SPOT_WELD with 4 pattern types), and 5 cut-list / multi-body management ops (CUT_LIST_GENERATE / WELDMENT_BODY_RENAME / WELDMENT_BODY_PROPERTY / CUT_LIST_SUMMARY / CUSTOM_PROFILE_DEFINE). Bindings target IFeatureManager.InsertWeldment / InsertWeldmentMember / InsertTrimExtend / InsertExtendByPlane / InsertEndTrimToBody / InsertEndCap / InsertWeldmentGusset / InsertFilletBead / InsertWeldBead / InsertSpotWeld / UpdateCutList / GenerateCutListSummary - IBody2.Name (set) - IModelDocExtension.CustomPropertyManager.Add3 (per body) - IModelDoc2.SaveAsLibraryFeature.",
+      "dependencies": ["part_operations"]
+    },
+    {
+      "module_id": "evaluation_operations",
+      "path": "cad-functions/solidworks/evaluation-operations.json",
+      "covered_units": ["U-CAD-FIDX-SW-08"],
+      "parameter_count_estimate": 123,
+      "description": "Evaluation / verification / sustainability layer (FINAL module): 19 operations spanning measurement (MEASURE with 10-mode dispatch / MASS_PROPERTIES with material-density override / SECTION_PROPERTIES), assembly + part-body verification (INTERFERENCE_DETECTION_PART_LEVEL / CLEARANCE_VERIFICATION_PART_LEVEL / COLLISION_DETECTION with 3 sensitivity levels), part quality analyses (DRAFT_ANALYSIS / UNDERCUT_ANALYSIS / DEVIATION_ANALYSIS with 4 sample densities / THICKNESS_ANALYSIS / SYMMETRY_CHECK with 3 symmetry types / ZEBRA_STRIPES / CURVATURE_ANALYSIS with 5 curvature types), 3 quality-gate auditors (DESIGN_CHECKER with .swstd standards / DFM_CHECKER with 5 process scopes / PARAMETRIC_LINK_CHECK), PERFORMANCE_EVALUATION (large-assembly profiling), COSTING (7 manufacturing-process templates), and SUSTAINABILITY (ISO 14040 LCA across 7 regions x 4 end-of-life treatments). Bindings target IModelDocExtension.GetMeasureManager.Measure3 / CreateMassProperty2 / CreateSectionProperty / CheckInterference / SymmetryCheck / PerformanceEvaluation - IClearanceVerification.GetMinimumDistances - ICollisionDetectionMgr.SetCollisionDetection - IDraftAnalysis.AnalyzeDraft - IUndercutAnalysis.Analyze - IDeviationAnalysis.Analyze - IThickAnalysis.Analyze - IDesignChecker.RunCheck - IDFMXpressManager.RunCheck - ICostingManager.RunCostingCalculation - ISustainabilityManager.AnalyzeImpact - IModelDoc2.GetExternalReferences / SetupZebraStripes / SetupCurvatureDisplay.",
+      "dependencies": ["part_operations", "assembly_operations"]
+    }
+  ],
+  "global_cross_references": {
+    "cad_concepts": [
+      "SKETCH_PARAMETRIC_2D",
+      "FEATURE_TREE_HISTORY",
+      "DIMENSIONAL_CONSTRAINT_SOLVER",
+      "GEOMETRIC_RELATION_NETWORK",
+      "DESIGN_TABLE_DRIVEN_CONFIGURATION",
+      "EQUATION_DRIVEN_DIMENSION",
+      "FEATURE_PARAMETRIC_REGENERATION",
+      "MULTI_BODY_PART_TOPOLOGY",
+      "MATE_DRIVEN_ASSEMBLY",
+      "IN_CONTEXT_REFERENCE",
+      "K_FACTOR_BEND_ALLOWANCE",
+      "WELDMENT_STRUCTURAL_PROFILE",
+      "ASME_Y14_5_GDT",
+      "SHEET_METAL_FLAT_PATTERN"
+    ],
+    "dispatchers_touched": ["prism_cad", "prism_ai"],
+    "engines_linked": [
+      "SolidWorksCADFunctionIndexEngine",
+      "SolidWorksAutomationBridge",
+      "SolidWorksCodeGeneratorEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 8,
+    "total_units_covered": ["U-CAD-FIDX-SW-01", "U-CAD-FIDX-SW-02", "U-CAD-FIDX-SW-03", "U-CAD-FIDX-SW-04", "U-CAD-FIDX-SW-05", "U-CAD-FIDX-SW-06", "U-CAD-FIDX-SW-07", "U-CAD-FIDX-SW-08"],
+    "estimated_parameter_total": 1184,
+    "api_surface": {
+      "sw_api_com_items": 178,
+      "vba_macro_items": 178,
+      "vsta_addin_items": 178,
+      "solidworks_2024_compatible": true,
+      "solidworks_2025_compatible": true,
+      "coverage_state": "COMPLETE",
+      "phase_1_target_modules": 8,
+      "phase_1_target_modules_remaining": 0,
+      "phase_1_modules_pending": [],
+      "solidworks_cad_8_of_8": true,
+      "inventor_parity": true
+    },
+    "pdf_sources_bound": [
+      "SolidWorks 2024 API Help — Sketch",
+      "SolidWorks 2024 API Help — Features",
+      "SolidWorks 2024 API Help — Surfaces",
+      "SolidWorks API Reference — ISketchManager",
+      "SolidWorks API Reference — IFeatureManager",
+      "SolidWorks API Reference — IFeatureManager.InsertSketch",
+      "SolidWorks API Reference — IFeatureManager.FeatureExtrusion3",
+      "SolidWorks API Reference — IFeatureManager.FeatureRevolve2",
+      "SolidWorks API Reference — IFeatureManager.FeatureSweep",
+      "SolidWorks API Reference — IFeatureManager.FeatureLoft",
+      "SolidWorks API Reference — IFeatureManager.HoleWizard5",
+      "SolidWorks API Reference — IFeatureManager.FeatureExtruRefSurface3",
+      "SolidWorks API Reference — IFeatureManager.FeatureRevolveSurface2",
+      "SolidWorks API Reference — IFeatureManager.FeatureSurfaceSweep",
+      "SolidWorks API Reference — IFeatureManager.FeatureSurfaceLoft",
+      "SolidWorks API Reference — IFeatureManager.FeatureBoundarySurface",
+      "SolidWorks API Reference — IFeatureManager.InsertFilledSurfaceFeature2",
+      "SolidWorks API Reference — IFeatureManager.InsertOffsetSurface2",
+      "SolidWorks API Reference — IFeatureManager.InsertRuledSurface2",
+      "SolidWorks API Reference — IFeatureManager.RadiatedSurfaceFeature",
+      "SolidWorks API Reference — IFeatureManager.InsertPlanarSurface",
+      "SolidWorks API Reference — IFeatureManager.InsertSurfaceFromBody",
+      "SolidWorks API Reference — IFeatureManager.InsertSurfaceTrim2",
+      "SolidWorks API Reference — IFeatureManager.FeatureUntrimSurface",
+      "SolidWorks API Reference — IFeatureManager.InsertExtendSurfaceFeature",
+      "SolidWorks API Reference — IFeatureManager.InsertSewingFeature",
+      "SolidWorks API Reference — IFeatureManager.InsertReplaceFace2",
+      "SolidWorks API Reference — IFeatureManager.InsertDeleteFace",
+      "SolidWorks API Reference — IFeatureManager.InsertMoveFace2",
+      "SolidWorks API Reference — IFeatureManager.InsertThickenFeature",
+      "SolidWorks 2024 API Help — Assemblies",
+      "SolidWorks API Reference — IAssemblyDoc.AddMate3",
+      "SolidWorks API Reference — IAssemblyDoc.AddComponent5",
+      "SolidWorks API Reference — IAssemblyDoc.FeatureLinearComponentPattern",
+      "SolidWorks API Reference — IAssemblyDoc.FeatureCircularComponentPattern",
+      "SolidWorks API Reference — IAssemblyDoc.FeatureMirrorComponent",
+      "SolidWorks API Reference — IAssemblyDoc.SmartFastener",
+      "SolidWorks API Reference — IAssemblyDoc.Dissolve",
+      "SolidWorks API Reference — IAssemblyDoc.InsertNewVirtualPart",
+      "SolidWorks API Reference — IComponent2.SetSuppression2",
+      "SolidWorks API Reference — IComponent2.Solving (Rigid/Flexible)",
+      "SolidWorks API Reference — IConfigurationManager.AddConfiguration2",
+      "SolidWorks API Reference — IModelDoc2.ShowConfiguration2",
+      "SolidWorks API Reference — IExplodeStep.AddStep",
+      "SolidWorks API Reference — IExplodeLineSketch.AddRoute",
+      "SolidWorks API Reference — IInterferenceDetectionMgr.GetInterferences",
+      "SolidWorks API Reference — IClearanceVerification.GetMinimumDistances",
+      "SolidWorks API Reference — IMate2.Alignment / SetDistance / SetAngle",
+      "SolidWorks 2024 Reference Manual — Mates (10 standard + 8 advanced + 8 mechanical)",
+      "SolidWorks Toolbox Standards (ANSI inch / metric / ISO / DIN / JIS / BSI / GB)",
+      "SolidWorks Hole Wizard standards (ANSI / DIN / ISO)"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 0,
+    "categories": [
+      "sketch_authoring",
+      "feature_modeling",
+      "surface_modeling",
+      "assembly_mating",
+      "drawing_output",
+      "sheet_metal_design",
+      "weldment_design",
+      "design_evaluation"
+    ]
+  },
+  "platform_integration": {
+    "sw_api_com_enabled": true,
+    "vba_macro_enabled": true,
+    "vsta_addin_enabled": true,
+    "configurations": true,
+    "design_tables": true,
+    "equations": true,
+    "sketch_layer": true,
+    "part_layer": true,
+    "surface_layer": true,
+    "assembly_layer": true,
+    "drawing_layer": true,
+    "sheet_metal_layer": true,
+    "weldment_layer": true,
+    "evaluation_layer": true
+  },
+  "future_modules": []
+}

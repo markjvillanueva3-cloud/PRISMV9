@@ -213,6 +213,9 @@ const ACTIONS = [
   "cad_step_parse_file", "cad_step_parse_string", "cad_step_evidence_for_kinds",
   "cad_blueprint_infer_class", "cad_blueprint_flag_features",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
+  // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
+  "cad_route_detect_system", "cad_route_list_systems", "cad_route_plan_render",
+  "cad_route_find_op", "cad_route_capabilities",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1913,6 +1916,52 @@ Params vary by action — pass relevant fields in params object.`,
           case "cad_harvest_can_redistribute": {
             const { onlinePrintHarvestEngine } = await import("../../engines/OnlinePrintHarvestEngine.js");
             result = { success: true, data: { can_redistribute: onlinePrintHarvestEngine.canRedistribute(params.filter ?? {}) } };
+            break;
+          }
+          // ── CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router ────────────────
+          case "cad_route_detect_system": {
+            const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
+            const detected = CADSystemRouterEngine.detectSystem({
+              sourceSystem: params.source_system,
+              filePath: params.file_path,
+            });
+            result = { success: true, data: { system: detected } };
+            break;
+          }
+          case "cad_route_list_systems": {
+            const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
+            result = { success: true, data: CADSystemRouterEngine.listSupportedSystems() };
+            break;
+          }
+          case "cad_route_plan_render": {
+            const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
+            const sys = params.system ?? CADSystemRouterEngine.detectSystem({
+              sourceSystem: params.source_system,
+              filePath: params.file_path,
+            });
+            if (!sys) {
+              result = { success: false, error: "could not determine CAD system from params (provide system, source_system, or file_path with known extension)" };
+              break;
+            }
+            const data = await CADSystemRouterEngine.planAndRender({
+              system: sys,
+              moduleId: params.module_id,
+              operationId: params.operation_id,
+              params: params.op_params ?? {},
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "cad_route_find_op": {
+            const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
+            const matches = await CADSystemRouterEngine.findOperationAcrossSystems(params.operation_id);
+            result = { success: true, data: { matches, count: matches.length } };
+            break;
+          }
+          case "cad_route_capabilities": {
+            const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
+            const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
+            result = { success: true, data: matrix };
             break;
           }
           default:

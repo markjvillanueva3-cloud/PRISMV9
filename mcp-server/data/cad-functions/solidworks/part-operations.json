@@ -1,0 +1,618 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Part Operations — feature-tree solid modeling layer",
+    "description": "Parameter catalog for the SolidWorks part-modeling environment. SolidWorks parts are feature-tree-based: every solid feature consumes a sketch (or another feature) and contributes geometry to the consumed body. This catalog covers 30 operations spanning the four sweep families (Extrude / Revolve / Sweep / Loft, each with boss + cut variants — 8 ops), Boundary surface→solid, the Hole Wizard (5 hole types × 5 termination modes folded into one op), apply features (Rib / Dome / Indent / Flex / Thicken — 5 ops), modify features (Fillet / Chamfer / Shell / Draft — 4 ops), patterns (Linear / Circular / Curve-Driven / Sketch-Driven / Table-Driven / Fill — 6 ops), Mirror, and body operations (Move/Copy / Scale / Combine / Split — 4 ops). Bindings target SolidWorks API IFeatureManager (FeatureExtrusion3 / FeatureRevolve2 / FeatureSweep / FeatureLoft / etc.) and IModelDoc2 body operations.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-02",
+    "source": "SolidWorks 2024 API Help — Features; SolidWorks API Reference — IFeatureManager / IFeature / IBody2; SolidWorks Hole Wizard standards (ANSI / DIN / ISO)",
+    "totalParameters": 190,
+    "operationCount": 30,
+    "cad_concepts_used": [
+      "FEATURE_TREE_HISTORY",
+      "FEATURE_PARAMETRIC_REGENERATION",
+      "EXTRUDE_DIRECTIONAL_TERMINATION",
+      "REVOLVE_AXIS",
+      "SWEEP_PROFILE_ORIENTATION",
+      "LOFT_GUIDE_CURVES",
+      "BOUNDARY_TANGENT_CONSTRAINT",
+      "HOLE_WIZARD_STANDARD",
+      "FILLET_VARIABLE_RADIUS",
+      "DRAFT_NEUTRAL_PLANE",
+      "PATTERN_VARY_SKETCH",
+      "MULTI_BODY_PART_TOPOLOGY",
+      "BODY_BOOLEAN"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks part operations",
+    "tabs": ["From", "Direction1", "Direction2", "ThinFeature", "FeatureScope"]
+  },
+  "operations": {
+    "EXTRUDE_BOSS": {
+      "description": "Extrude a sketch profile into a solid boss. Direction supports 8 termination modes (blind / through_all / up_to_next / up_to_vertex / up_to_surface / offset_from_surface / up_to_body / mid_plane). Optional draft and thin-feature toggles.",
+      "category": "Part_Sweep_Boss",
+      "solidworks_command": "Insert.Boss.Extrude",
+      "solidworks_api": "IFeatureManager.FeatureExtrusion3",
+      "parameterCount": 9,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Sketch", "type": "selection", "description": "Profile sketch (must be closed unless thin_feature is true)", "required": true},
+            {"name": "End Condition", "type": "dropdown", "options": ["blind", "through_all", "up_to_next", "up_to_vertex", "up_to_surface", "offset_from_surface", "up_to_body", "mid_plane"], "default": "blind"},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "description": "Required when end_condition is blind / mid_plane / offset_from_surface", "min": 0.001},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "description": "Per-side draft applied during extrusion", "min": -45, "max": 45, "default": 0},
+            {"name": "Draft Outward", "type": "checkbox", "description": "Inverts draft direction", "default": false},
+            {"name": "Thin Feature Thickness", "type": "numeric", "unit": "mm", "description": "Optional thin-feature wall thickness; 0 = solid feature", "min": 0, "default": 0},
+            {"name": "Thin Feature Type", "type": "dropdown", "options": ["one_direction", "two_direction", "mid_plane"], "default": "one_direction"},
+            {"name": "Merge Result", "type": "checkbox", "description": "Merge with existing bodies in the part", "default": true}
+          ]
+        }
+      }
+    },
+    "EXTRUDE_CUT": {
+      "description": "Cut material from a body by extruding a sketch. Same termination semantics as EXTRUDE_BOSS. Flip Side To Cut toggles whether the cut keeps the inside or outside of the closed profile.",
+      "category": "Part_Sweep_Cut",
+      "solidworks_command": "Insert.Cut.Extrude",
+      "solidworks_api": "IFeatureManager.FeatureCut4",
+      "parameterCount": 8,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Sketch", "type": "selection", "description": "Profile sketch", "required": true},
+            {"name": "End Condition", "type": "dropdown", "options": ["blind", "through_all", "up_to_next", "up_to_vertex", "up_to_surface", "offset_from_surface", "up_to_body", "mid_plane"], "default": "through_all"},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "description": "Cut depth (when end_condition requires it)", "min": 0.001},
+            {"name": "Flip Side To Cut", "type": "checkbox", "description": "Invert which side of the closed profile is cut", "default": false},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "min": -45, "max": 45, "default": 0},
+            {"name": "Thin Feature Thickness", "type": "numeric", "unit": "mm", "min": 0, "default": 0},
+            {"name": "Feature Scope", "type": "dropdown", "options": ["all_bodies", "selected_bodies", "auto_select"], "default": "auto_select"}
+          ]
+        }
+      }
+    },
+    "REVOLVE_BOSS": {
+      "description": "Revolve a sketch profile around an axis to create a solid of revolution. Type controls one-direction / mid-plane / two-direction sweep. Thin-feature variant produces a thin-walled revolve.",
+      "category": "Part_Sweep_Boss",
+      "solidworks_command": "Insert.Boss.Revolve",
+      "solidworks_api": "IFeatureManager.FeatureRevolve2",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Sketch", "type": "selection", "description": "Profile sketch", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Centerline / edge / sketch line to revolve around", "required": true},
+            {"name": "Revolve Type", "type": "dropdown", "options": ["blind", "up_to_vertex", "up_to_surface", "offset_from_surface", "mid_plane"], "default": "blind"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Sweep angle (blind / mid_plane / offset modes)", "min": 0.1, "max": 360, "default": 360},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Thin Feature Thickness", "type": "numeric", "unit": "mm", "min": 0, "default": 0},
+            {"name": "Merge Result", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REVOLVE_CUT": {
+      "description": "Revolve cut — removes material in a swept revolution. Mirrors REVOLVE_BOSS semantics with Flip Side To Cut for ambiguous closed profiles.",
+      "category": "Part_Sweep_Cut",
+      "solidworks_command": "Insert.Cut.Revolve",
+      "solidworks_api": "IFeatureManager.FeatureRevolveCut2",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Sketch", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "required": true},
+            {"name": "Revolve Type", "type": "dropdown", "options": ["blind", "up_to_vertex", "up_to_surface", "offset_from_surface", "mid_plane"], "default": "blind"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "min": 0.1, "max": 360, "default": 360},
+            {"name": "Flip Side To Cut", "type": "checkbox", "default": false},
+            {"name": "Thin Feature Thickness", "type": "numeric", "unit": "mm", "min": 0, "default": 0},
+            {"name": "Feature Scope", "type": "dropdown", "options": ["all_bodies", "selected_bodies", "auto_select"], "default": "auto_select"}
+          ]
+        }
+      }
+    },
+    "SWEEP_BOSS": {
+      "description": "Sweep a profile sketch along a path curve. Twist control supports none / specified-degree / follow-path. Profile orientation modes control how the profile rotates relative to the path tangent frame.",
+      "category": "Part_Sweep_Boss",
+      "solidworks_command": "Insert.Boss.Sweep",
+      "solidworks_api": "IFeatureManager.InsertProtrusionSwept4",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "description": "Closed profile (open allowed if thin_feature)", "required": true},
+            {"name": "Path", "type": "selection", "description": "Sweep path (sketch / edge chain / curve)", "required": true},
+            {"name": "Twist Type", "type": "dropdown", "options": ["none", "specified_degree", "follow_path", "follow_first_and_second_guide_curves"], "default": "follow_path"},
+            {"name": "Profile Orientation", "type": "dropdown", "options": ["follow_path", "keep_normal_constant", "follow_path_and_first_guide", "twist_along_path"], "default": "follow_path"},
+            {"name": "Tangent To Adjacent Faces", "type": "checkbox", "description": "Maintain tangent continuity at start/end of sweep", "default": false},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "description": "Smooth tangent face transitions in the resulting body", "default": true},
+            {"name": "Thin Feature Thickness", "type": "numeric", "unit": "mm", "min": 0, "default": 0}
+          ]
+        }
+      }
+    },
+    "SWEEP_CUT": {
+      "description": "Sweep cut — removes material along a swept path. Useful for rifling, threads, splines, helical coolant grooves.",
+      "category": "Part_Sweep_Cut",
+      "solidworks_command": "Insert.Cut.Sweep",
+      "solidworks_api": "IFeatureManager.InsertCutSwept4",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Profile Sketch", "type": "selection", "required": true},
+            {"name": "Path", "type": "selection", "required": true},
+            {"name": "Twist Type", "type": "dropdown", "options": ["none", "specified_degree", "follow_path", "follow_first_and_second_guide_curves"], "default": "follow_path"},
+            {"name": "Profile Orientation", "type": "dropdown", "options": ["follow_path", "keep_normal_constant", "follow_path_and_first_guide", "twist_along_path"], "default": "follow_path"},
+            {"name": "Flip Side To Cut", "type": "checkbox", "default": false},
+            {"name": "Tangent To Adjacent Faces", "type": "checkbox", "default": false},
+            {"name": "Feature Scope", "type": "dropdown", "options": ["all_bodies", "selected_bodies", "auto_select"], "default": "auto_select"}
+          ]
+        }
+      }
+    },
+    "LOFT_BOSS": {
+      "description": "Loft a sequence of profile sketches optionally guided by guide curves. Start and end constraint modes (default / normal / tangent / curvature) control continuity into adjacent geometry.",
+      "category": "Part_Sweep_Boss",
+      "solidworks_command": "Insert.Boss.Loft",
+      "solidworks_api": "IFeatureManager.InsertProtrusionBlend2",
+      "parameterCount": 8,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Profiles", "type": "selection", "description": "Ordered array of 2+ profile sketches or planar faces", "required": true},
+            {"name": "Guide Curves", "type": "selection", "description": "Optional array of guide curves controlling cross-profile shape"},
+            {"name": "Start Constraint", "type": "dropdown", "options": ["default", "none", "direction_vector", "normal_to_profile", "tangent_to_face", "curvature_to_face"], "default": "default"},
+            {"name": "End Constraint", "type": "dropdown", "options": ["default", "none", "direction_vector", "normal_to_profile", "tangent_to_face", "curvature_to_face"], "default": "default"},
+            {"name": "Centerline", "type": "selection", "description": "Optional centerline for centerline lofts"},
+            {"name": "Close Loft", "type": "checkbox", "description": "Close back to the first profile", "default": false},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "default": true},
+            {"name": "Thin Feature Thickness", "type": "numeric", "unit": "mm", "min": 0, "default": 0}
+          ]
+        }
+      }
+    },
+    "LOFT_CUT": {
+      "description": "Loft cut — removes material along a lofted body shape. Same constraint vocabulary as LOFT_BOSS.",
+      "category": "Part_Sweep_Cut",
+      "solidworks_command": "Insert.Cut.Loft",
+      "solidworks_api": "IFeatureManager.InsertCutBlend2",
+      "parameterCount": 8,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Profiles", "type": "selection", "required": true},
+            {"name": "Guide Curves", "type": "selection"},
+            {"name": "Start Constraint", "type": "dropdown", "options": ["default", "none", "direction_vector", "normal_to_profile", "tangent_to_face", "curvature_to_face"], "default": "default"},
+            {"name": "End Constraint", "type": "dropdown", "options": ["default", "none", "direction_vector", "normal_to_profile", "tangent_to_face", "curvature_to_face"], "default": "default"},
+            {"name": "Flip Side To Cut", "type": "checkbox", "default": false},
+            {"name": "Close Loft", "type": "checkbox", "default": false},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "default": true},
+            {"name": "Feature Scope", "type": "dropdown", "options": ["all_bodies", "selected_bodies", "auto_select"], "default": "auto_select"}
+          ]
+        }
+      }
+    },
+    "BOUNDARY": {
+      "description": "Boundary feature — creates a solid (or surface, then thickened) bounded by a network of direction-1 and direction-2 curves. Per-direction tangency control supports none / normal / tangent / curvature continuity into adjacent surfaces.",
+      "category": "Part_Boundary",
+      "solidworks_command": "Insert.Boundary",
+      "solidworks_api": "IFeatureManager.InsertBoundaryFeature2",
+      "parameterCount": 8,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Direction1 Curves", "type": "selection", "description": "Ordered array of direction-1 curves", "required": true},
+            {"name": "Direction1 Tangent Type", "type": "dropdown", "options": ["none", "normal_to_profile", "tangent_to_face", "curvature_to_face"], "default": "none"},
+            {"name": "Direction1 Weighting", "type": "numeric", "description": "Tangent magnitude (0..1) for direction-1 endpoints", "min": 0, "max": 1, "default": 1},
+            {"name": "Direction1 Trim By Direction2", "type": "checkbox", "description": "Trim direction-1 curves at direction-2 boundaries", "default": false}
+          ]
+        },
+        "Direction2": {
+          "parameters": [
+            {"name": "Direction2 Curves", "type": "selection", "description": "Ordered array of direction-2 curves"},
+            {"name": "Direction2 Tangent Type", "type": "dropdown", "options": ["none", "normal_to_profile", "tangent_to_face", "curvature_to_face"], "default": "none"},
+            {"name": "Direction2 Weighting", "type": "numeric", "min": 0, "max": 1, "default": 1},
+            {"name": "Merge Tangent Faces", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "HOLE_WIZARD": {
+      "description": "Insert a parametric hole driven by a hardware standard. Hole Type selects the family (simple / counterbore / countersink / threaded tap / tapered pipe). Standard chooses the hardware reference book (ANSI inch / ANSI metric / DIN / ISO / JIS / KS / GB). Size names a specific entry within the standard. End Condition controls how the hole terminates downward.",
+      "category": "Part_Hole",
+      "solidworks_command": "Insert.HoleWizard",
+      "solidworks_api": "IFeatureManager.HoleWizard5",
+      "parameterCount": 10,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Hole Type", "type": "dropdown", "options": ["simple", "counterbore", "countersink", "threaded_tap", "tapered_pipe"], "default": "simple", "required": true},
+            {"name": "Standard", "type": "dropdown", "options": ["ansi_inch", "ansi_metric", "din", "iso", "jis", "ks", "gb"], "default": "ansi_metric"},
+            {"name": "Size", "type": "string", "description": "Standard-defined size key (e.g. 'M6', '1/4-20', 'NPT 3/8')", "required": true},
+            {"name": "End Condition", "type": "dropdown", "options": ["blind", "through_all", "up_to_next", "up_to_vertex", "up_to_surface"], "default": "through_all"},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "description": "Total depth (blind / up_to_surface)", "min": 0.001},
+            {"name": "Sketch Plane", "type": "selection", "required": true},
+            {"name": "Position 2D", "type": "selection", "description": "2D position(s) on the sketch plane (single or array for multi-hole)", "required": true},
+            {"name": "Counterbore Diameter", "type": "numeric", "unit": "mm", "description": "Counterbore diameter (counterbore / countersink modes)", "min": 0.001},
+            {"name": "Counterbore Depth", "type": "numeric", "unit": "mm", "description": "Counterbore depth (counterbore mode)", "min": 0.001},
+            {"name": "Thread Class", "type": "string", "description": "Tap class (e.g. '2B', '6H') for threaded_tap mode"}
+          ]
+        }
+      }
+    },
+    "RIB": {
+      "description": "Add a rib (stiffener) feature — extends a sketch profile until it intersects the existing body. Direction toggles parallel-to-sketch (rib material grows in plane) vs normal-to-sketch (rib material grows perpendicular to plane). Used for cast-part bosses and panel reinforcement.",
+      "category": "Part_Apply",
+      "solidworks_command": "Insert.Rib",
+      "solidworks_api": "IFeatureManager.InsertRib",
+      "parameterCount": 6,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Sketch", "type": "selection", "description": "Open sketch defining rib path", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Thickness Direction", "type": "dropdown", "options": ["one_side", "both_sides", "other_side"], "default": "both_sides"},
+            {"name": "Extrusion Direction", "type": "dropdown", "options": ["parallel_to_sketch", "normal_to_sketch"], "default": "parallel_to_sketch"},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "min": 0, "max": 45, "default": 0},
+            {"name": "Flip Material Side", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "DOME": {
+      "description": "Create a dome on a planar or non-planar face. Direction = face_normal (default) or specified_axis. Continuous keeps tangent continuity with adjacent faces; elliptical_dome biases the dome toward an elliptical profile.",
+      "category": "Part_Apply",
+      "solidworks_command": "Insert.Dome",
+      "solidworks_api": "IFeatureManager.InsertDome",
+      "parameterCount": 5,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Face", "type": "selection", "description": "Source face for the dome", "required": true},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Apex height above the face", "min": 0.001, "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["face_normal", "specified_axis"], "default": "face_normal"},
+            {"name": "Continuous", "type": "checkbox", "description": "Maintain tangent continuity with adjacent faces", "default": false},
+            {"name": "Elliptical Dome", "type": "checkbox", "description": "Generate an elliptical-profile dome rather than spherical", "default": false}
+          ]
+        }
+      }
+    },
+    "INDENT": {
+      "description": "Indent — emboss / impress one body into another. Target body receives the impression; tool body is the indenter. Thickness adds material to the target around the impression; Clearance is the offset between target and tool.",
+      "category": "Part_Apply",
+      "solidworks_command": "Insert.Indent",
+      "solidworks_api": "IFeatureManager.InsertIndent",
+      "parameterCount": 5,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Target Body", "type": "selection", "description": "Body that receives the impression", "required": true},
+            {"name": "Tool Body", "type": "selection", "description": "Body whose shape is impressed", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "description": "Wall thickness added to target around the impression", "min": 0, "default": 0},
+            {"name": "Clearance", "type": "numeric", "unit": "mm", "description": "Offset between target and tool surfaces", "min": 0, "default": 0},
+            {"name": "Keep Selections", "type": "dropdown", "options": ["keep_target_only", "keep_tool_only", "keep_both"], "default": "keep_target_only"}
+          ]
+        }
+      }
+    },
+    "FLEX": {
+      "description": "Flex feature — globally deforms a body via bend / twist / taper / stretch. Trim planes bound the affected region. Magnitude controls the deformation amount (angle for bend/twist, scale for taper, distance for stretch).",
+      "category": "Part_Apply",
+      "solidworks_command": "Insert.Flex",
+      "solidworks_api": "IFeatureManager.InsertFlexFeature",
+      "parameterCount": 6,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Body", "type": "selection", "description": "Body to deform", "required": true},
+            {"name": "Flex Type", "type": "dropdown", "options": ["bend", "twist", "taper", "stretch"], "default": "bend", "required": true},
+            {"name": "Trim Plane 1", "type": "selection", "description": "Lower bound of the affected region"},
+            {"name": "Trim Plane 2", "type": "selection", "description": "Upper bound of the affected region"},
+            {"name": "Axis Or Direction", "type": "selection", "description": "Reference axis (bend/twist) or direction (taper/stretch)", "required": true},
+            {"name": "Magnitude", "type": "numeric", "description": "Bend/twist angle (deg) or taper/stretch ratio/distance", "required": true}
+          ]
+        }
+      }
+    },
+    "THICKEN": {
+      "description": "Thicken a surface body into a solid by offsetting one or both sides. Direction selects the offset side (side1 / side2 / both). Optional merge_result blends with adjacent solids.",
+      "category": "Part_Apply",
+      "solidworks_command": "Insert.Thicken",
+      "solidworks_api": "IFeatureManager.InsertThickenFeature",
+      "parameterCount": 4,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "description": "Surface body to thicken", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["side1", "side2", "both_sides"], "default": "side1"},
+            {"name": "Merge Result", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "FILLET": {
+      "description": "Round one or more edges or faces. Fillet Type controls the topology: constant radius, variable radius (per-vertex control), face-face (between non-adjacent faces), or full-round (3 face chain). Multi-radius overrides allow per-edge size variation.",
+      "category": "Part_Modify",
+      "solidworks_command": "Insert.Fillet",
+      "solidworks_api": "IFeatureManager.FeatureFillet3",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Fillet Type", "type": "dropdown", "options": ["constant_radius", "variable_radius", "face_face", "full_round"], "default": "constant_radius"},
+            {"name": "Edges Or Faces", "type": "selection", "description": "Edges (constant/variable) or faces (face_face/full_round)", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Default radius for constant / variable fillets", "min": 0.001, "required": true},
+            {"name": "Multi Radius Overrides", "type": "selection", "description": "Per-edge radius overrides (variable mode)"},
+            {"name": "Propagation", "type": "dropdown", "options": ["tangent_propagation", "all_around", "none"], "default": "tangent_propagation"},
+            {"name": "Keep Features", "type": "checkbox", "description": "Preserve adjacent features that the fillet would otherwise consume", "default": true},
+            {"name": "Setback Distance", "type": "numeric", "unit": "mm", "description": "Setback at intersecting fillet corners", "min": 0, "default": 0}
+          ]
+        }
+      }
+    },
+    "CHAMFER": {
+      "description": "Bevel one or more edges or faces. Three primary parameterizations (angle_distance / distance_distance / equal_distance) plus offset_distance and face_face. Flip Direction toggles which of the two distances applies to which face.",
+      "category": "Part_Modify",
+      "solidworks_command": "Insert.Chamfer",
+      "solidworks_api": "IFeatureManager.InsertFeatureChamfer",
+      "parameterCount": 6,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Chamfer Type", "type": "dropdown", "options": ["angle_distance", "distance_distance", "equal_distance", "offset_distance", "face_face"], "default": "equal_distance"},
+            {"name": "Edges Or Faces", "type": "selection", "required": true},
+            {"name": "Distance 1", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Used by distance_distance / face_face modes"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Used by angle_distance mode", "min": 1, "max": 89, "default": 45},
+            {"name": "Flip Direction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SHELL": {
+      "description": "Hollow a solid body to a target wall thickness. Faces To Remove become open holes in the resulting shell. Outward inverts the offset direction (default = inward toward the body interior). Multi-thickness overrides allow per-face thickness variation.",
+      "category": "Part_Modify",
+      "solidworks_command": "Insert.Shell",
+      "solidworks_api": "IFeatureManager.FeatureShell2",
+      "parameterCount": 5,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Outward", "type": "checkbox", "description": "Offset outward (false = inward)", "default": false},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Multi Thickness Overrides", "type": "selection", "description": "Per-face thickness overrides"},
+            {"name": "Faces To Remove", "type": "selection", "description": "Faces removed (left open) in the resulting shell"},
+            {"name": "Merge Resulting Face", "type": "checkbox", "description": "Merge adjacent shell-result faces sharing tangent continuity", "default": true}
+          ]
+        }
+      }
+    },
+    "DRAFT": {
+      "description": "Apply a draft angle to faces — required for moldability and casting release. Draft Type selects the reference scheme: neutral_plane (faces drafted away from a reference plane), parting_line (faces drafted away from a curve on the body), or step (multi-step parting line for complex molds).",
+      "category": "Part_Modify",
+      "solidworks_command": "Insert.Draft",
+      "solidworks_api": "IFeatureManager.InsertDraftFeature",
+      "parameterCount": 6,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Draft Type", "type": "dropdown", "options": ["neutral_plane", "parting_line", "step"], "default": "neutral_plane"},
+            {"name": "Neutral Plane", "type": "selection", "description": "Reference plane for neutral_plane mode"},
+            {"name": "Faces To Draft", "type": "selection", "description": "Faces receiving the draft angle", "required": true},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Draft angle from neutral plane", "min": 0.1, "max": 89, "default": 1},
+            {"name": "Parting Lines", "type": "selection", "description": "Curves on body for parting_line / step modes"},
+            {"name": "Propagation", "type": "dropdown", "options": ["tangent_propagation", "all_faces", "inner_faces", "outer_faces", "all_around"], "default": "tangent_propagation"}
+          ]
+        }
+      }
+    },
+    "LINEAR_PATTERN": {
+      "description": "Pattern features along one or two linear directions. Direction-1 reference, spacing, and count are required; direction-2 makes a 2D grid. Vary Sketch lets the patterned feature reshape per instance based on a parametric sketch driver. Skip Instances suppresses individual indices.",
+      "category": "Part_Pattern",
+      "solidworks_command": "Insert.Pattern.Linear",
+      "solidworks_api": "IFeatureManager.FeatureLinearPattern5",
+      "parameterCount": 9,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Features To Pattern", "type": "selection", "description": "Features (or bodies / faces) to repeat", "required": true},
+            {"name": "Direction1 Reference", "type": "selection", "description": "Edge / axis / linear sketch entity defining direction-1", "required": true},
+            {"name": "Direction1 Spacing", "type": "numeric", "unit": "mm", "min": 0.001, "required": true},
+            {"name": "Direction1 Count", "type": "numeric", "min": 2, "max": 1000, "default": 2, "required": true},
+            {"name": "Direction2 Reference", "type": "selection", "description": "Optional second direction for a 2D grid"},
+            {"name": "Direction2 Spacing", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Direction2 Count", "type": "numeric", "min": 2, "max": 1000},
+            {"name": "Vary Sketch", "type": "checkbox", "description": "Re-evaluate the seed sketch per instance using its parametric drivers", "default": false},
+            {"name": "Skip Instances", "type": "selection", "description": "Indices to suppress (e.g. (1,2), (3,0))"}
+          ]
+        }
+      }
+    },
+    "CIRCULAR_PATTERN": {
+      "description": "Pattern features around a rotation axis. Equal Spacing distributes count instances over a 360° arc; Specified mode honors the angle and count independently.",
+      "category": "Part_Pattern",
+      "solidworks_command": "Insert.Pattern.Circular",
+      "solidworks_api": "IFeatureManager.FeatureCircularPattern5",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Features To Pattern", "type": "selection", "required": true},
+            {"name": "Axis Reference", "type": "selection", "description": "Rotation axis (sketch line / edge / axis feature)", "required": true},
+            {"name": "Spacing Mode", "type": "dropdown", "options": ["equal_spacing", "specified"], "default": "equal_spacing"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Total sweep angle (specified mode) or 360 default (equal_spacing)", "min": 1, "max": 360, "default": 360},
+            {"name": "Count", "type": "numeric", "min": 2, "max": 1000, "default": 4, "required": true},
+            {"name": "Vary Sketch", "type": "checkbox", "default": false},
+            {"name": "Skip Instances", "type": "selection", "description": "Indices to suppress"}
+          ]
+        }
+      }
+    },
+    "CURVE_DRIVEN_PATTERN": {
+      "description": "Pattern features along an arbitrary curve. Alignment Method controls whether instances rotate to follow the curve tangent or remain aligned to the seed orientation. Equal Spacing distributes count instances along the curve length.",
+      "category": "Part_Pattern",
+      "solidworks_command": "Insert.Pattern.CurveDriven",
+      "solidworks_api": "IFeatureManager.FeatureCurvePattern2",
+      "parameterCount": 7,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Features To Pattern", "type": "selection", "required": true},
+            {"name": "Curve Reference", "type": "selection", "description": "Curve / edge chain to follow", "required": true},
+            {"name": "Count", "type": "numeric", "min": 2, "max": 1000, "default": 5, "required": true},
+            {"name": "Alignment Method", "type": "dropdown", "options": ["tangent_to_curve", "aligned_to_seed"], "default": "tangent_to_curve"},
+            {"name": "Transform Curve", "type": "checkbox", "description": "Apply curve-tangent rotation to each instance", "default": true},
+            {"name": "Equal Spacing", "type": "checkbox", "description": "Distribute equally along curve length (false = use Spacing param)", "default": true},
+            {"name": "Spacing", "type": "numeric", "unit": "mm", "description": "Distance between instances when Equal Spacing is false", "min": 0.001}
+          ]
+        }
+      }
+    },
+    "SKETCH_DRIVEN_PATTERN": {
+      "description": "Pattern features at locations defined by sketch points. The reference sketch point anchors the seed; every other point in the sketch produces an instance.",
+      "category": "Part_Pattern",
+      "solidworks_command": "Insert.Pattern.SketchDriven",
+      "solidworks_api": "IFeatureManager.FeatureSketchDrivenPattern",
+      "parameterCount": 4,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Features To Pattern", "type": "selection", "required": true},
+            {"name": "Reference Sketch Point", "type": "selection", "description": "Anchor point that maps to the seed feature location", "required": true},
+            {"name": "Sketch Points Array", "type": "selection", "description": "Sketch containing the instance points", "required": true},
+            {"name": "Alignment Method", "type": "dropdown", "options": ["centroid", "selected_point"], "default": "centroid"}
+          ]
+        }
+      }
+    },
+    "TABLE_DRIVEN_PATTERN": {
+      "description": "Pattern features at coordinates loaded from a CSV / Excel table. Useful for pre-existing drilling charts and PCB-style hole grids.",
+      "category": "Part_Pattern",
+      "solidworks_command": "Insert.Pattern.TableDriven",
+      "solidworks_api": "IFeatureManager.FeatureTableDrivenPattern",
+      "parameterCount": 5,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Features To Pattern", "type": "selection", "required": true},
+            {"name": "Table File Path", "type": "string", "description": "Absolute path to CSV / .xls / .xlsx file", "required": true},
+            {"name": "X Column Index", "type": "numeric", "description": "0-based column index for X coordinate", "min": 0, "default": 0},
+            {"name": "Y Column Index", "type": "numeric", "description": "0-based column index for Y coordinate", "min": 0, "default": 1},
+            {"name": "Transformation Seed", "type": "selection", "description": "Reference point on seed feature that the table entries position"}
+          ]
+        }
+      }
+    },
+    "FILL_PATTERN": {
+      "description": "Tile a region (planar face / closed sketch) with a repeating instance using one of 5 layouts: perforated grid, circular, square, polygon, or custom. Used for vent grilles, perforated plates, and decorative fills.",
+      "category": "Part_Pattern",
+      "solidworks_command": "Insert.Pattern.Fill",
+      "solidworks_api": "IFeatureManager.FeatureFillPattern",
+      "parameterCount": 6,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Region Boundary", "type": "selection", "description": "Planar face or closed sketch loop", "required": true},
+            {"name": "Seed Feature", "type": "selection", "description": "Feature to repeat across the region", "required": true},
+            {"name": "Layout", "type": "dropdown", "options": ["perforated", "circular", "square", "polygon", "custom"], "default": "perforated"},
+            {"name": "Spacing", "type": "numeric", "unit": "mm", "description": "Center-to-center spacing between instances", "min": 0.001, "required": true},
+            {"name": "Instance Count Target", "type": "numeric", "description": "Optional target count (overrides spacing if set)", "min": 1},
+            {"name": "Margin", "type": "numeric", "unit": "mm", "description": "Inset from region boundary", "min": 0, "default": 0}
+          ]
+        }
+      }
+    },
+    "MIRROR_FEATURE": {
+      "description": "Mirror features (or bodies / faces) about a planar reference. Geometry-Pattern-Only mode skips the feature-tree replication and creates a pure copy of the resulting geometry — faster but loses parametric link to the seed.",
+      "category": "Part_Mirror",
+      "solidworks_command": "Insert.Mirror",
+      "solidworks_api": "IFeatureManager.InsertMirrorFeature2",
+      "parameterCount": 4,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Features To Mirror", "type": "selection", "description": "Features / bodies / faces to mirror", "required": true},
+            {"name": "Mirror Plane", "type": "selection", "description": "Planar face / reference plane to mirror about", "required": true},
+            {"name": "Geometry Pattern Only", "type": "checkbox", "description": "Skip parametric tree mirroring (geometry-only copy — faster)", "default": false},
+            {"name": "Propagate Visual Properties", "type": "checkbox", "description": "Copy materials / colors / display states to mirror", "default": true}
+          ]
+        }
+      }
+    },
+    "MOVE_COPY_BODY": {
+      "description": "Translate / rotate / copy one or more bodies in the feature tree. Transform Type selects the operation. By Constraints uses mate-style references (point coincident, axis aligned, etc.) instead of explicit coordinates.",
+      "category": "Part_Body",
+      "solidworks_command": "Insert.MoveCopy",
+      "solidworks_api": "IFeatureManager.InsertMoveCopyBody2",
+      "parameterCount": 5,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Bodies", "type": "selection", "description": "Bodies to move / copy", "required": true},
+            {"name": "Transform Type", "type": "dropdown", "options": ["translate", "rotate", "copy_translate", "copy_rotate"], "default": "translate"},
+            {"name": "Transform Params", "type": "string", "description": "Distance vector (translate) or axis+angle (rotate)", "required": true},
+            {"name": "Count", "type": "numeric", "description": "Number of copies (copy_* modes)", "min": 1, "default": 1},
+            {"name": "By Constraints", "type": "checkbox", "description": "Use mate-style references rather than explicit transform values", "default": false}
+          ]
+        }
+      }
+    },
+    "SCALE_BODY": {
+      "description": "Uniformly or non-uniformly scale one or more bodies. Scale About sets the fixed point (centroid / origin / coordinate system). Uniform Scaling applies a single factor across all axes; otherwise per-axis factors are honored.",
+      "category": "Part_Body",
+      "solidworks_command": "Insert.Scale",
+      "solidworks_api": "IFeatureManager.InsertScale",
+      "parameterCount": 6,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Bodies", "type": "selection", "required": true},
+            {"name": "Scale Factor X", "type": "numeric", "description": "Scale factor on X axis (or all axes when uniform)", "min": 0.001, "default": 1, "required": true},
+            {"name": "Scale Factor Y", "type": "numeric", "description": "Scale factor on Y axis (non-uniform mode)", "min": 0.001, "default": 1},
+            {"name": "Scale Factor Z", "type": "numeric", "description": "Scale factor on Z axis (non-uniform mode)", "min": 0.001, "default": 1},
+            {"name": "Scale About", "type": "dropdown", "options": ["centroid", "origin", "coordinate_system"], "default": "centroid"},
+            {"name": "Uniform Scaling", "type": "checkbox", "description": "Apply Scale Factor X to all axes (overrides Y/Z)", "default": true}
+          ]
+        }
+      }
+    },
+    "COMBINE_BODIES": {
+      "description": "Boolean-combine multiple bodies in a multi-body part. Operation = add (union), subtract (main minus tools), or common (intersection). Keep Main retains the un-modified main body alongside the result.",
+      "category": "Part_Body",
+      "solidworks_command": "Insert.Combine",
+      "solidworks_api": "IFeatureManager.InsertCombineFeature",
+      "parameterCount": 4,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["add", "subtract", "common"], "default": "add", "required": true},
+            {"name": "Main Body", "type": "selection", "description": "Primary body (subtracted from / unioned to / intersected with)", "required": true},
+            {"name": "Tool Bodies", "type": "selection", "description": "Bodies operated against the main body", "required": true},
+            {"name": "Keep Main", "type": "checkbox", "description": "Retain the un-modified main body in the part alongside the result", "default": false}
+          ]
+        }
+      }
+    },
+    "SPLIT_BODY": {
+      "description": "Split a body into multiple bodies using planes / sketches / surfaces as trim tools. Resulting Bodies To Keep selects which fragments survive in the part. Consume Cut Bodies removes fragments not selected for retention.",
+      "category": "Part_Body",
+      "solidworks_command": "Insert.Split",
+      "solidworks_api": "IFeatureManager.InsertSplitBodyFeature",
+      "parameterCount": 4,
+      "tabs": {
+        "Direction1": {
+          "parameters": [
+            {"name": "Body", "type": "selection", "description": "Body to split", "required": true},
+            {"name": "Trim Tools", "type": "selection", "description": "Planes / sketches / surfaces used to cut the body", "required": true},
+            {"name": "Resulting Bodies To Keep", "type": "selection", "description": "Indices of fragments to retain"},
+            {"name": "Consume Cut Bodies", "type": "checkbox", "description": "Remove non-selected fragments from the part", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}

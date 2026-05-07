@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "hyperCAD-S Datum / Reference Geometry Operations - Complete Enumeration",
+    "description": "Exhaustive parameter catalog for hyperCAD-S Datum / Reference Geometry workspace. Datums are the scaffolding behind every other module — sketches snap to reference planes / axes / points, surface ops use coordinate systems for orientation, hyperMILL reads datum frames as WCS origins. Catalog covers: 1 reference-plane op (10 creation modes), 1 reference-axis op (8 creation modes), 1 reference-point op (12 creation modes), 1 coordinate-system op (6 alignment strategies), and 2 reference-curve ops (Spline-3D / Polyline-3D).",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-HCAD-08",
+    "source": "OPEN MIND hyperCAD-S Reference Geometry Manual, hyperMILL WCS / Datum Frame Reference",
+    "totalParameters": 56,
+    "operationCount": 6,
+    "cad_concepts_used": [
+      "REFERENCE_PLANE",
+      "REFERENCE_AXIS",
+      "REFERENCE_POINT",
+      "COORDINATE_SYSTEM",
+      "WCS_ORIGIN",
+      "PROJECTED_GEOMETRY",
+      "PARAMETRIC_OFFSET",
+      "TANGENT_REFERENCE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across hyperCAD-S datum operations",
+    "tabs": ["References", "Geometry", "Properties"]
+  },
+  "operations": {
+    "REFERENCE_PLANE": {
+      "description": "Reference plane created by one of 10 standard methods. Reference planes are first-class sketch targets and act as section / cut planes throughout solid + surface modules.",
+      "category": "Datum_Plane",
+      "fusion_command": "n/a (hyperCAD-S macro: DATUM.PLANE.CREATE)",
+      "python_api": "Datum.createPlane",
+      "parameterCount": 12,
+      "tabs": {
+        "References": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": [
+              "offset_from_plane",
+              "three_points",
+              "tangent_to_face",
+              "midplane",
+              "normal_to_curve",
+              "through_two_edges",
+              "angle_to_plane",
+              "projection_of_curve",
+              "coordinate_aligned",
+              "from_axis_pair"
+            ], "default": "offset_from_plane", "required": true},
+            {"name": "Reference Plane", "type": "selection", "description": "Source plane (offset_from_plane / midplane / angle_to_plane modes)"},
+            {"name": "Reference Points", "type": "selection_list", "description": "Three points (three_points mode)"},
+            {"name": "Reference Face", "type": "selection", "description": "Tangency target (tangent_to_face mode)"},
+            {"name": "Reference Curve", "type": "selection", "description": "Curve / edge (normal_to_curve / projection_of_curve modes)"},
+            {"name": "Reference Edges", "type": "selection_list", "description": "Two edges (through_two_edges mode)"},
+            {"name": "Reference Axes", "type": "selection_list", "description": "Two axes (from_axis_pair mode)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Offset Distance", "type": "numeric", "unit": "mm", "description": "Distance from reference (offset_from_plane)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Angle from reference plane (angle_to_plane)"},
+            {"name": "Curve Parameter", "type": "numeric", "description": "0..1 along curve (normal_to_curve mode)", "default": 0.5, "min": 0, "max": 1},
+            {"name": "Coordinate Plane", "type": "dropdown", "options": ["XY", "XZ", "YZ"], "description": "Origin plane (coordinate_aligned mode)"},
+            {"name": "Flip Normal", "type": "checkbox", "description": "Reverse plane normal direction", "default": false}
+          ]
+        }
+      }
+    },
+    "REFERENCE_AXIS": {
+      "description": "Reference axis created by one of 8 standard methods. Axes act as rotation centers for revolve / circular-pattern, alignment lines for coordinate-system construction, and hyperMILL spindle-axis references.",
+      "category": "Datum_Axis",
+      "fusion_command": "DATUM.AXIS.CREATE",
+      "python_api": "Datum.createAxis",
+      "parameterCount": 11,
+      "tabs": {
+        "References": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": [
+              "two_points",
+              "edge_or_line",
+              "intersection_two_planes",
+              "normal_to_face_at_point",
+              "through_cylindrical_face",
+              "through_conical_face_axis",
+              "from_three_points_normal",
+              "coordinate_axis"
+            ], "default": "two_points", "required": true},
+            {"name": "Reference Points", "type": "selection_list", "description": "Two points (two_points / from_three_points_normal — 3 points define plane whose normal is the axis)"},
+            {"name": "Reference Edge", "type": "selection", "description": "Linear edge / sketch line (edge_or_line mode)"},
+            {"name": "Reference Planes", "type": "selection_list", "description": "Two non-parallel planes (intersection_two_planes mode)"},
+            {"name": "Reference Face", "type": "selection", "description": "Face for normal / cylindrical / conical modes"},
+            {"name": "Reference Point", "type": "selection", "description": "Anchor point on face (normal_to_face_at_point mode)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Length Mode", "type": "dropdown", "options": ["finite", "ray", "infinite"], "default": "finite"},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Axis display length (Length Mode = finite)", "default": 50, "min": 0.001},
+            {"name": "Coordinate Axis", "type": "dropdown", "options": ["X", "Y", "Z"], "description": "(coordinate_axis mode)"},
+            {"name": "Origin Override", "type": "point3d", "description": "Optional anchor (defaults to first reference point)"},
+            {"name": "Flip Direction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "REFERENCE_POINT": {
+      "description": "Reference point created by one of 12 standard methods. Points act as snap targets for sketches, anchor positions for joints / mates, and pick-points for hyperMILL probing routines.",
+      "category": "Datum_Point",
+      "fusion_command": "DATUM.POINT.CREATE",
+      "python_api": "Datum.createPoint",
+      "parameterCount": 13,
+      "tabs": {
+        "References": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": [
+              "absolute_xyz",
+              "relative_to_point",
+              "midpoint_of_edge",
+              "endpoint_of_edge",
+              "intersection_of_lines",
+              "intersection_curve_surface",
+              "projection_to_face",
+              "center_of_circle_arc",
+              "center_of_face",
+              "centroid_of_body",
+              "by_curve_parameter",
+              "by_face_uv"
+            ], "default": "absolute_xyz", "required": true},
+            {"name": "Reference Point", "type": "selection", "description": "Anchor point (relative_to_point mode)"},
+            {"name": "Reference Edge", "type": "selection", "description": "Edge / curve (midpoint / endpoint / by_curve_parameter / center modes)"},
+            {"name": "Reference Curves", "type": "selection_list", "description": "Two curves (intersection_of_lines mode)"},
+            {"name": "Reference Curve And Surface", "type": "selection_list", "description": "Curve + surface (intersection_curve_surface mode)"},
+            {"name": "Reference Face", "type": "selection", "description": "Face (projection_to_face / center_of_face / by_face_uv modes)"},
+            {"name": "Reference Body", "type": "selection", "description": "Body (centroid_of_body mode)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "X", "type": "numeric", "unit": "mm", "description": "(absolute_xyz / relative_to_point mode)"},
+            {"name": "Y", "type": "numeric", "unit": "mm"},
+            {"name": "Z", "type": "numeric", "unit": "mm"},
+            {"name": "Curve Parameter", "type": "numeric", "description": "0..1 along curve (by_curve_parameter mode)", "min": 0, "max": 1},
+            {"name": "U", "type": "numeric", "description": "(by_face_uv mode) face u-coordinate", "min": 0, "max": 1},
+            {"name": "V", "type": "numeric", "description": "(by_face_uv mode) face v-coordinate", "min": 0, "max": 1}
+          ]
+        }
+      }
+    },
+    "COORDINATE_SYSTEM": {
+      "description": "Coordinate system (3-axis frame) created by one of 6 alignment strategies. Coordinate systems double as hyperMILL WCS frames — selecting a coordinate system as WCS origin emits the corresponding G54..G59 / G54.1 P# offset in NC output.",
+      "category": "Datum_CoordSys",
+      "fusion_command": "DATUM.COORDSYS.CREATE",
+      "python_api": "Datum.createCoordinateSystem",
+      "parameterCount": 12,
+      "tabs": {
+        "References": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": [
+              "origin_x_y",
+              "origin_two_axes",
+              "three_points",
+              "from_face",
+              "aligned_to_world",
+              "from_existing_coordsys"
+            ], "default": "origin_x_y", "required": true},
+            {"name": "Origin Point", "type": "selection", "description": "Anchor point (all modes)"},
+            {"name": "X Axis Reference", "type": "selection", "description": "Edge / line / axis defining X direction (origin_x_y / origin_two_axes modes)"},
+            {"name": "Y Axis Reference", "type": "selection", "description": "Edge / line / axis defining Y direction (origin_two_axes mode)"},
+            {"name": "Reference Points", "type": "selection_list", "description": "Three points {origin, X-direction, plane-helper} (three_points mode)"},
+            {"name": "Reference Face", "type": "selection", "description": "Face whose normal becomes Z and whose u-direction becomes X (from_face mode)"},
+            {"name": "Source Coordinate System", "type": "selection", "description": "Existing coord system to derive from (from_existing_coordsys mode)"}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Translate", "type": "vector3d", "description": "Offset from reference origin (defaults to zero)"},
+            {"name": "Rotate Z", "type": "numeric", "unit": "deg", "description": "Rotation about Z after axis derivation", "default": 0},
+            {"name": "Rotate Y", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Rotate X", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "WCS Tag", "type": "text", "description": "Optional hyperMILL WCS designator (e.g. 'G54', 'G54.1 P3') emitted in NC output"}
+          ]
+        }
+      }
+    },
+    "REFERENCE_SPLINE_3D": {
+      "description": "3D reference spline through control / interpolation points. Used as guide rail for sweeps, cam-path defining curve, and hyperMILL 5-axis tool-axis driver curve.",
+      "category": "Datum_Curve",
+      "fusion_command": "DATUM.SPLINE_3D.CREATE",
+      "python_api": "Datum.createSpline3D",
+      "parameterCount": 5,
+      "tabs": {
+        "References": {
+          "parameters": [
+            {"name": "Points", "type": "selection_list", "description": "Ordered point list (>=2)", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["interpolation", "control_polygon"], "default": "interpolation"},
+            {"name": "Degree", "type": "numeric", "description": "Polynomial degree", "default": 3, "min": 1, "max": 9},
+            {"name": "Knot Vector Type", "type": "dropdown", "options": ["uniform", "centripetal", "chord_length"], "default": "centripetal"},
+            {"name": "Closed", "type": "checkbox", "description": "Close spline back to first point", "default": false}
+          ]
+        }
+      }
+    },
+    "REFERENCE_POLYLINE_3D": {
+      "description": "3D reference polyline (linear segments through points). Distinct from spline — polyline preserves sharp vertices, useful for facet-driven hyperMILL roughing strategies.",
+      "category": "Datum_Curve",
+      "fusion_command": "DATUM.POLYLINE_3D.CREATE",
+      "python_api": "Datum.createPolyline3D",
+      "parameterCount": 3,
+      "tabs": {
+        "References": {
+          "parameters": [
+            {"name": "Points", "type": "selection_list", "description": "Ordered point list (>=2)", "required": true}
+          ]
+        },
+        "Geometry": {
+          "parameters": [
+            {"name": "Closed", "type": "checkbox", "default": false},
+            {"name": "Auto Smooth Sharp Corners", "type": "checkbox", "description": "Insert small fillet at each vertex (converts polyline to spline-of-arcs internally)", "default": false}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "hypermill_wcs": "COORDINATE_SYSTEM with a populated WCS Tag is read by hyperMILL post-processing — the tag drops directly into the NC output as the active WCS offset. This is the bridge between CAD reference frames and CNC controller offset registers.",
+    "ten_methods_per_op": "Each ref-plane / axis / point op consolidates many creation strategies into a single parametric op via a 'Mode' dropdown. Per-mode parameters are gated by mode selection.",
+    "sketch_targeting": "Sketches in sketch_operations module accept any reference plane / face / axis as their Sketch Plane parameter."
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Autodesk Inventor Weldment Operations — Weldment Environment",
+    "description": "Parameter catalog for the Inventor Weldment environment — a specialized assembly subtype activated by Convert-to-Weldment. Weldments enforce a 3-phase build order in the browser: (1) Preparations (cope / chamfer / fillet edge prep cuts), (2) Weld Beads (cosmetic annotation-only, fillet with material, groove with material), (3) Machining (post-weld features like through-holes / faces that span the now-welded body). The order is enforced because changing geometry beneath an existing bead would invalidate the bead's material; adding machining before welds would split the weld features off the wrong body. Catalog covers ~12 operations across the three phases plus weld symbol annotation, end-fill caps, multi-pass weld scheduling, and weldment-specific BOM. Bindings reference WeldmentComponentDefinition COM API (Preparations / WeldBeads / Machining collections + AddFilletWeldBead / AddCosmeticWeldBead / AddGrooveWeldBead methods + WeldSymbol drawing-side annotation). Welding Standard (ANSI/ISO/DIN/JIS/AWS) carries through to symbol generation and BOM unit conventions.",
+    "version": "2025.0",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-INV-06",
+    "source": "Autodesk Inventor 2025 Help — Weldment Reference; Inventor API Reference — Weldment namespace (WeldmentComponentDefinition, Preparations.AddCopeFeature / AddChamferFeature / AddFilletEdgeFeature, WeldBeads.AddFilletWeldBead / AddCosmeticWeldBead / AddGrooveWeldBead, WeldEndFillFeature, MachiningFeatures, WeldPasses, WeldSymbol drawing annotation); Welding Standards: AWS A2.4 / ISO 2553 / ANSI Y14.5",
+    "totalParameters": 95,
+    "operationCount": 12,
+    "cad_concepts_used": [
+      "WELDMENT_CONVERSION",
+      "WELD_BEAD",
+      "WELD_PREPARATION",
+      "POST_WELD_MACHINING",
+      "WELD_SYMBOL_AWS_ISO",
+      "INTERMITTENT_WELD",
+      "GROOVE_WELD_PENETRATION",
+      "FILLET_WELD_LEG",
+      "WELD_PASS_SCHEDULE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Inventor Weldment features. Weld bead operations split across Selection / Bead / Termination / Symbol tabs to mirror the Inventor weld dialog organization.",
+    "tabs": ["Selection", "Bead", "Termination", "Symbol", "Properties", "Pass", "Output"]
+  },
+  "operations": {
+    "CONVERT_TO_WELDMENT": {
+      "description": "Convert a standard assembly into a weldment. This adds the three weldment browser folders (Preparations, Welds, Machining) and switches the assembly-level operation set. Welding Standard governs symbol notation, default unit conventions for bead size, and BOM weld-length aggregation. Default bead style is applied to subsequent weld bead features unless overridden per-bead. Conversion is reversible (Convert-to-Assembly), but reverting deletes all weld bead features.",
+      "category": "Weldment_Setup_Convert",
+      "python_api": "AssemblyDocument.ConvertToWeldment",
+      "parameterCount": 6,
+      "tabs": {
+        "Properties": {
+          "parameters": [
+            {"name": "Welding Standard", "type": "dropdown", "options": ["aws_a2_4", "iso_2553", "din_iso_2553", "jis_z_3021", "gb_t_324", "ansi_y14_5"], "default": "aws_a2_4", "description": "Welding symbol convention applied to drawings + symbol features"},
+            {"name": "Default Material", "type": "string", "description": "Material assigned to weld bead bodies (typically matches base material)", "default": "Steel, Mild"},
+            {"name": "Default Bead Style", "type": "string", "description": "Inventor bead-style preset (controls bead body color + appearance)"},
+            {"name": "Weld Body Color Override", "type": "string", "description": "Render override for visual distinction in the assembly view"},
+            {"name": "Weld Bead Display in BOM", "type": "checkbox", "description": "Surface weld bead bodies as line items in the assembly BOM (vs hidden)", "default": true},
+            {"name": "Allow Welds to Modify Original Parts", "type": "checkbox", "description": "When false, weld features create new bodies but leave parent part files untouched", "default": true}
+          ]
+        }
+      }
+    },
+    "PREPARATION_COPE": {
+      "description": "Cope (saddle) preparation cut on a tubular member to fit it against another tube/cylindrical face. Creates a curved cut in the coping member matching the obstacle's outside diameter. Used for tubular T / Y / K joints in pipe/tube fabrication. The cope reaches a controlled depth (Gap parameter) so root opening is preserved for the subsequent weld pass.",
+      "category": "Weldment_Preparation_Cope",
+      "python_api": "WeldmentComponentDefinition.Preparations.AddCopeFeature",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Coping Member", "type": "selection", "description": "Member to receive the cope cut", "required": true},
+            {"name": "Coping Body", "type": "selection", "description": "Cylindrical/tubular body the cope conforms to", "required": true},
+            {"name": "Cope Type", "type": "dropdown", "options": ["full_saddle", "half_saddle", "lateral_intersection"], "default": "full_saddle"},
+            {"name": "Gap", "type": "numeric", "unit": "mm", "description": "Material gap left between coped surface and obstacle (root opening)", "default": 0},
+            {"name": "Approach Angle", "type": "numeric", "unit": "deg", "description": "Angle between coping member and obstacle (auto-detected if 0)", "default": 0},
+            {"name": "Through Cut", "type": "checkbox", "description": "Cope all the way through (for thin-wall tubes)", "default": false}
+          ]
+        }
+      }
+    },
+    "PREPARATION_CHAMFER": {
+      "description": "Chamfer edge preparation for groove (V / bevel / J / U) welds. Creates a chamfered groove face on selected edges so subsequent groove weld bead has correct angle for full-penetration root pass. Chamfer angle + distance correspond to the groove standards in AWS A2.4 / ISO 9692.",
+      "category": "Weldment_Preparation_Chamfer",
+      "python_api": "WeldmentComponentDefinition.Preparations.AddChamferFeature",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Edges", "type": "selection", "description": "Edge(s) to chamfer", "required": true},
+            {"name": "Groove Type", "type": "dropdown", "options": ["v_groove", "single_bevel", "double_bevel", "j_groove", "u_groove", "double_v"], "default": "v_groove"},
+            {"name": "Chamfer Angle", "type": "numeric", "unit": "deg", "description": "Included groove angle (per side for V/double-V)", "default": 60, "min": 10, "max": 90},
+            {"name": "Chamfer Distance", "type": "numeric", "unit": "mm", "description": "Edge offset depth", "required": true},
+            {"name": "Both Sides", "type": "checkbox", "description": "Apply chamfer to both adjoining members at the joint", "default": false},
+            {"name": "Root Face", "type": "numeric", "unit": "mm", "description": "Unchamfered land at edge bottom (typical 1.5–3 mm)", "default": 0}
+          ]
+        }
+      }
+    },
+    "PREPARATION_FILLET": {
+      "description": "Edge fillet (rounding) preparation along a joint edge — reduces stress concentration before fillet weld is applied. Distinct from a fillet *weld* (PREPARATION_FILLET adds a small radius to the corner; FILLET_WELD_BEAD adds material).",
+      "category": "Weldment_Preparation_Fillet",
+      "python_api": "WeldmentComponentDefinition.Preparations.AddFilletEdgeFeature",
+      "parameterCount": 5,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Edges", "type": "selection", "description": "Edge(s) to round", "required": true},
+            {"name": "Fillet Radius", "type": "numeric", "unit": "mm", "description": "Edge fillet radius", "required": true},
+            {"name": "Both Sides", "type": "checkbox", "description": "Apply to both adjoining edges", "default": false},
+            {"name": "Variable Radius", "type": "checkbox", "description": "Apply variable radius along edge (uses point-radius pairs)", "default": false},
+            {"name": "Variable Radius Points", "type": "numeric", "description": "Count of variable-radius control points (when Variable Radius is true)", "default": 0}
+          ]
+        }
+      }
+    },
+    "COSMETIC_WELD_BEAD": {
+      "description": "Annotation-only weld bead — no material body added. Documents the welding intent and surfaces in BOMs and symbol outputs without affecting mass / interference / collision analysis. Most often used in preliminary design or for tack welds + small fillet welds where bead volume is negligible. Intermittent stitch parameters (pitch + length) drive AWS-style stitch annotation in drawings.",
+      "category": "Weldment_Bead_Cosmetic",
+      "python_api": "WeldmentComponentDefinition.WeldBeads.AddCosmeticWeldBead",
+      "parameterCount": 11,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Edges", "type": "selection", "description": "Edge(s) the bead follows", "required": true},
+            {"name": "Bead Type", "type": "dropdown", "options": ["fillet", "butt", "groove", "spot", "seam", "stud", "plug_or_slot", "back"], "default": "fillet", "description": "Weld type per AWS A2.4 / ISO 2553"}
+          ]
+        },
+        "Bead": {
+          "parameters": [
+            {"name": "Leg Size", "type": "numeric", "unit": "mm", "description": "Fillet leg / groove face / spot diameter", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Continuous bead length (0 = full edge)", "default": 0},
+            {"name": "All Around", "type": "checkbox", "description": "AWS 'all-around' circle annotation", "default": false}
+          ]
+        },
+        "Termination": {
+          "parameters": [
+            {"name": "Intermittent", "type": "checkbox", "description": "Enable stitch-weld pattern", "default": false},
+            {"name": "Stitch Length", "type": "numeric", "unit": "mm", "description": "Per-stitch bead length (when intermittent)"},
+            {"name": "Stitch Pitch", "type": "numeric", "unit": "mm", "description": "Center-to-center spacing between stitches"},
+            {"name": "Stitch Count", "type": "numeric", "description": "Optional total stitch count override"}
+          ]
+        },
+        "Symbol": {
+          "parameters": [
+            {"name": "Field Weld", "type": "checkbox", "description": "AWS field-weld flag annotation", "default": false},
+            {"name": "Tail Text", "type": "string", "description": "Free-text tail annotation (e.g., 'Typ 4 Places')"}
+          ]
+        }
+      }
+    },
+    "FILLET_WELD_BEAD": {
+      "description": "Solid fillet weld with material body. Two-face fillet (most common) or three-face for socket welds. The bead's prismatic body is generated along the joint, sized by leg length. Inventor computes mass + center-of-mass + interference per bead. Concave / convex / flat contours follow AWS A2.4 supplementary symbol library.",
+      "category": "Weldment_Bead_Fillet",
+      "python_api": "WeldmentComponentDefinition.WeldBeads.AddFilletWeldBead",
+      "parameterCount": 13,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Face Set 1", "type": "selection", "description": "First face (or face group) defining the joint", "required": true},
+            {"name": "Face Set 2", "type": "selection", "description": "Second face (or face group) defining the joint", "required": true},
+            {"name": "Face Set 3", "type": "selection", "description": "Optional third face (socket / 3-face fillet)"}
+          ]
+        },
+        "Bead": {
+          "parameters": [
+            {"name": "Leg 1 Length", "type": "numeric", "unit": "mm", "description": "Leg length on Face Set 1", "required": true},
+            {"name": "Leg 2 Length", "type": "numeric", "unit": "mm", "description": "Leg length on Face Set 2 (defaults to Leg 1 for equal-leg)"},
+            {"name": "Throat Depth", "type": "numeric", "unit": "mm", "description": "Effective throat (auto-computed from legs unless overridden)"},
+            {"name": "Contour", "type": "dropdown", "options": ["flat", "convex", "concave"], "default": "flat", "description": "Bead contour per AWS A2.4 supplementary symbols"},
+            {"name": "All Around", "type": "checkbox", "description": "Apply bead to entire perimeter of joint", "default": false}
+          ]
+        },
+        "Termination": {
+          "parameters": [
+            {"name": "Intermittent", "type": "checkbox", "description": "Stitch-weld pattern (vs continuous)", "default": false},
+            {"name": "Stitch Length", "type": "numeric", "unit": "mm", "description": "Per-stitch bead length"},
+            {"name": "Stitch Pitch", "type": "numeric", "unit": "mm", "description": "Stitch center-to-center spacing"},
+            {"name": "Direction", "type": "dropdown", "options": ["from_face_1", "from_face_2", "centered"], "default": "centered", "description": "Where the bead grows from"},
+            {"name": "Termination Treatment", "type": "dropdown", "options": ["square", "wraparound", "cope_to_face"], "default": "square", "description": "End-cap geometry of the bead body"}
+          ]
+        }
+      }
+    },
+    "GROOVE_WELD_BEAD": {
+      "description": "Groove weld bead — fills the groove created by PREPARATION_CHAMFER (or by member geometry). Full-penetration grooves require the groove geometry to be open through the joint thickness; partial-penetration uses a depth parameter. Root opening, root face, and reinforcement are surfaced for downstream weld inspection / NDT documentation.",
+      "category": "Weldment_Bead_Groove",
+      "python_api": "WeldmentComponentDefinition.WeldBeads.AddGrooveWeldBead",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Groove Faces", "type": "selection", "description": "Groove sidewalls (typically the chamfered faces)", "required": true},
+            {"name": "Root Edge", "type": "selection", "description": "Optional root edge (auto-detected if omitted)"},
+            {"name": "Penetration", "type": "dropdown", "options": ["full", "partial"], "default": "full", "description": "Full-penetration vs partial-penetration groove"}
+          ]
+        },
+        "Bead": {
+          "parameters": [
+            {"name": "Groove Depth", "type": "numeric", "unit": "mm", "description": "Depth of fill (when partial penetration); ignored for full-penetration"},
+            {"name": "Root Opening", "type": "numeric", "unit": "mm", "description": "Gap at the joint root", "default": 0},
+            {"name": "Reinforcement", "type": "numeric", "unit": "mm", "description": "Bead crown above the surface (typical 1–3 mm)", "default": 1.5},
+            {"name": "Root Face", "type": "numeric", "unit": "mm", "description": "Unfused face at root (carries from preparation)"},
+            {"name": "Contour", "type": "dropdown", "options": ["flat", "convex", "concave", "ground_flush"], "default": "flat"},
+            {"name": "Backing Bar", "type": "checkbox", "description": "Include backing bar geometry on the back side", "default": false}
+          ]
+        },
+        "Termination": {
+          "parameters": [
+            {"name": "Melt-Through Backing", "type": "checkbox", "description": "Show melt-through annotation in symbol", "default": false},
+            {"name": "Both Sides", "type": "checkbox", "description": "Apply same groove from both sides (double-V / double-bevel)", "default": false},
+            {"name": "All Around", "type": "checkbox", "description": "Apply around full joint perimeter", "default": false}
+          ]
+        }
+      }
+    },
+    "MACHINING_FEATURE": {
+      "description": "Post-weld machining feature applied to the welded assembly as a single body. Used for through-holes / pockets / faces that span the now-welded structure (e.g., bolt-pattern hole through a welded base plate). Inventor enforces this as the third browser phase: machining always operates on the post-weld unified body, never on the pre-weld parts.",
+      "category": "Weldment_Machining_Feature",
+      "python_api": "WeldmentComponentDefinition.MachiningFeatures.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Feature Type", "type": "dropdown", "options": ["hole", "extrude_cut", "revolve_cut", "sweep_cut", "face", "fillet", "chamfer"], "default": "hole"},
+            {"name": "Profile", "type": "selection", "description": "Sketch profile or selection (semantics depend on Feature Type)"},
+            {"name": "Termination", "type": "dropdown", "options": ["through_all", "to", "distance", "to_next"], "default": "through_all"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Termination distance (when Termination=distance)"},
+            {"name": "Operation", "type": "dropdown", "options": ["cut", "intersect", "join_with_assembly"], "default": "cut"},
+            {"name": "Notes", "type": "string", "description": "Machining note text — surfaces in BOM and drawing tables"}
+          ]
+        }
+      }
+    },
+    "WELD_SYMBOL": {
+      "description": "Drawing-side weld symbol annotation per AWS A2.4 / ISO 2553. Symbols are placed on a drawing view and reference the underlying weld feature(s) by association — changing the bead automatically updates the symbol. Supports multiple-side notation (arrow side / other side), all-around, field weld, finish symbols (G/M/C/H), and tail text for process / specification reference.",
+      "category": "Weldment_Symbol_Annotation",
+      "python_api": "WeldSymbol.Add",
+      "parameterCount": 12,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Standard", "type": "dropdown", "options": ["aws_a2_4", "iso_2553", "din_iso_2553", "jis_z_3021", "gb_t_324"], "default": "aws_a2_4"},
+            {"name": "Weld Type", "type": "dropdown", "options": ["fillet", "v_groove", "bevel_groove", "u_groove", "j_groove", "square_groove", "flare_v", "flare_bevel", "spot", "seam", "stud", "plug_slot", "back", "surfacing", "edge"], "default": "fillet"},
+            {"name": "Side", "type": "dropdown", "options": ["arrow_side", "other_side", "both_sides"], "default": "arrow_side"},
+            {"name": "All Around", "type": "checkbox", "description": "All-around symbol circle", "default": false},
+            {"name": "Field Weld", "type": "checkbox", "description": "Field-weld flag", "default": false}
+          ]
+        },
+        "Bead": {
+          "parameters": [
+            {"name": "Size", "type": "string", "description": "Weld size (e.g., '6 mm' for fillet leg, depth-of-prep for groove)"},
+            {"name": "Length", "type": "string", "description": "Weld length annotation (e.g., '50' or '50-150')"},
+            {"name": "Pitch", "type": "string", "description": "Stitch pitch (e.g., '50-150' for 50 mm stitch / 150 mm pitch)"},
+            {"name": "Root Opening", "type": "numeric", "unit": "mm", "description": "Root opening callout"},
+            {"name": "Groove Angle", "type": "numeric", "unit": "deg", "description": "Included groove angle"},
+            {"name": "Finish Symbol", "type": "dropdown", "options": ["none", "g_grind", "m_machine", "c_chip", "h_hammer", "r_roll", "u_unspecified"], "default": "none", "description": "Finish symbol per AWS supplementary list"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Tail Text", "type": "string", "description": "Process / specification reference (e.g., 'GMAW / AWS D1.1')"}
+          ]
+        }
+      }
+    },
+    "END_FILL": {
+      "description": "End-fill cap that closes voids at the open ends of welded tubular / hollow members. Common on frame-end caps where an end-plug or cap is welded to seal the tube. Generates a small body matching the cross-section of the opening, then attaches it to the parent member via a fillet bead boundary.",
+      "category": "Weldment_Bead_EndFill",
+      "python_api": "WeldmentComponentDefinition.WeldBeads.AddWeldEndFill",
+      "parameterCount": 4,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Open End", "type": "selection", "description": "End face / opening to cap", "required": true},
+            {"name": "Treatment", "type": "dropdown", "options": ["cap", "extend_cap", "weld_only"], "default": "cap", "description": "Add cap body, extend existing material, or annotation-only"},
+            {"name": "Cap Thickness", "type": "numeric", "unit": "mm", "description": "Cap material thickness (when Treatment=cap)"},
+            {"name": "Material Override", "type": "string", "description": "Cap material (defaults to parent member material)"}
+          ]
+        }
+      }
+    },
+    "WELD_PASSES": {
+      "description": "Multi-pass weld schedule for thick-section groove welds. Decomposes a single groove bead into root pass + filler passes + cap pass(es), each with its own size + electrode + heat input. Inventor stores the schedule as metadata against the parent groove bead — bead body geometry remains unchanged.",
+      "category": "Weldment_Bead_PassSchedule",
+      "python_api": "WeldmentComponentDefinition.WeldBeads.Item(n).WeldPasses.Add",
+      "parameterCount": 6,
+      "tabs": {
+        "Pass": {
+          "parameters": [
+            {"name": "Bead Reference", "type": "selection", "description": "Parent groove weld bead to annotate", "required": true},
+            {"name": "Pass Count", "type": "numeric", "description": "Total number of passes (root + filler + cap)", "required": true, "min": 1},
+            {"name": "Root Pass Size", "type": "numeric", "unit": "mm", "description": "Root pass leg / fill depth"},
+            {"name": "Filler Pass Size", "type": "numeric", "unit": "mm", "description": "Per-filler-pass fill depth (uniform)"},
+            {"name": "Cap Pass Size", "type": "numeric", "unit": "mm", "description": "Cap pass fill depth"},
+            {"name": "Process", "type": "dropdown", "options": ["smaw", "gmaw", "fcaw", "gtaw", "saw", "esw", "ew"], "default": "gmaw", "description": "Welding process per AWS designation"}
+          ]
+        }
+      }
+    },
+    "WELDMENT_BOM": {
+      "description": "Weldment-specific Bill of Materials with weld-feature aggregation: bead-by-bead bead length / bead volume / weld pass count / electrode mass estimate, alongside the standard parts table. Used by fabricators for welder cut-list, electrode procurement, and process planning. Output formats include the standard Inventor parts list as well as weld-procedure spreadsheet exports.",
+      "category": "Weldment_Output_BOM",
+      "python_api": "WeldmentComponentDefinition.GenerateBOM",
+      "parameterCount": 8,
+      "tabs": {
+        "Output": {
+          "parameters": [
+            {"name": "Output Format", "type": "dropdown", "options": ["xlsx", "csv", "xml", "inventor_parts_list", "iam_drawing_table", "weld_procedure_form"], "default": "xlsx"},
+            {"name": "Include Bead Length", "type": "checkbox", "description": "Per-bead bead length column", "default": true},
+            {"name": "Include Bead Volume", "type": "checkbox", "description": "Per-bead bead volume + electrode mass estimate", "default": true},
+            {"name": "Include Pass Count", "type": "checkbox", "description": "Per-bead weld pass count column (from WELD_PASSES schedules)", "default": true},
+            {"name": "Group By", "type": "dropdown", "options": ["bead_type", "process", "size", "side", "none"], "default": "bead_type"},
+            {"name": "Electrode Density", "type": "numeric", "unit": "g/cm^3", "description": "Electrode density used for mass estimate (default carbon steel)", "default": 7.85},
+            {"name": "Deposition Efficiency", "type": "numeric", "unit": "fraction", "description": "Weld deposition efficiency (0..1) for electrode mass estimate", "default": 0.95, "min": 0, "max": 1},
+            {"name": "Output Path", "type": "string", "description": "Filesystem path for emitted file (only for xlsx/csv/xml/weld_procedure_form)"}
+          ]
+        }
+      }
+    }
+  }
+}

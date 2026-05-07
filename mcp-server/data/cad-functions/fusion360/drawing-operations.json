@@ -1,0 +1,424 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Drawing Operations — Drawing workspace",
+    "description": "Parameter catalog for the Fusion 360 Drawing workspace, the 2D-output workspace that consumes Design / Sheet Metal / Assembly bodies and emits drawings (PDF / DWG / DXF / PNG / SVG). Catalog covers 18 operations across sheet creation (size + scale + title block), 7 view types (Base / Projected / Section / Detail / Auxiliary / Break / Crop-via-BASE), dimensioning (8 dimension subtypes + tolerancing), GD&T (14 geometric characteristics + datum features per ASME Y14.5), annotation (centerline / centermark / text), tables (parts list / hole table / revision), title block fields, and multi-format export. Bindings target the Fusion 360 Python API surface for drawings (rootComp.drawings.add) and the UI command system for ops not yet exposed in Python.",
+    "version": "2026.04",
+    "extractedDate": "2026-05-01",
+    "milestone": "U-CAD-FIDX-FUS-08",
+    "source": "Autodesk Fusion 360 Help — Drawing workspace; Fusion 360 Python API Reference — Drawings module; ASME Y14.5-2018 (Geometric Dimensioning and Tolerancing); ASME Y14.35-2014 (Revisions of Engineering Drawings)",
+    "totalParameters": 155,
+    "operationCount": 18,
+    "cad_concepts_used": [
+      "ORTHOGRAPHIC_PROJECTION",
+      "SECTION_HATCHING",
+      "GEOMETRIC_TOLERANCE",
+      "DATUM_REFERENCE_FRAME",
+      "DIMENSION_TOLERANCE",
+      "TITLE_BLOCK_FIELDS",
+      "REVISION_LETTER_SEQUENCE",
+      "HOLE_CALLOUT",
+      "PARTS_LIST_BOM",
+      "EXPORT_FORMAT_DPI"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Fusion 360 drawing features",
+    "tabs": ["Shape", "View", "Annotation", "Tolerance", "Output"]
+  },
+  "operations": {
+    "SHEET": {
+      "description": "Create or configure a drawing sheet. Sheet defines paper size (ANSI A..E or ISO A0..A4), scale, title block selection, and multi-sheet drawing membership. Sheets host all subsequent views and annotations.",
+      "category": "Drawing_Sheet",
+      "fusion_command": "DrawingSheetCommand",
+      "python_api": "drawingDoc.sheets.add",
+      "parameterCount": 11,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Format", "type": "dropdown", "options": ["ANSI_A", "ANSI_B", "ANSI_C", "ANSI_D", "ANSI_E", "ISO_A0", "ISO_A1", "ISO_A2", "ISO_A3", "ISO_A4", "custom"], "default": "ANSI_B"},
+            {"name": "Custom Width", "type": "numeric", "unit": "mm", "description": "Used with format=custom"},
+            {"name": "Custom Height", "type": "numeric", "unit": "mm", "description": "Used with format=custom"},
+            {"name": "Scale", "type": "numeric", "description": "Sheet scale (e.g., 1.0 = 1:1, 0.5 = 1:2)", "default": 1, "min": 0.0001},
+            {"name": "Title", "type": "string", "description": "Sheet title (defaults to source model name)"},
+            {"name": "Sheet Number", "type": "string", "default": "1"},
+            {"name": "Total Sheets", "type": "integer", "default": 1, "min": 1},
+            {"name": "Default Units", "type": "dropdown", "options": ["mm", "inch", "cm"], "default": "mm"},
+            {"name": "Orientation", "type": "dropdown", "options": ["landscape", "portrait"], "default": "landscape"},
+            {"name": "Border Style", "type": "dropdown", "options": ["standard", "minimal", "none"], "default": "standard"},
+            {"name": "Title Block Template", "type": "string", "description": "Title block template name or path"}
+          ]
+        }
+      }
+    },
+    "BASE_VIEW": {
+      "description": "Project a base orthographic view from the 3D source model onto the active sheet. Origin is the foundation view from which projected/section/detail/auxiliary views can be derived.",
+      "category": "Drawing_View_Base",
+      "fusion_command": "BaseViewCommand",
+      "python_api": "sheet.views.addBaseView",
+      "parameterCount": 11,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source Model", "type": "selection", "description": "Component / occurrence to project", "required": true},
+            {"name": "Orientation", "type": "dropdown", "options": ["front", "top", "right", "back", "bottom", "left", "iso_top_left", "iso_top_right", "iso_bottom_left", "iso_bottom_right", "named_view"], "default": "front"},
+            {"name": "Named View Override", "type": "string", "description": "Used when orientation=named_view"},
+            {"name": "Scale", "type": "numeric", "description": "View scale (overrides sheet scale)"},
+            {"name": "Origin Point", "type": "selection", "description": "View origin on sheet"},
+            {"name": "Display Style", "type": "dropdown", "options": ["shaded", "shaded_with_visible_edges", "visible_lines", "visible_and_hidden_lines", "wireframe"], "default": "visible_lines"},
+            {"name": "Tangent Edges", "type": "dropdown", "options": ["on", "off", "with_foreshortening"], "default": "off"},
+            {"name": "Hidden Lines", "type": "checkbox", "default": false},
+            {"name": "Boundary Box", "type": "checkbox", "description": "Show view boundary rectangle", "default": false},
+            {"name": "Annotations Inherited", "type": "checkbox", "description": "Pull model annotations into view", "default": true},
+            {"name": "Component Filter", "type": "string", "description": "Comma-separated component visibility list"}
+          ]
+        }
+      }
+    },
+    "PROJECTED_VIEW": {
+      "description": "Project a derived view from an existing view (orthographic or isometric). Direction is implied by the projection vector from source view's center.",
+      "category": "Drawing_View_Projected",
+      "fusion_command": "ProjectedViewCommand",
+      "python_api": "sheet.views.addProjectedView",
+      "parameterCount": 7,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "Existing view to project from", "required": true},
+            {"name": "Projection Type", "type": "dropdown", "options": ["orthographic", "isometric"], "default": "orthographic"},
+            {"name": "Direction", "type": "dropdown", "options": ["above", "below", "left", "right", "iso_above_left", "iso_above_right"], "default": "right"},
+            {"name": "Scale Override", "type": "numeric", "description": "Override source view scale (rare)"},
+            {"name": "Display Style Override", "type": "dropdown", "options": ["inherit", "shaded", "visible_lines", "visible_and_hidden_lines", "wireframe"], "default": "inherit"},
+            {"name": "Auto-Align", "type": "checkbox", "description": "Lock alignment to source view", "default": true},
+            {"name": "Spacing From Source", "type": "numeric", "unit": "mm", "description": "Distance from source view center", "default": 50}
+          ]
+        }
+      }
+    },
+    "SECTION_VIEW": {
+      "description": "Cut-plane section view from a parent view. Section line defines the cutting plane; section method controls full / half / aligned / offset / broken-out behavior. Hatching is automatic per material with manual overrides.",
+      "category": "Drawing_View_Section",
+      "fusion_command": "SectionViewCommand",
+      "python_api": "sheet.views.addSectionView",
+      "parameterCount": 12,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "Parent view to section", "required": true},
+            {"name": "Cutting Line", "type": "selection", "description": "Sketched cut line on source view", "required": true},
+            {"name": "Section Method", "type": "dropdown", "options": ["full", "half", "aligned", "offset", "broken_out", "revolved"], "default": "full"},
+            {"name": "Section Depth", "type": "numeric", "unit": "mm", "description": "Section depth (broken_out / aligned)", "default": 0},
+            {"name": "Hatch Pattern", "type": "dropdown", "options": ["ANSI31", "ANSI32", "ANSI33", "ANSI34", "ANSI35", "ANSI36", "ANSI37", "ANSI38", "ISO_steel", "ISO_aluminum", "ISO_plastic", "solid", "auto_by_material"], "default": "auto_by_material"},
+            {"name": "Hatch Scale", "type": "numeric", "default": 1, "min": 0.01},
+            {"name": "Hatch Angle", "type": "numeric", "unit": "deg", "default": 45},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Show Cutting Line", "type": "checkbox", "default": true},
+            {"name": "Section Label", "type": "string", "description": "Letter (A, B, C…) for the section identifier"},
+            {"name": "Cut Line Style", "type": "dropdown", "options": ["thick_dash", "thin_dash", "phantom", "chain"], "default": "thick_dash"},
+            {"name": "Aligned Reference Axis", "type": "selection", "description": "Used with aligned section method"}
+          ]
+        }
+      }
+    },
+    "DETAIL_VIEW": {
+      "description": "Magnified detail callout on a parent view. Boundary geometry (circle / rectangle / spline) defines the region; scale magnifies. Connection style draws the link from boundary to detail.",
+      "category": "Drawing_View_Detail",
+      "fusion_command": "DetailViewCommand",
+      "python_api": "sheet.views.addDetailView",
+      "parameterCount": 9,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "Parent view containing the region", "required": true},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["circle", "rectangle", "spline"], "default": "circle"},
+            {"name": "Boundary Center", "type": "selection", "description": "Center point of boundary", "required": true},
+            {"name": "Boundary Size", "type": "numeric", "unit": "mm", "description": "Circle diameter or rectangle diagonal", "required": true},
+            {"name": "Scale", "type": "numeric", "description": "Detail magnification (e.g., 2.0 = 2x parent)", "required": true, "default": 2, "min": 0.1},
+            {"name": "Connection Style", "type": "dropdown", "options": ["circular", "rectangular", "jagged", "with_leader"], "default": "circular"},
+            {"name": "Detail Label", "type": "string", "description": "Letter for detail callout"},
+            {"name": "Show Boundary", "type": "checkbox", "default": true},
+            {"name": "Annotation Direction", "type": "dropdown", "options": ["aligned", "horizontal"], "default": "aligned"}
+          ]
+        }
+      }
+    },
+    "AUXILIARY_VIEW": {
+      "description": "Auxiliary view aligned to a specific edge (typically an oblique surface) on a source view. Used to show true-shape of inclined features.",
+      "category": "Drawing_View_Auxiliary",
+      "fusion_command": "AuxiliaryViewCommand",
+      "python_api": "sheet.views.addAuxiliaryView",
+      "parameterCount": 7,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "Parent view", "required": true},
+            {"name": "Reference Edge", "type": "selection", "description": "Edge defining auxiliary alignment", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["normal_to_edge", "along_edge"], "default": "normal_to_edge"},
+            {"name": "Scale Override", "type": "numeric", "description": "Override source view scale"},
+            {"name": "Display Style", "type": "dropdown", "options": ["inherit", "shaded", "visible_lines", "wireframe"], "default": "inherit"},
+            {"name": "Show Reference Line", "type": "checkbox", "default": true},
+            {"name": "Aligned", "type": "checkbox", "description": "Lock auxiliary alignment to reference edge", "default": true}
+          ]
+        }
+      }
+    },
+    "BREAK_VIEW": {
+      "description": "Break long views to compact the drawing. Break style controls aesthetic (straight / curved / zigzag / stepped). Stretched length is the visible suppressed material span.",
+      "category": "Drawing_View_Break",
+      "fusion_command": "BreakViewCommand",
+      "python_api": "sheet.views.addBreak",
+      "parameterCount": 8,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "View to break", "required": true},
+            {"name": "Break Lines", "type": "selection", "description": "Two parallel sketch lines defining break range", "required": true},
+            {"name": "Break Style", "type": "dropdown", "options": ["straight", "curved", "zigzag", "step"], "default": "zigzag"},
+            {"name": "Break Gap", "type": "numeric", "unit": "mm", "default": 5, "min": 0.001},
+            {"name": "Break Symbol Size", "type": "numeric", "unit": "mm", "default": 3},
+            {"name": "Break Direction", "type": "dropdown", "options": ["horizontal", "vertical"], "default": "horizontal"},
+            {"name": "Stretched Length", "type": "numeric", "unit": "mm", "description": "Suppressed material span"},
+            {"name": "Multi-Break", "type": "checkbox", "description": "Allow multiple breaks in same view", "default": false}
+          ]
+        }
+      }
+    },
+    "DIMENSION": {
+      "description": "Linear / aligned / angular / radial / diameter / arc-length / jogged / ordinate dimension. Tolerance type controls bilateral / limits / symmetric / MAX/MIN / single_limit / none. Inspection frame wraps the value in inspection-callout brackets.",
+      "category": "Drawing_Annotation_Dimension",
+      "fusion_command": "DimensionCommand",
+      "python_api": "sheet.dimensions.add",
+      "parameterCount": 12,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["linear", "aligned", "angular", "radial", "diameter", "arc_length", "jogged", "ordinate"], "default": "linear"},
+            {"name": "References", "type": "selection", "description": "Geometry being dimensioned", "required": true},
+            {"name": "Position", "type": "selection", "description": "Dimension placement"},
+            {"name": "Override Text", "type": "string", "description": "Replace computed value"},
+            {"name": "Precision", "type": "integer", "description": "Decimal places", "default": 2, "min": 0, "max": 6},
+            {"name": "Units", "type": "dropdown", "options": ["inherit", "mm", "inch", "deg"], "default": "inherit"},
+            {"name": "Suppress Leading Zeros", "type": "checkbox", "default": false}
+          ]
+        },
+        "Tolerance": {
+          "parameters": [
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "bilateral", "limits", "symmetric", "MAX", "MIN", "single_limit"], "default": "none"},
+            {"name": "Upper Tolerance", "type": "numeric", "description": "Upper limit"},
+            {"name": "Lower Tolerance", "type": "numeric", "description": "Lower limit"},
+            {"name": "Tolerance Precision", "type": "integer", "description": "Tolerance decimal places", "default": 2},
+            {"name": "Inspection Frame", "type": "checkbox", "description": "Wrap dimension in inspection brackets", "default": false}
+          ]
+        }
+      }
+    },
+    "GEOMETRIC_TOLERANCE": {
+      "description": "GD&T feature control frame per ASME Y14.5. Geometric type covers all 14 ASME-defined characteristics: form (3) / orientation (3) / location (3) / runout (2) / profile (2) / +1 composite. Material condition modifiers: M (MMC) / L (LMC) / S (RFS).",
+      "category": "Drawing_Annotation_GDT",
+      "fusion_command": "GeometricToleranceCommand",
+      "python_api": "sheet.featureControlFrames.add",
+      "parameterCount": 11,
+      "tabs": {
+        "Tolerance": {
+          "parameters": [
+            {"name": "Geometric Type", "type": "dropdown", "options": ["position", "concentricity", "symmetry", "parallelism", "perpendicularity", "angularity", "circularity", "cylindricity", "flatness", "straightness", "profile_line", "profile_surface", "circular_runout", "total_runout"], "required": true},
+            {"name": "Tolerance Value", "type": "numeric", "unit": "mm", "required": true, "min": 0},
+            {"name": "Tolerance Modifier", "type": "dropdown", "options": ["none", "MMC_circle_M", "LMC_circle_L", "RFS_circle_S", "tangent_plane", "free_state"], "default": "none"},
+            {"name": "Diameter Indicator", "type": "checkbox", "description": "Prefix tolerance with diameter symbol", "default": false},
+            {"name": "Datum A", "type": "string", "description": "Primary datum letter"},
+            {"name": "Datum A Modifier", "type": "dropdown", "options": ["none", "MMC", "LMC", "RFS"], "default": "none"},
+            {"name": "Datum B", "type": "string", "description": "Secondary datum letter"},
+            {"name": "Datum C", "type": "string", "description": "Tertiary datum letter"},
+            {"name": "Composite Frame", "type": "checkbox", "description": "Two-row composite control frame", "default": false},
+            {"name": "All-Around Symbol", "type": "checkbox", "default": false},
+            {"name": "Reference Geometry", "type": "selection", "description": "Geometry to which the GD&T applies", "required": true}
+          ]
+        }
+      }
+    },
+    "DATUM_FEATURE": {
+      "description": "Datum feature symbol (square frame with letter) attached to reference geometry. Datum letters are used in GEOMETRIC_TOLERANCE feature control frames as Primary / Secondary / Tertiary datums per the ASME Y14.5 datum reference frame model.",
+      "category": "Drawing_Annotation_Datum",
+      "fusion_command": "DatumFeatureCommand",
+      "python_api": "sheet.datumFeatures.add",
+      "parameterCount": 5,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Reference Geometry", "type": "selection", "description": "Geometry to anchor datum", "required": true},
+            {"name": "Datum Letter", "type": "string", "description": "Single letter (A, B, C…)", "required": true},
+            {"name": "Datum Position", "type": "selection", "description": "Symbol placement on sheet"},
+            {"name": "Frame Type", "type": "dropdown", "options": ["square", "rounded"], "default": "square"},
+            {"name": "Show Triangle", "type": "checkbox", "description": "Filled triangle indicating datum surface", "default": true}
+          ]
+        }
+      }
+    },
+    "CENTERLINE": {
+      "description": "Centerline annotation for symmetric features. Five generation modes: bisector (between two lines), two-lines (manual line pair), circular pattern (around a center point), projected (from 3D centerline), or full pattern (entire bolt circle).",
+      "category": "Drawing_Annotation_Centerline",
+      "fusion_command": "CenterlineCommand",
+      "python_api": "sheet.centerlines.add",
+      "parameterCount": 6,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["bisector", "two_lines", "circular_pattern", "projected", "full_pattern"], "default": "bisector"},
+            {"name": "References", "type": "selection", "description": "Geometry defining centerline", "required": true},
+            {"name": "Extension", "type": "numeric", "unit": "mm", "description": "Extension beyond endpoints", "default": 2},
+            {"name": "Hash Spacing", "type": "numeric", "unit": "mm", "description": "Long-dash spacing", "default": 5},
+            {"name": "Hash Length", "type": "numeric", "unit": "mm", "description": "Long-dash length", "default": 20},
+            {"name": "Linetype", "type": "dropdown", "options": ["chain", "phantom", "dashed"], "default": "chain"}
+          ]
+        }
+      }
+    },
+    "CENTERMARK": {
+      "description": "Center mark for circular features (holes, fillets, bosses). Style controls plus / cross / two-dashes / L-shape / T-shape glyph.",
+      "category": "Drawing_Annotation_Centermark",
+      "fusion_command": "CentermarkCommand",
+      "python_api": "sheet.centermarks.add",
+      "parameterCount": 5,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Reference Hole", "type": "selection", "description": "Circular feature center", "required": true},
+            {"name": "Mark Style", "type": "dropdown", "options": ["plus", "cross", "two_dashes", "L_shape", "T_shape"], "default": "plus"},
+            {"name": "Size", "type": "numeric", "unit": "mm", "default": 2.5},
+            {"name": "Extension", "type": "numeric", "unit": "mm", "description": "Extend lines beyond center", "default": 1},
+            {"name": "Linetype", "type": "dropdown", "options": ["chain", "phantom", "thin_solid"], "default": "chain"}
+          ]
+        }
+      }
+    },
+    "TEXT": {
+      "description": "Free-text annotation. Includes leader-style attachment (with arrow) or floating placement.",
+      "category": "Drawing_Annotation_Text",
+      "fusion_command": "TextCommand",
+      "python_api": "sheet.texts.add",
+      "parameterCount": 7,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Text Body", "type": "string", "description": "Annotation content", "required": true},
+            {"name": "Position", "type": "selection", "description": "Placement on sheet"},
+            {"name": "Font", "type": "string", "default": "Arial"},
+            {"name": "Size", "type": "numeric", "unit": "mm", "default": 3.5, "min": 0.5},
+            {"name": "Justification", "type": "dropdown", "options": ["left", "center", "right", "full_justify"], "default": "left"},
+            {"name": "Rotation", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Attach Mode", "type": "dropdown", "options": ["floating", "with_leader", "with_balloon"], "default": "floating"}
+          ]
+        }
+      }
+    },
+    "PARTS_LIST": {
+      "description": "Bill-of-Materials parts list for assembly drawings. Auto-populated from the source assembly's component instances. Format / sort / column-set drives the table content.",
+      "category": "Drawing_Table_PartsList",
+      "fusion_command": "PartsListCommand",
+      "python_api": "sheet.tables.addPartsList",
+      "parameterCount": 9,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source Assembly", "type": "selection", "description": "Assembly providing the BOM", "required": true},
+            {"name": "Format", "type": "dropdown", "options": ["default", "standard", "structured", "custom"], "default": "default"},
+            {"name": "Sort By", "type": "dropdown", "options": ["item_number", "part_number", "description", "qty_descending"], "default": "item_number"},
+            {"name": "Item Number Style", "type": "dropdown", "options": ["sequential", "ballooned"], "default": "sequential"},
+            {"name": "Columns", "type": "string", "description": "Comma-separated column ids: ITEM,PART_NUMBER,DESCRIPTION,QTY,…", "default": "ITEM,PART_NUMBER,DESCRIPTION,QTY"},
+            {"name": "Custom Fields", "type": "string", "description": "Additional iProperty fields"},
+            {"name": "Bordering Style", "type": "dropdown", "options": ["full", "horizontal_only", "none"], "default": "full"},
+            {"name": "Header Position", "type": "dropdown", "options": ["top", "bottom"], "default": "top"},
+            {"name": "Multi-Page Span", "type": "checkbox", "description": "Continue table across sheets", "default": false}
+          ]
+        }
+      }
+    },
+    "HOLE_TABLE": {
+      "description": "Auto-generated hole coordinate table from a view. Coordinate style XY (Cartesian) or polar (R/θ). Hole sort + decimal precision drive readability.",
+      "category": "Drawing_Table_HoleTable",
+      "fusion_command": "HoleTableCommand",
+      "python_api": "sheet.tables.addHoleTable",
+      "parameterCount": 8,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View", "type": "selection", "description": "View containing holes", "required": true},
+            {"name": "Hole Selection", "type": "selection", "description": "Specific holes (default: all on view)"},
+            {"name": "Origin", "type": "selection", "description": "0,0 reference point on view", "required": true},
+            {"name": "Coordinate Style", "type": "dropdown", "options": ["XY", "polar"], "default": "XY"},
+            {"name": "Decimal Precision", "type": "integer", "default": 3, "min": 0, "max": 6},
+            {"name": "Hole Sort", "type": "dropdown", "options": ["by_x_then_y", "by_size", "by_callout"], "default": "by_x_then_y"},
+            {"name": "Show Origin Point", "type": "checkbox", "default": true},
+            {"name": "Multi-Hole Group", "type": "checkbox", "description": "Group identical holes into single row", "default": true}
+          ]
+        }
+      }
+    },
+    "TITLE_BLOCK": {
+      "description": "Configure the title block fields on the sheet: drawing number, title, author, approvals, revision, scale reference, and custom fields. Fields can pull from iProperties or be set explicitly.",
+      "category": "Drawing_Sheet_TitleBlock",
+      "fusion_command": "TitleBlockCommand",
+      "python_api": "sheet.titleBlock.update",
+      "parameterCount": 8,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Title Block Type", "type": "string", "description": "Template name (e.g., 'ANSI_Standard')", "required": true},
+            {"name": "Drawing Number", "type": "string"},
+            {"name": "Title", "type": "string"},
+            {"name": "Author", "type": "string"},
+            {"name": "Approval Date", "type": "string", "description": "ISO-8601 date"},
+            {"name": "Revision", "type": "string", "description": "Revision letter (matches REVISION_TABLE active row)"},
+            {"name": "Scale Reference", "type": "string", "description": "e.g., '1:2', 'Various'"},
+            {"name": "Custom Fields", "type": "string", "description": "Comma-separated key=value overrides"}
+          ]
+        }
+      }
+    },
+    "REVISION_TABLE": {
+      "description": "Revision history table per ASME Y14.35-2014. Letter sequence follows alphabetical (A, B, C…) with letters I, O, Q, S, X, Z reserved per the standard. Active revision is the most recent letter and propagates to TITLE_BLOCK Revision field.",
+      "category": "Drawing_Table_RevisionTable",
+      "fusion_command": "RevisionTableCommand",
+      "python_api": "sheet.tables.addRevisionTable",
+      "parameterCount": 8,
+      "tabs": {
+        "Annotation": {
+          "parameters": [
+            {"name": "Revision Format", "type": "dropdown", "options": ["letter", "letter_skip_reserved", "numeric", "alphanumeric"], "default": "letter_skip_reserved"},
+            {"name": "Letter Sequence", "type": "string", "description": "Override sequence (advanced)"},
+            {"name": "Description Field", "type": "checkbox", "default": true},
+            {"name": "Date Field", "type": "checkbox", "default": true},
+            {"name": "Author Field", "type": "checkbox", "default": true},
+            {"name": "Approval Field", "type": "checkbox", "default": true},
+            {"name": "Sheet Reference", "type": "checkbox", "description": "List which sheets each revision affects", "default": false},
+            {"name": "Multi-Page Span", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "EXPORT": {
+      "description": "Export the drawing to a downstream format. PDF (vector), DWG / DXF (CAD interchange), PNG / JPG (raster), SVG (web-vector). Options control DPI, color, layer mapping, and multi-sheet export behavior.",
+      "category": "Drawing_Output_Export",
+      "fusion_command": "ExportDrawingCommand",
+      "python_api": "drawingDoc.export",
+      "parameterCount": 11,
+      "tabs": {
+        "Output": {
+          "parameters": [
+            {"name": "Format", "type": "dropdown", "options": ["pdf", "dwg", "dxf", "png", "jpg", "svg"], "default": "pdf"},
+            {"name": "File Path", "type": "string", "description": "Destination path", "required": true},
+            {"name": "DPI", "type": "integer", "description": "Raster export DPI", "default": 300, "min": 72, "max": 2400},
+            {"name": "Black And White", "type": "checkbox", "default": false},
+            {"name": "Vector Output", "type": "checkbox", "description": "Force vector emission for PDF/SVG", "default": true},
+            {"name": "Include Hidden Lines", "type": "checkbox", "default": true},
+            {"name": "Include Sheets", "type": "string", "description": "Comma-separated sheet ids ('all' for full doc)", "default": "all"},
+            {"name": "Layer Mapping", "type": "string", "description": "Custom layer-name override map (DWG/DXF)"},
+            {"name": "Line Weight Override", "type": "numeric", "unit": "mm", "description": "Force line weight (default = inherit)"},
+            {"name": "Color Mapping", "type": "dropdown", "options": ["true_color", "indexed", "monochrome"], "default": "true_color"},
+            {"name": "Multi-Page Output", "type": "dropdown", "options": ["single_file", "file_per_sheet"], "default": "single_file"}
+          ]
+        }
+      }
+    }
+  }
+}

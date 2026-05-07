@@ -1,0 +1,522 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "SolidWorks CAD Drawing Operations — 2D drawing authoring layer",
+    "description": "Parameter catalog for the SolidWorks CAD 2D drawing authoring layer. Covers the full IDrawingDoc / IDrawingView / IDimension / IAnnotation / IBomTable / IRevisionTable surface: sheet + title block management, 9 SolidWorks view types (model / projected / auxiliary / section / detail / broken / break_out / crop / relative-to-model), 6 dimension types (smart / horizontal / vertical / aligned / angular / radial), GD&T per ASME Y14.5 (14 geometric characteristic symbols), surface finish + weld symbols + center marks + centerlines, datum feature + datum target placement, BOM (bill of materials) + revision table + general/hole table authoring, design table integration, and sheet format authoring. Catalog covers 24 operations / 165 parameters. Bindings target SolidWorks API IModelDoc2.NewDocument / IDrawingDoc.Create3rdAngleViews2 / IDrawingDoc.CreateAuxiliaryView2 / IDrawingDoc.CreateSectionView5 / IDrawingDoc.CreateDetailViewAt4 / IDrawingDoc.CreateBrokenView / IDrawingDoc.CreateBreakOutSection / IDrawingDoc.SetupSheet5 / IModelDoc2.AddDimension2 / IAnnotation.SetGtolValues / IBomTable interface / IRevisionTable interface — the canonical SolidWorks 2024 drawing authoring API.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-SW-05",
+    "source": "SolidWorks 2024 API Help — Drawings; SolidWorks API Reference — IDrawingDoc / IDrawingView / IDimension / IGtol / ISFSymbol / IWeldSymbol / IBomTable / IRevisionTable; ASME Y14.5-2018 Dimensioning and Tolerancing; ASME Y14.100; ASME Y14.36 Surface Texture Symbols; AWS A2.4 Welding Symbols",
+    "totalParameters": 165,
+    "operationCount": 24,
+    "cad_concepts_used": [
+      "ORTHOGRAPHIC_PROJECTION",
+      "FIRST_ANGLE_VS_THIRD_ANGLE_PROJECTION",
+      "AUXILIARY_VIEW_INCLINED_PLANE",
+      "FULL_HALF_OFFSET_REVOLVED_BROKEN_OUT_SECTION",
+      "DETAIL_CIRCLE_BOUNDARY_TYPE",
+      "BROKEN_VIEW_GAP_DISCONTINUITY",
+      "ASME_Y14_5_GDT_FEATURE_CONTROL_FRAME",
+      "DATUM_REFERENCE_FRAME_3_2_1",
+      "GDT_MATERIAL_CONDITION_MMC_LMC_RFS",
+      "SURFACE_TEXTURE_RA_RZ_LAY",
+      "WELD_SYMBOL_AWS_A24",
+      "BOM_PARENT_CHILD_SUBASSEMBLY_INDENT",
+      "REVISION_TABLE_HISTORICAL_AUDIT",
+      "DESIGN_TABLE_PARAMETRIC_VARIANT",
+      "TITLE_BLOCK_SHEET_FORMAT_TEMPLATE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across SolidWorks drawing operations",
+    "tabs": ["Sheet", "View", "Dimension", "GD&T", "Symbol", "Table", "Format"]
+  },
+  "operations": {
+    "DRAWING_NEW": {
+      "description": "Create a new drawing document. Template selects from standard SolidWorks templates (A_Landscape / A_Portrait / B / C / D / E / Custom). Sheet Format applies a title-block format file (.slddrt). Projection sets first-angle (ISO/EU/JIS) vs third-angle (ANSI/US) view orientation.",
+      "category": "Drawing_Document",
+      "solidworks_command": "File > New > Drawing",
+      "solidworks_api": "ISldWorks.NewDocument (DocumentType=swDocDRAWING)",
+      "parameterCount": 7,
+      "tabs": {
+        "Sheet": {
+          "parameters": [
+            {"name": "Template Path", "type": "string", "description": "Path to .drwdot template (default: ANSI A landscape)"},
+            {"name": "Paper Size", "type": "dropdown", "options": ["A_Landscape", "A_Portrait", "B", "C", "D", "E", "A4_Landscape", "A4_Portrait", "A3", "A2", "A1", "A0", "Custom"], "default": "A_Landscape"},
+            {"name": "Sheet Format Path", "type": "string", "description": "Path to .slddrt sheet format (title block)"},
+            {"name": "Projection", "type": "dropdown", "options": ["first_angle", "third_angle"], "required": true, "default": "third_angle"},
+            {"name": "Custom Width", "type": "numeric", "unit": "mm", "description": "Required when Paper Size = Custom", "min": 50, "max": 2000},
+            {"name": "Custom Height", "type": "numeric", "unit": "mm", "description": "Required when Paper Size = Custom", "min": 50, "max": 2000},
+            {"name": "Scale", "type": "string", "description": "Sheet scale ratio (e.g. '1:2', '2:1')", "default": "1:1"}
+          ]
+        }
+      }
+    },
+    "SHEET_ADD": {
+      "description": "Add an additional sheet to an existing drawing. Inherits or overrides the sheet format / paper size / scale of the active sheet.",
+      "category": "Drawing_Document",
+      "solidworks_command": "Insert > Sheet",
+      "solidworks_api": "IDrawingDoc.NewSheet4",
+      "parameterCount": 6,
+      "tabs": {
+        "Sheet": {
+          "parameters": [
+            {"name": "Sheet Name", "type": "string", "required": true},
+            {"name": "Paper Size", "type": "dropdown", "options": ["A_Landscape", "A_Portrait", "B", "C", "D", "E", "A4_Landscape", "A4_Portrait", "A3", "A2", "A1", "A0", "use_active"], "default": "use_active"},
+            {"name": "Scale", "type": "string", "default": "1:1"},
+            {"name": "Sheet Format Path", "type": "string"},
+            {"name": "Position Index", "type": "numeric", "description": "Insert at this position (-1 = append)", "default": -1, "min": -1, "max": 999},
+            {"name": "Use Custom Property Values From Reference", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SHEET_FORMAT_EDIT": {
+      "description": "Edit sheet format (title block underlay). Title block fields are populated from the model's custom properties via $PRP and $PRPSHEET tags.",
+      "category": "Drawing_Document",
+      "solidworks_command": "Edit Sheet Format",
+      "solidworks_api": "IDrawingDoc.EditTemplate",
+      "parameterCount": 5,
+      "tabs": {
+        "Format": {
+          "parameters": [
+            {"name": "Sheet Name", "type": "string", "required": true},
+            {"name": "Format Path", "type": "string", "description": "New .slddrt path"},
+            {"name": "Update Anchored Notes", "type": "checkbox", "description": "Re-evaluate $PRP / $PRPSHEET tags", "default": true},
+            {"name": "Reload From Template", "type": "checkbox", "default": false},
+            {"name": "Auto-Resize", "type": "checkbox", "description": "Stretch format to current paper size", "default": false}
+          ]
+        }
+      }
+    },
+    "VIEW_MODEL": {
+      "description": "Insert a model view (the first/anchor view that brings a part / assembly into the drawing). Sets Display Style (wireframe / hidden_lines_visible / hidden_lines_removed / shaded_with_edges / shaded). Tangent Edges control sets visibility of fillet boundaries (visible / phantom / hide).",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Model",
+      "solidworks_api": "IDrawingDoc.CreateModelView",
+      "parameterCount": 9,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Model Path", "type": "string", "description": "Path to .sldprt or .sldasm to anchor", "required": true},
+            {"name": "Configuration", "type": "string", "description": "Configuration to project (default: active)"},
+            {"name": "Display State", "type": "string"},
+            {"name": "Orientation", "type": "dropdown", "options": ["front", "back", "top", "bottom", "left", "right", "isometric", "trimetric", "dimetric", "current_model_view", "named_view"], "default": "front"},
+            {"name": "Display Style", "type": "dropdown", "options": ["wireframe", "hidden_lines_visible", "hidden_lines_removed", "shaded_with_edges", "shaded"], "default": "hidden_lines_removed"},
+            {"name": "Scale Mode", "type": "dropdown", "options": ["use_sheet_scale", "use_custom_scale"], "default": "use_sheet_scale"},
+            {"name": "Custom Scale", "type": "string", "description": "Required when Scale Mode = use_custom_scale (e.g. '1:2')", "default": "1:1"},
+            {"name": "Tangent Edges", "type": "dropdown", "options": ["visible", "phantom", "hide"], "default": "visible"},
+            {"name": "Position", "type": "selection", "description": "Drop point on sheet (X, Y)"}
+          ]
+        }
+      }
+    },
+    "VIEW_PROJECTED": {
+      "description": "Project a new view from an existing parent view (orthogonal projection — left / right / top / bottom). Inherits parent's display style and scale by default.",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Projected",
+      "solidworks_api": "IDrawingDoc.CreateUnfoldedViewAt5",
+      "parameterCount": 6,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View Name", "type": "string", "required": true},
+            {"name": "Projection Direction", "type": "dropdown", "options": ["left", "right", "top", "bottom"], "required": true, "default": "right"},
+            {"name": "Inherit Display Style", "type": "checkbox", "default": true},
+            {"name": "Inherit Scale", "type": "checkbox", "default": true},
+            {"name": "Override Scale", "type": "string", "description": "Used when Inherit Scale = false"},
+            {"name": "Position", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "VIEW_AUXILIARY": {
+      "description": "Auxiliary view projected perpendicular to a selected inclined edge (true-shape view of inclined surface). Projection direction is normal to the selected reference edge.",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Auxiliary",
+      "solidworks_api": "IDrawingDoc.CreateAuxiliaryView2",
+      "parameterCount": 6,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Reference Edge", "type": "selection", "description": "Inclined edge on parent view defining the projection plane", "required": true},
+            {"name": "Parent View Name", "type": "string", "required": true},
+            {"name": "Direction Label", "type": "string", "description": "Auxiliary view label (default: auto-incrementing letter)"},
+            {"name": "Show Arrow", "type": "checkbox", "default": true},
+            {"name": "Flip Direction", "type": "checkbox", "default": false},
+            {"name": "Position", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "VIEW_SECTION": {
+      "description": "Section view created by cutting along a section line. Section Type controls planar / aligned / offset / unfolded behavior. Cutting Line Style governs the cutting-line appearance (per ASME Y14.3 conventions).",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Section",
+      "solidworks_api": "IDrawingDoc.CreateSectionView5",
+      "parameterCount": 9,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View Name", "type": "string", "required": true},
+            {"name": "Section Line Geometry", "type": "selection", "description": "Sketch line(s) defining the cutting plane", "required": true},
+            {"name": "Section Type", "type": "dropdown", "options": ["planar", "aligned", "offset", "unfolded"], "required": true, "default": "planar"},
+            {"name": "Section Label", "type": "string", "description": "Label letter (default: auto)"},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false},
+            {"name": "Cutting Line Style", "type": "dropdown", "options": ["chain_thick", "chain_thin", "phantom"], "default": "chain_thick"},
+            {"name": "Hatch Pattern", "type": "string", "description": "Section hatch pattern name (default: ANSI31)", "default": "ANSI31"},
+            {"name": "Hatch Scale", "type": "numeric", "default": 1, "min": 0.01, "max": 100},
+            {"name": "Position", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "VIEW_DETAIL": {
+      "description": "Detail view (zoomed-in view of a region of an existing view). Boundary Type selects circular (default per ASME Y14.3) / closed_profile. Scale is independent of parent.",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Detail",
+      "solidworks_api": "IDrawingDoc.CreateDetailViewAt4",
+      "parameterCount": 8,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View Name", "type": "string", "required": true},
+            {"name": "Boundary Type", "type": "dropdown", "options": ["circle", "closed_profile"], "required": true, "default": "circle"},
+            {"name": "Center X", "type": "numeric", "unit": "mm", "description": "Detail circle / region center X", "required": true},
+            {"name": "Center Y", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Required when Boundary Type = circle", "default": 25, "min": 0.001},
+            {"name": "Detail Label", "type": "string", "description": "Label letter (default: auto)"},
+            {"name": "Scale", "type": "string", "default": "2:1"},
+            {"name": "Position", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "VIEW_BROKEN": {
+      "description": "Broken view (compress a long uniform-section view by inserting visual breaks). Used for shafts / extrusions where intermediate detail is unnecessary. Break Type selects gap geometry style.",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Broken View",
+      "solidworks_api": "IDrawingDoc.CreateBrokenView",
+      "parameterCount": 7,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Source View Name", "type": "string", "required": true},
+            {"name": "Break Direction", "type": "dropdown", "options": ["vertical", "horizontal"], "required": true, "default": "vertical"},
+            {"name": "Break Type", "type": "dropdown", "options": ["zigzag", "straight", "small_zigzag", "curved", "structural"], "default": "zigzag"},
+            {"name": "Break Position 1", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Break Position 2", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Gap Distance", "type": "numeric", "unit": "mm", "default": 10, "min": 0.001},
+            {"name": "Show Break Lines", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "VIEW_BREAK_OUT": {
+      "description": "Break-out section (cut-away revealing internal geometry) on an existing view. Boundary is a closed sketch profile; Depth Mode selects how far into the model the cut goes.",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Break Out Section",
+      "solidworks_api": "IDrawingDoc.CreateBreakOutSection",
+      "parameterCount": 7,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View Name", "type": "string", "required": true},
+            {"name": "Boundary Sketch", "type": "selection", "description": "Closed 2D sketch defining the cut region", "required": true},
+            {"name": "Depth Mode", "type": "dropdown", "options": ["depth_value", "up_to_geometry"], "required": true, "default": "depth_value"},
+            {"name": "Depth Value", "type": "numeric", "unit": "mm", "description": "Required when Depth Mode = depth_value", "default": 10, "min": 0.001},
+            {"name": "Reference Geometry", "type": "selection", "description": "Required when Depth Mode = up_to_geometry"},
+            {"name": "Hatch Pattern", "type": "string", "default": "ANSI31"},
+            {"name": "Hatch Scale", "type": "numeric", "default": 1, "min": 0.01, "max": 100}
+          ]
+        }
+      }
+    },
+    "VIEW_CROP": {
+      "description": "Crop a view to a sketched closed boundary (analogous to a viewport mask). The cropped region remains visible; the rest is hidden. Inverse of break-out section: crop hides exterior, break-out hides interior.",
+      "category": "Drawing_View",
+      "solidworks_command": "Insert > Drawing View > Crop View",
+      "solidworks_api": "IDrawingDoc.CreateCropView",
+      "parameterCount": 4,
+      "tabs": {
+        "View": {
+          "parameters": [
+            {"name": "Parent View Name", "type": "string", "required": true},
+            {"name": "Boundary Sketch", "type": "selection", "description": "Closed 2D sketch defining the visible region", "required": true},
+            {"name": "Show Crop Boundary", "type": "checkbox", "default": false},
+            {"name": "Auto-Center", "type": "checkbox", "description": "Re-center view in cropped boundary", "default": true}
+          ]
+        }
+      }
+    },
+    "DIMENSION_SMART": {
+      "description": "Smart dimension — auto-detects geometry type (linear / angular / radial / diametral / arc-length) from the selected entities and emits the appropriate dimension. Dimensioning Mode forces a specific dimension type when auto-detection is ambiguous.",
+      "category": "Drawing_Dimension",
+      "solidworks_command": "Tools > Dimensions > Smart",
+      "solidworks_api": "IModelDoc2.AddDimension2",
+      "parameterCount": 8,
+      "tabs": {
+        "Dimension": {
+          "parameters": [
+            {"name": "Entity 1", "type": "selection", "description": "First entity (vertex / edge / face / arc)", "required": true},
+            {"name": "Entity 2", "type": "selection", "description": "Optional second entity for relative dimensions"},
+            {"name": "Dimensioning Mode", "type": "dropdown", "options": ["smart", "horizontal", "vertical", "aligned", "angular", "radial", "diametral", "arc_length", "baseline", "ordinate"], "default": "smart"},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "description": "Dimension text drop point", "required": true},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "basic", "bilateral", "limit", "symmetric", "min", "max", "fit"], "default": "none"},
+            {"name": "Upper Tolerance", "type": "numeric", "unit": "mm", "description": "Used with bilateral / limit / symmetric"},
+            {"name": "Lower Tolerance", "type": "numeric", "unit": "mm", "description": "Used with bilateral / limit"}
+          ]
+        }
+      }
+    },
+    "DIMENSION_BASELINE": {
+      "description": "Baseline dimension chain — multiple dimensions sharing a common reference point. Per ASME Y14.5 reduces accumulated tolerance compared to chain dimensioning.",
+      "category": "Drawing_Dimension",
+      "solidworks_command": "Tools > Dimensions > Baseline",
+      "solidworks_api": "IDrawingDoc.AutoBaselineDimension",
+      "parameterCount": 5,
+      "tabs": {
+        "Dimension": {
+          "parameters": [
+            {"name": "Baseline Reference", "type": "selection", "description": "Origin entity for the dimension chain", "required": true},
+            {"name": "Target Entities", "type": "string", "description": "Comma-separated list of target entities", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["horizontal", "vertical", "aligned"], "required": true, "default": "horizontal"},
+            {"name": "Stack Distance", "type": "numeric", "unit": "mm", "description": "Spacing between successive dimensions", "default": 10, "min": 0.001},
+            {"name": "Tolerance Type", "type": "dropdown", "options": ["none", "basic", "bilateral", "limit"], "default": "none"}
+          ]
+        }
+      }
+    },
+    "DIMENSION_ORDINATE": {
+      "description": "Ordinate dimension chain — datum-zero-anchored dimension labels measured from a single origin. Common on stamping / sheet metal flat patterns where a single coordinate reference simplifies inspection.",
+      "category": "Drawing_Dimension",
+      "solidworks_command": "Tools > Dimensions > Ordinate",
+      "solidworks_api": "IDrawingDoc.InsertOrdinateDimension",
+      "parameterCount": 6,
+      "tabs": {
+        "Dimension": {
+          "parameters": [
+            {"name": "Origin", "type": "selection", "description": "Datum-zero point (vertex / endpoint)", "required": true},
+            {"name": "Target Entities", "type": "string", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["horizontal", "vertical"], "required": true, "default": "horizontal"},
+            {"name": "Show Origin Marker", "type": "checkbox", "default": true},
+            {"name": "Jog Lines", "type": "checkbox", "description": "Allow text jog to avoid overlap", "default": true},
+            {"name": "Text Rotation", "type": "dropdown", "options": ["upright", "perpendicular_to_extension"], "default": "upright"}
+          ]
+        }
+      }
+    },
+    "GDT_ADD": {
+      "description": "Add a Geometric Dimensioning & Tolerancing feature control frame per ASME Y14.5-2018. Symbol selects from the 14 geometric characteristics. Material Condition modifier (MMC / LMC / RFS) applies to the tolerance value. Up to 3 datum references (primary / secondary / tertiary) per the Datum Reference Frame 3-2-1 alignment.",
+      "category": "Drawing_GDT",
+      "solidworks_command": "Insert > Annotations > Geometric Tolerance",
+      "solidworks_api": "IModelDocExtension.InsertGtol / IGtol.SetGtolValues",
+      "parameterCount": 11,
+      "tabs": {
+        "GD&T": {
+          "parameters": [
+            {"name": "Attached Entity", "type": "selection", "description": "Feature being toleranced (face / edge / dimension)", "required": true},
+            {"name": "Symbol", "type": "dropdown", "options": [
+              "straightness", "flatness", "circularity", "cylindricity",
+              "profile_of_a_line", "profile_of_a_surface",
+              "perpendicularity", "parallelism", "angularity",
+              "position", "concentricity", "symmetry",
+              "circular_runout", "total_runout"
+            ], "required": true, "default": "position"},
+            {"name": "Tolerance Value", "type": "numeric", "unit": "mm", "required": true, "default": 0.1, "min": 0},
+            {"name": "Material Condition", "type": "dropdown", "options": ["RFS", "MMC", "LMC"], "default": "RFS"},
+            {"name": "Tolerance Zone Modifier", "type": "dropdown", "options": ["none", "diameter", "spherical_diameter", "projected", "tangent_plane", "free_state", "statistical"], "default": "none"},
+            {"name": "Primary Datum", "type": "string", "description": "Datum letter (A-Z, optional double-letter)"},
+            {"name": "Primary Datum Modifier", "type": "dropdown", "options": ["RFS", "MMC", "LMC"], "default": "RFS"},
+            {"name": "Secondary Datum", "type": "string"},
+            {"name": "Secondary Datum Modifier", "type": "dropdown", "options": ["RFS", "MMC", "LMC"], "default": "RFS"},
+            {"name": "Tertiary Datum", "type": "string"},
+            {"name": "Tertiary Datum Modifier", "type": "dropdown", "options": ["RFS", "MMC", "LMC"], "default": "RFS"}
+          ]
+        }
+      }
+    },
+    "DATUM_FEATURE": {
+      "description": "Place a datum feature symbol (datum identifier letter A-Z anchored to a feature). The datum reference frame's primary / secondary / tertiary datums (3-2-1 alignment) are constructed from these symbols.",
+      "category": "Drawing_GDT",
+      "solidworks_command": "Insert > Annotations > Datum Feature",
+      "solidworks_api": "IModelDocExtension.InsertDatumFeature",
+      "parameterCount": 5,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Attached Entity", "type": "selection", "description": "Feature being labeled as datum", "required": true},
+            {"name": "Datum Letter", "type": "string", "required": true, "default": "A"},
+            {"name": "Frame Style", "type": "dropdown", "options": ["square", "circle", "filled_triangle"], "default": "square"},
+            {"name": "Leader Style", "type": "dropdown", "options": ["straight", "bent", "underline"], "default": "straight"},
+            {"name": "Position", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "SURFACE_FINISH_SYMBOL": {
+      "description": "Place an ASME Y14.36 / ISO 1302 surface finish symbol. Roughness Value carries the Ra / Rz value (microns or microinches). Lay Symbol indicates the surface texture lay direction (=, ⊥, X, M, R, C, P).",
+      "category": "Drawing_Symbol",
+      "solidworks_command": "Insert > Annotations > Surface Finish Symbol",
+      "solidworks_api": "IModelDocExtension.InsertSurfaceFinishSymbol",
+      "parameterCount": 7,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Attached Entity", "type": "selection", "required": true},
+            {"name": "Symbol Type", "type": "dropdown", "options": ["basic", "machining_required", "machining_prohibited", "all_around"], "required": true, "default": "machining_required"},
+            {"name": "Roughness Value", "type": "string", "description": "e.g. Ra 1.6 / Ra 0.8 / Rz 6.3", "required": true, "default": "Ra 1.6"},
+            {"name": "Roughness Standard", "type": "dropdown", "options": ["ISO_metric", "ASME_inch", "JIS"], "default": "ISO_metric"},
+            {"name": "Lay Symbol", "type": "dropdown", "options": ["none", "parallel", "perpendicular", "crossed", "multidirectional", "circular", "radial", "particulate"], "default": "none"},
+            {"name": "Production Method", "type": "string", "description": "Optional production-method string (e.g. 'milled', 'ground', 'turned')"},
+            {"name": "Position", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "WELD_SYMBOL": {
+      "description": "AWS A2.4 weld symbol with arrow side / other side weld specifications. Weld Type selects from 12 standard weld categories. All-Around and Field Weld modifiers attach to the symbol root.",
+      "category": "Drawing_Symbol",
+      "solidworks_command": "Insert > Annotations > Weld Symbol",
+      "solidworks_api": "IModelDocExtension.InsertWeldSymbol",
+      "parameterCount": 9,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Attached Entity", "type": "selection", "description": "Edge / vertex on a joint location", "required": true},
+            {"name": "Weld Type", "type": "dropdown", "options": [
+              "fillet", "groove_v", "groove_bevel", "groove_u", "groove_j",
+              "plug_slot", "spot", "seam", "stud", "edge", "back", "surfacing"
+            ], "required": true, "default": "fillet"},
+            {"name": "Arrow Side Size", "type": "numeric", "unit": "mm", "default": 5, "min": 0.001},
+            {"name": "Other Side Size", "type": "numeric", "unit": "mm", "description": "0 = no other-side weld", "default": 0, "min": 0},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Optional weld length (continuous if 0)", "default": 0, "min": 0},
+            {"name": "Pitch", "type": "numeric", "unit": "mm", "description": "Center-to-center spacing for intermittent welds", "default": 0, "min": 0},
+            {"name": "All-Around", "type": "checkbox", "default": false},
+            {"name": "Field Weld", "type": "checkbox", "description": "Performed at field assembly site (not in shop)", "default": false},
+            {"name": "Process Reference", "type": "string", "description": "Optional AWS process code (e.g. 'GMAW', 'SMAW', 'GTAW')"}
+          ]
+        }
+      }
+    },
+    "CENTER_MARK": {
+      "description": "Insert center marks on circular features (holes, arcs). Pattern Mode applies center marks across a circular / linear pattern of features in one operation.",
+      "category": "Drawing_Symbol",
+      "solidworks_command": "Insert > Annotations > Center Mark",
+      "solidworks_api": "IModelDocExtension.InsertCenterMark",
+      "parameterCount": 6,
+      "tabs": {
+        "Symbol": {
+          "parameters": [
+            {"name": "Selected Edges", "type": "string", "description": "Comma-separated list of circular edges", "required": true},
+            {"name": "Pattern Mode", "type": "dropdown", "options": ["single", "linear_pattern", "circular_pattern"], "default": "single"},
+            {"name": "Connection Lines", "type": "checkbox", "description": "Draw lines connecting pattern center marks", "default": false},
+            {"name": "Mark Size", "type": "numeric", "unit": "mm", "default": 2.5, "min": 0.1},
+            {"name": "Extended Lines", "type": "checkbox", "description": "Extend center mark beyond circle perimeter", "default": true},
+            {"name": "Centerline Style", "type": "dropdown", "options": ["chain_thin", "chain_thick", "phantom"], "default": "chain_thin"}
+          ]
+        }
+      }
+    },
+    "BOM_TABLE": {
+      "description": "Bill of Materials table — auto-extracts component data from the active assembly view. BOM Type selects part-level (top-level only), parts-only (flat list of all parts), or indented (parent / child sub-assembly hierarchy). Template controls column layout.",
+      "category": "Drawing_Table",
+      "solidworks_command": "Insert > Tables > Bill of Materials",
+      "solidworks_api": "IDrawingDoc.InsertBomTable4",
+      "parameterCount": 9,
+      "tabs": {
+        "Table": {
+          "parameters": [
+            {"name": "Anchor View Name", "type": "string", "description": "Drawing view to extract BOM from", "required": true},
+            {"name": "BOM Type", "type": "dropdown", "options": ["top_level_only", "parts_only", "indented"], "required": true, "default": "top_level_only"},
+            {"name": "Configuration", "type": "string", "description": "Configuration to BOM (default: active)"},
+            {"name": "Template Path", "type": "string", "description": "Path to .sldbomtbt template (default: bom-standard)"},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Anchor Type", "type": "dropdown", "options": ["top_left", "top_right", "bottom_left", "bottom_right"], "default": "top_right"},
+            {"name": "Promote Sub-Assembly Children", "type": "checkbox", "description": "Show sub-assembly children at root level (only for top_level_only)", "default": false},
+            {"name": "Use Configuration Quantities", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "REVISION_TABLE": {
+      "description": "Revision history table per ASME Y14.35. Initial Rev sets the starting revision letter (typical: A or 0). Revision letters are auto-incremented through the alphabet (A, B, C, ... skip I/O/Q/S/X/Z by ANSI convention).",
+      "category": "Drawing_Table",
+      "solidworks_command": "Insert > Tables > Revision Table",
+      "solidworks_api": "IDrawingDoc.InsertRevisionTable3",
+      "parameterCount": 7,
+      "tabs": {
+        "Table": {
+          "parameters": [
+            {"name": "Template Path", "type": "string", "description": "Path to .sldrevtbt revision template"},
+            {"name": "Initial Rev", "type": "string", "description": "Starting revision letter / number", "default": "A"},
+            {"name": "Letter Convention", "type": "dropdown", "options": ["alphabetic", "alphabetic_skip_iqsox", "numeric", "alphanumeric"], "default": "alphabetic_skip_iqsox"},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Anchor Type", "type": "dropdown", "options": ["top_left", "top_right", "bottom_left", "bottom_right"], "default": "top_right"},
+            {"name": "Enable Symbol Pop-Up", "type": "checkbox", "description": "Auto-prompt for revision symbol on placement", "default": true}
+          ]
+        }
+      }
+    },
+    "GENERAL_TABLE": {
+      "description": "Insert a general-purpose data table (rows × columns) with manually authored cell content. Used for material tables, inspection tables, machining instruction tables.",
+      "category": "Drawing_Table",
+      "solidworks_command": "Insert > Tables > General Table",
+      "solidworks_api": "IDrawingDoc.InsertTableAnnotation2",
+      "parameterCount": 6,
+      "tabs": {
+        "Table": {
+          "parameters": [
+            {"name": "Title", "type": "string"},
+            {"name": "Column Count", "type": "numeric", "required": true, "default": 3, "min": 1, "max": 100},
+            {"name": "Row Count", "type": "numeric", "required": true, "default": 5, "min": 1, "max": 999},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Anchor Type", "type": "dropdown", "options": ["top_left", "top_right", "bottom_left", "bottom_right"], "default": "top_left"}
+          ]
+        }
+      }
+    },
+    "HOLE_TABLE": {
+      "description": "Hole table — auto-tabulated hole locations (X, Y) and sizes by tag (A1, A2, B1, ...). Standard SolidWorks output for sheet metal flat patterns and machined plates.",
+      "category": "Drawing_Table",
+      "solidworks_command": "Insert > Tables > Hole Table",
+      "solidworks_api": "IDrawingDoc.InsertHoleTable",
+      "parameterCount": 7,
+      "tabs": {
+        "Table": {
+          "parameters": [
+            {"name": "Anchor View Name", "type": "string", "required": true},
+            {"name": "Datum Origin Vertex", "type": "selection", "description": "Origin (0,0) reference vertex on the view", "required": true},
+            {"name": "Tag Convention", "type": "dropdown", "options": ["alphanumeric_by_size", "numeric_sequential", "by_diameter"], "default": "alphanumeric_by_size"},
+            {"name": "Combine Same Size", "type": "checkbox", "description": "Group holes of identical diameter", "default": true},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Anchor Type", "type": "dropdown", "options": ["top_left", "top_right", "bottom_left", "bottom_right"], "default": "top_left"}
+          ]
+        }
+      }
+    },
+    "DESIGN_TABLE_ATTACH": {
+      "description": "Attach a model design table to the drawing (shows the design table's variant matrix as a drawing annotation). Configuration set selects which configurations to display.",
+      "category": "Drawing_Table",
+      "solidworks_command": "Insert > Tables > Design Table",
+      "solidworks_api": "IDrawingDoc.InsertDesignTable",
+      "parameterCount": 5,
+      "tabs": {
+        "Table": {
+          "parameters": [
+            {"name": "Source Model Path", "type": "string", "description": "Path to .sldprt / .sldasm whose design table to embed", "required": true},
+            {"name": "Configuration Set", "type": "dropdown", "options": ["all", "shown_only", "specified"], "default": "all"},
+            {"name": "Configuration Names", "type": "string", "description": "Comma-separated when Configuration Set = specified"},
+            {"name": "Position X", "type": "numeric", "unit": "mm", "required": true},
+            {"name": "Position Y", "type": "numeric", "unit": "mm", "required": true}
+          ]
+        }
+      }
+    }
+  }
+}

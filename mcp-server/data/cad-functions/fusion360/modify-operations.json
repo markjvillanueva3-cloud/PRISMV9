@@ -1,0 +1,339 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Fusion 360 CAD Modify Operations - Complete Enumeration",
+    "description": "Comprehensive parameter catalog for Fusion 360 Design workspace post-feature operations: edge filleting (constant/variable/full-round/chord-length), chamfering (equal/two-distance/distance-angle), Press Pull, body/face transforms (Move/Scale), construction geometry (Plane 7 variants, Axis 5 variants, Point 8 variants), and Section Analysis. Aligns with Autodesk Fusion 360 Python API Features + Construction modules surface.",
+    "version": "2026.04",
+    "extractedDate": "2026-04-29",
+    "milestone": "U-CAD-FIDX-FUS-03",
+    "source": "Autodesk Fusion 360 Help — Design workspace > Solid > Modify panel + Construct panel + Inspect panel + Python API ConstructionPlanes/Axes/Points reference",
+    "totalParameters": 101,
+    "operationCount": 9,
+    "cad_concepts_used": [
+      "VARIABLE_RADIUS_FILLET",
+      "TANGENT_CHAIN_PROPAGATION",
+      "PRESS_PULL_INFERENCE",
+      "RIGID_TRANSFORM",
+      "CONSTRUCTION_PLANE_DEFINITION",
+      "DATUM_AXIS_DEFINITION",
+      "DATUM_POINT_DEFINITION",
+      "SECTION_VIEW",
+      "DRAFT_ANALYSIS"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs for modify operations",
+    "tabs": ["Selection", "Configuration", "Operation", "Properties"]
+  },
+  "operations": {
+    "FILLET": {
+      "description": "Rounds sharp edges with a constant or variable radius arc. Supports tangent-chain selection (auto-extends to smooth-connected edges), variable radius via per-vertex weight points, and corner type control (rolling-ball default; setback for blended trihedral corners).",
+      "category": "Modify_Edge",
+      "fusion_command": "Fillet",
+      "python_api": "rootComp.features.filletFeatures.add | createInput",
+      "parameterCount": 14,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Edges", "type": "selection_list", "description": "Edges or edge loops to fillet", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "description": "Auto-extend along tangent-connected edges", "default": true},
+            {"name": "Loop Selection", "type": "checkbox", "description": "Select entire face loop instead of single edge", "default": false}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Fillet Type", "type": "dropdown", "description": "Geometric construction method", "options": ["constant_radius", "variable_radius", "full_round", "chord_length"], "default": "constant_radius"},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Constant radius (for constant_radius mode)", "min": 0.001, "default": 1.0},
+            {"name": "Variable Radius Points", "type": "selection_pairs", "description": "[(vertex|edge_param, radius_mm)] pairs for variable_radius mode"},
+            {"name": "Chord Length", "type": "numeric", "unit": "mm", "description": "Distance across the fillet for chord_length mode", "min": 0.001},
+            {"name": "Center Faces", "type": "selection_list", "description": "Center faces for full_round mode (3-face fillet)", "min": 3, "max": 3},
+            {"name": "Corner Type", "type": "dropdown", "description": "Trihedral corner blend method", "options": ["rolling_ball", "setback", "smooth"], "default": "rolling_ball"},
+            {"name": "Setback Distance", "type": "numeric", "unit": "mm", "description": "Setback offset (corner_type = setback)", "default": 0}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Smooth G2", "type": "checkbox", "description": "Curvature-continuous fillet vs tangent (G1) default", "default": false},
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "modify"], "default": "modify"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "CHAMFER": {
+      "description": "Bevels sharp edges with three input modes: equal-distance (single offset), two-distance (asymmetric), or distance-angle. Tangent-chain propagation extends selection along smooth-connected edges.",
+      "category": "Modify_Edge",
+      "fusion_command": "Chamfer",
+      "python_api": "rootComp.features.chamferFeatures.add | createInput",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Edges", "type": "selection_list", "description": "Edges or edge loops to chamfer", "required": true},
+            {"name": "Tangent Chain", "type": "checkbox", "default": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Chamfer Type", "type": "dropdown", "options": ["equal_distance", "two_distance", "distance_angle"], "default": "equal_distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Primary distance (all modes)", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Second distance (two_distance mode)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Bevel angle from primary face (distance_angle mode)", "min": 0.1, "max": 89.9, "default": 45},
+            {"name": "Direction Flip", "type": "checkbox", "description": "Swap primary face for distance_angle/two_distance modes", "default": false},
+            {"name": "Corner Type", "type": "dropdown", "options": ["rolling_ball", "setback"], "default": "rolling_ball"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "modify"], "default": "modify"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PRESS_PULL": {
+      "description": "Direct-modeling primitive that infers extrude/offset/draft from selection: faces are offset, sketch profiles are extruded, edges are filleted/chamfered. Most-common modify operation in Fusion. Operation defaults to modify-existing-body.",
+      "category": "Modify_Direct",
+      "fusion_command": "PressPull",
+      "python_api": "rootComp.features.pressPullFeatures.add | createInput",
+      "parameterCount": 9,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Geometry", "type": "selection_list", "description": "Face / edge / sketch profile / feature", "required": true},
+            {"name": "Inferred Operation", "type": "computed_string", "description": "Read-only — what Press Pull determined to do", "options": ["offset_face", "extrude_profile", "fillet_edge", "chamfer_edge", "modify_feature"]}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Distance", "type": "numeric", "unit": "mm", "description": "Offset / extrude distance", "required": true},
+            {"name": "Taper Angle", "type": "numeric", "unit": "deg", "description": "Wall draft for extrude_profile mode", "default": 0},
+            {"name": "Direction", "type": "dropdown", "options": ["one_side", "two_sides", "symmetric"], "default": "one_side"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "join", "cut", "intersect"], "default": "join"},
+            {"name": "Target Bodies", "type": "selection_list"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Construction Geometry", "type": "checkbox", "default": false},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "MOVE": {
+      "description": "Rigid-body transform of bodies/components/faces/sketches. 5 modes: free (interactive 6-DoF), translate (vector), rotate (axis+angle), point_to_point (origin->destination), align (face-to-face match). Uses canonical SE(3) composition.",
+      "category": "Modify_Transform",
+      "fusion_command": "Move",
+      "python_api": "rootComp.features.moveFeatures.add | createInput",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["bodies", "components", "faces", "sketches"], "default": "bodies"},
+            {"name": "Objects", "type": "selection_list", "required": true}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Move Type", "type": "dropdown", "options": ["free", "translate", "rotate", "point_to_point", "align"], "default": "free"},
+            {"name": "Translation Vector", "type": "vector3", "description": "X/Y/Z translation in mm (translate mode)"},
+            {"name": "Rotation Axis", "type": "selection", "description": "Edge / construction axis (rotate mode)"},
+            {"name": "Rotation Angle", "type": "numeric", "unit": "deg", "description": "Rotation about axis (rotate mode)", "default": 0},
+            {"name": "Source Point", "type": "selection", "description": "Origin for point_to_point/align modes"},
+            {"name": "Destination Point", "type": "selection", "description": "Target for point_to_point/align modes"},
+            {"name": "Alignment Reference", "type": "selection", "description": "Face/edge for align mode orientation reference"}
+          ]
+        },
+        "Operation": {
+          "parameters": [
+            {"name": "Make Copy", "type": "checkbox", "description": "Preserve original (translate/rotate/point_to_point only)", "default": false}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SCALE": {
+      "description": "Resizes bodies/components/sketches uniformly or non-uniformly about a scale point. Note: scaling parametric features can break downstream constraints — direct-modeling mode is safer.",
+      "category": "Modify_Transform",
+      "fusion_command": "Scale",
+      "python_api": "rootComp.features.scaleFeatures.add | createInput",
+      "parameterCount": 8,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Object Type", "type": "dropdown", "options": ["bodies", "components", "sketches"], "default": "bodies"},
+            {"name": "Objects", "type": "selection_list", "required": true},
+            {"name": "Scale Point", "type": "selection", "description": "Origin point for scaling (default = each object's center)"}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Scale Type", "type": "dropdown", "options": ["uniform", "non_uniform"], "default": "uniform"},
+            {"name": "Uniform Factor", "type": "numeric", "description": "Single scale factor (uniform mode)", "default": 1.0, "min": 0.001},
+            {"name": "X Factor", "type": "numeric", "description": "X-axis factor (non_uniform mode)", "default": 1.0, "min": 0.001},
+            {"name": "Y Factor", "type": "numeric", "default": 1.0, "min": 0.001},
+            {"name": "Z Factor", "type": "numeric", "default": 1.0, "min": 0.001}
+          ]
+        }
+      }
+    },
+    "PLANE": {
+      "description": "Construction plane creation with 7 variants: offset_from_plane, three_points, tangent, midplane_between, normal_to_curve, two_edges, angle_through_edge. Used as sketch reference or feature reference.",
+      "category": "Construction",
+      "fusion_command": "Plane",
+      "python_api": "rootComp.constructionPlanes.createInput + setByOffset/setByThreePoints/setByTangent/setByTwoEdges/setByAtAngle/setByDistanceOnPath/setByThreePointsAndPlane",
+      "parameterCount": 14,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Construction Method", "type": "dropdown", "options": ["offset_from_plane", "three_points", "tangent_to_face", "midplane_between", "normal_to_curve", "two_parallel_edges", "angle_through_edge"], "required": true},
+            {"name": "Reference Plane", "type": "selection", "description": "Used by offset_from_plane / angle_through_edge"},
+            {"name": "Reference Face", "type": "selection", "description": "Cylindrical/conical face (tangent_to_face mode)"},
+            {"name": "Reference Curve", "type": "selection", "description": "Curve / edge (normal_to_curve mode)"},
+            {"name": "Reference Edge", "type": "selection", "description": "Pivot edge (angle_through_edge mode)"},
+            {"name": "Three Points", "type": "selection_list", "description": "Vertices/sketch points (three_points mode)", "min": 3, "max": 3},
+            {"name": "Two Parallel Edges", "type": "selection_list", "description": "Two parallel edges (two_parallel_edges mode)", "min": 2, "max": 2},
+            {"name": "Two Planes", "type": "selection_list", "description": "Two parallel planes (midplane_between mode)", "min": 2, "max": 2}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Offset Distance", "type": "numeric", "unit": "mm", "description": "Distance from reference plane (offset_from_plane mode)"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Angle from reference plane (angle_through_edge mode)"},
+            {"name": "Curve Parameter", "type": "numeric", "description": "0..1 fractional position along reference curve", "min": 0, "max": 1},
+            {"name": "Tangent Side", "type": "dropdown", "description": "Which side of cylindrical/conical face (tangent_to_face)", "options": ["front", "back"], "default": "front"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "AXIS": {
+      "description": "Construction axis (line of infinite extent) creation with 5 variants: through_cylinder (cylinder/cone center), through_edge, through_two_planes (intersection), through_two_points, normal_to_face_at_point.",
+      "category": "Construction",
+      "fusion_command": "Axis",
+      "python_api": "rootComp.constructionAxes.createInput + setByCircularFace/setByEdge/setByTwoPlanes/setByTwoPoints/setByNormalToFaceAtPoint",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Construction Method", "type": "dropdown", "options": ["through_cylinder", "through_edge", "through_two_planes", "through_two_points", "normal_to_face_at_point"], "required": true},
+            {"name": "Cylindrical Face", "type": "selection", "description": "through_cylinder mode"},
+            {"name": "Edge", "type": "selection", "description": "through_edge mode"},
+            {"name": "Two Planes", "type": "selection_list", "description": "through_two_planes mode", "min": 2, "max": 2},
+            {"name": "Two Points", "type": "selection_list", "description": "through_two_points mode", "min": 2, "max": 2},
+            {"name": "Reference Face", "type": "selection", "description": "Face for normal_to_face_at_point"},
+            {"name": "Reference Point", "type": "selection", "description": "Point on face for normal_to_face_at_point"}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false},
+            {"name": "Construction Geometry", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "POINT": {
+      "description": "Construction point creation with 8 variants: at_vertex, on_edge, two_edges_intersection, three_planes, on_curve_at_param, projected_point, sphere_center, midpoint_of_edge.",
+      "category": "Construction",
+      "fusion_command": "Point",
+      "python_api": "rootComp.constructionPoints.createInput + setByPoint/setByEdgePoint/setByTwoEdges/setByThreePlanes/setByCenter/setByThreePoints/setByDistanceOnPath",
+      "parameterCount": 10,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Construction Method", "type": "dropdown", "options": ["at_vertex", "on_edge", "two_edges_intersection", "three_planes", "on_curve_at_param", "projected_point", "sphere_center", "midpoint_of_edge"], "required": true},
+            {"name": "Vertex", "type": "selection", "description": "at_vertex mode"},
+            {"name": "Edge", "type": "selection", "description": "on_edge / midpoint_of_edge / on_curve_at_param mode"},
+            {"name": "Two Edges", "type": "selection_list", "description": "two_edges_intersection mode", "min": 2, "max": 2},
+            {"name": "Three Planes", "type": "selection_list", "description": "three_planes mode", "min": 3, "max": 3},
+            {"name": "Reference Sphere", "type": "selection", "description": "sphere_center mode"},
+            {"name": "Source Point", "type": "selection", "description": "projected_point mode source"},
+            {"name": "Projection Target", "type": "selection", "description": "projected_point mode target face/curve"},
+            {"name": "Curve Parameter", "type": "numeric", "description": "0..1 along edge (on_curve_at_param mode)", "min": 0, "max": 1, "default": 0.5}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Light Bulb On", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SECTION_ANALYSIS": {
+      "description": "Live cutaway view through a plane / face for visual inspection. Supports multi-section (up to 6 simultaneous planes), dynamic depth, transparency control. Display-only — does not modify geometry.",
+      "category": "Inspect",
+      "fusion_command": "SectionAnalysis",
+      "python_api": "design.sectionAnalysisData.create | sectionAnalysisDataInputs",
+      "parameterCount": 12,
+      "tabs": {
+        "Selection": {
+          "parameters": [
+            {"name": "Section Plane", "type": "selection", "description": "Construction plane / planar face", "required": true},
+            {"name": "Multi-Section", "type": "checkbox", "description": "Allow up to 6 simultaneous sections", "default": false},
+            {"name": "Additional Planes", "type": "selection_list", "description": "Up to 5 extra planes (multi-section mode)", "max": 5}
+          ]
+        },
+        "Configuration": {
+          "parameters": [
+            {"name": "Depth", "type": "numeric", "unit": "mm", "description": "Section offset from plane", "default": 0},
+            {"name": "Direction Flip", "type": "checkbox", "description": "Reverse cut side", "default": false},
+            {"name": "Show Cross-Hatching", "type": "checkbox", "default": true},
+            {"name": "Hatching Angle", "type": "numeric", "unit": "deg", "default": 45},
+            {"name": "Hatching Spacing", "type": "numeric", "unit": "mm", "default": 2.0},
+            {"name": "Transparency", "type": "numeric", "description": "0..1 (1 = fully transparent)", "min": 0, "max": 1, "default": 0},
+            {"name": "Cap Solids", "type": "checkbox", "description": "Render solid cap at section", "default": true}
+          ]
+        },
+        "Properties": {
+          "parameters": [
+            {"name": "Active", "type": "checkbox", "description": "Section analysis enabled in viewport", "default": true},
+            {"name": "Suppressed", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    }
+  },
+  "platform_notes": {
+    "design_workspace_required": true,
+    "construction_geometry_workspace_compatible": true,
+    "section_analysis_is_visual_only": "Section Analysis is a display feature, not a geometry feature — it does not appear in feature timeline as a modifying operation",
+    "press_pull_inference_priority": [
+      "modify_existing_feature_if_selected",
+      "fillet_chamfer_if_edge",
+      "offset_face_if_face",
+      "extrude_profile_if_sketch_region"
+    ],
+    "scale_warnings": [
+      "Non-uniform scale on bodies with cylindrical / spherical faces produces NURBS approximations",
+      "Scale on parametric components can invalidate downstream sketch dimensions"
+    ]
+  }
+}

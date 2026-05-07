@@ -1,0 +1,405 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Solid Operations — Solid modeling layer",
+    "description": "Parameter catalog for the Mastercam CAD solid modeling layer. Solids are built from wireframe profiles via sweep features (extrude / revolve / sweep / loft) with corresponding cut variants, then modified with fillet / chamfer / shell / draft, combined via boolean operations, populated with hole features, and patterned linearly or circularly. Catalog covers 18 operations / 140 parameters spanning create-by-sweep (4), cut-by-sweep (4), boolean (1), modify (4: fillet/chamfer/shell/draft), surface→solid conversion (1: thicken), primitive bodies (1: box/cylinder/cone/sphere/torus), hole features (1 with 5 hole types), and patterns (2: linear + circular). Bindings target Mastercam .NET-Hook API (Mastercam.Solids namespace) and the C-Hook ChooseAndPick surface.",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-02",
+    "source": "Mastercam 2024 Reference — Solids ribbon; Mastercam .NET-Hook API Reference (Mastercam.Solids / Mastercam.Operations.Solid)",
+    "totalParameters": 140,
+    "operationCount": 18,
+    "cad_concepts_used": [
+      "PARAMETRIC_SWEEP",
+      "PROFILE_CONSUMPTION",
+      "BOOLEAN_OPERATION",
+      "FILLET_CONTINUITY",
+      "DRAFT_ANGLE",
+      "SHELL_THICKNESS",
+      "HOLE_TYPE_VARIANT",
+      "PATTERN_DISTRIBUTION",
+      "TAPER_ANGLE",
+      "CONSTRUCTION_PLANE"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam solid operations",
+    "tabs": ["Shape", "Operation"]
+  },
+  "operations": {
+    "EXTRUDE_SOLID": {
+      "description": "Extrude a closed wireframe profile to create a solid body. Operation mode controls create-new / add-to-existing / cut-existing. Draft angle applies side-wall draft (positive = outward). Symmetric or both-directions extrudes from the profile plane in two directions.",
+      "category": "Solid_Sweep_Extrude",
+      "mastercam_command": "SolidExtrude",
+      "mastercam_api": "Mastercam.Solids.SolidExtruder.Extrude",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "description": "Closed wireframe chain or face", "required": true},
+            {"name": "Direction", "type": "selection", "description": "Optional override (default: profile normal)"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Operation", "type": "dropdown", "options": ["create_new", "add_to_existing", "cut_existing"], "default": "create_new"},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "default": 0, "min": -89, "max": 89},
+            {"name": "Symmetric", "type": "checkbox", "default": false},
+            {"name": "Both Directions", "type": "checkbox", "description": "Extrude in both directions (independent distances)", "default": false},
+            {"name": "Use Construction Plane", "type": "checkbox", "default": true},
+            {"name": "Auto-Update", "type": "checkbox", "description": "Re-extrude on profile edit", "default": true}
+          ]
+        }
+      }
+    },
+    "REVOLVE_SOLID": {
+      "description": "Revolve a closed profile about an axis to create a solid of revolution. Sweep angle controls partial vs full revolution. Symmetric mode revolves in both directions about the profile plane.",
+      "category": "Solid_Sweep_Revolve",
+      "mastercam_command": "SolidRevolve",
+      "mastercam_api": "Mastercam.Solids.SolidRevolver.Revolve",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Rotation axis (line / edge / work-axis)", "required": true},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Operation", "type": "dropdown", "options": ["create_new", "add_to_existing", "cut_existing"], "default": "create_new"},
+            {"name": "Symmetric", "type": "checkbox", "default": false},
+            {"name": "Solid Bodies", "type": "selection", "description": "Target bodies for add/cut modes"}
+          ]
+        }
+      }
+    },
+    "SWEEP_SOLID": {
+      "description": "Sweep a closed profile along a guide path. Twist angle adds rotation along the path. Lock-to-profile keeps the profile plane orientation fixed (orthogonal to path). Continuity controls profile-edge-tangency at path joints.",
+      "category": "Solid_Sweep_Sweep",
+      "mastercam_command": "SolidSweep",
+      "mastercam_api": "Mastercam.Solids.SolidSweeper.Sweep",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Path", "type": "selection", "description": "Guide curve(s)", "required": true},
+            {"name": "Operation", "type": "dropdown", "options": ["create_new", "add_to_existing", "cut_existing"], "default": "create_new"},
+            {"name": "Twist", "type": "numeric", "unit": "deg", "description": "Total rotation along path", "default": 0},
+            {"name": "Continuity", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G1"},
+            {"name": "Lock To Profile", "type": "checkbox", "default": false},
+            {"name": "Profile Plane", "type": "selection", "description": "Optional override"},
+            {"name": "Auto-Update", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "LOFT_SOLID": {
+      "description": "Loft a solid through 2+ profiles, optionally guided by guide curves. Tangent mode controls boundary tangency (natural / specified / normal-to-profile). Closed loft loops back to first profile.",
+      "category": "Solid_Sweep_Loft",
+      "mastercam_command": "SolidLoft",
+      "mastercam_api": "Mastercam.Solids.SolidLofter.Loft",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile List", "type": "selection", "description": "Ordered profile sequence (2+ profiles)", "required": true},
+            {"name": "Guide Curves", "type": "selection", "description": "Optional guides shaping the loft surface"},
+            {"name": "Operation", "type": "dropdown", "options": ["create_new", "add_to_existing", "cut_existing"], "default": "create_new"},
+            {"name": "Tangent Mode", "type": "dropdown", "options": ["natural", "specified", "normal_to_profile"], "default": "natural"},
+            {"name": "Closed", "type": "checkbox", "description": "Close loft back to first profile", "default": false},
+            {"name": "Lock Continuity", "type": "dropdown", "options": ["none", "G1", "G2"], "default": "none"},
+            {"name": "Refit", "type": "checkbox", "description": "Refit lofted faces", "default": false},
+            {"name": "Auto-Update", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "EXTRUDE_CUT": {
+      "description": "Cut existing solid by extruding a closed profile through it. Cut-Through-All extends the cut to fully penetrate the target. Symmetric cuts in both directions from the profile plane.",
+      "category": "Solid_Cut_Extrude",
+      "mastercam_command": "SolidExtrudeCut",
+      "mastercam_api": "Mastercam.Solids.SolidExtruder.ExtrudeCut",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Direction", "type": "selection"},
+            {"name": "Cut Through All", "type": "checkbox", "default": false},
+            {"name": "Symmetric", "type": "checkbox", "default": false},
+            {"name": "Use Active Solid", "type": "checkbox", "default": true},
+            {"name": "Bodies To Cut", "type": "selection", "description": "Target bodies (default: active body)"},
+            {"name": "Reverse", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "REVOLVE_CUT": {
+      "description": "Cut existing solid by revolving a closed profile about an axis. Used for revolved features like grooves, bores, and cylindrical pockets.",
+      "category": "Solid_Cut_Revolve",
+      "mastercam_command": "SolidRevolveCut",
+      "mastercam_api": "Mastercam.Solids.SolidRevolver.RevolveCut",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "required": true},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Bodies To Cut", "type": "selection"},
+            {"name": "Reverse", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    },
+    "SWEEP_CUT": {
+      "description": "Cut existing solid by sweeping a closed profile along a path. Used for keyways, channels, and swept slots.",
+      "category": "Solid_Cut_Sweep",
+      "mastercam_command": "SolidSweepCut",
+      "mastercam_api": "Mastercam.Solids.SolidSweeper.SweepCut",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile", "type": "selection", "required": true},
+            {"name": "Path", "type": "selection", "required": true},
+            {"name": "Twist", "type": "numeric", "unit": "deg", "default": 0},
+            {"name": "Bodies To Cut", "type": "selection"},
+            {"name": "Lock To Profile", "type": "checkbox", "default": false},
+            {"name": "Continuity", "type": "dropdown", "options": ["G0", "G1", "G2"], "default": "G1"},
+            {"name": "Auto-Update", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "LOFT_CUT": {
+      "description": "Cut existing solid by lofting through 2+ profiles. Useful for blended pockets and morphing transitions.",
+      "category": "Solid_Cut_Loft",
+      "mastercam_command": "SolidLoftCut",
+      "mastercam_api": "Mastercam.Solids.SolidLofter.LoftCut",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Profile List", "type": "selection", "required": true},
+            {"name": "Guide Curves", "type": "selection"},
+            {"name": "Bodies To Cut", "type": "selection"},
+            {"name": "Closed", "type": "checkbox", "default": false},
+            {"name": "Tangent Mode", "type": "dropdown", "options": ["natural", "specified", "normal_to_profile"], "default": "natural"},
+            {"name": "Auto-Update", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "BOOLEAN": {
+      "description": "Boolean combine two or more solid bodies. Modes: add (union), subtract (target minus tools), intersect (target ∩ tools), common (intersection across all bodies). Keep-Originals preserves source bodies; otherwise consumed.",
+      "category": "Solid_Boolean",
+      "mastercam_command": "SolidBoolean",
+      "mastercam_api": "Mastercam.Solids.SolidBoolean.Apply",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Mode", "type": "dropdown", "options": ["add", "subtract", "intersect", "common"], "required": true, "default": "add"},
+            {"name": "Target Body", "type": "selection", "description": "Body to operate on", "required": true},
+            {"name": "Tool Bodies", "type": "selection", "description": "Bodies to combine with target", "required": true},
+            {"name": "Keep Originals", "type": "checkbox", "description": "Preserve source bodies", "default": false},
+            {"name": "Body 1", "type": "selection", "description": "Used with intersect / common modes for explicit pair"},
+            {"name": "Body 2", "type": "selection", "description": "Used with intersect / common modes for explicit pair"},
+            {"name": "Multi-Body", "type": "checkbox", "description": "Allow result to be multiple disconnected bodies", "default": false},
+            {"name": "Operation Order", "type": "dropdown", "options": ["sequential", "all_at_once"], "default": "sequential"}
+          ]
+        }
+      }
+    },
+    "FILLET_SOLID": {
+      "description": "Round selected edges with a fillet. Modes: constant radius (uniform), variable radius (different radius at specified vertices), or face-face (fillet between two faces ignoring shared edge). Continuity controls how the fillet blends adjacent surfaces (G1 / G2 / G3).",
+      "category": "Solid_Modify_Fillet",
+      "mastercam_command": "SolidFillet",
+      "mastercam_api": "Mastercam.Solids.SolidFillet.Apply",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Edges", "type": "selection", "description": "Edges to fillet (or 'all_edges' / 'all_convex' / 'all_concave')", "required": true},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Mode", "type": "dropdown", "options": ["constant", "variable", "face_face"], "default": "constant"},
+            {"name": "Variable Radius Points", "type": "string", "description": "JSON list of {vertex, radius} pairs for variable mode"},
+            {"name": "Continuity", "type": "dropdown", "options": ["G1", "G2", "G3"], "default": "G1"},
+            {"name": "Setback", "type": "numeric", "unit": "mm", "description": "Pull-back distance at vertices", "default": 0},
+            {"name": "Tangent Propagation", "type": "checkbox", "description": "Auto-extend to tangent edges", "default": true},
+            {"name": "Override Edges", "type": "selection", "description": "Edges to exclude from tangent propagation"},
+            {"name": "Stop Conditions", "type": "dropdown", "options": ["natural", "blend_at_vertex", "trim_at_vertex"], "default": "natural"}
+          ]
+        }
+      }
+    },
+    "CHAMFER_SOLID": {
+      "description": "Chamfer selected edges. Modes: equal-distance (single distance both sides), distance-distance (different per side), distance-angle (one distance + angle), or two-distances (full asymmetric).",
+      "category": "Solid_Modify_Chamfer",
+      "mastercam_command": "SolidChamfer",
+      "mastercam_api": "Mastercam.Solids.SolidChamfer.Apply",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Edges", "type": "selection", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["distance", "distance_distance", "distance_angle", "two_distances"], "default": "distance"},
+            {"name": "Distance", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Distance 2", "type": "numeric", "unit": "mm", "description": "Used with distance_distance / two_distances"},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "description": "Used with distance_angle", "min": 0.001, "max": 89.999},
+            {"name": "Continuity", "type": "dropdown", "options": ["G0", "G1"], "default": "G0"},
+            {"name": "Tangent Propagation", "type": "checkbox", "default": true},
+            {"name": "Symmetric", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "SHELL": {
+      "description": "Hollow out a solid body, removing selected faces and leaving a uniform-thickness shell. Multi-thickness override allows different wall thicknesses on selected faces. Direction controls inward / outward / both.",
+      "category": "Solid_Modify_Shell",
+      "mastercam_command": "SolidShell",
+      "mastercam_api": "Mastercam.Solids.SolidShell.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Faces To Remove", "type": "selection", "description": "Open faces (shell-out)", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["outside", "inside", "both"], "default": "inside"},
+            {"name": "Multi-Thickness Override", "type": "string", "description": "JSON list of {face, thickness} pairs"},
+            {"name": "Bodies", "type": "selection"},
+            {"name": "Auto-Heal", "type": "checkbox", "description": "Repair small gaps after shelling", "default": true},
+            {"name": "Default Thickness", "type": "numeric", "unit": "mm", "description": "Fallback for unset overrides"}
+          ]
+        }
+      }
+    },
+    "DRAFT": {
+      "description": "Apply a draft angle to selected faces about a neutral plane. Modes: neutral (single plane reference) or parting (parting line reference for split-mold draft).",
+      "category": "Solid_Modify_Draft",
+      "mastercam_command": "SolidDraft",
+      "mastercam_api": "Mastercam.Solids.SolidDraft.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Faces", "type": "selection", "required": true},
+            {"name": "Neutral Plane", "type": "selection", "description": "Reference plane (faces stay coincident)", "required": true},
+            {"name": "Draft Angle", "type": "numeric", "unit": "deg", "required": true, "min": 0.001, "max": 89.999},
+            {"name": "Direction", "type": "dropdown", "options": ["positive", "negative"], "default": "positive"},
+            {"name": "Tangent Propagation", "type": "checkbox", "default": true},
+            {"name": "Reference Edge", "type": "selection", "description": "Used with parting mode"},
+            {"name": "Mode", "type": "dropdown", "options": ["neutral", "parting"], "default": "neutral"}
+          ]
+        }
+      }
+    },
+    "THICKEN_SURFACE": {
+      "description": "Convert a surface (or surface set) to a solid by adding thickness. Direction controls outside / inside / both relative to surface normal. Operation can produce a new body, join existing, or cut existing.",
+      "category": "Solid_Convert_Thicken",
+      "mastercam_command": "SolidThickenSurface",
+      "mastercam_api": "Mastercam.Solids.SolidThicken.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Surface", "type": "selection", "description": "Surface or surface set", "required": true},
+            {"name": "Thickness", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Direction", "type": "dropdown", "options": ["outside", "inside", "both"], "default": "outside"},
+            {"name": "Auto-Heal", "type": "checkbox", "default": true},
+            {"name": "Operation", "type": "dropdown", "options": ["new_body", "join", "cut"], "default": "new_body"},
+            {"name": "Reverse", "type": "checkbox", "description": "Reverse surface normal direction", "default": false}
+          ]
+        }
+      }
+    },
+    "PRIMITIVE": {
+      "description": "Create a parametric primitive solid: box (length × width × height), cylinder (radius + height), cone (top radius + bottom radius + height), sphere (radius), or torus (sweep radius + tube radius). Operation can be new body / add / cut.",
+      "category": "Solid_Primitive",
+      "mastercam_command": "SolidPrimitive",
+      "mastercam_api": "Mastercam.Solids.SolidPrimitive.Create",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["box", "cylinder", "cone", "sphere", "torus"], "required": true, "default": "box"},
+            {"name": "Center", "type": "selection", "required": true},
+            {"name": "Length", "type": "numeric", "unit": "mm", "description": "Box length / cone-cylinder height", "min": 0.001},
+            {"name": "Width", "type": "numeric", "unit": "mm", "description": "Box width", "min": 0.001},
+            {"name": "Height", "type": "numeric", "unit": "mm", "description": "Box / cylinder / cone height", "min": 0.001},
+            {"name": "Radius", "type": "numeric", "unit": "mm", "description": "Cylinder / cone-bottom / sphere / torus-sweep", "min": 0.001},
+            {"name": "Inner Radius", "type": "numeric", "unit": "mm", "description": "Cone-top / torus-tube", "min": 0},
+            {"name": "Sweep Angle", "type": "numeric", "unit": "deg", "description": "Torus / partial cylinder sweep", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Operation", "type": "dropdown", "options": ["create_new", "add_to_existing", "cut_existing"], "default": "create_new"}
+          ]
+        }
+      }
+    },
+    "HOLE": {
+      "description": "Hole feature with 5 hole types per ANSI / ISO standards. Termination modes: blind (depth) / through (cuts through all) / up_to (terminate at face) / up_to_offset (terminate at face + offset). Threaded type adds thread spec + standard.",
+      "category": "Solid_Hole",
+      "mastercam_command": "SolidHole",
+      "mastercam_api": "Mastercam.Solids.SolidHole.Create",
+      "parameterCount": 11,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Type", "type": "dropdown", "options": ["simple", "counterbore", "countersink", "threaded", "tapered"], "required": true, "default": "simple"},
+            {"name": "Position", "type": "selection", "description": "Hole center point or sketch", "required": true},
+            {"name": "Diameter", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Depth", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Termination", "type": "dropdown", "options": ["blind", "through", "up_to", "up_to_offset"], "default": "blind"},
+            {"name": "Termination Distance", "type": "numeric", "unit": "mm", "description": "Used with up_to_offset"},
+            {"name": "Counterbore Diameter", "type": "numeric", "unit": "mm", "description": "Used with counterbore type"},
+            {"name": "Counterbore Depth", "type": "numeric", "unit": "mm"},
+            {"name": "Thread Spec", "type": "string", "description": "e.g., 'M10x1.5' or '3/8-16 UNC'"},
+            {"name": "Thread Standard", "type": "dropdown", "options": ["ANSI", "ISO", "BSW", "BSF", "UNJ", "UNS"], "default": "ANSI"},
+            {"name": "Tapered Angle", "type": "numeric", "unit": "deg", "description": "Used with tapered type", "min": 0.001, "max": 45}
+          ]
+        }
+      }
+    },
+    "PATTERN_LINEAR": {
+      "description": "Linear pattern of solid features along 1 or 2 directions. Direction 2 enables 2D rectangular pattern. Skip Instances suppresses individual instances by index.",
+      "category": "Solid_Pattern_Linear",
+      "mastercam_command": "SolidPatternLinear",
+      "mastercam_api": "Mastercam.Solids.SolidPattern.CreateLinear",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Features", "type": "selection", "required": true},
+            {"name": "Direction 1", "type": "selection", "description": "Edge / axis / vector", "required": true},
+            {"name": "Spacing 1", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Count 1", "type": "integer", "required": true, "min": 2},
+            {"name": "Direction 2", "type": "selection", "description": "Optional second direction"},
+            {"name": "Spacing 2", "type": "numeric", "unit": "mm", "min": 0.001},
+            {"name": "Count 2", "type": "integer", "min": 1},
+            {"name": "Skip Instances", "type": "string", "description": "Comma-separated instance indices to suppress"},
+            {"name": "Pattern Mode", "type": "dropdown", "options": ["features", "bodies", "faces"], "default": "features"}
+          ]
+        }
+      }
+    },
+    "PATTERN_CIRCULAR": {
+      "description": "Circular pattern of solid features about an axis. Equal spacing distributes count instances evenly across total angle; incremental uses a fixed angle between instances.",
+      "category": "Solid_Pattern_Circular",
+      "mastercam_command": "SolidPatternCircular",
+      "mastercam_api": "Mastercam.Solids.SolidPattern.CreateCircular",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Features", "type": "selection", "required": true},
+            {"name": "Center Axis", "type": "selection", "description": "Pattern rotation axis", "required": true},
+            {"name": "Spacing", "type": "dropdown", "options": ["equal", "incremental"], "default": "equal"},
+            {"name": "Count", "type": "integer", "required": true, "min": 2},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Skip Instances", "type": "string"},
+            {"name": "Reverse Direction", "type": "checkbox", "default": false}
+          ]
+        }
+      }
+    }
+  }
+}

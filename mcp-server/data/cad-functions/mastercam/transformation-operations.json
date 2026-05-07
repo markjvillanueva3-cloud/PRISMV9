@@ -1,0 +1,236 @@
+{
+  "schemaVersion": "1.0.0",
+  "metadata": {
+    "title": "Mastercam CAD Transformation Operations — Geometry transformation layer",
+    "description": "Parameter catalog for Mastercam CAD transformation operations (translate / rotate / mirror / scale / array / projection / unroll / dynamic). All transforms support move-vs-copy semantics. Arrays come in linear (1D), rectangular (2D), and circular variants. Dynamic transform supports interactive multi-DOF manipulation with per-axis lock controls. Project-to-Plane projects entities orthogonal or along a vector. Unroll flattens developable surfaces (cylindrical / conical) into planar form. 10 operations / 75 parameters. Bindings target Mastercam .NET-Hook API (Mastercam.Transform namespace).",
+    "version": "2024.0",
+    "extractedDate": "2026-05-02",
+    "milestone": "U-CAD-FIDX-MC-05",
+    "source": "Mastercam 2024 Reference — Transform ribbon; Mastercam .NET-Hook API Reference (Mastercam.Transform / Mastercam.Operations.Transform)",
+    "totalParameters": 75,
+    "operationCount": 10,
+    "cad_concepts_used": [
+      "TRANSLATION_VECTOR",
+      "ROTATION_AXIS",
+      "MIRROR_PLANE",
+      "UNIFORM_SCALING",
+      "NON_UNIFORM_SCALING",
+      "PATTERN_DISTRIBUTION",
+      "DEVELOPABLE_SURFACE",
+      "ORTHOGONAL_PROJECTION",
+      "DYNAMIC_PIVOT",
+      "COPY_VS_MOVE_SEMANTICS"
+    ]
+  },
+  "commonTabs": {
+    "description": "Standard parameter tabs across Mastercam transformation operations",
+    "tabs": ["Shape"]
+  },
+  "operations": {
+    "TRANSLATE": {
+      "description": "Translate selected entities by a delta vector. Copy mode preserves the source; Move mode replaces it. Result style controls retention of source style attributes (color, level) on the translated copy.",
+      "category": "Transform_Translate",
+      "mastercam_command": "TransformTranslate",
+      "mastercam_api": "Mastercam.Transform.Translate.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Delta X", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Delta Y", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Delta Z", "type": "numeric", "unit": "mm", "default": 0},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move", "join"], "default": "move"},
+            {"name": "Result Style", "type": "dropdown", "options": ["preserve_source", "active_color", "active_level", "specified"], "default": "preserve_source"},
+            {"name": "Construction Plane Override", "type": "selection", "description": "Optional override of active CPlane"}
+          ]
+        }
+      }
+    },
+    "ROTATE": {
+      "description": "Rotate selected entities about an axis through a center point. Direction controls clockwise / counter-clockwise sense.",
+      "category": "Transform_Rotate",
+      "mastercam_command": "TransformRotate",
+      "mastercam_api": "Mastercam.Transform.Rotate.Apply",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Axis", "type": "selection", "description": "Rotation axis (line / vector / construction-axis)", "required": true},
+            {"name": "Center Point", "type": "selection", "description": "Pivot point on the rotation axis", "required": true},
+            {"name": "Angle", "type": "numeric", "unit": "deg", "required": true, "default": 90},
+            {"name": "Direction", "type": "dropdown", "options": ["clockwise", "counter_clockwise"], "default": "counter_clockwise"},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move", "join"], "default": "move"},
+            {"name": "Result Style", "type": "dropdown", "options": ["preserve_source", "active_color", "active_level", "specified"], "default": "preserve_source"},
+            {"name": "Construction Plane Override", "type": "selection"}
+          ]
+        }
+      }
+    },
+    "MIRROR": {
+      "description": "Mirror selected entities about a mirror line (2D) or mirror plane (3D). Connect Open Ends bridges the source and mirrored entities into a single closed geometry where they meet at the mirror.",
+      "category": "Transform_Mirror",
+      "mastercam_command": "TransformMirror",
+      "mastercam_api": "Mastercam.Transform.Mirror.Apply",
+      "parameterCount": 6,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Mirror Plane", "type": "selection", "description": "Used in 3D space"},
+            {"name": "Mirror Line", "type": "selection", "description": "Used in 2D plane"},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move", "join"], "default": "copy"},
+            {"name": "Result Style", "type": "dropdown", "options": ["preserve_source", "active_color", "active_level", "specified"], "default": "preserve_source"},
+            {"name": "Connect Open Ends", "type": "checkbox", "description": "Bridge source + mirror at the mirror line/plane", "default": false}
+          ]
+        }
+      }
+    },
+    "SCALE": {
+      "description": "Scale selected entities about a reference point. Uniform mode applies a single factor to all axes; non-uniform applies independent X/Y/Z; along_axis scales only along the specified axis (1.0 on others).",
+      "category": "Transform_Scale",
+      "mastercam_command": "TransformScale",
+      "mastercam_api": "Mastercam.Transform.Scale.Apply",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Reference Point", "type": "selection", "description": "Anchor point that stays fixed during scale", "required": true},
+            {"name": "Mode", "type": "dropdown", "options": ["uniform", "non_uniform", "along_axis"], "default": "uniform"},
+            {"name": "Scale X", "type": "numeric", "default": 1, "min": 0.0001, "description": "Used with non_uniform / along_axis"},
+            {"name": "Scale Y", "type": "numeric", "default": 1, "min": 0.0001},
+            {"name": "Scale Z", "type": "numeric", "default": 1, "min": 0.0001},
+            {"name": "Uniform Factor", "type": "numeric", "default": 1, "min": 0.0001, "description": "Used with uniform mode"},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move", "join"], "default": "move"},
+            {"name": "Connect", "type": "checkbox", "description": "Connect scaled copy to source", "default": false}
+          ]
+        }
+      }
+    },
+    "ARRAY_LINEAR": {
+      "description": "Linear (1D) array of selected entities along a direction. Spacing × count determines total span. Skip indices suppresses individual instances by 0-based index.",
+      "category": "Transform_Array_Linear",
+      "mastercam_command": "TransformArrayLinear",
+      "mastercam_api": "Mastercam.Transform.Array.CreateLinear",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Direction", "type": "selection", "description": "Edge / axis / vector", "required": true},
+            {"name": "Spacing", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Count", "type": "integer", "required": true, "min": 2},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move"], "default": "copy"},
+            {"name": "Skip Indices", "type": "string", "description": "Comma-separated 0-based instance indices to suppress"},
+            {"name": "Constraints", "type": "string", "description": "Optional dimensional constraints between source + instances"}
+          ]
+        }
+      }
+    },
+    "ARRAY_RECTANGULAR": {
+      "description": "2D rectangular array of selected entities along two directions. Direction 2 enables a 2D pattern; if Direction 2 is omitted, behaves identically to ARRAY_LINEAR.",
+      "category": "Transform_Array_Rectangular",
+      "mastercam_command": "TransformArrayRectangular",
+      "mastercam_api": "Mastercam.Transform.Array.CreateRectangular",
+      "parameterCount": 9,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Direction 1", "type": "selection", "required": true},
+            {"name": "Spacing 1", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Count 1", "type": "integer", "required": true, "min": 2},
+            {"name": "Direction 2", "type": "selection", "required": true},
+            {"name": "Spacing 2", "type": "numeric", "unit": "mm", "required": true, "min": 0.001},
+            {"name": "Count 2", "type": "integer", "required": true, "min": 2},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move"], "default": "copy"},
+            {"name": "Skip Indices", "type": "string", "description": "Comma-separated 'i,j' pairs to suppress"}
+          ]
+        }
+      }
+    },
+    "ARRAY_CIRCULAR": {
+      "description": "Circular array of selected entities about an axis. Equal spacing distributes count instances evenly across total angle; incremental uses a fixed angle between instances.",
+      "category": "Transform_Array_Circular",
+      "mastercam_command": "TransformArrayCircular",
+      "mastercam_api": "Mastercam.Transform.Array.CreateCircular",
+      "parameterCount": 8,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Center Axis", "type": "selection", "required": true},
+            {"name": "Spacing", "type": "dropdown", "options": ["equal", "incremental"], "default": "equal"},
+            {"name": "Count", "type": "integer", "required": true, "min": 2},
+            {"name": "Total Angle", "type": "numeric", "unit": "deg", "default": 360, "min": 0.001, "max": 360},
+            {"name": "Reverse", "type": "checkbox", "default": false},
+            {"name": "Copy/Move", "type": "dropdown", "options": ["copy", "move"], "default": "copy"},
+            {"name": "Skip Indices", "type": "string"}
+          ]
+        }
+      }
+    },
+    "DYNAMIC_TRANSFORM": {
+      "description": "Interactive multi-DOF transform (drag + rotate + scale via on-screen pivot manipulator). Per-axis lock controls let users constrain motion to specific axes during interactive manipulation. Live preview updates the result every drag frame.",
+      "category": "Transform_Dynamic",
+      "mastercam_command": "TransformDynamic",
+      "mastercam_api": "Mastercam.Transform.Dynamic.Begin",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Pivot", "type": "selection", "description": "Manipulator pivot point", "required": true},
+            {"name": "Translation Lock", "type": "dropdown", "options": ["none", "x", "y", "z", "xy", "xz", "yz"], "default": "none"},
+            {"name": "Rotation Lock", "type": "dropdown", "options": ["none", "x", "y", "z", "xy", "xz", "yz"], "default": "none"},
+            {"name": "Scale Lock", "type": "dropdown", "options": ["none", "x", "y", "z", "uniform"], "default": "none"},
+            {"name": "Display Constraints", "type": "checkbox", "default": true},
+            {"name": "Live Preview", "type": "checkbox", "default": true}
+          ]
+        }
+      }
+    },
+    "PROJECT_TO_PLANE": {
+      "description": "Project entities onto a target plane. Direction selects orthogonal projection (along plane normal) or specified-vector projection. Project-Through re-projects through any intervening surfaces in the path.",
+      "category": "Transform_Project",
+      "mastercam_command": "TransformProjectToPlane",
+      "mastercam_api": "Mastercam.Transform.Project.ToPlane",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Entities", "type": "selection", "required": true},
+            {"name": "Target Plane", "type": "selection", "required": true},
+            {"name": "Direction", "type": "dropdown", "options": ["normal", "specified"], "default": "normal"},
+            {"name": "Direction Vector", "type": "selection", "description": "Used with specified direction"},
+            {"name": "Project Through", "type": "checkbox", "description": "Re-project through intervening surfaces", "default": false},
+            {"name": "Trim", "type": "checkbox", "description": "Trim projected curves to plane boundary", "default": false},
+            {"name": "Reference Result", "type": "checkbox", "description": "Mark projected result as reference geometry", "default": false}
+          ]
+        }
+      }
+    },
+    "UNROLL": {
+      "description": "Unroll (flatten) a developable surface (cylindrical / conical / planar) onto a target plane. Stationary edge stays in place during unroll. Approximation mode controls the unfolding fit (linear / spline / refit).",
+      "category": "Transform_Unroll",
+      "mastercam_command": "TransformUnroll",
+      "mastercam_api": "Mastercam.Transform.Unroll.Apply",
+      "parameterCount": 7,
+      "tabs": {
+        "Shape": {
+          "parameters": [
+            {"name": "Source Surface", "type": "selection", "required": true},
+            {"name": "Stationary Edge", "type": "selection", "description": "Edge that stays fixed during unroll", "required": true},
+            {"name": "Unroll Direction", "type": "dropdown", "options": ["natural", "specified"], "default": "natural"},
+            {"name": "Output Plane", "type": "selection", "description": "Target plane for unrolled flat", "required": true},
+            {"name": "Approximation Mode", "type": "dropdown", "options": ["linear", "spline", "refit_nurbs"], "default": "linear"},
+            {"name": "Tolerance", "type": "numeric", "unit": "mm", "default": 0.001, "min": 0.0001},
+            {"name": "Show Bend Lines", "type": "checkbox", "description": "Annotate bend axes on flat output", "default": true}
+          ]
+        }
+      }
+    }
+  }
+}
