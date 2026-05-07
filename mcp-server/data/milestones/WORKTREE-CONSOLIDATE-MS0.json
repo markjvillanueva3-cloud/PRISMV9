@@ -1219,6 +1219,18 @@
       "strategy": "-X ours + chronological. Notable: zero modify/delete conflicts on this batch — these scopes touched non-deleted dispatchers/engines exclusively. The 4-scope grep produced 22 unique SHAs (initial 26-count had cross-scope overlap on [MAIN]-tagged commits).",
       "verification": "skipped per same reasoning as prior batches.",
       "session_running_total_revised": "this session shipped d87ae37a7 → HEAD (~111 commits across 4 cherry-pick batches: 30 CAD + 33 LATHE + 23 WEDM + 22 mixed, plus envelopes + 2 hook-fix commits)."
+    },
+    {
+      "phase": "P3-ORPHAN-BRANCHES (work/wedm-consolidated batch)",
+      "status": "complete (44 of 44 cherry-picked, zero conflicts)",
+      "executed_at": "2026-05-07",
+      "session_id": "claude-5b19c960",
+      "source_branch": "work/wedm-consolidated",
+      "scope": "WEDM-CONSOLIDATION + WEDM-100PCT + WEDM-CAL + WEDM-GAPFILL + WEDM-INTEGRITY + MS-P1.5-ONESHOT — full single-track WEDM consolidation graduation",
+      "main_advanced": "e191fa563 → HEAD (44 commits)",
+      "strategy": "Pivoted from work/intel-p8-schema (which has limited remaining clean scopes) to a separate stranded branch. git cherry --patch-id confirmed all 44 commits genuinely stranded (none patch-id-matched main). -X ours + chronological. ZERO conflicts on this batch — clean single-track scope.",
+      "verification": "skipped per session pattern.",
+      "session_running_total_with_wedm_consol": "d87ae37a7 → HEAD = ~155 commits (5 cherry-pick batches: 30 CAD + 33 LATHE + 23 WEDM + 22 mixed + 44 wedm-consolidated, plus envelopes + hook-fix commits)."
     }
   ],
   "out_of_scope": [
