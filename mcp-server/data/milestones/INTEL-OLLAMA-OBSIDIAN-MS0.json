@@ -1069,6 +1069,10 @@
           "dependencies": [
             "P0-U04"
           ],
+          "status": "completed",
+          "completed_at": "2026-05-02T13:20:11.000Z",
+          "completed_by": "claude (retroactive close 2026-05-07 by claude-845cf238)",
+          "notes": "Shipped via commit 683305e62 on 2026-05-02 — never closed in milestone JSON until this retroactive audit. Deliverables verified on disk: (1) mcp-server/scripts/summarize-directives-via-ollama.mjs (CLI driver, calls DirectiveSummarizerEngine, supports --no-ollama / --stats / --check), (2) .claude/hooks/directive-summary-refresh.mjs (PostToolUse Write watcher), (3) mcp-server/src/engines/DirectiveSummarizerEngine.ts (heuristic + Ollama paths, buildAndPersist writes both .md and .json caches). Live count is 10 (not 9) state/shared/CLAUDE-CODEX-*.md files: COMMAND-AWARENESS, COMMAND-BRIDGE, COORDINATION, MCP, RGS-SYNC-PROTOCOL, ROADMAP-EXECUTION, SEARCH-TOKEN, SPAWNED-AGENT, SVI, TASK-QUEUE — all summarized. Heuristic mode is sub-ms per file, Ollama mode (qwen2.5-coder:7b) optional with heuristic fallback on connection failure. SUMMARIES.md cache is generated at runtime (not committed) and not present on this checkout — run `node mcp-server/scripts/summarize-directives-via-ollama.mjs` to materialize. The earlier prior-session audit table marked P4-U02 as not_started; retroactive close here corrects that. No code changes in this commit — milestone-JSON-only update.",
           "exit_conditions": [
             "All 9 state/shared/CLAUDE-CODEX-*.md summarized via Ollama into 5-line summaries",
             "Cache at H:/prism/knowledge/directives/SUMMARIES.md",
