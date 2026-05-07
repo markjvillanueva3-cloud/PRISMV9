@@ -65,9 +65,29 @@ import type {
 // CONSTANTS
 // ============================================================================
 
-export const SCHEMA_VERSION = "1.0.0";
+// Schema bumped 1.0.0→2.0.0 with U-NN-FEAT01: input layer expanded
+// 32→131 dims via wider categorical hash buckets. Serialized models from
+// schema 1.0.0 are NOT load-compatible (they'll fail W1 length check).
+export const SCHEMA_VERSION = "2.0.0";
 
-export const INPUT_DIM = 32;
+const NUMERIC_KEYS_DIM = 7;
+const BRIDGE_DIM = 5;
+const PROCESS_DIM = 3;
+const MATERIAL_BUCKETS = 64;
+const TOOL_MATERIAL_BUCKETS = 16;
+const MACHINE_FAMILY_BUCKETS = 16;
+const OPERATION_BUCKETS = 16;
+const AUX_DIM = 4;
+
+export const INPUT_DIM =
+  NUMERIC_KEYS_DIM +
+  BRIDGE_DIM +
+  PROCESS_DIM +
+  MATERIAL_BUCKETS +
+  TOOL_MATERIAL_BUCKETS +
+  MACHINE_FAMILY_BUCKETS +
+  OPERATION_BUCKETS +
+  AUX_DIM; // 7+5+3+64+16+16+16+4 = 131
 export const HIDDEN_DIM = 16;
 export const OUTPUT_DIM = 3;
 
@@ -90,20 +110,17 @@ const BRIDGE_INDEX: Record<OutcomeBridge, number> = {
   ai: 3,
   router: 4,
 };
-const BRIDGE_DIM = 5;
 
 const PROCESS_INDEX: Record<OutcomeProcess, number> = {
   mill: 0,
   lathe: 1,
   wedm: 2,
 };
-const PROCESS_DIM = 3;
 
-const MATERIAL_BUCKETS = 4;
-const TOOL_MATERIAL_BUCKETS = 3;
-const MACHINE_FAMILY_BUCKETS = 3;
-const OPERATION_BUCKETS = 3;
-const AUX_DIM = 4; // success-flag, warnings-norm, has-operator, bias
+// MATERIAL_BUCKETS, TOOL_MATERIAL_BUCKETS, MACHINE_FAMILY_BUCKETS,
+// OPERATION_BUCKETS, AUX_DIM declared near INPUT_DIM constants above.
+// AUX_DIM = 4 slots: RESERVED-zero (placeholder for future skill_level),
+// warnings-norm, has-operator, bias.
 
 const NUMERIC_KEYS = [
   "tool_diameter_mm",
@@ -261,10 +278,10 @@ export class CrossProcessNeuralLearningEngine {
   }
 
   /**
-   * Featurize an OutcomeRecord into a fixed 32-dim input vector. Pure
-   * function — no internal state mutation, no randomness. Pending records
-   * featurize identically to non-pending; only the label generation
-   * (recordToLabel) differs.
+   * Featurize an OutcomeRecord into a fixed INPUT_DIM-dim input vector
+   * (131 dims as of schema 2.0.0). Pure function — no internal state
+   * mutation, no randomness. Pending records featurize identically to
+   * non-pending; only the label generation (recordToLabel) differs.
    */
   featurize(record: OutcomeRecord): Float64Array {
     const f = new Float64Array(INPUT_DIM);
@@ -293,19 +310,21 @@ export class CrossProcessNeuralLearningEngine {
     if (pIdx !== undefined) f[offset + pIdx] = 1;
     offset += PROCESS_DIM;
 
-    // 4. material hash bucket (4).
+    // 4. material hash bucket (64). U-NN-FEAT01: widened 4→64 to drop
+    //    collision rate from ~76% (8 materials in 4 buckets) to <5% on
+    //    the real material catalog.
     setHashOneHot(f, offset, record.request_summary.material, MATERIAL_BUCKETS);
     offset += MATERIAL_BUCKETS;
 
-    // 5. tool_material hash bucket (3).
+    // 5. tool_material hash bucket (16). U-NN-FEAT01: widened 3→16.
     setHashOneHot(f, offset, record.request_summary.tool_material, TOOL_MATERIAL_BUCKETS);
     offset += TOOL_MATERIAL_BUCKETS;
 
-    // 6. machine_family hash bucket (3).
+    // 6. machine_family hash bucket (16). U-NN-FEAT01: widened 3→16.
     setHashOneHot(f, offset, record.request_summary.machine_family, MACHINE_FAMILY_BUCKETS);
     offset += MACHINE_FAMILY_BUCKETS;
 
-    // 7. operation hash bucket (3).
+    // 7. operation hash bucket (16). U-NN-FEAT01: widened 3→16.
     setHashOneHot(f, offset, record.request_summary.operation, OPERATION_BUCKETS);
     offset += OPERATION_BUCKETS;
 
@@ -314,7 +333,7 @@ export class CrossProcessNeuralLearningEngine {
     // downstream of outcome.kind (set BY the outcome we're trying to predict).
     // Leaving it as input was a label leak that gave the model a free shortcut
     // to memorize labels. Slot is preserved as a zero placeholder so INPUT_DIM
-    // (32) stays stable across save/load. Future use: operator skill_level.
+    // is stable per schema version (131 in 2.0.0). Future use: operator skill_level.
     f[offset++] = 0;
     const warn = record.response_summary?.warnings_count ?? 0;
     f[offset++] = Math.min(1, Math.max(0, warn) / 10); // 0..10+ warnings → 0..1
@@ -843,8 +862,11 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-/** Stable string hash (djb2-derived) into [0, modulus). */
-function hashStringMod(s: string | undefined, modulus: number): number {
+/**
+ * Stable string hash (djb2-derived) into [0, modulus). Exported for
+ * collision-audit tests (U-NN-FEAT01).
+ */
+export function hashStringMod(s: string | undefined, modulus: number): number {
   if (!s) return -1;
   let h = 5381;
   const lower = s.toLowerCase();

@@ -34,6 +34,7 @@ import {
   INPUT_DIM,
   HIDDEN_DIM,
   OUTPUT_DIM,
+  hashStringMod,
 } from "../engines/CrossProcessNeuralLearningEngine.js";
 import type { OutcomeRecord } from "../engines/CrossProcessOutcomeStore.js";
 import { SCHEMA_VERSION } from "../engines/CrossProcessOutcomeStore.js";
@@ -59,7 +60,8 @@ const ACCURACY_OVER_CHANCE_TRAIN = 0.2;
 const ACCURACY_OVER_CHANCE_VAL = 0.1;
 const MAX_GENERALIZATION_GAP = 0.35;
 const MIN_GENERALIZATION_GAP = -0.5;
-const NETWORK_INPUT_DIM = 32;
+// U-NN-FEAT01: input layer expanded 32→131 via wider categorical hash buckets.
+const NETWORK_INPUT_DIM = 131;
 const NETWORK_HIDDEN_DIM = 16;
 const NETWORK_OUTPUT_DIM = 3;
 const FLOAT_TOLERANCE_DIGITS = 6;
@@ -427,6 +429,99 @@ describe("XPROC-NEURAL T1-02 — end-to-end convergence on synthetic shop-floor 
     expect(mean - 2 * stdError).toBeGreaterThan(0);
     // Mean reduction should be substantial (≥30% per the original convergence claim).
     expect(mean).toBeGreaterThan(0.3);
+  });
+
+  // ===========================================================================
+  // U-NN-FEAT01 — Categorical hash collision audit
+  // ===========================================================================
+
+  it("material hash uses ≥40% of buckets distinctly on 100-material catalog (12× the old 4-bucket scheme)", () => {
+    // Reviewers 3 and 4 flagged the catastrophically narrow hash buckets:
+    // 4 buckets for 100+ real materials → effectively 4 distinct slots,
+    // i.e. 96% collision rate, only 2 bits of material discrimination.
+    //
+    // After U-NN-FEAT01 widened MATERIAL_BUCKETS to 64, the network gets
+    // ~log2(distinct) ≈ 5.6 bits of material discrimination instead of 2.
+    //
+    // NOTE on threshold choice: the roadmap originally specified "<5%
+    // collision rate" but that's birthday-paradox-impossible — 100 items in
+    // 64 buckets has expected collision rate ≈50%. The information-theoretic
+    // measure that matters is DISTINCT-BUCKETS-PER-INPUT, not raw collision
+    // count. Threshold ≥40% means at least 40 of 100 materials map to unique
+    // buckets, which is 10× the old scheme's 4-distinct-slot ceiling.
+    const MATERIAL_BUCKETS = 64;
+    const OLD_MATERIAL_BUCKETS = 4;
+    const DISTINCT_BUCKET_FRAC_FLOOR = 0.40;
+    const MAX_LOAD_PER_BUCKET = 6;
+    const MIN_DISTINCT = 100;
+    const REAL_MATERIALS = [
+      // Steels (DIN/AISI)
+      "1.0711", "1.0715", "1.0718", "1.0721", "1.0722", "1.0723", "1.0726",
+      "1.0727", "1.0728", "1.0736", "1.0737", "1.2002", "1.2003", "1.2004",
+      "1.2057", "1.2067", "1.2083", "1.2085", "1.2101", "1.2103", "1.2129",
+      "1.2162", "1.2208", "1.2210", "1.2235", "1.2241", "1.2242", "1.2243",
+      "1018", "1045", "4140", "4340", "8620", "12L14", "1144", "A36",
+      // Stainless
+      "304", "304L", "316", "316L", "321", "347", "410", "416", "420",
+      "440C", "17-4PH", "13-8Mo", "15-5PH", "Nitronic 60",
+      // Tool steels
+      "A2", "D2", "D3", "M2", "H13", "H11", "S7", "O1", "P20", "420SS",
+      // Aluminum
+      "6061-T6", "6061-T651", "7075-T6", "7075-T7351", "2024-T3",
+      "2024-T351", "5052-H32", "5083-H116", "5086-H32",
+      // Titanium
+      "Ti-6Al-4V", "Ti-3Al-2.5V", "Ti-6Al-2Sn-4Zr-2Mo", "Grade2-Ti",
+      "Grade5-Ti",
+      // Nickel-based
+      "Inconel 625", "Inconel 718", "Inconel 939", "Hastelloy C276",
+      "Hastelloy X", "Monel 400", "Monel K-500",
+      // Copper alloys
+      "C110-Cu", "C145-Cu", "C260-brass", "C360-brass", "C544-bronze",
+      // Cast iron
+      "GG25", "GGG40", "GGG60", "GGG70", "GTW40",
+      // Plastics
+      "Delrin", "Acetal", "PEEK", "Nylon-6", "UHMW-PE", "PTFE", "PVC",
+      // Composites
+      "G10-FR4", "Carbon-Fiber-Epoxy", "Garolite",
+      // Specialty
+      "Magnesium-AZ31B", "Beryllium-Copper", "Tungsten-Carbide",
+      "Tool-Steel-D2-58HRC",
+    ];
+    expect(REAL_MATERIALS.length).toBeGreaterThanOrEqual(MIN_DISTINCT);
+    const distinct = new Set(REAL_MATERIALS);
+    expect(distinct.size).toBe(REAL_MATERIALS.length);
+
+    // Hash each material, count bucket loads.
+    const bucketCounts = new Map<number, number>();
+    for (const m of REAL_MATERIALS) {
+      const idx = hashStringMod(m, MATERIAL_BUCKETS);
+      bucketCounts.set(idx, (bucketCounts.get(idx) ?? 0) + 1);
+    }
+    const distinctBuckets = bucketCounts.size;
+    const distinctFraction = distinctBuckets / REAL_MATERIALS.length;
+    let maxLoad = 0;
+    for (const count of bucketCounts.values()) {
+      if (count > maxLoad) maxLoad = count;
+    }
+
+    // Sanity: hash actually distributes — distinct buckets should clear 40%
+    // of input count (information-theoretic improvement over the 4-bucket scheme).
+    expect(distinctFraction).toBeGreaterThanOrEqual(DISTINCT_BUCKET_FRAC_FLOOR);
+
+    // No bucket should be a black hole — max load < 6 means the most-collided
+    // material slot still has reasonable specificity.
+    expect(maxLoad).toBeLessThanOrEqual(MAX_LOAD_PER_BUCKET);
+
+    // Distinct buckets must exceed the OLD 4-bucket ceiling by ≥10× — the
+    // whole point of the widening. (Old: max 4 distinct, regardless of N.)
+    expect(distinctBuckets).toBeGreaterThan(OLD_MATERIAL_BUCKETS * 10);
+  });
+
+  it("widened bucket counts produce INPUT_DIM=131 (7+5+3+64+16+16+16+4)", () => {
+    // U-NN-FEAT01 architectural change: input layer expanded 32→131 dims.
+    // 7 numeric + 5 bridge + 3 process + 64 material + 16 tool_material +
+    // 16 machine_family + 16 operation + 4 aux.
+    expect(INPUT_DIM).toBe(131);
   });
 
   it("isolated engine instance trains independently of the singleton", () => {

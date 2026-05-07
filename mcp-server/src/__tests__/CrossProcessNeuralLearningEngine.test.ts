@@ -253,7 +253,7 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   it("predict throws on wrong input length", () => {
     const wrong = new Float64Array(INPUT_DIM - 1);
-    expect(() => engine.predict(wrong)).toThrow(/length must be 32/);
+    expect(() => engine.predict(wrong)).toThrow(/length must be 131/);
   });
 
   // ───── train ─────
@@ -431,11 +431,14 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   // ───── schema export ─────
 
-  it("schema and dim constants match documented architecture (32→16→3)", () => {
-    expect(INPUT_DIM).toBe(32);
+  it("schema and dim constants match documented architecture (131→16→3) post U-NN-FEAT01", () => {
+    // 131 = 7 numeric + 5 bridge + 3 process + 64 material + 16 tool +
+    //       16 machine + 16 operation + 4 aux. Reviewers 3/4 flagged the
+    //       4-bucket material hash → ~76% collision rate. Schema bumped to 2.0.0.
+    expect(INPUT_DIM).toBe(131);
     expect(HIDDEN_DIM).toBe(16);
     expect(OUTPUT_DIM).toBe(3);
-    expect(SCHEMA_VERSION).toBe("1.0.0");
+    expect(SCHEMA_VERSION).toBe("2.0.0");
   });
 
   // ───── U-NN-FIX01: backprop numeric-gradient correctness ─────
