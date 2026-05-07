@@ -1,0 +1,111 @@
+# Milestone Integrity Audit — INTEL-OLLAMA-OBSIDIAN-MS0
+
+**Generated:** 2026-05-07T01:16:42.610Z
+**Verdict:** ⚠ DRIFT
+
+## Summary
+| Metric | Count |
+| --- | --- |
+| Total units | 92 |
+| OK (completed + deliverables present) | 36 |
+| Deliverable-gap (completed in JSON, files missing) | 17 |
+| Ghost-shipped (commit found, JSON not closed) | 8 |
+| Anachronism (closed in JSON, no commit) | 18 |
+| Open (no commit, not completed) | 13 |
+| **Drift total** | **43** |
+
+## Per-unit detail
+| Phase | Unit | Verdict | Commit | Notes |
+| --- | --- | --- | --- | --- |
+| P0 | P0-U01 | anachronism | — | closed in JSON but no commit subject matches |
+| P0 | P0-U02 | ok | 866ec6b50 |  |
+| P0 | P0-U03 | anachronism | — | closed in JSON but no commit subject matches |
+| P0 | P0-U04 | ok | 246aa0120 |  |
+| P1 | P1-U01 | ok | 0f210ced7 |  |
+| P1 | P1-U02 | ok | 4258644cd |  |
+| P1 | P1-U03 | deliverable-gap | cf7933488 | missing: scripts/populate-tribal-vault.mjs |
+| P1 | P1-U04 | deliverable-gap | 2430cf4aa | missing: scripts/mirror-memories-bootstrap.mjs |
+| P1 | P1-U05 | deliverable-gap | 7f30430ac | missing: scripts/chunk-claudemd-vault.mjs, .claude/hooks/claudemd-section-update.mjs |
+| P10 | P10-U01 | deliverable-gap | 7e72c3826 | missing: .claude/hooks/.deprecated/ |
+| P10 | P10-U02 | ok | aea03c6a0 |  |
+| P10 | P10-U03 | ok | db2804dfe |  |
+| P10 | P10-U04 | ok | 384ff9a3c |  |
+| P10 | P10-U05 | ok | aa320ffe2 |  |
+| P10 | P10-U06 | deliverable-gap | 738a851b4 | missing: scripts/.deprecated/ |
+| P11 | P11-U01 | ok | af587c3ed |  |
+| P11 | P11-U02 | open | — |  |
+| P11 | P11-U03 | ok | f88536279 |  |
+| P11 | P11-U04 | ok | 9858dd653 |  |
+| P11 | P11-U05 | ok | fb98ffba8 |  |
+| P11 | P11-U06 | ok | 4f4fbc91c |  |
+| P11 | P11-U07 | open | — |  |
+| P11 | P11-U08 | ok | 3b5dfb63a |  |
+| P12 | P12-U01 | open | — |  |
+| P13 | P13-U01 | ok | f666491e5 |  |
+| P13 | P13-U02 | anachronism | — | closed in JSON but no commit subject matches |
+| P13 | P13-U03 | ok | be5121aad |  |
+| P13 | P13-U04 | ok | 6c11cb537 |  |
+| P14 | P14-U01 | deliverable-gap | 2545b5817 | missing: scripts/resources-inventory.mjs, RESOURCES-INVENTORY.md |
+| P14 | P14-U02 | deliverable-gap | 0ebf997e3 | missing: scripts/ingest-pdf-batch.mjs, knowledge/ingested/ |
+| P14 | P14-U03 | deliverable-gap | 9316cbb86 | missing: scripts/auto-backlink-vault.mjs |
+| P14 | P14-U04 | deliverable-gap | d978fb540 | missing: scripts/wiki-bootstrap-mit.mjs |
+| P15 | P15-U01 | deliverable-gap | de5d5f90a | missing: scripts/csm-inventory.mjs |
+| P15 | P15-U02 | deliverable-gap | 7d7a9d133 | missing: mcp-server/src/__tests__/CrossSessionMemoryBridge.test.ts |
+| P15 | P15-U03 | anachronism | — | closed in JSON but no commit subject matches |
+| P16 | P16-U01 | deliverable-gap | e3922114b | missing: scripts/peer-repo-signature-map.mjs, PEER-REPO-SIGNATURES.json |
+| P16 | P16-U02 | deliverable-gap | ac1c24e66 | missing: PEER-REPO-MERGE-CANDIDATES.md |
+| P16 | P16-U03 | ok | dce9c7fc3 |  |
+| P17 | P17-U01 | ok | 7641eb2bd |  |
+| P17 | P17-U02 | ok | f9ee44fff |  |
+| P17 | P17-U03 | ok | 499effbc6 |  |
+| P18 | P18-U01 | ok | ff7834384 |  |
+| P18 | P18-U02 | ok | 4cead63b3 |  |
+| P19 | P19-U01 | ok | 26eab3f25 |  |
+| P19 | P19-U02 | anachronism | — | closed in JSON but no commit subject matches |
+| P2 | P2-U01 | anachronism | — | closed in JSON but no commit subject matches |
+| P2 | P2-U02 | open | — |  |
+| P2 | P2-U03 | open | — |  |
+| P2 | P2-U04 | open | — |  |
+| P20 | P20-U01 | ok | 663569505 |  |
+| P20 | P20-U02 | anachronism | — | closed in JSON but no commit subject matches |
+| P20 | P20-U03 | anachronism | — | closed in JSON but no commit subject matches |
+| P20 | P20-U04 | open | — |  |
+| P21 | P21-U01 | ok | 0bae326c2 |  |
+| P21 | P21-U02 | ok | 5175559e1 |  |
+| P21 | P21-U03 | ok | ece84b983 |  |
+| P22 | P22-U01 | anachronism | — | closed in JSON but no commit subject matches |
+| P22 | P22-U02 | anachronism | — | closed in JSON but no commit subject matches |
+| P22 | P22-U03 | anachronism | — | closed in JSON but no commit subject matches |
+| P23 | P23-U01 | anachronism | — | closed in JSON but no commit subject matches |
+| P23 | P23-U02 | ok | df2f8d5a7 |  |
+| P3 | P10-U04 | ok | 384ff9a3c |  |
+| P3 | P3-U01 | open | — |  |
+| P3 | P3-U02 | deliverable-gap | e81d2adc9 | missing: scripts/summarize-all-scripts-via-ollama.mjs, .claude/hooks/script-summary-inject.mjs |
+| P3 | P3-U03 | open | — |  |
+| P3 | P3-U04 | open | — |  |
+| P3 | P3-U05 | deliverable-gap | dbd1c797c | missing: .claude/hooks/ollama-obsidian-rag.mjs |
+| P4 | P4-U01 | open | — |  |
+| P4 | P4-U02 | deliverable-gap | 3d8e499e5 | missing: scripts/summarize-directives-via-ollama.mjs |
+| P4 | P4-U03 | ghost-shipped | 33d1a6867 | commit 33d1a6867 exists but status not set |
+| P4 | P4-U04 | deliverable-gap | 139c97122 | missing: scripts/embed-wiki-index.mjs |
+| P5 | P5-U01 | anachronism | — | closed in JSON but no commit subject matches |
+| P5 | P5-U02 | anachronism | — | closed in JSON but no commit subject matches |
+| P5 | P5-U03 | anachronism | — | closed in JSON but no commit subject matches |
+| P5 | P5-U04 | anachronism | — | closed in JSON but no commit subject matches |
+| P5 | P5-U05 | anachronism | — | closed in JSON but no commit subject matches |
+| P6 | P6-U01 | ghost-shipped | 915e42210 | commit 915e42210 exists but status not set |
+| P6 | P6-U02 | open | — |  |
+| P6 | P6-U03 | anachronism | — | closed in JSON but no commit subject matches |
+| P7 | P7-U01 | ok | c9637f786 |  |
+| P7 | P7-U02 | open | — |  |
+| P8 | P8-U01 | ghost-shipped | 2da93ac07 | commit 2da93ac07 exists but status not set |
+| P8 | P8-U02 | ghost-shipped | 07ec30e80 | commit 07ec30e80 exists but status not set |
+| P8 | P8-U03 | ghost-shipped | 602643bc1 | commit 602643bc1 exists but status not set |
+| P8 | P8-U04 | ghost-shipped | 1b4693d59 | commit 1b4693d59 exists but status not set |
+| P8 | P8-U05 | ghost-shipped | e4a9c29a4 | commit e4a9c29a4 exists but status not set |
+| P8 | P8-U06 | ghost-shipped | b72d880a5 | commit b72d880a5 exists but status not set |
+| P9 | P9-U01 | ok | 5dbdab022 |  |
+| P9 | P9-U02 | ok | 49066b537 |  |
+| P9 | P9-U03 | ok | 284fd9853 |  |
+| P9 | P9-U04 | ok | f23798f5a |  |
+| P9 | P9-U05 | ok | c9a40244c |  |
