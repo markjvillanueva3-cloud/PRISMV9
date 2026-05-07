@@ -794,6 +794,46 @@ const universal_cad_has_coverage = z
 const universal_cad_target_formats = z.object({}).passthrough();
 const universal_cad_root_paths = z.object({}).passthrough();
 
+// ─── ENGINE-WIRE-CAD-MS0/U-WIRE-CAD-BATCH1: 8 unwired CAD engines ─────────
+const cad_geometry_hash = z
+  .object({
+    record: z.unknown().describe("Partial GeometryRecord (no program_id, customer_id, embedding)"),
+  })
+  .passthrough();
+const cad_geometry_assign_splits = z
+  .object({
+    records: z.array(z.unknown()).describe("Array of GeometryRecord"),
+  })
+  .passthrough();
+const cad_solidcam_chip_thickness = z
+  .object({
+    toolDiameter: z.number().positive().describe("Cutter diameter Dc (mm)"),
+    stepover: z.number().positive().describe("Radial engagement ae (mm)"),
+    feedPerTooth: z.number().positive().describe("Feed per tooth fz (mm)"),
+  })
+  .passthrough();
+const cad_solidcam_engagement_geometry = z
+  .object({
+    toolDiameter: z.number().positive().describe("Cutter diameter Dc (mm)"),
+    stepover: z.number().positive().describe("Radial engagement ae (mm)"),
+    depthOfCut: z.number().positive().optional().describe("Axial DOC ap (mm, optional)"),
+  })
+  .passthrough();
+const cad_solidcam_adjust_feed = z
+  .object({
+    toolDiameter: z.number().positive().describe("Cutter diameter Dc (mm)"),
+    stepover: z.number().positive().describe("Radial engagement ae (mm)"),
+    targetChipThickness: z.number().positive().describe("Target chip thickness (mm)"),
+  })
+  .passthrough();
+const cad_solidworks_list_modules = z.object({}).passthrough();
+const cad_solidworks_module = z
+  .object({
+    moduleId: z.string().min(1).describe("Module identifier (e.g., 'sketch', 'feature')"),
+  })
+  .passthrough();
+const cad_solidworks_list_operations = z.object({}).passthrough();
+
 // ─── Export map ──────────────────────────────────────────────────────────
 
 export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
@@ -868,4 +908,13 @@ export const CAD_AUTOMATION_ACTION_SCHEMAS: ActionSchemaMap = {
   universal_cad_has_coverage,
   universal_cad_target_formats,
   universal_cad_root_paths,
+  // ENGINE-WIRE-CAD-MS0/U-WIRE-CAD-BATCH1
+  cad_geometry_hash,
+  cad_geometry_assign_splits,
+  cad_solidcam_chip_thickness,
+  cad_solidcam_engagement_geometry,
+  cad_solidcam_adjust_feed,
+  cad_solidworks_list_modules,
+  cad_solidworks_module,
+  cad_solidworks_list_operations,
 };

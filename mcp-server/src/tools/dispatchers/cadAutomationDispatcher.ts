@@ -454,6 +454,15 @@ const ACTIONS = [
   "cad_token_supported_formats",
   "cad_corpus_scan_only",
   "cad_corpus_orchestrate",
+  // ENGINE-WIRE-CAD-MS0/U-WIRE-CAD-BATCH1: 3 unwired CAD engines
+  "cad_geometry_hash",                  // GeometryHashGroupingEngine.geometryHash
+  "cad_geometry_assign_splits",         // GeometryHashGroupingEngine.assignSplits
+  "cad_solidcam_chip_thickness",        // SolidCamAlgorithmsEngine.chipThickness
+  "cad_solidcam_engagement_geometry",   // SolidCamAlgorithmsEngine.engagementGeometry
+  "cad_solidcam_adjust_feed",           // SolidCamAlgorithmsEngine.adjustFeedForEngagement
+  "cad_solidworks_list_modules",        // SolidWorksCADFunctionIndexEngine.listModules
+  "cad_solidworks_module",              // SolidWorksCADFunctionIndexEngine.getModule
+  "cad_solidworks_list_operations",     // SolidWorksCADFunctionIndexEngine.listAllOperations
 ] as const;
 
 export type CadAutomationAction = (typeof ACTIONS)[number];
@@ -4825,6 +4834,68 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const orchestrationResult = cadTrainingCorpusOrchestratorEngine.orchestrate(config);
             result = { ...orchestrationResult, source: "CADTrainingCorpusOrchestratorEngine.orchestrate" };
+            break;
+          }
+          // ──────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE-CAD-MS0/U-WIRE-CAD-BATCH1: 3 unwired CAD engines
+          // ──────────────────────────────────────────────────────────────────
+          case "cad_geometry_hash": {
+            const { geometryHashGroupingEngine } = await import("../../engines/GeometryHashGroupingEngine.js");
+            const rec = params["record"] as Parameters<typeof geometryHashGroupingEngine.geometryHash>[0];
+            if (!rec) throw new Error("cad_geometry_hash requires 'record' (GeometryRecord)");
+            const hash = geometryHashGroupingEngine.geometryHash(rec);
+            result = { hash, source: "GeometryHashGroupingEngine.geometryHash" };
+            break;
+          }
+          case "cad_geometry_assign_splits": {
+            const { geometryHashGroupingEngine } = await import("../../engines/GeometryHashGroupingEngine.js");
+            const records = params["records"] as Parameters<typeof geometryHashGroupingEngine.assignSplits>[0];
+            if (!Array.isArray(records)) throw new Error("cad_geometry_assign_splits requires 'records' (GeometryRecord[])");
+            const assignments = geometryHashGroupingEngine.assignSplits(records);
+            const summary = geometryHashGroupingEngine.summarize(records, assignments);
+            result = { assignments, summary, source: "GeometryHashGroupingEngine.assignSplits" };
+            break;
+          }
+          case "cad_solidcam_chip_thickness": {
+            const { SolidCamAlgorithmsEngine } = await import("../../engines/SolidCamAlgorithmsEngine.js");
+            result = SolidCamAlgorithmsEngine.chipThickness(
+              params as unknown as Parameters<typeof SolidCamAlgorithmsEngine.chipThickness>[0],
+            );
+            break;
+          }
+          case "cad_solidcam_engagement_geometry": {
+            const { SolidCamAlgorithmsEngine } = await import("../../engines/SolidCamAlgorithmsEngine.js");
+            result = SolidCamAlgorithmsEngine.engagementGeometry(
+              params as unknown as Parameters<typeof SolidCamAlgorithmsEngine.engagementGeometry>[0],
+            );
+            break;
+          }
+          case "cad_solidcam_adjust_feed": {
+            const { SolidCamAlgorithmsEngine } = await import("../../engines/SolidCamAlgorithmsEngine.js");
+            result = SolidCamAlgorithmsEngine.adjustFeedForEngagement(
+              params as unknown as Parameters<typeof SolidCamAlgorithmsEngine.adjustFeedForEngagement>[0],
+            );
+            break;
+          }
+          case "cad_solidworks_list_modules": {
+            const { SolidWorksCADFunctionIndexEngine } = await import("../../engines/SolidWorksCADFunctionIndexEngine.js");
+            result = { modules: SolidWorksCADFunctionIndexEngine.listModules() };
+            break;
+          }
+          case "cad_solidworks_module": {
+            const { SolidWorksCADFunctionIndexEngine } = await import("../../engines/SolidWorksCADFunctionIndexEngine.js");
+            const moduleId = params["moduleId"] as string | undefined;
+            if (typeof moduleId !== "string" || !moduleId) {
+              throw new Error("cad_solidworks_module requires 'moduleId' (non-empty string)");
+            }
+            const mod = SolidWorksCADFunctionIndexEngine.getModule(moduleId);
+            result = { moduleId, module: mod, found: mod !== null };
+            break;
+          }
+          case "cad_solidworks_list_operations": {
+            const { SolidWorksCADFunctionIndexEngine } = await import("../../engines/SolidWorksCADFunctionIndexEngine.js");
+            const ops = SolidWorksCADFunctionIndexEngine.listAllOperations();
+            result = { operations: ops, total: ops.length };
             break;
           }
           default:
