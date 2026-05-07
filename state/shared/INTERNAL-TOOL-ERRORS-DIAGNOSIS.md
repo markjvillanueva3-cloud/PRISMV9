@@ -51,6 +51,24 @@ Hooks older than 15 minutes are now killed regardless of parent state. Hooks nor
 - `c-to-h-mirror.mjs` line 134 — `fileName` ReferenceError fixed in earlier session. This was a separate issue causing stderr noise but not orphan accumulation.
 - 2,367 ownership claims accumulated in workboard. Sweeper is keeping vs reaping them based on heartbeat. Not contributing to process count but worth a follow-up cleanup.
 
+## Stop-Hook Latency Fix (turn-not-ending symptom)
+
+After process accumulation was diagnosed, the user reported "turn never really ending" — a different symptom than "tool spawn errors". Stop hooks fire serially when a turn ends, total worst-case timeout ~282 seconds (4.7 min). The biggest contributor is `test-100-percent-gate.mjs` at 120s.
+
+The gate's purpose is correct (block Stop if machining tests fail) but its implementation runs `vitest run` with **no file filter** — i.e. the entire ~3,300-test suite — then filters results in JS afterward. After our 337-commit merge, every Stop ran the full suite even though specific machining files in the working tree were unchanged.
+
+### Three fixes landed in `H:/prism/.claude/hooks/test-100-percent-gate.mjs`
+
+1. `PRISM_TEST_GATE=off` env var — early-exit escape hatch for triage sessions.
+2. Merge-commit skip — if `touched.length > 50` (a merge) skip the gate; main was validated on its source branches.
+3. Targeted vitest — pass changed test files (or matching tests for changed source files) as positional args. Vitest runs only the relevant subset.
+
+### Measured impact
+
+- Before: up to 90s per Stop after a busy session
+- After (no relevant changes): ~400ms (immediate skip)
+- After (targeted change to N test files): ~5-15s for N tests
+
 ## Operator Actions
 
 - Closing/exiting paused chat sessions cleanly (chat exit Stop hook fires `bash-orphan-cleaner` and `stale-claim-sweeper` properly)
