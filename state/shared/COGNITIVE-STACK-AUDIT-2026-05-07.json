@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-05-07T13:00:00Z",
+  "generatedBy": "/forge cognitive-stack hunt — claude-13840683",
+  "subsystems": {
+    "A_ai_routing": {
+      "head": "MillMasterOrchestratorFacadeEngine",
+      "head_path": "mcp-server/src/engines/MillMasterOrchestratorFacadeEngine.ts",
+      "head_lines": 687,
+      "wired_dispatcher": "prism_ai",
+      "supporting": ["AISystemRouterEngine", "CAMAGIMasterOrchestratorEngine", "CrossProcessAGIBridge"],
+      "gap": "AI reasoning lacks bidirectional feedback to memory — outcomes don't auto-record"
+    },
+    "B_memory": {
+      "head": "MemoryGraphEngine",
+      "head_path": "mcp-server/src/engines/MemoryGraphEngine.ts",
+      "head_lines": 1248,
+      "wired_dispatcher": "prism_memory",
+      "supporting": ["QdrantMemoryEngine", "QdrantMemoryEngineSingleton", "MemoryConsolidationEngine"],
+      "gap": "No automatic feedback loop — manual remember() required from callers"
+    },
+    "C_context": {
+      "head": "ContextChainEngine",
+      "head_path": "mcp-server/src/engines/ContextChainEngine.ts",
+      "head_lines": 410,
+      "wired_dispatcher": "prism_context",
+      "supporting": ["ContextBudgetEngine", "SessionTokenLedgerEngine", "SessionDeltaEngine"],
+      "gap": "Pressure detected but compaction is manual — no auto-compress at 80% full"
+    },
+    "D_token_economy": {
+      "head": "TokenBudgetAllocatorEngine",
+      "head_path": "mcp-server/src/engines/TokenBudgetAllocatorEngine.ts",
+      "head_lines": 143,
+      "wired_dispatcher": "prism_context",
+      "wired_status": "FALSE — engine UNWIRED per audit",
+      "supporting": ["SessionTokenLedgerEngine", "ContextBudgetEngine"],
+      "gap": "OllamaHookBridge unimplemented; RTK integration missing; costs tracked, not optimized"
+    },
+    "E_self_learning": {
+      "head": "CrossProcessNeuralLearningEngine",
+      "head_path": "mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+      "head_lines": 1097,
+      "wired_dispatcher": "aiReasoningDispatcher (138 xproc actions)",
+      "supporting": ["CrossProcessEWCMemoryPreservationEngine", "LatheLoRAPipelineCoordinatorEngine", "SelfImprovementPatternEngine"],
+      "gap": "80+ LoRA engines exist but lathe-only; no unified adapter registry; learning isolated from xproc orchestration"
+    },
+    "F_knowledge_rag": {
+      "head": "KnowledgeIngestionOrchestratorEngine",
+      "head_path": "mcp-server/src/engines/KnowledgeIngestionOrchestratorEngine.ts",
+      "head_lines": 649,
+      "wired_dispatcher": "prism_knowledge (168 actions)",
+      "wired_status": "FALSE — engine itself UNWIRED per audit despite 168 knowledge actions",
+      "supporting": ["WikiRAGFeatureEngine", "KnowledgeGraphNeuralBridgeEngine", "ManufacturingKnowledgeGraphEngine"],
+      "gap": "Tribal RAG unlinked from learning feedback — outcomes don't auto-enrich KG"
+    },
+    "G_deep_reasoning": {
+      "head": "MillingAGIMasterEngine",
+      "head_path": "mcp-server/src/engines/MillingAGIMasterEngine.ts",
+      "head_lines": 325,
+      "wired_dispatcher": "aiReasoningDispatcher",
+      "supporting": ["LatheDeepReasoningEngine", "ChainOfThoughtEngine", "TreeOfThoughtEngine"],
+      "gap": "ChainOfThought/TreeOfThought NOT exposed as dispatcher actions — internal-only; mode selection implicit"
+    },
+    "H_self_awareness": {
+      "head": "PRISMSelfAwarenessEngine",
+      "head_path": "mcp-server/src/engines/PRISMSelfAwarenessEngine.ts",
+      "head_lines": 1060,
+      "wired_dispatcher": "prism_session",
+      "supporting": ["AgentSelfAwarenessEngine", "ModelAwareSelfAwarenessEngine", "SystemSnapshotEngine"],
+      "gap": "Static — no live discovery on module load; manifest manually rebuilt"
+    }
+  },
+  "high_value_unwired_groups": {
+    "token_economy_4": ["TokenAccountingEngine", "TokenBudgetAllocatorEngine", "TokenEconomyEngine", "DiffTokenEstimatorEngine"],
+    "context_advanced_7": ["ContextDigestEngine", "ContextWindowMapEngine", "ContextIntegrityEngine", "ContextSnapshotEngine", "ContextCompactionEngine", "ContextRetentionEngine", "ErrorContextEngine"],
+    "embedding_local_4": ["LocalEmbeddingEngine", "EmbeddingGuardEngine", "EmbeddingFilterEngine", "SemanticAssetIndexEngine"],
+    "deep_reasoning_3": ["TreeOfThoughtEngine", "ManufacturingReasoningEngine", "MultiAssetReasoningEngine"],
+    "neural_5": ["MillNeuralNetworkEngine", "MillComprehensiveNeuralEngine", "PRISMNeuralKnowledgeSynthesisEngine", "NeuralWeightPersistenceEngine", "MetaAIOrchestrationEngine"],
+    "learning_loop_3": ["LearningAdaptationEngine", "LearningLoopEngine", "IncrementalLearningEngine"],
+    "awareness_4": ["UnifiedAwarenessOrchestrator", "UnifiedCommandAwarenessEngine", "SituationalAwarenessFilterEngine", "SessionAwarenessLifecycleEngine"],
+    "ollama_offload_2": ["OllamaIntegrationEngine", "LocalModelOrchestratorEngine"],
+    "knowledge_extras_3": ["TribalKnowledgeMaximizerEngine", "VideoKnowledgeIntegrationEngine", "ExtractedKnowledgeWiringEngine"]
+  },
+  "totals": {
+    "cognitive_stack_unwired_engines_strict_filter": 102,
+    "by_dispatcher": {
+      "prism_ai": 28,
+      "UNKNOWN_review": 32,
+      "prism_session": 11,
+      "prism_orchestrate": 9,
+      "prism_cam": 6,
+      "prism_cad": 4,
+      "other": 12
+    }
+  },
+  "cohesive_bridge_proposal": {
+    "name": "U-WIRE-COGNITIVE-BRIDGE-MS0",
+    "scope_minimal_5_engines": [
+      "TreeOfThoughtEngine → prism_ai (ai_tot_explore)",
+      "ManufacturingReasoningEngine → prism_ai (ai_manufacturing_reason)",
+      "TokenEconomyEngine → prism_context (token_economy_*)",
+      "UnifiedAwarenessOrchestrator → prism_session (awareness_unified_*)",
+      "OllamaIntegrationEngine → prism_ai (ai_ollama_offload)"
+    ],
+    "scope_conservative_15_engines": "Adds: 7 context-advanced + 4 embedding-local + LearningLoopEngine + LocalModelOrchestratorEngine + SkillTierRegistryEngine",
+    "scope_full_30_engines": "All 8 high-value groups + cross-subsystem feedback loops (auto-capture hook from AI → memory; auto-compact hook from context pressure; live awareness rebuild on load)"
+  }
+}

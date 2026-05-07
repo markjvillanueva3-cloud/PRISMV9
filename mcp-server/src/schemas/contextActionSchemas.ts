@@ -233,6 +233,62 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
 
   priority_reset: z.object({}).optional(),
 
+  // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH1: Token Economy ──
+  token_economy_get_budget: z.object({
+    task_class: z.enum(["backend", "web", "cad_python", "roadmap", "audit", "speed_feed", "post_process", "erp", "general"]).describe("Task class for budget profile"),
+    multiplier: z.number().positive().max(10).optional().describe("Optional scaling factor"),
+  }),
+  token_economy_record_spending: z.object({
+    session_id: z.string().min(1).describe("Session id"),
+    task_class: z.enum(["backend", "web", "cad_python", "roadmap", "audit", "speed_feed", "post_process", "erp", "general"]).describe("Task class"),
+    actual: z.object({
+      context_loading: z.number().min(0).describe("Context-loading tokens"),
+      tool_calls: z.number().min(0).describe("Tool-call tokens"),
+      reasoning: z.number().min(0).describe("Reasoning tokens"),
+      output: z.number().min(0).describe("Output tokens"),
+    }).describe("Actual token use breakdown"),
+  }),
+  token_economy_detect_waste: z.object({
+    tool_call_count: z.number().int().min(0).describe("Total tool calls"),
+    file_reads_count: z.number().int().min(0).describe("Total file reads"),
+    unique_files_read: z.number().int().min(0).describe("Distinct files read"),
+    search_count: z.number().int().min(0).describe("Search-tool calls"),
+    agent_spawn_count: z.number().int().min(0).describe("Sub-agents spawned"),
+  }),
+  token_economy_report: z.object({}).optional(),
+
+  token_accounting_record: z.object({
+    tool: z.string().min(1).describe("Tool name (e.g. Bash, Read)"),
+    tokens_in: z.number().int().min(0).describe("Input tokens"),
+    tokens_out: z.number().int().min(0).describe("Output tokens"),
+  }),
+  token_accounting_report: z.object({}).optional(),
+
+  token_budget_allocate: z.object({
+    total_budget: z.number().int().positive().describe("Total tokens to allocate (system reserve 5000 deducted)"),
+    phases: z.array(z.object({
+      name: z.string().describe("Phase name"),
+      priority: z.number().int().min(1).max(5).describe("Priority — 1 critical, 5 optional (lower = higher precedence)"),
+      estimatedTokens: z.number().int().min(0).describe("Estimated token cost"),
+      minTokens: z.number().int().min(0).describe("Minimum required tokens (phase dropped if not met)"),
+      flexible: z.boolean().describe("Whether phase tolerates surplus/cut"),
+    })).min(1).describe("Phases competing for budget"),
+  }),
+  token_budget_can_afford: z.object({
+    remaining_budget: z.number().int().min(0).describe("Tokens remaining"),
+    estimated_cost: z.number().int().min(0).describe("Estimated cost of next op"),
+    must_reserve: z.number().int().min(0).optional().describe("Floor reservation (default 10000)"),
+  }),
+
+  diff_token_uncommitted: z.object({}).optional(),
+  diff_token_staged: z.object({}).optional(),
+  diff_token_between: z.object({
+    from: z.string().min(1).describe("From ref (sha or branch)"),
+    to: z.string().optional().describe("To ref (default HEAD)"),
+  }),
+  diff_token_last_commits: z.object({
+    n: z.number().int().min(1).max(50).optional().describe("Commit count (default 1)"),
+  }),
 };
 
 // Context Priority — intelligent injection prioritization (U-CTXPRI01)

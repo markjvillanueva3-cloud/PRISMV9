@@ -76,6 +76,19 @@ const ACTIONS = [
   "priority_compute_relevance",
   "priority_stats",
   "priority_reset",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH1: Token Economy
+  "token_economy_get_budget",
+  "token_economy_record_spending",
+  "token_economy_detect_waste",
+  "token_economy_report",
+  "token_accounting_record",
+  "token_accounting_report",
+  "token_budget_allocate",
+  "token_budget_can_afford",
+  "diff_token_uncommitted",
+  "diff_token_staged",
+  "diff_token_between",
+  "diff_token_last_commits",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1022,6 +1035,78 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             const { contextPriorityEngine } = await import("../../engines/ContextPriorityEngine.js");
             contextPriorityEngine.resetHistory();
             return ok({ reset: true });
+          }
+
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH1: Token Economy ──
+          case "token_economy_get_budget": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            const budget = tokenEconomyEngine.getBudget(params.task_class);
+            const scaled = params.multiplier ? tokenEconomyEngine.scaleBudget(budget, params.multiplier) : budget;
+            return ok({ budget: scaled });
+          }
+          case "token_economy_record_spending": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            const spending = tokenEconomyEngine.recordSpending(params.session_id, params.task_class, params.actual);
+            return ok({ spending });
+          }
+          case "token_economy_detect_waste": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            const patterns = tokenEconomyEngine.detectWaste(
+              params.tool_call_count,
+              params.file_reads_count,
+              params.unique_files_read,
+              params.search_count,
+              params.agent_spawn_count,
+            );
+            return ok({ waste_patterns: patterns });
+          }
+          case "token_economy_report": {
+            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
+            const report = tokenEconomyEngine.generateReport();
+            return ok({ report });
+          }
+
+          case "token_accounting_record": {
+            const { tokenAccountingEngine } = await import("../../engines/TokenAccountingEngine.js");
+            tokenAccountingEngine.record(params.tool, params.tokens_in, params.tokens_out);
+            return ok({ recorded: true });
+          }
+          case "token_accounting_report": {
+            const { tokenAccountingEngine } = await import("../../engines/TokenAccountingEngine.js");
+            const report = tokenAccountingEngine.getReport();
+            return ok({ report });
+          }
+
+          case "token_budget_allocate": {
+            const { tokenBudgetAllocatorEngine } = await import("../../engines/TokenBudgetAllocatorEngine.js");
+            const plan = tokenBudgetAllocatorEngine.allocate(params.total_budget, params.phases);
+            return ok({ plan });
+          }
+          case "token_budget_can_afford": {
+            const { tokenBudgetAllocatorEngine } = await import("../../engines/TokenBudgetAllocatorEngine.js");
+            const can = tokenBudgetAllocatorEngine.canAfford(params.remaining_budget, params.estimated_cost, params.must_reserve);
+            return ok({ can_afford: can });
+          }
+
+          case "diff_token_uncommitted": {
+            const { diffTokenEstimatorEngine } = await import("../../engines/DiffTokenEstimatorEngine.js");
+            const estimate = diffTokenEstimatorEngine.estimateUncommitted();
+            return ok({ estimate, summary: diffTokenEstimatorEngine.getCompactSummary(estimate) });
+          }
+          case "diff_token_staged": {
+            const { diffTokenEstimatorEngine } = await import("../../engines/DiffTokenEstimatorEngine.js");
+            const estimate = diffTokenEstimatorEngine.estimateStaged();
+            return ok({ estimate, summary: diffTokenEstimatorEngine.getCompactSummary(estimate) });
+          }
+          case "diff_token_between": {
+            const { diffTokenEstimatorEngine } = await import("../../engines/DiffTokenEstimatorEngine.js");
+            const estimate = diffTokenEstimatorEngine.estimateBetween(params.from, params.to);
+            return ok({ estimate, summary: diffTokenEstimatorEngine.getCompactSummary(estimate) });
+          }
+          case "diff_token_last_commits": {
+            const { diffTokenEstimatorEngine } = await import("../../engines/DiffTokenEstimatorEngine.js");
+            const estimate = diffTokenEstimatorEngine.estimateLastCommits(params.n);
+            return ok({ estimate, summary: diffTokenEstimatorEngine.getCompactSummary(estimate) });
           }
 
           default:
