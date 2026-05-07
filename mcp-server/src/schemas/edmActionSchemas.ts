@@ -135,6 +135,97 @@ const wedm_archive_backfill_state = z
   .passthrough()
   .describe("No-arg backfill-state read.");
 
+// ─── ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH3: 6 unwired analogy/autonomy/blackboard/calibration engines ─
+
+/** wedm_analogy_retrieve — WEDMAnalogicalReasoningEngine.retrieve */
+const wedm_analogy_retrieve = z
+  .object({
+    material: z.string().min(1).describe("WEDM material key (e.g. D2, A2, M2, S7, H13, WC)."),
+    thickness_mm: z.number().positive().describe("Workpiece thickness (mm)."),
+    perimeter_mm: z.number().positive().describe("Cut perimeter length (mm)."),
+    ra_target_um: z.number().positive().optional().describe("Optional surface-finish target (µm Ra)."),
+    mrr_class: z.enum(["low", "medium", "high"]).optional(),
+    top_n: z.number().int().positive().optional().describe("Top-N case retrieval count."),
+  })
+  .passthrough()
+  .describe("WEDMAnalogyQuery for case-based-reasoning retrieval.");
+
+/** wedm_analogy_size — WEDMAnalogicalReasoningEngine.size */
+const wedm_analogy_size = z
+  .object({})
+  .passthrough()
+  .describe("No-arg analogy-case-base size read.");
+
+/** wedm_autonomy_can — WEDMAutonomyEngine.can */
+const wedm_autonomy_can = z
+  .object({
+    capability: z
+      .enum([
+        "suggest_parameters",
+        "auto_adjust_parameters",
+        "execute_job_supervised",
+        "execute_job_unattended",
+        "self_modify_policy",
+      ])
+      .describe("Autonomy capability to check against current level."),
+  })
+  .passthrough()
+  .describe("Check if current autonomy level permits the named capability.");
+
+/** wedm_blackboard_post — WEDMBlackboardEngine.post */
+const wedm_blackboard_post = z
+  .object({
+    namespace: z.string().min(1).describe("Blackboard namespace (slash-separated)."),
+    key: z.string().min(1).describe("Entry key within the namespace."),
+    value: z.unknown().describe("Entry value (any JSON-serializable)."),
+    tag: z
+      .enum(["observation", "hypothesis", "constraint", "decision", "warning"])
+      .describe("Entry classification tag."),
+    source: z.string().min(1).describe("Source identifier (engine/agent name)."),
+    opts: z
+      .object({
+        ttlMs: z.number().int().positive().optional(),
+        confidence: z.number().min(0).max(1).optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough()
+  .describe("Post a tagged entry to the WEDM blackboard.");
+
+/** wedm_blackboard_read — WEDMBlackboardEngine.read */
+const wedm_blackboard_read = z
+  .object({
+    namespace: z.string().min(1).describe("Blackboard namespace."),
+    key: z.string().min(1).describe("Entry key within the namespace."),
+  })
+  .passthrough()
+  .describe("Read latest blackboard entry for namespace+key (or null).");
+
+/** wedm_calibration_generate — WEDMCalibrationReportEngine.generate */
+const wedm_calibration_generate = z
+  .object({
+    shop_program: z
+      .object({
+        filename: z.string().min(1),
+        material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]),
+        thickness_mm: z.number().positive(),
+        wire_diameter_mm: z.number().positive(),
+        num_passes: z.number().int().positive(),
+        offsets_mm: z.array(z.number()),
+        feeds_mmmin: z.array(z.number().nullable()),
+        e_codes: z.array(z.string()),
+        has_taper: z.boolean(),
+        has_adaptive_control: z.boolean(),
+        is_bimaterial: z.boolean().optional(),
+        hardness_hrc: z.number().optional(),
+      })
+      .passthrough()
+      .describe("Parsed program parameters from WireEDMProgramParserEngine."),
+  })
+  .passthrough()
+  .describe("CalibrationInput to compare shop program against published benchmarks.");
+
 export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   // Legacy EDM actions - validation delegated to individual engines.
   // BATCH2 schemas added for stricter validation.
@@ -144,4 +235,12 @@ export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   wedm_current_density_validate,
   wedm_benchmark_classify,
   wedm_archive_backfill_state,
+
+  // BATCH3 schemas: analogy / autonomy / blackboard / calibration
+  wedm_analogy_retrieve,
+  wedm_analogy_size,
+  wedm_autonomy_can,
+  wedm_blackboard_post,
+  wedm_blackboard_read,
+  wedm_calibration_generate,
 };

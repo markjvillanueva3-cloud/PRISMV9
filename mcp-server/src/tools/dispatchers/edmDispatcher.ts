@@ -344,6 +344,14 @@ const ACTIONS = [
   "wedm_current_density_validate",         // WEDMCurrentDensityGuardEngine.validate
   "wedm_benchmark_classify",               // WEDMBenchmarkToleranceEngine.classify
   "wedm_archive_backfill_state",           // WEDMArchiveBackfillEngine.getState
+
+  // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH3: 6 unwired analogy/autonomy/blackboard/calibration engines
+  "wedm_analogy_retrieve",                 // WEDMAnalogicalReasoningEngine.retrieve
+  "wedm_analogy_size",                     // WEDMAnalogicalReasoningEngine.size
+  "wedm_autonomy_can",                     // WEDMAutonomyEngine.can
+  "wedm_blackboard_post",                  // WEDMBlackboardEngine.post
+  "wedm_blackboard_read",                  // WEDMBlackboardEngine.read
+  "wedm_calibration_generate",             // WEDMCalibrationReportEngine.generate
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2072,6 +2080,66 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_archive_backfill_state": {
             const { wedmArchiveBackfillEngine } = await import("../../engines/WEDMArchiveBackfillEngine.js");
             result = wedmArchiveBackfillEngine.getState();
+            break;
+          }
+
+          // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH3: 6 unwired analogy/autonomy/blackboard/calibration engines
+          case "wedm_analogy_retrieve": {
+            const { wedmAnalogicalReasoningEngine } = await import("../../engines/WEDMAnalogicalReasoningEngine.js");
+            const q = (params as { query: Parameters<typeof wedmAnalogicalReasoningEngine.retrieve>[0] }).query
+                    ?? (params as Parameters<typeof wedmAnalogicalReasoningEngine.retrieve>[0]);
+            if (!q || typeof q !== "object") throw new Error("wedm_analogy_retrieve requires 'query'");
+            result = wedmAnalogicalReasoningEngine.retrieve(q);
+            break;
+          }
+          case "wedm_analogy_size": {
+            const { wedmAnalogicalReasoningEngine } = await import("../../engines/WEDMAnalogicalReasoningEngine.js");
+            result = { size: wedmAnalogicalReasoningEngine.size() };
+            break;
+          }
+          case "wedm_autonomy_can": {
+            const { wedmAutonomyEngine } = await import("../../engines/WEDMAutonomyEngine.js");
+            const cap = (params as { capability: Parameters<typeof wedmAutonomyEngine.can>[0] }).capability;
+            if (typeof cap !== "string" || cap.length === 0) throw new Error("wedm_autonomy_can requires 'capability'");
+            result = {
+              capability: cap,
+              allowed: wedmAutonomyEngine.can(cap),
+              level: wedmAutonomyEngine.getLevel(),
+              level_name: wedmAutonomyEngine.getName(),
+            };
+            break;
+          }
+          case "wedm_blackboard_post": {
+            const { wedmBlackboardEngine } = await import("../../engines/WEDMBlackboardEngine.js");
+            const p = params as {
+              namespace: string;
+              key: string;
+              value: unknown;
+              tag: Parameters<typeof wedmBlackboardEngine.post>[3];
+              source: string;
+              opts?: Parameters<typeof wedmBlackboardEngine.post>[5];
+            };
+            if (typeof p.namespace !== "string" || p.namespace.length === 0) throw new Error("wedm_blackboard_post requires 'namespace'");
+            if (typeof p.key !== "string" || p.key.length === 0) throw new Error("wedm_blackboard_post requires 'key'");
+            if (typeof p.tag !== "string") throw new Error("wedm_blackboard_post requires 'tag'");
+            if (typeof p.source !== "string" || p.source.length === 0) throw new Error("wedm_blackboard_post requires 'source'");
+            result = wedmBlackboardEngine.post(p.namespace, p.key, p.value, p.tag, p.source, p.opts ?? {});
+            break;
+          }
+          case "wedm_blackboard_read": {
+            const { wedmBlackboardEngine } = await import("../../engines/WEDMBlackboardEngine.js");
+            const p = params as { namespace: string; key: string };
+            if (typeof p.namespace !== "string" || p.namespace.length === 0) throw new Error("wedm_blackboard_read requires 'namespace'");
+            if (typeof p.key !== "string" || p.key.length === 0) throw new Error("wedm_blackboard_read requires 'key'");
+            result = wedmBlackboardEngine.read(p.namespace, p.key);
+            break;
+          }
+          case "wedm_calibration_generate": {
+            const { wedmCalibrationReportEngine } = await import("../../engines/WEDMCalibrationReportEngine.js");
+            const input = (params as { input: Parameters<typeof wedmCalibrationReportEngine.generate>[0] }).input
+                        ?? (params as Parameters<typeof wedmCalibrationReportEngine.generate>[0]);
+            if (!input || typeof input !== "object") throw new Error("wedm_calibration_generate requires 'input'");
+            result = wedmCalibrationReportEngine.generate(input);
             break;
           }
 
