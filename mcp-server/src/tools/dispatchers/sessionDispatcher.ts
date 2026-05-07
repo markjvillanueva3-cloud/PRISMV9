@@ -102,7 +102,14 @@ const ACTIONS = [
   "self_awareness_context_summary",
   "self_awareness_health",
   "self_awareness_quick_stats",
-  "self_awareness_recommended_actions"
+  "self_awareness_recommended_actions",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH4: Awareness
+  "awareness_unified_query",
+  "awareness_command_detect",
+  "awareness_command_suggest_string",
+  "awareness_filter",
+  "awareness_lifecycle_get_current",
+  "awareness_lifecycle_get_history"
 ] as const;
 
 function ok(data: any) {
@@ -1321,6 +1328,76 @@ export function registerSessionDispatcher(server: any): void {
             if (!task) return ok({ error: "Missing 'task' parameter" });
             const recs = await asa5.getRecommendedActions(task);
             return ok(recs);
+          }
+
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH4: Awareness ──
+          case "awareness_unified_query": {
+            const { unifiedAwarenessOrchestrator } = await import("../../engines/UnifiedAwarenessOrchestrator.js");
+            const result = await unifiedAwarenessOrchestrator.query({
+              query: params.query,
+              domain: params.domain ?? "all",
+              context: params.context,
+              limit: params.limit,
+            });
+            return ok({ result });
+          }
+          case "awareness_command_detect": {
+            const { unifiedCommandAwarenessEngine } = await import("../../engines/UnifiedCommandAwarenessEngine.js");
+            const suggestion = await unifiedCommandAwarenessEngine.detectCommands(params.input);
+            return ok({ suggestion });
+          }
+          case "awareness_command_suggest_string": {
+            const { unifiedCommandAwarenessEngine } = await import("../../engines/UnifiedCommandAwarenessEngine.js");
+            const text = await unifiedCommandAwarenessEngine.getSuggestionString(params.input);
+            return ok({ suggestion: text });
+          }
+          case "awareness_filter": {
+            const { situationalAwarenessFilterEngine } = await import("../../engines/SituationalAwarenessFilterEngine.js");
+            const result = situationalAwarenessFilterEngine.filter(params.directive, params.prompt, {
+              maxLines: params.max_lines,
+              minScore: params.min_score,
+              alwaysKeepHeaders: params.always_keep_headers,
+            });
+            return ok({ result });
+          }
+          case "awareness_lifecycle_get_current": {
+            // Engine has no module singleton — per-session factory. Use the
+            // shared dispatcher-scoped lifecycle (cached lazily, keyed by
+            // session_id param or a default "dispatcher-default").
+            const { createSessionAwarenessLifecycle } = await import("../../engines/SessionAwarenessLifecycleEngine.js");
+            const sid = (typeof params.session_id === "string" && params.session_id.length > 0)
+              ? params.session_id
+              : "dispatcher-default";
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const cache = (globalThis as any).__prismLifecycleCache ?? new Map<string, ReturnType<typeof createSessionAwarenessLifecycle>>();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (globalThis as any).__prismLifecycleCache = cache;
+            let engine = cache.get(sid);
+            if (!engine) {
+              engine = createSessionAwarenessLifecycle(sid);
+              cache.set(sid, engine);
+            }
+            return ok({
+              current: engine.getCurrent(),
+              session_id: engine.getSessionId(),
+              execute_to_metacog_count: engine.getExecuteToMetacogCount(),
+            });
+          }
+          case "awareness_lifecycle_get_history": {
+            const { createSessionAwarenessLifecycle } = await import("../../engines/SessionAwarenessLifecycleEngine.js");
+            const sid = (typeof params.session_id === "string" && params.session_id.length > 0)
+              ? params.session_id
+              : "dispatcher-default";
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const cache = (globalThis as any).__prismLifecycleCache ?? new Map<string, ReturnType<typeof createSessionAwarenessLifecycle>>();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (globalThis as any).__prismLifecycleCache = cache;
+            let engine = cache.get(sid);
+            if (!engine) {
+              engine = createSessionAwarenessLifecycle(sid);
+              cache.set(sid, engine);
+            }
+            return ok({ history: engine.getHistory() });
           }
 
           default:

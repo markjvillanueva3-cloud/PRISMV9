@@ -455,4 +455,31 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   coordination_detect_conflicts,
   coordination_recent,
   coordination_count,
+
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH4: Awareness
+  awareness_unified_query: z.object({
+    query: z.string().min(1).describe("Search term to look up across capability domains"),
+    domain: z.enum(["all", "engine", "formula", "algorithm", "material", "tool", "tribal", "resource", "program", "extraction", "dispatcher", "action"]).optional().describe("Restrict search to one domain (default: all)"),
+    context: z.string().optional().describe("Optional context bias for ranking"),
+    limit: z.number().int().positive().max(100).optional().describe("Max matches per domain (default: 10)"),
+  }).passthrough(),
+  awareness_command_detect: z.object({
+    input: z.string().min(1).describe("User input text to scan for command triggers"),
+  }).passthrough(),
+  awareness_command_suggest_string: z.object({
+    input: z.string().min(1).describe("User input text — returns formatted suggestion string"),
+  }).passthrough(),
+  awareness_filter: z.object({
+    directive: z.string().min(1).describe("Reference directive text to filter against"),
+    prompt: z.string().min(1).describe("Prompt text to score line-by-line"),
+    max_lines: z.number().int().positive().optional().describe("Max kept lines (default unlimited)"),
+    min_score: z.number().min(0).max(1).optional().describe("Min relevance score 0-1"),
+    always_keep_headers: z.boolean().optional().describe("Always keep markdown headers (default true)"),
+  }).passthrough(),
+  awareness_lifecycle_get_current: z.object({
+    session_id: z.string().min(1).optional().describe("Session id (defaults to 'dispatcher-default')"),
+  }).passthrough(),
+  awareness_lifecycle_get_history: z.object({
+    session_id: z.string().min(1).optional().describe("Session id (defaults to 'dispatcher-default')"),
+  }).passthrough(),
 };
