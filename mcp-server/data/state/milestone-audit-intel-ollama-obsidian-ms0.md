@@ -1,18 +1,18 @@
 # Milestone Integrity Audit — INTEL-OLLAMA-OBSIDIAN-MS0
 
-**Generated:** 2026-05-07T01:16:42.610Z
+**Generated:** 2026-05-07T01:29:06.734Z
 **Verdict:** ⚠ DRIFT
 
 ## Summary
 | Metric | Count |
 | --- | --- |
 | Total units | 92 |
-| OK (completed + deliverables present) | 36 |
-| Deliverable-gap (completed in JSON, files missing) | 17 |
-| Ghost-shipped (commit found, JSON not closed) | 8 |
+| OK (completed + deliverables present) | 40 |
+| Deliverable-gap (completed in JSON, files missing) | 21 |
+| Ghost-shipped (commit found, JSON not closed) | 0 |
 | Anachronism (closed in JSON, no commit) | 18 |
 | Open (no commit, not completed) | 13 |
-| **Drift total** | **43** |
+| **Drift total** | **39** |
 
 ## Per-unit detail
 | Phase | Unit | Verdict | Commit | Notes |
@@ -86,24 +86,24 @@
 | P3 | P3-U05 | deliverable-gap | dbd1c797c | missing: .claude/hooks/ollama-obsidian-rag.mjs |
 | P4 | P4-U01 | open | — |  |
 | P4 | P4-U02 | deliverable-gap | 3d8e499e5 | missing: scripts/summarize-directives-via-ollama.mjs |
-| P4 | P4-U03 | ghost-shipped | 33d1a6867 | commit 33d1a6867 exists but status not set |
+| P4 | P4-U03 | deliverable-gap | 33d1a6867 | missing: .claude/hooks/claudemd-ollama-enforcer.mjs |
 | P4 | P4-U04 | deliverable-gap | 139c97122 | missing: scripts/embed-wiki-index.mjs |
 | P5 | P5-U01 | anachronism | — | closed in JSON but no commit subject matches |
 | P5 | P5-U02 | anachronism | — | closed in JSON but no commit subject matches |
 | P5 | P5-U03 | anachronism | — | closed in JSON but no commit subject matches |
 | P5 | P5-U04 | anachronism | — | closed in JSON but no commit subject matches |
 | P5 | P5-U05 | anachronism | — | closed in JSON but no commit subject matches |
-| P6 | P6-U01 | ghost-shipped | 915e42210 | commit 915e42210 exists but status not set |
+| P6 | P6-U01 | deliverable-gap | 915e42210 | missing: .claude/hooks/mirror-c-to-h.mjs, scripts/mirror-c-to-h-audit.mjs, scripts/bootstrap-h-mirror.mjs |
 | P6 | P6-U02 | open | — |  |
 | P6 | P6-U03 | anachronism | — | closed in JSON but no commit subject matches |
 | P7 | P7-U01 | ok | c9637f786 |  |
 | P7 | P7-U02 | open | — |  |
-| P8 | P8-U01 | ghost-shipped | 2da93ac07 | commit 2da93ac07 exists but status not set |
-| P8 | P8-U02 | ghost-shipped | 07ec30e80 | commit 07ec30e80 exists but status not set |
-| P8 | P8-U03 | ghost-shipped | 602643bc1 | commit 602643bc1 exists but status not set |
-| P8 | P8-U04 | ghost-shipped | 1b4693d59 | commit 1b4693d59 exists but status not set |
-| P8 | P8-U05 | ghost-shipped | e4a9c29a4 | commit e4a9c29a4 exists but status not set |
-| P8 | P8-U06 | ghost-shipped | b72d880a5 | commit b72d880a5 exists but status not set |
+| P8 | P8-U01 | ok | 2da93ac07 |  |
+| P8 | P8-U02 | ok | 07ec30e80 |  |
+| P8 | P8-U03 | ok | 602643bc1 |  |
+| P8 | P8-U04 | deliverable-gap | 1b4693d59 | missing: scripts/add-schema-describes.mjs |
+| P8 | P8-U05 | deliverable-gap | e4a9c29a4 | missing: mcp-server/src/engines/SchemaQualityAuditEngine.ts, mcp-server/src/__tests__/SchemaCoverageAudit.test.ts |
+| P8 | P8-U06 | ok | b72d880a5 |  |
 | P9 | P9-U01 | ok | 5dbdab022 |  |
 | P9 | P9-U02 | ok | 49066b537 |  |
 | P9 | P9-U03 | ok | 284fd9853 |  |

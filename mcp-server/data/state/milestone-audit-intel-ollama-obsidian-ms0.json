@@ -403,7 +403,7 @@
     {
       "phaseId": "P4",
       "unitId": "P4-U03",
-      "verdict": "ghost-shipped",
+      "verdict": "deliverable-gap",
       "commitSha": "33d1a6867",
       "deliverables": [
         {
@@ -412,7 +412,7 @@
           "raw": ".claude/hooks/claudemd-ollama-enforcer.mjs"
         }
       ],
-      "note": "commit 33d1a6867 exists but status not set"
+      "note": "missing: .claude/hooks/claudemd-ollama-enforcer.mjs"
     },
     {
       "phaseId": "P4",
@@ -516,7 +516,7 @@
     {
       "phaseId": "P6",
       "unitId": "P6-U01",
-      "verdict": "ghost-shipped",
+      "verdict": "deliverable-gap",
       "commitSha": "915e42210",
       "deliverables": [
         {
@@ -535,7 +535,7 @@
           "raw": "scripts/bootstrap-h-mirror.mjs"
         }
       ],
-      "note": "commit 915e42210 exists but status not set"
+      "note": "missing: .claude/hooks/mirror-c-to-h.mjs, scripts/mirror-c-to-h-audit.mjs, scripts/bootstrap-h-mirror.mjs"
     },
     {
       "phaseId": "P6",
@@ -626,7 +626,7 @@
     {
       "phaseId": "P8",
       "unitId": "P8-U01",
-      "verdict": "ghost-shipped",
+      "verdict": "ok",
       "commitSha": "2da93ac07",
       "deliverables": [
         {
@@ -640,12 +640,12 @@
           "raw": "mcp-server/data/state/ZANY-INVENTORY.json"
         }
       ],
-      "note": "commit 2da93ac07 exists but status not set"
+      "note": ""
     },
     {
       "phaseId": "P8",
       "unitId": "P8-U02",
-      "verdict": "ghost-shipped",
+      "verdict": "ok",
       "commitSha": "07ec30e80",
       "deliverables": [
         {
@@ -664,12 +664,12 @@
           "raw": "mcp-server/src/schemas/autonomousActionSchemas.ts"
         }
       ],
-      "note": "commit 07ec30e80 exists but status not set"
+      "note": ""
     },
     {
       "phaseId": "P8",
       "unitId": "P8-U03",
-      "verdict": "ghost-shipped",
+      "verdict": "ok",
       "commitSha": "602643bc1",
       "deliverables": [
         {
@@ -678,12 +678,12 @@
           "raw": "mcp-server/src/schemas/*.ts"
         }
       ],
-      "note": "commit 602643bc1 exists but status not set"
+      "note": ""
     },
     {
       "phaseId": "P8",
       "unitId": "P8-U04",
-      "verdict": "ghost-shipped",
+      "verdict": "deliverable-gap",
       "commitSha": "1b4693d59",
       "deliverables": [
         {
@@ -692,12 +692,12 @@
           "raw": "scripts/add-schema-describes.mjs"
         }
       ],
-      "note": "commit 1b4693d59 exists but status not set"
+      "note": "missing: scripts/add-schema-describes.mjs"
     },
     {
       "phaseId": "P8",
       "unitId": "P8-U05",
-      "verdict": "ghost-shipped",
+      "verdict": "deliverable-gap",
       "commitSha": "e4a9c29a4",
       "deliverables": [
         {
@@ -716,12 +716,12 @@
           "raw": "mcp-server/src/__tests__/SchemaCoverageAudit.test.ts"
         }
       ],
-      "note": "commit e4a9c29a4 exists but status not set"
+      "note": "missing: mcp-server/src/engines/SchemaQualityAuditEngine.ts, mcp-server/src/__tests__/SchemaCoverageAudit.test.ts"
     },
     {
       "phaseId": "P8",
       "unitId": "P8-U06",
-      "verdict": "ghost-shipped",
+      "verdict": "ok",
       "commitSha": "b72d880a5",
       "deliverables": [
         {
@@ -735,7 +735,7 @@
           "raw": "H:/.claude/settings.json"
         }
       ],
-      "note": "commit b72d880a5 exists but status not set"
+      "note": ""
     },
     {
       "phaseId": "P9",
@@ -1752,12 +1752,12 @@
   ],
   "summary": {
     "total": 92,
-    "ok": 36,
-    "deliverableGap": 17,
-    "ghostShipped": 8,
+    "ok": 40,
+    "deliverableGap": 21,
+    "ghostShipped": 0,
     "open": 13,
     "anachronism": 18,
-    "drift": 43,
+    "drift": 39,
     "verdict": "DRIFT"
   }
 }
