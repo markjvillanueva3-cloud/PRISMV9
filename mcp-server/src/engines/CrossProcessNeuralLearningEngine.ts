@@ -55,6 +55,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+// U-NN-LOOP03: subscribe to FeedbackBus 'outcome.recorded' for auto-train.
+import {
+  feedbackBusEngine,
+  type FeedbackEvent,
+  type SubscriptionHandle,
+} from "./FeedbackBusEngine.js";
+
 import type {
   OutcomeRecord,
   OutcomeBridge,
@@ -284,6 +291,12 @@ export class CrossProcessNeuralLearningEngine {
   private totalEpochsRun = 0;
   private lastLoss = 0;
   private lastAccuracy = 0;
+
+  // U-NN-LOOP03: auto-train state.
+  private autoTrainHandle: SubscriptionHandle | null = null;
+  private autoTrainBuffer: OutcomeRecord[] = [];
+  private autoTrainThreshold = 16;
+  private autoTrainTotalTicks = 0;
 
   constructor(config: Partial<NeuralConfig> = {}) {
     this.config = {
@@ -1082,6 +1095,137 @@ export function hashStringMod(s: string | undefined, modulus: number): number {
   }
   return ((h >>> 0) % modulus);
 }
+
+// U-NN-LOOP03 — AUTO-TRAIN SUBSCRIPTION HOOKS
+
+export interface AutoTrainOptions {
+  threshold?: number;
+  trainOpts?: TrainOpts;
+}
+
+export interface AutoTrainStatus {
+  active: boolean;
+  threshold: number;
+  bufferedSamples: number;
+  totalTicks: number;
+  totalSamplesSeen: number;
+  lastLoss: number;
+  lastAccuracy: number;
+}
+
+declare module "./CrossProcessNeuralLearningEngine.js" {
+  interface CrossProcessNeuralLearningEngine {
+    enableAutoTrain(opts?: AutoTrainOptions): SubscriptionHandle;
+    disableAutoTrain(): boolean;
+    autoTrainStatus(): AutoTrainStatus;
+    flushAutoTrainBuffer(): TrainResult | null;
+  }
+}
+
+CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
+  this: CrossProcessNeuralLearningEngine,
+  opts: AutoTrainOptions = {},
+): SubscriptionHandle {
+  // @ts-expect-error private
+  if (this.autoTrainHandle !== null) {
+    throw new Error("CrossProcessNeuralLearningEngine.enableAutoTrain: already active. Call disableAutoTrain() before re-enabling.");
+  }
+  const threshold = Math.max(1, opts.threshold ?? 16);
+  // @ts-expect-error private
+  this.autoTrainThreshold = threshold;
+  // @ts-expect-error private
+  this.autoTrainBuffer = [];
+  const trainOpts = opts.trainOpts;
+  const handle = feedbackBusEngine.subscribe("outcome.recorded", (event: FeedbackEvent) => {
+    const payload = event.payload as { record?: OutcomeRecord } | undefined;
+    const record = payload?.record;
+    if (!record) return;
+    if (this.recordToLabel(record) === null) return;
+    // @ts-expect-error private
+    this.autoTrainBuffer.push(record);
+    // @ts-expect-error private
+    if (this.autoTrainBuffer.length >= this.autoTrainThreshold) {
+      // @ts-expect-error private
+      const batch = this.autoTrainBuffer;
+      // @ts-expect-error private
+      this.autoTrainBuffer = [];
+      const result = this.train(batch, trainOpts);
+      // @ts-expect-error private
+      this.autoTrainTotalTicks += 1;
+      feedbackBusEngine.publish("neural.train.tick", {
+        // @ts-expect-error private
+        tick: this.autoTrainTotalTicks,
+        samplesUsed: result.samplesUsed,
+        samplesSkipped: result.samplesSkipped,
+        finalLoss: result.finalLoss,
+        trainAccuracy: result.trainAccuracy,
+        totalSamplesSeen: this.totalSamplesSeen,
+      });
+    }
+  });
+  // @ts-expect-error private
+  this.autoTrainHandle = handle;
+  return handle;
+};
+
+CrossProcessNeuralLearningEngine.prototype.disableAutoTrain = function (
+  this: CrossProcessNeuralLearningEngine,
+): boolean {
+  // @ts-expect-error private
+  const handle = this.autoTrainHandle;
+  if (handle === null) return false;
+  feedbackBusEngine.unsubscribe(handle);
+  // @ts-expect-error private
+  this.autoTrainHandle = null;
+  // @ts-expect-error private
+  this.autoTrainBuffer = [];
+  return true;
+};
+
+CrossProcessNeuralLearningEngine.prototype.autoTrainStatus = function (
+  this: CrossProcessNeuralLearningEngine,
+): AutoTrainStatus {
+  return {
+    // @ts-expect-error private
+    active: this.autoTrainHandle !== null,
+    // @ts-expect-error private
+    threshold: this.autoTrainThreshold,
+    // @ts-expect-error private
+    bufferedSamples: this.autoTrainBuffer.length,
+    // @ts-expect-error private
+    totalTicks: this.autoTrainTotalTicks,
+    // @ts-expect-error private
+    totalSamplesSeen: this.totalSamplesSeen,
+    // @ts-expect-error private
+    lastLoss: this.lastLoss,
+    // @ts-expect-error private
+    lastAccuracy: this.lastAccuracy,
+  };
+};
+
+CrossProcessNeuralLearningEngine.prototype.flushAutoTrainBuffer = function (
+  this: CrossProcessNeuralLearningEngine,
+): TrainResult | null {
+  // @ts-expect-error private
+  const buf = this.autoTrainBuffer;
+  if (buf.length === 0) return null;
+  // @ts-expect-error private
+  this.autoTrainBuffer = [];
+  const result = this.train(buf);
+  // @ts-expect-error private
+  this.autoTrainTotalTicks += 1;
+  feedbackBusEngine.publish("neural.train.tick", {
+    // @ts-expect-error private
+    tick: this.autoTrainTotalTicks,
+    samplesUsed: result.samplesUsed,
+    samplesSkipped: result.samplesSkipped,
+    finalLoss: result.finalLoss,
+    trainAccuracy: result.trainAccuracy,
+    totalSamplesSeen: this.totalSamplesSeen,
+    forced: true,
+  });
+  return result;
+};
 
 /** Set a one-hot bit at offset+hash(s) within a `width`-wide slot. */
 function setHashOneHot(
