@@ -248,6 +248,13 @@ export const MILL_ACTIONS = [
   "mill_rl_select_action",             // MillingReinforcementLearningEngine.selectAction
   "mill_head_recommend",               // MillingHeadIntelligenceEngine.recommendMillingHead
   "mill_machine_intel_get",            // MillingMachineIntelligenceEngine.getMachine
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH4: 6 unwired deep-AI / digital-twin mill engines
+  "mill_deep_reason",                  // MillingDeepReasoningEngine.quickReason
+  "mill_deep_integrate",               // MillingDeepIntegrationEngine.quickIntegrate
+  "mill_knowledge_search",             // MillingDeepKnowledgeSynthesisEngine.searchKnowledge
+  "mill_knowledge_stats",              // MillingDeepKnowledgeSynthesisEngine.getSourceStats
+  "mill_ai_unified_recommend",         // MillingAIUnificationEngine.quickRecommend
+  "mill_milling_twin_sync",            // MillingDigitalTwinEngine.sync
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -751,6 +758,52 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
             const id = (params as { id: string }).id;
             if (typeof id !== "string" || id.length === 0) throw new Error("mill_machine_intel_get requires 'id'");
             result = millingMachineIntelligenceEngine.getMachine(id) ?? null;
+            break;
+          }
+
+          // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH4: 6 unwired deep-AI / digital-twin mill engines
+          case "mill_deep_reason": {
+            const { millingDeepReasoningEngine } = await import("../../engines/MillingDeepReasoningEngine.js");
+            const p = params as { query: string; context: Parameters<typeof millingDeepReasoningEngine.quickReason>[1] };
+            if (typeof p.query !== "string" || p.query.length === 0) throw new Error("mill_deep_reason requires 'query'");
+            if (!p.context || typeof p.context !== "object") throw new Error("mill_deep_reason requires 'context'");
+            result = millingDeepReasoningEngine.quickReason(p.query, p.context);
+            break;
+          }
+          case "mill_deep_integrate": {
+            const { millingDeepIntegrationEngine } = await import("../../engines/MillingDeepIntegrationEngine.js");
+            const ctx = (params as { context: Parameters<typeof millingDeepIntegrationEngine.quickIntegrate>[0] }).context
+                      ?? (params as Parameters<typeof millingDeepIntegrationEngine.quickIntegrate>[0]);
+            if (!ctx || typeof ctx !== "object") throw new Error("mill_deep_integrate requires 'context'");
+            result = millingDeepIntegrationEngine.quickIntegrate(ctx);
+            break;
+          }
+          case "mill_knowledge_search": {
+            const { millingDeepKnowledgeSynthesisEngine } = await import("../../engines/MillingDeepKnowledgeSynthesisEngine.js");
+            const q = (params as { query: string }).query;
+            if (typeof q !== "string" || q.length === 0) throw new Error("mill_knowledge_search requires 'query'");
+            result = millingDeepKnowledgeSynthesisEngine.searchKnowledge(q);
+            break;
+          }
+          case "mill_knowledge_stats": {
+            const { millingDeepKnowledgeSynthesisEngine } = await import("../../engines/MillingDeepKnowledgeSynthesisEngine.js");
+            result = millingDeepKnowledgeSynthesisEngine.getSourceStats();
+            break;
+          }
+          case "mill_ai_unified_recommend": {
+            const { millingAIUnificationEngine } = await import("../../engines/MillingAIUnificationEngine.js");
+            const req = (params as { request: Parameters<typeof millingAIUnificationEngine.quickRecommend>[0] }).request
+                      ?? (params as Parameters<typeof millingAIUnificationEngine.quickRecommend>[0]);
+            if (!req || typeof req !== "object") throw new Error("mill_ai_unified_recommend requires 'request'");
+            result = millingAIUnificationEngine.quickRecommend(req);
+            break;
+          }
+          case "mill_milling_twin_sync": {
+            const { millingDigitalTwinEngine } = await import("../../engines/MillingDigitalTwinEngine.js");
+            const state = (params as { machineState: Parameters<typeof millingDigitalTwinEngine.sync>[0] }).machineState
+                        ?? (params as Parameters<typeof millingDigitalTwinEngine.sync>[0]);
+            if (!state || typeof state !== "object") throw new Error("mill_milling_twin_sync requires 'machineState'");
+            result = millingDigitalTwinEngine.sync(state);
             break;
           }
 

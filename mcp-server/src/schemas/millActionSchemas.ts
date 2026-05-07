@@ -967,6 +967,116 @@ const mill_machine_intel_get = z
   .passthrough()
   .describe("Look up MillingMachineProfile by id from machine intelligence cache.");
 
+// ─── ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH4: 6 unwired deep-AI / digital-twin mill engines ─
+
+/** mill_deep_reason — MillingDeepReasoningEngine.quickReason */
+const mill_deep_reason = z
+  .object({
+    query: z.string().min(1).describe("Free-form milling query."),
+    context: z
+      .object({
+        material: z.string().optional(),
+        material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
+        hardness_hrc: z.number().optional(),
+        operation: z.string().optional(),
+        tool_type: z.string().optional(),
+        tool_diameter_mm: z.number().positive().optional(),
+        machine: z.string().optional(),
+        controller: z.string().optional(),
+        customer: z.string().optional(),
+        tolerance_mm: z.number().positive().optional(),
+        surface_finish_ra: z.number().positive().optional(),
+        depth_mm: z.number().positive().optional(),
+      })
+      .passthrough()
+      .describe("MillingContext used to find supporting evidence."),
+  })
+  .passthrough()
+  .describe("Quick milling reasoning over tribal knowledge + physics evidence.");
+
+/** mill_deep_integrate — MillingDeepIntegrationEngine.quickIntegrate */
+const mill_deep_integrate = z
+  .object({
+    material: z.string().min(1).describe("Material trade name (e.g. '4140', 'D2', 'Ti-6Al-4V')."),
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group."),
+    hardness_hrc: z.number().optional(),
+    operation: z.string().min(1).describe("Operation type (e.g. 'roughing', 'finishing')."),
+    feature_type: z.string().optional(),
+    tool_diameter_mm: z.number().positive().optional(),
+    tool_type: z.string().optional(),
+    machine: z.string().optional(),
+    controller: z.string().optional(),
+    customer: z.string().optional(),
+    surface_finish_ra: z.number().positive().optional(),
+    tolerance_mm: z.number().positive().optional(),
+  })
+  .passthrough()
+  .describe("MillingIntegrationContext for quick-integrate parameter recommendation.");
+
+/** mill_knowledge_search — MillingDeepKnowledgeSynthesisEngine.searchKnowledge */
+const mill_knowledge_search = z
+  .object({
+    query: z.string().min(1).describe("Knowledge-base search query."),
+  })
+  .passthrough()
+  .describe("Search synthesized milling knowledge (tips, physics notes, formulas).");
+
+/** mill_knowledge_stats — MillingDeepKnowledgeSynthesisEngine.getSourceStats */
+const mill_knowledge_stats = z
+  .object({})
+  .passthrough()
+  .describe("No-arg knowledge-source coverage statistics.");
+
+/** mill_ai_unified_recommend — MillingAIUnificationEngine.quickRecommend */
+const mill_ai_unified_recommend = z
+  .object({
+    material: z.string().min(1),
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"]),
+    hardness_hrc: z.number().optional(),
+    operation: z.string().min(1),
+    feature_type: z.string().optional(),
+    tool_diameter_mm: z.number().positive().optional(),
+    depth_mm: z.number().positive().optional(),
+    width_mm: z.number().positive().optional(),
+    length_mm: z.number().positive().optional(),
+  })
+  .passthrough()
+  .describe("UnifiedMillingRequest for unified-system quick recommendation.");
+
+/** mill_milling_twin_sync — MillingDigitalTwinEngine.sync (distinct from legacy mill_twin_sync) */
+const mill_milling_twin_sync = z
+  .object({
+    spindle: z
+      .object({
+        speed_rpm: z.number().nonnegative().optional(),
+        load_percent: z.number().min(0).max(200).optional(),
+        power_kw: z.number().nonnegative().optional(),
+        temperature_c: z.number().optional(),
+      })
+      .passthrough()
+      .optional(),
+    axes: z
+      .object({
+        x_position_mm: z.number().optional(),
+        y_position_mm: z.number().optional(),
+        z_position_mm: z.number().optional(),
+        feedrate_mmpm: z.number().nonnegative().optional(),
+      })
+      .passthrough()
+      .optional(),
+    coolant: z
+      .object({
+        active: z.boolean().optional(),
+        type: z.enum(["flood", "mql", "cryogenic", "dry"]).optional(),
+        flow_rate_lpm: z.number().nonnegative().optional(),
+        temperature_c: z.number().optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough()
+  .describe("Partial<MachineState> for MillingDigitalTwinEngine.sync (anomalies + drift).");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -1084,4 +1194,12 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_rl_select_action,
   mill_head_recommend,
   mill_machine_intel_get,
+
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH4: 6 unwired deep-AI / digital-twin mill engines
+  mill_deep_reason,
+  mill_deep_integrate,
+  mill_knowledge_search,
+  mill_knowledge_stats,
+  mill_ai_unified_recommend,
+  mill_milling_twin_sync,
 };
