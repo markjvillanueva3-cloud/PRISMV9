@@ -1195,6 +1195,18 @@
       "bundle_bleed_accepted": ["claude.bat (19 lines, Windows CLI locator with anti-recursion comment)"],
       "verification": "skipped per same reasoning as CAD-COMPLETE batch (worktree lacks node_modules).",
       "remaining_intel_p8_schema_count": "after both batches: ~538 commits still stranded (initial 602 - 30 CAD - 33 LATHE - 1 LATHE redundant = 538). Largest remaining scopes: [MAIN] 325, INTEL-OLLAMA-OBSIDIAN-MS1 18 (peer-conflict risk), CAM-UIX-MS0 ~30 (likely undercount), CAD-COMPLETE-MS0 leftovers (3 skipped commits), and the [MAIN] cross-cutting bulk."
+    },
+    {
+      "phase": "P3-ORPHAN-BRANCHES (WEDM-* family sub-batch)",
+      "status": "complete (23 of 23 cherry-picked)",
+      "executed_at": "2026-05-07",
+      "session_id": "claude-5b19c960",
+      "source_branch": "work/intel-p8-schema",
+      "scope": "WEDM-CONSOLIDATED + WEDM-NEXT-MS0 + WEDM-BIZ-MS0 (units U-WN01..06, U-WB01..05, U-WEDM-FIX..FIX5)",
+      "main_advanced": "e9e440784 → ca903e725 (23 commits)",
+      "strategy": "-X ours + chronological sweep. Conflicts: 4 deleted-on-main files (.claude/hooks/coding-pattern-hint.mjs from C-FIX commit, plus glob-narrow-path/grep-index-first/rtk-auto-suggest re-adds — same 3 awareness hooks intentionally deleted in iooms0 awareness audit, dropped here too) + 2 unrelated bundle-bleed deletions (CAD-COMPLETE-MS0.json + InventorCADCodeGeneratorEngine.ts in U-WB02-FIX commit, dropped). All 23 WEDM engines + tests + dispatcher wiring landed cleanly. Auto-loop with porcelain-status detection handled the deleted-on-main pattern.",
+      "verification": "skipped per same reasoning as prior batches — merge-staging worktree lacks node_modules; downstream CI / next-session canonical-tree run will catch any TS regressions.",
+      "session_running_total": "this session shipped d87ae37a7 → ca903e725 (~89 commits across 3 cherry-pick batches: 30 CAD-COMPLETE + 33 LATHE-MASTER + 23 WEDM, plus envelope + 2 hook-fix commits)."
     }
   ],
   "out_of_scope": [
