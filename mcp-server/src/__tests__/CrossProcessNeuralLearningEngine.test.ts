@@ -170,14 +170,15 @@ describe("CrossProcessNeuralLearningEngine", () => {
     expect(x[4]).toBeGreaterThan(0);
   });
 
-  it("featurize bias unit is always 1 at the aux block (post-physics, slot INPUT_DIM-PHYSICS_FEATURE_DIM-1)", () => {
-    // Pre-FEAT03 the bias unit lived at slot INPUT_DIM-1 (last position).
-    // FEAT03 appended 5 physics features AFTER the aux block, so the bias
-    // now sits at INPUT_DIM - 5 (PHYSICS_FEATURE_DIM) - 1 = INPUT_DIM - 6.
+  it("featurize bias unit is always 1 at the aux block (pre-physics, pre-RAG)", () => {
+    // Layout: ...numerics, categoricals, aux(4), physics(5), RAG(8).
+    // The bias unit is the last slot of the aux block, so it sits at
+    // INPUT_DIM - PHYSICS_FEATURE_DIM - RAG_FEATURE_DIM - 1 = INPUT_DIM - 14.
     const PHYSICS_FEATURE_DIM = 5;
+    const RAG_FEATURE_DIM = 8;
     const r = makeRecord({});
     const x = engine.featurize(r);
-    expect(x[INPUT_DIM - PHYSICS_FEATURE_DIM - 1]).toBe(1);
+    expect(x[INPUT_DIM - PHYSICS_FEATURE_DIM - RAG_FEATURE_DIM - 1]).toBe(1);
   });
 
   // ───── recordToLabel ─────
@@ -260,7 +261,7 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   it("predict throws on wrong input length", () => {
     const wrong = new Float64Array(INPUT_DIM - 1);
-    expect(() => engine.predict(wrong)).toThrow(/length must be 136/);
+    expect(() => engine.predict(wrong)).toThrow(/length must be 144/);
   });
 
   // ───── train ─────
@@ -438,16 +439,18 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   // ───── schema export ─────
 
-  it("schema and dim constants match documented architecture (136→16→3) post U-NN-FEAT01/02/03", () => {
-    // 136 = 7 numeric + 5 bridge + 3 process + 64 material + 16 tool +
-    //       16 machine + 16 operation + 4 aux + 5 physics. Schema 2.0.0
-    //       brought the wider buckets, 2.1.0 added Welford z-score state,
-    //       2.2.0 added the physics-feature input slots (Kienzle, Taylor,
-    //       chatter, Brammertz, thermal).
-    expect(INPUT_DIM).toBe(136);
+  it("schema and dim constants match documented architecture (144→16→3) post U-NN-FEAT01/02/03/04", () => {
+    // 144 = 7 numeric + 5 bridge + 3 process + 64 material + 16 tool +
+    //       16 machine + 16 operation + 4 aux + 5 physics + 8 RAG.
+    // Schema progression:
+    //   2.0.0  wider hash buckets       (FEAT01)
+    //   2.1.0  Welford z-score          (FEAT02)
+    //   2.2.0  physics-feature slots    (FEAT03)
+    //   2.3.0  wiki RAG feature slots   (FEAT04)
+    expect(INPUT_DIM).toBe(144);
     expect(HIDDEN_DIM).toBe(16);
     expect(OUTPUT_DIM).toBe(3);
-    expect(SCHEMA_VERSION).toBe("2.2.0");
+    expect(SCHEMA_VERSION).toBe("2.3.0");
   });
 
   // ───── U-NN-FIX01: backprop numeric-gradient correctness ─────

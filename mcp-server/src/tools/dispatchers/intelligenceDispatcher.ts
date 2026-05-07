@@ -440,6 +440,10 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   // 5 physics-derived features (Kienzle force, Taylor life, chatter risk,
   // Brammertz Ra, thermal load) for the cross-process neural learner.
   "xproc_physics_features", "xproc_physics_features_batch",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-FEAT04: WikiRAGFeatureEngine —
+  // 8 RAG features from tribal-knowledge tips (count, top/avg confidence,
+  // 5 category indicators).
+  "xproc_rag_features", "xproc_rag_clear_cache",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1430,6 +1434,53 @@ export function registerIntelligenceDispatcher(server: any): void {
                 features: Array.from(flat),
                 rows: records.length,
                 cols: PHYSICS_FEATURE_DIM,
+              }),
+            }],
+          };
+        }
+
+        // === XPROC-NEURAL-OPTIMIZE/U-NN-FEAT04: WikiRAGFeatureEngine ===
+        // 8 features per OutcomeRecord: tip count, top/avg confidence,
+        // 5 category indicators (force, surface, chatter, thermal, tool_life).
+        if (action === "xproc_rag_features") {
+          const { WikiRAGFeatureEngine, RAG_FEATURE_INDEX } =
+            await import("../../engines/WikiRAGFeatureEngine.js");
+          const record = params.record as Parameters<
+            typeof WikiRAGFeatureEngine.extractRAGFeatures
+          >[0] | undefined;
+          if (!record) {
+            return dispatcherError(
+              "xproc_rag_features requires `record`",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const features = WikiRAGFeatureEngine.extractRAGFeatures(record);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                features: Array.from(features),
+                index: RAG_FEATURE_INDEX,
+                cacheSize: WikiRAGFeatureEngine.cacheSize(),
+                tipsLoaded: WikiRAGFeatureEngine.tipsLoaded(),
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_rag_clear_cache") {
+          const { WikiRAGFeatureEngine } =
+            await import("../../engines/WikiRAGFeatureEngine.js");
+          WikiRAGFeatureEngine.clearCache();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                cleared: true,
               }),
             }],
           };

@@ -64,6 +64,10 @@ import {
   PhysicsFeatureExtractorEngine,
   PHYSICS_FEATURE_DIM,
 } from "./PhysicsFeatureExtractorEngine.js";
+import {
+  WikiRAGFeatureEngine,
+  RAG_FEATURE_DIM,
+} from "./WikiRAGFeatureEngine.js";
 
 // ============================================================================
 // CONSTANTS
@@ -77,7 +81,10 @@ import {
 // Schema 2.1.0→2.2.0 with U-NN-FEAT03: 5 physics features appended
 //   (Kienzle force, Taylor life, chatter risk, Brammertz Ra, thermal load).
 //   Input dim 131→136. Welford extended to cover physics features too.
-export const SCHEMA_VERSION = "2.2.0";
+// Schema 2.2.0→2.3.0 with U-NN-FEAT04: 8 RAG features appended (tip count,
+//   top-K confidence stats, 5 category indicators). Input dim 136→144.
+//   RAG features are NOT z-scored — counts/binaries already in unit range.
+export const SCHEMA_VERSION = "2.3.0";
 
 const NUMERIC_KEYS_DIM = 7;
 const BRIDGE_DIM = 5;
@@ -91,7 +98,10 @@ const AUX_DIM = 4;
 // accumulator as the raw numerics — they're real-valued continuous inputs.
 const PHYSICS_DIM = PHYSICS_FEATURE_DIM; // = 5
 // Total numerics seen by Welford = raw (7) + physics (5) = 12.
+// RAG features (counts + confidences + binary indicators) are already in
+// unit range and do NOT pass through Welford.
 const TOTAL_NUMERIC_DIM = NUMERIC_KEYS_DIM + PHYSICS_DIM;
+const RAG_DIM = RAG_FEATURE_DIM; // = 8 (U-NN-FEAT04)
 
 export const INPUT_DIM =
   NUMERIC_KEYS_DIM +
@@ -102,7 +112,8 @@ export const INPUT_DIM =
   MACHINE_FAMILY_BUCKETS +
   OPERATION_BUCKETS +
   AUX_DIM +
-  PHYSICS_DIM; // 7+5+3+64+16+16+16+4+5 = 136
+  PHYSICS_DIM +
+  RAG_DIM; // 7+5+3+64+16+16+16+4+5+8 = 144
 export const HIDDEN_DIM = 16;
 export const OUTPUT_DIM = 3;
 
@@ -437,6 +448,20 @@ export class CrossProcessNeuralLearningEngine {
           Z_SCORE_CLIP_RANGE,
         );
       }
+      f[offset++] = normalized;
+    }
+
+    // 10. Wiki RAG features (8) — U-NN-FEAT04. Already unit-bounded
+    //     (counts clipped to TIP_COUNT_CLIP, confidences in [0,1], category
+    //     indicators in {0,1}), so they bypass Welford. The first slot
+    //     (tip_count) is divided by its clip to bring it into [0,1].
+    const rag = WikiRAGFeatureEngine.extractRAGFeatures(record);
+    const TIP_COUNT_CLIP_FOR_NORM = 50;
+    for (let k = 0; k < RAG_FEATURE_DIM; k++) {
+      const raw = Number.isFinite(rag[k]) ? rag[k] : 0;
+      // Slot 0 (tip_count) needs scaling; slots 1..7 are already bounded.
+      const normalized =
+        k === 0 ? Math.min(1, raw / TIP_COUNT_CLIP_FOR_NORM) : raw;
       f[offset++] = normalized;
     }
 

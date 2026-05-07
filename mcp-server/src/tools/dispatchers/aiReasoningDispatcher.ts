@@ -393,6 +393,25 @@ const XPROC_TIER1_HANDLERS: Record<string, XprocTier1Handler> = {
     const flat = PhysicsFeatureExtractorEngine.extractBatch(records);
     return { features: Array.from(flat), rows: records.length, cols: PHYSICS_FEATURE_DIM };
   },
+  // U-NN-FEAT04: WikiRAGFeatureEngine — 8 RAG features from tribal knowledge
+  xproc_rag_features: async (params) => {
+    const { WikiRAGFeatureEngine, RAG_FEATURE_INDEX } =
+      await import("../../engines/WikiRAGFeatureEngine.js");
+    const record = params.record as Parameters<typeof WikiRAGFeatureEngine.extractRAGFeatures>[0] | undefined;
+    if (!record) throw new Error("xproc_rag_features requires `record`");
+    const features = WikiRAGFeatureEngine.extractRAGFeatures(record);
+    return {
+      features: Array.from(features),
+      index: RAG_FEATURE_INDEX,
+      cacheSize: WikiRAGFeatureEngine.cacheSize(),
+      tipsLoaded: WikiRAGFeatureEngine.tipsLoaded(),
+    };
+  },
+  xproc_rag_clear_cache: async () => {
+    const { WikiRAGFeatureEngine } = await import("../../engines/WikiRAGFeatureEngine.js");
+    WikiRAGFeatureEngine.clearCache();
+    return { cleared: true };
+  },
 };
 
 async function routeXprocAction(action: string, params: Record<string, unknown>): Promise<unknown> {
@@ -1715,7 +1734,9 @@ export async function executeAIReasoningAction(
       case "xproc_attention_baseline_reset":
       case "xproc_agi_compose":
       case "xproc_physics_features":
-      case "xproc_physics_features_batch": {
+      case "xproc_physics_features_batch":
+      case "xproc_rag_features":
+      case "xproc_rag_clear_cache": {
         result = await routeXprocAction(action, params);
         break;
       }

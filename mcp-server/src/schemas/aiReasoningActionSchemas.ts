@@ -313,6 +313,9 @@ export const AI_REASONING_ACTIONS = [
   // U-NN-FEAT03: PhysicsFeatureExtractorEngine — Kienzle/Taylor/chatter/Ra/thermal
   "xproc_physics_features",
   "xproc_physics_features_batch",
+  // U-NN-FEAT04: WikiRAGFeatureEngine — tribal-tip RAG features
+  "xproc_rag_features",
+  "xproc_rag_clear_cache",
   // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 unwired AI/reasoning engines
   "cognitive_budget_allocate",      // CognitiveBudgetAllocatorEngine.allocate
   "ensemble_register_member",       // EnsembleModelSelectorEngine.registerMember
@@ -1493,6 +1496,8 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_agi_compose: z.object({}).passthrough(),
   xproc_physics_features: z.object({}).passthrough(),
   xproc_physics_features_batch: z.object({}).passthrough(),
+  xproc_rag_features: z.object({}).passthrough(),
+  xproc_rag_clear_cache: z.object({}).passthrough(),
   // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 newly-wired AI engines
   cognitive_budget_allocate: z.object({
     kind: z.enum(["read", "edit", "create", "refactor", "review", "analysis", "chat"])

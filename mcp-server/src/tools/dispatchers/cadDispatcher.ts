@@ -241,6 +241,18 @@ const ACTIONS = [
   "cad_feature_memory_lookup",  // CADFeatureMemoryEngine — fetch by id
   "cad_feature_memory_query",   // CADFeatureMemoryEngine — query by filter
   "cad_feature_memory_stats",   // CADFeatureMemoryEngine — memory health stats
+  // CAD-FUSION-LIVE-MS0 PHASE23: wire 6 print/modeling/feature/engineering orphans
+  "cad_blueprint_generate",        // BlueprintToCADGenerationEngine — full print→3D pipeline
+  "cad_blueprint_extract_features",// BlueprintToCADGenerationEngine — OCR → FeatureSpec[]
+  "cad_drawing_index_sources",     // DrawingTemplateIndexEngine — list source dirs
+  "cad_drawing_index_harvest",     // DrawingTemplateIndexEngine — full template scan
+  "cad_feature_tree_validate",     // GroundTruthFeatureTreeExtractor — schema validate
+  "cad_feature_tree_extract",      // GroundTruthFeatureTreeExtractor — file → canonical tree
+  "cad_cam_feature_extract_one",   // CAMFeatureExtractorEngine — NC program → feature vector
+  "cad_feature_store_put",         // FeatureStoreEngine — append-only feature row
+  "cad_feature_store_query",       // FeatureStoreEngine — AS-OF historical features
+  "cad_feature_store_stats",       // FeatureStoreEngine — store health stats
+  "cad_part_springback",           // SpringbackPredictionEngine — thin-wall elastic recovery
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2227,6 +2239,107 @@ Params vary by action — pass relevant fields in params object.`,
             });
             const kbm_macro = EspritCADExecutionBridge.renderKBMScaffold(plan);
             result = { success: true, plan, kbm_macro };
+            break;
+          }
+          // ── PHASE23: print / modeling / feature / engineering orphans ──
+          case "cad_blueprint_generate": {
+            const { blueprintToCADGenerationEngine } = await import("../../engines/BlueprintToCADGenerationEngine.js");
+            const data = await blueprintToCADGenerationEngine.generate(
+              params.input ?? params,
+              params.generation_backend ?? params.generationBackend,
+              params.ocr_backend ?? params.ocrBackend,
+              params.embedding_backend ?? params.embeddingBackend,
+              params.corpus,
+              params.config,
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_blueprint_extract_features": {
+            const ocr = params.ocr ?? params.ocrResult;
+            if (!ocr || typeof ocr !== "object") {
+              return dispatcherError(
+                new Error("cad_blueprint_extract_features requires ocr (BlueprintOCRResult)"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintToCADGenerationEngine } = await import("../../engines/BlueprintToCADGenerationEngine.js");
+            const data = blueprintToCADGenerationEngine.extractFeatures(ocr as Parameters<typeof blueprintToCADGenerationEngine.extractFeatures>[0]);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_drawing_index_sources": {
+            const { DrawingTemplateIndexEngine } = await import("../../engines/DrawingTemplateIndexEngine.js");
+            const data = DrawingTemplateIndexEngine.getSources();
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_drawing_index_harvest": {
+            const { DrawingTemplateIndexEngine } = await import("../../engines/DrawingTemplateIndexEngine.js");
+            const data = await DrawingTemplateIndexEngine.harvest();
+            result = { success: true, data };
+            break;
+          }
+          case "cad_feature_tree_validate": {
+            const candidate = params.candidate ?? params.tree ?? params;
+            const { groundTruthFeatureTreeExtractor } = await import("../../engines/GroundTruthFeatureTreeExtractor.js");
+            const data = groundTruthFeatureTreeExtractor.validate(candidate);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_feature_tree_extract": {
+            const filePath = params.file_path ?? params.filePath;
+            if (!filePath || typeof filePath !== "string") {
+              return dispatcherError(
+                new Error("cad_feature_tree_extract requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthFeatureTreeExtractor } = await import("../../engines/GroundTruthFeatureTreeExtractor.js");
+            const data = await groundTruthFeatureTreeExtractor.extract(
+              filePath,
+              params.format_hint ?? params.formatHint,
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_cam_feature_extract_one": {
+            const programPath = params.program_path ?? params.programPath;
+            if (!programPath || typeof programPath !== "string") {
+              return dispatcherError(
+                new Error("cad_cam_feature_extract_one requires program_path"),
+                action, "prism_cad",
+              );
+            }
+            const { camFeatureExtractorEngine } = await import("../../engines/CAMFeatureExtractorEngine.js");
+            const data = camFeatureExtractorEngine.extractOne(programPath);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_feature_store_put": {
+            const { featureStoreEngine } = await import("../../engines/FeatureStoreEngine.js");
+            const data = featureStoreEngine.put(params.input ?? params as Parameters<typeof featureStoreEngine.put>[0]);
+            result = { success: data.ok, data };
+            break;
+          }
+          case "cad_feature_store_query": {
+            const query = params.query ?? params;
+            const { featureStoreEngine } = await import("../../engines/FeatureStoreEngine.js");
+            const data = featureStoreEngine.getHistoricalFeatures(query as Parameters<typeof featureStoreEngine.getHistoricalFeatures>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_feature_store_stats": {
+            const { featureStoreEngine } = await import("../../engines/FeatureStoreEngine.js");
+            const data = featureStoreEngine.stats();
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_springback": {
+            const input = params.input ?? params;
+            const { springbackPredictionEngine } = await import("../../engines/SpringbackPredictionEngine.js");
+            const data = springbackPredictionEngine.compute(input as Parameters<typeof springbackPredictionEngine.compute>[0]);
+            result = { success: true, data };
             break;
           }
           default:
