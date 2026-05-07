@@ -214,8 +214,10 @@ const ACTIONS = [
   "cad_blueprint_infer_class", "cad_blueprint_flag_features",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
   // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
-  "cad_route_detect_system", "cad_route_list_systems", "cad_route_plan_render",
-  "cad_route_find_op", "cad_route_capabilities",
+  "cad_route_detect_system", "cad_route_supported_systems", "cad_route_plan_execution",
+  "cad_route_find_operation", "cad_route_capabilities",
+  // CAD-FUSION-LIVE-MS0 PHASE19: Esprit-direct dispatcher actions (closes 6/6 from 0eb766b8e)
+  "cad_esprit_plan_execution", "cad_esprit_render_kbm",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1918,50 +1920,98 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: true, data: { can_redistribute: onlinePrintHarvestEngine.canRedistribute(params.filter ?? {}) } };
             break;
           }
-          // ── CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router ────────────────
+          // ── CAD-FUSION-LIVE-MS0 PHASE18+19: 6-CAD execution router ─────────────
+          // Response shapes match canonical SHAs 99b5f41b9 (5-CAD) + 0eb766b8e (Esprit closure).
           case "cad_route_detect_system": {
             const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
             const detected = CADSystemRouterEngine.detectSystem({
-              sourceSystem: params.source_system,
-              filePath: params.file_path,
+              sourceSystem: params.source_system ?? params.sourceSystem,
+              filePath: params.file_path ?? params.filePath,
             });
-            result = { success: true, data: { system: detected } };
+            result = { success: true, detected_system: detected };
             break;
           }
-          case "cad_route_list_systems": {
+          case "cad_route_supported_systems": {
             const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
-            result = { success: true, data: CADSystemRouterEngine.listSupportedSystems() };
+            result = { success: true, ...CADSystemRouterEngine.listSupportedSystems() };
             break;
           }
-          case "cad_route_plan_render": {
+          case "cad_route_plan_execution": {
             const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
-            const sys = params.system ?? CADSystemRouterEngine.detectSystem({
-              sourceSystem: params.source_system,
-              filePath: params.file_path,
+            const sys = (params.system ?? params.systemId) ?? CADSystemRouterEngine.detectSystem({
+              sourceSystem: params.source_system ?? params.sourceSystem,
+              filePath: params.file_path ?? params.filePath,
             });
             if (!sys) {
-              result = { success: false, error: "could not determine CAD system from params (provide system, source_system, or file_path with known extension)" };
-              break;
+              return dispatcherError(
+                new Error("cad_route_plan_execution requires `system` (or `source_system` / `file_path` from which the system can be detected)"),
+                action, "prism_cad",
+              );
             }
-            const data = await CADSystemRouterEngine.planAndRender({
+            const moduleId = params.module_id ?? params.moduleId;
+            const operationId = params.operation_id ?? params.operationId;
+            if (!moduleId || !operationId) {
+              return dispatcherError(
+                new Error("cad_route_plan_execution requires module_id and operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const routed = await CADSystemRouterEngine.planAndRender({
               system: sys,
-              moduleId: params.module_id,
-              operationId: params.operation_id,
-              params: params.op_params ?? {},
+              moduleId,
+              operationId,
+              params: params.op_params ?? params.params ?? {},
             });
-            result = { success: true, data };
+            result = { success: true, routed };
             break;
           }
-          case "cad_route_find_op": {
+          case "cad_route_find_operation": {
             const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
-            const matches = await CADSystemRouterEngine.findOperationAcrossSystems(params.operation_id);
-            result = { success: true, data: { matches, count: matches.length } };
+            const operationId = params.operation_id ?? params.operationId;
+            const matches = await CADSystemRouterEngine.findOperationAcrossSystems(operationId);
+            result = { success: true, operation_id: operationId, count: matches.length, matches };
             break;
           }
           case "cad_route_capabilities": {
             const { CADSystemRouterEngine } = await import("../../engines/CADSystemRouterEngine.js");
             const matrix = await CADSystemRouterEngine.listCapabilitiesAcrossSystems();
-            result = { success: true, data: matrix };
+            result = { success: true, ...matrix };
+            break;
+          }
+          // ── PHASE19: Esprit-direct (port from 0eb766b8e) ─────────────────────
+          case "cad_esprit_plan_execution": {
+            const operationId = params.operation_id ?? params.operationId;
+            if (!operationId || typeof operationId !== "string") {
+              return dispatcherError(
+                new Error("cad_esprit_plan_execution requires operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const { EspritCADExecutionBridge } = await import("../../engines/EspritCADExecutionBridge.js");
+            const plan = EspritCADExecutionBridge.plan({
+              operationId,
+              params: params.op_params ?? params.params ?? {},
+              sectionHint: params.section_hint ?? params.sectionHint,
+            });
+            result = { success: true, plan };
+            break;
+          }
+          case "cad_esprit_render_kbm": {
+            const operationId = params.operation_id ?? params.operationId;
+            if (!operationId || typeof operationId !== "string") {
+              return dispatcherError(
+                new Error("cad_esprit_render_kbm requires operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const { EspritCADExecutionBridge } = await import("../../engines/EspritCADExecutionBridge.js");
+            const plan = EspritCADExecutionBridge.plan({
+              operationId,
+              params: params.op_params ?? params.params ?? {},
+              sectionHint: params.section_hint ?? params.sectionHint,
+            });
+            const kbm_macro = EspritCADExecutionBridge.renderKBMScaffold(plan);
+            result = { success: true, plan, kbm_macro };
             break;
           }
           default:
