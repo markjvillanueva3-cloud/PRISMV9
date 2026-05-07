@@ -1,3 +1,8 @@
+---
+name: wedm-batch
+description: /wedm-batch — Wire EDM Batch Operations
+---
+
 # /wedm-batch — Wire EDM Batch Operations
 
 Run batch validation, generation, or testing across the WEDM material×thickness×wire×dialect matrix.
