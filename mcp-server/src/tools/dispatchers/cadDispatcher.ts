@@ -288,6 +288,27 @@ const ACTIONS = [
   "cad_fixture_ingest_directory",  // FixtureCadIngesterEngine — directory of fixture CAD
   "cad_kg_build",                  // CADKnowledgeGraphEngine — operations → graph
   "cad_kg_detect_cycles",          // CADKnowledgeGraphEngine — cycle detection in build DAG
+  // CAD-FUSION-LIVE-MS0 PHASE26: wire 5 part-family/probe/surface/machine-capability orphans
+  "cad_part_family_lot_size",          // PartFamilyEconomicsEngine.analyzeLotSize
+  "cad_part_family_tool_rotation",     // PartFamilyEconomicsEngine.analyzeToolRotation
+  "cad_part_family_cost_drivers",      // PartFamilyEconomicsEngine.analyzeCostDrivers
+  "cad_part_family_batch_purchasing",  // PartFamilyEconomicsEngine.analyzeBatchPurchasing
+  "cad_part_family_report",            // PartFamilyEconomicsEngine.getPartFamilyReport
+  "cad_probe_drift_record",            // ProbeDriftEngine.recordCalibration (static)
+  "cad_probe_drift_analyze",           // ProbeDriftEngine.analyzeDrift (static)
+  "cad_probe_drift_history",           // ProbeDriftEngine.getCalibrationHistory (static)
+  "cad_probe_drift_alerts",            // ProbeDriftEngine.getActiveAlerts (static)
+  "cad_probe_record",                  // ProbeRecordEngine.recordProbe (static)
+  "cad_probe_tool_setter_record",      // ProbeRecordEngine.recordToolSetter (static)
+  "cad_probe_get",                     // ProbeRecordEngine.getProbeRecord (static)
+  "cad_probe_list",                    // ProbeRecordEngine.listProbeRecords (static)
+  "cad_surface_finish_predict",        // SurfaceFinishCnnEngine.predict
+  "cad_surface_finish_predict_batch",  // SurfaceFinishCnnEngine.predictBatch
+  "cad_surface_finish_model_metadata", // SurfaceFinishCnnEngine.getModelMetadata
+  "cad_machine_capability_get",        // MachineCapabilitySurfaceEngine.getCapabilitySummary
+  "cad_machine_capability_controller", // MachineCapabilitySurfaceEngine.getControllerCapabilities
+  "cad_machine_capability_compare",    // MachineCapabilitySurfaceEngine.compareCapabilities
+  "cad_machine_capability_find",       // MachineCapabilitySurfaceEngine.findByCapabilities
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2798,6 +2819,197 @@ Params vary by action — pass relevant fields in params object.`,
             }
             const { cadKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
             const data = cadKnowledgeGraphEngine.detectCycles(graph as Parameters<typeof cadKnowledgeGraphEngine.detectCycles>[0]);
+            result = { success: true, data };
+            break;
+          }
+          // ── PHASE26: part-family economics + probe + surface CNN + machine capability ──
+          case "cad_part_family_lot_size": {
+            const { partFamilyEconomicsEngine } = await import("../../engines/PartFamilyEconomicsEngine.js");
+            const data = partFamilyEconomicsEngine.analyzeLotSize(params.input ?? params as Parameters<typeof partFamilyEconomicsEngine.analyzeLotSize>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_family_tool_rotation": {
+            const { partFamilyEconomicsEngine } = await import("../../engines/PartFamilyEconomicsEngine.js");
+            const data = partFamilyEconomicsEngine.analyzeToolRotation(params.input ?? params as Parameters<typeof partFamilyEconomicsEngine.analyzeToolRotation>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_family_cost_drivers": {
+            const { partFamilyEconomicsEngine } = await import("../../engines/PartFamilyEconomicsEngine.js");
+            const data = partFamilyEconomicsEngine.analyzeCostDrivers(params.input ?? params as Parameters<typeof partFamilyEconomicsEngine.analyzeCostDrivers>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_family_batch_purchasing": {
+            const { partFamilyEconomicsEngine } = await import("../../engines/PartFamilyEconomicsEngine.js");
+            const data = partFamilyEconomicsEngine.analyzeBatchPurchasing(params.input ?? params as Parameters<typeof partFamilyEconomicsEngine.analyzeBatchPurchasing>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_family_report": {
+            const { partFamilyEconomicsEngine } = await import("../../engines/PartFamilyEconomicsEngine.js");
+            const data = partFamilyEconomicsEngine.getPartFamilyReport(params.input ?? params as Parameters<typeof partFamilyEconomicsEngine.getPartFamilyReport>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_probe_drift_record": {
+            const { ProbeDriftEngine } = await import("../../engines/ProbeDriftEngine.js");
+            const data = ProbeDriftEngine.recordCalibration(params.data ?? params as Parameters<typeof ProbeDriftEngine.recordCalibration>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_probe_drift_analyze": {
+            const probeId = String(params.probe_id ?? params.probeId ?? "");
+            if (probeId.length === 0) {
+              return dispatcherError(
+                new Error("cad_probe_drift_analyze requires probe_id"),
+                action, "prism_cad",
+              );
+            }
+            const { ProbeDriftEngine } = await import("../../engines/ProbeDriftEngine.js");
+            const data = ProbeDriftEngine.analyzeDrift(probeId);
+            result = { success: data !== undefined, data: data ?? null };
+            break;
+          }
+          case "cad_probe_drift_history": {
+            const probeId = String(params.probe_id ?? params.probeId ?? "");
+            if (probeId.length === 0) {
+              return dispatcherError(
+                new Error("cad_probe_drift_history requires probe_id"),
+                action, "prism_cad",
+              );
+            }
+            const { ProbeDriftEngine } = await import("../../engines/ProbeDriftEngine.js");
+            const limit = typeof params.limit === "number" ? params.limit : undefined;
+            const data = ProbeDriftEngine.getCalibrationHistory(probeId, limit);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_probe_drift_alerts": {
+            const { ProbeDriftEngine } = await import("../../engines/ProbeDriftEngine.js");
+            const probeId = params.probe_id ?? params.probeId;
+            const data = ProbeDriftEngine.getActiveAlerts(typeof probeId === "string" ? probeId : undefined);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_probe_record": {
+            const { ProbeRecordEngine } = await import("../../engines/ProbeRecordEngine.js");
+            const data = ProbeRecordEngine.recordProbe(params.data ?? params as Parameters<typeof ProbeRecordEngine.recordProbe>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_probe_tool_setter_record": {
+            const { ProbeRecordEngine } = await import("../../engines/ProbeRecordEngine.js");
+            const data = ProbeRecordEngine.recordToolSetter(params.data ?? params as Parameters<typeof ProbeRecordEngine.recordToolSetter>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_probe_get": {
+            const id = String(params.id ?? "");
+            if (id.length === 0) {
+              return dispatcherError(
+                new Error("cad_probe_get requires id"),
+                action, "prism_cad",
+              );
+            }
+            const { ProbeRecordEngine } = await import("../../engines/ProbeRecordEngine.js");
+            const data = ProbeRecordEngine.getProbeRecord(id);
+            result = { success: data !== undefined, data: data ?? null };
+            break;
+          }
+          case "cad_probe_list": {
+            const { ProbeRecordEngine } = await import("../../engines/ProbeRecordEngine.js");
+            const filter = {
+              machineId: typeof params.machine_id === "string" ? params.machine_id : (typeof params.machineId === "string" ? params.machineId : undefined),
+              partNumber: typeof params.part_number === "string" ? params.part_number : (typeof params.partNumber === "string" ? params.partNumber : undefined),
+              workOrderNumber: typeof params.work_order_number === "string" ? params.work_order_number : (typeof params.workOrderNumber === "string" ? params.workOrderNumber : undefined),
+            };
+            const data = ProbeRecordEngine.listProbeRecords(filter);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_surface_finish_predict": {
+            const toolpath = params.toolpath;
+            const material = params.material;
+            if (!toolpath || !material) {
+              return dispatcherError(
+                new Error("cad_surface_finish_predict requires toolpath + material objects"),
+                action, "prism_cad",
+              );
+            }
+            const { surfaceFinishCnnEngine } = await import("../../engines/SurfaceFinishCnnEngine.js");
+            const data = surfaceFinishCnnEngine.predict(
+              toolpath as Parameters<typeof surfaceFinishCnnEngine.predict>[0],
+              material as Parameters<typeof surfaceFinishCnnEngine.predict>[1],
+              params.dynamic as Parameters<typeof surfaceFinishCnnEngine.predict>[2],
+              typeof params.target_ra_um === "number" ? params.target_ra_um : (typeof params.targetRaUm === "number" ? params.targetRaUm : undefined),
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_surface_finish_predict_batch": {
+            const inputs = params.inputs;
+            if (!Array.isArray(inputs) || inputs.length === 0) {
+              return dispatcherError(
+                new Error("cad_surface_finish_predict_batch requires inputs[] array"),
+                action, "prism_cad",
+              );
+            }
+            const { surfaceFinishCnnEngine } = await import("../../engines/SurfaceFinishCnnEngine.js");
+            const data = surfaceFinishCnnEngine.predictBatch(inputs as Parameters<typeof surfaceFinishCnnEngine.predictBatch>[0]);
+            result = { success: true, data, count: data.predictions.length };
+            break;
+          }
+          case "cad_surface_finish_model_metadata": {
+            const { surfaceFinishCnnEngine } = await import("../../engines/SurfaceFinishCnnEngine.js");
+            const data = surfaceFinishCnnEngine.getModelMetadata();
+            result = { success: true, data };
+            break;
+          }
+          case "cad_machine_capability_get": {
+            const machineId = String(params.machine_id ?? params.machineId ?? "");
+            if (machineId.length === 0) {
+              return dispatcherError(
+                new Error("cad_machine_capability_get requires machine_id"),
+                action, "prism_cad",
+              );
+            }
+            const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+            const data = machineCapabilitySurfaceEngine.getCapabilitySummary(machineId);
+            result = { success: data !== null, data: data ?? null };
+            break;
+          }
+          case "cad_machine_capability_controller": {
+            const machineId = String(params.machine_id ?? params.machineId ?? "");
+            if (machineId.length === 0) {
+              return dispatcherError(
+                new Error("cad_machine_capability_controller requires machine_id"),
+                action, "prism_cad",
+              );
+            }
+            const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+            const data = machineCapabilitySurfaceEngine.getControllerCapabilities(machineId);
+            result = { success: data !== null, data: data ?? null };
+            break;
+          }
+          case "cad_machine_capability_compare": {
+            const machineIds = params.machine_ids ?? params.machineIds;
+            if (!Array.isArray(machineIds) || machineIds.length === 0) {
+              return dispatcherError(
+                new Error("cad_machine_capability_compare requires machine_ids[] (string[])"),
+                action, "prism_cad",
+              );
+            }
+            const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+            const data = machineCapabilitySurfaceEngine.compareCapabilities(machineIds as string[]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_machine_capability_find": {
+            const requirements = params.requirements ?? params;
+            const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+            const data = machineCapabilitySurfaceEngine.findByCapabilities(requirements as Parameters<typeof machineCapabilitySurfaceEngine.findByCapabilities>[0]);
             result = { success: true, data };
             break;
           }
