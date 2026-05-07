@@ -14,11 +14,11 @@
 
 export type FeatureType =
   | "through_hole" | "blind_hole" | "counterbore" | "countersink" | "tapped_hole"
-  | "pocket_rectangular" | "pocket_circular" | "pocket_freeform"
-  | "slot_through" | "slot_blind" | "keyway"
+  | "pocket_rectangular" | "pocket_circular" | "pocket_freeform" | "pocket_complex"
+  | "slot_through" | "slot_blind" | "slot_dovetail" | "slot_t_shaped" | "keyway"
   | "boss_circular" | "boss_rectangular"
   | "fillet" | "chamfer"
-  | "face" | "step" | "groove" | "thread_external"
+  | "face" | "step" | "groove" | "thread_external" | "thread_internal"
   | "contour_2d" | "contour_3d";
 
 /** Recognized Feature configuration/data structure.
@@ -119,6 +119,11 @@ const FEATURE_RULES: Record<FeatureType, FeatureRule> = {
   thread_external:    { type: "thread_external", difficulty: "complex", operations: ["thread_milling"], tools: ["thread_mill"], baseCycleTimeSec: 35, accessibility: "open" },
   contour_2d:         { type: "contour_2d", difficulty: "moderate", operations: ["profiling"], tools: ["end_mill"], baseCycleTimeSec: 30, accessibility: "open" },
   contour_3d:         { type: "contour_3d", difficulty: "complex", operations: ["3d_profiling", "rest_machining"], tools: ["ball_mill", "end_mill"], baseCycleTimeSec: 90, accessibility: "semi_open" },
+  // ── PHASE17 (CAD-FUSION-LIVE-MS0): types ported from orphan PRISM_ML_FEATURE_RECOGNITION ─
+  pocket_complex:     { type: "pocket_complex", difficulty: "very_complex", operations: ["adaptive_roughing", "rest_machining", "finishing", "ball_finishing"], tools: ["end_mill", "ball_mill"], baseCycleTimeSec: 180, accessibility: "semi_open" },
+  slot_dovetail:      { type: "slot_dovetail", difficulty: "complex", operations: ["slotting", "dovetail_cut"], tools: ["end_mill", "dovetail_cutter"], baseCycleTimeSec: 60, accessibility: "restricted" },
+  slot_t_shaped:      { type: "slot_t_shaped", difficulty: "moderate", operations: ["through_slot", "t_slot_undercut"], tools: ["end_mill", "t_slot_cutter"], baseCycleTimeSec: 50, accessibility: "semi_open" },
+  thread_internal:    { type: "thread_internal", difficulty: "complex", operations: ["drilling", "tapping"], tools: ["tap", "thread_mill"], baseCycleTimeSec: 40, accessibility: "restricted" },
 };
 
 // ============================================================================
