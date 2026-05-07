@@ -1,3 +1,8 @@
+---
+name: local-ask
+description: Local Ask — Route Prompt Through Local LLM Stack First
+---
+
 # Local Ask — Route Prompt Through Local LLM Stack First
 
 Route a prompt through PRISM's local LLM orchestration so Ollama models (with optional LoRA adapter) handle it before any cloud call. Cloud fallback only fires if the local stack can't meet hard requirements (tool use, safety, context window).

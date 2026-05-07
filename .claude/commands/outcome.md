@@ -1,3 +1,8 @@
+---
+name: outcome
+description: Outcome — Log Shop Run Result for PRISM Learning Loop
+---
+
 # Outcome — Log Shop Run Result for PRISM Learning Loop
 
 Record the real-world result of a PRISM-produced CNC program. This is the truthful signal that feeds U-LLM6 LoRA training — without it, the local model trains on self-play instead of shop reality.

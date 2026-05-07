@@ -1,3 +1,8 @@
+---
+name: sync-memory
+description: Sync Memory — Export/Import PRISM Memory Across PCs via H: Drive
+---
+
 # Sync Memory — Export/Import PRISM Memory Across PCs via H: Drive
 
 Dump PRISM's Qdrant-backed memory to a JSON bundle on the portable H: drive (or import one into a fresh PC). Designed for the home-PC / work-PC / drive-swap workflow: tribal tips, program embeddings, outcome vectors, and formula memories follow the drive.

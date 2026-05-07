@@ -1,3 +1,8 @@
+---
+name: memory-search
+description: Memory Search — Semantic Lookup Across PRISM Qdrant Collections
+---
+
 # Memory Search — Semantic Lookup Across PRISM Qdrant Collections
 
 Semantic search over PRISM's long-term memory: past programs, outcomes, tribal tips, formulas, rules, playbooks, operator notes. Returns the closest matches with payloads so the caller can reason over shop history.
