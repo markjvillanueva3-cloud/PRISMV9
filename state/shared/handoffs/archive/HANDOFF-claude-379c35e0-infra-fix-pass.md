@@ -1,0 +1,12 @@
+# HANDOFF: claude-379c35e0
+Updated: 2026-04-29T13:17:28.484Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-379c35e0
+
+## STATE
+9 INFRA-FIX commits shipped this session: e48b368a2 (per-session precompact marker), d0bfbe7de (MCP_MAX_CONCURRENT 3->6), cc4c5c48c (8 token-economy hooks), 4042a0295 (test gate v1), d58349aef (auto-bug-hunt-after-build), 8283200c2 (regex tighten), 63896e4e4 (tsc-cache 67x speedup), afc8e55ed (test gate v2 vitest contract + suite-size guard), d3b336dee (worktree-route decision:block + INFRA-FIX bypass). Discovered hardened test gate is correctly blocking my own session because no full-suite VITEST_REPORT.json exists — that is the gate doing its job, not a bug.
+
+## RESUME
+Resume infra-fix work: (1) Build the 2 hooks user requested — error-pattern-learner.mjs (PostToolUse capture + UserPromptSubmit recall, append to state/shared/ERROR_LEDGER.jsonl) and hook-modification-justification.mjs (PreToolUse:Edit/Write gate on .claude/hooks/*.mjs and settings.json, requires WHY: comment OR HOOK_CHANGE_JUSTIFICATIONS.jsonl entry OR HOOK_LOCK_OVERRIDE=1). Mid-write tool error lost the first attempt. (2) Cleanup remaining slow Stop hooks: stop-obsidian-memory-extract (12s timeout), git-health-guard (12s timeout), stop-auto-wire (8s), node-orphan-cleaner (6s). (3) Seed real full-suite VITEST_REPORT.json — current file is the 33-test U-WIRE39 slice, gate's MIN_SUITE_SIZE=1000 correctly rejects it. Run: cd /h/prism/mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json. (4) Coordinate with claude-cba638c3 on h:/.claude/settings.json — 4 ghost registrations to remove (lines 100/110/474/494: ai-command-awareness, prism-awareness-v2, multi-session-awareness, cross-session-awareness).
+
+## CONTEXT
+Slow Stop hooks identified (timed against my session): stop_on_failing_tests=12s (auto-runs vitest when stale, expected), stop-obsidian-memory-extract=12s (timeout=fix), git-health-guard=12s (timeout=fix), stop-auto-wire=8s, node-orphan-cleaner=6s. Worktree H:/prism-engine-wire-ms0 still owns U-WIRE39 (commit 7ad6261c8). My OWN engine wire commits live there, infra fixes live on work/cam-exhaust-ms0 main tree (legitimate cross-cutting per the new INFRA-FIX bypass). Peer chats this session worked on: claude-cba638c3 (h:/.claude/settings.json + iooms1 MS1 milestones), claude-93a0f582 (cam-ms1 fusion360 + hypercad), claude-379c35e0 (fusion-ms1 milling-2d/3d-deep), claude-b0b6f0bd (PPG MS0-MS17 milestones + scratch fixes).
