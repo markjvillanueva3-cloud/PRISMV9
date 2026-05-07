@@ -1207,6 +1207,18 @@
       "strategy": "-X ours + chronological sweep. Conflicts: 4 deleted-on-main files (.claude/hooks/coding-pattern-hint.mjs from C-FIX commit, plus glob-narrow-path/grep-index-first/rtk-auto-suggest re-adds — same 3 awareness hooks intentionally deleted in iooms0 awareness audit, dropped here too) + 2 unrelated bundle-bleed deletions (CAD-COMPLETE-MS0.json + InventorCADCodeGeneratorEngine.ts in U-WB02-FIX commit, dropped). All 23 WEDM engines + tests + dispatcher wiring landed cleanly. Auto-loop with porcelain-status detection handled the deleted-on-main pattern.",
       "verification": "skipped per same reasoning as prior batches — merge-staging worktree lacks node_modules; downstream CI / next-session canonical-tree run will catch any TS regressions.",
       "session_running_total": "this session shipped d87ae37a7 → ca903e725 (~89 commits across 3 cherry-pick batches: 30 CAD-COMPLETE + 33 LATHE-MASTER + 23 WEDM, plus envelope + 2 hook-fix commits)."
+    },
+    {
+      "phase": "P3-ORPHAN-BRANCHES (MILL-MASTER + CAM-UIX-MS0 + NO-FAKE-CODE + INFRA sub-batch)",
+      "status": "complete (22 of 22 cherry-picked, zero conflicts)",
+      "executed_at": "2026-05-07",
+      "session_id": "claude-5b19c960",
+      "source_branch": "work/intel-p8-schema",
+      "scope": "Mixed clean scopes: MILL-MASTER (P1, P2, P3 units) + CAM-UIX-MS0/U-ONTOLOGY-SEED01 + NO-FAKE-CODE (facade-pattern ban + millDispatcher refactor) + INFRA-FIX",
+      "main_advanced": "4fb18f620 → HEAD (22 commits)",
+      "strategy": "-X ours + chronological. Notable: zero modify/delete conflicts on this batch — these scopes touched non-deleted dispatchers/engines exclusively. The 4-scope grep produced 22 unique SHAs (initial 26-count had cross-scope overlap on [MAIN]-tagged commits).",
+      "verification": "skipped per same reasoning as prior batches.",
+      "session_running_total_revised": "this session shipped d87ae37a7 → HEAD (~111 commits across 4 cherry-pick batches: 30 CAD + 33 LATHE + 23 WEDM + 22 mixed, plus envelopes + 2 hook-fix commits)."
     }
   ],
   "out_of_scope": [
