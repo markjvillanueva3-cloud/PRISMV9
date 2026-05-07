@@ -641,6 +641,12 @@ export class CrossProcessNeuralLearningEngine {
       dLogits[o] = probs[o] - (o === y ? 1 : 0);
     }
 
+    // U-NN-FIX01: Snapshot W2 BEFORE in-place momentum update so the hidden-layer
+    // gradient (which needs the FORWARD-pass W2) reads the pre-update weights, not
+    // the post-update weights. The previous order computed dHiddenPre against the
+    // already-updated W2 — biased gradient descent.
+    const W2Snapshot = new Float64Array(this.W2);
+
     // dL/dW2[o,h] = dLogits[o] * hidden[h]; dL/db2[o] = dLogits[o].
     const lr = this.config.learningRate;
     const mom = this.config.momentum;
@@ -657,11 +663,12 @@ export class CrossProcessNeuralLearningEngine {
 
     // dL/dhidden_pre[h] = (1 - tanh(hidden_pre)^2) * sum_o(W2[o,h] * dLogits[o]).
     // hidden[h] = tanh(hidden_pre[h]) → tanh' = 1 - hidden[h]^2.
+    // Use the W2 snapshot — the forward-pass weights, not the just-updated ones.
     const dHiddenPre = new Float64Array(HIDDEN_DIM);
     for (let h = 0; h < HIDDEN_DIM; h++) {
       let s = 0;
       for (let o = 0; o < OUTPUT_DIM; o++) {
-        s += this.W2[o * HIDDEN_DIM + h] * dLogits[o];
+        s += W2Snapshot[o * HIDDEN_DIM + h] * dLogits[o];
       }
       dHiddenPre[h] = (1 - hidden[h] * hidden[h]) * s;
     }

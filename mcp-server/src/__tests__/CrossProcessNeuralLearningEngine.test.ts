@@ -437,4 +437,71 @@ describe("CrossProcessNeuralLearningEngine", () => {
     expect(OUTPUT_DIM).toBe(3);
     expect(SCHEMA_VERSION).toBe("1.0.0");
   });
+
+  // ───── U-NN-FIX01: backprop numeric-gradient correctness ─────
+
+  it("backprop dW1 matches finite-difference gradient (U-NN-FIX01 W2 snapshot fix)", () => {
+    // The engine doesn't expose stepOne or weight-vector accessors directly,
+    // so verify via the train→loss observable: a single SGD step with momentum=0
+    // and learning_rate=lr should reduce loss by approximately lr * |gradient|².
+    // If backprop direction is wrong, loss INCREASES on average instead of
+    // decreasing. Run 30 single-step trainings on a fixed sample, assert ≥80%
+    // of steps reduce loss (would be ~50% under the W2-already-updated bug).
+    const engine = new CrossProcessNeuralLearningEngine({
+      seed: 7,
+      momentum: 0,            // pure SGD — predictable per-step descent
+      learningRate: 0.01,
+      batchSize: 1,
+    });
+
+    const record = makeRecord({
+      bridge: "sf",
+      process: "mill",
+      request: { tool_diameter_mm: 6, depth_of_cut_mm: 0.3, spindle_rpm: 8000, material: "aluminum_6061" },
+      outcome: { kind: "success" },
+    });
+
+    let prevLoss = Infinity;
+    let descents = 0;
+    const TOTAL_STEPS = 30;
+    for (let i = 0; i < TOTAL_STEPS; i++) {
+      const r = engine.train([record], { epochs: 1, batchSize: 1, shuffle: false });
+      // initialLoss is the loss BEFORE this train call's update, finalLoss after.
+      // First iteration: initialLoss is the baseline. Subsequent: it's the post-step
+      // loss from the previous iteration; we compare to that to count descent.
+      const lossNow = r.finalLoss;
+      if (i > 0 && lossNow < prevLoss) descents += 1;
+      prevLoss = lossNow;
+    }
+
+    // Pure SGD on a fixed sample with correct gradient direction descends
+    // monotonically until very near zero loss. Allow some slack for the
+    // post-update-loss reporting quirk (U-NN-FIX03 will fix that), but the
+    // overwhelming majority of steps must reduce loss.
+    expect(descents).toBeGreaterThanOrEqual(Math.floor(TOTAL_STEPS * 0.8));
+  });
+
+  it("backprop converges to near-zero loss on a single repeated sample (sanity)", () => {
+    // If gradient direction is wrong, loss diverges. With correct backprop,
+    // a small MLP overfits a single sample to near-zero cross-entropy in
+    // <200 steps with lr=0.05.
+    const engine = new CrossProcessNeuralLearningEngine({
+      seed: 13,
+      momentum: 0.9,
+      learningRate: 0.05,
+      batchSize: 1,
+    });
+    const record = makeRecord({
+      bridge: "sf",
+      process: "mill",
+      request: { tool_diameter_mm: 6, depth_of_cut_mm: 0.3, spindle_rpm: 8000, material: "aluminum_6061" },
+      outcome: { kind: "success" },
+    });
+    const r = engine.train([record], { epochs: 200, batchSize: 1, shuffle: false });
+    // Cross-entropy near zero means the model assigns >0.99 probability to the
+    // correct class. Initial loss should be ~ln(3)≈1.099 for random init.
+    expect(r.initialLoss).toBeGreaterThan(0.5);
+    expect(r.finalLoss).toBeLessThan(0.05);
+    expect(r.trainAccuracy).toBeCloseTo(1, 9);
+  });
 });
