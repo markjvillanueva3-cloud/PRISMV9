@@ -39,11 +39,16 @@ export const DEFAULT_REPORT_DIR = "mcp-server/data/state";
 
 /**
  * Per-unit audit verdicts.
- *  - "ok":              completed in JSON, deliverables exist, commit found
- *  - "deliverable-gap": completed in JSON, deliverables[] missing on disk
- *  - "ghost-shipped":   commit subject found, but JSON has no completed status
- *  - "open":            no commit, no completed status — work pending
- *  - "anachronism":     completed in JSON but no matching commit found
+ *  - "ok":                 completed in JSON, deliverables exist, commit found
+ *  - "deliverable-gap":    completed in JSON, deliverables[] missing on disk
+ *  - "ghost-shipped":      commit subject found, but JSON has no completed status
+ *  - "open":               no commit, no completed status — work pending
+ *  - "anachronism":        completed in JSON but no matching commit found
+ *  - "scope-invalidated":  unit's spec premise is invalid for this branch
+ *                          (e.g., target file/dispatcher doesn't exist).
+ *                          Honestly closed without lying about completion.
+ *                          Does NOT count toward drift — it's a documented
+ *                          spec mismatch, not pending work.
  */
 export const VERDICTS = Object.freeze({
   OK: "ok",
@@ -51,6 +56,7 @@ export const VERDICTS = Object.freeze({
   GHOST_SHIPPED: "ghost-shipped",
   OPEN: "open",
   ANACHRONISM: "anachronism",
+  SCOPE_INVALIDATED: "scope-invalidated",
 });
 
 // PURE FUNCTIONS (exported for tests) =======================================
@@ -183,9 +189,13 @@ export function resolveDeliverablePath(repoRoot, deliv) {
  */
 export function classifyUnit(unit, allDeliverablesExist, gitMap) {
   if (!unit || typeof unit.id !== "string") return VERDICTS.OPEN;
+  // SCOPE_INVALIDATED is short-circuited first — it's an honest "we
+  // looked at this and the spec premise doesn't match the codebase"
+  // close-out. Independent of commit / deliverable state.
+  if (unit.status === "scope_invalidated") return VERDICTS.SCOPE_INVALIDATED;
   const completed = unit.status === "completed";
   const hasCommit = gitMap instanceof Map && gitMap.has(unit.id);
-  // ANACHRONISM (JSON says completed, no commit found) is checked first —
+  // ANACHRONISM (JSON says completed, no commit found) is checked next —
   // it's a stronger drift signal than a missing deliverable, and we don't
   // want it masked by an "OK" classification when the deliverables happen
   // to exist by coincidence.
@@ -207,6 +217,7 @@ export function summarizeAudit(rows) {
     ghostShipped: 0,
     open: 0,
     anachronism: 0,
+    scopeInvalidated: 0,
   };
   if (!Array.isArray(rows)) return { ...counts, drift: 0, verdict: "OK" };
   for (const r of rows) {
@@ -217,9 +228,11 @@ export function summarizeAudit(rows) {
       case VERDICTS.GHOST_SHIPPED: counts.ghostShipped++; break;
       case VERDICTS.OPEN: counts.open++; break;
       case VERDICTS.ANACHRONISM: counts.anachronism++; break;
+      case VERDICTS.SCOPE_INVALIDATED: counts.scopeInvalidated++; break;
       default: break;
     }
   }
+  // scope-invalidated is an honest-close, NOT drift — same as OK + open.
   const drift = counts.deliverableGap + counts.ghostShipped + counts.anachronism;
   return { ...counts, drift, verdict: drift === 0 ? "OK" : "DRIFT" };
 }
@@ -250,6 +263,7 @@ export function formatMarkdownReport(audit, milestoneId, generatedAt) {
     `| Deliverable-gap (completed in JSON, files missing) | ${s.deliverableGap} |`,
     `| Ghost-shipped (commit found, JSON not closed) | ${s.ghostShipped} |`,
     `| Anachronism (closed in JSON, no commit) | ${s.anachronism} |`,
+    `| Scope-invalidated (spec premise doesn't match branch) | ${s.scopeInvalidated ?? 0} |`,
     `| Open (no commit, not completed) | ${s.open} |`,
     `| **Drift total** | **${s.drift}** |`,
     ``,

@@ -214,6 +214,14 @@ describe("P-TIE/audit-milestone classifyUnit", () => {
     expect(classifyUnit({ id: 42 }, true, gitMap)).toBe("open");
     expect(classifyUnit({}, true, gitMap)).toBe("open");
   });
+  it("SCOPE_INVALIDATED short-circuits regardless of commit/deliverable state", () => {
+    // No commit, no deliverable → still scope-invalidated (not open / anachronism)
+    expect(classifyUnit({ id: "P9-U99", status: "scope_invalidated" }, false, gitMap))
+      .toBe("scope-invalidated");
+    // Has commit + deliverables → still scope-invalidated (the status wins)
+    expect(classifyUnit({ id: "P1-U01", status: "scope_invalidated" }, true, gitMap))
+      .toBe("scope-invalidated");
+  });
 });
 
 describe("P-TIE/audit-milestone summarizeAudit", () => {
@@ -224,16 +232,25 @@ describe("P-TIE/audit-milestone summarizeAudit", () => {
       { verdict: "ghost-shipped" }, { verdict: "ghost-shipped" },
       { verdict: "open" },
       { verdict: "anachronism" },
+      { verdict: "scope-invalidated" },
     ];
     const s = summarizeAudit(rows);
-    expect(s.total).toBe(7);
+    expect(s.total).toBe(8);
     expect(s.ok).toBe(2);
     expect(s.deliverableGap).toBe(1);
     expect(s.ghostShipped).toBe(2);
     expect(s.open).toBe(1);
     expect(s.anachronism).toBe(1);
+    expect(s.scopeInvalidated).toBe(1);
+    // scope-invalidated is NOT drift (honest close-out)
     expect(s.drift).toBe(4);
     expect(s.verdict).toBe("DRIFT");
+  });
+  it("scope-invalidated alone keeps verdict OK (not drift)", () => {
+    const s = summarizeAudit([{ verdict: "ok" }, { verdict: "scope-invalidated" }]);
+    expect(s.scopeInvalidated).toBe(1);
+    expect(s.drift).toBe(0);
+    expect(s.verdict).toBe("OK");
   });
   it("returns OK verdict and zero drift on all-ok input", () => {
     const s = summarizeAudit([{ verdict: "ok" }, { verdict: "open" }]);
@@ -243,7 +260,7 @@ describe("P-TIE/audit-milestone summarizeAudit", () => {
   it("returns zero counts and OK verdict for empty / non-array input (3 failure modes)", () => {
     expect(summarizeAudit([])).toEqual({
       total: 0, ok: 0, deliverableGap: 0, ghostShipped: 0, open: 0, anachronism: 0,
-      drift: 0, verdict: "OK",
+      scopeInvalidated: 0, drift: 0, verdict: "OK",
     });
     expect(summarizeAudit(null).verdict).toBe("OK");
     expect(summarizeAudit(undefined).verdict).toBe("OK");
