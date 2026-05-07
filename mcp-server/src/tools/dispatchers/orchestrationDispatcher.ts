@@ -58,7 +58,11 @@ const ACTIONS = [
   "ollama_ensure_connected",
   "ollama_ping",
   "ollama_discover_models",
-  "local_model_route"
+  "local_model_route",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH7: Learning Loop
+  "cognitive_learning_get_track_record",
+  "cognitive_learning_loop_stats",
+  "cognitive_learning_incremental_list_jobs"
 ] as const;
 
 function ok(data: any) {
@@ -719,6 +723,35 @@ export function registerOrchestrationDispatcher(server: any): void {
               return ok({ models: [], count: 0, error: e?.message ?? "discovery failed" });
             }
           }
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH7: Learning Loop ──
+          case "cognitive_learning_get_track_record": {
+            try {
+              const { LearningAdaptationEngine } = await import("../../engines/LearningAdaptationEngine.js");
+              const records = LearningAdaptationEngine.getTrackRecord(params.category);
+              return ok({ track_records: records, count: records.length });
+            } catch (e: any) {
+              return ok({ track_records: [], count: 0, error: e?.message ?? "track-record fetch failed" });
+            }
+          }
+          case "cognitive_learning_loop_stats": {
+            try {
+              const { learningLoopEngine } = await import("../../engines/LearningLoopEngine.js");
+              const stats = await learningLoopEngine.getStats();
+              return ok({ stats });
+            } catch (e: any) {
+              return ok({ stats: null, error: e?.message ?? "loop stats failed" });
+            }
+          }
+          case "cognitive_learning_incremental_list_jobs": {
+            try {
+              const { incrementalLearningEngine } = await import("../../engines/IncrementalLearningEngine.js");
+              const jobs = await incrementalLearningEngine.listJobs();
+              return ok({ jobs, count: jobs.length });
+            } catch (e: any) {
+              return ok({ jobs: [], count: 0, error: e?.message ?? "list jobs failed" });
+            }
+          }
+
           case "local_model_route": {
             try {
               const { localModelOrchestratorEngine } = await import("../../engines/LocalModelOrchestratorEngine.js");

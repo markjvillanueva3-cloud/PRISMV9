@@ -325,6 +325,13 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
     machine_type: z.string().optional().describe("Machine type"),
   }).passthrough(),
 
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH7: Learning Loop
+  cognitive_learning_get_track_record: z.object({
+    category: z.enum(["cutting_force", "tool_life", "speed_feed", "surface_finish", "thermal", "deflection", "wear", "stability", "general"]).optional().describe("Optional prediction category filter"),
+  }).passthrough(),
+  cognitive_learning_loop_stats: z.object({}).passthrough(),
+  cognitive_learning_incremental_list_jobs: z.object({}).passthrough(),
+
   // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH6: Ollama / Local Model Orchestrator
   ollama_ensure_connected: z.object({}).passthrough(),
   ollama_ping: z.object({}).passthrough(),
