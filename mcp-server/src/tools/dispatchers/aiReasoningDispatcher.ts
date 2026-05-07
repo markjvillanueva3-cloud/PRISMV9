@@ -29,6 +29,184 @@ import {
 let _millFacade: typeof import("../../engines/MillMasterOrchestratorFacadeEngine.js").millMasterOrchestratorFacadeEngine | null = null;
 let _millAwareness: typeof import("../../engines/MillAISelfAwarenessIntegrationEngine.js").millAISelfAwarenessIntegrationEngine | null = null;
 
+// ============================================================================
+// U-XPROC-T2-T12-PRISM-AI-WIRE — unified xproc routing
+// All 138 xproc_* actions across 38 engines (Tiers 2-12) flow through this
+// helper. Per CLAUDE.md "wire to all consumers" rule: reasoning engines belong
+// on both prism_intelligence and prism_ai. The flat XPROC_ROUTES map mirrors
+// the CORE_ROUTING table in intelligenceDispatcher.ts so both surfaces stay
+// in lock-step. Lazy-imports cache by engine key.
+// ============================================================================
+
+type XprocEngineLoader = () => Promise<(action: string, params: Record<string, unknown>) => unknown>;
+
+const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
+  // Tier 8 — Neuro-symbolic
+  xproc_symbolic_project: () => import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js").then(m => m.crossProcessSymbolicEnforcer),
+  xproc_symbolic_violations: () => import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js").then(m => m.crossProcessSymbolicEnforcer),
+  xproc_safety_verify: () => import("../../engines/CrossProcessNeuroSymbolicSafetyVerifierEngine.js").then(m => m.crossProcessNeuroSymbolicSafetyVerifier),
+  xproc_safety_escalate: () => import("../../engines/CrossProcessNeuroSymbolicSafetyVerifierEngine.js").then(m => m.crossProcessNeuroSymbolicSafetyVerifier),
+  xproc_extract_rules: () => import("../../engines/CrossProcessRuleExtractedNeuralInferenceEngine.js").then(m => m.crossProcessRuleExtractedNeuralInference),
+  xproc_rule_explain_prediction: () => import("../../engines/CrossProcessRuleExtractedNeuralInferenceEngine.js").then(m => m.crossProcessRuleExtractedNeuralInference),
+  xproc_blend_predict: () => import("../../engines/CrossProcessFormulaNeuralEnsembleEngine.js").then(m => m.crossProcessFormulaNeuralEnsemble),
+  xproc_blend_weight_report: () => import("../../engines/CrossProcessFormulaNeuralEnsembleEngine.js").then(m => m.crossProcessFormulaNeuralEnsemble),
+  // Tier 9 — Causal inference
+  xproc_causal_learn_dag: () => import("../../engines/CrossProcessCausalGraphLearnerEngine.js").then(m => m.crossProcessCausalGraphLearner),
+  xproc_causal_test_independence: () => import("../../engines/CrossProcessCausalGraphLearnerEngine.js").then(m => m.crossProcessCausalGraphLearner),
+  xproc_causal_export_graph: () => import("../../engines/CrossProcessCausalGraphLearnerEngine.js").then(m => m.crossProcessCausalGraphLearner),
+  xproc_do_identify: () => import("../../engines/CrossProcessDoCalculusEngine.js").then(m => m.crossProcessDoCalculus),
+  xproc_do_intervene: () => import("../../engines/CrossProcessDoCalculusEngine.js").then(m => m.crossProcessDoCalculus),
+  xproc_counterfactual_query: () => import("../../engines/CrossProcessCounterfactualPredictorEngine.js").then(m => m.crossProcessCounterfactualPredictor),
+  xproc_mediation_decompose: () => import("../../engines/CrossProcessMediationAnalyzerEngine.js").then(m => m.crossProcessMediationAnalyzer),
+  xproc_mediation_path_strength: () => import("../../engines/CrossProcessMediationAnalyzerEngine.js").then(m => m.crossProcessMediationAnalyzer),
+  // Tier 11 — Active learning & curiosity
+  xproc_active_select: () => import("../../engines/CrossProcessUncertaintyDrivenSamplerEngine.js").then(m => m.crossProcessUncertaintyDrivenSampler),
+  xproc_active_rationale: () => import("../../engines/CrossProcessUncertaintyDrivenSamplerEngine.js").then(m => m.crossProcessUncertaintyDrivenSampler),
+  xproc_novelty_score: () => import("../../engines/CrossProcessNoveltyDetectorEngine.js").then(m => m.crossProcessNoveltyDetector),
+  xproc_novelty_alert: () => import("../../engines/CrossProcessNoveltyDetectorEngine.js").then(m => m.crossProcessNoveltyDetector),
+  xproc_curiosity_propose: () => import("../../engines/CrossProcessCuriosityDrivenExplorationEngine.js").then(m => m.crossProcessCuriosityDrivenExploration),
+  xproc_curiosity_score: () => import("../../engines/CrossProcessCuriosityDrivenExplorationEngine.js").then(m => m.crossProcessCuriosityDrivenExploration),
+  xproc_doe_plan: () => import("../../engines/CrossProcessBayesianDOEPlannerEngine.js").then(m => m.crossProcessBayesianDOEPlanner),
+  xproc_doe_evaluate_completion: () => import("../../engines/CrossProcessBayesianDOEPlannerEngine.js").then(m => m.crossProcessBayesianDOEPlanner),
+  // Tier 12 — Master orchestration
+  xproc_route_query: () => import("../../engines/CrossProcessTierRouterEngine.js").then(m => m.crossProcessTierRouter),
+  xproc_route_explain: () => import("../../engines/CrossProcessTierRouterEngine.js").then(m => m.crossProcessTierRouter),
+  xproc_orchestrate_full: () => import("../../engines/CrossProcessHierarchicalNeuralOrchestratorEngine.js").then(m => m.crossProcessHierarchicalNeuralOrchestrator),
+  xproc_orchestrate_brief: () => import("../../engines/CrossProcessHierarchicalNeuralOrchestratorEngine.js").then(m => m.crossProcessHierarchicalNeuralOrchestrator),
+  // Tier 2 — Memory & replay
+  xproc_episodic_store: () => import("../../engines/CrossProcessEpisodicMemoryEngine.js").then(m => m.crossProcessEpisodicMemory),
+  xproc_episodic_recall: () => import("../../engines/CrossProcessEpisodicMemoryEngine.js").then(m => m.crossProcessEpisodicMemory),
+  xproc_episodic_stats: () => import("../../engines/CrossProcessEpisodicMemoryEngine.js").then(m => m.crossProcessEpisodicMemory),
+  xproc_replay_add: () => import("../../engines/CrossProcessPrioritizedReplayEngine.js").then(m => m.crossProcessPrioritizedReplay),
+  xproc_replay_sample: () => import("../../engines/CrossProcessPrioritizedReplayEngine.js").then(m => m.crossProcessPrioritizedReplay),
+  xproc_replay_update_priority: () => import("../../engines/CrossProcessPrioritizedReplayEngine.js").then(m => m.crossProcessPrioritizedReplay),
+  xproc_replay_stats: () => import("../../engines/CrossProcessPrioritizedReplayEngine.js").then(m => m.crossProcessPrioritizedReplay),
+  xproc_replay_balanced_batch: () => import("../../engines/CrossProcessExperienceReplaySamplerEngine.js").then(m => m.crossProcessExperienceReplaySampler),
+  xproc_replay_default_clusters: () => import("../../engines/CrossProcessExperienceReplaySamplerEngine.js").then(m => m.crossProcessExperienceReplaySampler),
+  xproc_episodic_semantic_join: () => import("../../engines/CrossProcessEpisodicSemanticLinkerEngine.js").then(m => m.crossProcessEpisodicSemanticLinker),
+  // Tier 3 — Online learning & drift
+  xproc_online_update: () => import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js").then(m => m.crossProcessOnlineMLPUpdater),
+  xproc_online_init_state: () => import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js").then(m => m.crossProcessOnlineMLPUpdater),
+  xproc_online_constants: () => import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js").then(m => m.crossProcessOnlineMLPUpdater),
+  xproc_drift_observe: () => import("../../engines/CrossProcessDriftDetectorEngine.js").then(m => m.crossProcessDriftDetector),
+  xproc_drift_observe_batch: () => import("../../engines/CrossProcessDriftDetectorEngine.js").then(m => m.crossProcessDriftDetector),
+  xproc_drift_history: () => import("../../engines/CrossProcessDriftDetectorEngine.js").then(m => m.crossProcessDriftDetector),
+  xproc_drift_reset: () => import("../../engines/CrossProcessDriftDetectorEngine.js").then(m => m.crossProcessDriftDetector),
+  xproc_drift_constants: () => import("../../engines/CrossProcessDriftDetectorEngine.js").then(m => m.crossProcessDriftDetector),
+  xproc_shift_decide: () => import("../../engines/CrossProcessConceptShiftHandlerEngine.js").then(m => m.crossProcessConceptShiftHandler),
+  xproc_shift_history: () => import("../../engines/CrossProcessConceptShiftHandlerEngine.js").then(m => m.crossProcessConceptShiftHandler),
+  xproc_shift_reset: () => import("../../engines/CrossProcessConceptShiftHandlerEngine.js").then(m => m.crossProcessConceptShiftHandler),
+  xproc_shift_constants: () => import("../../engines/CrossProcessConceptShiftHandlerEngine.js").then(m => m.crossProcessConceptShiftHandler),
+  xproc_ewc_compute_fisher: () => import("../../engines/CrossProcessEWCMemoryPreservationEngine.js").then(m => m.crossProcessEWCMemoryPreservation),
+  xproc_ewc_reg_loss: () => import("../../engines/CrossProcessEWCMemoryPreservationEngine.js").then(m => m.crossProcessEWCMemoryPreservation),
+  xproc_ewc_consolidate: () => import("../../engines/CrossProcessEWCMemoryPreservationEngine.js").then(m => m.crossProcessEWCMemoryPreservation),
+  xproc_ewc_get_fisher: () => import("../../engines/CrossProcessEWCMemoryPreservationEngine.js").then(m => m.crossProcessEWCMemoryPreservation),
+  xproc_ewc_reset: () => import("../../engines/CrossProcessEWCMemoryPreservationEngine.js").then(m => m.crossProcessEWCMemoryPreservation),
+  xproc_ewc_constants: () => import("../../engines/CrossProcessEWCMemoryPreservationEngine.js").then(m => m.crossProcessEWCMemoryPreservation),
+  // Tier 4 — Reinforcement learning
+  xproc_reward_shape: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  xproc_reward_audit: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  xproc_reward_default_weights: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  xproc_reward_constants: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  xproc_policy_step: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_commit: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_select_action: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_get_policy: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_get_baseline: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_configure: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_reset: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_stats: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_policy_constants: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
+  xproc_qlearn_update: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_argmax: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_epsilon_greedy: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_get_q_row: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_configure: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_reset: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_stats: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_qlearn_constants: () => import("../../engines/CrossProcessQLearningTabularEngine.js").then(m => m.crossProcessQLearningTabular),
+  xproc_bandit_register_arm: () => import("../../engines/CrossProcessMultiArmedBanditEngine.js").then(m => m.crossProcessMultiArmedBandit),
+  xproc_bandit_select: () => import("../../engines/CrossProcessMultiArmedBanditEngine.js").then(m => m.crossProcessMultiArmedBandit),
+  xproc_bandit_update: () => import("../../engines/CrossProcessMultiArmedBanditEngine.js").then(m => m.crossProcessMultiArmedBandit),
+  xproc_bandit_stats: () => import("../../engines/CrossProcessMultiArmedBanditEngine.js").then(m => m.crossProcessMultiArmedBandit),
+  xproc_bandit_reset: () => import("../../engines/CrossProcessMultiArmedBanditEngine.js").then(m => m.crossProcessMultiArmedBandit),
+  xproc_bandit_constants: () => import("../../engines/CrossProcessMultiArmedBanditEngine.js").then(m => m.crossProcessMultiArmedBandit),
+  // Tier 5 — Bayesian / uncertainty
+  xproc_bayes_predict: () => import("../../engines/CrossProcessBayesianMLPEngine.js").then(m => m.crossProcessBayesianMLP),
+  xproc_bayes_uncertainty: () => import("../../engines/CrossProcessBayesianMLPEngine.js").then(m => m.crossProcessBayesianMLP),
+  xproc_bayes_constants: () => import("../../engines/CrossProcessBayesianMLPEngine.js").then(m => m.crossProcessBayesianMLP),
+  xproc_conformal_calibrate: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
+  xproc_conformal_set: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
+  xproc_conformal_stats: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
+  xproc_conformal_reset: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
+  xproc_conformal_constants: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
+  xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
+  xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
+  xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
+  xproc_calibration_score: () => import("../../engines/CrossProcessCalibrationAuditorEngine.js").then(m => m.crossProcessCalibrationAuditor),
+  xproc_calibration_recommend: () => import("../../engines/CrossProcessCalibrationAuditorEngine.js").then(m => m.crossProcessCalibrationAuditor),
+  xproc_calibration_constants: () => import("../../engines/CrossProcessCalibrationAuditorEngine.js").then(m => m.crossProcessCalibrationAuditor),
+  // Tier 6 — Federated
+  xproc_fed_aggregate: () => import("../../engines/CrossProcessFedAvgAggregatorEngine.js").then(m => m.crossProcessFedAvgAggregator),
+  xproc_fed_round_summary: () => import("../../engines/CrossProcessFedAvgAggregatorEngine.js").then(m => m.crossProcessFedAvgAggregator),
+  xproc_fed_constants: () => import("../../engines/CrossProcessFedAvgAggregatorEngine.js").then(m => m.crossProcessFedAvgAggregator),
+  xproc_secure_mask: () => import("../../engines/CrossProcessSecureAggregationEngine.js").then(m => m.crossProcessSecureAggregation),
+  xproc_secure_unmask: () => import("../../engines/CrossProcessSecureAggregationEngine.js").then(m => m.crossProcessSecureAggregation),
+  xproc_secure_verify: () => import("../../engines/CrossProcessSecureAggregationEngine.js").then(m => m.crossProcessSecureAggregation),
+  xproc_secure_constants: () => import("../../engines/CrossProcessSecureAggregationEngine.js").then(m => m.crossProcessSecureAggregation),
+  xproc_fed_gate: () => import("../../engines/CrossProcessDriftAwareFederationEngine.js").then(m => m.crossProcessDriftAwareFederation),
+  xproc_fed_drift_report: () => import("../../engines/CrossProcessDriftAwareFederationEngine.js").then(m => m.crossProcessDriftAwareFederation),
+  xproc_fed_drift_constants: () => import("../../engines/CrossProcessDriftAwareFederationEngine.js").then(m => m.crossProcessDriftAwareFederation),
+  xproc_fed_select_clients: () => import("../../engines/CrossProcessClientSelectionSchedulerEngine.js").then(m => m.crossProcessClientSelectionScheduler),
+  xproc_fed_round_plan: () => import("../../engines/CrossProcessClientSelectionSchedulerEngine.js").then(m => m.crossProcessClientSelectionScheduler),
+  xproc_fed_scheduler_constants: () => import("../../engines/CrossProcessClientSelectionSchedulerEngine.js").then(m => m.crossProcessClientSelectionScheduler),
+  // Tier 7 — Meta-learning
+  xproc_maml_inner_loop: () => import("../../engines/CrossProcessMAMLLiteEngine.js").then(m => m.crossProcessMAMLLite),
+  xproc_maml_meta_train: () => import("../../engines/CrossProcessMAMLLiteEngine.js").then(m => m.crossProcessMAMLLite),
+  xproc_maml_constants: () => import("../../engines/CrossProcessMAMLLiteEngine.js").then(m => m.crossProcessMAMLLite),
+  xproc_proto_compute: () => import("../../engines/CrossProcessPrototypicalNetEngine.js").then(m => m.crossProcessPrototypicalNet),
+  xproc_proto_classify: () => import("../../engines/CrossProcessPrototypicalNetEngine.js").then(m => m.crossProcessPrototypicalNet),
+  xproc_proto_regress: () => import("../../engines/CrossProcessPrototypicalNetEngine.js").then(m => m.crossProcessPrototypicalNet),
+  xproc_proto_constants: () => import("../../engines/CrossProcessPrototypicalNetEngine.js").then(m => m.crossProcessPrototypicalNet),
+  xproc_meta_lr_init: () => import("../../engines/CrossProcessLearnedLRSchedulerEngine.js").then(m => m.crossProcessLearnedLRScheduler),
+  xproc_meta_lr_step: () => import("../../engines/CrossProcessLearnedLRSchedulerEngine.js").then(m => m.crossProcessLearnedLRScheduler),
+  xproc_meta_lr_constants: () => import("../../engines/CrossProcessLearnedLRSchedulerEngine.js").then(m => m.crossProcessLearnedLRScheduler),
+  xproc_hyper_propose: () => import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js").then(m => m.crossProcessHyperparameterMetaTuner),
+  xproc_hyper_evaluate: () => import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js").then(m => m.crossProcessHyperparameterMetaTuner),
+  xproc_hyper_record_outcome: () => import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js").then(m => m.crossProcessHyperparameterMetaTuner),
+  xproc_hyper_constants: () => import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js").then(m => m.crossProcessHyperparameterMetaTuner),
+  // Tier 10 — Multimodal fusion (already wired by U-XPROC-T10-PRISM-AI-WIRE; included here so all xproc_* flow through one helper)
+  xproc_vision_fuse: () => import("../../engines/CrossProcessVisionTabularFusionEngine.js").then(m => m.crossProcessVisionTabularFusion),
+  xproc_vision_explain_attention: () => import("../../engines/CrossProcessVisionTabularFusionEngine.js").then(m => m.crossProcessVisionTabularFusion),
+  xproc_vision_constants: () => import("../../engines/CrossProcessVisionTabularFusionEngine.js").then(m => m.crossProcessVisionTabularFusion),
+  xproc_timeseries_fuse: () => import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js").then(m => m.crossProcessTimeSeriesTabularFusion),
+  xproc_timeseries_segment: () => import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js").then(m => m.crossProcessTimeSeriesTabularFusion),
+  xproc_timeseries_constants: () => import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js").then(m => m.crossProcessTimeSeriesTabularFusion),
+  xproc_audio_fuse: () => import("../../engines/CrossProcessAudioTabularFusionEngine.js").then(m => m.crossProcessAudioTabularFusion),
+  xproc_audio_chatter_score: () => import("../../engines/CrossProcessAudioTabularFusionEngine.js").then(m => m.crossProcessAudioTabularFusion),
+  xproc_audio_spectral: () => import("../../engines/CrossProcessAudioTabularFusionEngine.js").then(m => m.crossProcessAudioTabularFusion),
+  xproc_audio_constants: () => import("../../engines/CrossProcessAudioTabularFusionEngine.js").then(m => m.crossProcessAudioTabularFusion),
+  xproc_modality_dropout: () => import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js").then(m => m.crossProcessModalityDropoutRobustifier),
+  xproc_modality_predict: () => import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js").then(m => m.crossProcessModalityDropoutRobustifier),
+  xproc_modality_availability: () => import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js").then(m => m.crossProcessModalityDropoutRobustifier),
+  xproc_modality_constants: () => import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js").then(m => m.crossProcessModalityDropoutRobustifier),
+};
+
+const _xprocCache = new Map<string, (action: string, params: Record<string, unknown>) => unknown>();
+
+async function routeXprocAction(action: string, params: Record<string, unknown>): Promise<unknown> {
+  let wrapper = _xprocCache.get(action);
+  if (!wrapper) {
+    const loader = XPROC_ROUTES[action];
+    if (!loader) {
+      throw new Error(`xproc routing has no entry for action '${action}' (prism_ai)`);
+    }
+    wrapper = await loader();
+    _xprocCache.set(action, wrapper);
+  }
+  return wrapper(action, params);
+}
+
 async function getMillFacade() {
   if (!_millFacade) {
     const mod = await import("../../engines/MillMasterOrchestratorFacadeEngine.js");
@@ -1162,42 +1340,151 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // U-XPROC-T10-PRISM-AI-WIRE — Tier 10 fusion engines (4 engines / 14 actions)
-      // Per CLAUDE.md "wire to all consumers" rule, mirroring prism_intelligence.
-      // Engines validate their own params via internal Zod schemas; the wrapper
-      // function dispatches by action name with no extra normalization.
+      // U-XPROC-T2-T12-PRISM-AI-WIRE — XPROC-NEURAL fleet (Tiers 2-12, 38 engines, 138 actions)
+      // All xproc_* actions flow through the unified routeXprocAction helper above.
+      // CORE_ROUTING table mirrors intelligenceDispatcher.ts so both surfaces stay in lock-step.
+      // Engines validate their own params via internal Zod schemas; the wrapper functions
+      // dispatch by action name with no extra normalization.
       // ─────────────────────────────────────────────────────────────────────
+      case "xproc_symbolic_project":
+      case "xproc_symbolic_violations":
+      case "xproc_safety_verify":
+      case "xproc_safety_escalate":
+      case "xproc_extract_rules":
+      case "xproc_rule_explain_prediction":
+      case "xproc_blend_predict":
+      case "xproc_blend_weight_report":
+      case "xproc_causal_learn_dag":
+      case "xproc_causal_test_independence":
+      case "xproc_causal_export_graph":
+      case "xproc_do_identify":
+      case "xproc_do_intervene":
+      case "xproc_counterfactual_query":
+      case "xproc_mediation_decompose":
+      case "xproc_mediation_path_strength":
+      case "xproc_active_select":
+      case "xproc_active_rationale":
+      case "xproc_novelty_score":
+      case "xproc_novelty_alert":
+      case "xproc_curiosity_propose":
+      case "xproc_curiosity_score":
+      case "xproc_doe_plan":
+      case "xproc_doe_evaluate_completion":
+      case "xproc_route_query":
+      case "xproc_route_explain":
+      case "xproc_orchestrate_full":
+      case "xproc_orchestrate_brief":
+      case "xproc_episodic_store":
+      case "xproc_episodic_recall":
+      case "xproc_episodic_stats":
+      case "xproc_replay_add":
+      case "xproc_replay_sample":
+      case "xproc_replay_update_priority":
+      case "xproc_replay_stats":
+      case "xproc_replay_balanced_batch":
+      case "xproc_replay_default_clusters":
+      case "xproc_episodic_semantic_join":
+      case "xproc_online_update":
+      case "xproc_online_init_state":
+      case "xproc_online_constants":
+      case "xproc_drift_observe":
+      case "xproc_drift_observe_batch":
+      case "xproc_drift_history":
+      case "xproc_drift_reset":
+      case "xproc_drift_constants":
+      case "xproc_shift_decide":
+      case "xproc_shift_history":
+      case "xproc_shift_reset":
+      case "xproc_shift_constants":
+      case "xproc_ewc_compute_fisher":
+      case "xproc_ewc_reg_loss":
+      case "xproc_ewc_consolidate":
+      case "xproc_ewc_get_fisher":
+      case "xproc_ewc_reset":
+      case "xproc_ewc_constants":
+      case "xproc_reward_shape":
+      case "xproc_reward_audit":
+      case "xproc_reward_default_weights":
+      case "xproc_reward_constants":
+      case "xproc_policy_step":
+      case "xproc_policy_commit":
+      case "xproc_policy_select_action":
+      case "xproc_policy_get_policy":
+      case "xproc_policy_get_baseline":
+      case "xproc_policy_configure":
+      case "xproc_policy_reset":
+      case "xproc_policy_stats":
+      case "xproc_policy_constants":
+      case "xproc_qlearn_update":
+      case "xproc_qlearn_argmax":
+      case "xproc_qlearn_epsilon_greedy":
+      case "xproc_qlearn_get_q_row":
+      case "xproc_qlearn_configure":
+      case "xproc_qlearn_reset":
+      case "xproc_qlearn_stats":
+      case "xproc_qlearn_constants":
+      case "xproc_bandit_register_arm":
+      case "xproc_bandit_select":
+      case "xproc_bandit_update":
+      case "xproc_bandit_stats":
+      case "xproc_bandit_reset":
+      case "xproc_bandit_constants":
+      case "xproc_bayes_predict":
+      case "xproc_bayes_uncertainty":
+      case "xproc_bayes_constants":
+      case "xproc_conformal_calibrate":
+      case "xproc_conformal_set":
+      case "xproc_conformal_stats":
+      case "xproc_conformal_reset":
+      case "xproc_conformal_constants":
+      case "xproc_ensemble_predict":
+      case "xproc_ensemble_disagreement":
+      case "xproc_ensemble_constants":
+      case "xproc_calibration_score":
+      case "xproc_calibration_recommend":
+      case "xproc_calibration_constants":
+      case "xproc_fed_aggregate":
+      case "xproc_fed_round_summary":
+      case "xproc_fed_constants":
+      case "xproc_secure_mask":
+      case "xproc_secure_unmask":
+      case "xproc_secure_verify":
+      case "xproc_secure_constants":
+      case "xproc_fed_gate":
+      case "xproc_fed_drift_report":
+      case "xproc_fed_drift_constants":
+      case "xproc_fed_select_clients":
+      case "xproc_fed_round_plan":
+      case "xproc_fed_scheduler_constants":
+      case "xproc_maml_inner_loop":
+      case "xproc_maml_meta_train":
+      case "xproc_maml_constants":
+      case "xproc_proto_compute":
+      case "xproc_proto_classify":
+      case "xproc_proto_regress":
+      case "xproc_proto_constants":
+      case "xproc_meta_lr_init":
+      case "xproc_meta_lr_step":
+      case "xproc_meta_lr_constants":
+      case "xproc_hyper_propose":
+      case "xproc_hyper_evaluate":
+      case "xproc_hyper_record_outcome":
+      case "xproc_hyper_constants":
       case "xproc_vision_fuse":
       case "xproc_vision_explain_attention":
-      case "xproc_vision_constants": {
-        const { crossProcessVisionTabularFusion } = await import("../../engines/CrossProcessVisionTabularFusionEngine.js");
-        result = crossProcessVisionTabularFusion(action, params);
-        break;
-      }
-
+      case "xproc_vision_constants":
       case "xproc_timeseries_fuse":
       case "xproc_timeseries_segment":
-      case "xproc_timeseries_constants": {
-        const { crossProcessTimeSeriesTabularFusion } = await import("../../engines/CrossProcessTimeSeriesTabularFusionEngine.js");
-        result = crossProcessTimeSeriesTabularFusion(action, params);
-        break;
-      }
-
+      case "xproc_timeseries_constants":
       case "xproc_audio_fuse":
       case "xproc_audio_chatter_score":
       case "xproc_audio_spectral":
-      case "xproc_audio_constants": {
-        const { crossProcessAudioTabularFusion } = await import("../../engines/CrossProcessAudioTabularFusionEngine.js");
-        result = crossProcessAudioTabularFusion(action, params);
-        break;
-      }
-
+      case "xproc_audio_constants":
       case "xproc_modality_dropout":
       case "xproc_modality_predict":
       case "xproc_modality_availability":
       case "xproc_modality_constants": {
-        const { crossProcessModalityDropoutRobustifier } = await import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js");
-        result = crossProcessModalityDropoutRobustifier(action, params);
+        result = await routeXprocAction(action, params);
         break;
       }
 

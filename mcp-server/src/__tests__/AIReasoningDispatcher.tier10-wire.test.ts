@@ -179,3 +179,137 @@ describe("prism_ai — Tier 10 fusion engines (U-XPROC-T10-PRISM-AI-WIRE)", () =
     expect(typeof r.error).toBe("string");
   });
 });
+
+// ============================================================================
+// U-XPROC-T2-T12-PRISM-AI-WIRE — fleet-wide round-trip smoke (Tiers 2-9, 11-12)
+// One representative constants action per engine, asserting the engine's
+// actual published constant values (extracted from each engine source) so a
+// silent routing miss or wrong-engine-bound bug fails the test.
+// ============================================================================
+
+describe("prism_ai — XPROC-NEURAL fleet (Tiers 2-9, 11-12, U-XPROC-T2-T12)", () => {
+  it("T3 xproc_online_constants → DEFAULT_BETA_1=0.9 (OnlineMLPUpdater)", async () => {
+    const r = await executeAIReasoningAction("xproc_online_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { DEFAULT_BETA_1: number };
+    expect(d.DEFAULT_BETA_1).toBeCloseTo(0.9, 9);
+  });
+
+  it("T3 xproc_drift_constants → MIN_SAMPLES_FOR_DETECTION=30 (DriftDetector)", async () => {
+    const r = await executeAIReasoningAction("xproc_drift_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { MIN_SAMPLES_FOR_DETECTION: number };
+    expect(d.MIN_SAMPLES_FOR_DETECTION).toBe(30);
+  });
+
+  it("T3 xproc_ewc_constants → DEFAULT_LAMBDA=1.0 (EWCMemoryPreservation)", async () => {
+    const r = await executeAIReasoningAction("xproc_ewc_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { DEFAULT_LAMBDA: number };
+    expect(d.DEFAULT_LAMBDA).toBeCloseTo(1.0, 9);
+  });
+
+  it("T4 xproc_bandit_constants → DEFAULT_UCB_C=1.0 (MultiArmedBandit)", async () => {
+    const r = await executeAIReasoningAction("xproc_bandit_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { DEFAULT_UCB_C: number };
+    expect(d.DEFAULT_UCB_C).toBeCloseTo(1.0, 9);
+  });
+
+  it("T4 xproc_qlearn_constants → DEFAULT_ALPHA=0.1 (QLearningTabular)", async () => {
+    const r = await executeAIReasoningAction("xproc_qlearn_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { DEFAULT_ALPHA: number };
+    expect(d.DEFAULT_ALPHA).toBeCloseTo(0.1, 9);
+  });
+
+  it("T5 xproc_bayes_constants → RECOMMENDED_K=50 (BayesianMLP)", async () => {
+    const r = await executeAIReasoningAction("xproc_bayes_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { RECOMMENDED_K: number };
+    expect(d.RECOMMENDED_K).toBe(50);
+  });
+
+  it("T5 xproc_conformal_constants exposes MAX_CALIBRATION_PAIRS + DEFAULT_ALPHA", async () => {
+    const r = await executeAIReasoningAction("xproc_conformal_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { MAX_CALIBRATION_PAIRS: number; DEFAULT_ALPHA: number };
+    expect(typeof d.MAX_CALIBRATION_PAIRS).toBe("number");
+    expect(d.MAX_CALIBRATION_PAIRS).toBeGreaterThan(0);
+    expect(d.DEFAULT_ALPHA).toBeGreaterThan(0);
+    expect(d.DEFAULT_ALPHA).toBeLessThan(1);
+  });
+
+  it("T6 xproc_fed_constants exposes SHARED_FACTOR (FedAvg's local-vs-shared 0.5x rule)", async () => {
+    const r = await executeAIReasoningAction("xproc_fed_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { SHARED_FACTOR: number; MAX_WEIGHTS: number; MAX_CLIENTS: number };
+    // CLAUDE.md mandates federated weighting rule: local 1.0x, shared 0.5x per SLBRulesEngine.
+    expect(d.SHARED_FACTOR).toBeCloseTo(0.5, 9);
+    expect(d.MAX_WEIGHTS).toBeGreaterThan(0);
+    expect(d.MAX_CLIENTS).toBeGreaterThan(0);
+  });
+
+  it("T7 xproc_maml_constants exposes MAX_PARAMS / MAX_INNER_STEPS / MAX_META_BATCH (MAMLLite)", async () => {
+    const r = await executeAIReasoningAction("xproc_maml_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as {
+      MAX_PARAMS: number; MAX_INNER_STEPS: number; MAX_META_BATCH: number; DIVERGENCE_RATIO: number;
+    };
+    expect(d.MAX_PARAMS).toBeGreaterThan(0);
+    expect(d.MAX_INNER_STEPS).toBeGreaterThan(0);
+    expect(d.MAX_META_BATCH).toBeGreaterThan(0);
+    expect(d.DIVERGENCE_RATIO).toBeGreaterThan(1);
+  });
+
+  it("T7 xproc_proto_constants → MAX_EMBEDDING_DIM matches T10-04 (PrototypicalNet)", async () => {
+    const r = await executeAIReasoningAction("xproc_proto_constants", {});
+    expect(r.success).toBe(true);
+    const d = r.data as { MAX_EMBEDDING_DIM: number; MAX_SUPPORT_SAMPLES: number; MAX_PROTOTYPES: number };
+    expect(d.MAX_EMBEDDING_DIM).toBe(4096);
+    expect(d.MAX_SUPPORT_SAMPLES).toBeGreaterThan(0);
+    expect(d.MAX_PROTOTYPES).toBeGreaterThan(0);
+  });
+
+  it("T2 xproc_episodic_stats returns structured stats with hot/warm/cold tier counts", async () => {
+    const r = await executeAIReasoningAction("xproc_episodic_stats", {});
+    expect(r.success).toBe(true);
+    const d = r.data as {
+      hot: number; warm: number; cold: number; total: number;
+      oldestTs: number | null; newestTs: number | null;
+    };
+    expect(typeof d.hot).toBe("number");
+    expect(typeof d.warm).toBe("number");
+    expect(typeof d.cold).toBe("number");
+    expect(d.hot + d.warm + d.cold).toBe(d.total);
+  });
+
+  it("T8 xproc_symbolic_violations on empty params surfaces a Zod throw as dispatcher error", async () => {
+    // The engine uses ProjectionInputSchema.parse() (not safeParse), so empty
+    // input throws — the dispatcher's try/catch surfaces it as success:false.
+    // This proves the unified router preserves engine error semantics.
+    const r = await executeAIReasoningAction("xproc_symbolic_violations", {});
+    expect(r.success).toBe(false);
+    expect(typeof r.error).toBe("string");
+    expect(r.error?.length ?? 0).toBeGreaterThan(0);
+  });
+
+  it("Wiring completeness — xproc_audio_fuse rejection still reaches engine validator", async () => {
+    // Same negative-path round-trip as Tier 10, but now flowing through the
+    // unified routeXprocAction helper (no per-engine case branch). Verifies
+    // the helper preserves the engine's invalid_input semantics.
+    const r = await executeAIReasoningAction("xproc_audio_fuse", {
+      audioEmbedding: [],
+      tabularFeatures: [1],
+      wAudio: [[1]],
+      wTabular: [[1]],
+      wGate: [[1, 1]],
+      biasGate: [0],
+    });
+    expect(r.success).toBe(true);
+    const d = r.data as { ok: boolean; error?: string };
+    expect(d.ok).toBe(false);
+    expect(d.error).toBe("invalid_input");
+  });
+});
+
