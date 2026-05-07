@@ -233,6 +233,14 @@ export const MILL_ACTIONS = [
   "mill_resource_query",               // MillResourceAwarenessEngine.query
   "mill_strategy_list",                // MillingStrategyLibraryEngine.getAllStrategies
   "mill_strategy_for_feature",         // MillingStrategyLibraryEngine.getStrategiesForFeature
+
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH2: 6 neural/AI mill engines
+  "mill_neural_cognitive_process",     // MillingNeuralCognitiveEngine.quickProcess
+  "mill_critical_analyze",             // MillingCriticalThinkingEngine.quickAnalyze
+  "mill_meta_learn_record",            // MillingMetaLearningEngine.learnFromExperience
+  "mill_meta_learn_self_assess",       // MillingMetaLearningEngine.selfAssess
+  "mill_ai_parse_nl_query",            // MillingAIIntegrationEngine.parseNaturalLanguageQuery
+  "mill_ai_archive_stats",             // MillingAIIntegrationEngine.getArchiveStats
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -653,6 +661,48 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
                 featureType as Parameters<typeof millingStrategyLibraryEngine.getStrategiesForFeature>[0],
               ),
             };
+            break;
+          }
+
+          // ============================================================
+          // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH2: 6 neural/AI mill engines
+          // ============================================================
+          case "mill_neural_cognitive_process": {
+            const { millingNeuralCognitiveEngine } = await import("../../engines/MillingNeuralCognitiveEngine.js");
+            result = millingNeuralCognitiveEngine.quickProcess(
+              params as Parameters<typeof millingNeuralCognitiveEngine.quickProcess>[0],
+            );
+            break;
+          }
+          case "mill_critical_analyze": {
+            const { millingCriticalThinkingEngine } = await import("../../engines/MillingCriticalThinkingEngine.js");
+            result = millingCriticalThinkingEngine.quickAnalyze(
+              params as Parameters<typeof millingCriticalThinkingEngine.quickAnalyze>[0],
+            );
+            break;
+          }
+          case "mill_meta_learn_record": {
+            const { millingMetaLearningEngine } = await import("../../engines/MillingMetaLearningEngine.js");
+            result = millingMetaLearningEngine.learnFromExperience(
+              params as Parameters<typeof millingMetaLearningEngine.learnFromExperience>[0],
+            );
+            break;
+          }
+          case "mill_meta_learn_self_assess": {
+            const { millingMetaLearningEngine } = await import("../../engines/MillingMetaLearningEngine.js");
+            result = millingMetaLearningEngine.selfAssess();
+            break;
+          }
+          case "mill_ai_parse_nl_query": {
+            const { millingAIIntegrationEngine } = await import("../../engines/MillingAIIntegrationEngine.js");
+            const q = (params as { query: string }).query;
+            if (typeof q !== "string" || q.length === 0) throw new Error("mill_ai_parse_nl_query requires 'query'");
+            result = millingAIIntegrationEngine.parseNaturalLanguageQuery(q);
+            break;
+          }
+          case "mill_ai_archive_stats": {
+            const { millingAIIntegrationEngine } = await import("../../engines/MillingAIIntegrationEngine.js");
+            result = millingAIIntegrationEngine.getArchiveStats();
             break;
           }
 

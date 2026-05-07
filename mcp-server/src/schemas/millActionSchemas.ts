@@ -786,6 +786,91 @@ const mill_inference_run = z
   })
   .passthrough();
 
+// ─── ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH2: 6 unwired neural/AI mill engines ─
+
+/** mill_neural_cognitive_process — MillingNeuralCognitiveEngine.quickProcess */
+const mill_neural_cognitive_process = z
+  .object({
+    query: z.string().min(1).describe("Cognitive query / problem statement."),
+    intent: z
+      .enum(["analyze", "optimize", "predict", "diagnose", "recommend", "explain", "generate"])
+      .describe("Cognitive intent."),
+    material: z.string().optional(),
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
+    hardness_hrc: z.number().optional(),
+    operation: z.string().optional(),
+    feature_type: z.string().optional(),
+    current_params: z.record(z.string(), z.unknown()).optional(),
+    constraints: z.record(z.string(), z.unknown()).optional(),
+  })
+  .passthrough()
+  .describe("Cognitive input for neural cognitive quickProcess.");
+
+/** mill_critical_analyze — MillingCriticalThinkingEngine.quickAnalyze */
+const mill_critical_analyze = z
+  .object({
+    problem: z.string().min(1).describe("Problem or question to analyze."),
+    domain: z
+      .enum(["parameters", "strategy", "tool_selection", "quality", "cost", "general"])
+      .describe("Critical-thinking domain."),
+    material: z.string().optional(),
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
+    hardness_hrc: z.number().optional(),
+    operation: z.string().optional(),
+    feature_type: z.string().optional(),
+    current_parameters: z.record(z.string(), z.unknown()).optional(),
+    constraints: z.record(z.string(), z.unknown()).optional(),
+  })
+  .passthrough()
+  .describe("CriticalThinkingRequest for quickAnalyze.");
+
+/** mill_meta_learn_record — MillingMetaLearningEngine.learnFromExperience */
+const mill_meta_learn_record = z
+  .object({
+    id: z.string().min(1).describe("Experience id (unique)."),
+    timestamp: z.string().min(1).describe("ISO timestamp."),
+    operation: z.string().min(1),
+    material: z.string().min(1),
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"]),
+    feature_type: z.string().min(1),
+    tool_type: z.string().min(1),
+    tool_diameter_mm: z.number().positive(),
+    rpm: z.number().positive(),
+    feed_mm_min: z.number().positive(),
+    doc_mm: z.number().nonnegative(),
+    woc_mm: z.number().nonnegative(),
+    success: z.boolean(),
+    cycle_time_min: z.number().nonnegative().optional(),
+    tool_life_achieved_min: z.number().nonnegative().optional(),
+    surface_finish_ra: z.number().nonnegative().optional(),
+    part_quality_score: z.number().min(0).max(1).optional(),
+    machine: z.string().optional(),
+    customer: z.string().optional(),
+    operator_notes: z.string().optional(),
+  })
+  .passthrough()
+  .describe("OperationExperience record for meta-learning.");
+
+/** mill_meta_learn_self_assess — MillingMetaLearningEngine.selfAssess */
+const mill_meta_learn_self_assess = z
+  .object({})
+  .passthrough()
+  .describe("No-arg self-assessment (returns prediction accuracy + improvement areas).");
+
+/** mill_ai_parse_nl_query — MillingAIIntegrationEngine.parseNaturalLanguageQuery */
+const mill_ai_parse_nl_query = z
+  .object({
+    query: z.string().min(1).describe("Natural-language milling query."),
+  })
+  .passthrough()
+  .describe("Parse NL query into intent + entities for milling AI.");
+
+/** mill_ai_archive_stats — MillingAIIntegrationEngine.getArchiveStats */
+const mill_ai_archive_stats = z
+  .object({})
+  .passthrough()
+  .describe("No-arg JM-Die program-archive statistics.");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -887,4 +972,12 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
 
   // Inference orchestration (MillingInferenceOrchestratorEngine)
   mill_inference_run,
+
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH2: 6 neural/AI mill engines
+  mill_neural_cognitive_process,
+  mill_critical_analyze,
+  mill_meta_learn_record,
+  mill_meta_learn_self_assess,
+  mill_ai_parse_nl_query,
+  mill_ai_archive_stats,
 };
