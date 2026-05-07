@@ -352,6 +352,14 @@ const ACTIONS = [
   "wedm_blackboard_post",                  // WEDMBlackboardEngine.post
   "wedm_blackboard_read",                  // WEDMBlackboardEngine.read
   "wedm_calibration_generate",             // WEDMCalibrationReportEngine.generate
+
+  // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH4: 6 unwired learning/drift/dialect/failsafe/diagnosis/fixture engines
+  "wedm_learning_snapshot",                // WEDMContinuousLearningEngine.snapshot
+  "wedm_dialect_verify",                   // WEDMControllerDialectVerifierEngine.verify
+  "wedm_drift_detect",                     // WEDMDriftDetectionEngine.detect
+  "wedm_failsafe_from_clearance",          // WEDMFailsafeEngine.planFromClearance
+  "wedm_fault_diagnose",                   // WEDMFaultDiagnosisEngine.diagnose
+  "wedm_fixture_interference",             // WEDMFixtureInterferenceEngine.analyze
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2140,6 +2148,59 @@ Actions: ${ACTIONS.join(", ")}.`,
                         ?? (params as Parameters<typeof wedmCalibrationReportEngine.generate>[0]);
             if (!input || typeof input !== "object") throw new Error("wedm_calibration_generate requires 'input'");
             result = wedmCalibrationReportEngine.generate(input);
+            break;
+          }
+
+          // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH4: 6 unwired learning/drift/dialect/failsafe/diagnosis/fixture engines
+          case "wedm_learning_snapshot": {
+            const { wedmContinuousLearningEngine } = await import("../../engines/WEDMContinuousLearningEngine.js");
+            const mat = (params as { material: string }).material;
+            if (typeof mat !== "string" || mat.length === 0) throw new Error("wedm_learning_snapshot requires 'material'");
+            result = wedmContinuousLearningEngine.snapshot(mat);
+            break;
+          }
+          case "wedm_dialect_verify": {
+            const { wedmControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
+            const p = params as Parameters<typeof wedmControllerDialectVerifierEngine.verify>[0];
+            if (!p || typeof p.program_text !== "string" || p.program_text.length === 0) {
+              throw new Error("wedm_dialect_verify requires 'program_text'");
+            }
+            if (typeof p.expected_controller !== "string" || p.expected_controller.length === 0) {
+              throw new Error("wedm_dialect_verify requires 'expected_controller'");
+            }
+            result = wedmControllerDialectVerifierEngine.verify(p);
+            break;
+          }
+          case "wedm_drift_detect": {
+            const { wedmDriftDetectionEngine } = await import("../../engines/WEDMDriftDetectionEngine.js");
+            const p = params as Parameters<typeof wedmDriftDetectionEngine.detect>[0];
+            if (!p || typeof p.modelId !== "string") throw new Error("wedm_drift_detect requires 'modelId'");
+            if (!p.baseline || !p.current) throw new Error("wedm_drift_detect requires 'baseline' and 'current'");
+            result = wedmDriftDetectionEngine.detect(p);
+            break;
+          }
+          case "wedm_failsafe_from_clearance": {
+            const { wedmFailsafeEngine } = await import("../../engines/WEDMFailsafeEngine.js");
+            const r = (params as { report: Parameters<typeof wedmFailsafeEngine.planFromClearance>[0] }).report
+                    ?? (params as Parameters<typeof wedmFailsafeEngine.planFromClearance>[0]);
+            if (!r || typeof r !== "object") throw new Error("wedm_failsafe_from_clearance requires 'report'");
+            result = wedmFailsafeEngine.planFromClearance(r);
+            break;
+          }
+          case "wedm_fault_diagnose": {
+            const { wedmFaultDiagnosisEngine } = await import("../../engines/WEDMFaultDiagnosisEngine.js");
+            const p = params as Parameters<typeof wedmFaultDiagnosisEngine.diagnose>[0];
+            if (!p || !Array.isArray(p.symptoms)) throw new Error("wedm_fault_diagnose requires 'symptoms[]'");
+            result = wedmFaultDiagnosisEngine.diagnose(p);
+            break;
+          }
+          case "wedm_fixture_interference": {
+            const { wedmFixtureInterferenceEngine } = await import("../../engines/WEDMFixtureInterferenceEngine.js");
+            const p = params as Parameters<typeof wedmFixtureInterferenceEngine.analyze>[0];
+            if (!p || !p.workpiece || !Array.isArray(p.clamps) || !Array.isArray(p.profiles)) {
+              throw new Error("wedm_fixture_interference requires {workpiece, clamps[], profiles[]}");
+            }
+            result = wedmFixtureInterferenceEngine.analyze(p);
             break;
           }
 

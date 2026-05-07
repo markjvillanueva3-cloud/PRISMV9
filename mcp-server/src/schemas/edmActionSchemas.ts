@@ -202,6 +202,74 @@ const wedm_blackboard_read = z
   .passthrough()
   .describe("Read latest blackboard entry for namespace+key (or null).");
 
+// ─── ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH4: 6 unwired learning/drift/dialect/failsafe/diagnosis/fixture engines ─
+
+/** wedm_learning_snapshot — WEDMContinuousLearningEngine.snapshot */
+const wedm_learning_snapshot = z
+  .object({
+    material: z.string().min(1).describe("Material key for which to fetch learning snapshot."),
+  })
+  .passthrough()
+  .describe("Snapshot of continuous-learning state for a material.");
+
+/** wedm_dialect_verify — WEDMControllerDialectVerifierEngine.verify */
+const wedm_dialect_verify = z
+  .object({
+    program_text: z.string().min(1).describe("Full emitted G-code program (multi-line)."),
+    expected_controller: z.string().min(1).describe("Declared controller (canonical key or synonym)."),
+    min_signature_hits: z.number().int().nonnegative().optional(),
+  })
+  .passthrough()
+  .describe("Verify program_text dialect matches expected_controller via signature scoring.");
+
+/** wedm_drift_detect — WEDMDriftDetectionEngine.detect */
+const wedm_drift_detect = z
+  .object({
+    modelId: z.string().min(1).describe("Identifier of model to evaluate for drift."),
+    baseline: z.record(z.string(), z.unknown()).describe("Baseline DriftWindow."),
+    current: z.record(z.string(), z.unknown()).describe("Current DriftWindow."),
+    threshold: z.number().positive().optional(),
+    buckets: z.number().int().positive().optional(),
+  })
+  .passthrough()
+  .describe("Run drift detection (PSI + Page-Hinkley) on baseline vs current windows.");
+
+/** wedm_failsafe_from_clearance — WEDMFailsafeEngine.planFromClearance */
+const wedm_failsafe_from_clearance = z
+  .object({
+    pose: z.record(z.string(), z.unknown()).optional(),
+    pass: z.boolean().optional(),
+    minClearance_mm: z.number().optional(),
+    events: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .passthrough()
+  .describe("ClearanceReport — failsafe planner derives recovery actions from clearance violations.");
+
+/** wedm_fault_diagnose — WEDMFaultDiagnosisEngine.diagnose */
+const wedm_fault_diagnose = z
+  .object({
+    symptoms: z
+      .array(z.record(z.string(), z.unknown()))
+      .min(1)
+      .describe("ObservedSymptom array (variable, direction, severity)."),
+    max_hops: z.number().int().positive().optional(),
+    top_n: z.number().int().positive().optional(),
+  })
+  .passthrough()
+  .describe("Causal-graph fault diagnosis from observed symptoms.");
+
+/** wedm_fixture_interference — WEDMFixtureInterferenceEngine.analyze */
+const wedm_fixture_interference = z
+  .object({
+    workpiece: z.record(z.string(), z.unknown()).describe("WorkpieceFootprint."),
+    clamps: z.array(z.record(z.string(), z.unknown())).describe("ClampRegion[]."),
+    profiles: z.array(z.record(z.string(), z.unknown())).describe("ProfileTrajectory[]."),
+    wire_envelope: z.record(z.string(), z.unknown()).optional(),
+    min_clearance_mm: z.number().positive().optional(),
+  })
+  .passthrough()
+  .describe("FixtureInterferenceInput — wire path vs clamp clearance check.");
+
 /** wedm_calibration_generate — WEDMCalibrationReportEngine.generate */
 const wedm_calibration_generate = z
   .object({
@@ -243,4 +311,12 @@ export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   wedm_blackboard_post,
   wedm_blackboard_read,
   wedm_calibration_generate,
+
+  // BATCH4 schemas: learning / drift / dialect / failsafe / diagnosis / fixture
+  wedm_learning_snapshot,
+  wedm_dialect_verify,
+  wedm_drift_detect,
+  wedm_failsafe_from_clearance,
+  wedm_fault_diagnose,
+  wedm_fixture_interference,
 };
