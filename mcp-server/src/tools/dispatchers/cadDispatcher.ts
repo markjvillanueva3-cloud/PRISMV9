@@ -270,6 +270,24 @@ const ACTIONS = [
   "cad_inventor_plan_execution",   // InventorCADExecutionBridge — iLogic scaffold
   "cad_mastercam_plan_execution",  // MastercamCADExecutionBridge — .NET hook scaffold
   "cad_hypercads_plan_execution",  // HyperCADCADExecutionBridge — macro scaffold
+  // CAD-FUSION-LIVE-MS0 PHASE25: wire 8 file-format/parser/FreeCAD/KG/fixture orphans
+  "cad_drawing_2d_register",       // Drawing2DExtractionEngine — register a DXF/DWG
+  "cad_drawing_2d_extract",        // Drawing2DExtractionEngine — extract entities from a registered file
+  "cad_drawing_2d_queue_stats",    // Drawing2DExtractionEngine — queue statistics
+  "cad_fcstd_parse",               // FCStdNativeParserEngine — FreeCAD .FCStd file → tree
+  "cad_fcstd_parse_buffer",        // FCStdNativeParserEngine — .FCStd buffer → tree
+  "cad_f3d_parse",                 // F3DSQLiteParserEngine — Fusion .f3d → timeline
+  "cad_f3d_parse_f3z",             // F3DSQLiteParserEngine — Fusion .f3z (multi-doc archive)
+  "cad_f3d_timeline",              // F3DSQLiteParserEngine — extract timeline only
+  "cad_dxf_parse_polygons",        // DXFParserEngine — DXF text → Polygon2D[]
+  "cad_svg_parse_polygons",        // DXFParserEngine — SVG text → Polygon2D[]
+  "cad_dxf_geom_parse",            // DXFGeometryParserEngine — DXF/STEP/IGES → GeometryParseResult
+  "cad_dxf_geom_validate_wedm",    // DXFGeometryParserEngine — wire-EDM closure validation
+  "cad_freecad_build_script",      // FreeCADCodeGeneratorEngine — CADOperation[] → Python script
+  "cad_fixture_ingest_file",       // FixtureCadIngesterEngine — STEP/IGES/Inventor fixture file
+  "cad_fixture_ingest_directory",  // FixtureCadIngesterEngine — directory of fixture CAD
+  "cad_kg_build",                  // CADKnowledgeGraphEngine — operations → graph
+  "cad_kg_detect_cycles",          // CADKnowledgeGraphEngine — cycle detection in build DAG
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2553,6 +2571,234 @@ Params vary by action — pass relevant fields in params object.`,
             });
             const macro_scaffold = HyperCADCADExecutionBridge.renderMacroScaffold(plan);
             result = { success: true, plan, macro_scaffold };
+            break;
+          }
+          // ── PHASE25: file-format parsers + FreeCAD + fixture + KG ──
+          case "cad_drawing_2d_register": {
+            const path = String(params.path ?? "");
+            if (path.length === 0) {
+              return dispatcherError(
+                new Error("cad_drawing_2d_register requires path"),
+                action, "prism_cad",
+              );
+            }
+            const { Drawing2DExtractionEngine } = await import("../../engines/Drawing2DExtractionEngine.js");
+            Drawing2DExtractionEngine.registerDrawing(path);
+            result = { success: true, data: { path, registered: true } };
+            break;
+          }
+          case "cad_drawing_2d_extract": {
+            const path = String(params.path ?? "");
+            if (path.length === 0) {
+              return dispatcherError(
+                new Error("cad_drawing_2d_extract requires path"),
+                action, "prism_cad",
+              );
+            }
+            const { Drawing2DExtractionEngine } = await import("../../engines/Drawing2DExtractionEngine.js");
+            const data = Drawing2DExtractionEngine.extractDrawing(
+              path,
+              params.simulated_data ?? params.simulatedData,
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_drawing_2d_queue_stats": {
+            const { Drawing2DExtractionEngine } = await import("../../engines/Drawing2DExtractionEngine.js");
+            const data = Drawing2DExtractionEngine.getQueueStats();
+            result = { success: true, data };
+            break;
+          }
+          case "cad_fcstd_parse": {
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            if (filePath.length === 0) {
+              return dispatcherError(
+                new Error("cad_fcstd_parse requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { fcStdNativeParserEngine } = await import("../../engines/FCStdNativeParserEngine.js");
+            const data = await fcStdNativeParserEngine.parse(filePath);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_fcstd_parse_buffer": {
+            const b64 = params.buffer_base64 ?? params.bufferBase64;
+            if (typeof b64 !== "string" || b64.length === 0) {
+              return dispatcherError(
+                new Error("cad_fcstd_parse_buffer requires buffer_base64 (base64 string)"),
+                action, "prism_cad",
+              );
+            }
+            const { fcStdNativeParserEngine } = await import("../../engines/FCStdNativeParserEngine.js");
+            const data = await fcStdNativeParserEngine.parseBuffer(Buffer.from(b64, "base64"));
+            result = { success: true, data };
+            break;
+          }
+          case "cad_f3d_parse": {
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            if (filePath.length === 0) {
+              return dispatcherError(
+                new Error("cad_f3d_parse requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { f3dSqliteParserEngine } = await import("../../engines/F3DSQLiteParserEngine.js");
+            const data = await f3dSqliteParserEngine.parse(filePath);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_f3d_parse_f3z": {
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            if (filePath.length === 0) {
+              return dispatcherError(
+                new Error("cad_f3d_parse_f3z requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { f3dSqliteParserEngine } = await import("../../engines/F3DSQLiteParserEngine.js");
+            const data = await f3dSqliteParserEngine.parseF3Z(filePath);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_f3d_timeline": {
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            if (filePath.length === 0) {
+              return dispatcherError(
+                new Error("cad_f3d_timeline requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { f3dSqliteParserEngine } = await import("../../engines/F3DSQLiteParserEngine.js");
+            const data = await f3dSqliteParserEngine.getTimeline(filePath);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_dxf_parse_polygons": {
+            const content = String(params.content ?? "");
+            if (content.length === 0) {
+              return dispatcherError(
+                new Error("cad_dxf_parse_polygons requires content (DXF text)"),
+                action, "prism_cad",
+              );
+            }
+            const { dxfParserEngine } = await import("../../engines/DXFParserEngine.js");
+            const data = dxfParserEngine.parseDXF(content);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_svg_parse_polygons": {
+            const content = String(params.content ?? "");
+            if (content.length === 0) {
+              return dispatcherError(
+                new Error("cad_svg_parse_polygons requires content (SVG text)"),
+                action, "prism_cad",
+              );
+            }
+            const { dxfParserEngine } = await import("../../engines/DXFParserEngine.js");
+            const data = dxfParserEngine.parseSVG(content);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_dxf_geom_parse": {
+            const content = String(params.content ?? "");
+            const fmt = (params.format ?? "dxf") as "dxf" | "step" | "iges";
+            if (content.length === 0) {
+              return dispatcherError(
+                new Error("cad_dxf_geom_parse requires content"),
+                action, "prism_cad",
+              );
+            }
+            const { dxfGeometryParserEngine } = await import("../../engines/DXFGeometryParserEngine.js");
+            const data = dxfGeometryParserEngine.parseGeometryFile(content, fmt);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_dxf_geom_validate_wedm": {
+            const contours = params.contours;
+            if (!Array.isArray(contours)) {
+              return dispatcherError(
+                new Error("cad_dxf_geom_validate_wedm requires contours[] (WireEDMContour[])"),
+                action, "prism_cad",
+              );
+            }
+            const { dxfGeometryParserEngine } = await import("../../engines/DXFGeometryParserEngine.js");
+            const data = dxfGeometryParserEngine.validateForWireEDM(contours as Parameters<typeof dxfGeometryParserEngine.validateForWireEDM>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_freecad_build_script": {
+            const ops = params.ops;
+            if (!Array.isArray(ops) || ops.length === 0) {
+              return dispatcherError(
+                new Error("cad_freecad_build_script requires ops[] (CADOperation[])"),
+                action, "prism_cad",
+              );
+            }
+            const { freeCADCodeGeneratorEngine } = await import("../../engines/FreeCADCodeGeneratorEngine.js");
+            const data = freeCADCodeGeneratorEngine.buildScript(
+              ops as Parameters<typeof freeCADCodeGeneratorEngine.buildScript>[0],
+              params.context as Parameters<typeof freeCADCodeGeneratorEngine.buildScript>[1],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_fixture_ingest_file": {
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            if (filePath.length === 0) {
+              return dispatcherError(
+                new Error("cad_fixture_ingest_file requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { fixtureCadIngesterEngine } = await import("../../engines/FixtureCadIngesterEngine.js");
+            const data = await fixtureCadIngesterEngine.ingestFile(
+              filePath,
+              params.options as Parameters<typeof fixtureCadIngesterEngine.ingestFile>[1],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_fixture_ingest_directory": {
+            const dirPath = String(params.dir_path ?? params.dirPath ?? "");
+            if (dirPath.length === 0) {
+              return dispatcherError(
+                new Error("cad_fixture_ingest_directory requires dir_path"),
+                action, "prism_cad",
+              );
+            }
+            const { fixtureCadIngesterEngine } = await import("../../engines/FixtureCadIngesterEngine.js");
+            const data = await fixtureCadIngesterEngine.ingestDirectory(
+              dirPath,
+              params.options as Parameters<typeof fixtureCadIngesterEngine.ingestDirectory>[1],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_kg_build": {
+            const operations = params.operations;
+            if (!Array.isArray(operations)) {
+              return dispatcherError(
+                new Error("cad_kg_build requires operations[] (CADOperationInput[])"),
+                action, "prism_cad",
+              );
+            }
+            const { cadKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const data = cadKnowledgeGraphEngine.build(operations as Parameters<typeof cadKnowledgeGraphEngine.build>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_kg_detect_cycles": {
+            const graph = params.graph;
+            if (!graph || typeof graph !== "object") {
+              return dispatcherError(
+                new Error("cad_kg_detect_cycles requires graph (CADGraph)"),
+                action, "prism_cad",
+              );
+            }
+            const { cadKnowledgeGraphEngine } = await import("../../engines/CADKnowledgeGraphEngine.js");
+            const data = cadKnowledgeGraphEngine.detectCycles(graph as Parameters<typeof cadKnowledgeGraphEngine.detectCycles>[0]);
+            result = { success: true, data };
             break;
           }
           default:
