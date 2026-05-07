@@ -89,6 +89,14 @@ const ACTIONS = [
   "diff_token_staged",
   "diff_token_between",
   "diff_token_last_commits",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH2: Context Advanced
+  "context_digest_file",
+  "context_window_add",
+  "context_integrity_check_edit",
+  "context_snapshot_create",
+  "context_compaction_create_context",
+  "context_retention_extract_facts",
+  "context_error_from_build",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1107,6 +1115,51 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             const { diffTokenEstimatorEngine } = await import("../../engines/DiffTokenEstimatorEngine.js");
             const estimate = diffTokenEstimatorEngine.estimateLastCommits(params.n);
             return ok({ estimate, summary: diffTokenEstimatorEngine.getCompactSummary(estimate) });
+          }
+
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH2: Context Advanced ──
+          case "context_digest_file": {
+            const { contextDigestEngine } = await import("../../engines/ContextDigestEngine.js");
+            const result = contextDigestEngine.digestFile(params.path, params.content);
+            return ok({ digest: result, oneliner: contextDigestEngine.oneLiner(result) });
+          }
+          case "context_window_add": {
+            const { contextWindowMapEngine } = await import("../../engines/ContextWindowMapEngine.js");
+            const id = contextWindowMapEngine.add(params.type, params.label, params.tokens);
+            return ok({ segment_id: id });
+          }
+          case "context_integrity_check_edit": {
+            const { contextIntegrityEngine } = await import("../../engines/ContextIntegrityEngine.js");
+            const alert = contextIntegrityEngine.checkEdit(params.path);
+            return ok({ alert });
+          }
+          case "context_snapshot_create": {
+            const { contextSnapshotEngine } = await import("../../engines/ContextSnapshotEngine.js");
+            const snapshot = contextSnapshotEngine.create({
+              workingFiles: params.workingFiles ?? [],
+              recentCommits: params.recentCommits ?? [],
+              activeTask: params.activeTask ?? "",
+              keyDecisions: params.keyDecisions ?? [],
+              nextSteps: params.nextSteps ?? [],
+              engineCount: params.engineCount,
+              testCount: params.testCount,
+            });
+            return ok({ snapshot, formatted: contextSnapshotEngine.format(snapshot) });
+          }
+          case "context_compaction_create_context": {
+            const { contextCompactionEngine } = await import("../../engines/ContextCompactionEngine.js");
+            const ctx = contextCompactionEngine.createContext(params.maxTokens);
+            return ok({ context: ctx });
+          }
+          case "context_retention_extract_facts": {
+            const { contextRetentionEngine } = await import("../../engines/ContextRetentionEngine.js");
+            const facts = contextRetentionEngine.extractCriticalFacts(params.text);
+            return ok({ facts });
+          }
+          case "context_error_from_build": {
+            const { errorContextEngine } = await import("../../engines/ErrorContextEngine.js");
+            const contexts = errorContextEngine.fromBuildError(params.error_text);
+            return ok({ errors: contexts });
           }
 
           default:

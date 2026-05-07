@@ -289,6 +289,38 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   diff_token_last_commits: z.object({
     n: z.number().int().min(1).max(50).optional().describe("Commit count (default 1)"),
   }),
+
+  // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH2: Context Advanced ──
+  context_digest_file: z.object({
+    path: z.string().min(1).describe("File path (used for type classification)"),
+    content: z.string().describe("File contents to digest"),
+  }),
+  context_window_add: z.object({
+    type: z.enum(["system", "file", "tool-output", "conversation", "memory", "error", "other"]).describe("Segment type"),
+    label: z.string().min(1).describe("Human-readable label"),
+    tokens: z.number().int().min(0).describe("Token estimate"),
+  }),
+  context_integrity_check_edit: z.object({
+    path: z.string().min(1).describe("Absolute or repo-relative path being edited"),
+  }),
+  context_snapshot_create: z.object({
+    workingFiles: z.array(z.string()).optional().describe("Currently-open files"),
+    recentCommits: z.array(z.string()).optional().describe("Recent commit subjects"),
+    activeTask: z.string().optional().describe("Current task description"),
+    keyDecisions: z.array(z.string()).optional().describe("Decisions made this session"),
+    nextSteps: z.array(z.string()).optional().describe("Next-action queue"),
+    engineCount: z.number().int().min(0).optional().describe("Engine count snapshot"),
+    testCount: z.number().int().min(0).optional().describe("Test count snapshot"),
+  }),
+  context_compaction_create_context: z.object({
+    maxTokens: z.number().int().positive().optional().describe("Optional max-tokens limit"),
+  }),
+  context_retention_extract_facts: z.object({
+    text: z.string().min(1).describe("Text to scan for critical facts"),
+  }),
+  context_error_from_build: z.object({
+    error_text: z.string().min(1).describe("Build error output"),
+  }),
 };
 
 // Context Priority — intelligent injection prioritization (U-CTXPRI01)
