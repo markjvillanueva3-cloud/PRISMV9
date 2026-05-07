@@ -253,6 +253,23 @@ const ACTIONS = [
   "cad_feature_store_query",       // FeatureStoreEngine — AS-OF historical features
   "cad_feature_store_stats",       // FeatureStoreEngine — store health stats
   "cad_part_springback",           // SpringbackPredictionEngine — thin-wall elastic recovery
+  // CAD-FUSION-LIVE-MS0 PHASE24: wire 8 print/text/tolerance/multi-CAD-bridge orphans
+  "cad_text_to_cad_generate",      // TextToCADGenerationEngine — natural language → CAD
+  "cad_text_parse",                // TextToCADGenerationEngine — text → ParsedText spec
+  "cad_text_supported_features",   // TextToCADGenerationEngine — keyword vocabulary
+  "cad_neural_generate",           // NeuralCADGenerationEngine — features|blueprint|text → code
+  "cad_neural_extract_features_text", // NeuralCADGenerationEngine — text → FeatureSpec[]
+  "cad_part_geometry_analyze",     // PartGeometryPipelineEngine — feature analysis
+  "cad_part_geometry_match_tools", // PartGeometryPipelineEngine — feature → tool match
+  "cad_fcf_validate",              // FCFSyntaxValidatorEngine — Feature Control Frame validate
+  "cad_tolerance_it_grade",        // ToleranceEngine — ISO 286 IT-grade lookup
+  "cad_tolerance_fit_analyze",     // ToleranceEngine — H7/g6-style fit analysis
+  "cad_tolerance_stackup",         // ToleranceEngine — RSS/worst-case stackup
+  "cad_translate_blueprint_to_ops",// PrintToCADTranslator — analysis → CADOperation[]
+  "cad_solidworks_plan_execution", // SolidWorksCADExecutionBridge — VBA scaffold
+  "cad_inventor_plan_execution",   // InventorCADExecutionBridge — iLogic scaffold
+  "cad_mastercam_plan_execution",  // MastercamCADExecutionBridge — .NET hook scaffold
+  "cad_hypercads_plan_execution",  // HyperCADCADExecutionBridge — macro scaffold
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2340,6 +2357,202 @@ Params vary by action — pass relevant fields in params object.`,
             const { springbackPredictionEngine } = await import("../../engines/SpringbackPredictionEngine.js");
             const data = springbackPredictionEngine.compute(input as Parameters<typeof springbackPredictionEngine.compute>[0]);
             result = { success: true, data };
+            break;
+          }
+          // ── PHASE24: text/neural/tolerance/multi-CAD-bridge orphans ──
+          case "cad_text_to_cad_generate": {
+            const { textToCADGenerationEngine } = await import("../../engines/TextToCADGenerationEngine.js");
+            const data = await textToCADGenerationEngine.generate(
+              params.input ?? params,
+              params.generation_backend ?? params.generationBackend,
+              params.embedding_backend ?? params.embeddingBackend,
+              params.corpus,
+              params.config,
+            );
+            result = { success: data.success, data };
+            break;
+          }
+          case "cad_text_parse": {
+            const text = params.text;
+            if (typeof text !== "string" || text.length === 0) {
+              return dispatcherError(
+                new Error("cad_text_parse requires non-empty text string"),
+                action, "prism_cad",
+              );
+            }
+            const { textToCADGenerationEngine } = await import("../../engines/TextToCADGenerationEngine.js");
+            const data = textToCADGenerationEngine.parseText(text);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_text_supported_features": {
+            const { textToCADGenerationEngine } = await import("../../engines/TextToCADGenerationEngine.js");
+            const features = textToCADGenerationEngine.getSupportedFeatures();
+            result = { success: true, data: { features, count: features.length } };
+            break;
+          }
+          case "cad_neural_generate": {
+            const { neuralCADGenerationEngine } = await import("../../engines/NeuralCADGenerationEngine.js");
+            const data = await neuralCADGenerationEngine.generate(
+              params.input ?? params as Parameters<typeof neuralCADGenerationEngine.generate>[0],
+              params.generation_backend ?? params.generationBackend,
+              params.embedding_backend ?? params.embeddingBackend,
+              params.corpus,
+              params.config,
+            );
+            result = { success: data.success, data };
+            break;
+          }
+          case "cad_neural_extract_features_text": {
+            const text = params.text;
+            if (typeof text !== "string" || text.length === 0) {
+              return dispatcherError(
+                new Error("cad_neural_extract_features_text requires non-empty text string"),
+                action, "prism_cad",
+              );
+            }
+            const { neuralCADGenerationEngine } = await import("../../engines/NeuralCADGenerationEngine.js");
+            const data = neuralCADGenerationEngine.extractFeaturesFromText(text);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_part_geometry_analyze": {
+            const { partGeometryPipelineEngine } = await import("../../engines/PartGeometryPipelineEngine.js");
+            const data = partGeometryPipelineEngine.analyzeFeatures(params.input ?? params as Parameters<typeof partGeometryPipelineEngine.analyzeFeatures>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_geometry_match_tools": {
+            const { partGeometryPipelineEngine } = await import("../../engines/PartGeometryPipelineEngine.js");
+            const data = partGeometryPipelineEngine.matchTools(params.input ?? params as Parameters<typeof partGeometryPipelineEngine.matchTools>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_fcf_validate": {
+            const { fcfSyntaxValidatorEngine } = await import("../../engines/FCFSyntaxValidatorEngine.js");
+            const data = fcfSyntaxValidatorEngine.validate(params.input ?? params as Parameters<typeof fcfSyntaxValidatorEngine.validate>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_tolerance_it_grade": {
+            const nominal_mm = Number(params.nominal_mm ?? params.nominalMm);
+            const it_grade = Number(params.it_grade ?? params.itGrade);
+            if (!Number.isFinite(nominal_mm) || !Number.isFinite(it_grade)) {
+              return dispatcherError(
+                new Error("cad_tolerance_it_grade requires nominal_mm and it_grade (numbers)"),
+                action, "prism_cad",
+              );
+            }
+            const { calculateITGrade } = await import("../../engines/ToleranceEngine.js");
+            const data = calculateITGrade(nominal_mm, it_grade);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_tolerance_fit_analyze": {
+            const nominal_mm = Number(params.nominal_mm ?? params.nominalMm);
+            const fit_class = String(params.fit_class ?? params.fitClass ?? "");
+            if (!Number.isFinite(nominal_mm) || fit_class.length === 0) {
+              return dispatcherError(
+                new Error("cad_tolerance_fit_analyze requires nominal_mm (number) and fit_class (e.g. 'H7/g6')"),
+                action, "prism_cad",
+              );
+            }
+            const { analyzeShaftHoleFit } = await import("../../engines/ToleranceEngine.js");
+            const data = analyzeShaftHoleFit(nominal_mm, fit_class);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_tolerance_stackup": {
+            const dimensions = params.dimensions;
+            if (!Array.isArray(dimensions) || dimensions.length === 0) {
+              return dispatcherError(
+                new Error("cad_tolerance_stackup requires dimensions[] (StackDimension[])"),
+                action, "prism_cad",
+              );
+            }
+            const { toleranceStackUp } = await import("../../engines/ToleranceEngine.js");
+            const data = toleranceStackUp(dimensions as Parameters<typeof toleranceStackUp>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_translate_blueprint_to_ops": {
+            const input = params.input ?? params;
+            const label = String(params.label ?? "cad_translate_blueprint_to_ops");
+            const { translateBlueprintToOps } = await import("../../engines/PrintToCADTranslator.js");
+            const data = translateBlueprintToOps(input as Parameters<typeof translateBlueprintToOps>[0], label);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_solidworks_plan_execution": {
+            const moduleId = String(params.module_id ?? params.moduleId ?? "");
+            const operationId = String(params.operation_id ?? params.operationId ?? "");
+            if (moduleId.length === 0 || operationId.length === 0) {
+              return dispatcherError(
+                new Error("cad_solidworks_plan_execution requires module_id + operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const { SolidWorksCADExecutionBridge } = await import("../../engines/SolidWorksCADExecutionBridge.js");
+            const plan = await SolidWorksCADExecutionBridge.plan({
+              moduleId, operationId,
+              params: (params.op_params ?? params.params ?? {}) as Record<string, unknown>,
+            });
+            const vba_scaffold = SolidWorksCADExecutionBridge.renderVBAScaffold(plan);
+            result = { success: true, plan, vba_scaffold };
+            break;
+          }
+          case "cad_inventor_plan_execution": {
+            const moduleId = String(params.module_id ?? params.moduleId ?? "");
+            const operationId = String(params.operation_id ?? params.operationId ?? "");
+            if (moduleId.length === 0 || operationId.length === 0) {
+              return dispatcherError(
+                new Error("cad_inventor_plan_execution requires module_id + operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const { InventorCADExecutionBridge } = await import("../../engines/InventorCADExecutionBridge.js");
+            const plan = await InventorCADExecutionBridge.plan({
+              moduleId, operationId,
+              params: (params.op_params ?? params.params ?? {}) as Record<string, unknown>,
+            });
+            const ilogic_scaffold = InventorCADExecutionBridge.renderILogicScaffold(plan);
+            result = { success: true, plan, ilogic_scaffold };
+            break;
+          }
+          case "cad_mastercam_plan_execution": {
+            const moduleId = String(params.module_id ?? params.moduleId ?? "");
+            const operationId = String(params.operation_id ?? params.operationId ?? "");
+            if (moduleId.length === 0 || operationId.length === 0) {
+              return dispatcherError(
+                new Error("cad_mastercam_plan_execution requires module_id + operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const { MastercamCADExecutionBridge } = await import("../../engines/MastercamCADExecutionBridge.js");
+            const plan = await MastercamCADExecutionBridge.plan({
+              moduleId, operationId,
+              params: (params.op_params ?? params.params ?? {}) as Record<string, unknown>,
+            });
+            const net_hook_scaffold = MastercamCADExecutionBridge.renderNETHookScaffold(plan);
+            result = { success: true, plan, net_hook_scaffold };
+            break;
+          }
+          case "cad_hypercads_plan_execution": {
+            const moduleId = String(params.module_id ?? params.moduleId ?? "");
+            const operationId = String(params.operation_id ?? params.operationId ?? "");
+            if (moduleId.length === 0 || operationId.length === 0) {
+              return dispatcherError(
+                new Error("cad_hypercads_plan_execution requires module_id + operation_id"),
+                action, "prism_cad",
+              );
+            }
+            const { HyperCADCADExecutionBridge } = await import("../../engines/HyperCADCADExecutionBridge.js");
+            const plan = await HyperCADCADExecutionBridge.plan({
+              moduleId, operationId,
+              params: (params.op_params ?? params.params ?? {}) as Record<string, unknown>,
+            });
+            const macro_scaffold = HyperCADCADExecutionBridge.renderMacroScaffold(plan);
+            result = { success: true, plan, macro_scaffold };
             break;
           }
           default:
