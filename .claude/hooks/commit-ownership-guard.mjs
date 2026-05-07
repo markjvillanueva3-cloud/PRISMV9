@@ -191,8 +191,55 @@ function main() {
 
   const foreignPct = (foreignFiles.length / staged.length) * 100;
 
+  // AUTO-UNSTAGE: instead of blocking on foreign-staged files (forcing the
+  // user to manually `git reset HEAD <file>`), unstage them in-place and
+  // proceed with the user's own files. Peer changes stay in their working
+  // tree (unstaged) — no data loss; they re-stage when they commit.
+  // Disable with PRISM_AUTO_UNSTAGE_FOREIGN=0 to fall back to block/warn.
+  const autoUnstage = process.env.PRISM_AUTO_UNSTAGE_FOREIGN !== "0";
+
+  if (autoUnstage) {
+    const unstagedOk = [];
+    const unstageFailed = [];
+    for (const f of foreignFiles) {
+      try {
+        execFileSync("git", ["reset", "HEAD", "--", f.file], {
+          cwd: commitCwd,
+          stdio: ["ignore", "pipe", "pipe"],
+          timeout: 5000,
+        });
+        unstagedOk.push(f);
+      } catch {
+        unstageFailed.push(f);
+      }
+    }
+    const stillStaged = getStagedFiles(commitCwd);
+    if (stillStaged.length === 0) {
+      // Everything staged was foreign — abort instead of letting the commit
+      // create an empty/no-op commit or fail noisily.
+      const msg = [
+        `⚠ COMMIT ABORTED: every staged file (${foreignFiles.length}) belonged to other sessions; auto-unstaged all of them — nothing left to commit.`,
+        "",
+        ...unstagedOk.slice(0, 8).map(f => `  unstaged: ${f.file} (${f.owner}, ${f.age}m ago)`),
+        unstagedOk.length > 8 ? `  ... and ${unstagedOk.length - 8} more` : "",
+        "",
+        "Stage your own files and retry.",
+      ].join("\n");
+      console.log(JSON.stringify({ decision: "block", reason: msg }));
+      return;
+    }
+    const msg = [
+      `↩ Auto-unstaged ${unstagedOk.length} foreign file(s); proceeding with ${stillStaged.length} of your files.`,
+      ...unstagedOk.slice(0, 5).map(f => `  unstaged: ${f.file} (${f.owner}, ${f.age}m ago)`),
+      unstagedOk.length > 5 ? `  ... and ${unstagedOk.length - 5} more` : "",
+      unstageFailed.length > 0 ? `  ⚠ failed to unstage ${unstageFailed.length} (left staged — guard may still block)` : "",
+    ].filter(Boolean).join("\n");
+    console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: msg } }));
+    return;
+  }
+
+  // Legacy fallback (PRISM_AUTO_UNSTAGE_FOREIGN=0)
   if (foreignPct > 50) {
-    // Block — too many foreign files
     const msg = [
       `⚠ COMMIT BLOCKED: ${foreignFiles.length}/${staged.length} files (${foreignPct.toFixed(0)}%) belong to other sessions.`,
       "",
@@ -200,21 +247,13 @@ function main() {
       ...foreignFiles.slice(0, 10).map(f => `  - ${f.file} (${f.owner}, ${f.age}m ago)`),
       foreignFiles.length > 10 ? `  ... and ${foreignFiles.length - 10} more` : "",
       "",
-      "This usually means another Claude session is working on these files.",
-      "Options:",
-      "  1. Wait for the other session to commit its changes",
-      "  2. Use 'git reset HEAD <file>' to unstage foreign files",
-      "  3. Coordinate with other sessions via state/shared/AGENT_CHAT.md",
+      "Set PRISM_AUTO_UNSTAGE_FOREIGN=1 (default) to auto-unstage instead of blocking.",
+      "Or: 'git reset HEAD <file>' manually, or coordinate via state/shared/AGENT_CHAT.md",
     ].join("\n");
-
-    console.log(JSON.stringify({
-      decision: "block",
-      reason: msg,
-    }));
+    console.log(JSON.stringify({ decision: "block", reason: msg }));
     return;
   }
 
-  // Warn but allow
   const msg = [
     `⚠ WARNING: ${foreignFiles.length} file(s) may belong to another session:`,
     ...foreignFiles.slice(0, 5).map(f => `  - ${f.file} (${f.owner}, ${f.age}m ago)`),
