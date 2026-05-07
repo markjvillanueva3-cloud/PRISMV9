@@ -565,6 +565,7 @@ const ACTIONS = [
   "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
   "roughness_convert", "peck_drill_optimize",
   "drill_cycle_optimize", "coating_select",
+  "workpiece_deflection_compensate",
   "geometry_select", "insert_grade_select", "coolant_recommend",
   "monte_carlo_simulate", "monte_carlo_tool_life", "monte_carlo_tolerance", "monte_carlo_histogram",
   "gcode_validate", "gcode_envelope", "gcode_optimize", "gcode_compress", "gcode_analyze",
@@ -8529,6 +8530,14 @@ export function registerCalcDispatcher(server: any): void {
           case "peck_drill_optimize": {
             const { peckDrillingOptimizationEngine } = await import("../../engines/PeckDrillingOptimizationEngine.js");
             result = peckDrillingOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── COG-BRIDGE-FOLLOWUP/U-WIRE-CALC-DEFL: wire WorkpieceDeflectionCompensationEngine.
+          // Cantilevered bar deflection physics for live-tooling lathes (Euler-Bernoulli + hex/round
+          // section properties). Engine signature is calculate(action, input) — pass action through.
+          case "workpiece_deflection_compensate": {
+            const { workpieceDeflectionCompensationEngine } = await import("../../engines/WorkpieceDeflectionCompensationEngine.js");
+            result = workpieceDeflectionCompensationEngine.calculate(action, params as ValidatedParams);
             break;
           }
           case "finishing_pass": {
