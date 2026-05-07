@@ -8523,6 +8523,14 @@ export function registerCalcDispatcher(server: any): void {
             result = drillCycleOptimizationEngine.calculate(params as ValidatedParams);
             break;
           }
+          // ── COG-BRIDGE-FOLLOWUP/U-WIRE-CALC-PECK: complete the half-wired peck_drill_optimize action.
+          // The action was in the enum + result-slimmer (line 244) but had no case handler — calls
+          // were silently returning the unrelated result of whatever case fell through to.
+          case "peck_drill_optimize": {
+            const { peckDrillingOptimizationEngine } = await import("../../engines/PeckDrillingOptimizationEngine.js");
+            result = peckDrillingOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
           case "finishing_pass": {
             const { finishingPassOptimizationEngine } = await import("../../engines/FinishingPassOptimizationEngine.js");
             result = finishingPassOptimizationEngine.calculate(params as ValidatedParams);
