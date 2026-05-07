@@ -241,6 +241,13 @@ export const MILL_ACTIONS = [
   "mill_meta_learn_self_assess",       // MillingMetaLearningEngine.selfAssess
   "mill_ai_parse_nl_query",            // MillingAIIntegrationEngine.parseNaturalLanguageQuery
   "mill_ai_archive_stats",             // MillingAIIntegrationEngine.getArchiveStats
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH3: 6 unwired physics/RL/pattern mill engines
+  "mill_physics_force",                // MillingPhysicsKernelEngine.calculateMillingForces
+  "mill_physics_tool_life",            // MillingPhysicsKernelEngine.calculateToolLife
+  "mill_program_pattern_analyze",      // MillingProgramPatternEngine.analyzeProgram
+  "mill_rl_select_action",             // MillingReinforcementLearningEngine.selectAction
+  "mill_head_recommend",               // MillingHeadIntelligenceEngine.recommendMillingHead
+  "mill_machine_intel_get",            // MillingMachineIntelligenceEngine.getMachine
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -703,6 +710,47 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_ai_archive_stats": {
             const { millingAIIntegrationEngine } = await import("../../engines/MillingAIIntegrationEngine.js");
             result = millingAIIntegrationEngine.getArchiveStats();
+            break;
+          }
+
+          // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH3: 6 unwired physics/RL/pattern mill engines
+          case "mill_physics_force": {
+            const { millingPhysicsKernelEngine } = await import("../../engines/MillingPhysicsKernelEngine.js");
+            result = millingPhysicsKernelEngine.calculateMillingForces(params as Parameters<typeof millingPhysicsKernelEngine.calculateMillingForces>[0]);
+            break;
+          }
+          case "mill_physics_tool_life": {
+            const { millingPhysicsKernelEngine } = await import("../../engines/MillingPhysicsKernelEngine.js");
+            result = millingPhysicsKernelEngine.calculateToolLife(params as Parameters<typeof millingPhysicsKernelEngine.calculateToolLife>[0]);
+            break;
+          }
+          case "mill_program_pattern_analyze": {
+            const { millingProgramPatternEngine } = await import("../../engines/MillingProgramPatternEngine.js");
+            const p = params as { ncCode: string; sourcePath?: string };
+            if (typeof p.ncCode !== "string" || p.ncCode.length === 0) throw new Error("mill_program_pattern_analyze requires 'ncCode'");
+            result = millingProgramPatternEngine.analyzeProgram(p.ncCode, p.sourcePath);
+            break;
+          }
+          case "mill_rl_select_action": {
+            const { millingReinforcementLearningEngine } = await import("../../engines/MillingReinforcementLearningEngine.js");
+            const p = params as { state: Parameters<typeof millingReinforcementLearningEngine.selectAction>[0]; explore?: boolean };
+            if (!p.state || typeof p.state !== "object") throw new Error("mill_rl_select_action requires 'state' object");
+            result = millingReinforcementLearningEngine.selectAction(p.state, p.explore);
+            break;
+          }
+          case "mill_head_recommend": {
+            const { millingHeadIntelligenceEngine } = await import("../../engines/MillingHeadIntelligenceEngine.js");
+            const p = params as { operations: Parameters<typeof millingHeadIntelligenceEngine.recommendMillingHead>[0]; constraints: Parameters<typeof millingHeadIntelligenceEngine.recommendMillingHead>[1] };
+            if (!Array.isArray(p.operations) || p.operations.length === 0) throw new Error("mill_head_recommend requires non-empty 'operations'");
+            if (!p.constraints || typeof p.constraints !== "object") throw new Error("mill_head_recommend requires 'constraints'");
+            result = millingHeadIntelligenceEngine.recommendMillingHead(p.operations, p.constraints);
+            break;
+          }
+          case "mill_machine_intel_get": {
+            const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
+            const id = (params as { id: string }).id;
+            if (typeof id !== "string" || id.length === 0) throw new Error("mill_machine_intel_get requires 'id'");
+            result = millingMachineIntelligenceEngine.getMachine(id) ?? null;
             break;
           }
 

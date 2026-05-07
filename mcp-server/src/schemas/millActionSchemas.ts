@@ -871,6 +871,102 @@ const mill_ai_archive_stats = z
   .passthrough()
   .describe("No-arg JM-Die program-archive statistics.");
 
+// ─── ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH3: 6 unwired physics/RL/pattern mill engines ─
+
+/** mill_physics_force — MillingPhysicsKernelEngine.calculateMillingForces */
+const mill_physics_force = z
+  .object({
+    kc1_1: z.number().positive().describe("Kienzle specific cutting force coefficient (N/mm²)."),
+    mc: z.number().min(0).max(1).describe("Kienzle exponent (dimensionless, typically 0.15–0.35)."),
+    ap: z.number().positive().describe("Axial depth of cut (mm)."),
+    fz: z.number().positive().describe("Feed per tooth (mm)."),
+    helix_angle_deg: z.number().min(0).max(89).optional().describe("Tool helix angle (deg)."),
+    tool_diameter_mm: z.number().positive().optional().describe("Tool diameter (mm)."),
+    ae: z.number().positive().optional().describe("Radial depth of cut (mm)."),
+  })
+  .passthrough()
+  .describe("MillingForceInput — Kienzle force calculation with helix decomposition.");
+
+/** mill_physics_tool_life — MillingPhysicsKernelEngine.calculateToolLife */
+const mill_physics_tool_life = z
+  .object({
+    C: z.number().positive().describe("Taylor constant (m/min at T=1 min)."),
+    n: z.number().positive().describe("Taylor exponent (dimensionless, typically 0.1–0.5)."),
+    Vc: z.number().positive().describe("Cutting speed (m/min)."),
+    coating: z.string().optional().describe("Coating type for adjustment factor."),
+    p: z.number().positive().optional().describe("Extended Taylor feed exponent."),
+    q: z.number().positive().optional().describe("Extended Taylor depth exponent."),
+    f: z.number().positive().optional().describe("Feed rate (mm/rev) for extended Taylor."),
+    ap: z.number().positive().optional().describe("Axial depth (mm) for extended Taylor."),
+    iso_group: z.string().optional().describe("ISO material group (P/M/K/N/S/H)."),
+  })
+  .passthrough()
+  .describe("ToolLifeInput — Taylor or extended Taylor tool life calculation.");
+
+/** mill_program_pattern_analyze — MillingProgramPatternEngine.analyzeProgram */
+const mill_program_pattern_analyze = z
+  .object({
+    ncCode: z.string().min(1).describe("Raw NC/G-code program text."),
+    sourcePath: z.string().optional().describe("Optional source file path for traceability."),
+  })
+  .passthrough()
+  .describe("Analyze NC program for tools, operations, and milling patterns.");
+
+/** mill_rl_select_action — MillingReinforcementLearningEngine.selectAction */
+const mill_rl_select_action = z
+  .object({
+    state: z
+      .object({
+        cutting_speed_mpm: z.number(),
+        feed_per_tooth_mm: z.number(),
+        axial_depth_mm: z.number(),
+        radial_depth_mm: z.number(),
+        tool_wear_vb_mm: z.number().nonnegative(),
+        spindle_load_percent: z.number().min(0).max(200),
+        vibration_level: z.number().nonnegative(),
+        temperature_c: z.number(),
+        surface_roughness_um: z.number().nonnegative(),
+        material_hardness_hrc: z.number(),
+      })
+      .describe("Current MillingState observation."),
+    explore: z.boolean().optional().describe("If true, ε-greedy exploration; else greedy."),
+  })
+  .passthrough()
+  .describe("DQN policy: select cutting-parameter adjustment action from state.");
+
+/** mill_head_recommend — MillingHeadIntelligenceEngine.recommendMillingHead */
+const mill_head_recommend = z
+  .object({
+    operations: z
+      .array(
+        z.object({
+          type: z.string().min(1),
+          angles: z.array(z.number()),
+          powerRequired_kW: z.number().nonnegative(),
+          interpolation: z.boolean(),
+        }),
+      )
+      .min(1)
+      .describe("Planned milling operations with angle and power requirements."),
+    constraints: z
+      .object({
+        budget: z.enum(["low", "medium", "high"]),
+        accuracy_mm: z.number().positive(),
+        production: z.boolean(),
+      })
+      .describe("Selection constraints: budget tier, target accuracy, production flag."),
+  })
+  .passthrough()
+  .describe("Recommend optimal milling head (orthogonal/universal/B-axis) for operation set.");
+
+/** mill_machine_intel_get — MillingMachineIntelligenceEngine.getMachine */
+const mill_machine_intel_get = z
+  .object({
+    id: z.string().min(1).describe("Machine profile identifier."),
+  })
+  .passthrough()
+  .describe("Look up MillingMachineProfile by id from machine intelligence cache.");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -980,4 +1076,12 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_meta_learn_self_assess,
   mill_ai_parse_nl_query,
   mill_ai_archive_stats,
+
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH3: 6 unwired physics/RL/pattern mill engines
+  mill_physics_force,
+  mill_physics_tool_life,
+  mill_program_pattern_analyze,
+  mill_rl_select_action,
+  mill_head_recommend,
+  mill_machine_intel_get,
 };
