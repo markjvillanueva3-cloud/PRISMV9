@@ -1057,4 +1057,22 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   shop_note_batch,
   shop_note_validate,
   shop_note_status,
+
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH9: Knowledge enrichment
+  cognitive_tribal_maximizer_query: z.object({
+    domain: z.string().optional().describe("Domain filter (lathe / mill / wedm / general / setup / inspection)"),
+    category: z.string().optional().describe("Category filter (speed-feed / workholding / tool-selection / safety / quality / efficiency)"),
+    min_confidence: z.number().min(0).max(1).optional().describe("Min confidence 0-1"),
+    keywords: z.array(z.string()).optional().describe("Keyword OR-match filter"),
+    limit: z.number().int().positive().max(500).optional().describe("Max tips returned (default 50)"),
+  }).passthrough(),
+  cognitive_video_knowledge_query: z.object({
+    topic: z.string().optional().describe("Topic substring filter"),
+    source: z.string().optional().describe("Source filter (e.g. Titans of CNC, NYC CNC)"),
+    limit: z.number().int().positive().max(500).optional().describe("Max videos returned"),
+  }).passthrough(),
+  cognitive_extracted_knowledge_search: z.object({
+    query: z.string().min(1).describe("Free-text search query"),
+    limit: z.number().int().positive().max(200).optional().describe("Max atoms returned (default 20)"),
+  }).passthrough(),
 };

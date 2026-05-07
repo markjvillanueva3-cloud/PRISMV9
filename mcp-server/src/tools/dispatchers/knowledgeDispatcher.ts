@@ -89,6 +89,13 @@ const SHOP_NOTE_ACTIONS = [
   "shop_note_validate", "shop_note_status",
 ] as const;
 
+// COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH9: Knowledge enrichment
+const COG_KNOWLEDGE_ACTIONS = [
+  "cognitive_tribal_maximizer_query",
+  "cognitive_video_knowledge_query",
+  "cognitive_extracted_knowledge_search",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
@@ -101,6 +108,7 @@ const ACTIONS = [
   ...LEARN_ACTIONS,
   ...OBSIDIAN_ACTIONS,
   ...SHOP_NOTE_ACTIONS,
+  ...COG_KNOWLEDGE_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
@@ -1128,6 +1136,48 @@ export function registerKnowledgeDispatcher(server: any): void {
             const { FleetDeploymentLearningEngine } = await import("../../engines/FleetDeploymentLearningEngine.js");
             const fleet = new FleetDeploymentLearningEngine();
             result = fleet.fleetSummary();
+            break;
+          }
+
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH9: Knowledge enrichment ──
+          case "cognitive_tribal_maximizer_query": {
+            try {
+              const { tribalKnowledgeMaximizerEngine } = await import("../../engines/TribalKnowledgeMaximizerEngine.js");
+              const tips = await tribalKnowledgeMaximizerEngine.query({
+                domain: params.domain,
+                category: params.category,
+                minConfidence: params.min_confidence,
+                keywords: params.keywords,
+                limit: params.limit,
+              });
+              result = { tips, count: tips.length };
+            } catch (e: any) {
+              result = { tips: [], count: 0, engine_error: e?.message ?? "tribal query failed" };
+            }
+            break;
+          }
+          case "cognitive_video_knowledge_query": {
+            try {
+              const { videoKnowledgeIntegrationEngine } = await import("../../engines/VideoKnowledgeIntegrationEngine.js");
+              const videos = await videoKnowledgeIntegrationEngine.query({
+                topic: params.topic,
+                source: params.source,
+                limit: params.limit,
+              });
+              result = { videos, count: videos.length };
+            } catch (e: any) {
+              result = { videos: [], count: 0, engine_error: e?.message ?? "video query failed" };
+            }
+            break;
+          }
+          case "cognitive_extracted_knowledge_search": {
+            try {
+              const { extractedKnowledgeWiringEngine } = await import("../../engines/ExtractedKnowledgeWiringEngine.js");
+              const atoms = extractedKnowledgeWiringEngine.search(params.query, params.limit ?? 20);
+              result = { atoms, count: atoms.length };
+            } catch (e: any) {
+              result = { atoms: [], count: 0, engine_error: e?.message ?? "knowledge search failed" };
+            }
             break;
           }
         }
