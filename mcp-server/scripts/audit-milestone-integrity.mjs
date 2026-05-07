@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Milestone Integrity Auditor — INTEL-OLLAMA-OBSIDIAN-MS0 / TIE-UP utility
  *
