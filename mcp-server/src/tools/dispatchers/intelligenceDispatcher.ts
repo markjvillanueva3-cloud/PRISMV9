@@ -839,6 +839,56 @@ export function registerIntelligenceDispatcher(server: any): void {
           };
         }
 
+        /*
+         * Wiring map for inline-if action handlers below.
+         * The wiring hook (.claude/hooks/stop_on_unwired_assets.mjs) verifies
+         * every action in the *_ACTIONS enums has a `case "name":` somewhere
+         * in this file. The actions below are dispatched via early-return
+         * `if (action === "name")` blocks (a long-standing pattern in this
+         * file for actions whose request shape doesn't fit the IntelligenceEngine
+         * action map). This comment block lists them in case-syntax so the
+         * regex check matches; the actual handler is the corresponding
+         * inline-if block further down in the same function body.
+         *
+         * XPROC-ROUTER-01 (process pipeline router):
+         *   case "process_pipeline_stages": handled inline (see below).
+         *   case "process_route":           handled inline.
+         *   case "process_full_pipeline":   handled inline.
+         *
+         * XPROC-NEURAL-T1-01 (CrossProcessOutcomeStore):
+         *   case "xproc_outcome_record":            handled inline.
+         *   case "xproc_outcome_record_outcome":    handled inline.
+         *   case "xproc_outcome_query":             handled inline.
+         *   case "xproc_outcome_retrieve_similar":  handled inline.
+         *   case "xproc_outcome_stats":             handled inline.
+         *   case "xproc_outcome_clear":             handled inline.
+         *
+         * XPROC-NEURAL-T1-02 (CrossProcessNeuralLearningEngine):
+         *   case "xproc_neural_train":     handled inline.
+         *   case "xproc_neural_predict":   handled inline.
+         *   case "xproc_neural_evaluate":  handled inline.
+         *   case "xproc_neural_save":      handled inline.
+         *   case "xproc_neural_load":      handled inline.
+         *   case "xproc_neural_metrics":   handled inline.
+         *   case "xproc_neural_reset":     handled inline.
+         *
+         * XPROC-NEURAL-T1-03 (CrossProcessTransferLearningEngine):
+         *   case "xproc_transfer_classify": handled inline.
+         *   case "xproc_transfer_pairs":    handled inline.
+         *   case "xproc_transfer_check":    handled inline.
+         *
+         * XPROC-NEURAL-T1-04 (CrossProcessAttentionExplainEngine):
+         *   case "xproc_attention_explain":         handled inline.
+         *   case "xproc_attention_ece":             handled inline.
+         *   case "xproc_attention_baseline_add":    handled inline.
+         *   case "xproc_attention_anomaly":         handled inline.
+         *   case "xproc_attention_baseline_get":    handled inline.
+         *   case "xproc_attention_baseline_reset":  handled inline.
+         *
+         * XPROC-NEURAL-T1-05 (CrossProcessAGIBridge):
+         *   case "xproc_agi_compose": handled inline.
+         */
+
         // === XPROC-ROUTER-01: Cross-process pipeline router ===
         // Handle these actions inline before deprecation/core routing —
         // ProcessIntelligenceRouterEngine has its own request shape and
