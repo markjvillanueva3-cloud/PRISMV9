@@ -370,37 +370,41 @@ export class CrossProcessNeuralLearningEngine {
       };
     }
 
+    // U-NN-FIX03: HONEST loss reporting.
+    // initialLoss: forward-only on frozen weights BEFORE any updates.
+    // finalLoss:   forward-only on frozen weights AFTER all updates.
+    // Both use computeMeanLoss(samples), making them directly comparable.
+    // Previously finalLoss was accumulated DURING training (per-sample loss
+    // computed BEFORE that sample's update), giving a moving-target value
+    // that under-reported convergence on a stable model.
     const initialLoss = this.computeMeanLoss(samples);
-    let lastLoss = initialLoss;
-    let lastCorrect = 0;
 
     for (let ep = 0; ep < epochs; ep++) {
       if (shuffle) this.shuffleInPlace(samples);
-      lastCorrect = 0;
-      let epochLoss = 0;
       for (let i = 0; i < samples.length; i += batchSize) {
         const end = Math.min(i + batchSize, samples.length);
         for (let j = i; j < end; j++) {
           const { x, y } = samples[j];
-          const { loss, correct } = this.stepOne(x, y);
-          epochLoss += loss;
-          if (correct) lastCorrect++;
+          this.stepOne(x, y);
         }
       }
-      lastLoss = epochLoss / samples.length;
       this.totalEpochsRun++;
     }
 
-    const trainAccuracy = lastCorrect / samples.length;
+    // Post-training measurement: recompute loss + accuracy on the FINAL frozen
+    // weights, not on the moving-target mid-training values.
+    const finalLoss = this.computeMeanLoss(samples);
+    const finalCorrect = this.computeCorrectCount(samples);
+    const trainAccuracy = finalCorrect / samples.length;
     this.totalSamplesSeen += samples.length * epochs;
-    this.lastLoss = lastLoss;
+    this.lastLoss = finalLoss;
     this.lastAccuracy = trainAccuracy;
 
     return {
       epochsRun: epochs,
       samplesUsed: samples.length,
       samplesSkipped: skipped,
-      finalLoss: lastLoss,
+      finalLoss,
       trainAccuracy,
       initialLoss,
     };
@@ -700,6 +704,25 @@ export class CrossProcessNeuralLearningEngine {
       s += -Math.log(Math.max(SOFTMAX_EPSILON, probs[y]));
     }
     return s / samples.length;
+  }
+
+  /**
+   * U-NN-FIX03 helper: argmax-correctness count under the CURRENT frozen weights.
+   * Used for honest post-training accuracy reporting (vs the prior in-loop tally
+   * that scored each sample on the weights BEFORE its own update).
+   */
+  private computeCorrectCount(samples: Array<{ x: Float64Array; y: number }>): number {
+    let correct = 0;
+    for (const { x, y } of samples) {
+      const { probs } = this.forward(x);
+      let argmax = 0;
+      let max = probs[0];
+      for (let o = 1; o < OUTPUT_DIM; o++) {
+        if (probs[o] > max) { max = probs[o]; argmax = o; }
+      }
+      if (argmax === y) correct++;
+    }
+    return correct;
   }
 
   /** Fisher-Yates with seeded RNG. */
