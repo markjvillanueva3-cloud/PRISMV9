@@ -229,6 +229,18 @@ const ACTIONS = [
   "cad_part_boiler_tube",       // BoilerTubeEngine — parametric boiler tube design
   "cad_part_gasket",            // GasketDesignEngine — parametric gasket design
   "cad_ai_session_open",        // CADAIStateMachineEngine — open AI design session FSM
+  // CAD-FUSION-LIVE-MS0 PHASE22: wire 8 orphan GD&T / tolerance / dimension / ML engines
+  "cad_gdt_callout_parse",      // GDTCalloutParserEngine — GD&T callout text → FCF struct
+  "cad_gdt_stackup",            // GDTStackupEngine — stackup compute with tolerances
+  "cad_tolerance_apply",        // ToleranceAwareGenerationEngine — apply tolerances to ops
+  "cad_pdf_blueprint_extract",  // PDFBlueprintDimensionExtractor — PDF text → dim list
+  "cad_dimensional_signature",  // DimensionalSignatureEngine — STEP text → dim signature
+  "cad_machine_type_classify",  // MachineTypeClassifierEngine — print/CAD → machine type
+  "cad_pattern_database",       // PatternDatabaseEngine — surface training patterns
+  "cad_feature_memory_record",  // CADFeatureMemoryEngine — record learned feature
+  "cad_feature_memory_lookup",  // CADFeatureMemoryEngine — fetch by id
+  "cad_feature_memory_query",   // CADFeatureMemoryEngine — query by filter
+  "cad_feature_memory_stats",   // CADFeatureMemoryEngine — memory health stats
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2087,6 +2099,116 @@ Params vary by action — pass relevant fields in params object.`,
             const snapshot = cadAIStateMachineEngine.open(params.session_id);
             const allowed = cadAIStateMachineEngine.allowedEvents(params.session_id);
             result = { success: true, snapshot, allowed_events: allowed };
+            break;
+          }
+          // ── PHASE22: 8 orphan GD&T / tolerance / dimension / ML engines ──────
+          case "cad_gdt_callout_parse": {
+            if (!params.callout || typeof params.callout !== "string") {
+              return dispatcherError(
+                new Error("cad_gdt_callout_parse requires callout: string"),
+                action, "prism_cad",
+              );
+            }
+            const { gdtCalloutParserEngine } = await import("../../engines/GDTCalloutParserEngine.js");
+            const data = gdtCalloutParserEngine.parse(params.callout);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_gdt_stackup": {
+            const { gdtStackupEngine } = await import("../../engines/GDTStackupEngine.js");
+            const data = gdtStackupEngine.compute(params as Parameters<typeof gdtStackupEngine.compute>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_tolerance_apply": {
+            const { toleranceAwareGenerationEngine } = await import("../../engines/ToleranceAwareGenerationEngine.js");
+            const features = (params.features ?? []) as Parameters<typeof toleranceAwareGenerationEngine.applyTolerances>[0];
+            const customer = typeof params.customer === "string" ? params.customer : undefined;
+            const data = toleranceAwareGenerationEngine.applyTolerances(features, customer);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_pdf_blueprint_extract": {
+            if (typeof params.text_content !== "string") {
+              return dispatcherError(
+                new Error("cad_pdf_blueprint_extract requires text_content: string"),
+                action, "prism_cad",
+              );
+            }
+            const { pdfBlueprintDimensionExtractorEngine } = await import("../../engines/PDFBlueprintDimensionExtractorEngine.js");
+            const drawing_units = params.drawing_units === "inch" ? "inch" : "mm";
+            const data = pdfBlueprintDimensionExtractorEngine.extractDimensions({
+              text_content: params.text_content,
+              drawing_units,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "cad_dimensional_signature": {
+            if (typeof params.step_text !== "string") {
+              return dispatcherError(
+                new Error("cad_dimensional_signature requires step_text: string"),
+                action, "prism_cad",
+              );
+            }
+            const { dimensionalSignatureEngine } = await import("../../engines/DimensionalSignatureEngine.js");
+            const data = dimensionalSignatureEngine.extractFromStepText(
+              params.step_text,
+              params.source_file ?? "<inline>",
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_machine_type_classify": {
+            const { machineTypeClassifierEngine } = await import("../../engines/MachineTypeClassifierEngine.js");
+            const data = machineTypeClassifierEngine.classify(params as Parameters<typeof machineTypeClassifierEngine.classify>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_pattern_database": {
+            const { patternDatabaseEngine } = await import("../../engines/PatternDatabaseEngine.js");
+            const training_context = patternDatabaseEngine.getTrainingContext();
+            result = { success: true, training_context };
+            break;
+          }
+          case "cad_feature_memory_record": {
+            const { cadFeatureMemoryEngine } = await import("../../engines/CADFeatureMemoryEngine.js");
+            const data = await cadFeatureMemoryEngine.record(params as Parameters<typeof cadFeatureMemoryEngine.record>[0]);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_feature_memory_lookup": {
+            if (typeof params.id !== "string") {
+              return dispatcherError(
+                new Error("cad_feature_memory_lookup requires id: string"),
+                action, "prism_cad",
+              );
+            }
+            const { cadFeatureMemoryEngine } = await import("../../engines/CADFeatureMemoryEngine.js");
+            const data = await cadFeatureMemoryEngine.lookup(params.id);
+            result = { success: true, data, found: data !== null };
+            break;
+          }
+          case "cad_feature_memory_query": {
+            if (typeof params.feature_type !== "string" || params.feature_type.length === 0) {
+              return dispatcherError(
+                new Error("cad_feature_memory_query requires feature_type: string"),
+                action, "prism_cad",
+              );
+            }
+            const { cadFeatureMemoryEngine } = await import("../../engines/CADFeatureMemoryEngine.js");
+            const data = await cadFeatureMemoryEngine.query(
+              params.feature_type,
+              (params.parameters ?? {}) as Parameters<typeof cadFeatureMemoryEngine.query>[1],
+              (params.options ?? {}) as Parameters<typeof cadFeatureMemoryEngine.query>[2],
+            );
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "cad_feature_memory_stats": {
+            const { cadFeatureMemoryEngine } = await import("../../engines/CADFeatureMemoryEngine.js");
+            const data = await cadFeatureMemoryEngine.stats();
+            result = { success: true, data };
             break;
           }
           case "cad_esprit_render_kbm": {
