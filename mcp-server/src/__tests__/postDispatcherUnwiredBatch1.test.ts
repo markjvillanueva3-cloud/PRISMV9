@@ -7,6 +7,7 @@ import { gCodeSnippetEngine } from "../engines/GCodeSnippetEngine.js";
 import { gcodeUnderstandingTransformerEngine } from "../engines/GCodeUnderstandingTransformerEngine.js";
 import { fanucLegacyControllerEngine } from "../engines/FanucLegacyControllerEngine.js";
 import { okumaLegacyControllerEngine } from "../engines/OkumaLegacyControllerEngine.js";
+import { siemensLegacyControllerEngine } from "../engines/SiemensLegacyControllerEngine.js";
 
 const NEW_POST_ACTION_COUNT = 6;
 
@@ -24,24 +25,24 @@ describe("U-WIRE-POST-BATCH1 — engines verified directly", () => {
   });
 
   describe("GCodeUnderstandingTransformerEngine.tokenize", () => {
-    it("tokenizes a simple G-code program into individual tokens", () => {
-      const gcode = "G0 X10 Y20 Z5\nM3 S1000\nG1 X100 F200";
-      const tokens = gcodeUnderstandingTransformerEngine.tokenize(gcode);
-      expect(Array.isArray(tokens)).toBe(true);
-      expect(tokens.length).toBeGreaterThan(0);
-      // Each token must have a type field
-      for (const t of tokens.slice(0, 5)) {
-        expect(typeof t).toBe("object");
-      }
+    it("produces exactly one token per G-code address word in single-line program", () => {
+      // "G0 X10 Y20 Z5" → 4 tokens: G0, X10, Y20, Z5
+      const tokens = gcodeUnderstandingTransformerEngine.tokenize("G0 X10 Y20 Z5");
+      expect(tokens.length).toBe(4);
     });
 
-    it("produces fewer tokens for shorter program (token count scales with content)", () => {
-      const small = gcodeUnderstandingTransformerEngine.tokenize("G0 X10");
-      const big = gcodeUnderstandingTransformerEngine.tokenize(
-        "G0 X10 Y20 Z5\nG1 X100 F200\nG1 Y50 F300\nM3 S1000\nM5",
-      );
-      expect(big.length).toBeGreaterThan(small.length);
-      expect(small.length).toBeGreaterThan(0);
+    it("preserves numeric values on motion words (X10 → token has value 10)", () => {
+      const tokens = gcodeUnderstandingTransformerEngine.tokenize("G0 X10 Y20.5");
+      const xTok = tokens.find((t) => t.type === "X");
+      const yTok = tokens.find((t) => t.type === "Y");
+      expect(xTok?.value).toBe(10);
+      expect(yTok?.value).toBe(20.5);
+      expect(xTok?.raw).toBe("X10");
+    });
+
+    it("emits zero tokens for an entirely-empty input", () => {
+      const tokens = gcodeUnderstandingTransformerEngine.tokenize("");
+      expect(tokens.length).toBe(0);
     });
   });
 
@@ -69,21 +70,60 @@ describe("U-WIRE-POST-BATCH1 — engines verified directly", () => {
   });
 
   describe("OkumaLegacyControllerEngine.detectController", () => {
-    it("analyzes program lines and returns detection result with confidence", () => {
-      const lines = [
+    it("returns LegacyProgramAnalysis with detectedController, markers, and recommendations", () => {
+      const okumaLines = [
         "% O0001 (TEST PROGRAM)",
         "N10 G50 S2000",
         "N20 G96 S150 M3",
-        "N30 G0 X10 Z5",
-        "N40 M30",
+        "N30 G71 P10 Q20 U0.2 W0.05 D200 F0.3",
+        "N40 G73 P10 Q20 I2 K2",
+        "N50 M30",
+      ];
+      const r = okumaLegacyControllerEngine.detectController(okumaLines);
+      expect(typeof r.detectedController).toBe("string");
+      expect(r.detectedController.length).toBeGreaterThan(0);
+      expect(Array.isArray(r.markers)).toBe(true);
+      expect(Array.isArray(r.recommendations)).toBe(true);
+      expect(typeof r.memoryEstimate).toBe("number");
+    });
+
+    it("flags G71 (B-param) + G73 (U/W) turning cycles in features", () => {
+      // Engine detection patterns: G71 needs B-param, G73 needs U + W
+      const lines = [
+        "G71 B0.05 P100 Q200 D200 F0.3",
+        "G73 U1.0 W0.5 I2 K2",
+        "G72 P100",
       ];
       const r = okumaLegacyControllerEngine.detectController(lines);
-      expect(typeof r).toBe("object");
-      // Detection result has confidence and detected model fields
-      const result = r as { detected_model?: string; confidence?: number };
-      expect(typeof result.confidence).toBe("number");
-      expect(result.confidence!).toBeGreaterThanOrEqual(0);
-      expect(result.confidence!).toBeLessThanOrEqual(1);
+      expect(r.features.usesG71Threading).toBe(true);
+      expect(r.features.usesG73PatternRepeat).toBe(true);
+      expect(r.features.usesG72Finishing).toBe(true);
+    });
+  });
+
+  describe("SiemensLegacyControllerEngine.getProfile", () => {
+    it("returns a 3-axis-mill profile with ShopMill enabled and correct max axes", () => {
+      const profile = siemensLegacyControllerEngine.getProfile("3_axis_mill");
+      expect(profile.hasShopMill).toBe(true);
+      expect(profile.hasShopTurn).toBe(false);
+      expect(profile.maxAxes).toBe(3);
+      expect(profile.parameterPrefix).toBe("MD");
+      expect(profile.maxSpindleRPM).toBe(8000);
+    });
+
+    it("returns a 3-axis-lathe profile with ShopTurn + CYCLE95/96 turning cycles", () => {
+      const profile = siemensLegacyControllerEngine.getProfile("3_axis_lathe");
+      expect(profile.hasShopTurn).toBe(true);
+      expect(profile.hasShopMill).toBe(false);
+      expect(profile.supportedCycles).toContain("CYCLE95");
+      expect(profile.supportedCycles).toContain("CYCLE96");
+    });
+
+    it("falls back to NCK 3.4 capabilities when given an unknown nckVersion", () => {
+      const a = siemensLegacyControllerEngine.getProfile("3_axis_mill", "9.99-bogus");
+      const b = siemensLegacyControllerEngine.getProfile("3_axis_mill", "3.4");
+      expect(a.lookAheadBlocks).toBe(b.lookAheadBlocks);
+      expect(a.blockProcessingRate).toBe(b.blockProcessingRate);
     });
   });
 });

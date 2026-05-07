@@ -17854,8 +17854,9 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "post_siemens_legacy_profile": {
             const { siemensLegacyControllerEngine } = await import("../../engines/SiemensLegacyControllerEngine.js");
-            const p = params as Parameters<typeof siemensLegacyControllerEngine.getProfile>[0];
-            result = siemensLegacyControllerEngine.getProfile(p);
+            const p = params as { machineType: Parameters<typeof siemensLegacyControllerEngine.getProfile>[0]; nckVersion?: string };
+            if (!p.machineType) throw new Error("post_siemens_legacy_profile requires 'machineType'");
+            result = siemensLegacyControllerEngine.getProfile(p.machineType, p.nckVersion);
             break;
           }
           case "cam_fusion_tool_export": {
