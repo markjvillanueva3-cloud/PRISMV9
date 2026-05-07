@@ -58,6 +58,13 @@ const ACTIONS = [
   "turning_cpk_surrogate", "turning_insert_life",
   "turning_offset_wear", "turning_offset_probe",
   "turning_robust_optimize",
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH1: 6 unwired lathe engines
+  "lathe_css_optimize",                  // LatheCSSOptimizerEngine.optimize
+  "lathe_chip_predict_type",             // LatheChipMechanicsEngine.predictChipType
+  "lathe_coolant_advise",                // LatheCoolantAdvisorEngine.advise
+  "lathe_birdnest_predict",              // LatheBirdNestPredictorEngine.predict
+  "lathe_coaxiality_runout_validate",    // LatheCoaxialityRunoutValidatorEngine.validate
+  "lathe_block_time_profile",            // LatheBlockTimeProfilerEngine.profile
 ] as const;
 
 /** Registers turning dispatcher.
@@ -367,6 +374,41 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_robust_optimize": {
             const { turningRobustOptimizerEngine } = await import("../../engines/TurningRobustOptimizerEngine.js");
             result = turningRobustOptimizerEngine.run(params as Parameters<typeof turningRobustOptimizerEngine.run>[0]);
+            break;
+          }
+          // ─────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH1: 6 unwired lathe engines
+          // ─────────────────────────────────────────────────────────────────
+          case "lathe_css_optimize": {
+            const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
+            result = latheCSSOptimizerEngine.optimize(params as Parameters<typeof latheCSSOptimizerEngine.optimize>[0]);
+            break;
+          }
+          case "lathe_chip_predict_type": {
+            const { latheChipMechanicsEngine } = await import("../../engines/LatheChipMechanicsEngine.js");
+            const p = params as { conditions: Parameters<typeof latheChipMechanicsEngine.predictChipType>[0]; material: Parameters<typeof latheChipMechanicsEngine.predictChipType>[1] };
+            if (!p.conditions || !p.material) throw new Error("lathe_chip_predict_type requires 'conditions' and 'material'");
+            result = latheChipMechanicsEngine.predictChipType(p.conditions, p.material);
+            break;
+          }
+          case "lathe_coolant_advise": {
+            const { latheCoolantAdvisorEngine } = await import("../../engines/LatheCoolantAdvisorEngine.js");
+            result = latheCoolantAdvisorEngine.advise(params as Parameters<typeof latheCoolantAdvisorEngine.advise>[0]);
+            break;
+          }
+          case "lathe_birdnest_predict": {
+            const { latheBirdNestPredictorEngine } = await import("../../engines/LatheBirdNestPredictorEngine.js");
+            result = latheBirdNestPredictorEngine.predict(params as Parameters<typeof latheBirdNestPredictorEngine.predict>[0]);
+            break;
+          }
+          case "lathe_coaxiality_runout_validate": {
+            const { latheCoaxialityRunoutValidatorEngine } = await import("../../engines/LatheCoaxialityRunoutValidatorEngine.js");
+            result = latheCoaxialityRunoutValidatorEngine.validate(params as Parameters<typeof latheCoaxialityRunoutValidatorEngine.validate>[0]);
+            break;
+          }
+          case "lathe_block_time_profile": {
+            const { latheBlockTimeProfilerEngine } = await import("../../engines/LatheBlockTimeProfilerEngine.js");
+            result = latheBlockTimeProfilerEngine.profile(params as Parameters<typeof latheBlockTimeProfilerEngine.profile>[0]);
             break;
           }
           default:
