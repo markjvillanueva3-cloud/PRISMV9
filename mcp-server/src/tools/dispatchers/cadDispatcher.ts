@@ -218,6 +218,8 @@ const ACTIONS = [
   "cad_route_find_operation", "cad_route_capabilities",
   // CAD-FUSION-LIVE-MS0 PHASE19: Esprit-direct dispatcher actions (closes 6/6 from 0eb766b8e)
   "cad_esprit_plan_execution", "cad_esprit_render_kbm",
+  // CAD-FUSION-LIVE-MS0 PHASE20: print → CAD diagnostic orchestrator (5-stage pipeline)
+  "cad_print_to_cad",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -1988,12 +1990,23 @@ Params vary by action — pass relevant fields in params object.`,
               );
             }
             const { EspritCADExecutionBridge } = await import("../../engines/EspritCADExecutionBridge.js");
-            const plan = EspritCADExecutionBridge.plan({
+            const plan = await EspritCADExecutionBridge.plan({
               operationId,
               params: params.op_params ?? params.params ?? {},
               sectionHint: params.section_hint ?? params.sectionHint,
             });
             result = { success: true, plan };
+            break;
+          }
+          case "cad_print_to_cad": {
+            const { printToCADOrchestratorEngine } = await import("../../engines/PrintToCADOrchestratorEngine.js");
+            const data = await printToCADOrchestratorEngine.run({
+              step_file_path: params.step_file_path,
+              part_class_hint: params.part_class_hint ?? params.part_class,
+              target_system: params.target_system,
+              prevalence_threshold: params.prevalence_threshold,
+            });
+            result = { success: true, data };
             break;
           }
           case "cad_esprit_render_kbm": {
@@ -2005,7 +2018,7 @@ Params vary by action — pass relevant fields in params object.`,
               );
             }
             const { EspritCADExecutionBridge } = await import("../../engines/EspritCADExecutionBridge.js");
-            const plan = EspritCADExecutionBridge.plan({
+            const plan = await EspritCADExecutionBridge.plan({
               operationId,
               params: params.op_params ?? params.params ?? {},
               sectionHint: params.section_hint ?? params.sectionHint,
