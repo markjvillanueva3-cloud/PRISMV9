@@ -1686,8 +1686,6 @@ Path: H:/prism/mcp-server/src/data/`;
             tags: resource.domains
           });
         }
-      } catch (err) {
-        log("error", `Failed to load hooks from ${root.dir}: ${err}`);
       }
     }
 
@@ -1791,8 +1789,6 @@ Engine: src/engines/TribalKnowledgeEngine.ts`;
           severity: "recommended",
           reasoning: "Drilling: through-tool. Milling: flood or mist. Hard turning: dry or MQL."
         }
-      } catch (err) {
-        log("error", `Failed to load skills from ${root.dir}: ${err}`);
       }
     ];
 

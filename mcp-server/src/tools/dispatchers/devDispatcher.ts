@@ -2025,6 +2025,9 @@ export function registerDevDispatcher(server: any): void {
               model: typeof params.model === "string" ? params.model : undefined,
               host: typeof params.host === "string" ? params.host : undefined,
             });
+            break;
+          }
+
           case "foresight_report": {
             const { foresightOrchestratorEngine } = await import(
               "../../engines/ForesightOrchestratorEngine.js"
