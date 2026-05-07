@@ -325,6 +325,30 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
     machine_type: z.string().optional().describe("Machine type"),
   }).passthrough(),
 
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH8: Neural / Meta-AI
+  cognitive_neural_synthesize: z.object({
+    domain: z.string().min(1).describe("Domain (mill / lathe / wedm / general)"),
+    objective: z.string().min(1).describe("Objective to synthesize across knowledge sources"),
+    constraints: z.array(z.string()).optional().describe("Optional constraints"),
+    context: z.record(z.string(), z.unknown()).optional().describe("Optional context map"),
+    depth: z.enum(["quick", "moderate", "deep", "exhaustive"]).optional().describe("Synthesis depth (default: moderate)"),
+  }).passthrough(),
+  cognitive_neural_list_weights: z.object({
+    model_id: z.string().min(1).optional().describe("Optional model id filter"),
+  }).passthrough(),
+  cognitive_meta_orchestrate: z.object({
+    problem: z.string().min(1).describe("Problem statement"),
+    domain: z.string().min(1).describe("AI capability domain"),
+    constraints: z.array(z.string()).describe("Constraints (may be empty array)"),
+    context: z.record(z.string(), z.unknown()).describe("Context map (may be empty object)"),
+    preferred_modes: z.array(z.string()).optional().describe("Preferred reasoning modes"),
+    time_budget_ms: z.number().int().positive().optional().describe("Time budget in ms"),
+    quality_threshold: z.number().min(0).max(1).optional().describe("Quality threshold 0-1"),
+  }).passthrough(),
+  cognitive_neural_comprehensive_predict: z.object({
+    input: z.array(z.number()).min(1).describe("Feature vector (will be converted to Float64Array)"),
+  }).passthrough(),
+
   // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH7: Learning Loop
   cognitive_learning_get_track_record: z.object({
     category: z.enum(["cutting_force", "tool_life", "speed_feed", "surface_finish", "thermal", "deflection", "wear", "stability", "general"]).optional().describe("Optional prediction category filter"),

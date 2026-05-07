@@ -62,7 +62,12 @@ const ACTIONS = [
   // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH7: Learning Loop
   "cognitive_learning_get_track_record",
   "cognitive_learning_loop_stats",
-  "cognitive_learning_incremental_list_jobs"
+  "cognitive_learning_incremental_list_jobs",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH8: Neural / Meta-AI
+  "cognitive_neural_synthesize",
+  "cognitive_neural_list_weights",
+  "cognitive_meta_orchestrate",
+  "cognitive_neural_comprehensive_predict"
 ] as const;
 
 function ok(data: any) {
@@ -723,6 +728,81 @@ export function registerOrchestrationDispatcher(server: any): void {
               return ok({ models: [], count: 0, error: e?.message ?? "discovery failed" });
             }
           }
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH8: Neural / Meta-AI ──
+          case "cognitive_neural_synthesize": {
+            try {
+              const { prismNeuralKnowledgeSynthesis } = await import("../../engines/PRISMNeuralKnowledgeSynthesisEngine.js");
+              const result = prismNeuralKnowledgeSynthesis.synthesize({
+                domain: params.domain,
+                objective: params.objective,
+                constraints: params.constraints,
+                context: params.context,
+                depth: params.depth,
+              });
+              return ok({
+                synthesis: {
+                  patterns_applied: result.patterns_applied,
+                  confidence: result.confidence,
+                  insights_count: result.insights?.length ?? 0,
+                  recommendations_count: result.recommendations?.length ?? 0,
+                  reasoning_steps: result.reasoning_chain?.length ?? 0,
+                  physics_grounding_count: result.physics_grounding?.length ?? 0,
+                  tribal_wisdom_count: result.tribal_wisdom?.length ?? 0,
+                  insights: result.insights,
+                  recommendations: result.recommendations,
+                },
+              });
+            } catch (e: any) {
+              return ok({ synthesis: null, engine_error: e?.message ?? "synthesis failed" });
+            }
+          }
+          case "cognitive_neural_list_weights": {
+            try {
+              const { neuralWeightPersistenceEngine } = await import("../../engines/NeuralWeightPersistenceEngine.js");
+              const weights = await neuralWeightPersistenceEngine.listWeights(params.model_id);
+              return ok({ weights, count: weights.length });
+            } catch (e: any) {
+              return ok({ weights: [], count: 0, engine_error: e?.message ?? "list weights failed" });
+            }
+          }
+          case "cognitive_meta_orchestrate": {
+            try {
+              const { metaAIOrchestrationEngine } = await import("../../engines/MetaAIOrchestrationEngine.js");
+              const result = metaAIOrchestrationEngine.orchestrate({
+                problem: params.problem,
+                domain: params.domain,
+                constraints: params.constraints ?? [],
+                context: params.context ?? {},
+                preferred_modes: params.preferred_modes,
+                time_budget_ms: params.time_budget_ms,
+                quality_threshold: params.quality_threshold,
+              });
+              return ok({
+                meta: {
+                  engines_used: result.engines_used,
+                  reasoning_modes_applied: result.reasoning_modes_applied,
+                  confidence: result.confidence,
+                  reasoning_chain_length: result.reasoning_chain?.length ?? 0,
+                  analogical_transfers_count: result.analogical_transfers?.length ?? 0,
+                  learning_events_count: result.learning_events?.length ?? 0,
+                  execution_time_ms: result.execution_time_ms,
+                },
+              });
+            } catch (e: any) {
+              return ok({ meta: null, engine_error: e?.message ?? "orchestrate failed" });
+            }
+          }
+          case "cognitive_neural_comprehensive_predict": {
+            try {
+              const { millComprehensiveNeuralEngine } = await import("../../engines/MillComprehensiveNeuralEngine.js");
+              const features = new Float64Array(params.input);
+              const prediction = millComprehensiveNeuralEngine.predict(features);
+              return ok({ prediction });
+            } catch (e: any) {
+              return ok({ prediction: null, engine_error: e?.message ?? "prediction failed" });
+            }
+          }
+
           // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH7: Learning Loop ──
           case "cognitive_learning_get_track_record": {
             try {
@@ -730,7 +810,7 @@ export function registerOrchestrationDispatcher(server: any): void {
               const records = LearningAdaptationEngine.getTrackRecord(params.category);
               return ok({ track_records: records, count: records.length });
             } catch (e: any) {
-              return ok({ track_records: [], count: 0, error: e?.message ?? "track-record fetch failed" });
+              return ok({ track_records: [], count: 0, engine_error: e?.message ?? "track-record fetch failed" });
             }
           }
           case "cognitive_learning_loop_stats": {
@@ -739,7 +819,7 @@ export function registerOrchestrationDispatcher(server: any): void {
               const stats = await learningLoopEngine.getStats();
               return ok({ stats });
             } catch (e: any) {
-              return ok({ stats: null, error: e?.message ?? "loop stats failed" });
+              return ok({ stats: null, engine_error: e?.message ?? "loop stats failed" });
             }
           }
           case "cognitive_learning_incremental_list_jobs": {
@@ -748,7 +828,7 @@ export function registerOrchestrationDispatcher(server: any): void {
               const jobs = await incrementalLearningEngine.listJobs();
               return ok({ jobs, count: jobs.length });
             } catch (e: any) {
-              return ok({ jobs: [], count: 0, error: e?.message ?? "list jobs failed" });
+              return ok({ jobs: [], count: 0, engine_error: e?.message ?? "list jobs failed" });
             }
           }
 
