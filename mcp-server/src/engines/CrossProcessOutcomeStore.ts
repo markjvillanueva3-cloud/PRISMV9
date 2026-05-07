@@ -40,6 +40,10 @@
 
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
+// XPROC-NEURAL-OPTIMIZE/U-NN-LOOP02: emit closed-loop events as outcomes land.
+// Subscribers (NN auto-trainer, memory consolidator, P2P feedback) wire here.
+// Direct import (no cycle): FeedbackBusEngine has no PRISM-side dependencies.
+import { feedbackBusEngine } from "./FeedbackBusEngine.js";
 
 // ============================================================================
 // CONSTANTS
@@ -241,6 +245,16 @@ export class CrossProcessOutcomeStore {
     this.events.push(record);
     this.byId.set(id, this.events.length - 1);
     this.enforceCapacity();
+    // U-NN-LOOP02: announce the new outcome to the feedback graph. Fan-out
+    // is microtask-async — never blocks record(). Subscriber crashes are
+    // isolated by the bus; nothing here can corrupt the ledger.
+    feedbackBusEngine.publish("outcome.recorded", {
+      id,
+      bridge: record.bridge,
+      process: record.process,
+      outcomeKind: record.outcome?.kind ?? "pending",
+      record,
+    });
     return id;
   }
 
@@ -265,7 +279,22 @@ export class CrossProcessOutcomeStore {
     const idx = this.byId.get(id);
     if (idx === undefined) return false;
     const existing = this.events[idx];
-    this.events[idx] = { ...existing, outcome };
+    const updated = { ...existing, outcome };
+    this.events[idx] = updated;
+    // U-NN-LOOP02: pending → terminal transition is the signal the neural
+    // learner trains on. Emit only when the outcome.kind actually transitioned
+    // (i.e. previous was 'pending' or different) to avoid replay noise.
+    const prevKind = existing.outcome?.kind ?? "pending";
+    if (prevKind !== outcome.kind) {
+      feedbackBusEngine.publish("outcome.completed", {
+        id,
+        bridge: updated.bridge,
+        process: updated.process,
+        previousKind: prevKind,
+        outcomeKind: outcome.kind,
+        record: updated,
+      });
+    }
     return true;
   }
 

@@ -316,6 +316,12 @@ export const AI_REASONING_ACTIONS = [
   // U-NN-FEAT04: WikiRAGFeatureEngine — tribal-tip RAG features
   "xproc_rag_features",
   "xproc_rag_clear_cache",
+  // U-NN-LOOP01: FeedbackBusEngine — in-process pub/sub control plane
+  "xproc_feedbackbus_publish",
+  "xproc_feedbackbus_stats",
+  "xproc_feedbackbus_topics",
+  "xproc_feedbackbus_subscriber_count",
+  "xproc_feedbackbus_reset",
   // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 unwired AI/reasoning engines
   "cognitive_budget_allocate",      // CognitiveBudgetAllocatorEngine.allocate
   "ensemble_register_member",       // EnsembleModelSelectorEngine.registerMember
@@ -1498,6 +1504,16 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_physics_features_batch: z.object({}).passthrough(),
   xproc_rag_features: z.object({}).passthrough(),
   xproc_rag_clear_cache: z.object({}).passthrough(),
+  xproc_feedbackbus_publish: z.object({
+    topic: z.string().min(1).describe("Concrete event topic (e.g. 'outcome.recorded'); '*' rejected"),
+    payload: z.unknown().optional().describe("Free-form event body delivered to subscribers"),
+  }),
+  xproc_feedbackbus_stats: z.object({}).passthrough().describe("Returns FeedbackBusStats snapshot (totals + per-topic counts)"),
+  xproc_feedbackbus_topics: z.object({}).passthrough().describe("Returns list of active topics with at least one subscriber"),
+  xproc_feedbackbus_subscriber_count: z.object({
+    topic: z.string().min(1).describe("Topic to count active subscribers for (wildcard subs not counted)"),
+  }),
+  xproc_feedbackbus_reset: z.object({}).passthrough().describe("Clear all subscriptions and reset counters (test/admin hook)"),
   // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 newly-wired AI engines
   cognitive_budget_allocate: z.object({
     kind: z.enum(["read", "edit", "create", "refactor", "review", "analysis", "chat"])

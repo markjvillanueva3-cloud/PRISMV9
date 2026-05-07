@@ -444,6 +444,14 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   // 8 RAG features from tribal-knowledge tips (count, top/avg confidence,
   // 5 category indicators).
   "xproc_rag_features", "xproc_rag_clear_cache",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-LOOP01: FeedbackBusEngine —
+  // in-process pub/sub primitive that converts the cross-process engine
+  // forest into a graph (publish events, query stats/topics/sub counts,
+  // reset). subscribe/unsubscribe are engine-internal — callbacks cannot
+  // cross the MCP JSON-RPC boundary.
+  "xproc_feedbackbus_publish", "xproc_feedbackbus_stats",
+  "xproc_feedbackbus_topics",  "xproc_feedbackbus_subscriber_count",
+  "xproc_feedbackbus_reset",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -895,6 +903,21 @@ export function registerIntelligenceDispatcher(server: any): void {
          *
          * XPROC-NEURAL-T1-05 (CrossProcessAGIBridge):
          *   case "xproc_agi_compose": handled inline.
+         *
+         * XPROC-NEURAL-OPTIMIZE/U-NN-FEAT03 (PhysicsFeatureExtractorEngine):
+         *   case "xproc_physics_features":       handled inline.
+         *   case "xproc_physics_features_batch": handled inline.
+         *
+         * XPROC-NEURAL-OPTIMIZE/U-NN-FEAT04 (WikiRAGFeatureEngine):
+         *   case "xproc_rag_features":    handled inline.
+         *   case "xproc_rag_clear_cache": handled inline.
+         *
+         * XPROC-NEURAL-OPTIMIZE/U-NN-LOOP01 (FeedbackBusEngine):
+         *   case "xproc_feedbackbus_publish":          handled inline.
+         *   case "xproc_feedbackbus_stats":            handled inline.
+         *   case "xproc_feedbackbus_topics":           handled inline.
+         *   case "xproc_feedbackbus_subscriber_count": handled inline.
+         *   case "xproc_feedbackbus_reset":            handled inline.
          */
 
         // === XPROC-ROUTER-01: Cross-process pipeline router ===
@@ -1481,6 +1504,105 @@ export function registerIntelligenceDispatcher(server: any): void {
                 action,
                 success: true,
                 cleared: true,
+              }),
+            }],
+          };
+        }
+
+        // XPROC-NEURAL-OPTIMIZE/U-NN-LOOP01: FeedbackBusEngine pub/sub control plane.
+        if (action === "xproc_feedbackbus_publish") {
+          const { feedbackBusEngine } =
+            await import("../../engines/FeedbackBusEngine.js");
+          const topic = params.topic;
+          if (typeof topic !== "string" || topic.length === 0) {
+            return dispatcherError(
+              "xproc_feedbackbus_publish requires `topic` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          if (topic === "*") {
+            return dispatcherError(
+              "xproc_feedbackbus_publish: cannot publish to wildcard '*'",
+              action,
+              "prism_intelligence",
+            );
+          }
+          feedbackBusEngine.publish(topic, params.payload);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                topic,
+                subscriberCount: feedbackBusEngine.subscriberCount(topic),
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_feedbackbus_stats") {
+          const { feedbackBusEngine } =
+            await import("../../engines/FeedbackBusEngine.js");
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                stats: feedbackBusEngine.stats(),
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_feedbackbus_topics") {
+          const { feedbackBusEngine } =
+            await import("../../engines/FeedbackBusEngine.js");
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                topics: feedbackBusEngine.topics(),
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_feedbackbus_subscriber_count") {
+          const { feedbackBusEngine } =
+            await import("../../engines/FeedbackBusEngine.js");
+          const topic = params.topic;
+          if (typeof topic !== "string" || topic.length === 0) {
+            return dispatcherError(
+              "xproc_feedbackbus_subscriber_count requires `topic` (non-empty string)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                topic,
+                count: feedbackBusEngine.subscriberCount(topic),
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_feedbackbus_reset") {
+          const { feedbackBusEngine } =
+            await import("../../engines/FeedbackBusEngine.js");
+          feedbackBusEngine.reset();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                reset: true,
               }),
             }],
           };

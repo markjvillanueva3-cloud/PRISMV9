@@ -412,6 +412,41 @@ const XPROC_TIER1_HANDLERS: Record<string, XprocTier1Handler> = {
     WikiRAGFeatureEngine.clearCache();
     return { cleared: true };
   },
+  // U-NN-LOOP01: FeedbackBusEngine — in-process pub/sub control plane.
+  // subscribe/unsubscribe stay engine-internal (callbacks can't cross MCP).
+  xproc_feedbackbus_publish: async (params) => {
+    const { feedbackBusEngine } = await import("../../engines/FeedbackBusEngine.js");
+    const topic = params.topic;
+    if (typeof topic !== "string" || topic.length === 0) {
+      throw new Error("xproc_feedbackbus_publish requires `topic` (non-empty string)");
+    }
+    if (topic === "*") {
+      throw new Error("xproc_feedbackbus_publish: cannot publish to wildcard '*'");
+    }
+    feedbackBusEngine.publish(topic, params.payload);
+    return { topic, subscriberCount: feedbackBusEngine.subscriberCount(topic) };
+  },
+  xproc_feedbackbus_stats: async () => {
+    const { feedbackBusEngine } = await import("../../engines/FeedbackBusEngine.js");
+    return { stats: feedbackBusEngine.stats() };
+  },
+  xproc_feedbackbus_topics: async () => {
+    const { feedbackBusEngine } = await import("../../engines/FeedbackBusEngine.js");
+    return { topics: feedbackBusEngine.topics() };
+  },
+  xproc_feedbackbus_subscriber_count: async (params) => {
+    const { feedbackBusEngine } = await import("../../engines/FeedbackBusEngine.js");
+    const topic = params.topic;
+    if (typeof topic !== "string" || topic.length === 0) {
+      throw new Error("xproc_feedbackbus_subscriber_count requires `topic` (non-empty string)");
+    }
+    return { topic, count: feedbackBusEngine.subscriberCount(topic) };
+  },
+  xproc_feedbackbus_reset: async () => {
+    const { feedbackBusEngine } = await import("../../engines/FeedbackBusEngine.js");
+    feedbackBusEngine.reset();
+    return { reset: true };
+  },
 };
 
 async function routeXprocAction(action: string, params: Record<string, unknown>): Promise<unknown> {
@@ -1736,7 +1771,12 @@ export async function executeAIReasoningAction(
       case "xproc_physics_features":
       case "xproc_physics_features_batch":
       case "xproc_rag_features":
-      case "xproc_rag_clear_cache": {
+      case "xproc_rag_clear_cache":
+      case "xproc_feedbackbus_publish":
+      case "xproc_feedbackbus_stats":
+      case "xproc_feedbackbus_topics":
+      case "xproc_feedbackbus_subscriber_count":
+      case "xproc_feedbackbus_reset": {
         result = await routeXprocAction(action, params);
         break;
       }
