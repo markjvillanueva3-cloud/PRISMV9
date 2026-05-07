@@ -2065,6 +2065,13 @@ export const ACTIONS = [
   "cam_toolpath_segment_optimize",     // ToolpathSegmentOptimizerEngine.compute
   "cam_toolpath_strategy_route",       // ToolpathStrategyRouterEngine.route
   "cam_hsm_dwell_at_corner",           // HSMDwellAtCornerEngine.analyzeDwell
+  // ENGINE-WIRE-POST-MS0/U-WIRE-POST-BATCH1: 6 unwired post processor engines
+  "post_gcode_snippet_get",            // GCodeSnippetEngine.get
+  "post_gcode_snippet_fill",           // GCodeSnippetEngine.fill
+  "post_gcode_tokenize",               // GCodeUnderstandingTransformerEngine.tokenize
+  "post_fanuc_legacy_profile",         // FanucLegacyControllerEngine.getProfile + listModels
+  "post_okuma_legacy_detect",          // OkumaLegacyControllerEngine.detectController
+  "post_siemens_legacy_profile",       // SiemensLegacyControllerEngine.getProfile
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -17791,6 +17798,64 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               throw new Error("cam_hsm_dwell_at_corner requires 'corner', 'servo', and 'hsm' params");
             }
             result = HSMDwellAtCornerEngine.analyzeDwell(corner, servo, hsmParams);
+            break;
+          }
+          // ─────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE-POST-MS0/U-WIRE-POST-BATCH1: 6 unwired post engines
+          // ─────────────────────────────────────────────────────────────────
+          case "post_gcode_snippet_get": {
+            const { gCodeSnippetEngine } = await import("../../engines/GCodeSnippetEngine.js");
+            const id = (params as { id: string }).id;
+            if (typeof id !== "string") throw new Error("post_gcode_snippet_get requires 'id' (string)");
+            const snippet = gCodeSnippetEngine.get(id);
+            result = { id, found: snippet !== null, snippet };
+            break;
+          }
+          case "post_gcode_snippet_fill": {
+            const { gCodeSnippetEngine } = await import("../../engines/GCodeSnippetEngine.js");
+            const id = (params as { id: string }).id;
+            const fillParams = (params as { params: Record<string, string | number> }).params;
+            if (typeof id !== "string") throw new Error("post_gcode_snippet_fill requires 'id'");
+            if (!fillParams || typeof fillParams !== "object") throw new Error("post_gcode_snippet_fill requires 'params'");
+            const filled = gCodeSnippetEngine.fill(id, fillParams);
+            result = { id, gcode: filled, found: filled !== null };
+            break;
+          }
+          case "post_gcode_tokenize": {
+            const { gcodeUnderstandingTransformerEngine } = await import("../../engines/GCodeUnderstandingTransformerEngine.js");
+            const gcode = (params as { gcode: string }).gcode;
+            if (typeof gcode !== "string") throw new Error("post_gcode_tokenize requires 'gcode' (string)");
+            const tokens = gcodeUnderstandingTransformerEngine.tokenize(gcode);
+            result = { tokens, token_count: tokens.length };
+            break;
+          }
+          case "post_fanuc_legacy_profile": {
+            const { fanucLegacyControllerEngine } = await import("../../engines/FanucLegacyControllerEngine.js");
+            const model = (params as { model?: string }).model;
+            const models = fanucLegacyControllerEngine.listModels();
+            if (model) {
+              const profile = fanucLegacyControllerEngine.getProfile(
+                model as Parameters<typeof fanucLegacyControllerEngine.getProfile>[0],
+              );
+              result = { model, profile, all_models: models };
+            } else {
+              result = { all_models: models };
+            }
+            break;
+          }
+          case "post_okuma_legacy_detect": {
+            const { okumaLegacyControllerEngine } = await import("../../engines/OkumaLegacyControllerEngine.js");
+            const programLines = (params as { program_lines: string[] }).program_lines;
+            if (!Array.isArray(programLines)) {
+              throw new Error("post_okuma_legacy_detect requires 'program_lines' (string[])");
+            }
+            result = okumaLegacyControllerEngine.detectController(programLines);
+            break;
+          }
+          case "post_siemens_legacy_profile": {
+            const { siemensLegacyControllerEngine } = await import("../../engines/SiemensLegacyControllerEngine.js");
+            const p = params as Parameters<typeof siemensLegacyControllerEngine.getProfile>[0];
+            result = siemensLegacyControllerEngine.getProfile(p);
             break;
           }
           case "cam_fusion_tool_export": {

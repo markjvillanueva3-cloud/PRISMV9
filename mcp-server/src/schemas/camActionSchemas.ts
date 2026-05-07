@@ -305,4 +305,26 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     servo: z.record(z.string(), z.unknown()).describe("MachineServo object"),
     hsm: z.record(z.string(), z.unknown()).describe("HSMParameters object"),
   }).passthrough(),
+
+  // ENGINE-WIRE-POST-MS0/U-WIRE-POST-BATCH1: 6 unwired post processor engines
+  post_gcode_snippet_get: z.object({
+    id: z.string().min(1).describe("Snippet id"),
+  }).passthrough(),
+  post_gcode_snippet_fill: z.object({
+    id: z.string().min(1).describe("Snippet id"),
+    params: z.record(z.string(), z.union([z.string(), z.number()])).describe("Template variable substitutions"),
+  }).passthrough(),
+  post_gcode_tokenize: z.object({
+    gcode: z.string().min(1).describe("Raw G-code program"),
+  }).passthrough(),
+  post_fanuc_legacy_profile: z.object({
+    model: z.string().optional().describe("Optional Fanuc legacy model id (omitted = list all)"),
+  }).passthrough(),
+  post_okuma_legacy_detect: z.object({
+    program_lines: z.array(z.string()).min(1).describe("Program text split into lines"),
+  }).passthrough(),
+  post_siemens_legacy_profile: z.object({
+    machineType: z.string().min(1).describe("Machine type (e.g., '3_axis_lathe')"),
+    controllerSeries: z.string().optional().describe("Optional controller series filter"),
+  }).passthrough(),
 };
