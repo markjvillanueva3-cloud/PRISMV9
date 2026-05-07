@@ -310,6 +310,19 @@ export const AI_REASONING_ACTIONS = [
   "xproc_attention_baseline_reset",
   // T1-05 AGIBridge (composer)
   "xproc_agi_compose",
+  // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 unwired AI/reasoning engines
+  "cognitive_budget_allocate",      // CognitiveBudgetAllocatorEngine.allocate
+  "ensemble_register_member",       // EnsembleModelSelectorEngine.registerMember
+  "ensemble_predict",               // EnsembleModelSelectorEngine.predict
+  "neural_model_register",          // NeuralModelRegistryEngine.registerModel
+  "neural_model_list",              // NeuralModelRegistryEngine.listModels
+  "reasoning_chain_register",       // ReasoningChainSharingEngine.registerChain
+  "reasoning_chain_query",          // ReasoningChainSharingEngine.queryChains
+  "reasoning_explain",              // ReasoningExplainerEngine.explain
+  "transfer_bridge_register",       // TransferLearningBridgeEngine.register
+  "transfer_bridge_find_analogies", // TransferLearningBridgeEngine.findAnalogies
+  "memory_pressure_sample",         // MemoryPressureMonitorEngine.sampleNow
+  "memory_pressure_trend",          // MemoryPressureMonitorEngine.trend
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1475,4 +1488,62 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_attention_baseline_get: z.object({}).passthrough(),
   xproc_attention_baseline_reset: z.object({}).passthrough(),
   xproc_agi_compose: z.object({}).passthrough(),
+  // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 newly-wired AI engines
+  cognitive_budget_allocate: z.object({
+    kind: z.enum(["read", "edit", "create", "refactor", "review", "analysis", "chat"])
+      .describe("Work kind"),
+    riskLevel: z.enum(["low", "medium", "high", "critical"]).optional().describe("Risk level"),
+    touchesCriticalFile: z.boolean().optional().describe("True if work touches a critical file"),
+    expectedDependents: z.number().int().nonnegative().optional().describe("Expected dependent count"),
+    userUrgent: z.boolean().optional().describe("Urgent — pulls toward shallow"),
+    hasPreviousFailure: z.boolean().optional().describe("Repeat attempt — boost depth"),
+    tokenEstimate: z.number().int().nonnegative().optional().describe("Pre-estimated token cost"),
+  }).passthrough(),
+  ensemble_register_member: z.object({
+    member: z.unknown().describe("EnsembleMember object — see EnsembleModelSelectorEngine"),
+  }).passthrough(),
+  ensemble_predict: z.object({
+    input: z.record(z.string(), z.number()).describe("Map of memberId → predicted value"),
+    domain: z.enum(["force", "thermal", "tool_life", "surface", "chatter"]).optional()
+      .describe("Optional ensemble domain"),
+  }).passthrough(),
+  neural_model_register: z.object({
+    checkpoint: z.unknown().describe("ModelCheckpoint object"),
+  }).passthrough(),
+  neural_model_list: z.object({
+    filter: z.unknown().optional().describe("Optional ModelFilter"),
+  }).passthrough(),
+  reasoning_chain_register: z.object({
+    chain: z.unknown().describe("ReasoningChain object — see ReasoningChainSharingEngine"),
+    createdBy: z.string().min(1).describe("Originating agent/session id"),
+    domain: z.string().optional().describe("Optional manufacturing domain tag"),
+    tags: z.array(z.string()).optional().describe("Optional tags for retrieval"),
+  }).passthrough(),
+  reasoning_chain_query: z.object({
+    problem: z.string().optional().describe("Problem fragment to match"),
+    minConfidence: z.number().min(0).max(1).optional().describe("Confidence floor"),
+    tags: z.array(z.string()).optional().describe("Optional tag filter"),
+    limit: z.number().int().positive().optional().describe("Max results"),
+  }).passthrough(),
+  reasoning_explain: z.object({
+    chain: z.unknown().describe("ManufacturingReasoningChain to explain"),
+    audience: z.enum(["machinist", "engineer", "manager", "novice"]).optional()
+      .describe("Audience reading level (default: machinist)"),
+    style: z.enum(["narrative", "bullet", "formal"]).optional().describe("Explanation style"),
+  }).passthrough(),
+  transfer_bridge_register: z.object({
+    problem: z.unknown().describe("SolvedProblem object — see TransferLearningBridgeEngine"),
+  }).passthrough(),
+  transfer_bridge_find_analogies: z.object({
+    query: z.union([z.string(), z.unknown()]).describe(
+      "Query string or AnalogyQuery object",
+    ),
+    limit: z.number().int().positive().optional().describe("Max analogies (default 5)"),
+    minScore: z.number().min(0).max(1).optional().describe("Minimum combined score (default 0.05)"),
+    crossDomainOnly: z.boolean().optional().describe("Drop same-domain matches"),
+  }).passthrough(),
+  memory_pressure_sample: z.object({
+    nowIso: z.string().optional().describe("Optional ISO timestamp; defaults to now"),
+  }).passthrough(),
+  memory_pressure_trend: z.object({}).passthrough().describe("No params; returns recent pressure trend"),
 };

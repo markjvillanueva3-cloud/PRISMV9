@@ -1747,6 +1747,90 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 unwired AI engines
+      // ─────────────────────────────────────────────────────────────────────
+      case "cognitive_budget_allocate": {
+        const { cognitiveBudgetAllocatorEngine } = await import("../../engines/CognitiveBudgetAllocatorEngine.js");
+        result = cognitiveBudgetAllocatorEngine.allocate(
+          params as unknown as Parameters<typeof cognitiveBudgetAllocatorEngine.allocate>[0],
+        );
+        break;
+      }
+      case "ensemble_register_member": {
+        const { ensembleModelSelectorEngine } = await import("../../engines/EnsembleModelSelectorEngine.js");
+        const p = params as { member: Parameters<typeof ensembleModelSelectorEngine.registerMember>[0] };
+        ensembleModelSelectorEngine.registerMember(p.member);
+        result = { registered: true, total_members: ensembleModelSelectorEngine.getAllPerformances().length };
+        break;
+      }
+      case "ensemble_predict": {
+        const { ensembleModelSelectorEngine } = await import("../../engines/EnsembleModelSelectorEngine.js");
+        const p = params as { input: Record<string, number>; domain?: "force" | "thermal" | "tool_life" | "surface" | "chatter" };
+        const memberMap = new Map<string, number>(Object.entries(p.input ?? {}));
+        result = ensembleModelSelectorEngine.predict(memberMap, p.domain);
+        break;
+      }
+      case "neural_model_register": {
+        const { neuralModelRegistryEngine } = await import("../../engines/NeuralModelRegistryEngine.js");
+        const p = params as { checkpoint: Parameters<typeof neuralModelRegistryEngine.registerModel>[0] };
+        result = await neuralModelRegistryEngine.registerModel(p.checkpoint);
+        break;
+      }
+      case "neural_model_list": {
+        const { neuralModelRegistryEngine } = await import("../../engines/NeuralModelRegistryEngine.js");
+        const p = params as { filter?: Parameters<typeof neuralModelRegistryEngine.listModels>[0] };
+        result = neuralModelRegistryEngine.listModels(p.filter);
+        break;
+      }
+      case "reasoning_chain_register": {
+        const { reasoningChainSharingEngine } = await import("../../engines/ReasoningChainSharingEngine.js");
+        const p = params as { chain: Parameters<typeof reasoningChainSharingEngine.registerChain>[0]; createdBy: string; domain?: string; tags?: string[] };
+        result = reasoningChainSharingEngine.registerChain(p.chain, p.createdBy, p.domain, p.tags);
+        break;
+      }
+      case "reasoning_chain_query": {
+        const { reasoningChainSharingEngine } = await import("../../engines/ReasoningChainSharingEngine.js");
+        result = reasoningChainSharingEngine.queryChains(
+          params as unknown as Parameters<typeof reasoningChainSharingEngine.queryChains>[0],
+        );
+        break;
+      }
+      case "reasoning_explain": {
+        const { reasoningExplainerEngine } = await import("../../engines/ReasoningExplainerEngine.js");
+        result = reasoningExplainerEngine.explain(
+          params as unknown as Parameters<typeof reasoningExplainerEngine.explain>[0],
+        );
+        break;
+      }
+      case "transfer_bridge_register": {
+        const { transferLearningBridgeEngine } = await import("../../engines/TransferLearningBridgeEngine.js");
+        const p = params as { problem: Parameters<typeof transferLearningBridgeEngine.register>[0] };
+        transferLearningBridgeEngine.register(p.problem);
+        result = { registered: true, total: transferLearningBridgeEngine.size() };
+        break;
+      }
+      case "transfer_bridge_find_analogies": {
+        const { transferLearningBridgeEngine } = await import("../../engines/TransferLearningBridgeEngine.js");
+        const p = params as { query: string | Record<string, unknown>; limit?: number; minScore?: number; crossDomainOnly?: boolean };
+        result = transferLearningBridgeEngine.findAnalogies(
+          p.query as never,
+          { limit: p.limit, minScore: p.minScore, crossDomainOnly: p.crossDomainOnly },
+        );
+        break;
+      }
+      case "memory_pressure_sample": {
+        const { memoryPressureMonitorEngine } = await import("../../engines/MemoryPressureMonitorEngine.js");
+        const p = params as { nowIso?: string };
+        result = memoryPressureMonitorEngine.sampleNow(p.nowIso);
+        break;
+      }
+      case "memory_pressure_trend": {
+        const { memoryPressureMonitorEngine } = await import("../../engines/MemoryPressureMonitorEngine.js");
+        result = memoryPressureMonitorEngine.trend();
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
