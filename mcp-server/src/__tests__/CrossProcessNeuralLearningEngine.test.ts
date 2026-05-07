@@ -155,14 +155,17 @@ describe("CrossProcessNeuralLearningEngine", () => {
     expect(x[4]).toBe(0); // negative → 0
   });
 
-  it("featurize clamps very large values via log1p / divisor", () => {
+  it("featurize clamps very large values via log1p divisor (warmup fallback)", () => {
+    // Pre-warmup (welfordCount<30): featurize uses log1p/LOG1P_NUMERIC_DIVISOR
+    // capped at 1. RPM=1e9 → log1p(1e9)/12 ≈ 1.73 → clamped to 1.
+    // Post-warmup the same input would be z-scored, but a fresh-init engine
+    // with one prediction call has welfordCount=0 → log1p path active.
     const r = makeRecord({
       bridge: "sf",
       process: "mill",
       request: { spindle_rpm: 1e9 },
     });
     const x = engine.featurize(r);
-    // log1p(1e9)/12 ≈ 1.73 → clamped to 1
     expect(x[4]).toBeLessThanOrEqual(1);
     expect(x[4]).toBeGreaterThan(0);
   });
@@ -431,14 +434,15 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   // ───── schema export ─────
 
-  it("schema and dim constants match documented architecture (131→16→3) post U-NN-FEAT01", () => {
+  it("schema and dim constants match documented architecture (131→16→3) post U-NN-FEAT01/02", () => {
     // 131 = 7 numeric + 5 bridge + 3 process + 64 material + 16 tool +
     //       16 machine + 16 operation + 4 aux. Reviewers 3/4 flagged the
-    //       4-bucket material hash → ~76% collision rate. Schema bumped to 2.0.0.
+    //       4-bucket material hash → ~76% collision rate. Schema 2.0.0
+    //       brought the wider buckets; 2.1.0 added Welford z-score state.
     expect(INPUT_DIM).toBe(131);
     expect(HIDDEN_DIM).toBe(16);
     expect(OUTPUT_DIM).toBe(3);
-    expect(SCHEMA_VERSION).toBe("2.0.0");
+    expect(SCHEMA_VERSION).toBe("2.1.0");
   });
 
   // ───── U-NN-FIX01: backprop numeric-gradient correctness ─────

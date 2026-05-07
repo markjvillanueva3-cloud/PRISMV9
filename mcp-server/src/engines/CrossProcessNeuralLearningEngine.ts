@@ -65,10 +65,12 @@ import type {
 // CONSTANTS
 // ============================================================================
 
-// Schema bumped 1.0.0→2.0.0 with U-NN-FEAT01: input layer expanded
-// 32→131 dims via wider categorical hash buckets. Serialized models from
-// schema 1.0.0 are NOT load-compatible (they'll fail W1 length check).
-export const SCHEMA_VERSION = "2.0.0";
+// Schema 1.0.0→2.0.0 with U-NN-FEAT01: input layer expanded 32→131 dims
+//   via wider categorical hash buckets.
+// Schema 2.0.0→2.1.0 with U-NN-FEAT02: Welford z-score state added for
+//   numeric feature whitening. 2.0.0 models load with empty Welford and
+//   will warm-up from scratch.
+export const SCHEMA_VERSION = "2.1.0";
 
 const NUMERIC_KEYS_DIM = 7;
 const BRIDGE_DIM = 5;
@@ -101,7 +103,14 @@ const DEFAULT_EPOCHS = 1;
 const DEFAULT_BATCH_SIZE = 32;
 const DEFAULT_SEED = 42;
 const SOFTMAX_EPSILON = 1e-9;
-const LOG1P_NUMERIC_DIVISOR = 12; // tames the log1p output into roughly [0, 1] for sane shop-floor magnitudes
+// U-NN-FEAT02: Welford z-score normalization for numeric features.
+const WELFORD_WARMUP_SAMPLES = 30; // First 30 samples bypass z-score (insufficient stats).
+const WELFORD_VARIANCE_EPSILON = 1e-8; // Prevents div-by-zero when variance is tiny.
+const Z_SCORE_CLIP_RANGE = 3; // Standard ±3σ clipping (≥99.7% of normal data).
+// LOG1P_NUMERIC_DIVISOR is the WARMUP fallback during the first 30 samples,
+// when Welford running statistics are too sparse for z-scoring. log1p(x)/12
+// maps shop-floor magnitudes (RPM 100..30000, mm 0.1..50) to roughly [0,1].
+const LOG1P_NUMERIC_DIVISOR = 12;
 
 const BRIDGE_INDEX: Record<OutcomeBridge, number> = {
   sf: 0,
@@ -204,6 +213,16 @@ export interface SerializedNeural {
     lastLoss: number;
     lastAccuracy: number;
   };
+  /**
+   * U-NN-FEAT02: Welford running mean/M2 for numeric feature z-scoring.
+   * Optional for backward compatibility with schema 2.0.0 saves — when
+   * absent on load, deserializer initializes empty (warmup from scratch).
+   */
+  welford?: {
+    count: number;
+    mean: number[]; // length NUMERIC_KEYS_DIM
+    M2: number[];   // length NUMERIC_KEYS_DIM (sum of squared deviations)
+  };
 }
 
 // ============================================================================
@@ -226,6 +245,13 @@ export class CrossProcessNeuralLearningEngine {
   private vb1: Float64Array;
   private vW2: Float64Array;
   private vb2: Float64Array;
+
+  // U-NN-FEAT02: Welford online mean/variance for numeric feature z-scoring.
+  // Updated incrementally inside train() before featurize is called per sample.
+  // Persisted in serialize() and restored in loadFrom().
+  private welfordCount = 0;
+  private welfordMean: Float64Array; // [NUMERIC_KEYS_DIM]
+  private welfordM2: Float64Array;   // [NUMERIC_KEYS_DIM] sum of squared deviations from mean
 
   // Online metrics
   private totalSamplesSeen = 0;
@@ -253,6 +279,9 @@ export class CrossProcessNeuralLearningEngine {
     this.vW2 = new Float64Array(this.W2.length);
     this.vb2 = new Float64Array(this.b2.length);
 
+    this.welfordMean = new Float64Array(NUMERIC_KEYS_DIM);
+    this.welfordM2 = new Float64Array(NUMERIC_KEYS_DIM);
+
     this.xavierInit();
   }
 
@@ -270,6 +299,9 @@ export class CrossProcessNeuralLearningEngine {
     this.vb1.fill(0);
     this.vW2.fill(0);
     this.vb2.fill(0);
+    this.welfordCount = 0;
+    this.welfordMean.fill(0);
+    this.welfordM2.fill(0);
     this.totalSamplesSeen = 0;
     this.totalEpochsRun = 0;
     this.lastLoss = 0;
@@ -287,17 +319,42 @@ export class CrossProcessNeuralLearningEngine {
     const f = new Float64Array(INPUT_DIM);
     let offset = 0;
 
-    // 1. Numeric features (7) — log1p normalize, clamped to a bounded range.
+    // 1. Numeric features (7) — U-NN-FEAT02: Welford z-score normalization.
+    //    Pre-warmup (first WELFORD_WARMUP_SAMPLES samples): log1p fallback
+    //    (preserves the original featurize behavior — raw clipping at ±3
+    //    saturates shop-floor magnitudes like RPM=20000 to a single value).
+    //    Post-warmup: (x - mean) / sqrt(variance + eps), clipped to ±3σ.
+    //    Once the model has seen ≥30 samples, the running statistics are
+    //    stable enough to whiten inputs across orders-of-magnitude spans.
     const reqAny = record.request_summary as Record<string, unknown>;
-    for (const k of NUMERIC_KEYS) {
+    for (let i = 0; i < NUMERIC_KEYS.length; i++) {
+      const k = NUMERIC_KEYS[i];
       const v = reqAny[k];
-      if (typeof v === "number" && Number.isFinite(v) && v >= 0) {
-        // log1p makes spindle_rpm=20000 and tool_diameter_mm=0.5 comparable
-        f[offset] = Math.min(1, Math.log1p(v) / LOG1P_NUMERIC_DIVISOR);
+      const raw =
+        typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : 0;
+      let normalized: number;
+      const variance = this.welfordM2[i] / Math.max(1, this.welfordCount);
+      const useZScore =
+        this.welfordCount >= WELFORD_WARMUP_SAMPLES &&
+        variance > WELFORD_VARIANCE_EPSILON;
+      if (!useZScore) {
+        // Warmup or degenerate-variance fallback: log1p compression maps
+        // [0, ∞) → [0, 1] roughly. Used when (a) we have <30 samples or
+        // (b) all observed values for this feature were identical (e.g.
+        // every training record left the field empty → mean=var=0; a new
+        // non-zero input would z-score to ∞ and clip to 3, collapsing all
+        // distinct raw values into a single output and zeroing variance.)
+        normalized = Math.min(1, Math.log1p(raw) / LOG1P_NUMERIC_DIVISOR);
       } else {
-        f[offset] = 0;
+        const mean = this.welfordMean[i];
+        const std = Math.sqrt(variance + WELFORD_VARIANCE_EPSILON);
+        normalized = clamp(
+          (raw - mean) / std,
+          -Z_SCORE_CLIP_RANGE,
+          Z_SCORE_CLIP_RANGE,
+        );
       }
-      offset++;
+      f[offset++] = normalized;
     }
 
     // 2. Bridge one-hot (5).
@@ -366,7 +423,10 @@ export class CrossProcessNeuralLearningEngine {
     const batchSize = Math.max(1, opts.batchSize ?? this.config.batchSize);
     const shuffle = opts.shuffle !== false;
 
-    // Prepare labeled samples once.
+    // U-NN-FEAT02: Update Welford running mean/var with each sample's raw
+    // numerics BEFORE featurize. This way featurize sees the most up-to-date
+    // statistics — after the warmup period, every featurize call applies
+    // z-score with the running mean/std accumulated from prior samples.
     const samples: Array<{ x: Float64Array; y: number }> = [];
     let skipped = 0;
     for (const r of records) {
@@ -375,6 +435,7 @@ export class CrossProcessNeuralLearningEngine {
         skipped++;
         continue;
       }
+      this.welfordUpdate(r);
       samples.push({ x: this.featurize(r), y });
     }
 
@@ -518,6 +579,11 @@ export class CrossProcessNeuralLearningEngine {
         lastLoss: this.lastLoss,
         lastAccuracy: this.lastAccuracy,
       },
+      welford: {
+        count: this.welfordCount,
+        mean: Array.from(this.welfordMean),
+        M2: Array.from(this.welfordM2),
+      },
     };
   }
 
@@ -527,9 +593,11 @@ export class CrossProcessNeuralLearningEngine {
    * silently wrong otherwise.
    */
   static fromSerialized(state: SerializedNeural): CrossProcessNeuralLearningEngine {
-    if (!state || state.schemaVersion !== SCHEMA_VERSION) {
+    // Accept any 2.x.y schema. 2.0.0 lacked welford state — initialize empty
+    // and warmup from scratch on next train(). 2.1.0+ persists welford.
+    if (!state || typeof state.schemaVersion !== "string" || !state.schemaVersion.startsWith("2.")) {
       throw new Error(
-        `fromSerialized: schemaVersion mismatch (expected ${SCHEMA_VERSION}, got ${state?.schemaVersion})`,
+        `fromSerialized: schemaVersion mismatch (expected 2.x.y, got ${state?.schemaVersion})`,
       );
     }
     if (state.W1.length !== HIDDEN_DIM * INPUT_DIM) {
@@ -565,6 +633,20 @@ export class CrossProcessNeuralLearningEngine {
     eng.totalEpochsRun = state.metrics.totalEpochsRun;
     eng.lastLoss = state.metrics.lastLoss;
     eng.lastAccuracy = state.metrics.lastAccuracy;
+    // U-NN-FEAT02: restore welford if present (2.1.0+); else stay empty.
+    if (state.welford) {
+      if (
+        state.welford.mean.length !== NUMERIC_KEYS_DIM ||
+        state.welford.M2.length !== NUMERIC_KEYS_DIM
+      ) {
+        throw new Error(
+          `fromSerialized: welford.mean/M2 length mismatch (expected ${NUMERIC_KEYS_DIM})`,
+        );
+      }
+      eng.welfordCount = state.welford.count;
+      eng.welfordMean.set(state.welford.mean);
+      eng.welfordM2.set(state.welford.M2);
+    }
     return eng;
   }
 
@@ -600,6 +682,34 @@ export class CrossProcessNeuralLearningEngine {
   }
 
   // ──────── PRIVATE ────────
+
+  /**
+   * U-NN-FEAT02: Welford online mean/variance update for numeric features.
+   * Welford (1962): single-pass numerically-stable algorithm for streaming
+   * variance. Each call processes one sample's NUMERIC_KEYS values and
+   * updates running mean and M2 (sum of squared deviations from mean).
+   *
+   * Variance is computed on-demand as M2/count (population variance) inside
+   * featurize. We use population (not sample) because the network observes
+   * the entire training set, not a sample of it.
+   *
+   * Reference: B.P. Welford, "Note on a method for calculating corrected
+   * sums of squares and products", Technometrics 4(3):419-420, 1962.
+   */
+  private welfordUpdate(record: OutcomeRecord): void {
+    const reqAny = record.request_summary as Record<string, unknown>;
+    this.welfordCount++;
+    const n = this.welfordCount;
+    for (let i = 0; i < NUMERIC_KEYS.length; i++) {
+      const v = reqAny[NUMERIC_KEYS[i]];
+      const x =
+        typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : 0;
+      const oldMean = this.welfordMean[i];
+      const newMean = oldMean + (x - oldMean) / n;
+      this.welfordMean[i] = newMean;
+      this.welfordM2[i] += (x - oldMean) * (x - newMean);
+    }
+  }
 
   /** Xavier (Glorot) uniform: U[-r, r], r = sqrt(6 / (fan_in + fan_out)). */
   private xavierInit(): void {
@@ -860,6 +970,13 @@ function mulberry32(seed: number): () => number {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+/** Clamp x into [lo, hi]. */
+function clamp(x: number, lo: number, hi: number): number {
+  if (x < lo) return lo;
+  if (x > hi) return hi;
+  return x;
 }
 
 /**

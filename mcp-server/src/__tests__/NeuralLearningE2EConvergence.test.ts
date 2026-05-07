@@ -524,6 +524,103 @@ describe("XPROC-NEURAL T1-02 — end-to-end convergence on synthetic shop-floor 
     expect(INPUT_DIM).toBe(131);
   });
 
+  // ===========================================================================
+  // U-NN-FEAT02 — Welford z-score scale invariance
+  // ===========================================================================
+
+  it("Welford z-score makes training scale-invariant: identical structure with rescaled numerics converges similarly", () => {
+    // Reviewer 3: log1p(v)/12 was a one-size-fits-all scaling that obscured
+    // real distributions. With z-score normalization, rescaling all numeric
+    // features by a constant factor (e.g., RPM in [100, 30000] vs RPM in
+    // [1, 300]) should produce equivalent training trajectories — because
+    // z-score whitens the inputs before the network sees them.
+    const SCALE_DOWN = 0.01; // RPM 20000 → 200, depth 4 → 0.04
+    const SCALE_UP = 1.0;
+    const ABS_LOSS_DELTA_TOLERANCE = 0.15;
+    const ACC_DELTA_TOLERANCE = 0.10;
+
+    function trainAtScale(scale: number): { finalLoss: number; valAcc: number } {
+      const isolate = new CrossProcessNeuralLearningEngine();
+      isolate.reset(TRAIN_SEED);
+      const ds = syntheticDataset(TRAIN_SEED).map((r) => {
+        const numerics = r.request_summary as Record<string, number>;
+        const rescaled: Record<string, number> = {};
+        for (const k of Object.keys(numerics)) {
+          if (typeof numerics[k] === "number") rescaled[k] = numerics[k] * scale;
+        }
+        return {
+          ...r,
+          request_summary: { ...r.request_summary, ...rescaled },
+        };
+      });
+      const { train, val } = shuffleSplit(ds as OutcomeRecord[], TRAIN_RATIO);
+      const tr = isolate.train(train, {
+        epochs: TRAIN_EPOCHS,
+        batchSize: BATCH_SIZE,
+      });
+      const evalRes = isolate.evaluate(val);
+      return { finalLoss: tr.finalLoss, valAcc: evalRes.accuracy };
+    }
+
+    const baseline = trainAtScale(SCALE_UP);
+    const rescaled = trainAtScale(SCALE_DOWN);
+
+    // Final losses should be close (z-score absorbs the magnitude difference).
+    const lossDelta = Math.abs(baseline.finalLoss - rescaled.finalLoss);
+    expect(lossDelta).toBeLessThan(ABS_LOSS_DELTA_TOLERANCE);
+
+    // Validation accuracies should be in the same ballpark (±10%).
+    const accDelta = Math.abs(baseline.valAcc - rescaled.valAcc);
+    expect(accDelta).toBeLessThan(ACC_DELTA_TOLERANCE);
+
+    // Both rescaled runs should achieve non-trivial accuracy (above chance).
+    expect(baseline.valAcc).toBeGreaterThan(CHANCE_ACCURACY);
+    expect(rescaled.valAcc).toBeGreaterThan(CHANCE_ACCURACY);
+  });
+
+  it("Welford accumulator persists across train calls and stabilizes the running mean", () => {
+    const isolate = new CrossProcessNeuralLearningEngine();
+    isolate.reset(TRAIN_SEED);
+    const ds = syntheticDataset(TRAIN_SEED);
+    const { train } = shuffleSplit(ds, TRAIN_RATIO);
+
+    // Train in two halves; Welford should accumulate across both.
+    const half = Math.floor(train.length / 2);
+    const firstHalf = train.slice(0, half);
+    const secondHalf = train.slice(half);
+
+    isolate.train(firstHalf, { epochs: 1, batchSize: half });
+    const after1 = isolate.serialize();
+    const welford1 = after1.welford;
+    if (!welford1) throw new Error("welford state missing after first train");
+    expect(welford1.count).toBe(half);
+    expect(welford1.mean.length).toBe(7); // NUMERIC_KEYS_DIM
+    expect(welford1.M2.length).toBe(7);
+
+    isolate.train(secondHalf, { epochs: 1, batchSize: secondHalf.length });
+    const after2 = isolate.serialize();
+    const welford2 = after2.welford;
+    if (!welford2) throw new Error("welford state missing after second train");
+    expect(welford2.count).toBe(half + secondHalf.length);
+
+    // Means must be finite, and at least ONE numeric feature in the synthetic
+    // dataset has non-trivial mean (positive shop-floor magnitudes).
+    for (const m of welford2.mean) {
+      expect(Number.isFinite(m)).toBe(true);
+    }
+    const someNonZeroMean = welford2.mean.some((m) => m > 0);
+    expect(someNonZeroMean).toBe(true);
+
+    // M2 (sum of squared deviations) must be finite and non-negative.
+    for (const v of welford2.M2) {
+      expect(Number.isFinite(v)).toBe(true);
+      expect(v).toBeGreaterThanOrEqual(0);
+    }
+    // At least one feature must show variance > 0 (synthetic data is varied).
+    const someVariance = welford2.M2.some((v) => v > 0);
+    expect(someVariance).toBe(true);
+  });
+
   it("isolated engine instance trains independently of the singleton", () => {
     const ISOLATE_EPOCHS = 20;
     const isolate = new CrossProcessNeuralLearningEngine();
