@@ -280,6 +280,36 @@ export const AI_REASONING_ACTIONS = [
   "xproc_hyper_evaluate",
   "xproc_hyper_record_outcome",
   "xproc_hyper_constants",
+  // U-XPROC-TIER1-PRISM-AI-WIRE: Tier 1 baseline (5 engines / 23 actions)
+  // Cherry-picked from work/cad-fidx-solidworks (commits 619c4f037..5919b5c4f).
+  // T1-01 OutcomeStore (event-sourced ledger)
+  "xproc_outcome_record",
+  "xproc_outcome_record_outcome",
+  "xproc_outcome_query",
+  "xproc_outcome_retrieve_similar",
+  "xproc_outcome_stats",
+  "xproc_outcome_clear",
+  // T1-02 NeuralLearning (pure-JS MLP 32→16→3)
+  "xproc_neural_train",
+  "xproc_neural_predict",
+  "xproc_neural_evaluate",
+  "xproc_neural_save",
+  "xproc_neural_load",
+  "xproc_neural_metrics",
+  "xproc_neural_reset",
+  // T1-03 TransferLearning (material-cluster pairs)
+  "xproc_transfer_classify",
+  "xproc_transfer_pairs",
+  "xproc_transfer_check",
+  // T1-04 AttentionExplain (LIME + ECE + L1 anomaly)
+  "xproc_attention_explain",
+  "xproc_attention_ece",
+  "xproc_attention_baseline_add",
+  "xproc_attention_anomaly",
+  "xproc_attention_baseline_get",
+  "xproc_attention_baseline_reset",
+  // T1-05 AGIBridge (composer)
+  "xproc_agi_compose",
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -1420,4 +1450,29 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_hyper_evaluate: z.object({}).passthrough(),
   xproc_hyper_record_outcome: z.object({}).passthrough(),
   xproc_hyper_constants: z.object({}).passthrough(),
+  // U-XPROC-TIER1-PRISM-AI-WIRE — Tier 1 baseline passthrough schemas (23 actions).
+  // Each engine validates its own param shape internally.
+  xproc_outcome_record: z.object({}).passthrough(),
+  xproc_outcome_record_outcome: z.object({}).passthrough(),
+  xproc_outcome_query: z.object({}).passthrough(),
+  xproc_outcome_retrieve_similar: z.object({}).passthrough(),
+  xproc_outcome_stats: z.object({}).passthrough(),
+  xproc_outcome_clear: z.object({}).passthrough(),
+  xproc_neural_train: z.object({}).passthrough(),
+  xproc_neural_predict: z.object({}).passthrough(),
+  xproc_neural_evaluate: z.object({}).passthrough(),
+  xproc_neural_save: z.object({}).passthrough(),
+  xproc_neural_load: z.object({}).passthrough(),
+  xproc_neural_metrics: z.object({}).passthrough(),
+  xproc_neural_reset: z.object({}).passthrough(),
+  xproc_transfer_classify: z.object({}).passthrough(),
+  xproc_transfer_pairs: z.object({}).passthrough(),
+  xproc_transfer_check: z.object({}).passthrough(),
+  xproc_attention_explain: z.object({}).passthrough(),
+  xproc_attention_ece: z.object({}).passthrough(),
+  xproc_attention_baseline_add: z.object({}).passthrough(),
+  xproc_attention_anomaly: z.object({}).passthrough(),
+  xproc_attention_baseline_get: z.object({}).passthrough(),
+  xproc_attention_baseline_reset: z.object({}).passthrough(),
+  xproc_agi_compose: z.object({}).passthrough(),
 };

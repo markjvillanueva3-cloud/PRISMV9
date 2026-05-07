@@ -194,7 +194,196 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
 
 const _xprocCache = new Map<string, (action: string, params: Record<string, unknown>) => unknown>();
 
+// ============================================================================
+// U-XPROC-TIER1-PRISM-AI-WIRE — Tier 1 baseline (5 engines, 23 actions)
+// Mirrors intelligenceDispatcher's inline xproc_outcome_*/neural_*/transfer_*/
+// attention_*/agi_compose handlers. These engines export singletons (not action
+// wrappers), so they need per-action dispatch. Returns raw result objects;
+// the outer prism_ai dispatcher wraps in {success, data}.
+// ============================================================================
+
+type XprocTier1Handler = (params: Record<string, unknown>) => Promise<unknown>;
+
+const XPROC_TIER1_HANDLERS: Record<string, XprocTier1Handler> = {
+  // T1-01 OutcomeStore
+  xproc_outcome_record: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const id = crossProcessOutcomeStore.record({
+      bridge: params.bridge as Parameters<typeof crossProcessOutcomeStore.record>[0]["bridge"],
+      process: params.process as Parameters<typeof crossProcessOutcomeStore.record>[0]["process"],
+      request_summary: params.request_summary as Parameters<typeof crossProcessOutcomeStore.record>[0]["request_summary"],
+      response_summary: params.response_summary as Parameters<typeof crossProcessOutcomeStore.record>[0]["response_summary"],
+      outcome: params.outcome as Parameters<typeof crossProcessOutcomeStore.record>[0]["outcome"],
+      operator: params.operator as Parameters<typeof crossProcessOutcomeStore.record>[0]["operator"],
+    });
+    return { id };
+  },
+  xproc_outcome_record_outcome: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const id = params.id as string | undefined;
+    if (!id) throw new Error("xproc_outcome_record_outcome requires `id`");
+    const outcome = params.outcome as Parameters<typeof crossProcessOutcomeStore.recordOutcome>[1];
+    return { updated: crossProcessOutcomeStore.recordOutcome(id, outcome) };
+  },
+  xproc_outcome_query: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const records = crossProcessOutcomeStore.query(params as Parameters<typeof crossProcessOutcomeStore.query>[0]);
+    return { count: records.length, records };
+  },
+  xproc_outcome_retrieve_similar: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const k = (params.k as number | undefined) ?? 5;
+    const ctx = (params.context ?? params) as Parameters<typeof crossProcessOutcomeStore.retrieveSimilar>[0];
+    const results = crossProcessOutcomeStore.retrieveSimilar(ctx, k);
+    return { count: results.length, results };
+  },
+  xproc_outcome_stats: async () => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    return crossProcessOutcomeStore.stats();
+  },
+  xproc_outcome_clear: async () => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    crossProcessOutcomeStore.clear();
+    return { cleared: true };
+  },
+  // T1-02 NeuralLearning
+  xproc_neural_train: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const records = (params.records as Parameters<typeof crossProcessNeuralLearningEngine.train>[0]) ?? [];
+    const opts = params.opts as Parameters<typeof crossProcessNeuralLearningEngine.train>[1] | undefined;
+    return crossProcessNeuralLearningEngine.train(records, opts);
+  },
+  xproc_neural_predict: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const record = params.record as Parameters<typeof crossProcessNeuralLearningEngine.predictFromRecord>[0] | undefined;
+    if (!record) throw new Error("xproc_neural_predict requires `record`");
+    return crossProcessNeuralLearningEngine.predictFromRecord(record);
+  },
+  xproc_neural_evaluate: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const records = (params.records as Parameters<typeof crossProcessNeuralLearningEngine.evaluate>[0]) ?? [];
+    return crossProcessNeuralLearningEngine.evaluate(records);
+  },
+  xproc_neural_save: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const filePath = params.path as string | undefined;
+    if (typeof filePath !== "string" || filePath.length === 0) {
+      throw new Error("xproc_neural_save requires `path` (non-empty string)");
+    }
+    crossProcessNeuralLearningEngine.saveTo(filePath);
+    return { path: filePath };
+  },
+  xproc_neural_load: async (params) => {
+    const { CrossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const filePath = params.path as string | undefined;
+    if (typeof filePath !== "string" || filePath.length === 0) {
+      throw new Error("xproc_neural_load requires `path` (non-empty string)");
+    }
+    const loaded = CrossProcessNeuralLearningEngine.loadFrom(filePath);
+    return { path: filePath, metrics: loaded.getMetrics() };
+  },
+  xproc_neural_metrics: async () => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    return {
+      metrics: crossProcessNeuralLearningEngine.getMetrics(),
+      config: crossProcessNeuralLearningEngine.getConfig(),
+    };
+  },
+  xproc_neural_reset: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const seed = params.seed as number | undefined;
+    crossProcessNeuralLearningEngine.reset(seed);
+    return { seed: seed ?? null };
+  },
+  // T1-03 TransferLearning
+  xproc_transfer_classify: async (params) => {
+    const { crossProcessTransferLearningEngine } = await import("../../engines/CrossProcessTransferLearningEngine.js");
+    const material = params.material as string | undefined;
+    if (typeof material !== "string") throw new Error("xproc_transfer_classify requires `material` (string)");
+    return { material, cluster: crossProcessTransferLearningEngine.classifyMaterial(material) };
+  },
+  xproc_transfer_pairs: async () => {
+    const { crossProcessTransferLearningEngine, MATERIAL_CLUSTERS } = await import("../../engines/CrossProcessTransferLearningEngine.js");
+    const pairs = crossProcessTransferLearningEngine.listTransferPairs();
+    return { pairs, clusters: MATERIAL_CLUSTERS, count: pairs.length };
+  },
+  xproc_transfer_check: async (params) => {
+    const { crossProcessTransferLearningEngine, MATERIAL_CLUSTERS } = await import("../../engines/CrossProcessTransferLearningEngine.js");
+    const source = params.source as string | undefined;
+    const target = params.target as string | undefined;
+    if (typeof source !== "string" || typeof target !== "string") {
+      throw new Error("xproc_transfer_check requires `source` and `target` cluster strings");
+    }
+    const validClusters = MATERIAL_CLUSTERS as readonly string[];
+    const sourceCluster = validClusters.includes(source)
+      ? (source as (typeof MATERIAL_CLUSTERS)[number])
+      : crossProcessTransferLearningEngine.classifyMaterial(source);
+    const targetCluster = validClusters.includes(target)
+      ? (target as (typeof MATERIAL_CLUSTERS)[number])
+      : crossProcessTransferLearningEngine.classifyMaterial(target);
+    const trusted = sourceCluster && targetCluster
+      ? crossProcessTransferLearningEngine.isTrustedPair(sourceCluster, targetCluster)
+      : false;
+    return { source, target, sourceCluster, targetCluster, trusted };
+  },
+  // T1-04 AttentionExplain (uses T1-02 singleton as donor model)
+  xproc_attention_explain: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const { crossProcessAttentionExplainEngine } = await import("../../engines/CrossProcessAttentionExplainEngine.js");
+    const record = params.record as Parameters<typeof crossProcessNeuralLearningEngine.featurize>[0] | undefined;
+    if (!record) throw new Error("xproc_attention_explain requires `record`");
+    const opts = params.opts as Parameters<typeof crossProcessAttentionExplainEngine.explainPrediction>[2] | undefined;
+    return crossProcessAttentionExplainEngine.explainPrediction(crossProcessNeuralLearningEngine, record, opts);
+  },
+  xproc_attention_ece: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const { crossProcessAttentionExplainEngine } = await import("../../engines/CrossProcessAttentionExplainEngine.js");
+    const records = (params.records as Parameters<typeof crossProcessAttentionExplainEngine.computeECE>[1]) ?? [];
+    const numBins = params.numBins as number | undefined;
+    return crossProcessAttentionExplainEngine.computeECE(crossProcessNeuralLearningEngine, records, numBins);
+  },
+  xproc_attention_baseline_add: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const { crossProcessAttentionExplainEngine } = await import("../../engines/CrossProcessAttentionExplainEngine.js");
+    const records = (params.records as Parameters<typeof crossProcessAttentionExplainEngine.registerBaseline>[1]) ?? [];
+    return crossProcessAttentionExplainEngine.registerBaseline(crossProcessNeuralLearningEngine, records);
+  },
+  xproc_attention_anomaly: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const { crossProcessAttentionExplainEngine } = await import("../../engines/CrossProcessAttentionExplainEngine.js");
+    const record = params.record as Parameters<typeof crossProcessAttentionExplainEngine.scoreAnomaly>[1] | undefined;
+    if (!record) throw new Error("xproc_attention_anomaly requires `record`");
+    const threshold = params.threshold as number | undefined;
+    return crossProcessAttentionExplainEngine.scoreAnomaly(crossProcessNeuralLearningEngine, record, threshold);
+  },
+  xproc_attention_baseline_get: async () => {
+    const { crossProcessAttentionExplainEngine } = await import("../../engines/CrossProcessAttentionExplainEngine.js");
+    return crossProcessAttentionExplainEngine.getBaseline();
+  },
+  xproc_attention_baseline_reset: async () => {
+    const { crossProcessAttentionExplainEngine } = await import("../../engines/CrossProcessAttentionExplainEngine.js");
+    crossProcessAttentionExplainEngine.resetBaseline();
+    return { reset: true };
+  },
+  // T1-05 AGIBridge composer
+  xproc_agi_compose: async (params) => {
+    const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
+    const { crossProcessAGIBridge } = await import("../../engines/CrossProcessAGIBridge.js");
+    const reqParam = params.request as Parameters<typeof crossProcessAGIBridge.compose>[1] | undefined;
+    if (!reqParam || typeof reqParam !== "object" || typeof reqParam.intent !== "string") {
+      throw new Error("xproc_agi_compose requires `request` with `intent` (non-empty string)");
+    }
+    const opts = params.opts as Parameters<typeof crossProcessAGIBridge.compose>[2] | undefined;
+    return crossProcessAGIBridge.compose(crossProcessNeuralLearningEngine, reqParam, opts);
+  },
+};
+
 async function routeXprocAction(action: string, params: Record<string, unknown>): Promise<unknown> {
+  // Tier 1: per-action handler (singleton-based engines, no uniform wrapper).
+  const tier1 = XPROC_TIER1_HANDLERS[action];
+  if (tier1) return tier1(params);
+
+  // Tier 2-12: uniform wrapper-function engines, lazy-loaded + cached.
   let wrapper = _xprocCache.get(action);
   if (!wrapper) {
     const loader = XPROC_ROUTES[action];
@@ -1483,7 +1672,31 @@ export async function executeAIReasoningAction(
       case "xproc_modality_dropout":
       case "xproc_modality_predict":
       case "xproc_modality_availability":
-      case "xproc_modality_constants": {
+      case "xproc_modality_constants":
+      // U-XPROC-TIER1-PRISM-AI-WIRE — 23 Tier 1 actions (5 baseline engines)
+      case "xproc_outcome_record":
+      case "xproc_outcome_record_outcome":
+      case "xproc_outcome_query":
+      case "xproc_outcome_retrieve_similar":
+      case "xproc_outcome_stats":
+      case "xproc_outcome_clear":
+      case "xproc_neural_train":
+      case "xproc_neural_predict":
+      case "xproc_neural_evaluate":
+      case "xproc_neural_save":
+      case "xproc_neural_load":
+      case "xproc_neural_metrics":
+      case "xproc_neural_reset":
+      case "xproc_transfer_classify":
+      case "xproc_transfer_pairs":
+      case "xproc_transfer_check":
+      case "xproc_attention_explain":
+      case "xproc_attention_ece":
+      case "xproc_attention_baseline_add":
+      case "xproc_attention_anomaly":
+      case "xproc_attention_baseline_get":
+      case "xproc_attention_baseline_reset":
+      case "xproc_agi_compose": {
         result = await routeXprocAction(action, params);
         break;
       }

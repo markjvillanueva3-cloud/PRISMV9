@@ -420,6 +420,22 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_audio_chatter_score",
   "xproc_audio_spectral",
   "xproc_audio_constants",
+  // XPROC-ROUTER-01: top-level cross-process pipeline router
+  "process_route", "process_full_pipeline", "process_pipeline_stages",
+  // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
+  "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
+  "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
+  // XPROC-NEURAL-T1-02: pure-JS MLP 32→16→3 over CrossProcessOutcomeStore
+  "xproc_neural_train", "xproc_neural_predict", "xproc_neural_evaluate",
+  "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
+  // XPROC-NEURAL-T1-03: transfer learning across material clusters
+  "xproc_transfer_classify", "xproc_transfer_pairs", "xproc_transfer_check",
+  // XPROC-NEURAL-T1-04: LIME + ECE + L1 anomaly attention/explain
+  "xproc_attention_explain", "xproc_attention_ece",
+  "xproc_attention_baseline_add", "xproc_attention_anomaly",
+  "xproc_attention_baseline_get", "xproc_attention_baseline_reset",
+  // XPROC-NEURAL-T1-05: AGI bridge — keyword + neural blend composer
+  "xproc_agi_compose",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -476,22 +492,6 @@ const DIAGNOSIS_FWD = [
   "genplan_tools", "genplan_cycle", "genplan_cost", "genplan_risk", "genplan_get",
   "sustain_optimize", "sustain_compare", "sustain_energy", "sustain_carbon", "sustain_coolant",
   "sustain_nearnet", "sustain_report", "sustain_materials", "sustain_history", "sustain_get",
-  // XPROC-ROUTER-01: top-level cross-process pipeline router
-  "process_route", "process_full_pipeline", "process_pipeline_stages",
-  // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
-  "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
-  "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
-  // XPROC-NEURAL-T1-02: pure-JS MLP 32→16→3 over CrossProcessOutcomeStore
-  "xproc_neural_train", "xproc_neural_predict", "xproc_neural_evaluate",
-  "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
-  // XPROC-NEURAL-T1-03: transfer learning across material clusters
-  "xproc_transfer_classify", "xproc_transfer_pairs", "xproc_transfer_check",
-  // XPROC-NEURAL-T1-04: LIME + ECE + L1 anomaly attention/explain
-  "xproc_attention_explain", "xproc_attention_ece",
-  "xproc_attention_baseline_add", "xproc_attention_anomaly",
-  "xproc_attention_baseline_get", "xproc_attention_baseline_reset",
-  // XPROC-NEURAL-T1-05: AGI bridge — keyword + neural blend composer
-  "xproc_agi_compose",
 ] as const;
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
