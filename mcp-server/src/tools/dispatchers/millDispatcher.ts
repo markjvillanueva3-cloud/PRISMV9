@@ -225,6 +225,14 @@ export const MILL_ACTIONS = [
 
   // Inference orchestration (MillingInferenceOrchestratorEngine)
   "mill_inference_run",
+
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH1: 6 unwired mill engines
+  "mill_helical_calc",                 // HelicalMillingEngine.calculate
+  "mill_high_feed_calc",               // HighFeedMillingEngine.calculate
+  "mill_program_parse",                // MillProgramLearningEngine.parseProgram
+  "mill_resource_query",               // MillResourceAwarenessEngine.query
+  "mill_strategy_list",                // MillingStrategyLibraryEngine.getAllStrategies
+  "mill_strategy_for_feature",         // MillingStrategyLibraryEngine.getStrategiesForFeature
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -601,6 +609,50 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_inference_run": {
             const engine = await getEngine("inference_orch");
             result = await engine.infer(params);
+            break;
+          }
+
+          // ============================================================
+          // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH1: 6 unwired mill engines
+          // ============================================================
+          case "mill_helical_calc": {
+            const { helicalMillingEngine } = await import("../../engines/HelicalMillingEngine.js");
+            result = helicalMillingEngine.calculate(params as Parameters<typeof helicalMillingEngine.calculate>[0]);
+            break;
+          }
+          case "mill_high_feed_calc": {
+            const { highFeedMillingEngine } = await import("../../engines/HighFeedMillingEngine.js");
+            result = highFeedMillingEngine.calculate(params as Parameters<typeof highFeedMillingEngine.calculate>[0]);
+            break;
+          }
+          case "mill_program_parse": {
+            const { millProgramLearningEngine } = await import("../../engines/MillProgramLearningEngine.js");
+            const p = params as { content: string; source: Parameters<typeof millProgramLearningEngine.parseProgram>[1] };
+            if (typeof p.content !== "string") throw new Error("mill_program_parse requires 'content' (G-code string)");
+            if (!p.source) throw new Error("mill_program_parse requires 'source' (MillSource)");
+            result = millProgramLearningEngine.parseProgram(p.content, p.source);
+            break;
+          }
+          case "mill_resource_query": {
+            const { millResourceAwarenessEngine } = await import("../../engines/MillResourceAwarenessEngine.js");
+            result = millResourceAwarenessEngine.query(params as Parameters<typeof millResourceAwarenessEngine.query>[0]);
+            break;
+          }
+          case "mill_strategy_list": {
+            const { millingStrategyLibraryEngine } = await import("../../engines/MillingStrategyLibraryEngine.js");
+            result = { strategies: millingStrategyLibraryEngine.getAllStrategies() };
+            break;
+          }
+          case "mill_strategy_for_feature": {
+            const { millingStrategyLibraryEngine } = await import("../../engines/MillingStrategyLibraryEngine.js");
+            const featureType = (params as { featureType: string }).featureType;
+            if (typeof featureType !== "string") throw new Error("mill_strategy_for_feature requires 'featureType'");
+            result = {
+              featureType,
+              strategies: millingStrategyLibraryEngine.getStrategiesForFeature(
+                featureType as Parameters<typeof millingStrategyLibraryEngine.getStrategiesForFeature>[0],
+              ),
+            };
             break;
           }
 
