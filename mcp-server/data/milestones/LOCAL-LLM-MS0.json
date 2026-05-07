@@ -1,0 +1,114 @@
+{
+  "id": "LOCAL-LLM-MS0",
+  "title": "Local LLM Hook Migration — Ollama-Powered Advisory Hooks",
+  "track": "LOCAL-LLM",
+  "status": "complete",
+  "version": "1.0.0",
+  "created_at": "2026-04-26",
+  "priority": "HIGH",
+  "description": "Migrate advisory hooks from Claude API consumption to local Ollama inference. Reduces hook overhead from ~1200 tokens/edit to ~0 by using local regex validation and Ollama for intelligent suggestions. Leverages existing OllamaTaskOffloaderEngine and LocalValidationEngine infrastructure.",
+  "goals": [
+    "Eliminate API token consumption from advisory hooks (targeting 80-95% reduction)",
+    "Replace 6 validation hooks with unified local regex validation",
+    "Create Ollama bridge for context-injection hooks requiring intelligence",
+    "Maintain hook functionality while removing Claude API dependency"
+  ],
+  "total_units": 4,
+  "schemaVersion": 2,
+  "target_omega": 1,
+  "leverages": [
+    "OllamaTaskOffloaderEngine",
+    "LocalValidationEngine",
+    "LocalHookAggregatorEngine",
+    "LocalAwarenessRouterEngine"
+  ],
+  "dispatcher_target": "prism_dev",
+  "units": [
+    {
+      "id": "U-HOOK-MIGRATE",
+      "title": "Unified Local Validation Hook — Replace 6 Validation Hooks",
+      "status": "complete",
+      "description": "Created unified-local-validation.mjs hook that replaces 6 disabled advisory hooks (naming-convention-enforcer, complexity-gate, type-safety-checker, magic-number-detector, async-pattern-checker, performance-pattern-detector) with local regex validation. Zero API tokens consumed.",
+      "deliverables": [
+        ".claude/hooks/unified-local-validation.mjs",
+        "Wired to settings.json PreToolUse Edit|Write|MultiEdit matcher"
+      ],
+      "dependencies": [],
+      "estimated_effort": "1 session",
+      "acceptance_criteria": [
+        "Hook fires on Edit/Write/MultiEdit",
+        "Performs naming, complexity, type, magic number, async, and performance checks",
+        "Zero API token consumption (pure regex)",
+        "Advisory output only (does not block)"
+      ]
+    },
+    {
+      "id": "U-OLLAMA-BRIDGE",
+      "title": "OllamaHookBridgeEngine — Hook-to-Ollama Communication Layer",
+      "status": "complete",
+      "description": "Create bridge engine enabling hooks to call Ollama for intelligent suggestions. Handles connection pooling, timeout management, and fallback to no-op when Ollama unavailable. Used by context-injection hooks that need LLM intelligence.",
+      "deliverables": [
+        "src/engines/OllamaHookBridgeEngine.ts",
+        "src/__tests__/OllamaHookBridgeEngine.test.ts",
+        "Wire 3 actions to prism_dev: ollama_hook_query, ollama_hook_status, ollama_hook_config"
+      ],
+      "dependencies": ["U-HOOK-MIGRATE"],
+      "estimated_effort": "1 session",
+      "acceptance_criteria": [
+        "Synchronous query with 500ms timeout for hook use",
+        "Connection health check before queries",
+        "Graceful fallback when Ollama unavailable",
+        "Configurable model selection per hook type"
+      ]
+    },
+    {
+      "id": "U-CONTEXT-HOOKS",
+      "title": "Context Hook Migration — Ollama-Powered Suggestions",
+      "status": "complete",
+      "description": "Migrate 2 registered context-injection hooks (grep-index-first, mcp-route-suggest) to use OllamaHookBridge instead of consuming Claude API tokens. Hooks provide intelligent suggestions using local inference.",
+      "deliverables": [
+        "Update .claude/hooks/grep-index-first.mjs to use Ollama bridge",
+        "Update .claude/hooks/mcp-route-suggest.mjs to use Ollama bridge",
+        "Remove DISABLED_TOKEN_REDUX marker from migrated hooks"
+      ],
+      "dependencies": ["U-OLLAMA-BRIDGE"],
+      "estimated_effort": "1 session",
+      "acceptance_criteria": [
+        "grep-index-first provides index suggestions via Ollama",
+        "mcp-route-suggest provides route suggestions via Ollama",
+        "Both hooks function when Ollama unavailable (silent no-op)",
+        "Zero Claude API token consumption"
+      ]
+    },
+    {
+      "id": "U-CLEANUP",
+      "title": "Hook Cleanup — Remove Disabled Markers and Dead Code",
+      "status": "complete",
+      "description": "Remove DISABLED_TOKEN_REDUX markers from all migrated hooks. Clean up hooks that are fully replaced (not registered, functionality covered by unified hook). Update hook registry documentation.",
+      "deliverables": [
+        "Remove disabled markers from 17 hooks",
+        "Delete or archive fully-replaced hook files",
+        "Update .claude/hooks/README.md with migration status",
+        "Update PRISM-INVENTORY-LATEST.md with new hook counts"
+      ],
+      "dependencies": ["U-CONTEXT-HOOKS"],
+      "estimated_effort": "0.5 session",
+      "acceptance_criteria": [
+        "No DISABLED_TOKEN_REDUX markers remain",
+        "Hook count in inventory reflects actual active hooks",
+        "README documents which hooks use local vs API inference"
+      ]
+    }
+  ],
+  "integration_notes": {
+    "dispatcher": "prism_dev",
+    "action_prefix": "ollama_hook_*",
+    "schema_file": "src/schemas/devActionSchemas.ts",
+    "existing_engines_to_leverage": [
+      "OllamaTaskOffloaderEngine — task classification and model selection",
+      "LocalValidationEngine — regex-based code validation rules",
+      "LocalHookAggregatorEngine — hook result aggregation",
+      "TokenEconomyTrackerEngine — token savings measurement"
+    ]
+  }
+}
