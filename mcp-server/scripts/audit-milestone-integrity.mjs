@@ -81,9 +81,16 @@ export function flattenUnits(milestone) {
 }
 
 /**
- * Parse `git log --oneline --all` output for a specific milestone.
- * Matches commits whose subject contains `[<milestoneId>]/<UNIT-ID>:`.
- * Returns Map<unitId, sha> using the FIRST (most recent) match per unit.
+ * Parse `git log --oneline --all` for commits attributed to this milestone.
+ * Matches subject formats observed in PRISM history:
+ *   `<sha> [MS]/UNIT: ...`              — current preferred
+ *   `<sha> MS/UNIT: ...`                — older bracketless form
+ *   `<sha> [MS]/UNIT1+UNIT2+UNIT3: ...` — multi-unit ship
+ *   `<sha> [MS]/PX-U01..U05: ...`       — range form (inclusive expand)
+ *
+ * Each unit ID extracted gets the FIRST (most recent) commit. Suffixes
+ * `-fix`, `-test-tighten<N>`, `-close`, `-amend`, `-patch<N>`, `-rev<N>`
+ * are stripped — those are follow-on commits, not separate units.
  */
 export function parseGitLogForUnits(log, milestoneId) {
   const map = new Map();
@@ -91,18 +98,64 @@ export function parseGitLogForUnits(log, milestoneId) {
     return map;
   }
   const escaped = milestoneId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(`^([0-9a-f]{6,40})\\s+.*\\[${escaped}\\]/([A-Z0-9_-]+):`, "i");
+  // Capture the token block between `[MS]/` (or bare `MS/`) and the first `:`.
+  const re = new RegExp(`^([0-9a-f]{6,40})\\s+.*?\\[?${escaped}\\]?/([A-Z0-9_+\\-.]+):`, "i");
   for (const line of log.split(/\r?\n/)) {
     const m = line.match(re);
     if (!m) continue;
     const sha = m[1];
-    let unitId = m[2];
-    // Strip trailing -fix / -test-tighten / -close suffixes — those are
-    // amend-style follow-ons to the same unit, not separate units.
-    unitId = unitId.replace(/-(fix|test-tighten\d*|close|amend|patch\d*|rev\d*)$/i, "");
-    if (!map.has(unitId)) map.set(unitId, sha);
+    for (const tok of expandUnitTokens(m[2])) {
+      const unitId = tok.replace(/-(fix|test-tighten\d*|close|amend|patch\d*|rev\d*)$/i, "");
+      if (unitId.length > 0 && !map.has(unitId)) map.set(unitId, sha);
+    }
   }
   return map;
+}
+
+/**
+ * Expand a unit-token block from a commit subject into the full set of
+ * unit ids it covers. Handles single, sticky-phase '+', range '..', and
+ * combinations. Phase prefix is sticky across `+` chains.
+ *
+ * Examples:
+ *   "P5-U01"               → ["P5-U01"]
+ *   "P5-U01+U02+U03"       → ["P5-U01", "P5-U02", "P5-U03"]
+ *   "P5-U01..U05"          → ["P5-U01", "P5-U02", "P5-U03", "P5-U04", "P5-U05"]
+ *   "P5-U01..U05+P6-U03"   → P5-U01..P5-U05 + P6-U03
+ *   "P9-U02+P9-U03+P22-U01"→ ["P9-U02","P9-U03","P22-U01"]
+ */
+export function expandUnitTokens(tokenBlock) {
+  if (typeof tokenBlock !== "string" || tokenBlock.length === 0) return [];
+  const out = [];
+  let lastPhase = "";
+  for (const piece of tokenBlock.split("+")) {
+    if (piece.length === 0) continue;
+    const rangeMatch = piece.match(/^(?:(P\d+)-)?(U\d+)\.\.(U\d+)$/i);
+    if (rangeMatch) {
+      const phase = rangeMatch[1] ?? lastPhase;
+      if (!phase) continue;
+      lastPhase = phase;
+      const startNum = parseInt(rangeMatch[2].slice(1), 10);
+      const endNum = parseInt(rangeMatch[3].slice(1), 10);
+      if (Number.isFinite(startNum) && Number.isFinite(endNum) && endNum >= startNum && (endNum - startNum) < 50) {
+        for (let n = startNum; n <= endNum; n++) {
+          out.push(`${phase}-U${String(n).padStart(2, "0")}`);
+        }
+      }
+      continue;
+    }
+    const fullMatch = piece.match(/^(P\d+)-(U\d+[A-Za-z0-9_-]*)$/);
+    if (fullMatch) {
+      lastPhase = fullMatch[1];
+      out.push(`${fullMatch[1]}-${fullMatch[2]}`);
+      continue;
+    }
+    const stickyMatch = piece.match(/^(U\d+[A-Za-z0-9_-]*)$/);
+    if (stickyMatch && lastPhase) {
+      out.push(`${lastPhase}-${stickyMatch[1]}`);
+    }
+  }
+  return out;
 }
 
 /**
