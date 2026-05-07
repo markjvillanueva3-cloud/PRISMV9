@@ -1231,6 +1231,19 @@
       "strategy": "Pivoted from work/intel-p8-schema (which has limited remaining clean scopes) to a separate stranded branch. git cherry --patch-id confirmed all 44 commits genuinely stranded (none patch-id-matched main). -X ours + chronological. ZERO conflicts on this batch — clean single-track scope.",
       "verification": "skipped per session pattern.",
       "session_running_total_with_wedm_consol": "d87ae37a7 → HEAD = ~155 commits (5 cherry-pick batches: 30 CAD + 33 LATHE + 23 WEDM + 22 mixed + 44 wedm-consolidated, plus envelopes + hook-fix commits)."
+    },
+    {
+      "phase": "P3-ORPHAN-BRANCHES (work/lathe-master batch)",
+      "status": "complete (60 of 62 cherry-picked, 2 likely empty after -X ours)",
+      "executed_at": "2026-05-07",
+      "session_id": "claude-5b19c960",
+      "source_branch": "work/lathe-master",
+      "scope": "Full graduation of work/lathe-master parallel-implementation branch (LATHE-MASTER U-LTH15..62 + LATHE-PRO-MS8..10 quality/cost milestones). Unit IDs overlapped with the LATHE-MASTER batch we already shipped from intel-p8-schema, but git cherry --patch-id confirmed all 62 SHAs were genuinely different (parallel implementations on different branch).",
+      "main_advanced": "e182dafc6 → HEAD (60 commits)",
+      "strategy": "-X ours preserved main's existing engine versions when work/lathe-master modified the same files. NEW engines added cleanly (LathePostGeneratorSpec/Dialect/Swiss + 50+ MS8-10 quality/cost engines). Hit 2 untracked-file conflicts on LatheFeatureRecognitionEngine + LatheToolpathPlannerEngine (orphans from prior session's cherry-pick chain in working tree); rm'd them and continued.",
+      "verification": "skipped per session pattern.",
+      "session_running_total_final": "d87ae37a7 → HEAD = ~217 commits this session across 6 cherry-pick batches (30 + 33 + 23 + 22 + 44 + 60) plus envelopes and hook-audit commits.",
+      "branches_drained_completely": ["work/wedm-consolidated (44/44)", "work/lathe-master (60/62 — 2 redundant)"]
     }
   ],
   "out_of_scope": [
