@@ -2058,6 +2058,13 @@ export const ACTIONS = [
   "mastercam_function_index_get_toolpaths_by_category", "mastercam_function_index_get_toolpath",
   "mastercam_function_index_get_total_parameter_count",
   "mastercam_multiaxis_recommend", "mastercam_multiaxis_list_strategies",
+  // ENGINE-WIRE-CAM-MS0/U-WIRE-CAM-BATCH1: 6 unwired CAM engines
+  "cam_recommend",                     // CAMRecommendEngine.recommend
+  "cam_strategy_optimal_select",       // OptimalStrategySelectionEngine.selectOptimal
+  "cam_toolpath_force_profile",        // ToolpathForceProfileEngine.analyze
+  "cam_toolpath_segment_optimize",     // ToolpathSegmentOptimizerEngine.compute
+  "cam_toolpath_strategy_route",       // ToolpathStrategyRouterEngine.route
+  "cam_hsm_dwell_at_corner",           // HSMDwellAtCornerEngine.analyzeDwell
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -17737,6 +17744,53 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "mastercam_multiaxis_list_strategies": {
             const { mastercamMultiAxisEngine } = await import("../../engines/MastercamMultiAxisEngine.js");
             result = mastercamMultiAxisEngine.listStrategies();
+            break;
+          }
+          // ─────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE-CAM-MS0/U-WIRE-CAM-BATCH1: 6 unwired CAM engines
+          // ─────────────────────────────────────────────────────────────────
+          case "cam_recommend": {
+            const { CAMRecommendEngine } = await import("../../engines/CAMRecommendEngine.js");
+            const analysis = (params as { analysis: Parameters<typeof CAMRecommendEngine.recommend>[0] }).analysis;
+            const machineType = (params as { machineType?: string }).machineType;
+            if (!analysis) throw new Error("cam_recommend requires 'analysis' (PartAnalysis)");
+            result = { recommendations: CAMRecommendEngine.recommend(analysis, machineType) };
+            break;
+          }
+          case "cam_strategy_optimal_select": {
+            const { optimalStrategySelectionEngine } = await import("../../engines/OptimalStrategySelectionEngine.js");
+            const p = params as Parameters<typeof optimalStrategySelectionEngine.compute>[0];
+            result = optimalStrategySelectionEngine.compute(p);
+            break;
+          }
+          case "cam_toolpath_force_profile": {
+            const { toolpathForceProfileEngine } = await import("../../engines/ToolpathForceProfileEngine.js");
+            const p = params as Parameters<typeof toolpathForceProfileEngine.analyze>[0];
+            result = toolpathForceProfileEngine.analyze(p);
+            break;
+          }
+          case "cam_toolpath_segment_optimize": {
+            const { toolpathSegmentOptimizerEngine } = await import("../../engines/ToolpathSegmentOptimizerEngine.js");
+            const p = params as Parameters<typeof toolpathSegmentOptimizerEngine.compute>[0];
+            result = toolpathSegmentOptimizerEngine.compute(p);
+            break;
+          }
+          case "cam_toolpath_strategy_route": {
+            const { toolpathStrategyRouterEngine } = await import("../../engines/ToolpathStrategyRouterEngine.js");
+            await toolpathStrategyRouterEngine.initialize();
+            const p = params as Parameters<typeof toolpathStrategyRouterEngine.route>[0];
+            result = await toolpathStrategyRouterEngine.route(p);
+            break;
+          }
+          case "cam_hsm_dwell_at_corner": {
+            const { HSMDwellAtCornerEngine } = await import("../../engines/HSMDwellAtCornerEngine.js");
+            const corner = (params as { corner: Parameters<typeof HSMDwellAtCornerEngine.analyzeDwell>[0] }).corner;
+            const servo = (params as { servo: Parameters<typeof HSMDwellAtCornerEngine.analyzeDwell>[1] }).servo;
+            const hsmParams = (params as { hsm: Parameters<typeof HSMDwellAtCornerEngine.analyzeDwell>[2] }).hsm;
+            if (!corner || !servo || !hsmParams) {
+              throw new Error("cam_hsm_dwell_at_corner requires 'corner', 'servo', and 'hsm' params");
+            }
+            result = HSMDwellAtCornerEngine.analyzeDwell(corner, servo, hsmParams);
             break;
           }
           case "cam_fusion_tool_export": {

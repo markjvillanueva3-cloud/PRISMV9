@@ -279,4 +279,30 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     operations: z.array(z.any()).min(1).describe("Operations array (schema validated by routed engine)"),
     config: z.record(z.string(), z.any()).optional().describe("Config object (schema validated by routed engine)"),
   }),
+
+  // ENGINE-WIRE-CAM-MS0/U-WIRE-CAM-BATCH1: 6 unwired CAM engines
+  cam_recommend: z.object({
+    analysis: z.record(z.string(), z.unknown()).describe("PartAnalysis object — see CAMRecommendEngine"),
+    machineType: z.string().optional().describe("Optional machine type ('mill', 'lathe', etc.)"),
+  }).passthrough(),
+  cam_strategy_optimal_select: z.object({}).passthrough().describe(
+    "Forwarded to OptimalStrategySelectionEngine.selectOptimal — see engine for shape",
+  ),
+  cam_toolpath_force_profile: z.object({
+    segments: z.array(z.unknown()).min(1).describe("Toolpath segments to analyze"),
+  }).passthrough(),
+  cam_toolpath_segment_optimize: z.object({
+    segments: z.array(z.unknown()).min(1).describe("Toolpath segments"),
+    constraints: z.unknown().optional().describe("Optional optimization constraints"),
+  }).passthrough(),
+  cam_toolpath_strategy_route: z.object({
+    material: z.string().optional().describe("Material name"),
+    operation: z.string().optional().describe("Operation type"),
+    priority: z.enum(["speed", "quality", "tool_life", "cost"]).optional().describe("Optimization priority"),
+  }).passthrough(),
+  cam_hsm_dwell_at_corner: z.object({
+    corner: z.record(z.string(), z.unknown()).describe("CornerGeometry object"),
+    servo: z.record(z.string(), z.unknown()).describe("MachineServo object"),
+    hsm: z.record(z.string(), z.unknown()).describe("HSMParameters object"),
+  }).passthrough(),
 };
