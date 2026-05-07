@@ -1,7 +1,7 @@
 # PRISM Complete Asset Inventory
-**Generated:** 2026-05-06
-**Updated:** 2026-05-06T12:42:14.789Z
-**Source:** live scan (152ms) — via scripts/update-prism-inventory.mjs
+**Generated:** 2026-05-07
+**Updated:** 2026-05-07T01:03:56.264Z
+**Source:** live scan (45ms) — via scripts/update-prism-inventory.mjs
 
 > This file is auto-generated. Edit `scripts/update-prism-inventory.mjs` to
 > change counts or categories. Values labeled **(baseline)** come from
@@ -11,15 +11,15 @@
 
 | Category | Count | Source |
 |----------|-------|--------|
-| **Engines** | 3098 | live: `src/engines/*.ts` |
-| **Dispatchers** | 95 | live: `src/tools/dispatchers/*.ts` |
-| **Actions** | 7113 | live: `z.enum` count across dispatchers |
+| **Engines** | 3146 | live: `src/engines/*.ts` |
+| **Dispatchers** | 96 | live: `src/tools/dispatchers/*.ts` |
+| **Actions** | 7042 | live: `z.enum` count across dispatchers |
 | **Algorithms** | 53 | live: `src/algorithms/*.ts` |
 | **Registries** | 26 | live: `src/registries/*.ts` |
-| **Tests** | 3251 | live: `src/__tests__/**/*.test.ts` |
+| **Tests** | 3303 | live: `src/__tests__/**/*.test.ts` |
 | **Source Hooks** | 54 | live: `src/hooks/**/*.ts` |
-| **Claude Hooks** | 426 | live: `.claude/hooks/**/*.mjs` |
-| **Scripts** | 440 | live: `scripts/` + `mcp-server/scripts/` |
+| **Claude Hooks** | 428 | live: `.claude/hooks/**/*.mjs` |
+| **Scripts** | 453 | live: `scripts/` + `mcp-server/scripts/` |
 | **Slash Commands (local)** | 236 | live: `.claude/commands/` |
 | **Slash Commands (user)** | 361 | live: `~/.claude/commands/` |
 | **Migrations** | 1 | live: `src/migrations/*.ts` |
@@ -37,16 +37,16 @@
 ## Live Scan Detail
 
 ```
-scan duration: 152ms
-engines:              3098
-dispatchers:            95
-actions (z.enum):     7113
+scan duration: 45ms
+engines:              3146
+dispatchers:            96
+actions (z.enum):     7042
 algorithms:             53
 registries:             26
-tests:                3251
+tests:                3303
 source hooks:           54
-claude hooks:          426
-scripts:               440
+claude hooks:          428
+scripts:               453
 slash cmds (local):    236
 slash cmds (user):     361
 migrations:              1
