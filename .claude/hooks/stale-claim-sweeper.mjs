@@ -82,6 +82,7 @@ const CHAT_BUS_MSG_TTL_MS = 60 * 60 * 1000;     // 1 hour — inject only shows 
 const CHAT_BUS_CLAIM_TTL_MS = 30 * 60 * 1000;   // 30 min — chat-bus claim TTL is 15-30min
 const TASK_OUTPUT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hour — background bash .output files
 const NODE_HOOK_MAX_AGE_MS = 5 * 60 * 1000;     // 5 min — hooks should finish in <30s
+const NODE_HOOK_HARD_KILL_AGE_MS = 15 * 60 * 1000; // 15 min — kill regardless of parent_alive (wedged-hook protection)
 const ATOMIC_TMP_TTL_MS = 5 * 60 * 1000;        // 5 min — atomic writes complete in <1s; stale = crashed chat
 
 function log(msg) {
@@ -442,8 +443,14 @@ export function sweepZombieNodeHooks() {
   const candidates = getZombieNodeHooks();
   let swept = 0;
   for (const c of candidates) {
-    // Only kill orphans (parent dead) — protects hooks of active claude.exe sessions
-    if (c.parent_alive) continue;
+    // Default: kill only if parent dead (protects active session hooks).
+    // Escalation: if hook has been alive past NODE_HOOK_HARD_KILL_AGE_MS,
+    // it's wedged regardless of parent state — every hook is supposed to
+    // self-exit in <30s. This guard catches stuck mcp-http-bridge.mjs,
+    // PostToolUse cascades, and other zombies whose parent claude.exe is
+    // still running but who themselves are dead-locked.
+    const hardKill = c.age_ms > NODE_HOOK_HARD_KILL_AGE_MS;
+    if (c.parent_alive && !hardKill) continue;
     try {
       execFileSync("taskkill", ["/F", "/PID", String(c.pid)], { timeout: 2000, windowsHide: true, stdio: "ignore" });
       swept++;
