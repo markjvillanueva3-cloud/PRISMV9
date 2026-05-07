@@ -189,10 +189,11 @@ describe("P21-U02 formatFrontmatter", () => {
     ].join("\n");
     expect(formatFrontmatter(meta)).toBe(expected);
   });
-  it("escapes embedded double-quotes in string fields", () => {
+  it("escapes embedded double-quotes in string fields (exact line by index)", () => {
     const fm = formatFrontmatter({ ...meta, filename: 'a "b".pdf' });
-    // Exact line match — ensures escape pattern is `\"` and not e.g. doubled-up.
-    expect(fm.split("\n")).toContain('filename: "a \\"b\\".pdf"');
+    // The filename line is line index 2 in the YAML block (0=---, 1=source, 2=filename).
+    // Use index access + toBe for exact line equality, not array membership.
+    expect(fm.split("\n")[2]).toBe('filename: "a \\"b\\".pdf"');
   });
 });
 
@@ -258,7 +259,7 @@ describe("P21-U02 v1 helpers preserved", () => {
   it("extractCuttingParams parses speed and feed exactly once each", () => {
     const text = "Cutting speed: 250 m/min\nFeed rate: 0.15 mm/rev";
     const params = extractCuttingParams(text);
-    expect(params).toHaveLength(2);
+    expect(params.length).toBe(2);
     expect(params[0].speed).toBe("250 m/min");
     expect(params[1].feed).toBe("0.15 mm/rev");
     // Each line yields exactly one parameter — second line has no speed
@@ -275,7 +276,7 @@ describe("P21-U02 v1 helpers preserved", () => {
     const text =
       "procedure:\n1. First do this thing carefully\n2. Then do that other step properly\n3. Finally inspect the work surface\n\nNext section.";
     const procs = extractProcedures(text);
-    expect(procs).toHaveLength(1);
+    expect(procs.length).toBe(1);
     expect(procs[0].steps).toEqual([
       "First do this thing carefully",
       "Then do that other step properly",
