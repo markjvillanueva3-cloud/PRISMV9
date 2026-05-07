@@ -1,7 +1,19 @@
 /**
- * PRISM MCP Server - Engines Index v13
- * Re-exports 150 active calculation, orchestration, and infrastructure engines
- * Updated: 2026-03-03 audit — 218 total .ts files, 150 exported, 68 unwired on disk
+ * PRISM MCP Server — engines barrel (intentionally empty)
+ *
+ * The previous 7,000-line re-export barrel produced 359 duplicate-identifier
+ * errors under strict type-check because multiple engine modules legitimately
+ * export same-named types (Vector3, AABB, CollisionResult, ToolMaterial,
+ * SpeedFeedInput, etc.).
+ *
+ * A grep of the full tree shows zero files import from `../engines` or
+ * `../../engines` as a module — all engine consumers use direct paths like
+ * `../../engines/KienzleForceEngine.js`. The barrel is therefore dead code
+ * and is cleared here to unblock strict compilation.
+ *
+ * If a future caller needs re-exports from this barrel, add them explicitly
+ * and alias conflicting type names, e.g.:
+ *   export type { Vector3 as GeomVector3 } from "./GeometryEngine.js";
  */
 
 // Manufacturing Calculations (Kienzle, Taylor, Johnson-Cook, etc.)
@@ -3200,6 +3212,14 @@ export { ColumnBucklingEngine, columnBucklingEngine } from './ColumnBucklingEngi
 export { FlatPatternEngine, flatPatternEngine } from './FlatPatternEngine.js';
 
 export { masterPostProcessorEngine, MasterPostProcessorEngine } from "./MasterPostProcessorEngine.js";
+export { latheMasterPostRouterEngine } from "./LatheMasterPostRouterEngine.js";
+export { latheMasterPostUnifiedOutputEngine } from "./LatheMasterPostUnifiedOutputEngine.js";
+export { latheMasterPostSelfAwarenessEngine } from "./LatheMasterPostSelfAwarenessEngine.js";
+export { latheMasterPostDeepReasoningEngine } from "./LatheMasterPostDeepReasoningEngine.js";
+export { latheMasterPostEnsembleCrossCheckEngine } from "./LatheMasterPostEnsembleCrossCheckEngine.js";
+export { latheMasterPostAPIEngine, LATHE_MASTERPOST_ACTIONS } from "./LatheMasterPostAPIEngine.js";
+export { latheMasterPostRegressionMatrixEngine } from "./LatheMasterPostRegressionMatrixEngine.js";
+export { lathePrintIngestPipelineEngine } from "./LathePrintIngestPipelineEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
@@ -5366,6 +5386,9 @@ export { ContactMechanicsSurfaceEngine, type MaterialProps, type HertzContactRes
 export { CurriculumEngine, type Course, type Module, type LessonContent, type Quiz, type Question, type QuestionOption, type DecisionNode, type StudentProgress, type CourseProgress, type QuizScore, type ReviewItem, type ContentType, type QuestionType } from './CurriculumEngine.js';
 export { DXFGeometryParserEngine, dxfGeometryParserEngine, type LineSegment, type ArcSegment, type WireEDMContour, type GeometryIssue, type GeometryParseResult, type GeometrySegment } from './DXFGeometryParserEngine.js';
 export { wedmPostDialectRouterEngine, WEDMPostDialectRouterEngine, type WEDMController, type WEDMPostInput, type WEDMPostOutput, type WEDMOperation as WEDMPostOperation } from './WEDMPostDialectRouterEngine.js';
+export { wedmWirePathCollisionEngine, WEDMWirePathCollisionEngine, type Point3D as WEDMCollisionPoint3D, type AABB as WEDMCollisionAABB, type WirePathPoint, type WirePath as WEDMWirePath, type MachineGeometry as WEDMMachineGeometry, type Obstacle as WEDMCollisionObstacle, type CollisionCheckInput as WEDMCollisionCheckInput, type CollisionEvent as WEDMCollisionEvent, type CollisionCheckResult as WEDMCollisionCheckResult } from './WEDMWirePathCollisionEngine.js';
+export { wedmProgramVerificationEngine, WEDMProgramVerificationEngine, type VerificationStatus as WEDMVerificationStatus, type PostOutputSummary as WEDMPostOutputSummary, type CollisionResultSummary as WEDMCollisionResultSummary, type SafetyEnvelopeSummary as WEDMSafetyEnvelopeSummary, type CapabilityManifestSummary as WEDMCapabilityManifestSummary, type VerificationInput as WEDMVerificationInput, type VerificationCheck as WEDMVerificationCheck, type VerificationResult as WEDMVerificationResult } from './WEDMProgramVerificationEngine.js';
+export { wedmPreFlightCheckEngine, WEDMPreFlightCheckEngine, type PreFlightInput as WEDMPreFlightInput, type PreFlightResult as WEDMPreFlightResult, type PreFlightCheckItem as WEDMPreFlightCheckItem, type CheckSeverity as WEDMPreFlightSeverity, type CheckCategory as WEDMPreFlightCategory } from './WEDMPreFlightCheckEngine.js';
 export { FinishTargetAdvisorEngine, finishTargetAdvisorEngine, type FinishTargetInput, type FinishTargetResult, type FinishOperation, type CoolantStrategy as FinishCoolantStrategy } from './FinishTargetAdvisorEngine.js';
 export { HaasParserEngine, haasParserEngine, type HaasProgram, type HaasToolSection, type HaasOperation, type HaasMacroVariable, type HaasSubCall, type HaasSafetyInfo } from './HaasParserEngine.js';
 export { HoningProcessEngine, honingProcessEngine, type HoningDesignInput, type HoningDesignResult, type StoneSelectionInput, type StoneSelectionResult, type PlateauHoningInput, type PlateauHoningStageParams, type PlateauHoningResult, type StoneType } from './HoningProcessEngine.js';
@@ -5496,6 +5519,11 @@ export { WEDMBatchProgramAnalyzerEngine, wedmBatchProgramAnalyzerEngine, type WE
 export { WEDMProgramSafetyGateEngine, wedmProgramSafetyGateEngine, type SafetyGateInput, type SafetyGateResult, type SafetyComponentScore, type SafetyComponent } from './WEDMProgramSafetyGateEngine.js';
 export { WEDMProgramVerificationEngine, wedmProgramVerificationEngine, type VerificationInput, type VerificationResult, type VerificationCheck, type ControllerDialect } from './WEDMProgramVerificationEngine.js';
 export { WEDMWirePathCollisionEngine, wedmWirePathCollisionEngine, type CollisionInput, type CollisionResult, type CollisionEvent, type SweptVolume } from './WEDMWirePathCollisionEngine.js';
+export { WEDMUnitTagGateEngine, wedmUnitTagGateEngine, type UnitTagInput, type UnitTagResult, type UnitMismatch, type DeclaredUnit, type AtomicValue } from './WEDMUnitTagGateEngine.js';
+export { WEDMHeadClearanceGateEngine, wedmHeadClearanceGateEngine, type HeadClearanceGateInput, type HeadClearanceGateResult } from './WEDMHeadClearanceGateEngine.js';
+export { WEDMFlushAdequacyGateEngine, wedmFlushAdequacyGateEngine, type FlushingInput, type FlushingGateResult, type FlushingMode, type ThicknessBand } from './WEDMFlushAdequacyGateEngine.js';
+export { WEDMThermalReleaseGateEngine, wedmThermalReleaseGateEngine, type ThermalInput, type ThermalGateResult, type EDMMaterial, type MaterialThermalProps } from './WEDMThermalReleaseGateEngine.js';
+export { WEDMControllerDialectVerifierEngine, wedmControllerDialectVerifierEngine, type DialectInput, type DialectGateResult, type CodeViolation, type WEDMController as DialectWEDMController } from './WEDMControllerDialectVerifierEngine.js';
 
 // --- BOX-MS7: Calculator Page — Program Upload + Tool Callout + Auto S/F ---
 export { ProgramUploadAnalyzerEngine, programUploadAnalyzerEngine, type DetectedDialect, type UploadAnalysisResult, type AnalyzedTool, type AnalyzedOperation, type SpeedFeedEntry, type CycleStructure, type ProgramHints } from './ProgramUploadAnalyzerEngine.js';

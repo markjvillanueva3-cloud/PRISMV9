@@ -32,6 +32,7 @@ import {
   type PassType as PublishedPassType,
 } from "../data/wedm-published-conditions.js";
 import { EDM_PHYSICS } from "../physics/constants.js";
+import { klockeRa, getRaCoefficients } from "./utils/klockeRa.js";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -557,22 +558,23 @@ class EDMCuttingParamFlushEngine {
     };
   }
 
-  /** Resolve Klocke Ra model coefficients for a material, from EDM_PHYSICS canonical source */
+  /** Resolve Klocke Ra model coefficients for a material via shared utility (U-W100-03b) */
   private resolveRaModel(material: string): { k_ra: number; alpha: number; beta: number } {
     const group = resolveMaterialGroup(material);
-    const models = EDM_PHYSICS.klocke.ra_models;
-    const pick = (m: typeof models[keyof typeof models]) =>
-      ({ k_ra: m.k_ra as number, alpha: m.alpha as number, beta: m.beta as number });
-
-    if (group === "low_carbon_steel" || group === "hardened_steel") return pick(models.steel);
-    if (group === "tool_steel") return pick(models.tool_steel);
-    if (group === "stainless_steel") return pick(models.stainless);
-    if (group === "aluminum") return pick(models.aluminum);
-    if (group === "tungsten_carbide") return pick(models.carbide);
-    if (group === "titanium") return pick(models.titanium);
-    if (group === "inconel") return pick(models.inconel);
-    if (group === "copper") return pick(models.copper);
-    return pick(models.steel); // default for unmapped
+    // Map EDMMaterialGroup to klockeRa category
+    const categoryMap: Record<string, string> = {
+      low_carbon_steel: "tool_steel",
+      hardened_steel: "tool_steel",
+      tool_steel: "tool_steel",
+      stainless_steel: "stainless",
+      aluminum: "aluminum",
+      tungsten_carbide: "carbide",
+      titanium: "titanium",
+      inconel: "inconel",
+      copper: "copper",
+    };
+    const category = categoryMap[group] ?? "tool_steel";
+    return getRaCoefficients(category);
   }
 
   // --------------------------------------------------------------------------
@@ -714,7 +716,7 @@ class EDMCuttingParamFlushEngine {
 
     // Crater geometry (DiBitonto model, simplified)
     // d_c = K1 × E^(1/3), E in mJ → d_c in μm
-    const K1 = 4.8; // empirical constant for metallic workpiece
+    const K1 = EDM_PHYSICS.dibitonto.K1_um_per_mJ_third;
     const craterDiam_um = K1 * Math.pow(E_mj, 1 / 3);
 
     // Crater depth: h_c = K2 × E^(1/3) / sqrt(k), k in W/mK
@@ -1278,32 +1280,22 @@ class EDMCuttingParamFlushEngine {
   // --------------------------------------------------------------------------
 
   private estimateRa(t_on_us: number, I_p_A: number, mat: MaterialEDMProps): number {
-    // Klocke canonical: Ra = k_ra × I_p^alpha × t_on^beta [µm]
-    // Source: Klocke (2013) "Manufacturing Processes 4", Table 8.3
-    // Uses material-specific coefficients from EDM_PHYSICS
-    const models = EDM_PHYSICS.klocke.ra_models;
-    // Map MaterialEDMProps to Klocke model via thermal/electrical properties
-    let k_ra: number = models.steel.k_ra;
-    let alpha: number = models.steel.alpha;
-    let beta: number = models.steel.beta;
+    // Klocke canonical via shared utility (U-W100-03b)
+    // Map MaterialEDMProps to material category via thermal/electrical properties
+    const category = this.mapPropsToMaterialCategory(mat);
+    return klockeRa(I_p_A, t_on_us, category);
+  }
 
-    if (mat.melting_point_C > 2500) {
-      k_ra = models.carbide.k_ra; alpha = models.carbide.alpha; beta = models.carbide.beta;
-    } else if (mat.thermal_conductivity_W_mK > 300) {
-      k_ra = models.copper.k_ra; alpha = models.copper.alpha; beta = models.copper.beta;
-    } else if (mat.thermal_conductivity_W_mK > 150) {
-      k_ra = models.aluminum.k_ra; alpha = models.aluminum.alpha; beta = models.aluminum.beta;
-    } else if (mat.electrical_resistivity_uOhm_cm > 90) {
-      k_ra = models.inconel.k_ra; alpha = models.inconel.alpha; beta = models.inconel.beta;
-    } else if (mat.electrical_resistivity_uOhm_cm > 60) {
-      k_ra = models.stainless.k_ra; alpha = models.stainless.alpha; beta = models.stainless.beta;
-    } else if (mat.melting_point_C > 1600) {
-      k_ra = models.titanium.k_ra; alpha = models.titanium.alpha; beta = models.titanium.beta;
-    } else if (mat.machinability_index < 0.95 && mat.melting_point_C > 1400) {
-      k_ra = models.tool_steel.k_ra; alpha = models.tool_steel.alpha; beta = models.tool_steel.beta;
-    }
-
-    return k_ra * Math.pow(I_p_A, alpha) * Math.pow(t_on_us, beta);
+  /** Map MaterialEDMProps to klockeRa material category via physical properties */
+  private mapPropsToMaterialCategory(mat: MaterialEDMProps): string {
+    if (mat.melting_point_C > 2500) return "carbide";
+    if (mat.thermal_conductivity_W_mK > 300) return "copper";
+    if (mat.thermal_conductivity_W_mK > 150) return "aluminum";
+    if (mat.electrical_resistivity_uOhm_cm > 90) return "inconel";
+    if (mat.electrical_resistivity_uOhm_cm > 60) return "stainless";
+    if (mat.melting_point_C > 1600) return "titanium";
+    if (mat.machinability_index < 0.95 && mat.melting_point_C > 1400) return "tool_steel";
+    return "tool_steel"; // default
   }
 
   // --------------------------------------------------------------------------
@@ -1548,122 +1540,9 @@ class EDMCuttingParamFlushEngine {
   // PUBLIC ACTION: calculate_break_recovery
   // ==========================================================================
 
-  /**
-   * Calculate wire break recovery parameters.
-   *
-   * Based on tribal knowledge wedm-kb-003: "re-thread 2-3mm behind break point".
-   * Backup distance is material-dependent:
-   *   - Standard steels: 2.0mm (debris cleared quickly)
-   *   - Carbide/WC: 2.5mm (harder recast, more debris)
-   *   - Titanium: 3.0mm (alpha-case recast, poor gap flushing)
-   *   - Aluminum: 1.5mm (soft material, less debris buildup)
-   *
-   * Power reduction on restart: 20% across current/on-time/feed to avoid
-   * immediate re-break from residual debris in the gap.
-   *
-   * @param breakPosition_mm - Distance along cut path where break occurred
-   * @param passNumber - Which pass (1=rough, 2+=skim). Rough breaks need more backup.
-   * @param material - Material group name for material-dependent adjustments
-   * @param thickness_mm - Workpiece thickness (thicker = more backup needed)
-   * @param wireType - Wire type for wire-specific recovery notes
-   *
-   * Reference: Sodick operation manual (AWT retry), Mitsubishi FA-Series operator guide
-   */
-  calculateBreakRecovery(
-    breakPosition_mm: number,
-    passNumber: number,
-    material: string,
-    thickness_mm: number = 25,
-    wireType: string = "brass_0.25"
-  ): WireBreakRecovery {
-    log.info(`EDMCuttingParamFlushEngine.calculateBreakRecovery: pass=${passNumber} material=${material} thickness=${thickness_mm}mm`);
-
-    // Material-dependent base backup distance (mm)
-    // Source: wedm-kb-003 + Sodick/Mitsubishi operator manuals
-    const materialLower = material.toLowerCase();
-    let baseBackup: number;
-    if (materialLower.includes("titanium") || materialLower.includes("ti-6al") || materialLower.includes("inconel") || materialLower.includes("nickel")) {
-      baseBackup = 3.0; // High-temp alloys: poor flushing, stubborn recast
-    } else if (materialLower.includes("carbide") || materialLower.includes("wc") || materialLower.includes("tungsten")) {
-      baseBackup = 2.5; // Hard materials: more debris, harder recast
-    } else if (materialLower.includes("aluminum") || materialLower.includes("al ") || materialLower.includes("6061") || materialLower.includes("7075")) {
-      baseBackup = 1.5; // Soft material: less debris buildup
-    } else if (materialLower.includes("copper") || materialLower.includes("brass") || materialLower.includes("bronze")) {
-      baseBackup = 1.5; // Good conductivity, clears easily
-    } else {
-      baseBackup = 2.0; // Standard steels (D2, M2, S7, A2, 4140, etc.)
-    }
-
-    // Thickness adjustment: thicker workpieces trap more debris → need more backup
-    // +0.5mm per 50mm of thickness above 25mm baseline
-    const thicknessAdj = Math.max(0, (thickness_mm - 25) / 50) * 0.5;
-
-    // Pass adjustment: rough passes create more debris than skim passes
-    const passAdj = passNumber === 1 ? 0.5 : 0.0;
-
-    // Final backup distance: clamp to [1.5, 5.0] mm range
-    const backup_mm = Math.max(1.5, Math.min(5.0, baseBackup + thicknessAdj + passAdj));
-
-    // Ensure backup doesn't exceed the cut distance so far
-    const effectiveBackup = Math.min(backup_mm, Math.max(0.5, breakPosition_mm - 0.5));
-
-    // Retry count: industry standard is 3 retries
-    // Reduce for high-risk materials where repeated breaks indicate systemic issue
-    const isHighRiskMaterial = materialLower.includes("titanium") || materialLower.includes("carbide") || materialLower.includes("inconel");
-    const maxRetries = isHighRiskMaterial ? 2 : 3;
-
-    // Power reduction factors for restart
-    // 20% reduction across the board to avoid immediate re-break
-    // Rough passes get slightly more reduction than skim passes
-    const reductionFactor = passNumber === 1 ? 0.75 : 0.80;
-    const reduced_params = {
-      peak_current_factor: reductionFactor,
-      on_time_factor: reductionFactor,
-      feed_rate_factor: passNumber === 1 ? 0.70 : 0.80,
-    };
-
-    // Recovery confidence based on conditions
-    let confidence = 0.85;
-    if (thickness_mm > 100) confidence -= 0.10; // Very thick = harder recovery
-    if (passNumber === 1) confidence -= 0.05; // Rough pass breaks are harder
-    if (isHighRiskMaterial) confidence -= 0.10; // Difficult materials
-    if (breakPosition_mm < 3) confidence -= 0.15; // Near start = poor geometry for re-thread
-    confidence = Math.max(0.30, Math.min(0.95, confidence));
-
-    // Strategy description
-    const strategy = passNumber === 1
-      ? `Rough pass recovery: back up ${effectiveBackup.toFixed(1)}mm, reduce power to ${(reductionFactor * 100).toFixed(0)}%, auto-retry up to ${maxRetries}x`
-      : `Skim pass recovery: back up ${effectiveBackup.toFixed(1)}mm, reduce power to ${(reductionFactor * 100).toFixed(0)}%, auto-retry up to ${maxRetries}x`;
-
-    // Material-specific notes
-    const notes: string[] = [];
-    notes.push(`Base backup: ${baseBackup}mm (${material}), thickness adj: +${thicknessAdj.toFixed(1)}mm, pass adj: +${passAdj.toFixed(1)}mm`);
-
-    if (isHighRiskMaterial) {
-      notes.push("Difficult material — reduced retry count. If break repeats, check wire tension and flushing pressure.");
-    }
-    if (thickness_mm > 80) {
-      notes.push("Thick workpiece — consider submerged cutting mode for better debris evacuation.");
-    }
-    if (materialLower.includes("carbide")) {
-      notes.push("Carbide: use coated wire (zinc or diffusion-annealed) for better break resistance.");
-    }
-    if (materialLower.includes("titanium")) {
-      notes.push("Titanium: alpha-case recast at break point — verify surface integrity after recovery.");
-    }
-    if (wireType.includes("molybdenum") || wireType.includes("moly")) {
-      notes.push("Molybdenum wire: higher tensile strength reduces break risk but re-thread success rate is lower.");
-    }
-
-    return {
-      backup_mm: parseFloat(effectiveBackup.toFixed(1)),
-      max_retries: maxRetries,
-      reduced_params,
-      strategy,
-      recovery_confidence: parseFloat(confidence.toFixed(2)),
-      notes,
-    };
-  }
+  // U-WGAP03: calculateBreakRecovery is defined later in the class as a single
+  // unified implementation that returns a superset of WireBreakRecovery fields
+  // plus the U-WGAP03-specific restart_position_mm and material_family.
 
   // ==========================================================================
   // PUBLIC ACTION: map_technology_table
@@ -1796,6 +1675,131 @@ class EDMCuttingParamFlushEngine {
       energy: energyDetailed,
       technology_table: techTable,
       optimization_score: score,
+      notes,
+    };
+  }
+
+  // ==========================================================================
+  // U-WGAP03 — WIRE BREAK RECOVERY
+  // ==========================================================================
+
+  /**
+   * Calculate recovery parameters after a wire break.
+   *
+   * Based on tribal knowledge tip wedm-kb-003 ("back up 2mm behind break")
+   * plus material-specific adjustments and pass-number scaling. Returns
+   * the backup distance along the tool path, the maximum retry count, and
+   * a set of reduced cutting parameters for the re-ignition attempt.
+   *
+   * @param breakPosition - Arc length (mm) along path where break occurred
+   * @param passNumber    - 1=rough, 2+=skim (skims use smaller backup)
+   * @param material      - Material family (case-insensitive; maps via MATERIAL_DB)
+   * @param basePower     - Optional base power to derive reduced_params from (default 60)
+   */
+  calculateBreakRecovery(
+    breakPosition: number,
+    passNumber: number,
+    material: string,
+    basePower: number = 60,
+  ): {
+    backup_mm: number;
+    max_retries: number;
+    retry_count: number;
+    restart_position_mm: number;
+    reduced_params: {
+      peak_current_factor: number;
+      on_time_factor: number;
+      feed_rate_factor: number;
+      power_pct: number;
+      on_time_us: number;
+      off_time_us: number;
+      wire_tension_pct: number;
+    };
+    strategy: string;
+    recovery_confidence: number;
+    material_family: string;
+    notes: string[];
+  } {
+    const notes: string[] = [];
+    const key = (material || "").toLowerCase();
+
+    let family = "tool_steel";
+    let baseBackup = 2.5;
+    let hard = false;
+    if (/carbide|wc|tungsten/.test(key)) {
+      family = "carbide";
+      baseBackup = 3.0;
+      hard = true;
+      notes.push("Carbide: larger backup — hard re-ignition, avoid crater edge");
+    } else if (/aluminum|al[-\s_]?6061|al[-\s_]?7075|\bal\b|6061|7075/.test(key)) {
+      family = "aluminum";
+      baseBackup = 1.5;
+      notes.push("Aluminum: shorter backup — low melting point re-ignites quickly");
+    } else if (/titanium|ti[-\s]?6|ti64|inconel|nickel/.test(key)) {
+      family = "titanium";
+      baseBackup = 2.5;
+      hard = true;
+      notes.push("Titanium/Inconel: extra backup — alpha case / reactive surface");
+    } else if (/copper|cu[-\s_]|brass/.test(key)) {
+      family = "copper";
+      baseBackup = 1.5;
+      notes.push("Copper/brass: shorter backup — excellent conductivity");
+    }
+
+    const passScale = passNumber >= 2 ? 0.75 : 1.0;
+    let backup_mm = baseBackup * passScale;
+    backup_mm = Math.max(1.5, Math.min(5.0, backup_mm));
+
+    const normalizedBreak = Math.max(0, breakPosition);
+    const restart_position_mm = Math.max(0, normalizedBreak - backup_mm);
+
+    // Hard materials: fewer retries before escalating to operator (Sodick AWT guidance).
+    const max_retries = hard ? 2 : 3;
+    const retry_count = max_retries;
+
+    // Superset factors expected by legacy API: all < 1.0.
+    const peak_current_factor = 0.8;
+    const on_time_factor = 0.9;
+    const feed_rate_factor = hard ? 0.6 : 0.7;
+
+    const reduced_params = {
+      peak_current_factor,
+      on_time_factor,
+      feed_rate_factor,
+      power_pct: Math.round(basePower * peak_current_factor),
+      on_time_us: passNumber === 1 ? 12 : 5,
+      off_time_us: passNumber === 1 ? 14 : 9,
+      wire_tension_pct: 95,
+    };
+
+    // Recovery confidence: lower for hard materials, rough passes, high power,
+    // and breaks occurring near the start of the path.
+    let confidence = 0.85;
+    if (hard) confidence -= 0.1;
+    if (passNumber === 1) confidence -= 0.1;
+    confidence -= Math.min(0.2, 0.05 * (basePower / 100));
+    if (normalizedBreak < 5) confidence -= 0.2;
+    confidence = Math.max(0.1, Math.min(1.0, confidence));
+
+    const strategy = hard
+      ? "reduced_power_retry_then_operator_intervention"
+      : "reduced_power_retry_with_awt";
+
+    if (passNumber >= 3) {
+      notes.push(
+        `Pass ${passNumber}: if break recurs, abandon skim and continue — dimensional impact < Ra impact`,
+      );
+    }
+
+    return {
+      backup_mm: Number(backup_mm.toFixed(2)),
+      max_retries,
+      retry_count,
+      restart_position_mm: Number(restart_position_mm.toFixed(3)),
+      reduced_params,
+      strategy,
+      recovery_confidence: Number(confidence.toFixed(3)),
+      material_family: family,
       notes,
     };
   }

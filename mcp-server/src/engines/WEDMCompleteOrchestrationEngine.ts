@@ -565,48 +565,6 @@ interface PulseParams {
 // ============================================================================
 
 /**
- * Puertas & Luis (2004) material-specific Ra exponents.
- * Ra = C_ra × I_p^alpha × t_on^beta
- * Source: Puertas & Luis "A study of optimization of machining parameters
- *         for electrical discharge machining" J. Mat. Proc. Tech. 2004
- *
- * k_ra values: Klocke (2013) Manufacturing Processes 4, Table 8.3
- * Note: k_ra for steel ranges 0.35-0.42 per Klocke (NOT the 0.13-0.23
- * synthetic values currently in engines — those are ~50% low)
- */
-const MATERIAL_RA_MODELS: Record<string, {
-  k_ra: number;       // Klocke prefactor [µm / (A^alpha × µs^beta)]
-  alpha: number;       // I_p exponent (Puertas & Luis)
-  beta: number;        // t_on exponent (Puertas & Luis)
-  source: string;
-}> = {
-  steel:        { k_ra: 0.38, alpha: 0.40, beta: 0.28, source: "Klocke 2013 Table 8.3; exponents: Klocke baseline" },
-  tool_steel:   { k_ra: 0.36, alpha: 0.40, beta: 0.28, source: "Klocke 2013 Table 8.3; fitted to D2/H13 data" },
-  stainless:    { k_ra: 0.42, alpha: 0.38, beta: 0.30, source: "Puertas & Luis 2004, 304SS; higher k_ra due to lower conductivity" },
-  aluminum:     { k_ra: 0.30, alpha: 0.35, beta: 0.25, source: "Puertas & Luis 2004, 6061; lower exponents, faster energy dissipation" },
-  carbide:      { k_ra: 0.45, alpha: 0.50, beta: 0.32, source: "Puertas & Luis 2004, WC-6%Co; higher I_p sensitivity" },
-  titanium:     { k_ra: 0.44, alpha: 0.42, beta: 0.30, source: "Puertas & Luis 2004, Ti-6Al-4V; high recast tendency" },
-  inconel:      { k_ra: 0.46, alpha: 0.41, beta: 0.29, source: "Puertas & Luis 2004, Inconel 718; low conductivity, high recast" },
-  copper:       { k_ra: 0.28, alpha: 0.35, beta: 0.24, source: "Estimated from Klocke framework; high α dissipates energy quickly" },
-};
-
-/**
- * Material-specific energy cascade factor γ.
- * E_n = E_rough × γ^(n-1) — Toenshoff reports 60-80% reduction.
- * γ varies with material thermal response.
- */
-const ENERGY_CASCADE_GAMMA: Record<string, number> = {
-  steel:        0.25,  // 75% reduction — standard per Toenshoff
-  tool_steel:   0.25,  // 75% — similar to carbon steel
-  stainless:    0.22,  // 78% — lower conductivity, more aggressive skim needed
-  aluminum:     0.30,  // 70% — high conductivity allows higher skim energy
-  carbide:      0.20,  // 80% — hard material needs more energy reduction per pass
-  titanium:     0.22,  // 78% — similar to stainless (low conductivity)
-  inconel:      0.20,  // 80% — aggressive reduction needed for recast control
-  copper:       0.30,  // 70% — similar to aluminum
-};
-
-/**
  * Wire-workpiece galvanic compatibility matrix.
  * Source: Rajurkar et al. (1993), ASM Handbook Vol. 16
  */
@@ -2692,7 +2650,7 @@ export class WEDMCompleteOrchestrationEngine {
     this.stagesCompleted.push("pulseParameterGen");
 
     const matKey = this.normalizeMaterialKey(input.material);
-    const raModel = MATERIAL_RA_MODELS[matKey] ?? MATERIAL_RA_MODELS.steel;
+    const raModel = EDM_PHYSICS.klocke.ra_models[matKey as keyof typeof EDM_PHYSICS.klocke.ra_models] ?? EDM_PHYSICS.klocke.ra_models.steel;
 
     // Rough pass: solve Klocke inverse for t_on given target Ra and max safe I_p
     const wireDia = input.wire_diameter_mm ?? 0.25;
@@ -2735,7 +2693,7 @@ export class WEDMCompleteOrchestrationEngine {
     };
 
     // Skim passes: energy cascade
-    const gamma = ENERGY_CASCADE_GAMMA[matKey] ?? 0.25;
+    const gamma = EDM_PHYSICS.toenshoff.gamma[matKey as keyof typeof EDM_PHYSICS.toenshoff.gamma] ?? 0.25;
     const skims: PulseParams[] = [];
     for (let n = 1; n < 6; n++) { // up to 5 skims (6 total passes max)
       const energyFactor = Math.pow(gamma, n);
@@ -2769,7 +2727,7 @@ export class WEDMCompleteOrchestrationEngine {
     if (input.pass_count_override) return input.pass_count_override;
 
     const matKey = this.normalizeMaterialKey(input.material);
-    const raModel = MATERIAL_RA_MODELS[matKey] ?? MATERIAL_RA_MODELS.steel;
+    const raModel = EDM_PHYSICS.klocke.ra_models[matKey as keyof typeof EDM_PHYSICS.klocke.ra_models] ?? EDM_PHYSICS.klocke.ra_models.steel;
 
     // TK-MS2-U11: Check tribal knowledge for pass count recommendations
     const tribalTips = this.queryWEDMTribalTips(input.material, "pass");
@@ -2815,8 +2773,8 @@ export class WEDMCompleteOrchestrationEngine {
     this.stagesCompleted.push("recastSafetyGate");
 
     const matKey = this.normalizeMaterialKey(input.material);
-    const raModel = MATERIAL_RA_MODELS[matKey] ?? MATERIAL_RA_MODELS.steel;
-    const gamma = ENERGY_CASCADE_GAMMA[matKey] ?? 0.25;
+    const raModel = EDM_PHYSICS.klocke.ra_models[matKey as keyof typeof EDM_PHYSICS.klocke.ra_models] ?? EDM_PHYSICS.klocke.ra_models.steel;
+    const gamma = EDM_PHYSICS.toenshoff.gamma[matKey as keyof typeof EDM_PHYSICS.toenshoff.gamma] ?? 0.25;
     const specClass = input.spec_class ?? "general";
     const specLimits = RECAST_SPEC_LIMITS_UM[specClass] ?? RECAST_SPEC_LIMITS_UM.general;
     const maxRecast = input.max_recast_um ?? specLimits.max_recast;
@@ -2881,7 +2839,7 @@ export class WEDMCompleteOrchestrationEngine {
     // DiBitonto crater model: d_crater = K1 × E^(1/3) [µm]
     // K1 ≈ 4.8 µm/(mJ)^(1/3) — DiBitonto (1989), fitted to metallic workpiece
     // Spark gap ≈ d_crater / 2 (half crater contributes to gap per side)
-    const K1 = 4.8; // µm/(mJ)^(1/3) — from DiBitonto 1989
+    const K1 = EDM_PHYSICS.dibitonto.K1_um_per_mJ_third;
 
     const offsets_mm: number[] = [];
     const sparkGaps_um: number[] = [];
@@ -2916,7 +2874,7 @@ export class WEDMCompleteOrchestrationEngine {
       offsets_mm,
       spark_gaps_um: sparkGaps_um,
       stock_removal_mm: stockRemoval_mm,
-      model: "DiBitonto crater (K1=4.8 µm/mJ^(1/3))",
+      model: `DiBitonto crater (K1=${EDM_PHYSICS.dibitonto.K1_um_per_mJ_third} µm/mJ^(1/3))`,
       source: "DiBitonto et al. 1989 — verified against ITW SHAKEPROOF H-offsets",
     };
   }
@@ -2926,7 +2884,7 @@ export class WEDMCompleteOrchestrationEngine {
 
     // Kunieda MRR: MRR = η × E_pulse × f_rep / ρ / (cp×ΔT + Lm)
     // η = 0.40 for steel in DI water (Kunieda 2005, narrowed from 0.3-0.5)
-    const eta = 0.40; // process efficiency — Kunieda 2005
+    const eta = EDM_PHYSICS.kunieda.eta_steel;
     const E_pulse_J = pulses.rough.energy_mJ * 1e-3; // mJ → J
     const f_rep_Hz = pulses.rough.frequency_kHz * 1000; // kHz → Hz
     const rho = material.density_kg_m3;
@@ -2939,7 +2897,7 @@ export class WEDMCompleteOrchestrationEngine {
     const MRR_mm3_min = MRR_m3s * 1e9 * 60; // m³/s → mm³/min
 
     // Kerf width = wire_d + 2 × spark_gap
-    const sparkGap_mm = (4.8 * Math.pow(pulses.rough.energy_mJ, 1 / 3)) / 1000 / 2;
+    const sparkGap_mm = (EDM_PHYSICS.dibitonto.K1_um_per_mJ_third * Math.pow(pulses.rough.energy_mJ, 1 / 3)) / 1000 / 2;
     const kerf_mm = wire.diameter_mm + 2 * sparkGap_mm;
 
     // Area rate = MRR / kerf
@@ -3198,8 +3156,8 @@ export class WEDMCompleteOrchestrationEngine {
       geometry_pct,
       explanations: {
         pulse: pulse_pct === 100 ? "From imported machine tech table" : pulse_pct === 90 ? "From published Klocke/manufacturer data" : "Interpolated from physics model",
-        offset: "DiBitonto crater physics (K1=4.8)",
-        feed: "Kunieda MRR thermodynamics (η=0.40)",
+        offset: `DiBitonto crater physics (K1=${EDM_PHYSICS.dibitonto.K1_um_per_mJ_third})`,
+        feed: `Kunieda MRR thermodynamics (η=${EDM_PHYSICS.kunieda.eta_steel})`,
         tech_code: input.machine_model ? "Machine model matched" : "Generic encoding",
         geometry: input.contours ? "DXF parsed completely" : "Estimated from input parameters",
       },

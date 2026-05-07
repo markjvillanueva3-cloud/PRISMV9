@@ -18,7 +18,7 @@
  * - MRR = f_eff · E_pulse · f_rep / ρ·(c·ΔT + L_m)
  * - Electrode wear ratio: θ = V_electrode / V_workpiece
  * - Recast depth: t_recast = 2·√(α·t_pulse) (thermal penetration)
- * - Surface roughness: Ra = k_ra × I_p^0.40 × t_on^0.28 [Klocke 2013 canonical]
+ * - Surface roughness: Klocke canonical via shared utility (U-W100-03a)
  * - Short-circuit probability: P_sc = 1 - exp(-λ_debris · C_debris)
  *
  * References:
@@ -26,9 +26,12 @@
  * - Kunieda et al. (2005): Advancing EDM through fundamental insight
  * - Mohd Abbas et al. (2007): A review on current research trends in EDM
  * - Schumacher (2004): Modeling of the micro EDM process
+ * - Klocke (2013): Manufacturing Processes 4, Table 8.3
  *
  * Actions: stochastic_edm (calcDispatcher)
  */
+
+import { klockeRa } from "./utils/klockeRa.js";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -189,17 +192,14 @@ export class StochasticEDMEngine {
 
   /**
    * Surface roughness from pulse energy:
-   * Converts to Klocke canonical: Ra = k_ra × I_p^0.40 × t_on^0.28
-   * Using I_p = E / (V_gap × t_on) with V_gap ≈ 45V (typical servo voltage)
-   * Source: Klocke (2013) Table 8.3
+   * Klocke canonical via shared utility (U-W100-03a)
+   * Derives I_p from energy: I_p = E / (V_gap × t_on)
    */
-  edmRoughness(energy_mJ: number, tOn_us: number): number {
-    // Derive equivalent I_p from energy: E_mJ = V × I_p × t_on_s × 1000
+  edmRoughness(energy_mJ: number, tOn_us: number, material = "tool_steel"): number {
     const V_gap = 45; // typical servo voltage [V]
     const t_on_s = tOn_us * 1e-6;
     const I_p = t_on_s > 0 ? (energy_mJ / 1000) / (V_gap * t_on_s) : 1;
-    // Klocke canonical with steel defaults (k_ra=0.38, alpha=0.40, beta=0.28)
-    return 0.38 * Math.pow(Math.max(0.1, I_p), 0.40) * Math.pow(Math.max(0.05, tOn_us), 0.28);
+    return klockeRa(Math.max(0.1, I_p), Math.max(0.05, tOn_us), material);
   }
 
   /**

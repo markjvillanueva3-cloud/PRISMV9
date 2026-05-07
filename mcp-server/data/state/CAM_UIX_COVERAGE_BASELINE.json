@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "created_at": "2026-04-22T07:00:00Z",
+  "updated_at": "2026-04-22T07:00:00Z",
+  "description": "Locked coverage baseline for CAM-UIX-MS0. Coverage can only increase via cam_uix_audit --promote-baseline. cam-input-completeness-guard blocks commits that regress below these floors.",
+  "owner_unit": "CAM-UIX-INFRA-00/U-BASELINE01",
+  "coverage_metrics": {
+    "strategy_catalog_coverage_pct": {
+      "description": "Percentage of vendor-documented strategies enumerated in ToolpathStrategyRegistry",
+      "floor_tier_1": 100.0,
+      "floor_tier_2": 85.0,
+      "floor_tier_3": 0.0
+    },
+    "ui_field_schema_coverage_pct": {
+      "description": "Percentage of UI fields with Zod schema definitions",
+      "floor_tier_1": 95.0,
+      "floor_tier_2": 60.0,
+      "floor_tier_3": 0.0
+    },
+    "post_dialect_coverage_pct": {
+      "description": "Percentage of controller dialects with post-processor mappings",
+      "floor_tier_1": 100.0,
+      "floor_tier_2": 50.0,
+      "floor_tier_3": 0.0
+    },
+    "sample_reproducibility_pct": {
+      "description": "Percentage of JMDie programs reproducible from G-code fingerprint (tier-1 only)",
+      "floor_tier_1": 80.0,
+      "floor_tier_2": 0.0,
+      "floor_tier_3": 0.0
+    }
+  },
+  "per_cam_baseline": {
+    "mastercam_x8": {
+      "tier": 1,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "sample_reproducibility_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 150,
+      "fields_schematized": 0,
+      "fields_total_estimated": 7500,
+      "last_audit": null
+    },
+    "fusion360": {
+      "tier": 1,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "sample_reproducibility_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 80,
+      "fields_schematized": 0,
+      "fields_total_estimated": 4000,
+      "last_audit": null
+    },
+    "inventor_hsm": {
+      "tier": 1,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "sample_reproducibility_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 60,
+      "fields_schematized": 0,
+      "fields_total_estimated": 3000,
+      "last_audit": null,
+      "note": "EOL 2026 — reduced scope"
+    },
+    "hypermill": {
+      "tier": 1,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "sample_reproducibility_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 60,
+      "fields_schematized": 0,
+      "fields_total_estimated": 3000,
+      "last_audit": null
+    },
+    "okuma_igf": {
+      "tier": 1,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "sample_reproducibility_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 40,
+      "fields_schematized": 0,
+      "fields_total_estimated": 2000,
+      "last_audit": null,
+      "note": "Controller-resident conversational programming, not traditional CAM"
+    },
+    "siemens_nx_cam": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 100,
+      "fields_schematized": 0,
+      "fields_total_estimated": 5000,
+      "last_audit": null
+    },
+    "powermill": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 80,
+      "fields_schematized": 0,
+      "fields_total_estimated": 4000,
+      "last_audit": null
+    },
+    "esprit": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 90,
+      "fields_schematized": 0,
+      "fields_total_estimated": 4500,
+      "last_audit": null,
+      "note": "Hexagon — mill-turn/Swiss specialist"
+    },
+    "camworks": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 70,
+      "fields_schematized": 0,
+      "fields_total_estimated": 3500,
+      "last_audit": null
+    },
+    "solidcam": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 70,
+      "fields_schematized": 0,
+      "fields_total_estimated": 3500,
+      "last_audit": null,
+      "patent_block": "iMachining US 8,489,224 — legal review pending"
+    },
+    "gibbscam": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 60,
+      "fields_schematized": 0,
+      "fields_total_estimated": 3000,
+      "last_audit": null
+    },
+    "cimatron": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 50,
+      "fields_schematized": 0,
+      "fields_total_estimated": 2500,
+      "last_audit": null,
+      "note": "Mold/die specialist"
+    },
+    "featurecam": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 50,
+      "fields_schematized": 0,
+      "fields_total_estimated": 2500,
+      "last_audit": null,
+      "note": "EOL 2026 — reduced scope (4 units)"
+    },
+    "hexagon_unified": {
+      "tier": 2,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 120,
+      "fields_schematized": 0,
+      "fields_total_estimated": 6000,
+      "last_audit": null,
+      "consolidates": ["edgecam", "worknc"],
+      "note": "Hexagon Production CAM consolidated (Edgecam + WorkNC)"
+    },
+    "catia_delmia_nc": {
+      "tier": 3,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 80,
+      "last_audit": null,
+      "note": "Demoted from tier-2 — deferred to CAM-UIX-MS1"
+    },
+    "creo_nc": {
+      "tier": 3,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 70,
+      "last_audit": null,
+      "note": "Demoted from tier-2 — deferred to CAM-UIX-MS1"
+    },
+    "tebis": {
+      "tier": 3,
+      "strategy_catalog_coverage_pct": 0,
+      "ui_field_schema_coverage_pct": 0,
+      "post_dialect_coverage_pct": 0,
+      "strategies_enumerated": 0,
+      "strategies_total_estimated": 40,
+      "last_audit": null,
+      "note": "Demoted from tier-2 — deferred to CAM-UIX-MS1"
+    }
+  },
+  "aggregate_totals": {
+    "tier_1_cams": 5,
+    "tier_2_cams": 9,
+    "tier_3_cams": 3,
+    "total_strategies_estimated": 1320,
+    "total_fields_estimated": 66000,
+    "current_strategy_coverage_pct": 0,
+    "current_field_coverage_pct": 0
+  },
+  "promote_baseline_history": []
+}

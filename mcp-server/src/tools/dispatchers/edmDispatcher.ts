@@ -21,11 +21,21 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
+import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
+import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
+import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
+import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
+import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
+import { WEDM_SPARK_EROSION_SCHEMAS } from "../../schemas/wedmSparkErosionSchemas.js";
+import { WEDM_GAP_VOLTAGE_SCHEMAS } from "../../schemas/wedmGapVoltageSchemas.js";
+import { WEDM_MRR_SCHEMAS } from "../../schemas/wedmMRRSchemas.js";
+import { WEDM_WIRE_STRESS_SCHEMAS } from "../../schemas/wedmWireStressSchemas.js";
+import { WEDM_WIRE_TENSION_OPT_SCHEMAS } from "../../schemas/wedmWireTensionOptSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
-// Merge legacy + pipeline schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -49,6 +59,12 @@ let _monitorSurface: any, _postProcessGCode: any;
 let _costDocumentation: any, _qualityOrchestrator: any;
 let _biMaterial: any;
 let _feedbackCalibration: any, _calibrationReport: any, _programParser: any;
+// MS-P4-DL-CORE U-P4-DL-01: on-device learning substrate
+let _wedmJobOutcome: any;
+// MS-P4-DL-CORE U-P4-DL-03: EWC++ memory
+let _wedmEWCMemory: any;
+// WEDM-US-UNITS: inch-first presentation adapter
+let _wedmJobUnitPresenter: any;
 let _wireEDMDeepAIHardening: any;
 let _wedmCalculatorAI: any;
 let _wedmScheduling: any;
@@ -67,6 +83,33 @@ let _wedmPredictiveIntelligence: any;
 let _wedmDeepNeuralReasoning: any;
 // MS-P1-100PCT U-P1-02: Citation verification
 let _wedmCitationCheck: any;
+// WEDM-INTEGRITY-MS0 U-INT-03/04: Autonomy and Safety layer engines
+let _wedmAutonomy: any;
+let _wedmRLController: any;
+let _wedmKalmanFusion: any;
+let _wedmHierarchicalPlanner: any;
+let _wedmFaultDiagnosis: any;
+let _wedmDegradationModel: any;
+let _wedmRUL: any;
+let _wedmSafetyEnvelope: any;
+let _wedmFailsafe: any;
+let _wedmVirtualMachine: any;
+// WEDM-INTEGRITY-MS0 U-INT-05: Remaining orphan engines
+let _wedmAnalogicalReasoning: any, _wedmReasoningBridge: any, _wedmReasoningTrace: any;
+let _wedmNeuralFusion: any, _wedmPrototypical: any, _wedmFewShot: any, _wedmKnowledgeDistill: any;
+let _wedmAdvancedNeural: any, _wedmResearchAI: any;
+let _wedmContinuousLearning: any, _wedmRecipeAdapt: any, _wedmModelUpdate: any;
+let _wedmRewardShaping: any, _wedmRLPolicyPersist: any;
+let _wedmRolloutSim: any, _wedmWhatIfSim: any, _wedmProcessCausality: any;
+let _wedmMachineState: any, _wedmMaintenanceScheduler: any, _wedmMaterialChar: any, _wedmSparkDb: any;
+let _wedmParetoSearch: any, _wedmParetoCache: any, _wedmSequencing: any, _wedmTabStrategy: any;
+let _wedmStrategyLib: any, _wedmTradeoffElicit: any;
+let _wedmGovernance: any, _wedmExceptionHandler: any, _wedmHumanHandoff: any, _wedmHeadClearance: any;
+let _wedmFixtureInterference: any, _wedmAccessibility: any, _wedmDriftDetect: any;
+let _wedmPrintToProgram: any, _wedmAIPrintToProgram: any, _wedmProgramCompare: any, _wedmDwgImport: any;
+let _wedmActiveQuery: any, _wedmSelfAware: any, _wedmPartRecognize: any, _wedmBlackboard: any, _wedmArchiveBackfill: any;
+let _edmParam: any, _edmWire: any, _edmPostprocExt: any, _wedmAGIOrch: any;
+let _wedmCAMKnowledge: any, _wedmMachineTechData: any, _wedmUnifiedScience: any, _wedmSetupSheet: any, _wedmTribalRuntime: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -102,6 +145,12 @@ async function getEngine(name: string): Promise<any> {
     case "qualityOrchestrator": return _qualityOrchestrator ??= (await import("../../engines/EDMQualityOrchestratorEngine.js")).edmQualityOrchestratorEngine;
     case "biMaterial": return _biMaterial ??= (await import("../../engines/EDMBiMaterialCompensationEngine.js")).edmBiMaterialCompensationEngine;
     case "feedbackCalibration": return _feedbackCalibration ??= (await import("../../engines/WEDMFeedbackCalibrationEngine.js")).wedmFeedbackCalibrationEngine;
+    // MS-P4-DL-CORE U-P4-DL-01
+    case "wedmJobOutcome": return _wedmJobOutcome ??= (await import("../../engines/WEDMJobOutcomeEngine.js")).wedmJobOutcomeEngine;
+    // MS-P4-DL-CORE U-P4-DL-03
+    case "wedmEWCMemory": return _wedmEWCMemory ??= (await import("../../engines/WEDMEWCMemoryEngine.js")).wedmEWCMemoryEngine;
+    // WEDM-US-UNITS: inch-first presentation
+    case "wedmJobUnitPresenter": return _wedmJobUnitPresenter ??= (await import("../../engines/WEDMJobUnitPresenterEngine.js")).wedmJobUnitPresenterEngine;
     case "calibrationReport": return _calibrationReport ??= new (await import("../../engines/WEDMCalibrationReportEngine.js")).WEDMCalibrationReportEngine();
     case "programParser": return _programParser ??= new (await import("../../engines/WireEDMProgramParserEngine.js")).WireEDMProgramParserEngine();
     case "wireEDMDeepAIHardening": return _wireEDMDeepAIHardening ??= (await import("../../engines/WireEDMDeepAIHardeningEngine.js")).wireEDMDeepAIHardeningEngine;
@@ -122,6 +171,71 @@ async function getEngine(name: string): Promise<any> {
     case "wedmDeepNeuralReasoning": return _wedmDeepNeuralReasoning ??= (await import("../../engines/WireEDMDeepNeuralReasoningEngine.js")).wireEDMDeepNeuralReasoningEngine;
     // MS-P1-100PCT U-P1-02: Citation verification
     case "wedmCitationCheck": return _wedmCitationCheck ??= (await import("../../engines/WEDMCitationCheckEngine.js")).wedmCitationCheckEngine;
+    // WEDM-INTEGRITY-MS0 U-INT-03: Autonomy layer engines
+    case "wedmAutonomy": return _wedmAutonomy ??= (await import("../../engines/WEDMAutonomyEngine.js")).wedmAutonomyEngine;
+    case "wedmRLController": return _wedmRLController ??= (await import("../../engines/WEDMRLControllerEngine.js")).wedmRLControllerEngine;
+    case "wedmKalmanFusion": return _wedmKalmanFusion ??= (await import("../../engines/WEDMKalmanFusionEngine.js")).wedmKalmanFusionEngine;
+    case "wedmHierarchicalPlanner": return _wedmHierarchicalPlanner ??= (await import("../../engines/WEDMHierarchicalPlannerEngine.js")).wedmHierarchicalPlannerEngine;
+    case "wedmFaultDiagnosis": return _wedmFaultDiagnosis ??= (await import("../../engines/WEDMFaultDiagnosisEngine.js")).wedmFaultDiagnosisEngine;
+    // WEDM-INTEGRITY-MS0 U-INT-04: Safety layer engines
+    case "wedmDegradationModel": return _wedmDegradationModel ??= (await import("../../engines/WEDMDegradationModelEngine.js")).wedmDegradationModelEngine;
+    case "wedmRUL": return _wedmRUL ??= (await import("../../engines/WEDMRULEngine.js")).wedmRULEngine;
+    case "wedmSafetyEnvelope": return _wedmSafetyEnvelope ??= (await import("../../engines/WEDMSafetyEnvelopeEngine.js")).wedmSafetyEnvelopeEngine;
+    case "wedmFailsafe": return _wedmFailsafe ??= (await import("../../engines/WEDMFailsafeEngine.js")).wedmFailsafeEngine;
+    case "wedmVirtualMachine": return _wedmVirtualMachine ??= (await import("../../engines/WEDMVirtualMachineEngine.js")).wedmVirtualMachineEngine;
+    // WEDM-INTEGRITY-MS0 U-INT-05: Remaining orphan engines
+    case "wedmAnalogicalReasoning": return _wedmAnalogicalReasoning ??= (await import("../../engines/WEDMAnalogicalReasoningEngine.js")).wedmAnalogicalReasoningEngine;
+    case "wedmReasoningBridge": return _wedmReasoningBridge ??= (await import("../../engines/WEDMReasoningBridgeEngine.js")).wedmReasoningBridgeEngine;
+    case "wedmReasoningTrace": return _wedmReasoningTrace ??= (await import("../../engines/WEDMReasoningTraceLedgerEngine.js")).wedmReasoningTraceLedgerEngine;
+    case "wedmNeuralFusion": return _wedmNeuralFusion ??= (await import("../../engines/WEDMNeuralFormulaFusionEngine.js")).wedmNeuralFormulaFusionEngine;
+    case "wedmPrototypical": return _wedmPrototypical ??= (await import("../../engines/WEDMPrototypicalNetworkEngine.js")).wedmPrototypicalNetworkEngine;
+    case "wedmFewShot": return _wedmFewShot ??= (await import("../../engines/WEDMFewShotEngine.js")).wedmFewShotEngine;
+    case "wedmKnowledgeDistill": return _wedmKnowledgeDistill ??= (await import("../../engines/WEDMKnowledgeDistillationEngine.js")).wedmKnowledgeDistillationEngine;
+    case "wedmAdvancedNeural": return _wedmAdvancedNeural ??= (await import("../../engines/WireEDMAdvancedNeuralEngine.js")).wireEDMAdvancedNeuralEngine;
+    case "wedmResearchAI": return _wedmResearchAI ??= (await import("../../engines/WireEDMResearchAIEngine.js")).wireEDMResearchAIEngine;
+    case "wedmContinuousLearning": return _wedmContinuousLearning ??= (await import("../../engines/WEDMContinuousLearningEngine.js")).wedmContinuousLearningEngine;
+    case "wedmRecipeAdapt": return _wedmRecipeAdapt ??= (await import("../../engines/WEDMRecipeAdaptationEngine.js")).wedmRecipeAdaptationEngine;
+    case "wedmModelUpdate": return _wedmModelUpdate ??= (await import("../../engines/WEDMModelUpdateEngine.js")).wedmModelUpdateEngine;
+    case "wedmRewardShaping": return _wedmRewardShaping ??= (await import("../../engines/WEDMRewardShapingEngine.js")).wedmRewardShapingEngine;
+    case "wedmRLPolicyPersist": return _wedmRLPolicyPersist ??= (await import("../../engines/WEDMRLPolicyPersistence.js")).wedmRLPolicyPersistence;
+    case "wedmRolloutSim": return _wedmRolloutSim ??= (await import("../../engines/WEDMRolloutSimulatorEngine.js")).wedmRolloutSimulatorEngine;
+    case "wedmWhatIfSim": return _wedmWhatIfSim ??= (await import("../../engines/WEDMWhatIfSimulatorEngine.js")).wedmWhatIfSimulatorEngine;
+    case "wedmProcessCausality": return _wedmProcessCausality ??= (await import("../../engines/WEDMProcessCausalityEngine.js")).wedmProcessCausalityEngine;
+    case "wedmMachineState": return _wedmMachineState ??= (await import("../../engines/WEDMMachineStateEngine.js")).wedmMachineStateEngine;
+    case "wedmMaintenanceScheduler": return _wedmMaintenanceScheduler ??= (await import("../../engines/WEDMMaintenanceSchedulerEngine.js")).wedmMaintenanceSchedulerEngine;
+    case "wedmMaterialChar": return _wedmMaterialChar ??= (await import("../../engines/WEDMMaterialCharacterizationEngine.js")).wedmMaterialCharacterizationEngine;
+    case "wedmSparkDb": return _wedmSparkDb ??= (await import("../../engines/WEDMMaterialSparkDatabaseEngine.js")).wedmMaterialSparkDatabaseEngine;
+    case "wedmParetoSearch": return _wedmParetoSearch ??= (await import("../../engines/WEDMParetoFrontierSearchEngine.js")).wedmParetoFrontierSearchEngine;
+    case "wedmParetoCache": return _wedmParetoCache ??= (await import("../../engines/WEDMParetoCacheEngine.js")).wedmParetoCacheEngine;
+    case "wedmSequencing": return _wedmSequencing ??= (await import("../../engines/WEDMSequencingEngine.js")).wedmSequencingEngine;
+    case "wedmTabStrategy": return _wedmTabStrategy ??= (await import("../../engines/WEDMTabStrategyEngine.js")).wedmTabStrategyEngine;
+    case "wedmStrategyLib": return _wedmStrategyLib ??= (await import("../../engines/WEDMStrategyLibraryEngine.js")).wedmStrategyLibraryEngine;
+    case "wedmTradeoffElicit": return _wedmTradeoffElicit ??= (await import("../../engines/WEDMTradeoffElicitationEngine.js")).wedmTradeoffElicitationEngine;
+    case "wedmGovernance": return _wedmGovernance ??= (await import("../../engines/WEDMGovernanceStore.js")).wedmGovernanceStore;
+    case "wedmExceptionHandler": return _wedmExceptionHandler ??= (await import("../../engines/WEDMExceptionHandlerEngine.js")).wedmExceptionHandlerEngine;
+    case "wedmHumanHandoff": return _wedmHumanHandoff ??= (await import("../../engines/WEDMHumanHandoffEngine.js")).wedmHumanHandoffEngine;
+    case "wedmHeadClearance": return _wedmHeadClearance ??= (await import("../../engines/WEDMHeadClearanceEngine.js")).wedmHeadClearanceEngine;
+    case "wedmFixtureInterference": return _wedmFixtureInterference ??= (await import("../../engines/WEDMFixtureInterferenceEngine.js")).wedmFixtureInterferenceEngine;
+    case "wedmAccessibility": return _wedmAccessibility ??= (await import("../../engines/WEDMAccessibilityEngine.js")).wedmAccessibilityEngine;
+    case "wedmDriftDetect": return _wedmDriftDetect ??= (await import("../../engines/WEDMDriftDetectionEngine.js")).wedmDriftDetectionEngine;
+    case "wedmPrintToProgram": return _wedmPrintToProgram ??= (await import("../../engines/WEDMPrintToProgramEngine.js")).wedmPrintToProgramEngine;
+    case "wedmAIPrintToProgram": return _wedmAIPrintToProgram ??= (await import("../../engines/WireEDMAIPrintToProgramEngine.js")).wireEDMAIPrintToProgramEngine;
+    case "wedmProgramCompare": return _wedmProgramCompare ??= (await import("../../engines/WEDMProgramComparisonEngine.js")).wedmProgramComparisonEngine;
+    case "wedmDwgImport": return _wedmDwgImport ??= (await import("../../engines/WEDMDwgImportEngine.js")).wedmDwgImportEngine;
+    case "wedmActiveQuery": return _wedmActiveQuery ??= (await import("../../engines/WEDMActiveQueryEngine.js")).wedmActiveQueryEngine;
+    case "wedmSelfAware": return _wedmSelfAware ??= (await import("../../engines/WEDMSelfAwarenessEngine.js")).wedmSelfAwarenessEngine;
+    case "wedmPartRecognize": return _wedmPartRecognize ??= (await import("../../engines/WEDMPartRecognitionEngine.js")).wedmPartRecognitionEngine;
+    case "wedmBlackboard": return _wedmBlackboard ??= (await import("../../engines/WEDMBlackboardEngine.js")).wedmBlackboardEngine;
+    case "wedmArchiveBackfill": return _wedmArchiveBackfill ??= (await import("../../engines/WEDMArchiveBackfillEngine.js")).wedmArchiveBackfillEngine;
+    case "edmParam": return _edmParam ??= (await import("../../engines/EDMParameterEngine.js")).edmParameterEngine;
+    case "edmWire": return _edmWire ??= (await import("../../engines/EDMWireEngine.js")).edmWireEngine;
+    case "edmPostprocExt": return _edmPostprocExt ??= (await import("../../engines/EDMPostProcessorExtension.js")).edmPostProcessorExtension;
+    case "wedmAGIOrch": return _wedmAGIOrch ??= (await import("../../engines/WireEDMAGIOrchestrator.js")).wireEDMAGIOrchestrator;
+    case "wedmCAMKnowledge": return _wedmCAMKnowledge ??= (await import("../../engines/WireEDMCAMKnowledgeEngine.js")).wireEDMCAMKnowledgeEngine;
+    case "wedmMachineTechData": return _wedmMachineTechData ??= (await import("../../engines/WireEDMMachineTechDataEngine.js")).wireEDMMachineTechDataEngine;
+    case "wedmUnifiedScience": return _wedmUnifiedScience ??= (await import("../../engines/WireEDMUnifiedScienceEngine.js")).wireEDMUnifiedScienceEngine;
+    case "wedmSetupSheet": return _wedmSetupSheet ??= (await import("../../engines/WEDMSetupSheetEngine.js")).wedmSetupSheetEngine;
+    case "wedmTribalRuntime": return _wedmTribalRuntime ??= (await import("../../engines/WEDMTribalRuntimeEngine.js")).wedmTribalRuntimeEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -268,6 +382,16 @@ const ACTIONS = [
   // Feedback loop — calibration, program parsing, feedback submission
   "wedm_submit_feedback", "wedm_calibration_report", "wedm_parse_program",
 
+  // MS-P4-DL-CORE U-P4-DL-01: on-device learning — capture finished-job outcome
+  "wedm_learn_from_job", "wedm_job_history_stats",
+
+  // MS-P4-DL-CORE U-P4-DL-03: EWC++ memory — anti-catastrophic-forgetting
+  "wedm_ewc_snapshot_task", "wedm_ewc_penalty", "wedm_ewc_list_tasks",
+
+  // WEDM-US-UNITS: inch-first I/O for US shops (JM Die + customer landing)
+  "wedm_record_job_us", "wedm_job_to_us_view", "wedm_job_history_stats_us",
+  "wedm_submit_feedback_us", "wedm_assess_feasibility_us", "wedm_convert_inches",
+
   // Photo-to-quote shortcut
   "wedm_photo_to_quote",
 
@@ -285,6 +409,8 @@ const ACTIONS = [
 
   // U-WGAP09: Pre-flight safety checklist
   "wedm_preflight_check",
+  // U-WGAP03/04: Wire break recovery planning
+  "wedm_plan_break_recovery",
 
   // WEDM-CAL-MS4 U-CAL21: Production readiness scoring
   "wedm_production_readiness",
@@ -356,6 +482,110 @@ const ACTIONS = [
   "wedm_citation_check",
   "wedm_citation_report",
   "wedm_synthetics_list",
+
+  // MS-P1.5-ONESHOT: Print→Program one-shot spine (U-P1.5-OS-03..07)
+  "wedm_auto_bridge",          // AutoPrintToProgramBridgeEngine — process-type routing
+  "wedm_post_dialect",         // WEDMPostDialectRouterEngine — multi-controller post
+  "wedm_collision_check",      // WEDMWirePathCollisionEngine — swept-volume collision
+  "wedm_verify_program",       // WEDMProgramVerificationEngine — end-of-pipeline gate
+
+  // WEDM-INTEGRITY-MS0 U-INT-03: Autonomy layer engines
+  "wedm_autonomy_level",       // WEDMAutonomyEngine — get/set autonomy level
+  "wedm_autonomy_can",         // WEDMAutonomyEngine — check capability authorization
+  "wedm_autonomy_promote",     // WEDMAutonomyEngine — promote autonomy level
+  "wedm_autonomy_demote",      // WEDMAutonomyEngine — demote autonomy level
+  "wedm_autonomy_snapshot",    // WEDMAutonomyEngine — full state snapshot
+  "wedm_rl_action",            // WEDMRLControllerEngine — get RL action
+  "wedm_rl_update",            // WEDMRLControllerEngine — update RL policy
+  "wedm_rl_status",            // WEDMRLControllerEngine — RL controller status
+  "wedm_kalman_fuse",          // WEDMKalmanFusionEngine — sensor fusion
+  "wedm_kalman_state",         // WEDMKalmanFusionEngine — get filter state
+  "wedm_planner_plan",         // WEDMHierarchicalPlannerEngine — hierarchical plan
+  "wedm_planner_status",       // WEDMHierarchicalPlannerEngine — planner status
+  "wedm_fault_diagnose",       // WEDMFaultDiagnosisEngine — fault diagnosis
+  "wedm_fault_history",        // WEDMFaultDiagnosisEngine — fault history
+
+  // WEDM-INTEGRITY-MS0 U-INT-04: Safety layer engines
+  "wedm_degradation_predict",  // WEDMDegradationModelEngine — degradation prediction
+  "wedm_degradation_update",   // WEDMDegradationModelEngine — update model
+  "wedm_rul_estimate",         // WEDMRULEngine — remaining useful life
+  "wedm_rul_components",       // WEDMRULEngine — component RUL breakdown
+  "wedm_safety_envelope",      // WEDMSafetyEnvelopeEngine — safety envelope check
+  "wedm_safety_limits",        // WEDMSafetyEnvelopeEngine — get safety limits
+  "wedm_failsafe_trigger",     // WEDMFailsafeEngine — trigger failsafe
+  "wedm_failsafe_status",      // WEDMFailsafeEngine — failsafe status
+  "wedm_virtual_simulate",     // WEDMVirtualMachineEngine — virtual simulation
+  "wedm_virtual_state",        // WEDMVirtualMachineEngine — virtual machine state
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Remaining orphan engines (batch 1 - AI/Reasoning)
+  "wedm_analogical_reason",    // WEDMAnalogicalReasoningEngine
+  "wedm_reasoning_bridge",     // WEDMReasoningBridgeEngine
+  "wedm_reasoning_trace",      // WEDMReasoningTraceLedgerEngine
+  "wedm_neural_fusion",        // WEDMNeuralFormulaFusionEngine
+  "wedm_prototypical_match",   // WEDMPrototypicalNetworkEngine
+  "wedm_few_shot_learn",       // WEDMFewShotEngine
+  "wedm_knowledge_distill",    // WEDMKnowledgeDistillationEngine
+  "wedm_advanced_neural",      // WireEDMAdvancedNeuralEngine
+  "wedm_research_ai",          // WireEDMResearchAIEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 2 - Learning/Adaptation
+  "wedm_continuous_learn",     // WEDMContinuousLearningEngine
+  "wedm_recipe_adapt",         // WEDMRecipeAdaptationEngine
+  "wedm_model_update",         // WEDMModelUpdateEngine
+  "wedm_reward_shape",         // WEDMRewardShapingEngine
+  "wedm_rl_policy_persist",    // WEDMRLPolicyPersistence
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 3 - Simulation
+  "wedm_rollout_simulate",     // WEDMRolloutSimulatorEngine
+  "wedm_whatif_simulate",      // WEDMWhatIfSimulatorEngine
+  "wedm_process_causality",    // WEDMProcessCausalityEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 4 - Machine/State
+  "wedm_machine_state",        // WEDMMachineStateEngine
+  "wedm_maintenance_schedule", // WEDMMaintenanceSchedulerEngine
+  "wedm_material_characterize",// WEDMMaterialCharacterizationEngine
+  "wedm_spark_database",       // WEDMMaterialSparkDatabaseEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 5 - Planning/Optimization
+  "wedm_pareto_search",        // WEDMParetoFrontierSearchEngine
+  "wedm_pareto_cache",         // WEDMParetoCacheEngine
+  "wedm_sequence_optimize",    // WEDMSequencingEngine
+  "wedm_tab_strategy",         // WEDMTabStrategyEngine
+  "wedm_strategy_library",     // WEDMStrategyLibraryEngine
+  "wedm_tradeoff_elicit",      // WEDMTradeoffElicitationEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 6 - Safety/Governance
+  "wedm_governance_query",     // WEDMGovernanceStore
+  "wedm_exception_handle",     // WEDMExceptionHandlerEngine
+  "wedm_human_handoff",        // WEDMHumanHandoffEngine
+  "wedm_head_clearance",       // WEDMHeadClearanceEngine
+  "wedm_fixture_interference", // WEDMFixtureInterferenceEngine
+  "wedm_accessibility_check",  // WEDMAccessibilityEngine
+  "wedm_drift_detect",         // WEDMDriftDetectionEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 7 - Program/Print
+  "wedm_print_to_program",     // WEDMPrintToProgramEngine
+  "wedm_ai_print_to_program",  // WireEDMAIPrintToProgramEngine
+  "wedm_program_compare",      // WEDMProgramComparisonEngine
+  "wedm_dwg_import",           // WEDMDwgImportEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 8 - Query/Awareness
+  "wedm_active_query",         // WEDMActiveQueryEngine
+  "wedm_self_aware",           // WEDMSelfAwarenessEngine
+  "wedm_part_recognize",       // WEDMPartRecognitionEngine
+  "wedm_blackboard_query",     // WEDMBlackboardEngine
+  "wedm_archive_backfill",     // WEDMArchiveBackfillEngine
+
+  // WEDM-INTEGRITY-MS0 U-INT-05: Batch 9 - Core Pipeline
+  "edm_param_calculate",       // EDMParameterEngine
+  "edm_wire_calculate",        // EDMWireEngine
+  "edm_postproc_extend",       // EDMPostProcessorExtension
+  "wedm_agi_orchestrate",      // WireEDMAGIOrchestrator
+  "wedm_cam_knowledge",        // WireEDMCAMKnowledgeEngine
+  "wedm_machine_tech_data",    // WireEDMMachineTechDataEngine
+  "wedm_unified_science",      // WireEDMUnifiedScienceEngine
+  "wedm_setup_sheet_gen",      // WEDMSetupSheetEngine
+  "wedm_tribal_runtime",       // WEDMTribalRuntimeEngine
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register dispatcher actions with adoption engine (once, at module load)
@@ -1594,6 +1824,154 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // ── MS-P4-DL-CORE U-P4-DL-01: capture finished-job outcome ──
+          case "wedm_learn_from_job": {
+            const engine = await getEngine("wedmJobOutcome");
+            const record = engine.record({
+              job_id: params.job_id,
+              recorded_at: params.recorded_at,
+              shop_id: params.shop_id ?? "jm-die",
+              machine_id: params.machine_id,
+              operator_id: params.operator_id,
+              customer: params.customer,
+              part_number: params.part_number,
+              program_file: params.program_file,
+              input: params.input,
+              outcome: params.outcome,
+              predicted: params.predicted,
+              notes: params.notes,
+            });
+            result = {
+              job_id: record.job_id,
+              recorded_at: record.recorded_at,
+              sequence: engine.stats().sequence,
+              file_path: engine.path(),
+            };
+            break;
+          }
+
+          case "wedm_job_history_stats": {
+            const engine = await getEngine("wedmJobOutcome");
+            result = engine.stats();
+            break;
+          }
+
+          // ── MS-P4-DL-CORE U-P4-DL-03: EWC++ memory actions ──
+          case "wedm_ewc_snapshot_task": {
+            const engine = await getEngine("wedmEWCMemory");
+            result = engine.snapshotTask({
+              taskId: params.task_id ?? params.taskId,
+              material: params.material,
+              adapter: params.adapter,
+              fisher: params.fisher,
+              lambda: params.lambda,
+              lambdaPreset: params.lambda_preset ?? params.lambdaPreset,
+            });
+            break;
+          }
+
+          case "wedm_ewc_penalty": {
+            const engine = await getEngine("wedmEWCMemory");
+            result = {
+              penalty: engine.penalty(params.adapter),
+              gradient: engine.penaltyGradient(params.adapter),
+            };
+            break;
+          }
+
+          case "wedm_ewc_list_tasks": {
+            const engine = await getEngine("wedmEWCMemory");
+            result = { tasks: engine.listTasks(params.adapter_name ?? params.adapterName) };
+            break;
+          }
+
+          // ── WEDM-US-UNITS: inch-first I/O actions ──
+          case "wedm_record_job_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const outcome = await getEngine("wedmJobOutcome");
+            const siInput = presenter.fromUSInput(params);
+            const record = outcome.record(siInput);
+            result = {
+              job_id: record.job_id,
+              recorded_at: record.recorded_at,
+              sequence: outcome.stats().sequence,
+              file_path: outcome.path(),
+              view: presenter.toUSView(record),
+            };
+            break;
+          }
+
+          case "wedm_job_to_us_view": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const outcome = await getEngine("wedmJobOutcome");
+            if (params.record) {
+              result = presenter.toUSView(params.record);
+              break;
+            }
+            if (params.job_id) {
+              const file = outcome.load();
+              const rec = file.records.find((r: any) => r.job_id === params.job_id);
+              if (!rec) {
+                result = { error: `job_id not found: ${params.job_id}` };
+                break;
+              }
+              result = presenter.toUSView(rec);
+              break;
+            }
+            result = { error: "provide either `record` or `job_id`" };
+            break;
+          }
+
+          case "wedm_job_history_stats_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const outcome = await getEngine("wedmJobOutcome");
+            result = presenter.statsToUS(outcome.stats());
+            break;
+          }
+
+          case "wedm_submit_feedback_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const fb = await getEngine("feedbackCalibration");
+            const si = presenter.feedbackFromUS({
+              material: params.material,
+              thickness_in: params.thickness_in,
+              predicted_ra_uin: params.predicted_ra_uin,
+              actual_ra_uin: params.actual_ra_uin,
+              predicted_time_min: params.predicted_time_min,
+              actual_time_min: params.actual_time_min,
+              notes: params.notes,
+              wire_breaks: params.wire_breaks,
+              machine: params.machine,
+            });
+            result = fb.submit_feedback(si);
+            break;
+          }
+
+          case "wedm_assess_feasibility_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const feas = await getEngine("feasibility");
+            const siWorkpiece = presenter.workpieceFromUS({
+              thickness_in: params.thickness_in,
+              length_in: params.length_in,
+              width_in: params.width_in,
+              height_in: params.height_in,
+            });
+            result = feas.assess({
+              ...params,
+              workpiece: siWorkpiece,
+            });
+            break;
+          }
+
+          case "wedm_convert_inches": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            result = presenter.convertValue({
+              value: params.value,
+              pair: params.pair,
+            });
+            break;
+          }
+
           case "wedm_photo_to_quote": {
             // Photo → OCR → feasibility + cost estimate (no full program generation)
             const { blueprintVisionOCREngine } = await import("../../engines/BlueprintVisionOCREngine.js");
@@ -1772,11 +2150,41 @@ Actions: ${ACTIONS.join(", ")}.`,
 
           // =================================================================
           // U-WGAP06: WEDMSchedulingEngine — Machine Reservation (Book-Ahead)
-          // TEMP: Disabled — engine file removed
           // =================================================================
-          // case "wedm_reserve_machine": { ... }
-          // case "wedm_check_availability": { ... }
-          // case "wedm_cancel_reservation": { ... }
+          case "wedm_reserve_machine": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = wedmSchedulingEngine.reserveMachine({
+              machine_id: params.machine_id,
+              machine_name: params.machine_name,
+              job_id: params.job_id,
+              job_name: params.job_name,
+              material: params.material,
+              estimated_hours: params.estimated_hours ?? 1,
+              starts_at: params.starts_at ?? new Date().toISOString(),
+              ends_at: params.ends_at,
+              created_by: params.created_by,
+            });
+            break;
+          }
+          case "wedm_check_availability": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = wedmSchedulingEngine.checkAvailability({
+              machine_id: params.machine_id,
+              starts_at: params.starts_at ?? new Date().toISOString(),
+              ends_at: params.ends_at ?? new Date(Date.now() + 3600_000).toISOString(),
+            });
+            break;
+          }
+          case "wedm_cancel_reservation": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = wedmSchedulingEngine.cancelReservation(params.reservation_id);
+            break;
+          }
+          case "wedm_list_reservations": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = { reservations: wedmSchedulingEngine.listReservations(params.machine_id) };
+            break;
+          }
 
           // =================================================================
           // U-WGAP09: Pre-flight safety checklist
@@ -1797,6 +2205,20 @@ Actions: ${ACTIONS.join(", ")}.`,
               estimated_time_min: params.estimated_time_min,
               is_unattended: params.is_unattended,
             });
+            break;
+          }
+
+          // =================================================================
+          // U-WGAP03/04: Wire break recovery planning
+          // =================================================================
+          case "wedm_plan_break_recovery": {
+            const { edmCuttingParamFlushEngine } = await import("../../engines/EDMCuttingParamFlushEngine.js");
+            result = edmCuttingParamFlushEngine.calculateBreakRecovery(
+              Number(params.break_position_mm ?? 0),
+              Number(params.pass_number ?? 1),
+              String(params.material ?? "steel"),
+              params.base_power !== undefined ? Number(params.base_power) : undefined,
+            );
             break;
           }
 
@@ -2979,6 +3401,846 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_synthetics_list": {
             const engine = await getEngine("wedmCitationCheck");
             result = { engines: await engine.getEnginesWithSynthetics() };
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN02: Feature Importance Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_feature_importance": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computeImportance(
+              params.data ?? [],
+              params.target_outcome ?? "mrr",
+              { nPermutations: params.n_permutations }
+            );
+            break;
+          }
+          case "wedm_partial_dependence": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computePartialDependence(
+              params.data ?? [],
+              params.feature,
+              params.outcome ?? "mrr",
+              { nPoints: params.n_points }
+            );
+            break;
+          }
+          case "wedm_feature_interactions": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computeInteractions(
+              params.data ?? [],
+              params.outcome ?? "mrr"
+            );
+            break;
+          }
+          case "wedm_optimization_guidance": {
+            const engine = await getEngine("featureImportance");
+            const importance = engine.computeImportance(
+              params.data ?? [],
+              params.target_outcome ?? "mrr",
+              { nPermutations: params.n_permutations ?? 10 }
+            );
+            result = engine.getOptimizationGuidance(
+              importance,
+              params.target_outcome ?? "mrr",
+              params.direction ?? "maximize"
+            );
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN03: Transfer Learning Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_transfer_params": {
+            const engine = await getEngine("transferLearning");
+            result = engine.transfer({
+              sourceMaterial: params.source_material,
+              targetMaterial: params.target_material,
+              sourceMachine: params.source_machine,
+              targetMachine: params.target_machine,
+              sourceParameters: params.source_parameters,
+              sourceOutcomes: params.source_outcomes,
+            });
+            break;
+          }
+          case "wedm_material_similarity": {
+            const engine = await getEngine("transferLearning");
+            result = engine.computeMaterialSimilarity(
+              params.source_material,
+              params.target_material
+            );
+            break;
+          }
+          case "wedm_batch_transfer": {
+            const engine = await getEngine("transferLearning");
+            result = engine.batchTransfer(
+              params.source_parameters,
+              params.source_material,
+              params.target_materials,
+              params.source_machine,
+              params.target_machine
+            );
+            break;
+          }
+          case "wedm_similar_materials": {
+            const engine = await getEngine("transferLearning");
+            result = engine.findSimilarMaterials(params.material, params.top_n ?? 3);
+            break;
+          }
+          case "wedm_validate_transfer": {
+            const engine = await getEngine("transferLearning");
+            result = engine.validateTransfer(params.parameters, params.target_material);
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN04: Online Learning Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_online_init": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.initializeModel(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_predict": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.predict(
+              params.material,
+              params.parameters,
+              params.thickness,
+              params.machine_id
+            );
+            break;
+          }
+          case "wedm_online_update": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.updateFromFeedback(params.feedback);
+            break;
+          }
+          case "wedm_online_batch_update": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.batchUpdate(params.feedback_list);
+            break;
+          }
+          case "wedm_online_stats": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.getStats(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_state": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.getModelState(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_reset": {
+            const engine = await getEngine("onlineLearning");
+            result = { reset: engine.resetModel(params.material, params.machine_id) };
+            break;
+          }
+          case "wedm_online_export": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.exportModel(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_import": {
+            const engine = await getEngine("onlineLearning");
+            result = { imported: engine.importModel(params.model_id, params.state, params.history) };
+            break;
+          }
+          case "wedm_online_list": {
+            const engine = await getEngine("onlineLearning");
+            result = { models: engine.listModels() };
+            break;
+          }
+          case "wedm_online_drift": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.detectDrift(params.material, params.machine_id);
+            break;
+          }
+
+          // =================================================================
+          // WEDM THERMAL FIELD (P2-THERMAL U-WN05)
+          // =================================================================
+          case "wedm_thermal_field": {
+            const engine = await getEngine("thermalField");
+            result = engine.computeThermalFieldSimple(params.material, params.parameters, params.thickness);
+            if (params.includeTransient) {
+              result.transient = engine.computeTransientAnalysisSimple(params.material, params.parameters, 10);
+            }
+            break;
+          }
+          case "wedm_thermal_transient": {
+            const engine = await getEngine("thermalField");
+            result = engine.computeTransientAnalysisSimple(params.material, params.parameters, params.pulseCount, params.timeResolution);
+            break;
+          }
+          case "wedm_thermal_recast": {
+            const engine = await getEngine("thermalField");
+            result = engine.estimateRecastLayerSimple(params.material, params.parameters, params.passType, params.flushingEfficiency);
+            break;
+          }
+          case "wedm_thermal_validate": {
+            const engine = await getEngine("thermalField");
+            result = engine.validateParametersSimple(params.material, params.parameters, params.targetRecast, params.targetHAZ);
+            break;
+          }
+          case "wedm_thermal_materials": {
+            const engine = await getEngine("thermalField");
+            result = engine.listMaterialsByCategory(params.category);
+            break;
+          }
+          case "wedm_thermal_optimize": {
+            const engine = await getEngine("thermalField");
+            result = engine.optimizeForRecast(params.material, params.targetRecast, params.targetMRR, params.constraints);
+            break;
+          }
+
+          // =================================================================
+          // WEDM SPARK EROSION MODEL (WEDM-BIZ-MS0 U-WB01)
+          // DiBitonto-Sato hybrid: crater geometry, MRR, Ra, energy per spark
+          // =================================================================
+          case "wedm_spark_erosion": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.calculate({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              voltage_V: params.voltage_V,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_compare": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.compareMaterials({
+              materials: params.materials,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_validate": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.validateParameters({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_cut_time": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.predictCutTime({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              cut_length_mm: params.cut_length_mm,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+
+          // ── WEDM-BIZ-MS0: Gap Voltage Control ──────────────────────────────────
+          case "wedm_gap_voltage": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.calculate({
+              dielectric_type: params.dielectric_type,
+              debris_ppm: params.debris_ppm,
+              gap_distance_um: params.gap_distance_um,
+              peak_current_A: params.peak_current_A,
+              pulse_on_us: params.pulse_on_us,
+              workpiece_material: params.workpiece_material,
+            });
+            break;
+          }
+
+          case "wedm_gap_voltage_validate": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.validateParameters({
+              dielectric_type: params.dielectric_type,
+              debris_ppm: params.debris_ppm,
+              gap_distance_um: params.gap_distance_um,
+              peak_current_A: params.peak_current_A,
+              pulse_on_us: params.pulse_on_us,
+              workpiece_material: params.workpiece_material,
+            });
+            break;
+          }
+
+          case "wedm_gap_voltage_optimize_servo": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.optimizeServo(
+              params.target_discharge_probability,
+              params.dielectric_type,
+              params.max_debris_ppm,
+            );
+            break;
+          }
+
+          case "wedm_gap_voltage_compare_dielectrics": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.compareDielectrics(
+              params.debris_ppm,
+              params.gap_distance_um,
+            );
+            break;
+          }
+
+          case "wedm_gap_voltage_list_dielectrics": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.listDielectrics();
+            break;
+          }
+
+          // ── WEDM-BIZ-MS0: MRR Physics ───────────────────────────────────────
+          case "wedm_mrr_calculate": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.calculate(params);
+            break;
+          }
+
+          case "wedm_mrr_cut_time": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.estimateCutTime(
+              {
+                material: params.material,
+                thickness_mm: params.thickness_mm,
+                wire_type: params.wire_type,
+                wire_diameter_mm: params.wire_diameter_mm,
+                pulse_on_us: params.pulse_on_us,
+                pulse_off_us: params.pulse_off_us,
+                current_A: params.current_A,
+                voltage_V: params.voltage_V,
+                servo: params.servo,
+                flushing_pressure_bar: params.flushing_pressure_bar,
+              },
+              params.profile_length_mm,
+              {
+                num_skim_passes: params.num_skim_passes,
+                num_start_holes: params.num_start_holes,
+                include_setup: params.include_setup,
+              }
+            );
+            break;
+          }
+
+          case "wedm_mrr_compare_materials": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.compareMaterials(params.materials, {
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+            });
+            break;
+          }
+
+          case "wedm_mrr_optimize": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.optimizeForMRR(
+              params.target_mrr_mm3_min,
+              params.material,
+              params.thickness_mm,
+              {
+                max_current_A: params.max_current_A,
+                max_pulse_on_us: params.max_pulse_on_us,
+                min_surface_finish: params.min_surface_finish,
+              }
+            );
+            break;
+          }
+
+          case "wedm_mrr_validate": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.validateAgainstEmpirical(
+              {
+                material: params.material,
+                thickness_mm: params.thickness_mm,
+                wire_type: params.wire_type,
+                wire_diameter_mm: params.wire_diameter_mm,
+                pulse_on_us: params.pulse_on_us,
+                pulse_off_us: params.pulse_off_us,
+                current_A: params.current_A,
+                voltage_V: params.voltage_V,
+                servo: params.servo,
+                flushing_pressure_bar: params.flushing_pressure_bar,
+              },
+              params.measured_mrr_mm3_min
+            );
+            break;
+          }
+
+          case "wedm_mrr_list_materials": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.listMaterials();
+            break;
+          }
+
+          case "wedm_mrr_list_wires": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.listWireTypes();
+            break;
+          }
+
+          case "wedm_wire_stress_analyze": {
+            const engine = await getEngine("wireStress");
+            result = engine.analyze(params);
+            break;
+          }
+
+          case "wedm_wire_stress_optimize_tension": {
+            const engine = await getEngine("wireStress");
+            result = engine.optimizeTension(params);
+            break;
+          }
+
+          case "wedm_wire_stress_accumulate_damage": {
+            const engine = await getEngine("wireStress");
+            result = engine.accumulateDamage(params.segments);
+            break;
+          }
+
+          case "wedm_wire_tension_optimize": {
+            const engine = await getEngine("wireTensionOpt");
+            result = engine.optimize(params);
+            break;
+          }
+
+          case "wedm_wire_tension_compare_scenarios": {
+            const engine = await getEngine("wireTensionOpt");
+            result = engine.compareScenarios(params.scenarios);
+            break;
+          }
+
+          // =================================================================
+          // WEDM-INTEGRITY-MS0 U-INT-03: AUTONOMY LAYER ENGINES
+          // =================================================================
+          case "wedm_autonomy_level": {
+            const engine = await getEngine("wedmAutonomy");
+            result = { level: engine.getLevel(), name: engine.getName(), humanRole: engine.getHumanRole() };
+            break;
+          }
+          case "wedm_autonomy_can": {
+            const engine = await getEngine("wedmAutonomy");
+            const { capability } = params as { capability: string };
+            result = { capability, authorized: engine.can(capability) };
+            break;
+          }
+          case "wedm_autonomy_promote": {
+            const engine = await getEngine("wedmAutonomy");
+            result = engine.promote(params as any);
+            break;
+          }
+          case "wedm_autonomy_demote": {
+            const engine = await getEngine("wedmAutonomy");
+            result = engine.demote(params as any);
+            break;
+          }
+          case "wedm_autonomy_snapshot": {
+            const engine = await getEngine("wedmAutonomy");
+            result = engine.snapshot();
+            break;
+          }
+          case "wedm_rl_action": {
+            const engine = await getEngine("wedmRLController");
+            result = engine.selectAction?.(params as any) ?? engine.getAction?.(params as any) ?? { error: "RL action method not found" };
+            break;
+          }
+          case "wedm_rl_update": {
+            const engine = await getEngine("wedmRLController");
+            result = engine.update?.(params as any) ?? engine.learn?.(params as any) ?? { error: "RL update method not found" };
+            break;
+          }
+          case "wedm_rl_status": {
+            const engine = await getEngine("wedmRLController");
+            result = engine.status?.() ?? engine.getStatus?.() ?? { error: "RL status method not found" };
+            break;
+          }
+          case "wedm_kalman_fuse": {
+            const engine = await getEngine("wedmKalmanFusion");
+            result = engine.fuse?.(params as any) ?? engine.update?.(params as any) ?? { error: "Kalman fuse method not found" };
+            break;
+          }
+          case "wedm_kalman_state": {
+            const engine = await getEngine("wedmKalmanFusion");
+            result = engine.getState?.() ?? engine.state?.() ?? { error: "Kalman state method not found" };
+            break;
+          }
+          case "wedm_planner_plan": {
+            const engine = await getEngine("wedmHierarchicalPlanner");
+            result = engine.plan?.(params as any) ?? engine.generatePlan?.(params as any) ?? { error: "Planner plan method not found" };
+            break;
+          }
+          case "wedm_planner_status": {
+            const engine = await getEngine("wedmHierarchicalPlanner");
+            result = engine.status?.() ?? engine.getStatus?.() ?? { error: "Planner status method not found" };
+            break;
+          }
+          case "wedm_fault_diagnose": {
+            const engine = await getEngine("wedmFaultDiagnosis");
+            result = engine.diagnose?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Fault diagnose method not found" };
+            break;
+          }
+          case "wedm_fault_history": {
+            const engine = await getEngine("wedmFaultDiagnosis");
+            result = engine.getHistory?.() ?? engine.history?.() ?? { error: "Fault history method not found" };
+            break;
+          }
+
+          // =================================================================
+          // WEDM-INTEGRITY-MS0 U-INT-04: SAFETY LAYER ENGINES
+          // =================================================================
+          case "wedm_degradation_predict": {
+            const engine = await getEngine("wedmDegradationModel");
+            result = engine.predict?.(params as any) ?? engine.forecast?.(params as any) ?? { error: "Degradation predict method not found" };
+            break;
+          }
+          case "wedm_degradation_update": {
+            const engine = await getEngine("wedmDegradationModel");
+            result = engine.update?.(params as any) ?? engine.train?.(params as any) ?? { error: "Degradation update method not found" };
+            break;
+          }
+          case "wedm_rul_estimate": {
+            const engine = await getEngine("wedmRUL");
+            result = engine.estimate?.(params as any) ?? engine.predict?.(params as any) ?? { error: "RUL estimate method not found" };
+            break;
+          }
+          case "wedm_rul_components": {
+            const engine = await getEngine("wedmRUL");
+            result = engine.getComponents?.() ?? engine.components?.() ?? { error: "RUL components method not found" };
+            break;
+          }
+          case "wedm_safety_envelope": {
+            const engine = await getEngine("wedmSafetyEnvelope");
+            result = engine.check?.(params as any) ?? engine.validate?.(params as any) ?? { error: "Safety envelope check method not found" };
+            break;
+          }
+          case "wedm_safety_limits": {
+            const engine = await getEngine("wedmSafetyEnvelope");
+            result = engine.getLimits?.() ?? engine.limits?.() ?? { error: "Safety limits method not found" };
+            break;
+          }
+          case "wedm_failsafe_trigger": {
+            const engine = await getEngine("wedmFailsafe");
+            result = engine.trigger?.(params as any) ?? engine.activate?.(params as any) ?? { error: "Failsafe trigger method not found" };
+            break;
+          }
+          case "wedm_failsafe_status": {
+            const engine = await getEngine("wedmFailsafe");
+            result = engine.status?.() ?? engine.getStatus?.() ?? { error: "Failsafe status method not found" };
+            break;
+          }
+          case "wedm_virtual_simulate": {
+            const engine = await getEngine("wedmVirtualMachine");
+            result = engine.simulate?.(params as any) ?? engine.run?.(params as any) ?? { error: "Virtual simulate method not found" };
+            break;
+          }
+          case "wedm_virtual_state": {
+            const engine = await getEngine("wedmVirtualMachine");
+            result = engine.getState?.() ?? engine.state?.() ?? { error: "Virtual state method not found" };
+            break;
+          }
+
+          // =================================================================
+          // WEDM-INTEGRITY-MS0 U-INT-05: REMAINING ORPHAN ENGINES
+          // =================================================================
+
+          // Batch 1: AI/Reasoning
+          case "wedm_analogical_reason": {
+            const engine = await getEngine("wedmAnalogicalReasoning");
+            result = engine.reason?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_reasoning_bridge": {
+            const engine = await getEngine("wedmReasoningBridge");
+            result = engine.bridge?.(params as any) ?? engine.process?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_reasoning_trace": {
+            const engine = await getEngine("wedmReasoningTrace");
+            result = engine.trace?.(params as any) ?? engine.log?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_neural_fusion": {
+            const engine = await getEngine("wedmNeuralFusion");
+            result = engine.fuse?.(params as any) ?? engine.compute?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_prototypical_match": {
+            const engine = await getEngine("wedmPrototypical");
+            result = engine.match?.(params as any) ?? engine.classify?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_few_shot_learn": {
+            const engine = await getEngine("wedmFewShot");
+            result = engine.learn?.(params as any) ?? engine.infer?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_knowledge_distill": {
+            const engine = await getEngine("wedmKnowledgeDistill");
+            result = engine.distill?.(params as any) ?? engine.compress?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_advanced_neural": {
+            const engine = await getEngine("wedmAdvancedNeural");
+            result = engine.analyze?.(params as any) ?? engine.process?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_research_ai": {
+            const engine = await getEngine("wedmResearchAI");
+            result = engine.research?.(params as any) ?? engine.query?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 2: Learning/Adaptation
+          case "wedm_continuous_learn": {
+            const engine = await getEngine("wedmContinuousLearning");
+            result = engine.learn?.(params as any) ?? engine.update?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_recipe_adapt": {
+            const engine = await getEngine("wedmRecipeAdapt");
+            result = engine.adapt?.(params as any) ?? engine.optimize?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_model_update": {
+            const engine = await getEngine("wedmModelUpdate");
+            result = engine.update?.(params as any) ?? engine.train?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_reward_shape": {
+            const engine = await getEngine("wedmRewardShaping");
+            result = engine.shape?.(params as any) ?? engine.compute?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_rl_policy_persist": {
+            const engine = await getEngine("wedmRLPolicyPersist");
+            result = engine.persist?.(params as any) ?? engine.save?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 3: Simulation
+          case "wedm_rollout_simulate": {
+            const engine = await getEngine("wedmRolloutSim");
+            result = engine.simulate?.(params as any) ?? engine.rollout?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_whatif_simulate": {
+            const engine = await getEngine("wedmWhatIfSim");
+            result = engine.simulate?.(params as any) ?? engine.whatIf?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_process_causality": {
+            const engine = await getEngine("wedmProcessCausality");
+            result = engine.analyze?.(params as any) ?? engine.trace?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 4: Machine/State
+          case "wedm_machine_state": {
+            const engine = await getEngine("wedmMachineState");
+            result = engine.getState?.() ?? engine.status?.() ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_maintenance_schedule": {
+            const engine = await getEngine("wedmMaintenanceScheduler");
+            result = engine.schedule?.(params as any) ?? engine.plan?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_material_characterize": {
+            const engine = await getEngine("wedmMaterialChar");
+            result = engine.characterize?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_spark_database": {
+            const engine = await getEngine("wedmSparkDb");
+            result = engine.query?.(params as any) ?? engine.lookup?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 5: Planning/Optimization
+          case "wedm_pareto_search": {
+            const engine = await getEngine("wedmParetoSearch");
+            result = engine.search?.(params as any) ?? engine.optimize?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_pareto_cache": {
+            const engine = await getEngine("wedmParetoCache");
+            result = engine.get?.(params as any) ?? engine.lookup?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_sequence_optimize": {
+            const engine = await getEngine("wedmSequencing");
+            result = engine.optimize?.(params as any) ?? engine.sequence?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_tab_strategy": {
+            const engine = await getEngine("wedmTabStrategy");
+            result = engine.plan?.(params as any) ?? engine.compute?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_strategy_library": {
+            const engine = await getEngine("wedmStrategyLib");
+            result = engine.lookup?.(params as any) ?? engine.get?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_tradeoff_elicit": {
+            const engine = await getEngine("wedmTradeoffElicit");
+            result = engine.elicit?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 6: Safety/Governance
+          case "wedm_governance_query": {
+            const engine = await getEngine("wedmGovernance");
+            result = engine.query?.(params as any) ?? engine.get?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_exception_handle": {
+            const engine = await getEngine("wedmExceptionHandler");
+            result = engine.handle?.(params as any) ?? engine.process?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_human_handoff": {
+            const engine = await getEngine("wedmHumanHandoff");
+            result = engine.handoff?.(params as any) ?? engine.request?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_head_clearance": {
+            const engine = await getEngine("wedmHeadClearance");
+            result = engine.check?.(params as any) ?? engine.validate?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_fixture_interference": {
+            const engine = await getEngine("wedmFixtureInterference");
+            result = engine.check?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_accessibility_check": {
+            const engine = await getEngine("wedmAccessibility");
+            result = engine.check?.(params as any) ?? engine.validate?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_drift_detect": {
+            const engine = await getEngine("wedmDriftDetect");
+            result = engine.detect?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 7: Program/Print
+          case "wedm_print_to_program": {
+            const engine = await getEngine("wedmPrintToProgram");
+            result = engine.convert?.(params as any) ?? engine.generate?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_ai_print_to_program": {
+            const engine = await getEngine("wedmAIPrintToProgram");
+            result = engine.convert?.(params as any) ?? engine.generate?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_program_compare": {
+            const engine = await getEngine("wedmProgramCompare");
+            result = engine.compare?.(params as any) ?? engine.diff?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_dwg_import": {
+            const engine = await getEngine("wedmDwgImport");
+            result = engine.import?.(params as any) ?? engine.parse?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 8: Query/Awareness
+          case "wedm_active_query": {
+            const engine = await getEngine("wedmActiveQuery");
+            result = engine.query?.(params as any) ?? engine.search?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_self_aware": {
+            const engine = await getEngine("wedmSelfAware");
+            result = engine.introspect?.() ?? engine.status?.() ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_part_recognize": {
+            const engine = await getEngine("wedmPartRecognize");
+            result = engine.recognize?.(params as any) ?? engine.classify?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_blackboard_query": {
+            const engine = await getEngine("wedmBlackboard");
+            result = engine.query?.(params as any) ?? engine.read?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_archive_backfill": {
+            const engine = await getEngine("wedmArchiveBackfill");
+            result = engine.backfill?.(params as any) ?? engine.process?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          // Batch 9: Core Pipeline
+          case "edm_param_calculate": {
+            const engine = await getEngine("edmParam");
+            result = engine.calculate?.(params as any) ?? engine.compute?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "edm_wire_calculate": {
+            const engine = await getEngine("edmWire");
+            result = engine.calculate?.(params as any) ?? engine.compute?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "edm_postproc_extend": {
+            const engine = await getEngine("edmPostprocExt");
+            result = engine.extend?.(params as any) ?? engine.process?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_agi_orchestrate": {
+            const engine = await getEngine("wedmAGIOrch");
+            result = engine.orchestrate?.(params as any) ?? engine.run?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_cam_knowledge": {
+            const engine = await getEngine("wedmCAMKnowledge");
+            result = engine.query?.(params as any) ?? engine.lookup?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_machine_tech_data": {
+            const engine = await getEngine("wedmMachineTechData");
+            result = engine.lookup?.(params as any) ?? engine.get?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_unified_science": {
+            const engine = await getEngine("wedmUnifiedScience");
+            result = engine.compute?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_setup_sheet_gen": {
+            const engine = await getEngine("wedmSetupSheet");
+            result = engine.generate?.(params as any) ?? engine.create?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+          case "wedm_tribal_runtime": {
+            const engine = await getEngine("wedmTribalRuntime");
+            result = engine.query?.(params as any) ?? engine.lookup?.(params as any) ?? { error: "Method not found" };
+            break;
+          }
+
+          case "wedm_print_to_program": {
+            const engine = await getEngine("printToProgram");
+            result = await engine.generate(params);
+            break;
+          }
+
+          case "auto_print_to_program_run": {
+            const engine = await getEngine("autoPrintBridge");
+            result = await engine.runAutoPipeline(params);
             break;
           }
 

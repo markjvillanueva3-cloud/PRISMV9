@@ -38,6 +38,24 @@ const ACTIONS = [
   "turning_assemble_program", "turning_auto_tools", "turning_cycle_time", "turning_validate",
   "mill_turn_live_tool", "mill_turn_sub_spindle", "mill_turn_multi_channel",
   "mill_turn_bar_feeder", "mill_turn_swiss",
+  // LATHE-PRO-MS6a: Swiss multi-channel G-code emission (U-LPM01..U-LPM03)
+  "turning_swiss_channel_emit", "turning_swiss_sync_verify_schedule", "turning_swiss_part_transfer",
+  // LATHE-PRO-MS6a: Channel balancing + simultaneous-cut collision (U-LPM04..U-LPM05)
+  "turning_swiss_channel_balance", "turning_swiss_collision_check",
+  // LATHE-PRO-MS6b: Swiss production intelligence (U-LPS21..U-LPS23)
+  "turning_swiss_guide_bush_decide", "turning_swiss_back_work_op2", "turning_swiss_gang_layout",
+  // LATHE-PRO-MS6b: Bar-stock management + unmanned readiness (U-LPS24..U-LPS25)
+  "turning_swiss_bar_management", "turning_swiss_unmanned_score",
+  // LATHE-PRO-MS7: Chip control + coolant strategy (U-LPC01..U-LPC06)
+  "turning_chip_breaker_validate", "turning_chip_wrapping_risk",
+  "turning_chip_unmanned_score", "turning_coolant_strategy", "turning_chip_analysis",
+  // LATHE-PRO-MS8: GD&T, inspection & metrology intelligence (U-LPQ01..U-LPQ08)
+  "turning_inspection_plan", "turning_fai_generate", "turning_cmm_program",
+  "turning_spc_predict", "turning_gage_rr_check", "turning_quality_package",
+  // LATHE-PRO-MS9: Quality compliance AS9100/ISO 13485/FDA (U-LPR01..U-LPR06)
+  "turning_biocompat_check", "turning_compliance_check",
+  // LATHE-PRO-MS10: Cost optimization & batch economics (U-LPE01..U-LPE08)
+  "turning_cost_per_part", "turning_cost_optimize",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -177,6 +195,8 @@ const ACTIONS = [
   "lathe_replay_frame_compile",
   // LATHE-MASTER U-LTH24: Post-processor generator full pipeline
   "postgen_full",
+  // LATHE-PRO-V3 MS2 / U-LPT01: Wear-to-offset superposition
+  "turning_offset_compensation",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -321,6 +341,164 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "mill_turn_swiss": {
             const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
             result = mte.calculate({ action: "swiss_machining", params: params as any });
+            break;
+          }
+          // LATHE-PRO-MS6a: Swiss multi-channel G-code emission (U-LPM01..U-LPM03)
+          case "turning_swiss_channel_emit": {
+            const { swissChannelFileEmitterEngine: sce } = await import("../../engines/SwissChannelFileEmitterEngine.js");
+            result = sce.emit(params as any);
+            break;
+          }
+          case "turning_swiss_sync_verify_schedule": {
+            const { syncCodeVerificationEngine: sve } = await import("../../engines/SyncCodeVerificationEngine.js");
+            result = sve.verifySchedule(params as any);
+            break;
+          }
+          case "turning_swiss_part_transfer": {
+            const { swissPartTransferSequenceEngine: spt } = await import("../../engines/SwissPartTransferSequenceEngine.js");
+            result = spt.generate(params as any);
+            break;
+          }
+          // LATHE-PRO-MS6a: Channel balancing + simultaneous-cut collision (U-LPM04..U-LPM05)
+          case "turning_swiss_channel_balance": {
+            const { swissChannelGanttSchedulerEngine: sgs } = await import("../../engines/SwissChannelGanttSchedulerEngine.js");
+            result = sgs.balance(params as any);
+            break;
+          }
+          case "turning_swiss_collision_check": {
+            const { multiChannelCollisionEngine: mcc } = await import("../../engines/MultiChannelCollisionEngine.js");
+            result = mcc.check(params as any);
+            break;
+          }
+          // LATHE-PRO-MS6b: Swiss production intelligence (U-LPS21..U-LPS23)
+          case "turning_swiss_guide_bush_decide": {
+            const { swissGuideBushDecisionEngine: gbe } = await import("../../engines/SwissGuideBushDecisionEngine.js");
+            result = gbe.decide(params as any);
+            break;
+          }
+          case "turning_swiss_back_work_op2": {
+            const { swissBackWorkingOp2Engine: bwe } = await import("../../engines/SwissBackWorkingOp2Engine.js");
+            result = bwe.generate(params as any);
+            break;
+          }
+          case "turning_swiss_gang_layout": {
+            const { swissGangSlideTurretEngine: sge } = await import("../../engines/SwissGangSlideTurretEngine.js");
+            result = sge.layout(params as any);
+            break;
+          }
+          // LATHE-PRO-MS6b: Bar-stock management + unmanned readiness (U-LPS24..U-LPS25)
+          case "turning_swiss_bar_management": {
+            const { swissBarProductionEngine: bpe } = await import("../../engines/SwissBarProductionEngine.js");
+            result = bpe.plan(params as any);
+            break;
+          }
+          case "turning_swiss_unmanned_score": {
+            const { swissUnmannedReadinessEngine: ure } = await import("../../engines/SwissUnmannedReadinessEngine.js");
+            result = ure.assess(params as any);
+            break;
+          }
+          // LATHE-PRO-MS7: Chip control + coolant strategy (U-LPC01..U-LPC06)
+          case "turning_chip_breaker_validate": {
+            const { turningChipbreakerCatalogEngine: cce } = await import("../../engines/TurningChipbreakerCatalogEngine.js");
+            result = cce.validate(params as any);
+            break;
+          }
+          case "turning_chip_wrapping_risk": {
+            const { turningChipWrappingRiskEngine: cwr } = await import("../../engines/TurningChipWrappingRiskEngine.js");
+            result = cwr.assess(params as any);
+            break;
+          }
+          case "turning_chip_unmanned_score": {
+            const { turningChipUnmannedScoreEngine: cus } = await import("../../engines/TurningChipUnmannedScoreEngine.js");
+            result = cus.assess(params as any);
+            break;
+          }
+          case "turning_coolant_strategy": {
+            const { coolantStrategyEngine: cse } = await import("../../engines/CoolantStrategyEngine.js");
+            result = cse.calculate(params as any);
+            break;
+          }
+          // LATHE-PRO-MS8: GD&T, inspection & metrology intelligence (U-LPQ01..U-LPQ08)
+          case "turning_inspection_plan": {
+            const { turningInspectionPlanEngine: tipe } = await import("../../engines/TurningInspectionPlanEngine.js");
+            result = tipe.generate(params as any);
+            break;
+          }
+          case "turning_fai_generate": {
+            const { firstArticleInspectionPipelineEngine: faiE } = await import("../../engines/FirstArticleInspectionPipelineEngine.js");
+            const p = params as any;
+            const fai = await faiE.runFAI(p);
+            const forms = p.fai_id ? faiE.generateForms(p.fai_id) : undefined;
+            result = { fai, forms };
+            break;
+          }
+          case "turning_cmm_program": {
+            const { cmmPathPlanningEngine: cmm } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmm.planPath(params as any);
+            break;
+          }
+          case "turning_spc_predict": {
+            const { processCapabilityPredictionEngine: pcp } = await import("../../engines/ProcessCapabilityPredictionEngine.js");
+            result = pcp.predict(params as any);
+            break;
+          }
+          case "turning_gage_rr_check": {
+            const { metrologyUncertaintyEngine: mue } = await import("../../engines/MetrologyUncertaintyEngine.js");
+            result = mue.gageRR(params as any);
+            break;
+          }
+          case "turning_quality_package": {
+            const { turningQualityComplianceEngine: tqc } = await import("../../engines/TurningQualityComplianceEngine.js");
+            const p = params as any;
+            const requirements = tqc.planRequirements(p);
+            result = p.produced ? tqc.checkPackage(requirements, p.produced) : requirements;
+            break;
+          }
+          // LATHE-PRO-MS9: Quality compliance AS9100/ISO 13485/FDA (U-LPR01..U-LPR06)
+          case "turning_biocompat_check": {
+            const { turningBiocompatibleMaterialGuardEngine: bcg } = await import("../../engines/TurningBiocompatibleMaterialGuardEngine.js");
+            result = bcg.check(params as any);
+            break;
+          }
+          case "turning_compliance_check": {
+            const { turningComplianceCheckEngine: tcc } = await import("../../engines/TurningComplianceCheckEngine.js");
+            result = tcc.check(params as any);
+            break;
+          }
+          // LATHE-PRO-MS10: Cost optimization & batch economics (U-LPE01..U-LPE08)
+          case "turning_cost_per_part": {
+            const { turningCostPerPartEngine: tcpp } = await import("../../engines/TurningCostPerPartEngine.js");
+            result = tcpp.calculate(params as any);
+            break;
+          }
+          case "turning_cost_optimize": {
+            // Omnibus: 7-bucket cost + Gilbert/Taylor economic speed in one call.
+            const p = params as any;
+            const [costMod, gilbertMod] = await Promise.all([
+              import("../../engines/TurningCostPerPartEngine.js"),
+              import("../../engines/GilbertEconomicSpeedEngine.js"),
+            ]);
+            const cost = costMod.turningCostPerPartEngine.calculate(p.cost);
+            const gilbert = p.gilbert ? gilbertMod.gilbertEconomicSpeedEngine.compute(p.gilbert) : undefined;
+            result = { cost, gilbert };
+            break;
+          }
+          case "turning_chip_analysis": {
+            // Omnibus action: run chip-breaker validate + wrapping-risk + unmanned score in one call.
+            const p = params as any;
+            const [cceMod, cwrMod, cusMod] = await Promise.all([
+              import("../../engines/TurningChipbreakerCatalogEngine.js"),
+              import("../../engines/TurningChipWrappingRiskEngine.js"),
+              import("../../engines/TurningChipUnmannedScoreEngine.js"),
+            ]);
+            const breaker = p.chipbreaker ? cceMod.turningChipbreakerCatalogEngine.validate(p.chipbreaker) : undefined;
+            const wrapping = p.wrapping ? cwrMod.turningChipWrappingRiskEngine.assess(p.wrapping) : undefined;
+            const unmanned = p.unmanned ? cusMod.turningChipUnmannedScoreEngine.assess({
+              ...p.unmanned,
+              wrapping_risk_score: p.unmanned.wrapping_risk_score ?? wrapping?.risk_score ?? 0,
+              mitigations_applied: p.unmanned.mitigations_applied ?? wrapping?.mitigations.length ?? 0,
+            }) : undefined;
+            result = { breaker, wrapping, unmanned };
             break;
           }
           // LATHE-MS0: Collision zone actions
@@ -2501,6 +2679,177 @@ Actions: ${ACTIONS.join(", ")}.`,
               recommendations: uncertainty.recommendations,
               warnings,
               errors,
+            };
+            break;
+          }
+
+          // LATHE-PRO-V3 MS2 / U-LPT01: Wear-to-offset superposition
+          case "turning_offset_compensation": {
+            const { latheOffsetSuperpositionEngine } = await import("../../engines/LatheOffsetSuperpositionEngine.js");
+            result = latheOffsetSuperpositionEngine.calculate(params as any);
+            break;
+          }
+
+          // P0.2: Local LLM + LoRA Policy (U-LTH69-76)
+          case "lathe_lora_build_dataset": {
+            const { latheLoRADatasetBuilderEngine } = await import("../../engines/LatheLoRADatasetBuilderEngine.js");
+            if (params.config) {
+              latheLoRADatasetBuilderEngine.setConfig(params.config);
+            }
+            if (params.validate_path) {
+              result = latheLoRADatasetBuilderEngine.validateDataset(params.validate_path);
+            } else {
+              result = await latheLoRADatasetBuilderEngine.build();
+            }
+            break;
+          }
+
+          case "lathe_lora_generate_training": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            if (params.config) {
+              latheLoRATrainingScriptEngine.setConfig(params.config);
+            }
+            if (params.preset) {
+              latheLoRATrainingScriptEngine.applyPreset(params.preset);
+            }
+            const validation = latheLoRATrainingScriptEngine.validateConfig();
+            result = {
+              ...latheLoRATrainingScriptEngine.generateScript(),
+              validation,
+              inference_script: latheLoRATrainingScriptEngine.generateInferenceScript(),
+            };
+            break;
+          }
+
+          case "lathe_lora_evaluate": {
+            const { latheLoRAEvalHarnessEngine } = await import("../../engines/LatheLoRAEvalHarnessEngine.js");
+            if (params.config) {
+              latheLoRAEvalHarnessEngine.setConfig(params.config);
+            }
+            if (params.sample) {
+              result = latheLoRAEvalHarnessEngine.evaluateSample(
+                params.sample.instruction,
+                params.sample.input,
+                params.sample.expected,
+                params.sample.generated,
+                params.sample.latency_ms
+              );
+            } else {
+              result = {
+                script: latheLoRAEvalHarnessEngine.generateEvalScript(),
+                config: latheLoRAEvalHarnessEngine.getConfig(),
+              };
+            }
+            break;
+          }
+
+          case "lathe_lora_merge_quant": {
+            const { latheLoRAMergeQuantEngine } = await import("../../engines/LatheLoRAMergeQuantEngine.js");
+            if (params.config) {
+              latheLoRAMergeQuantEngine.setConfig(params.config);
+            }
+            result = {
+              merge_script: latheLoRAMergeQuantEngine.generateMergeScript(),
+              quant_script: latheLoRAMergeQuantEngine.generateQuantScript(),
+              pipeline_script: latheLoRAMergeQuantEngine.generateFullPipeline(),
+              size_estimate: latheLoRAMergeQuantEngine.estimateSize(params.model_name || "llama-3-8b"),
+              validation: latheLoRAMergeQuantEngine.validateConfig(),
+              recommendation: params.use_case ? latheLoRAMergeQuantEngine.recommendFormat(params.use_case) : undefined,
+            };
+            break;
+          }
+
+          case "lathe_lora_ollama_deploy": {
+            const { latheOllamaIntegrationEngine } = await import("../../engines/LatheOllamaIntegrationEngine.js");
+            if (params.config) {
+              latheOllamaIntegrationEngine.setConfig(params.config);
+            }
+            result = {
+              modelfile: latheOllamaIntegrationEngine.generateModelfile(),
+              commands: {
+                create: latheOllamaIntegrationEngine.getCreateCommand(),
+                run: latheOllamaIntegrationEngine.getRunCommand(),
+                show: latheOllamaIntegrationEngine.getShowCommand(),
+              },
+              deploy_script: latheOllamaIntegrationEngine.generateDeployScript(),
+              health_check: latheOllamaIntegrationEngine.getHealthCheckScript(),
+              python_client: latheOllamaIntegrationEngine.generatePythonClient(),
+              validation: latheOllamaIntegrationEngine.validateConfig(),
+            };
+            break;
+          }
+
+          case "lathe_lora_pipeline_run": {
+            const { latheLoRAPipelineEngine } = await import("../../engines/LatheLoRAPipelineEngine.js");
+            if (params.config) {
+              latheLoRAPipelineEngine.setConfig(params.config);
+            }
+            if (params.init) {
+              result = latheLoRAPipelineEngine.initializePipeline();
+            } else if (params.start_stage) {
+              result = latheLoRAPipelineEngine.startStage(params.start_stage);
+            } else if (params.complete_stage) {
+              result = latheLoRAPipelineEngine.completeStage(
+                params.complete_stage,
+                params.outputs,
+                params.metrics
+              );
+            } else {
+              result = {
+                script: latheLoRAPipelineEngine.generatePipelineScript(),
+                report: latheLoRAPipelineEngine.generateReport(),
+                state: latheLoRAPipelineEngine.getState(),
+                validation: latheLoRAPipelineEngine.validateConfig(),
+                estimate: latheLoRAPipelineEngine.getEstimatedDuration(),
+              };
+            }
+            break;
+          }
+
+          case "lathe_lora_cadence_status": {
+            const { latheLoRACadenceEngine } = await import("../../engines/LatheLoRACadenceEngine.js");
+            if (params.config) {
+              latheLoRACadenceEngine.setConfig(params.config);
+            }
+            if (params.record_programs) {
+              latheLoRACadenceEngine.recordNewPrograms(params.record_programs);
+            }
+            if (params.start_run) {
+              result = latheLoRACadenceEngine.startRun(params.trigger || "manual", params.notes);
+            } else if (params.complete_run) {
+              result = latheLoRACadenceEngine.completeRun(
+                params.complete_run,
+                params.metrics,
+                params.model_path
+              );
+            } else if (params.promote_version) {
+              result = latheLoRACadenceEngine.promoteVersion(params.promote_version);
+            } else {
+              result = {
+                summary: latheLoRACadenceEngine.getSummary(),
+                should_trigger: latheLoRACadenceEngine.shouldTriggerRun(),
+                cron: latheLoRACadenceEngine.getCronExpression(),
+                run_history: latheLoRACadenceEngine.getRunHistory(5),
+                version_history: latheLoRACadenceEngine.getVersionHistory(5),
+                active_version: latheLoRACadenceEngine.getActiveVersion(),
+              };
+            }
+            break;
+          }
+
+          case "lathe_lora_inference": {
+            const { latheOllamaIntegrationEngine } = await import("../../engines/LatheOllamaIntegrationEngine.js");
+            if (params.config) {
+              latheOllamaIntegrationEngine.setConfig(params.config);
+            }
+            const request = latheOllamaIntegrationEngine.buildGenerateRequest(
+              params.instruction,
+              params.input
+            );
+            result = {
+              request,
+              api_url: latheOllamaIntegrationEngine.getApiUrl("generate"),
+              curl: latheOllamaIntegrationEngine.getCurlGenerate(params.instruction),
             };
             break;
           }

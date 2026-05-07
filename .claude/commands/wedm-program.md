@@ -1,9 +1,8 @@
 ---
-policy:
-  tier: 3
-  triggers:
-    - "wedm-program"
+name: wedm-program
+description: /wedm-program — Physics-Optimized Wire EDM Program Generator
 ---
+
 # /wedm-program — Physics-Optimized Wire EDM Program Generator
 
 Generate a complete, production-ready Wire EDM NC program with physics-derived parameters, per-pass optimization, and full traceability.

@@ -4,7 +4,11 @@
  * Models: MRR from discharge energy, wire tension/speed,
  *         surface finish prediction, taper cutting capability
  * References: Rajurkar, CIRP Annals, Sodick/Mitsubishi specs
+ *
+ * Ra formula: Klocke (2013) canonical via shared utility (U-W100-03a)
  */
+
+import { klockeRaFromEnergy } from "./utils/klockeRa.js";
 
 export type WireType = "brass" | "coated_brass" | "molybdenum" | "tungsten" | "zinc_coated";
 export type CuttingMode = "rough" | "semi_finish" | "finish" | "super_finish";
@@ -86,8 +90,9 @@ export class EDMWireEngine {
     // Cutting speed
     const cuttingSpeed = MRR / Math.max(H, 0.1);
 
-    // Surface roughness (empirical: Ra ∝ E_pulse^0.4)
-    const Ra_base = 0.5 * Math.pow(E_pulse * 1e6, 0.4);
+    // Surface roughness: Klocke canonical via shared utility
+    // E_pulse is in Joules, klockeRaFromEnergy expects mJ
+    const Ra_base = klockeRaFromEnergy(E_pulse * 1000);
     const Ra = cutting_mode === "rough" ? Ra_base :
       cutting_mode === "semi_finish" ? Ra_base * 0.5 :
       cutting_mode === "finish" ? Ra_base * 0.2 : Ra_base * 0.08;

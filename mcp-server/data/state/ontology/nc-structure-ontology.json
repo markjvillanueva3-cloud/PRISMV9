@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "domain": "nc_structure",
+  "created_at": "2026-04-22T09:00:00Z",
+  "description": "Canonical field names for NC program structure and output formatting",
+  "owner_unit": "CAM-UIX-INFRA-00/U-ONTOLOGY-SEED01",
+  "entry_count": 72,
+  "categories": {
+    "program_number": {
+      "canonical": "program_id",
+      "aliases": {
+        "mastercam": ["program_number", "nc_program", "o_number"],
+        "fusion360": ["programNumber", "programName"],
+        "hypermill": ["program_nr", "nc_number"],
+        "nx_cam": ["programNumber", "part_program"],
+        "solidcam": ["prog_num", "program_no"],
+        "fanuc": ["O", "o_word"],
+        "siemens": ["program_name", "mpf_name"]
+      }
+    },
+    "sequence_number": {
+      "canonical": "line_number",
+      "aliases": {
+        "mastercam": ["sequence_number", "seq_no", "n_word"],
+        "fusion360": ["sequenceNumber", "lineNumber"],
+        "hypermill": ["line_nr", "sequence"],
+        "nx_cam": ["sequence", "n_number"],
+        "fanuc": ["N", "n_word"],
+        "siemens": ["N", "block_number"]
+      },
+      "increment_options": [1, 5, 10, 100]
+    },
+    "tool_call": {
+      "canonical": "tool_number",
+      "aliases": {
+        "mastercam": ["tool_number", "tool_no", "t_word"],
+        "fusion360": ["toolNumber", "tool"],
+        "hypermill": ["tool_nr", "t_number"],
+        "nx_cam": ["tool_number", "tool_id"],
+        "fanuc": ["T", "t_word"],
+        "siemens": ["T", "tool_call"],
+        "heidenhain": ["TOOL CALL", "tool_def"]
+      }
+    },
+    "spindle_command": {
+      "canonical": "spindle_code",
+      "aliases": {
+        "fanuc": ["S", "s_word", "M03", "M04", "M05"],
+        "siemens": ["S", "spindle_speed", "M3", "M4", "M5"],
+        "heidenhain": ["S", "spindle_rpm"],
+        "okuma_osp": ["S", "spindle"]
+      },
+      "modal_group": "spindle"
+    },
+    "feedrate_command": {
+      "canonical": "feed_code",
+      "aliases": {
+        "fanuc": ["F", "f_word"],
+        "siemens": ["F", "feed"],
+        "heidenhain": ["F", "feed_rate"],
+        "okuma_osp": ["F", "feed"]
+      },
+      "modal_group": "feed"
+    },
+    "coolant_command": {
+      "canonical": "coolant_code",
+      "aliases": {
+        "fanuc": ["M08", "M09", "M07", "coolant_on", "coolant_off"],
+        "siemens": ["M8", "M9", "coolant"],
+        "heidenhain": ["M8", "M9", "coolant_flood", "coolant_mist"],
+        "okuma_osp": ["M08", "M09", "coolant"]
+      },
+      "valid_values": {
+        "flood": "M08",
+        "mist": "M07",
+        "off": "M09",
+        "through_spindle": "M88",
+        "air_blast": "M07"
+      }
+    },
+    "canned_cycle": {
+      "canonical": "drill_cycle",
+      "aliases": {
+        "fanuc": ["G81", "G82", "G83", "G84", "G85", "G86", "G87", "G73", "G74", "G76"],
+        "siemens": ["CYCLE81", "CYCLE82", "CYCLE83", "CYCLE84", "CYCLE85"],
+        "heidenhain": ["CYCL DEF 200", "CYCL DEF 201", "CYCL DEF 202", "CYCL DEF 203"],
+        "okuma_osp": ["G81", "G83", "G84", "G74", "G76"]
+      }
+    },
+    "compensation_mode": {
+      "canonical": "cutter_comp",
+      "aliases": {
+        "fanuc": ["G41", "G42", "G40", "cutter_comp_left", "cutter_comp_right", "cutter_comp_off"],
+        "siemens": ["G41", "G42", "G40", "CRL", "CRR"],
+        "heidenhain": ["RL", "RR", "R0"],
+        "okuma_osp": ["G41", "G42", "G40"]
+      },
+      "valid_values": ["G40_off", "G41_left", "G42_right"]
+    },
+    "work_plane": {
+      "canonical": "plane_select",
+      "aliases": {
+        "fanuc": ["G17", "G18", "G19"],
+        "siemens": ["G17", "G18", "G19"],
+        "heidenhain": ["PLANE XY", "PLANE XZ", "PLANE YZ"],
+        "okuma_osp": ["G17", "G18", "G19"]
+      },
+      "valid_values": {"XY": "G17", "XZ": "G18", "YZ": "G19"}
+    },
+    "absolute_incremental": {
+      "canonical": "distance_mode",
+      "aliases": {
+        "fanuc": ["G90", "G91"],
+        "siemens": ["G90", "G91", "ABSOL", "INCREM"],
+        "heidenhain": ["absolute", "incremental"],
+        "okuma_osp": ["G90", "G91"]
+      },
+      "valid_values": {"absolute": "G90", "incremental": "G91"}
+    },
+    "rapid_traverse": {
+      "canonical": "rapid_code",
+      "aliases": {
+        "fanuc": ["G00", "G0"],
+        "siemens": ["G0", "RAPID"],
+        "heidenhain": ["L", "FMAX"],
+        "okuma_osp": ["G00"]
+      }
+    },
+    "linear_interpolation": {
+      "canonical": "linear_code",
+      "aliases": {
+        "fanuc": ["G01", "G1"],
+        "siemens": ["G1", "LINEAR"],
+        "heidenhain": ["L"],
+        "okuma_osp": ["G01"]
+      }
+    },
+    "arc_interpolation": {
+      "canonical": "arc_code",
+      "aliases": {
+        "fanuc": ["G02", "G03", "G2", "G3"],
+        "siemens": ["G2", "G3", "CIP"],
+        "heidenhain": ["CR", "CC", "C"],
+        "okuma_osp": ["G02", "G03"]
+      },
+      "valid_values": {"cw": "G02", "ccw": "G03"}
+    }
+  }
+}

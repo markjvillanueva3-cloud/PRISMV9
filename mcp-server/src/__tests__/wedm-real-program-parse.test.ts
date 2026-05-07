@@ -467,3 +467,50 @@ describe("Calibration anchors — exact shop values for engine comparison", () =
     }
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// U-CAL04: Parser Regression — Golden Snapshot Validation
+// ═══════════════════════════════════════════════════════════════════════
+
+describe("U-CAL04: Parser Regression — Golden Snapshots", () => {
+  it("all programs in PARSER_GOLDEN_SNAPSHOTS.json still parse correctly", async () => {
+    const { wireEDMProgramParserEngine } = await import("../engines/WireEDMProgramParserEngine.js");
+    const snapshotsPath = join(__dirname, "../../data/state/PARSER_GOLDEN_SNAPSHOTS.json");
+    const snapshots = JSON.parse(readFileSync(snapshotsPath, "utf-8"));
+
+    expect(snapshots.snapshots.length).toBeGreaterThanOrEqual(3);
+
+    for (const snap of snapshots.snapshots) {
+      const content = readFileSync(join(PROGRAMS_DIR, snap.filename), "utf-8");
+      const result = wireEDMProgramParserEngine.parse(content, snap.filename);
+
+      expect(result.dialect).toBe(snap.dialect);
+      expect(result.passes.length).toBe(snap.pass_count);
+      expect(result.hasTaper).toBe(snap.has_taper);
+      expect(result.wire_settings.has_auto_thread).toBe(snap.has_auto_thread);
+    }
+  });
+
+  it("ITW SHAKEPROOF snapshot matches current parse", async () => {
+    const { wireEDMProgramParserEngine } = await import("../engines/WireEDMProgramParserEngine.js");
+    const snapshotsPath = join(__dirname, "../../data/state/PARSER_GOLDEN_SNAPSHOTS.json");
+    const snapshots = JSON.parse(readFileSync(snapshotsPath, "utf-8"));
+    const itw = snapshots.snapshots.find((s: any) => s.filename.includes("ITW"));
+
+    expect(itw).toBeDefined();
+    expect(itw.dialect).toBe("mitsubishi");
+    expect(itw.pass_count).toBeGreaterThanOrEqual(4);
+  });
+
+  it("NOZE TEST snapshot matches current parse", async () => {
+    const { wireEDMProgramParserEngine } = await import("../engines/WireEDMProgramParserEngine.js");
+    const snapshotsPath = join(__dirname, "../../data/state/PARSER_GOLDEN_SNAPSHOTS.json");
+    const snapshots = JSON.parse(readFileSync(snapshotsPath, "utf-8"));
+    const noze = snapshots.snapshots.find((s: any) => s.filename.includes("NOZE"));
+
+    expect(noze).toBeDefined();
+    expect(noze.dialect).toBe("mitsubishi");
+    expect(noze.has_taper).toBe(true);
+    expect(noze.pass_count).toBeGreaterThanOrEqual(5);
+  });
+});

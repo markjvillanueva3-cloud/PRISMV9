@@ -27,7 +27,24 @@ type HookContext = any;
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
-    _userAssistanceSkills: any, _prismSelfAwareness: any;
+    _userAssistanceSkills: any, _prismSelfAwareness: any,
+    _aiFeatureRegistry: any, _aiSystemRouter: any,
+    _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
+    _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any,
+    _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any,
+    _xprocTierRouter: any, _xprocOrchestrator: any,
+    _xprocRuleExtracted: any, _xprocFormulaNeural: any,
+    _xprocEpisodicMemory: any, _xprocPrioritizedReplay: any,
+    _xprocReplaySampler: any, _xprocSemanticLinker: any,
+    _xprocOnlineMLP: any, _xprocDriftDetector: any,
+    _xprocShiftHandler: any, _xprocEWC: any,
+    _xprocRewardShaper: any, _xprocPolicyGradient: any,
+    _xprocQLearning: any, _xprocBandit: any,
+    _xprocBayesianMLP: any, _xprocConformal: any,
+    _xprocDeepEnsemble: any, _xprocCalibration: any,
+    _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
+    _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
+    _xprocModalityDropout: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -44,6 +61,48 @@ async function getEngine(name: string): Promise<any> {
     case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
     case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
     case "prismSelfAwareness": return _prismSelfAwareness ??= (await import("../../engines/PRISMSelfAwarenessEngine.js")).prismSelfAwarenessEngine;
+    case "aiFeatureRegistry":    return _aiFeatureRegistry ??= (await import("../../engines/AIFeatureAutoRegistryEngine.js")).aiFeatureRegistryDispatch;
+    case "aiSystemRouter":       return _aiSystemRouter ??= (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterDispatch;
+    case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
+    case "xprocSymbolicEnforcer": return _xprocSymbolicEnforcer ??= (await import("../../engines/CrossProcessSymbolicConstraintEnforcerEngine.js")).crossProcessSymbolicEnforcer;
+    case "xprocSafetyVerifier": return _xprocSafetyVerifier ??= (await import("../../engines/CrossProcessNeuroSymbolicSafetyVerifierEngine.js")).crossProcessNeuroSymbolicSafetyVerifier;
+    case "xprocCausalLearner": return _xprocCausalLearner ??= (await import("../../engines/CrossProcessCausalGraphLearnerEngine.js")).crossProcessCausalGraphLearner;
+    case "xprocDoCalculus": return _xprocDoCalculus ??= (await import("../../engines/CrossProcessDoCalculusEngine.js")).crossProcessDoCalculus;
+    case "xprocCounterfactual": return _xprocCounterfactual ??= (await import("../../engines/CrossProcessCounterfactualPredictorEngine.js")).crossProcessCounterfactualPredictor;
+    case "xprocMediation": return _xprocMediation ??= (await import("../../engines/CrossProcessMediationAnalyzerEngine.js")).crossProcessMediationAnalyzer;
+    case "xprocUncertainty": return _xprocUncertainty ??= (await import("../../engines/CrossProcessUncertaintyDrivenSamplerEngine.js")).crossProcessUncertaintyDrivenSampler;
+    case "xprocNovelty": return _xprocNovelty ??= (await import("../../engines/CrossProcessNoveltyDetectorEngine.js")).crossProcessNoveltyDetector;
+    case "xprocCuriosity": return _xprocCuriosity ??= (await import("../../engines/CrossProcessCuriosityDrivenExplorationEngine.js")).crossProcessCuriosityDrivenExploration;
+    case "xprocDOE": return _xprocDOE ??= (await import("../../engines/CrossProcessBayesianDOEPlannerEngine.js")).crossProcessBayesianDOEPlanner;
+    case "xprocTierRouter": return _xprocTierRouter ??= (await import("../../engines/CrossProcessTierRouterEngine.js")).crossProcessTierRouter;
+    case "xprocOrchestrator": return _xprocOrchestrator ??= (await import("../../engines/CrossProcessHierarchicalNeuralOrchestratorEngine.js")).crossProcessHierarchicalNeuralOrchestrator;
+    case "xprocRuleExtracted": return _xprocRuleExtracted ??= (await import("../../engines/CrossProcessRuleExtractedNeuralInferenceEngine.js")).crossProcessRuleExtractedNeuralInference;
+    case "xprocFormulaNeural": return _xprocFormulaNeural ??= (await import("../../engines/CrossProcessFormulaNeuralEnsembleEngine.js")).crossProcessFormulaNeuralEnsemble;
+    case "xprocEpisodicMemory": return _xprocEpisodicMemory ??= (await import("../../engines/CrossProcessEpisodicMemoryEngine.js")).crossProcessEpisodicMemory;
+    case "xprocPrioritizedReplay": return _xprocPrioritizedReplay ??= (await import("../../engines/CrossProcessPrioritizedReplayEngine.js")).crossProcessPrioritizedReplay;
+    case "xprocReplaySampler": return _xprocReplaySampler ??= (await import("../../engines/CrossProcessExperienceReplaySamplerEngine.js")).crossProcessExperienceReplaySampler;
+    case "xprocSemanticLinker": return _xprocSemanticLinker ??= (await import("../../engines/CrossProcessEpisodicSemanticLinkerEngine.js")).crossProcessEpisodicSemanticLinker;
+    case "xprocOnlineMLP": return _xprocOnlineMLP ??= (await import("../../engines/CrossProcessOnlineMLPUpdaterEngine.js")).crossProcessOnlineMLPUpdater;
+    case "xprocDriftDetector": return _xprocDriftDetector ??= (await import("../../engines/CrossProcessDriftDetectorEngine.js")).crossProcessDriftDetector;
+    case "xprocShiftHandler": return _xprocShiftHandler ??= (await import("../../engines/CrossProcessConceptShiftHandlerEngine.js")).crossProcessConceptShiftHandler;
+    case "xprocEWC": return _xprocEWC ??= (await import("../../engines/CrossProcessEWCMemoryPreservationEngine.js")).crossProcessEWCMemoryPreservation;
+    case "xprocRewardShaper": return _xprocRewardShaper ??= (await import("../../engines/CrossProcessRewardShaperEngine.js")).crossProcessRewardShaper;
+    case "xprocPolicyGradient": return _xprocPolicyGradient ??= (await import("../../engines/CrossProcessPolicyGradientEngine.js")).crossProcessPolicyGradient;
+    case "xprocQLearning": return _xprocQLearning ??= (await import("../../engines/CrossProcessQLearningTabularEngine.js")).crossProcessQLearningTabular;
+    case "xprocBandit": return _xprocBandit ??= (await import("../../engines/CrossProcessMultiArmedBanditEngine.js")).crossProcessMultiArmedBandit;
+    case "xprocBayesianMLP": return _xprocBayesianMLP ??= (await import("../../engines/CrossProcessBayesianMLPEngine.js")).crossProcessBayesianMLP;
+    case "xprocConformal": return _xprocConformal ??= (await import("../../engines/CrossProcessConformalPredictionEngine.js")).crossProcessConformalPrediction;
+    case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
+    case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
+    case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
+    case "xprocSecureAgg": return _xprocSecureAgg ??= (await import("../../engines/CrossProcessSecureAggregationEngine.js")).crossProcessSecureAggregation;
+    case "xprocDriftFed": return _xprocDriftFed ??= (await import("../../engines/CrossProcessDriftAwareFederationEngine.js")).crossProcessDriftAwareFederation;
+    case "xprocFedScheduler": return _xprocFedScheduler ??= (await import("../../engines/CrossProcessClientSelectionSchedulerEngine.js")).crossProcessClientSelectionScheduler;
+    case "xprocMAMLLite": return _xprocMAMLLite ??= (await import("../../engines/CrossProcessMAMLLiteEngine.js")).crossProcessMAMLLite;
+    case "xprocProtoNet": return _xprocProtoNet ??= (await import("../../engines/CrossProcessPrototypicalNetEngine.js")).crossProcessPrototypicalNet;
+    case "xprocLearnedLR": return _xprocLearnedLR ??= (await import("../../engines/CrossProcessLearnedLRSchedulerEngine.js")).crossProcessLearnedLRScheduler;
+    case "xprocHyperTuner": return _xprocHyperTuner ??= (await import("../../engines/CrossProcessHyperparameterMetaTunerEngine.js")).crossProcessHyperparameterMetaTuner;
+    case "xprocModalityDropout": return _xprocModalityDropout ??= (await import("../../engines/CrossProcessModalityDropoutRobustifierEngine.js")).crossProcessModalityDropoutRobustifier;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -189,6 +248,199 @@ const ACTIONS = [
   "consensus_drift_auto_probe_mark",   // Mutating: persist that probes were issued
   "consensus_drift_auto_probe_prune",  // Mutating: drop stale probe-issued entries
   "consensus_drift_auto_probe_load",   // Read-only: read the probe-issued state file
+  // AI Feature Auto-Registry (U-AI-WIRE)
+  "ai_feature_discover",
+  "ai_feature_find",
+  "ai_feature_route",
+  "ai_feature_list",
+  "ai_domain_list",
+  "ai_feature_stats",
+  "ai_feature_by_category",
+  // AI System Router (U-WIRE-ROUTER)
+  "ai_route_task",
+  "ai_classify_task",
+  "ai_backend_health",
+  "ai_backend_probe",
+  "ai_router_stats",
+  // Autonomous AI Orchestration (U-WIRE-ORCH)
+  "ai_orchestrate_autonomous",
+  "ai_select_skills",
+  "ai_select_algorithms",
+  "ai_select_formulas",
+  "ai_knowledge_plan",
+  "ai_query_mit",
+  "ai_query_catalogs",
+  "ai_generate_gsd",
+  "ai_orchestration_history",
+  "ai_orchestration_stats",
+  "ai_orchestration_summary",
+  // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+  "xproc_symbolic_project",
+  "xproc_symbolic_violations",
+  // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+  "xproc_safety_verify",
+  "xproc_safety_escalate",
+  // XPROC-NEURAL Tier 9 (T9-01) — Causal Graph Learner
+  "xproc_causal_learn_dag",
+  "xproc_causal_test_independence",
+  "xproc_causal_export_graph",
+  // XPROC-NEURAL Tier 9 (T9-02) — Do-Calculus
+  "xproc_do_identify",
+  "xproc_do_intervene",
+  // XPROC-NEURAL Tier 9 (T9-03) — Counterfactual Predictor
+  "xproc_counterfactual_query",
+  // XPROC-NEURAL Tier 9 (T9-04) — Mediation Analyzer
+  "xproc_mediation_decompose",
+  "xproc_mediation_path_strength",
+  // XPROC-NEURAL Tier 11 (T11-01) — Uncertainty-Driven Sampler (active learning)
+  "xproc_active_select",
+  "xproc_active_rationale",
+  // XPROC-NEURAL Tier 11 (T11-02) — Novelty Detector
+  "xproc_novelty_score",
+  "xproc_novelty_alert",
+  // XPROC-NEURAL Tier 11 (T11-03) — Curiosity-Driven Exploration
+  "xproc_curiosity_propose",
+  "xproc_curiosity_score",
+  // XPROC-NEURAL Tier 11 (T11-04) — Bayesian DOE Planner
+  "xproc_doe_plan",
+  "xproc_doe_evaluate_completion",
+  // XPROC-NEURAL Tier 12 (T12-01) — Tier Router (query → tiers)
+  "xproc_route_query",
+  "xproc_route_explain",
+  // XPROC-NEURAL Tier 12 (T12-02) — Hierarchical Neural Orchestrator
+  "xproc_orchestrate_full",
+  "xproc_orchestrate_brief",
+  // XPROC-NEURAL Tier 8 (T8-02) — Rule-Extracted Neural Inference
+  "xproc_extract_rules",
+  "xproc_rule_explain_prediction",
+  // XPROC-NEURAL Tier 8 (T8-04) — Formula-Neural Ensemble
+  "xproc_blend_predict",
+  "xproc_blend_weight_report",
+  // XPROC-NEURAL Tier 2 (T2-01) — Episodic Memory (hierarchical hot/warm/cold)
+  "xproc_episodic_store",
+  "xproc_episodic_recall",
+  "xproc_episodic_stats",
+  // XPROC-NEURAL Tier 2 (T2-02) — Prioritized Experience Replay (Schaul 2016)
+  "xproc_replay_add",
+  "xproc_replay_sample",
+  "xproc_replay_update_priority",
+  "xproc_replay_stats",
+  // XPROC-NEURAL Tier 2 (T2-03) — Stratified Replay Sampler (process×material×outcome)
+  "xproc_replay_balanced_batch",
+  "xproc_replay_default_clusters",
+  // XPROC-NEURAL Tier 2 (T2-04) — Episodic↔Semantic Linker (tips + Kienzle citations)
+  "xproc_episodic_semantic_join",
+  // XPROC-NEURAL Tier 3 (T3-01) — Online MLP Updater (Adam streaming gradient)
+  "xproc_online_update",
+  "xproc_online_init_state",
+  "xproc_online_constants",
+  // XPROC-NEURAL Tier 3 (T3-02) — Drift Detector (DDM/EDDM/ADWIN consensus)
+  "xproc_drift_observe",
+  "xproc_drift_observe_batch",
+  "xproc_drift_history",
+  "xproc_drift_reset",
+  "xproc_drift_constants",
+  // XPROC-NEURAL Tier 3 (T3-03) — Concept Shift Handler (recovery decision tree)
+  "xproc_shift_decide",
+  "xproc_shift_history",
+  "xproc_shift_reset",
+  "xproc_shift_constants",
+  // XPROC-NEURAL Tier 3 (T3-04) — EWC++ memory preservation (Kirkpatrick 2017 + Schwarz 2018)
+  "xproc_ewc_compute_fisher",
+  "xproc_ewc_reg_loss",
+  "xproc_ewc_consolidate",
+  "xproc_ewc_get_fisher",
+  "xproc_ewc_reset",
+  "xproc_ewc_constants",
+  // XPROC-NEURAL Tier 4 (T4-01) — Reward Shaper (RL gradient signal)
+  "xproc_reward_shape",
+  "xproc_reward_audit",
+  "xproc_reward_default_weights",
+  "xproc_reward_constants",
+  // XPROC-NEURAL Tier 4 (T4-02) — Policy Gradient (REINFORCE-with-baseline)
+  "xproc_policy_step",
+  "xproc_policy_commit",
+  "xproc_policy_select_action",
+  "xproc_policy_get_policy",
+  "xproc_policy_get_baseline",
+  "xproc_policy_configure",
+  "xproc_policy_reset",
+  "xproc_policy_stats",
+  "xproc_policy_constants",
+  // XPROC-NEURAL Tier 4 (T4-03) — Q-Learning Tabular (Watkins 1989)
+  "xproc_qlearn_update",
+  "xproc_qlearn_argmax",
+  "xproc_qlearn_epsilon_greedy",
+  "xproc_qlearn_get_q_row",
+  "xproc_qlearn_configure",
+  "xproc_qlearn_reset",
+  "xproc_qlearn_stats",
+  "xproc_qlearn_constants",
+  // XPROC-NEURAL Tier 4 (T4-04) — Multi-Armed Bandit (UCB1 + Thompson Sampling)
+  "xproc_bandit_register_arm",
+  "xproc_bandit_select",
+  "xproc_bandit_update",
+  "xproc_bandit_stats",
+  "xproc_bandit_reset",
+  "xproc_bandit_constants",
+  // XPROC-NEURAL Tier 5 (T5-01) — Bayesian MLP via MC Dropout
+  "xproc_bayes_predict",
+  "xproc_bayes_uncertainty",
+  "xproc_bayes_constants",
+  // XPROC-NEURAL Tier 5 (T5-02) — Inductive Conformal Prediction
+  "xproc_conformal_calibrate",
+  "xproc_conformal_set",
+  "xproc_conformal_stats",
+  "xproc_conformal_reset",
+  "xproc_conformal_constants",
+  // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble disagreement
+  "xproc_ensemble_predict",
+  "xproc_ensemble_disagreement",
+  "xproc_ensemble_constants",
+  // XPROC-NEURAL Tier 5 (T5-04) — Calibration Auditor (ECE/MCE/Brier + recalibration)
+  "xproc_calibration_score",
+  "xproc_calibration_recommend",
+  "xproc_calibration_constants",
+  // XPROC-NEURAL Tier 6 (T6-01) — FedAvg with PRISM 0.5x shared-client weighting
+  "xproc_fed_aggregate",
+  "xproc_fed_round_summary",
+  "xproc_fed_constants",
+  // XPROC-NEURAL Tier 6 (T6-02) — Bonawitz secure aggregation (pairwise additive masks)
+  "xproc_secure_mask",
+  "xproc_secure_unmask",
+  "xproc_secure_verify",
+  "xproc_secure_constants",
+  // XPROC-NEURAL Tier 6 (T6-03) — Drift-aware federation gate (composes T3-02 + T6-01)
+  "xproc_fed_gate",
+  "xproc_fed_drift_report",
+  "xproc_fed_drift_constants",
+  // XPROC-NEURAL Tier 6 (T6-04) — Client selection scheduler (multi-criteria ranking)
+  "xproc_fed_select_clients",
+  "xproc_fed_round_plan",
+  "xproc_fed_scheduler_constants",
+  // XPROC-NEURAL Tier 7 (T7-01) — FOMAML meta-learning (Finn 2017)
+  "xproc_maml_inner_loop",
+  "xproc_maml_meta_train",
+  "xproc_maml_constants",
+  // XPROC-NEURAL Tier 7 (T7-02) — Prototypical networks (Snell 2017)
+  "xproc_proto_compute",
+  "xproc_proto_classify",
+  "xproc_proto_regress",
+  "xproc_proto_constants",
+  // XPROC-NEURAL Tier 7 (T7-03) — Learned LR scheduler (Adam + sign-consistency)
+  "xproc_meta_lr_init",
+  "xproc_meta_lr_step",
+  "xproc_meta_lr_constants",
+  // XPROC-NEURAL Tier 7 (T7-04) — GP-UCB Bayesian hyperparameter tuner
+  "xproc_hyper_propose",
+  "xproc_hyper_evaluate",
+  "xproc_hyper_record_outcome",
+  "xproc_hyper_constants",
+  // XPROC-NEURAL Tier 10 (T10-04) — Modality dropout + graceful fusion
+  "xproc_modality_dropout",
+  "xproc_modality_predict",
+  "xproc_modality_availability",
+  "xproc_modality_constants",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -636,6 +888,176 @@ export function registerIntelligenceDispatcher(server: any): void {
           sa_search_tribal: "prismSelfAwareness", sa_search_playbook: "prismSelfAwareness",
           sa_recommend_ai_features: "prismSelfAwareness", sa_jm_die_summary: "prismSelfAwareness",
           sa_full_awareness: "prismSelfAwareness", sa_proactive_check: "prismSelfAwareness",
+          // AI Feature Auto-Registry (U-AI-WIRE)
+          ai_feature_discover: "aiFeatureRegistry", ai_feature_find: "aiFeatureRegistry", ai_feature_route: "aiFeatureRegistry",
+          ai_feature_list: "aiFeatureRegistry", ai_domain_list: "aiFeatureRegistry", ai_feature_stats: "aiFeatureRegistry",
+          ai_feature_by_category: "aiFeatureRegistry",
+          // AI System Router (U-WIRE-ROUTER)
+          ai_route_task: "aiSystemRouter", ai_classify_task: "aiSystemRouter", ai_backend_health: "aiSystemRouter",
+          ai_backend_probe: "aiSystemRouter", ai_router_stats: "aiSystemRouter",
+          // Autonomous AI Orchestration (U-WIRE-ORCH)
+          ai_orchestrate_autonomous: "autonomousOrchestration", ai_select_skills: "autonomousOrchestration",
+          ai_select_algorithms: "autonomousOrchestration", ai_select_formulas: "autonomousOrchestration",
+          ai_knowledge_plan: "autonomousOrchestration", ai_query_mit: "autonomousOrchestration",
+          ai_query_catalogs: "autonomousOrchestration", ai_generate_gsd: "autonomousOrchestration",
+          ai_orchestration_history: "autonomousOrchestration", ai_orchestration_stats: "autonomousOrchestration",
+          ai_orchestration_summary: "autonomousOrchestration",
+          // XPROC-NEURAL Tier 8 (T8-01) — Symbolic Constraint Enforcer
+          xproc_symbolic_project: "xprocSymbolicEnforcer",
+          xproc_symbolic_violations: "xprocSymbolicEnforcer",
+          // XPROC-NEURAL Tier 8 (T8-03) — Neuro-Symbolic Safety Verifier
+          xproc_safety_verify: "xprocSafetyVerifier",
+          xproc_safety_escalate: "xprocSafetyVerifier",
+          // XPROC-NEURAL Tier 9 (T9-01..T9-04) — Causal Inference Suite
+          xproc_causal_learn_dag: "xprocCausalLearner",
+          xproc_causal_test_independence: "xprocCausalLearner",
+          xproc_causal_export_graph: "xprocCausalLearner",
+          xproc_do_identify: "xprocDoCalculus",
+          xproc_do_intervene: "xprocDoCalculus",
+          xproc_counterfactual_query: "xprocCounterfactual",
+          xproc_mediation_decompose: "xprocMediation",
+          xproc_mediation_path_strength: "xprocMediation",
+          xproc_active_select: "xprocUncertainty",
+          xproc_active_rationale: "xprocUncertainty",
+          xproc_novelty_score: "xprocNovelty",
+          xproc_novelty_alert: "xprocNovelty",
+          xproc_curiosity_propose: "xprocCuriosity",
+          xproc_curiosity_score: "xprocCuriosity",
+          xproc_doe_plan: "xprocDOE",
+          xproc_doe_evaluate_completion: "xprocDOE",
+          xproc_route_query: "xprocTierRouter",
+          xproc_route_explain: "xprocTierRouter",
+          xproc_orchestrate_full: "xprocOrchestrator",
+          xproc_orchestrate_brief: "xprocOrchestrator",
+          xproc_extract_rules: "xprocRuleExtracted",
+          xproc_rule_explain_prediction: "xprocRuleExtracted",
+          xproc_blend_predict: "xprocFormulaNeural",
+          xproc_blend_weight_report: "xprocFormulaNeural",
+          // XPROC-NEURAL Tier 2 (T2-01) — Episodic Memory
+          xproc_episodic_store: "xprocEpisodicMemory",
+          xproc_episodic_recall: "xprocEpisodicMemory",
+          xproc_episodic_stats: "xprocEpisodicMemory",
+          // XPROC-NEURAL Tier 2 (T2-02) — Prioritized Experience Replay
+          xproc_replay_add: "xprocPrioritizedReplay",
+          xproc_replay_sample: "xprocPrioritizedReplay",
+          xproc_replay_update_priority: "xprocPrioritizedReplay",
+          xproc_replay_stats: "xprocPrioritizedReplay",
+          // XPROC-NEURAL Tier 2 (T2-03) — Stratified Replay Sampler
+          xproc_replay_balanced_batch: "xprocReplaySampler",
+          xproc_replay_default_clusters: "xprocReplaySampler",
+          // XPROC-NEURAL Tier 2 (T2-04) — Episodic↔Semantic Linker
+          xproc_episodic_semantic_join: "xprocSemanticLinker",
+          // XPROC-NEURAL Tier 3 (T3-01) — Online MLP Updater (Adam)
+          xproc_online_update: "xprocOnlineMLP",
+          xproc_online_init_state: "xprocOnlineMLP",
+          xproc_online_constants: "xprocOnlineMLP",
+          // XPROC-NEURAL Tier 3 (T3-02) — Drift Detector (DDM/EDDM/ADWIN)
+          xproc_drift_observe: "xprocDriftDetector",
+          xproc_drift_observe_batch: "xprocDriftDetector",
+          xproc_drift_history: "xprocDriftDetector",
+          xproc_drift_reset: "xprocDriftDetector",
+          xproc_drift_constants: "xprocDriftDetector",
+          // XPROC-NEURAL Tier 3 (T3-03) — Concept Shift Handler
+          xproc_shift_decide: "xprocShiftHandler",
+          xproc_shift_history: "xprocShiftHandler",
+          xproc_shift_reset: "xprocShiftHandler",
+          xproc_shift_constants: "xprocShiftHandler",
+          // XPROC-NEURAL Tier 3 (T3-04) — EWC++ memory preservation
+          xproc_ewc_compute_fisher: "xprocEWC",
+          xproc_ewc_reg_loss: "xprocEWC",
+          xproc_ewc_consolidate: "xprocEWC",
+          xproc_ewc_get_fisher: "xprocEWC",
+          xproc_ewc_reset: "xprocEWC",
+          xproc_ewc_constants: "xprocEWC",
+          // XPROC-NEURAL Tier 4 (T4-01) — Reward Shaper
+          xproc_reward_shape: "xprocRewardShaper",
+          xproc_reward_audit: "xprocRewardShaper",
+          xproc_reward_default_weights: "xprocRewardShaper",
+          xproc_reward_constants: "xprocRewardShaper",
+          // XPROC-NEURAL Tier 4 (T4-02) — Policy Gradient (REINFORCE)
+          xproc_policy_step: "xprocPolicyGradient",
+          xproc_policy_commit: "xprocPolicyGradient",
+          xproc_policy_select_action: "xprocPolicyGradient",
+          xproc_policy_get_policy: "xprocPolicyGradient",
+          xproc_policy_get_baseline: "xprocPolicyGradient",
+          xproc_policy_configure: "xprocPolicyGradient",
+          xproc_policy_reset: "xprocPolicyGradient",
+          xproc_policy_stats: "xprocPolicyGradient",
+          xproc_policy_constants: "xprocPolicyGradient",
+          // XPROC-NEURAL Tier 4 (T4-03) — Q-Learning Tabular
+          xproc_qlearn_update: "xprocQLearning",
+          xproc_qlearn_argmax: "xprocQLearning",
+          xproc_qlearn_epsilon_greedy: "xprocQLearning",
+          xproc_qlearn_get_q_row: "xprocQLearning",
+          xproc_qlearn_configure: "xprocQLearning",
+          xproc_qlearn_reset: "xprocQLearning",
+          xproc_qlearn_stats: "xprocQLearning",
+          xproc_qlearn_constants: "xprocQLearning",
+          // XPROC-NEURAL Tier 4 (T4-04) — Multi-Armed Bandit
+          xproc_bandit_register_arm: "xprocBandit",
+          xproc_bandit_select: "xprocBandit",
+          xproc_bandit_update: "xprocBandit",
+          xproc_bandit_stats: "xprocBandit",
+          xproc_bandit_reset: "xprocBandit",
+          xproc_bandit_constants: "xprocBandit",
+          // XPROC-NEURAL Tier 5 (T5-01) — Bayesian MLP via MC Dropout
+          xproc_bayes_predict: "xprocBayesianMLP",
+          xproc_bayes_uncertainty: "xprocBayesianMLP",
+          xproc_bayes_constants: "xprocBayesianMLP",
+          // XPROC-NEURAL Tier 5 (T5-02) — Inductive Conformal Prediction
+          xproc_conformal_calibrate: "xprocConformal",
+          xproc_conformal_set: "xprocConformal",
+          xproc_conformal_stats: "xprocConformal",
+          xproc_conformal_reset: "xprocConformal",
+          xproc_conformal_constants: "xprocConformal",
+          // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble
+          xproc_ensemble_predict: "xprocDeepEnsemble",
+          xproc_ensemble_disagreement: "xprocDeepEnsemble",
+          xproc_ensemble_constants: "xprocDeepEnsemble",
+          // XPROC-NEURAL Tier 5 (T5-04) — Calibration Auditor
+          xproc_calibration_score: "xprocCalibration",
+          xproc_calibration_recommend: "xprocCalibration",
+          xproc_calibration_constants: "xprocCalibration",
+          // XPROC-NEURAL Tier 6 (T6-01) — FedAvg
+          xproc_fed_aggregate: "xprocFedAvg",
+          xproc_fed_round_summary: "xprocFedAvg",
+          xproc_fed_constants: "xprocFedAvg",
+          // XPROC-NEURAL Tier 6 (T6-02) — Bonawitz secure aggregation
+          xproc_secure_mask: "xprocSecureAgg",
+          xproc_secure_unmask: "xprocSecureAgg",
+          xproc_secure_verify: "xprocSecureAgg",
+          xproc_secure_constants: "xprocSecureAgg",
+          // XPROC-NEURAL Tier 6 (T6-03) — Drift-aware federation gate
+          xproc_fed_gate: "xprocDriftFed",
+          xproc_fed_drift_report: "xprocDriftFed",
+          xproc_fed_drift_constants: "xprocDriftFed",
+          // XPROC-NEURAL Tier 6 (T6-04) — Client selection scheduler
+          xproc_fed_select_clients: "xprocFedScheduler",
+          xproc_fed_round_plan: "xprocFedScheduler",
+          xproc_fed_scheduler_constants: "xprocFedScheduler",
+          // XPROC-NEURAL Tier 7 (T7-01) — FOMAML meta-learning
+          xproc_maml_inner_loop: "xprocMAMLLite",
+          xproc_maml_meta_train: "xprocMAMLLite",
+          xproc_maml_constants: "xprocMAMLLite",
+          // XPROC-NEURAL Tier 7 (T7-02) — Prototypical networks
+          xproc_proto_compute: "xprocProtoNet",
+          xproc_proto_classify: "xprocProtoNet",
+          xproc_proto_regress: "xprocProtoNet",
+          xproc_proto_constants: "xprocProtoNet",
+          // XPROC-NEURAL Tier 7 (T7-03) — Learned LR scheduler
+          xproc_meta_lr_init: "xprocLearnedLR",
+          xproc_meta_lr_step: "xprocLearnedLR",
+          xproc_meta_lr_constants: "xprocLearnedLR",
+          // XPROC-NEURAL Tier 7 (T7-04) — GP-UCB hyperparameter tuner
+          xproc_hyper_propose: "xprocHyperTuner",
+          xproc_hyper_evaluate: "xprocHyperTuner",
+          xproc_hyper_record_outcome: "xprocHyperTuner",
+          xproc_hyper_constants: "xprocHyperTuner",
+          // XPROC-NEURAL Tier 10 (T10-04) — Modality dropout robustifier
+          xproc_modality_dropout: "xprocModalityDropout",
+          xproc_modality_predict: "xprocModalityDropout",
+          xproc_modality_availability: "xprocModalityDropout",
+          xproc_modality_constants: "xprocModalityDropout",
         };
 
         // Handle PRISM Self-Awareness actions specially (different method signatures)

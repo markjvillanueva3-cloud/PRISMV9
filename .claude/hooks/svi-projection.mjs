@@ -35,7 +35,7 @@ export default async function sviProjection({ tool, input }) {
   }
 
   // Normalize path
-  const normalizedPath = filePath.replace(/\/g, "/");
+  const normalizedPath = filePath.replace(/\\/g, "/");
 
   // Check if high-impact file
   if (!isHighImpactFile(normalizedPath)) {

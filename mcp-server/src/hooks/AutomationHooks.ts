@@ -409,8 +409,8 @@ const onNotificationGenerate: HookDefinition = {
     const previousResults = context.previousResults || [];
     
     // Check for blocks or warnings from previous hooks
-    const blocks = previousResults.filter(r => r.blocked);
-    const warnings = previousResults.filter(r => r.warnings && r.warnings.length > 0);
+    const blocks = previousResults.filter((r: any) => r.blocked);
+    const warnings = previousResults.filter((r: any) => r.warnings && r.warnings.length > 0);
     
     const notifications: NotificationEntry[] = [];
     

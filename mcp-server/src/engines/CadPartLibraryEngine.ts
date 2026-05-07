@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: U-EFF33 only normalised Dirent.name (Buffer|string → string) in the scanner loop; engine is a library index consumed by downstream part-matching flows, not directly dispatched.
 /**
  * CadPartLibraryEngine — Feature-Tagged CAD Part Library Index
  *
@@ -347,11 +348,14 @@ export class CadPartLibraryEngine {
     }
 
     for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name);
+      // fs/promises readdir with withFileTypes can type `name` as
+      // Buffer | string depending on the overload chosen — normalise once.
+      const name = String(entry.name);
+      const fullPath = path.join(dirPath, name);
       if (entry.isDirectory()) {
         await this.scanDirectoryRecursive(fullPath, source, parts);
       } else if (entry.isFile()) {
-        const ext = path.extname(entry.name).toLowerCase();
+        const ext = path.extname(name).toLowerCase();
         if (!VALID_EXTENSIONS.has(ext)) continue;
 
         let fileSize = 0;
@@ -362,18 +366,18 @@ export class CadPartLibraryEngine {
           continue;
         }
 
-        const machineHint = extractMachineHint(entry.name);
+        const machineHint = extractMachineHint(name);
         parts.push({
-          filename: entry.name,
+          filename: name,
           filePath: fullPath.replace(/\\/g, "/"),
           extension: ext,
           fileSize,
-          partName: extractPartName(entry.name),
+          partName: extractPartName(name),
           source,
           machineHint,
-          complexity: inferComplexity(fileSize, entry.name),
-          operations: inferOperations(entry.name, source, machineHint),
-          featureTags: extractFeatureTags(entry.name),
+          complexity: inferComplexity(fileSize, name),
+          operations: inferOperations(name, source, machineHint),
+          featureTags: extractFeatureTags(name),
           isProduction: false,
         });
       }
