@@ -287,4 +287,41 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
   pipeline_health,
   dlq_list,
   dlq_retry,
+
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH5: Deep Reasoning
+  cognitive_tot_create_tree: z.object({
+    problem: z.string().min(1).describe("Problem statement to reason about"),
+    goal: z.string().min(1).describe("Goal state to reach"),
+    initial_state: z.record(z.string(), z.unknown()).describe("Starting state for the root node"),
+  }).passthrough(),
+  cognitive_mfg_reason: z.object({
+    problem: z.string().min(1).describe("Manufacturing problem statement"),
+    goal: z.string().min(1).describe("Goal description"),
+    domain: z.enum(["milling", "turning", "drilling", "grinding", "edm", "additive", "casting", "forming", "general", "lathe"]).describe("Manufacturing domain"),
+    material: z.object({
+      name: z.string().optional().describe("Material name"),
+      iso_group: z.string().optional().describe("ISO machinability group P/M/K/N/S/H"),
+      hardness: z.number().optional().describe("Hardness HRC/HB"),
+      machinability_index: z.number().optional().describe("Relative machinability index"),
+    }).passthrough().optional().describe("Material context"),
+    machine_id: z.string().optional().describe("Machine identifier"),
+    operation: z.string().optional().describe("Operation type"),
+    budget: z.number().nonnegative().optional().describe("Budget constraint USD"),
+    deadline: z.string().optional().describe("Deadline ISO date"),
+    quality_requirements: z.object({
+      tolerance: z.number().nonnegative().optional(),
+      surface_finish: z.number().nonnegative().optional(),
+      critical_dimensions: z.array(z.string()).optional(),
+    }).passthrough().optional().describe("Quality requirements"),
+    constraints: z.array(z.string()).optional().describe("Constraint list"),
+    known_facts: z.array(z.string()).optional().describe("Known facts"),
+    max_steps: z.number().int().positive().optional().describe("Max reasoning steps"),
+  }).passthrough(),
+  cognitive_multi_asset_reason: z.object({
+    objective: z.string().min(1).describe("Objective to reason about across multiple assets"),
+    constraints: z.array(z.string()).optional().describe("Optional constraints"),
+    available_asset_types: z.array(z.string()).optional().describe("Subset of ['engine','formula','algorithm','tool','material','machine','strategy']"),
+    material: z.string().optional().describe("Material context"),
+    machine_type: z.string().optional().describe("Machine type"),
+  }).passthrough(),
 };

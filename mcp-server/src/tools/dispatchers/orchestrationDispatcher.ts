@@ -49,7 +49,11 @@ const ACTIONS = [
   "roadmap_plan", "roadmap_next_batch", "roadmap_advance", "roadmap_gate",
   "roadmap_list", "roadmap_load",
   "roadmap_claim", "roadmap_release", "roadmap_heartbeat", "roadmap_discover",
-  "roadmap_register", "roadmap_populate_context"
+  "roadmap_register", "roadmap_populate_context",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH5: Deep Reasoning
+  "cognitive_tot_create_tree",
+  "cognitive_mfg_reason",
+  "cognitive_multi_asset_reason"
 ] as const;
 
 function ok(data: any) {
@@ -642,6 +646,44 @@ export function registerOrchestrationDispatcher(server: any): void {
               return ok({ error: `roadmap_register failed: ${err.message}` });
             }
           }
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH5: Deep Reasoning ──
+          case "cognitive_tot_create_tree": {
+            const { treeOfThoughtEngine } = await import("../../engines/TreeOfThoughtEngine.js");
+            const tree = treeOfThoughtEngine.createTree(params.problem, params.goal, params.initial_state ?? {});
+            // Slim Map<string, ThoughtNode> -> array for JSON
+            const nodesArr = Array.from(tree.nodes.entries()).map(([id, n]) => ({ id, depth: n.depth, parent_id: n.parent_id, thought: n.thought, score: n.score, confidence: n.confidence, is_terminal: n.is_terminal, is_pruned: n.is_pruned, children_count: n.children.length }));
+            return ok({ tree: { root_id: tree.root_id, problem: tree.problem, goal: tree.goal, exploration_count: tree.exploration_count, pruned_count: tree.pruned_count, max_depth_reached: tree.max_depth_reached, created_at: tree.created_at, completed_at: tree.completed_at, node_count: nodesArr.length, nodes: nodesArr } });
+          }
+          case "cognitive_mfg_reason": {
+            const { manufacturingReasoningEngine } = await import("../../engines/ManufacturingReasoningEngine.js");
+            const chain = await manufacturingReasoningEngine.reason({
+              problem: params.problem,
+              goal: params.goal,
+              domain: params.domain,
+              material: params.material,
+              machine_id: params.machine_id,
+              operation: params.operation,
+              budget: params.budget,
+              deadline: params.deadline,
+              quality_requirements: params.quality_requirements,
+              constraints: params.constraints,
+              known_facts: params.known_facts,
+              max_steps: params.max_steps,
+            });
+            return ok({ chain });
+          }
+          case "cognitive_multi_asset_reason": {
+            const { multiAssetReasoningEngine } = await import("../../engines/MultiAssetReasoningEngine.js");
+            const result = await multiAssetReasoningEngine.reason({
+              objective: params.objective,
+              constraints: params.constraints,
+              availableAssetTypes: params.available_asset_types,
+              material: params.material,
+              machineType: params.machine_type,
+            });
+            return ok({ result });
+          }
+
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
       } catch (err: any) {
