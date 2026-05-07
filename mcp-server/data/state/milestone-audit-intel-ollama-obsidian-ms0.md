@@ -1,18 +1,19 @@
 # Milestone Integrity Audit — INTEL-OLLAMA-OBSIDIAN-MS0
 
-**Generated:** 2026-05-07T02:09:29.632Z
+**Generated:** 2026-05-07T12:26:48.908Z
 **Verdict:** ⚠ DRIFT
 
 ## Summary
 | Metric | Count |
 | --- | --- |
 | Total units | 92 |
-| OK (completed + deliverables present) | 57 |
-| Deliverable-gap (completed in JSON, files missing) | 30 |
+| OK (completed + deliverables present) | 61 |
+| Deliverable-gap (completed in JSON, files missing) | 29 |
 | Ghost-shipped (commit found, JSON not closed) | 0 |
 | Anachronism (closed in JSON, no commit) | 1 |
-| Open (no commit, not completed) | 4 |
-| **Drift total** | **31** |
+| Scope-invalidated (spec premise doesn't match branch) | 1 |
+| Open (no commit, not completed) | 0 |
+| **Drift total** | **30** |
 
 ## Per-unit detail
 | Phase | Unit | Verdict | Commit | Notes |
@@ -33,14 +34,14 @@
 | P10 | P10-U05 | ok | aa320ffe2 |  |
 | P10 | P10-U06 | deliverable-gap | 738a851b4 | missing: scripts/.deprecated/ |
 | P11 | P11-U01 | ok | af587c3ed |  |
-| P11 | P11-U02 | open | — |  |
+| P11 | P11-U02 | ok | e02ca6436 |  |
 | P11 | P11-U03 | ok | f88536279 |  |
 | P11 | P11-U04 | ok | 9858dd653 |  |
 | P11 | P11-U05 | ok | fb98ffba8 |  |
 | P11 | P11-U06 | ok | 4f4fbc91c |  |
-| P11 | P11-U07 | open | — |  |
+| P11 | P11-U07 | ok | e02ca6436 |  |
 | P11 | P11-U08 | ok | 3b5dfb63a |  |
-| P12 | P12-U01 | open | — |  |
+| P12 | P12-U01 | scope-invalidated | — |  |
 | P13 | P13-U01 | ok | f666491e5 |  |
 | P13 | P13-U02 | anachronism | — | closed in JSON but no commit subject matches |
 | P13 | P13-U03 | ok | be5121aad |  |
@@ -69,7 +70,7 @@
 | P20 | P20-U01 | ok | 663569505 |  |
 | P20 | P20-U02 | ok | ecf1b5cba |  |
 | P20 | P20-U03 | ok | 8aa0a24a5 |  |
-| P20 | P20-U04 | open | — |  |
+| P20 | P20-U04 | ok | ce02a8aaf |  |
 | P21 | P21-U01 | ok | 0bae326c2 |  |
 | P21 | P21-U02 | ok | 5175559e1 |  |
 | P21 | P21-U03 | ok | ece84b983 |  |
@@ -86,7 +87,7 @@
 | P3 | P3-U05 | deliverable-gap | dbd1c797c | missing: .claude/hooks/ollama-obsidian-rag.mjs |
 | P4 | P4-U01 | ok | 4cfbcb51e |  |
 | P4 | P4-U02 | deliverable-gap | 3d8e499e5 | missing: scripts/summarize-directives-via-ollama.mjs |
-| P4 | P4-U03 | deliverable-gap | 33d1a6867 | missing: .claude/hooks/claudemd-ollama-enforcer.mjs |
+| P4 | P4-U03 | ok | 33d1a6867 |  |
 | P4 | P4-U04 | deliverable-gap | baa47b244 | missing: scripts/embed-wiki-index.mjs |
 | P5 | P5-U01 | ok | aeaefb8de |  |
 | P5 | P5-U02 | ok | aeaefb8de |  |

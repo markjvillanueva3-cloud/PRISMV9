@@ -2642,6 +2642,10 @@
           "title": "Split securityDispatcher (1055 actions) into 5 sub-dispatchers",
           "effort": 90,
           "dependencies": [],
+          "status": "scope_invalidated",
+          "completed_at": "2026-05-07T11:50:00.000Z",
+          "completed_by": "claude-845cf238",
+          "notes": "Spec premise invalidated by branch reality. securityDispatcher.ts does NOT exist anywhere on work/intel-ollama-obsidian-ms0 — verified via direct ls of mcp-server/src/tools/dispatchers/ (90 dispatchers total, none named securityDispatcher) and via DISPATCHER_DIGEST.md (no security match). The closest extant dispatchers are authDispatcher.ts (8 actions, security-critical: login/register/refresh_token/change_password/role_assign/permission_check/session_manage/mfa_setup, 159 lines) and complianceDispatcher.ts (8 actions for regulatory compliance, 229 lines) — combined 16 security-related actions, not the 1055 the spec assumes. The split exit-condition (sub-dispatchers totaling 1055 actions) cannot be met because the source does not exist. The split-by-domain PRINCIPLE the unit was driving toward is already satisfied: auth and compliance are independent dispatchers with focused scopes. If the original 1055-action securityDispatcher exists on a sibling branch (e.g., main or a future merge), this unit can be reopened there with corrected scope. Marking 'scope_invalidated' rather than 'completed' or leaving open — 'completed' would be dishonest (no commit, no deliverables shipped); 'open' would falsely block milestone closure. The auditor's anachronism class will surface this status appropriately. Recommended follow-up: file a new milestone unit if/when the actual securityDispatcher surfaces, with accurate action count.",
           "exit_conditions": [
             "New: securityAuth (200), securityEncryption (150), securityCompliance (200), securityAudit (200), securityThreat (305 = remainder)",
             "Old securityDispatcher remains as forwarding facade for backward compat",
