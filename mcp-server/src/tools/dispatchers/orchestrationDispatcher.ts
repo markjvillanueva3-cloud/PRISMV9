@@ -53,7 +53,12 @@ const ACTIONS = [
   // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH5: Deep Reasoning
   "cognitive_tot_create_tree",
   "cognitive_mfg_reason",
-  "cognitive_multi_asset_reason"
+  "cognitive_multi_asset_reason",
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH6: Ollama / Local Model Orchestrator
+  "ollama_ensure_connected",
+  "ollama_ping",
+  "ollama_discover_models",
+  "local_model_route"
 ] as const;
 
 function ok(data: any) {
@@ -682,6 +687,65 @@ export function registerOrchestrationDispatcher(server: any): void {
               machineType: params.machine_type,
             });
             return ok({ result });
+          }
+
+          // ── COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH6: Ollama / Local Model Orchestrator ──
+          // Engine calls are wrapped to always return structured envelopes so callers
+          // (and tests) get deterministic ok/error shapes when Ollama is unreachable.
+          case "ollama_ensure_connected": {
+            try {
+              const { ollamaIntegrationEngine } = await import("../../engines/OllamaIntegrationEngine.js");
+              const connected = await ollamaIntegrationEngine.ensureConnected();
+              return ok({ connected, health: ollamaIntegrationEngine.snapshotHealth() });
+            } catch (e: any) {
+              return ok({ connected: false, error: e?.message ?? "unknown error" });
+            }
+          }
+          case "ollama_ping": {
+            try {
+              const { ollamaIntegrationEngine } = await import("../../engines/OllamaIntegrationEngine.js");
+              const health = await ollamaIntegrationEngine.ping();
+              return ok({ health });
+            } catch (e: any) {
+              return ok({ health: { ok: false, lastCheckMs: Date.now(), error: e?.message ?? "ping failed" } });
+            }
+          }
+          case "ollama_discover_models": {
+            try {
+              const { ollamaIntegrationEngine } = await import("../../engines/OllamaIntegrationEngine.js");
+              const models = await ollamaIntegrationEngine.discoverModels(params.force_refresh ?? false);
+              return ok({ models, count: models.length });
+            } catch (e: any) {
+              return ok({ models: [], count: 0, error: e?.message ?? "discovery failed" });
+            }
+          }
+          case "local_model_route": {
+            try {
+              const { localModelOrchestratorEngine } = await import("../../engines/LocalModelOrchestratorEngine.js");
+              const decision = localModelOrchestratorEngine.route(
+                {
+                  taskKind: params.task_kind,
+                  prompt: params.prompt,
+                  system: params.system,
+                  embedInput: params.embed_input,
+                  inputTokens: params.input_tokens,
+                  outputTokensMax: params.output_tokens_max,
+                  latencyBudgetMs: params.latency_budget_ms,
+                  costBudgetUSD: params.cost_budget_usd,
+                  needsTools: params.needs_tools,
+                  requireSafety: params.require_safety,
+                },
+                {
+                  hardware: params.hardware,
+                  backendUp: params.backend_up,
+                  forceBackend: params.force_backend,
+                  forceModel: params.force_model,
+                },
+              );
+              return ok({ decision });
+            } catch (e: any) {
+              return ok({ decision: { ok: false, backend: null, model: null, rationale: "router exception", fallbacks: [], error: e?.message ?? "route failed" } });
+            }
           }
 
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });

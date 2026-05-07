@@ -324,4 +324,27 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
     material: z.string().optional().describe("Material context"),
     machine_type: z.string().optional().describe("Machine type"),
   }).passthrough(),
+
+  // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH6: Ollama / Local Model Orchestrator
+  ollama_ensure_connected: z.object({}).passthrough(),
+  ollama_ping: z.object({}).passthrough(),
+  ollama_discover_models: z.object({
+    force_refresh: z.boolean().optional().describe("Force fresh roster fetch (default false)"),
+  }).passthrough(),
+  local_model_route: z.object({
+    task_kind: z.enum(["chat", "code", "embed", "reasoning", "safety_critical", "gcode_explain", "quote_summary"]).describe("Task classification for routing"),
+    prompt: z.string().optional().describe("User prompt"),
+    system: z.string().optional().describe("Optional system message"),
+    embed_input: z.string().optional().describe("Embedding input text (for taskKind=embed)"),
+    input_tokens: z.number().int().nonnegative().optional().describe("Rough input-token estimate"),
+    output_tokens_max: z.number().int().positive().optional().describe("Max output tokens (default 512)"),
+    latency_budget_ms: z.number().int().positive().optional().describe("Hard latency budget in ms"),
+    cost_budget_usd: z.number().nonnegative().optional().describe("Hard cost budget in USD"),
+    needs_tools: z.boolean().optional().describe("Tool-use required for this task"),
+    require_safety: z.boolean().optional().describe("Safety-critical pathway required"),
+    hardware: z.enum(["home_4080", "work_3080", "cloud_only"]).describe("Live hardware profile for routing"),
+    backend_up: z.record(z.string(), z.boolean()).optional().describe("Backend availability snapshot keyed by backend name; missing keys treated as available"),
+    force_backend: z.enum(["ollama", "anthropic", "openai"]).optional().describe("Override backend selection"),
+    force_model: z.string().optional().describe("Override model id"),
+  }).passthrough(),
 };
