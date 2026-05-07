@@ -1,0 +1,800 @@
+{
+  "id": "XPROC-NEURAL-OPTIMIZE-MS0",
+  "version": "1.0.0",
+  "title": "XPROC-NEURAL Network Optimization — Fix Bugs, Wire Closed-Loop, Ingest Real Data, Modernize Architecture",
+  "brief": "Address the systemic gaps surfaced by the 5-way (3 Claude + Codex + Gemini-fallback) assessment of 2026-05-07. The XPROC-NEURAL stack has 47 engines on disk but: (a) two correctness bugs in T1-02 (W2 backprop update-order, response_summary.success label leakage), (b) 42 of 47 engines have ZERO production callers, (c) FeedbackBusEngine (P0-U04 promise) was never built, (d) 24,545 JM Die NC programs unutilized, (e) 32→16→3 MLP is 2015-era vs CatBoost/FT-Transformer SOTA, (f) tier composition exists in code but not at runtime. This roadmap closes those gaps in priority order: correctness first, then closed-loop wiring, then real data, then architecture modernization, then tier composition.",
+  "trigger_to_resume": "continue neural network work",
+  "resume_phrases": [
+    "continue neural network work",
+    "continue neural roadmap",
+    "continue xproc-neural",
+    "resume neural network",
+    "continue nn work"
+  ],
+  "created_at": "2026-05-07T02:25:00Z",
+  "created_by": "claude-opus-4-7-rgs",
+  "track": "INFRA",
+  "track_name": "Multi-Model Coordination Infrastructure",
+  "status": "not_started",
+  "linked_roadmap": "state/shared/XPROC-NEURAL-ROADMAP.md",
+  "linked_assessment": "state/shared/NEURAL-ASSESSMENT-CONTEXT.md",
+  "branch_target": "cad-fusion-live-ms0",
+  "blocked_by": [],
+  "blocks": [],
+  "phases": [
+    {
+      "id": "P1-CORRECTNESS",
+      "title": "Phase 1 — T1-02 Correctness Fixes (BLOCKS EVERYTHING ELSE)",
+      "rationale": "Codex Reviewer #4 found two correctness bugs that invalidate every training run. Both are trivial fixes (~10 lines each) but every downstream phase assumes a correct learner. Fix these first.",
+      "smart_config": {
+        "role": "ml_engineer + code_reviewer",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "30%"
+      },
+      "knowledge_sources": {
+        "engines": ["CrossProcessNeuralLearningEngine.ts (lines 314, 627-682)"],
+        "tests": ["NeuralLearningE2EConvergence.test.ts", "CrossProcessNeuralLearningEngine.test.ts"],
+        "reviews": ["state/shared/NEURAL-ASSESSMENT-CONTEXT.md"]
+      },
+      "skills": ["/test", "/scrutinize", "/physics-verify"],
+      "plugins": ["Vitest MCP"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "units": [
+        {
+          "id": "U-NN-FIX01",
+          "title": "Fix W2 update-order backprop bug — snapshot W2 before in-place update",
+          "effort_min": 30,
+          "dependencies": [],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "Snapshot W2 into local Float64Array BEFORE the W2/b2 momentum updates at line 647-656",
+            "dHiddenPre at line 660-667 reads from snapshot, not this.W2",
+            "Existing test CrossProcessNeuralLearningEngine.test.ts still passes (mathematical equivalence preserved for FORWARD pass; gradient direction now correct)",
+            "Add new test case asserting that for a fixed (x, y) input, dW1[h,i] equals (numeric-gradient-at-x via finite-difference) within 1e-4 tolerance — proves backprop math correct"
+          ],
+          "abort_criteria": [
+            "Snapshot allocation in stepOne measurably slows per-step time (>20% regression)",
+            "Existing 363 session-touched tests fail",
+            "Numeric-gradient check fails after fix"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Codex review finding (line 647-664): the inner loop updates W2 in-place at lines 647-656, then computes dHiddenPre at line 660-667 using this.W2 — but that's the POST-UPDATE W2, not the forward-pass W2. Standard fix: copy W2 into a local Float64Array of size [OUTPUT_DIM × HIDDEN_DIM] before the W2 update loop, then use the snapshot in dHiddenPre computation. Cost: ~16 floats × ~3 multiplies per step. Must add a finite-difference numeric-gradient test that proves the fix produces the mathematically correct gradient."
+        },
+        {
+          "id": "U-NN-FIX02",
+          "title": "Remove response_summary.success label leakage at line 314",
+          "effort_min": 20,
+          "dependencies": [],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "featurize() no longer reads response_summary.success",
+            "Confirm via grep: zero remaining references to record.response_summary?.success in featurize",
+            "Re-run NeuralLearningE2EConvergence.test.ts: train accuracy may drop (acceptable if drop < 15% — proves the leak was real signal)",
+            "Document drop magnitude in commit message",
+            "Add regression test: synthesize records where response_summary.success is RANDOMLY set independent of outcome.kind; assert train accuracy doesn't move materially (proves no leak)"
+          ],
+          "abort_criteria": [
+            "Train accuracy drops below 0.45 (worse than random + 10% margin) on the synthetic dataset",
+            "Random-success-flag regression test shows accuracy IS affected (means leakage path still exists)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewers 3 and 4 independently flagged: featurize() at line 314 injects response_summary.success (-1/0/+1) into the input vector. response_summary.success is downstream of outcome.kind in the data model (it's set BY the outcome). This means the model can shortcut-learn: if response_summary.success is True, predict outcome=success. Remove this feature. Expect train accuracy to drop on the current synthetic dataset (which sets both fields consistently)."
+        },
+        {
+          "id": "U-NN-FIX03",
+          "title": "Honest finalLoss reporting — recompute post-update on full epoch",
+          "effort_min": 25,
+          "dependencies": ["U-NN-FIX01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "TrainResult.finalLoss is computed via computeMeanLoss() AFTER the last epoch's updates, not accumulated mid-update",
+            "TrainResult adds initialLoss field that uses the same forward-only computation BEFORE any updates",
+            "E2E convergence test asserts finalLoss < initialLoss * 0.7 still holds with the new HONEST measurement",
+            "Document the methodological change in JSDoc: 'finalLoss is post-training mean cross-entropy on the training set with updated weights'"
+          ],
+          "abort_criteria": [
+            "Honest finalLoss measurement reveals the model was NOT actually converging — convergence test fails",
+            "Per-epoch loss curve becomes non-monotonic (oscillating)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Codex finding: lines 376-387 accumulate per-sample losses computed BEFORE each sample's update. The 'finalLoss' is therefore a moving target, not a converged measurement. Use computeMeanLoss(samples) AFTER the last epoch with frozen weights for finalLoss, AND BEFORE the first epoch for initialLoss. This makes the convergence claim mathematically defensible."
+        },
+        {
+          "id": "U-NN-FIX04",
+          "title": "True minibatch SGD with gradient averaging",
+          "effort_min": 60,
+          "dependencies": ["U-NN-FIX01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "stepOne replaced with stepBatch(x[], y[]) that accumulates gradients across the batch then applies a single weight update with mean(grads)",
+            "Per-sample stepOne kept as a private helper for online-update path",
+            "Existing E2E convergence test passes with batch_size=16 — model still learns",
+            "Add test: with batch_size=1 and batch_size=N (full batch), trained weights are different and both converge to similar accuracy",
+            "Document in JSDoc that batch_size now means TRUE minibatch (gradients averaged), not 'sample-by-sample within a batch boundary'"
+          ],
+          "abort_criteria": [
+            "True minibatch convergence is materially slower than current online-SGD on synthetic data (>2x epochs needed)",
+            "Test count drops below 363 session-touched"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Codex #4 finding: current code loops sample-by-sample with per-sample updates inside batch boundaries — that's online SGD with arbitrary periodicity, not minibatch SGD. Hyperparameter 'batch_size' is misleading. Implement proper batch gradient accumulation: accumulate dLogits, dHiddenPre, etc. across batch_size samples, then apply ONE update with the averaged gradients."
+        },
+        {
+          "id": "U-NN-FIX05",
+          "title": "Statistical convergence test — ln(3) baseline + repeated-seed CI",
+          "effort_min": 40,
+          "dependencies": ["U-NN-FIX03"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/__tests__/NeuralLearningE2EConvergence.test.ts"],
+          "exit_conditions": [
+            "New test case: train across 5 different seeds, assert mean(finalAcc) > random + 2*std-error (statistically significant beat over chance)",
+            "New test case: assert initialLoss is within ±0.15 of ln(3)≈1.099 (random softmax baseline)",
+            "New test case: assert finalLoss reduction is statistically distinguishable from a no-op (5-seed mean test)",
+            "Test runtime stays below 30 seconds (acceptable for CI)"
+          ],
+          "abort_criteria": [
+            "Repeated-seed mean accuracy fails to clear chance + 2σ at 5 seeds",
+            "Test runtime exceeds 60 seconds"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/__tests__/NeuralLearningE2EConvergence.test.ts",
+          "description": "Codex finding: 'loss reduces ≥30%' is not statistically significant — what's the variance across seeds? This unit adds the missing statistical rigor. Run 5 seeds, compute mean ± std-error of accuracy, assert mean > 1/3 + 2*SE. Also assert initialLoss matches the theoretical ln(3) for a 3-class softmax with random weights."
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "U-NN-FIX01..05 all status:completed",
+          "All 363 session-touched tests still pass",
+          "New finite-difference numeric-gradient test passes (proves U-NN-FIX01 correct)",
+          "Random-success-flag regression test passes (proves U-NN-FIX02 closed the leak)",
+          "5-seed CI test passes (proves U-NN-FIX03 + U-NN-FIX05 statistically valid)"
+        ],
+        "omega_floor": 0.92,
+        "svi_delta_target": "+0.5%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": ["P2-FEATURIZE", "P3-CLOSED-LOOP", "P4-REAL-DATA", "P5-ARCH-MODERN", "P6-TIER-COMPOSE"]
+      }
+    },
+    {
+      "id": "P2-FEATURIZE",
+      "title": "Phase 2 — Featurization Upgrade (categorical buckets, normalization, RAG, physics features)",
+      "rationale": "Reviewer 3 identified that 4-bucket categorical hash → ~76% collision rate for 8 materials. Reviewer 1 identified that the wiki tribal tips, physics engines, and existing CrossDisciplinaryDeepLearningEngine outputs are never fed as features. Featurization is the bottleneck.",
+      "smart_config": {
+        "role": "ml_engineer + manufacturing_specialist",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "35%"
+      },
+      "knowledge_sources": {
+        "engines": ["CrossProcessNeuralLearningEngine.ts", "PRISMSelfAwarenessEngine.ts", "KienzleForceModel", "ChatterStabilityLobeEngine", "ToolWearProgression", "CrossDisciplinaryDeepLearningEngine"],
+        "wiki": ["knowledge/wiki/code-tribal/", "knowledge/wiki/lessons/", "knowledge/wiki/concepts/"],
+        "physics": ["mcp-server/src/physics/constants.ts"],
+        "registries": ["MaterialRegistry", "ToolCatalogEngine", "MachineRegistry"]
+      },
+      "skills": ["/forge-engines", "/physics-verify", "/scrutinize"],
+      "plugins": ["Vitest MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map", "memory_recall", "auto_checkpoint", "memory_save"],
+      "units": [
+        {
+          "id": "U-NN-FEAT01",
+          "title": "Widen categorical hash buckets — material 4→64, tool/machine/op 3→16, with collision audit",
+          "effort_min": 45,
+          "dependencies": ["U-NN-FIX01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "MATERIAL_BUCKETS = 64; TOOL_MATERIAL_BUCKETS = 16; MACHINE_FAMILY_BUCKETS = 16; OPERATION_BUCKETS = 16",
+            "INPUT_DIM recomputed and asserted in test (was 32, now will be ~64+ — adjust HIDDEN_DIM if necessary or use a projection)",
+            "Add collision-audit test: feed 100 distinct material strings (read from H:/prism/mcp-server/src/data/materials/), assert collision rate < 5%",
+            "E2E convergence test still passes",
+            "Persist bucket counts in serialize()/loadFrom() so loaded models bind to the same featurization"
+          ],
+          "abort_criteria": [
+            "INPUT_DIM expansion forces HIDDEN_DIM doubling that pushes param count > 5000 (overfit risk on small data)",
+            "Collision audit shows < 5% collisions but train accuracy DROPS post-fix (suggests the hash is hashing to fewer effective buckets than nominal)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewers 3 and 4 both flagged the catastrophically narrow hash buckets. Material has only 4 buckets vs 100+ real materials in the corpus → ~76% collision rate. Widen and add audit."
+        },
+        {
+          "id": "U-NN-FEAT02",
+          "title": "Welford z-score normalization for numeric features",
+          "effort_min": 60,
+          "dependencies": ["U-NN-FEAT01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "Add running mean/var via Welford's online algorithm, persisted in SerializedNeural",
+            "featurize() applies (x - mean) / sqrt(var + eps) per numeric feature",
+            "Replace LOG1P_NUMERIC_DIVISOR magic constant entirely (it's a one-size-fits-all scaling that obscures real distributions)",
+            "First N=30 samples bypass normalization (warmup), use raw values clipped to [-3, +3]",
+            "Add test: train with widely different numeric scales (RPM 100 vs 30000), confirm convergence is NOT scale-sensitive after normalization",
+            "Adam (P5) will need this — z-scoring is a precondition for stable adaptive optimizers"
+          ],
+          "abort_criteria": [
+            "Welford state corruption across save/load roundtrip (mean/var diverge)",
+            "Per-step time regression > 15% from added normalization"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewer 3 finding: log1p(v)/12 is one-size-fits-all. Numeric features span RPM (100-30000) vs target_ra_um (0.4-12) vs depth_of_cut_mm (0.1-5). Need per-feature normalization."
+        },
+        {
+          "id": "U-NN-FEAT03",
+          "title": "Physics-engine features — Kienzle force, Taylor life, chatter stability appended to input",
+          "effort_min": 90,
+          "dependencies": ["U-NN-FEAT02"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_created": ["mcp-server/src/engines/PhysicsFeatureExtractorEngine.ts"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "PhysicsFeatureExtractorEngine.extract(record) returns Float64Array of physics-derived features",
+            "Features include (z-scored): predicted_kienzle_force_N, predicted_taylor_life_min, predicted_chatter_stability_lobe_index, predicted_surface_ra_um, predicted_thermal_load_W",
+            "T1-02 input grows by 5 features (with corresponding hidden-layer adjustment)",
+            "Test: with physics features, T1-02 reaches higher accuracy on synthetic dataset than without (or document why not)",
+            "Engine wired into prism_intelligence dispatcher as xproc_physics_features action",
+            "Symmetry test (XprocDispatcherSymmetry) updated and still passes"
+          ],
+          "abort_criteria": [
+            "Physics engines (Kienzle/Taylor/Chatter) throw on edge-case inputs (missing tool material, zero RPM) — must handle gracefully",
+            "Physics features add training time > 50% (Kienzle is fast but composition is slow)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts && git rm mcp-server/src/engines/PhysicsFeatureExtractorEngine.ts",
+          "description": "Reviewer 1 finding: existing physics engines never feed the NN. Build a feature extractor that calls the existing engines (do NOT inline physics constants — import from src/physics/constants.ts). Wires the entire physics-engine library to provide features. This is the T8 (Neuro-Symbolic) vision activated for input, not just output gating."
+        },
+        {
+          "id": "U-NN-FEAT04",
+          "title": "Wiki tribal-tip RAG features via PRISMSelfAwarenessEngine",
+          "effort_min": 75,
+          "dependencies": ["U-NN-FEAT03"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_created": ["mcp-server/src/engines/WikiRAGFeatureEngine.ts"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "WikiRAGFeatureEngine.extractRAGFeatures(record) calls prismSelfAwarenessEngine.searchTribalKnowledge(material+operation), returns top-5 tip count + average rule-firing intensity as 8 features",
+            "Cache RAG queries (LRU, max 1000 entries) to avoid wiki re-search on every record",
+            "Confirm via grep: WikiRAGFeatureEngine is referenced from CrossProcessNeuralLearningEngine.featurize()",
+            "Train accuracy on the synthetic dataset improves OR documented why not (synthetic dataset may not have wiki coverage)"
+          ],
+          "abort_criteria": [
+            "PRISMSelfAwarenessEngine.searchTribalKnowledge is itself unwired or returns empty for plausible queries",
+            "Per-record RAG query time > 5ms (forces caching to kick in)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts && git rm mcp-server/src/engines/WikiRAGFeatureEngine.ts",
+          "description": "Reviewer 1 finding: zero CrossProcess*Engine.ts references searchTribalKnowledge. Build a RAG feature engine that uses the stable PRISMSelfAwarenessEngine API to convert wiki context into features. 3,700 tips + 296 playbook rules become accessible to the NN."
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Categorical collisions < 5% on real material catalog",
+          "z-score normalization preserves train/test parity",
+          "Physics features and RAG features both wired and tested",
+          "T1-02 input dim > 64 (was 32) — model has materially richer signal"
+        ],
+        "omega_floor": 0.90,
+        "svi_delta_target": "+1.5%"
+      },
+      "feature_cascade": {
+        "new_engines": ["PhysicsFeatureExtractorEngine", "WikiRAGFeatureEngine"],
+        "new_actions": ["xproc_physics_features", "xproc_wiki_rag_features"],
+        "new_skills": [],
+        "available_to": ["P3-CLOSED-LOOP", "P4-REAL-DATA", "P5-ARCH-MODERN", "P6-TIER-COMPOSE"]
+      }
+    },
+    {
+      "id": "P3-CLOSED-LOOP",
+      "title": "Phase 3 — Closed-Loop Wiring (FeedbackBus, P2P emission, NN auto-train, memory feedback)",
+      "rationale": "Reviewer 2 found 42 of 47 engines have ZERO production callers. The promised FeedbackBusEngine (P0-U04) was never built. No print-to-program engine emits outcome events. This phase wires the missing event flow that makes 'closed-loop learning' real instead of aspirational.",
+      "smart_config": {
+        "role": "system_architect + ml_engineer",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge_sources": {
+        "engines": ["CrossProcessOutcomeStore", "CrossProcessNeuralLearningEngine", "CrossProcessRewardShaperEngine", "MillingPrintToProgramEngine", "WEDMPrintToProgramEngine", "TurningPrintToProgramEngine"],
+        "milestone_history": ["mcp-server/data/milestones/INFRA-NEURAL-LEDGER-MS1.json (P0-U04 spec)"],
+        "memory_archive": ["C:/Users/wompu/.claude/projects/H--prism/memory/feedback_*.md"]
+      },
+      "skills": ["/forge-engines", "/forge-wiring", "/trace", "/scrutinize"],
+      "plugins": ["Vitest MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map", "memory_recall", "auto_checkpoint", "memory_save"],
+      "units": [
+        {
+          "id": "U-NN-LOOP01",
+          "title": "Build FeedbackBusEngine — pub/sub event bus for outcome events",
+          "effort_min": 90,
+          "dependencies": [],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_created": ["mcp-server/src/engines/FeedbackBusEngine.ts", "mcp-server/src/__tests__/FeedbackBusEngine.test.ts"],
+          "exit_conditions": [
+            "FeedbackBusEngine implements subscribe(topic, callback), publish(topic, event), unsubscribe(handle)",
+            "In-process EventEmitter backing; no external deps",
+            "Subscribers fire async (queueMicrotask) so a slow subscriber doesn't block the publisher",
+            "Try/catch around each subscriber invocation — one crashing subscriber doesn't break others (per P0-U04 spec)",
+            "≥10 vitest cases: subscribe + publish round-trip; multiple subscribers; subscriber crash isolation; unsubscribe; publish to nonexistent topic; concurrent publish ordering",
+            "Wired into prism_intelligence as xproc_feedbackbus_publish / _subscribe / _stats / _topics actions",
+            "Symmetry test still passes (action count balanced across both dispatchers)"
+          ],
+          "abort_criteria": [
+            "Subscriber crash propagates to publisher",
+            "Memory leak: unsubscribed handlers retained"
+          ],
+          "rollback_procedure": "git rm mcp-server/src/engines/FeedbackBusEngine.ts mcp-server/src/__tests__/FeedbackBusEngine.test.ts",
+          "description": "P0-U04 from INFRA-NEURAL-LEDGER-MS1 was never built. Build it now. Reviewer 2 identified this as 'the single missing primitive that converts the 47-node forest into a graph'."
+        },
+        {
+          "id": "U-NN-LOOP02",
+          "title": "Wire CrossProcessOutcomeStore to publish on FeedbackBus when records arrive",
+          "effort_min": 30,
+          "dependencies": ["U-NN-LOOP01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessOutcomeStore.ts"],
+          "exit_conditions": [
+            "OutcomeStore.record() and recordOutcome() publish to FeedbackBus on topic 'outcome.recorded' / 'outcome.finalized'",
+            "Publish is fire-and-forget (try/catch, never blocks main path)",
+            "Test: subscribe then record N events, assert all events arrived in order with correct topics"
+          ],
+          "abort_criteria": [
+            "Publishing breaks existing OutcomeStore tests (78 cases)",
+            "Publish is synchronous and slows record() by > 5ms"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessOutcomeStore.ts",
+          "description": "Connect Tier 1 ledger to the pub/sub bus. Now any subscriber can react to outcome events."
+        },
+        {
+          "id": "U-NN-LOOP03",
+          "title": "NeuralLearningEngine subscribes to FeedbackBus for incremental online training",
+          "effort_min": 75,
+          "dependencies": ["U-NN-LOOP02", "U-NN-FIX04"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "On import, NeuralLearningEngine.subscribe('outcome.finalized', this.onNewOutcome)",
+            "onNewOutcome buffers events; flushes when buffer reaches MIN_BATCH=8 OR every 60 seconds (whichever first)",
+            "Flush triggers a single online stepBatch (per U-NN-FIX04)",
+            "Subscription handle stored so test isolation engines can unsubscribe",
+            "Test: publish 100 outcome events through FeedbackBus, assert NN.totalSamplesSeen increased by 100"
+          ],
+          "abort_criteria": [
+            "Subscription causes singleton tests to interfere (events from other tests training the singleton)",
+            "Online training degrades batch-trained accuracy (catastrophic forgetting)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Closes the loop: outcome event → bus → NN auto-trains. This is the heartbeat of the closed-loop system."
+        },
+        {
+          "id": "U-NN-LOOP04",
+          "title": "Wire MillPrintToProgramEngine to emit outcome events post-run",
+          "effort_min": 60,
+          "dependencies": ["U-NN-LOOP02"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/MillingPrintToProgramEngine.ts"],
+          "exit_conditions": [
+            "After every successful program generation: crossProcessOutcomeStore.record({bridge:'p2p', process:'mill', request_summary, response_summary, outcome:{kind:'pending'}})",
+            "Operator-confirmed runs (via separate skill) update the same record's outcome.kind = success/failure/operator_override",
+            "Existing MillingPrintToProgramEngine tests still pass",
+            "New test: generate a program, assert outcome event emitted to OutcomeStore",
+            "Coordinate with peer chat owning MillingPrintToProgramEngine.ts (currently claude-bee98bb8 per chat-bus) — may need to split this unit"
+          ],
+          "abort_criteria": [
+            "MillingPrintToProgramEngine claimed by another chat at unit start time",
+            "Emission adds > 10ms to program generation"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/MillingPrintToProgramEngine.ts",
+          "description": "Reviewer 2 finding: zero PrintToProgram engines emit outcome events. Wire the mill side first (most data volume)."
+        },
+        {
+          "id": "U-NN-LOOP05",
+          "title": "Wire WEDMPrintToProgramEngine to emit outcome events (Reviewer 5 Option A)",
+          "effort_min": 60,
+          "dependencies": ["U-NN-LOOP02"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/WEDMPrintToProgramEngine.ts"],
+          "exit_conditions": [
+            "WEDM emission with kerf-width target as primary outcome metric",
+            "Wire-break events emit outcome.kind='failure' with failure_mode='wire_break'",
+            "Reviewer 5 recommended WEDM as the FIRST closed-loop pilot — this unit ships that pilot",
+            "Smoke-test: generate a WEDM program, simulate operator confirmation, assert NN trains on the resulting outcome event"
+          ],
+          "abort_criteria": [
+            "WEDMPrintToProgramEngine doesn't exist on this branch (verify via Glob)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/WEDMPrintToProgramEngine.ts",
+          "description": "Reviewer 5 explicitly recommended WEDM as the MVP closed-loop pilot — most mature, JM Die has the data."
+        },
+        {
+          "id": "U-NN-LOOP06",
+          "title": "Memory feedback ingester — feedback_*.md → RewardShaperEngine",
+          "effort_min": 90,
+          "dependencies": ["U-NN-LOOP01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_created": ["mcp-server/src/engines/MemoryFeedbackIngesterEngine.ts", "mcp-server/src/__tests__/MemoryFeedbackIngesterEngine.test.ts"],
+          "exit_conditions": [
+            "Glob `C:/Users/wompu/.claude/projects/H--prism/memory/feedback_*.md`",
+            "Parse each: extract first H1 + tone classifier (Ollama for batch, fallback to keyword heuristic)",
+            "Emit reward signal to crossProcessRewardShaperEngine (T4) with sign aligned to operator correction",
+            "Wired as scheduled cron (daily) via PRISM cron registry",
+            "≥10 test cases: parse representative files, classify tone, verify reward sign, missing-file handling, malformed-frontmatter handling"
+          ],
+          "abort_criteria": [
+            "Tone classifier hallucinates positive/negative on neutral memos",
+            "Reward magnitudes overwhelm shop-floor signal (need normalization to ±1)"
+          ],
+          "rollback_procedure": "git rm mcp-server/src/engines/MemoryFeedbackIngesterEngine.ts mcp-server/src/__tests__/MemoryFeedbackIngesterEngine.test.ts",
+          "description": "Reviewer 1 finding: memory feedback files never flow to T4 RL. Wire them now. Unblocks an entire dormant tier for free."
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Live demo: simulate WEDM job → outcome event → bus → NN auto-trains → next prediction reflects new data",
+          "FeedbackBusEngine 100% test coverage on its public API",
+          "Connected-engine count rises from 5/47 to ≥15/47 per Reviewer 2's metric"
+        ],
+        "omega_floor": 0.90,
+        "svi_delta_target": "+3.0%"
+      },
+      "feature_cascade": {
+        "new_engines": ["FeedbackBusEngine", "MemoryFeedbackIngesterEngine"],
+        "new_actions": ["xproc_feedbackbus_publish", "xproc_feedbackbus_subscribe", "xproc_feedbackbus_stats", "xproc_feedbackbus_topics", "xproc_memory_feedback_ingest"],
+        "new_skills": [],
+        "available_to": ["P4-REAL-DATA", "P5-ARCH-MODERN", "P6-TIER-COMPOSE"]
+      }
+    },
+    {
+      "id": "P4-REAL-DATA",
+      "title": "Phase 4 — Real Data Ingestion (24,545 JM Die NC programs → outcome events)",
+      "rationale": "Reviewer 1 found 24,545 JM Die production NC programs sitting unused. Each shipped program is implicitly a 'success' label by definition. This phase parses them and replays through the NN pipeline — 1000× the current synthetic dataset volume.",
+      "smart_config": {
+        "role": "data_engineer + cnc_specialist",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge_sources": {
+        "engines": ["CADCorpusIngesterEngine (parser pattern reference)", "CrossProcessOutcomeStore"],
+        "data_root": ["H:/prism/JM DIE/CNC LATHE", "H:/prism/JM DIE/CNC MILL", "H:/prism/JM DIE/WEDM"],
+        "controllers": ["Mastercam-Okuma", "Mastercam-Fanuc", "hyperMILL", "Esprit"],
+        "registries": ["MaterialRegistry", "ToolCatalogEngine"]
+      },
+      "skills": ["/forge-engines", "/cad-corpus", "/learn-everything"],
+      "plugins": ["Vitest MCP"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map", "memory_recall", "auto_checkpoint", "memory_save"],
+      "units": [
+        {
+          "id": "U-NN-DATA01",
+          "title": "JM Die NC corpus parser — Mastercam-Okuma dialect (lathe priority)",
+          "effort_min": 180,
+          "dependencies": [],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_created": ["mcp-server/src/engines/JMDieNCCorpusParserEngine.ts"],
+          "exit_conditions": [
+            "Parses program header (material, tool table, customer)",
+            "Extracts per-tool: SFM, feed/rev, depth-of-cut, operation type",
+            "Test against 10 known programs from JM DIE/CNC LATHE/, assert extracted fields match hand-validated truth",
+            "Handles malformed/truncated programs without crash",
+            "Supports Mastercam-Okuma dialect first (per JM Die machine inventory)"
+          ],
+          "abort_criteria": [
+            "< 80% of JM Die lathe corpus parses cleanly (need broader dialect support)"
+          ],
+          "rollback_procedure": "git rm mcp-server/src/engines/JMDieNCCorpusParserEngine.ts",
+          "description": "Reviewer 1 documented that JM Die programs have parseable Mastercam/Okuma headers (`STEEL INCH - 1030 - 200 BHN`, `T010101`, `G96 S200`, `F.005`). Build the parser."
+        },
+        {
+          "id": "U-NN-DATA02",
+          "title": "Extend parser — Mastercam-Fanuc + hyperMILL dialects",
+          "effort_min": 120,
+          "dependencies": ["U-NN-DATA01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/JMDieNCCorpusParserEngine.ts"],
+          "exit_conditions": [
+            "Fanuc dialect: handles G54-G59 work offsets, G96/G97 surface speed, G50 spindle clamp",
+            "hyperMILL dialect: handles its specific comment header patterns",
+            "Coverage rises to ≥95% of JM Die corpus parsing cleanly"
+          ],
+          "abort_criteria": [
+            "Coverage plateau below 90%"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/JMDieNCCorpusParserEngine.ts",
+          "description": "Multi-dialect support unlocks the full 24,545-file corpus."
+        },
+        {
+          "id": "U-NN-DATA03",
+          "title": "Bulk corpus → outcome events ingester",
+          "effort_min": 90,
+          "dependencies": ["U-NN-DATA02", "U-NN-LOOP02"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_created": ["mcp-server/scripts/ingest-jm-die-corpus.mjs"],
+          "exit_conditions": [
+            "Script walks H:/prism/JM DIE/, parses each program, emits outcome event with kind='success' (shipped) by default",
+            "Customer-specific overrides (where JM Die metadata indicates rework or scrap) emit kind='operator_override' or kind='failure'",
+            "Idempotency: re-running script doesn't duplicate events (de-dup by program_path hash)",
+            "Final count: ≥20,000 outcome events ingested",
+            "Train-T1-02-on-real-corpus regression test: assert val accuracy > 60% on a held-out 20% (vs 50% on synthetic)"
+          ],
+          "abort_criteria": [
+            "Ingestion overflows OutcomeStore's 100MB rotation threshold (need archival)",
+            "Real-corpus train accuracy is WORSE than synthetic (model overfits to JM Die's idiosyncrasies)"
+          ],
+          "rollback_procedure": "Truncate OutcomeStore.jsonl back to pre-ingest checkpoint",
+          "description": "The headline data win. 24,545 real programs become the training set. T1-02 stops being trained on synthetic and starts being trained on production."
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "≥20,000 real outcome events in OutcomeStore",
+          "T1-02 trained on real corpus, validated calibration via T5 conformal prediction",
+          "Held-out val accuracy on real data > 60% (significant beat over synthetic 50%)"
+        ],
+        "omega_floor": 0.90,
+        "svi_delta_target": "+5.0%"
+      },
+      "feature_cascade": {
+        "new_engines": ["JMDieNCCorpusParserEngine"],
+        "new_actions": ["jm_die_corpus_parse", "jm_die_corpus_ingest"],
+        "new_skills": [],
+        "new_scripts": ["ingest-jm-die-corpus.mjs"],
+        "available_to": ["P5-ARCH-MODERN", "P6-TIER-COMPOSE"]
+      }
+    },
+    {
+      "id": "P5-ARCH-MODERN",
+      "title": "Phase 5 — Architecture Modernization (Adam, regularization, conformal, CatBoost option)",
+      "rationale": "Reviewer 5 (industry comparison) flagged 32→16→3 MLP with SGD-momentum as 2015-era. CatBoost/LightGBM beat MLPs on tabular by 2-8 points AUC. Modernize the core learner.",
+      "smart_config": {
+        "role": "ml_engineer + research_scientist",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge_sources": {
+        "engines": ["CrossProcessNeuralLearningEngine", "CrossProcessConformalPredictionEngine", "CrossProcessBayesianMLPEngine"],
+        "research": ["Shwartz-Ziv & Armon 2022 (XGBoost vs deep tabular)", "Grinsztajn et al. NeurIPS 2022", "Loshchilov & Hutter 2019 (AdamW)"]
+      },
+      "skills": ["/forge-engines", "/scrutinize", "/test"],
+      "plugins": ["Vitest MCP"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map", "memory_recall", "auto_checkpoint", "memory_save"],
+      "units": [
+        {
+          "id": "U-NN-ARCH01",
+          "title": "Adam optimizer with bias correction (replace SGD-momentum)",
+          "effort_min": 90,
+          "dependencies": ["U-NN-FIX01", "U-NN-FIX04"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "Replace vW1/vb1/vW2/vb2 with mW1/mb1/mW2/mb2 (first-moment) + vW1/vb1/vW2/vb2 (second-moment)",
+            "Bias correction terms applied: m_hat = m / (1 - β1^t), v_hat = v / (1 - β2^t)",
+            "Default β1=0.9, β2=0.999, ε=1e-8, lr=0.001",
+            "Persisted in serialize() for checkpoint resumption",
+            "E2E convergence test still passes; Adam should reach the loss floor faster (fewer epochs)",
+            "Add benchmark test comparing Adam vs SGD on same synthetic dataset, assert Adam ≤ 1.2× SGD epoch-count for same final accuracy"
+          ],
+          "abort_criteria": [
+            "Adam doesn't outperform SGD on the synthetic dataset (suggests bug in second-moment update)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewer 3 + Reviewer 5 both flagged. Adam is industry-standard for 2026."
+        },
+        {
+          "id": "U-NN-ARCH02",
+          "title": "L2 weight decay + early stopping + best-checkpoint",
+          "effort_min": 60,
+          "dependencies": ["U-NN-ARCH01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "L2 added to gradient: grad += weight_decay * param (default weight_decay = 1e-4)",
+            "Best-checkpoint: track best val_loss across epochs, restore weights at end of train()",
+            "Early stopping: patience=5 epochs without val improvement → break",
+            "Held-out validation samples passed via TrainOpts.validationSamples"
+          ],
+          "abort_criteria": [
+            "Early stopping always triggers at epoch ≤2 (suggests broken val_loss tracking)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewers 3+4+5 all flagged. Modern training discipline."
+        },
+        {
+          "id": "U-NN-ARCH03",
+          "title": "Class-weighted cross-entropy + label smoothing",
+          "effort_min": 45,
+          "dependencies": ["U-NN-ARCH01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"],
+          "exit_conditions": [
+            "Class weights computed from training-set inverse frequency",
+            "Label smoothing eps=0.05 in the cross-entropy target",
+            "On real JM Die corpus (where success ≫ failure), failure-class recall improves vs unweighted baseline"
+          ],
+          "abort_criteria": [
+            "Class weighting destabilizes training on synthetic (balanced) dataset"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewer 3 finding: failures and overrides are rare in real data. Without class weighting, the model collapses onto 'predict success'. Critical for real-corpus deployment."
+        },
+        {
+          "id": "U-NN-ARCH04",
+          "title": "T5 ConformalPredictionEngine wired around T1-02 outputs",
+          "effort_min": 75,
+          "dependencies": ["U-NN-ARCH02", "U-NN-DATA03"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts", "mcp-server/src/engines/CrossProcessConformalPredictionEngine.ts"],
+          "exit_conditions": [
+            "predictWithIntervals() returns {predicted_class, prediction_set: ['success', 'operator_override'], confidence: 0.95}",
+            "Conformal calibration set is the held-out 20% of the JM Die corpus",
+            "Validate: conformal coverage ≥ 95% on real-corpus held-out (Reviewer 5 industry baseline: Falkonry ships this)"
+          ],
+          "abort_criteria": [
+            "Conformal coverage < 90% (calibration broken)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
+          "description": "Reviewer 5 flagged: 'Falkonry now ships conformal prediction'. PRISM has the engine but doesn't wire it. Wire it."
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Adam matches or beats SGD on epoch-to-target-accuracy",
+          "Class weighting closes failure-class recall gap on real corpus",
+          "Conformal coverage ≥ 95% on held-out real data",
+          "Held-out val accuracy > 65% on real corpus (vs 60% baseline post-data ingest)"
+        ],
+        "omega_floor": 0.92,
+        "svi_delta_target": "+2.0%"
+      },
+      "feature_cascade": {
+        "new_engines": [],
+        "new_actions": ["xproc_neural_predict_with_intervals"],
+        "new_skills": [],
+        "available_to": ["P6-TIER-COMPOSE"]
+      }
+    },
+    {
+      "id": "P6-TIER-COMPOSE",
+      "title": "Phase 6 — Runtime Tier Composition (T2 memory + T3 drift + T4 RL + T8 safety + T12 orchestrator wired)",
+      "rationale": "Reviewer 2 found 42 of 47 engines have ZERO production callers. Phases 1-5 wired Tier 1, FeedbackBus, and architecture upgrades. This phase wires the remaining tiers into the runtime pipeline — turning the library into a system.",
+      "smart_config": {
+        "role": "system_architect + ml_engineer",
+        "model": "sonnet",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge_sources": {
+        "engines": ["CrossProcessEpisodicMemoryEngine", "CrossProcessDriftDetectorEngine", "CrossProcessRewardShaperEngine", "CrossProcessSymbolicConstraintEnforcerEngine", "CrossProcessHierarchicalNeuralOrchestratorEngine"]
+      },
+      "skills": ["/forge-wiring", "/trace", "/scrutinize"],
+      "plugins": ["Vitest MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map", "memory_recall", "auto_checkpoint", "memory_save"],
+      "units": [
+        {
+          "id": "U-NN-TIER01",
+          "title": "T2 EpisodicMemory + PrioritizedReplay wired to FeedbackBus",
+          "effort_min": 90,
+          "dependencies": ["U-NN-LOOP01"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessEpisodicMemoryEngine.ts", "mcp-server/src/engines/CrossProcessPrioritizedReplayEngine.ts"],
+          "exit_conditions": [
+            "EpisodicMemory subscribes to 'outcome.recorded' — stores hot/warm/cold tiered memory",
+            "PrioritizedReplay subscribes — computes priority on |TD-error|^α + ε",
+            "NeuralLearningEngine.train() now optionally pulls from PrioritizedReplay sampler instead of full ledger",
+            "Test: assert prioritized batches over-sample high-error events (PER property)"
+          ],
+          "abort_criteria": [
+            "PER complexity bug: priority distribution doesn't match Schaul et al.'s expected shape"
+          ],
+          "rollback_procedure": "git checkout HEAD -- relevant engine files",
+          "description": "Reviewer 2 finding: T2 has zero production callers despite being the FIRST tier built after Tier 1. Wire it now."
+        },
+        {
+          "id": "U-NN-TIER02",
+          "title": "T3 DriftDetector wired to nightly cron + Stop hook alerting",
+          "effort_min": 75,
+          "dependencies": ["U-NN-LOOP02"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessDriftDetectorEngine.ts", ".claude/hooks/drift-alert-on-stop.mjs"],
+          "exit_conditions": [
+            "DriftDetector samples 24h rolling window of outcome events at midnight (cron)",
+            "If drift confidence > 0.5: emit alert → Stop hook surfaces 'Drift detected — recommend retrain' to operator",
+            "Tested via injected synthetic drift in a test fixture"
+          ],
+          "abort_criteria": [
+            "Drift detector flaps (frequent false-positive alerts)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- relevant files",
+          "description": "Reviewer 5 flagged: 'no drift detection wired to retraining'. Wire it."
+        },
+        {
+          "id": "U-NN-TIER03",
+          "title": "T4 RewardShaper + PolicyGradient wired to outcome events",
+          "effort_min": 105,
+          "dependencies": ["U-NN-LOOP01", "U-NN-LOOP06"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessRewardShaperEngine.ts", "mcp-server/src/engines/CrossProcessPolicyGradientEngine.ts"],
+          "exit_conditions": [
+            "RewardShaper subscribes to 'outcome.finalized' — converts outcome → scalar reward (success +1, failure -10, override -2)",
+            "PolicyGradient consumes shaped rewards → REINFORCE-with-baseline step",
+            "Operator override events reduce policy probability of the overridden action",
+            "T4 test: 100 simulated overrides should measurably shift the policy distribution"
+          ],
+          "abort_criteria": [
+            "Reward hacking: policy converges to a metric loophole (e.g., always-recommend-the-most-conservative-feed)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- relevant files",
+          "description": "Reviewer 1: memory feedback never reaches RL. Reviewer 2: T4 has zero production callers. Wire both."
+        },
+        {
+          "id": "U-NN-TIER04",
+          "title": "T8 SymbolicConstraintEnforcer wraps T1-02 outputs (physics envelope hard-gate)",
+          "effort_min": 90,
+          "dependencies": ["U-NN-FEAT03"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts", "mcp-server/src/engines/CrossProcessSymbolicConstraintEnforcerEngine.ts", "mcp-server/src/tools/dispatchers/safetyDispatcher.ts"],
+          "exit_conditions": [
+            "All shop-floor-tier predictions (Ω≥0.95 per CLAUDE.md) flow through symbolic enforcer",
+            "Enforcer projects neural output onto Kienzle envelope, Taylor curve, machine-spindle-power, axis-rapid limit",
+            "Returns nearest feasible point + violation report",
+            "Wired into prism_safety:validate_physics — Reviewer 2 finding: this is the missing wire from safety dispatcher",
+            "Test: synthetic 'bad' neural prediction (feed > Sf) gets clamped to feasible region"
+          ],
+          "abort_criteria": [
+            "Enforcer over-clamps legitimate predictions (false-positive rate > 10%)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- relevant files",
+          "description": "Reviewer 5 flagged: neuro-symbolic safety verification is PRISM's INNOVATIVE moat. But it has zero production callers. Wire it."
+        },
+        {
+          "id": "U-NN-TIER05",
+          "title": "T12 HierarchicalNeuralOrchestrator routes queries through tier stack",
+          "effort_min": 75,
+          "dependencies": ["U-NN-TIER01", "U-NN-TIER02", "U-NN-TIER03", "U-NN-TIER04"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"],
+          "files_modified": ["mcp-server/src/engines/CrossProcessHierarchicalNeuralOrchestratorEngine.ts"],
+          "exit_conditions": [
+            "orchestrate_full('predict-sf', context) returns: T1-02 prediction + T5 conformal interval + T8 envelope + T9 causal explanation",
+            "End-to-end latency < 500ms p99 per the original roadmap acceptance criterion",
+            "Wired into prism_intelligence:xproc_orchestrate_full as production caller",
+            "Test: complete tier-stack round-trip on synthetic input, all provenance fields populated"
+          ],
+          "abort_criteria": [
+            "Latency exceeds 500ms (suggests caching needed, or tier composition is too deep)"
+          ],
+          "rollback_procedure": "git checkout HEAD -- relevant files",
+          "description": "T12 is the queen of the tier hierarchy. Currently zero production callers. After this unit: queries through orchestrator return full provenance — the original roadmap vision."
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Connected-engine count rises from ≥15/47 (P3 exit) to ≥40/47",
+          "Tier 12 orchestrator query: <500ms p99 with all provenance fields",
+          "T8 enforcer blocks 0% legitimate / 100% bad-physics predictions on synthetic test",
+          "T4 RL has measurable policy shift after 100 override events"
+        ],
+        "omega_floor": 0.93,
+        "svi_delta_target": "+4.0%"
+      },
+      "feature_cascade": {
+        "new_engines": [],
+        "new_hooks": ["drift-alert-on-stop.mjs"],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": []
+      }
+    }
+  ],
+  "acceptance": "Final state: T1-02 has correct backprop, no label leak, true minibatch SGD, statistically-validated convergence. Featurization includes physics + RAG features at 64+ input dim. FeedbackBus event flow connects ≥40/47 engines into a runtime graph. 24,545 JM Die programs ingested as training data. Adam + L2 + class-weighted CE + conformal prediction in production. T2/T3/T4/T8/T12 tiers all wired with subscribers. Reviewer 2's connected-engine count rises from 5/47 to ≥40/47.",
+  "risks": [
+    {"id": "R1", "description": "Peer chats may modify shared dispatcher files mid-roadmap; mitigation = chat-bus claims before each unit"},
+    {"id": "R2", "description": "JM Die corpus parsing coverage plateau below 90%; mitigation = WEDM-first MVP per Reviewer 5 Option A"},
+    {"id": "R3", "description": "Adam under-performs SGD on small synthetic dataset; mitigation = keep SGD path as fallback flag"},
+    {"id": "R4", "description": "T8 symbolic enforcer over-clamps; mitigation = staged rollout with operator override telemetry"},
+    {"id": "R5", "description": "Memory feedback ingester misclassifies tone via Ollama; mitigation = manual review of first 100 classifications"}
+  ]
+}
