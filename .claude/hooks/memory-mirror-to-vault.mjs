@@ -41,6 +41,11 @@ const CATEGORY_PREFIXES = {
   mistake_: "mistakes",
   patterns_: "patterns",
   pattern_: "patterns",
+  lesson_: "lessons",
+  lessons_: "lessons",
+  decision_: "decisions",
+  decisions_: "decisions",
+  inbox_: "inbox",
 };
 
 function categorize(filename) {

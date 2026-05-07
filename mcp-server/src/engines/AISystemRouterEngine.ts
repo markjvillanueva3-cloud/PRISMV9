@@ -20,7 +20,8 @@
  */
 
 import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, appendFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 export type AIBackend =
   | "claude-opus"
@@ -157,7 +158,21 @@ export class AISystemRouterEngine {
     }
 
     const reachable = this.isReachable(primary);
-    return { task: taskDescription, taskClass, primary, fallback, reachable, reason, estimatedCost };
+    const decision: RouteDecision = { task: taskDescription, taskClass, primary, fallback, reachable, reason, estimatedCost };
+    AISystemRouterEngine.appendLedger(decision);
+    return decision;
+  }
+
+  private static readonly LEDGER_PATH = "H:/prism/knowledge/summaries/routing-decisions.jsonl";
+  private static appendLedger(decision: RouteDecision): void {
+    try {
+      const dir = dirname(AISystemRouterEngine.LEDGER_PATH);
+      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+      const line = JSON.stringify({ ts: new Date().toISOString(), ...decision }) + "\n";
+      appendFileSync(AISystemRouterEngine.LEDGER_PATH, line, "utf8");
+    } catch {
+      // best-effort; never block routing on telemetry write failure
+    }
   }
 
   isReachable(backend: AIBackend): boolean {
