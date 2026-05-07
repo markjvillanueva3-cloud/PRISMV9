@@ -309,9 +309,13 @@ export class CrossProcessNeuralLearningEngine {
     setHashOneHot(f, offset, record.request_summary.operation, OPERATION_BUCKETS);
     offset += OPERATION_BUCKETS;
 
-    // 8. Aux features (4): success-flag, warnings-norm, has-operator, bias.
-    const succ = record.response_summary?.success;
-    f[offset++] = succ === true ? 1 : succ === false ? -1 : 0;
+    // 8. Aux features (4): RESERVED-zero, warnings-norm, has-operator, bias.
+    // U-NN-FIX02: removed response_summary.success injection — that field is
+    // downstream of outcome.kind (set BY the outcome we're trying to predict).
+    // Leaving it as input was a label leak that gave the model a free shortcut
+    // to memorize labels. Slot is preserved as a zero placeholder so INPUT_DIM
+    // (32) stays stable across save/load. Future use: operator skill_level.
+    f[offset++] = 0;
     const warn = record.response_summary?.warnings_count ?? 0;
     f[offset++] = Math.min(1, Math.max(0, warn) / 10); // 0..10+ warnings → 0..1
     f[offset++] = record.operator?.id ? 1 : 0;

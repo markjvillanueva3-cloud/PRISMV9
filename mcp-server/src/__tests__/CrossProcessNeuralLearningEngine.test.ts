@@ -481,6 +481,66 @@ describe("CrossProcessNeuralLearningEngine", () => {
     expect(descents).toBeGreaterThanOrEqual(Math.floor(TOTAL_STEPS * 0.8));
   });
 
+  // ───── U-NN-FIX02: response_summary.success label-leak regression ─────
+
+  it("training accuracy is independent of response_summary.success (no label leak)", () => {
+    // Build two datasets identical in EVERY field except response_summary.success:
+    //   datasetA: success flag matches outcome.kind (consistent)
+    //   datasetB: success flag is RANDOM, independent of outcome.kind
+    // If the engine leaked the success flag as a feature (the U-NN-FIX02 bug),
+    // datasetA would train to higher accuracy than datasetB. After the fix,
+    // training accuracy is independent of the success flag — the slot is now zero.
+    const N = 30;
+    const buildA: OutcomeRecord[] = [];
+    const buildB: OutcomeRecord[] = [];
+    // Use a deterministic non-success-correlated pseudo-random for B's flag.
+    let s = 9001 >>> 0;
+    const flip = () => {
+      s = (s * 1103515245 + 12345) >>> 0;
+      return ((s >>> 24) & 1) === 1;
+    };
+    for (let i = 0; i < N; i++) {
+      const isFailure = i % 2 === 0;
+      const kind: OutcomeRecord["outcome"] = isFailure
+        ? { kind: "failure" }
+        : { kind: "success" };
+      const baseRequest = {
+        tool_diameter_mm: isFailure ? 12 : 6,
+        depth_of_cut_mm: isFailure ? 4.0 : 0.3,
+        spindle_rpm: isFailure ? 400 : 8000,
+        material: isFailure ? "ti_6al_4v" : "aluminum_6061",
+      };
+      // A: success flag tracks outcome (would-be-leak path)
+      buildA.push(makeRecord({
+        id: `a-${i}`,
+        bridge: "sf",
+        process: "mill",
+        request: baseRequest,
+        response: { success: !isFailure, warnings_count: 0 },
+        outcome: kind,
+      }));
+      // B: success flag random
+      buildB.push(makeRecord({
+        id: `b-${i}`,
+        bridge: "sf",
+        process: "mill",
+        request: baseRequest,
+        response: { success: flip(), warnings_count: 0 },
+        outcome: kind,
+      }));
+    }
+
+    const engineA = new CrossProcessNeuralLearningEngine({ seed: 42 });
+    const engineB = new CrossProcessNeuralLearningEngine({ seed: 42 });
+    const rA = engineA.train(buildA, { epochs: 30, batchSize: 8, shuffle: false });
+    const rB = engineB.train(buildB, { epochs: 30, batchSize: 8, shuffle: false });
+
+    // Both should reach similar accuracy — the success flag is no longer
+    // information. A leak would manifest as rA.trainAccuracy ≫ rB.trainAccuracy.
+    // After the fix, |rA - rB| < 0.10 (modest float-determinism noise).
+    expect(Math.abs(rA.trainAccuracy - rB.trainAccuracy)).toBeLessThan(0.10);
+  });
+
   it("backprop converges to near-zero loss on a single repeated sample (sanity)", () => {
     // If gradient direction is wrong, loss diverges. With correct backprop,
     // a small MLP overfits a single sample to near-zero cross-entropy in
