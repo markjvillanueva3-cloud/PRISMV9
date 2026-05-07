@@ -330,6 +330,13 @@ const ACTIONS = [
   "wedm_recast_ml_predict", "wedm_recast_ml_train", "wedm_recast_ml_add_sample", "wedm_recast_ml_stats", "wedm_recast_ml_reset",
   // WEDM-NEXT-MS0 U-WN07: Heat Affected Zone
   "wedm_haz_predict", "wedm_haz_stock_allowance", "wedm_haz_compare",
+  // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH1: 6 unwired WEDM engines
+  "wedm_corner_min_radius",                // WEDMCornerPhysicsEngine.calculateMinCornerRadius
+  "wedm_dielectric_temp_factor",           // WEDMDielectricCorrectionEngine.calculateTemperatureFactor
+  "wedm_job_cost_estimate",                // WEDMJobCostEngine.calculateCuttingTime + wire consumption
+  "wedm_calculator_run",                   // WEDMCalculatorAIEngine.calculate
+  "wedm_power_density_check",              // WEDMPowerDensityGuardEngine.calculateKerfWidth + power density
+  "wedm_pre_flight_check",                 // WEDMPreFlightCheckEngine
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1928,6 +1935,80 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "waterjet_lora_record": {
             const { waterjetLoRACadenceEngine } = await import("../../engines/WaterjetLoRACadenceEngine.js");
             result = { total: waterjetLoRACadenceEngine.recordJobs((params as any).n) };
+            break;
+          }
+
+          // ─────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH1: 6 unwired WEDM engines
+          // ─────────────────────────────────────────────────────────────────
+          case "wedm_corner_min_radius": {
+            const { wedmCornerPhysicsEngine } = await import("../../engines/WEDMCornerPhysicsEngine.js");
+            const p = params as { wireDiameter: number; sparkGap: number };
+            if (typeof p.wireDiameter !== "number" || typeof p.sparkGap !== "number") {
+              throw new Error("wedm_corner_min_radius requires 'wireDiameter' and 'sparkGap' (numbers)");
+            }
+            const minR = wedmCornerPhysicsEngine.calculateMinCornerRadius(p.wireDiameter, p.sparkGap);
+            result = { min_corner_radius_mm: minR, source: "WEDMCornerPhysicsEngine.calculateMinCornerRadius" };
+            break;
+          }
+          case "wedm_dielectric_temp_factor": {
+            const { wedmDielectricCorrectionEngine } = await import("../../engines/WEDMDielectricCorrectionEngine.js");
+            const tempC = (params as { temperature_C: number }).temperature_C;
+            if (typeof tempC !== "number") throw new Error("wedm_dielectric_temp_factor requires 'temperature_C'");
+            const factor = wedmDielectricCorrectionEngine.calculateTemperatureFactor(tempC);
+            result = { temperature_C: tempC, temperature_factor: factor };
+            break;
+          }
+          case "wedm_job_cost_estimate": {
+            const { wedmJobCostEngine } = await import("../../engines/WEDMJobCostEngine.js");
+            const p = params as { perimeter_mm: number; pass_count: number; consumption_rate_g_m: number; speed_mm_min: number };
+            if (
+              typeof p.perimeter_mm !== "number" ||
+              typeof p.pass_count !== "number" ||
+              typeof p.consumption_rate_g_m !== "number" ||
+              typeof p.speed_mm_min !== "number"
+            ) {
+              throw new Error("wedm_job_cost_estimate requires 'perimeter_mm', 'pass_count', 'consumption_rate_g_m', 'speed_mm_min'");
+            }
+            const wire_consumption = wedmJobCostEngine.calculateWireConsumption(p.perimeter_mm, p.pass_count, p.consumption_rate_g_m);
+            const cutting_time_hr = wedmJobCostEngine.calculateCuttingTime(p.perimeter_mm, p.pass_count, p.speed_mm_min);
+            result = { wire_consumption_g: wire_consumption, cutting_time_hr };
+            break;
+          }
+          case "wedm_calculator_run": {
+            const { wedmCalculatorAIEngine } = await import("../../engines/WEDMCalculatorAIEngine.js");
+            result = await wedmCalculatorAIEngine.calculate(
+              params as Parameters<typeof wedmCalculatorAIEngine.calculate>[0],
+            );
+            break;
+          }
+          case "wedm_power_density_check": {
+            const { wedmPowerDensityGuardEngine } = await import("../../engines/WEDMPowerDensityGuardEngine.js");
+            const p = params as {
+              wire_diameter_mm: number;
+              overcut_mm: number;
+              thickness_mm: number;
+              peak_current_A: number;
+              gap_voltage_V: number;
+              duty_cycle: number;
+            };
+            const kerf = wedmPowerDensityGuardEngine.calculateKerfWidth(p.wire_diameter_mm, p.overcut_mm);
+            const cutFrontArea = wedmPowerDensityGuardEngine.calculateCutFrontArea(kerf, p.thickness_mm);
+            const avgPower = wedmPowerDensityGuardEngine.calculateAveragePower(p.peak_current_A, p.gap_voltage_V, p.duty_cycle);
+            const density = wedmPowerDensityGuardEngine.calculatePowerDensity(avgPower, cutFrontArea);
+            result = {
+              kerf_mm: kerf,
+              cut_front_area_mm2: cutFrontArea,
+              avg_power_W: avgPower,
+              power_density_W_mm2: density,
+            };
+            break;
+          }
+          case "wedm_pre_flight_check": {
+            const { wedmPreFlightCheckEngine } = await import("../../engines/WEDMPreFlightCheckEngine.js");
+            result = wedmPreFlightCheckEngine.generateChecklist(
+              params as Parameters<typeof wedmPreFlightCheckEngine.generateChecklist>[0],
+            );
             break;
           }
 
