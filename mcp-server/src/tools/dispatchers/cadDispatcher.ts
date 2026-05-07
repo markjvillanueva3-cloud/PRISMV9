@@ -220,6 +220,15 @@ const ACTIONS = [
   "cad_esprit_plan_execution", "cad_esprit_render_kbm",
   // CAD-FUSION-LIVE-MS0 PHASE20: print → CAD diagnostic orchestrator (5-stage pipeline)
   "cad_print_to_cad",
+  // CAD-FUSION-LIVE-MS0 PHASE21: wire 6 orphan design/learning/file-format engines
+  "cad_intent_decompose",      // CADIntentDecomposerEngine — natural-language → CAD intent
+  "cad_design_plan",            // CADOperationPlannerEngine — intent → ordered operation stream
+  "cad_atomic_step_decompose",  // AtomicStepDecomposerEngine — unit spec → atomic steps
+  "cad_stl_analyze",            // STLToVoxelGridEngine — STL → voxels (neural pipeline gateway)
+  "cad_pmi_extract",            // STEPAP242PMIExtractorEngine — GD&T from STEP AP242
+  "cad_part_boiler_tube",       // BoilerTubeEngine — parametric boiler tube design
+  "cad_part_gasket",            // GasketDesignEngine — parametric gasket design
+  "cad_ai_session_open",        // CADAIStateMachineEngine — open AI design session FSM
 ] as const;
 
 /** Registers cad dispatcher.
@@ -2007,6 +2016,77 @@ Params vary by action — pass relevant fields in params object.`,
               prevalence_threshold: params.prevalence_threshold,
             });
             result = { success: true, data };
+            break;
+          }
+          // ── PHASE21: 6 orphan design/learning/file-format engines wired ────────
+          case "cad_intent_decompose": {
+            const { cadIntentDecomposerEngine } = await import("../../engines/CADIntentDecomposerEngine.js");
+            const data = cadIntentDecomposerEngine.decompose(params.input ?? "", params.name_hint);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_design_plan": {
+            const { cadOperationPlannerEngine } = await import("../../engines/CADOperationPlannerEngine.js");
+            const data = await cadOperationPlannerEngine.plan(params.intent ?? params);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_atomic_step_decompose": {
+            const { atomicStepDecomposerEngine } = await import("../../engines/AtomicStepDecomposerEngine.js");
+            const data = atomicStepDecomposerEngine.decompose(params.unit ?? params);
+            result = { success: true, steps: data, count: data.length };
+            break;
+          }
+          case "cad_stl_analyze": {
+            const { stlToVoxelGridEngine } = await import("../../engines/STLToVoxelGridEngine.js");
+            const data = stlToVoxelGridEngine.analyzeGeometry({
+              content: params.content,
+              resolution_mm: params.resolution_mm,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "cad_pmi_extract": {
+            if (!params.file_path || typeof params.file_path !== "string") {
+              return dispatcherError(
+                new Error("cad_pmi_extract requires file_path"),
+                action, "prism_cad",
+              );
+            }
+            const { stepAP242PMIExtractorEngine } = await import("../../engines/STEPAP242PMIExtractorEngine.js");
+            const data = stepAP242PMIExtractorEngine.extract(params.file_path);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_boiler_tube": {
+            if (typeof params.steam_capacity_kg_h !== "number") {
+              return dispatcherError(
+                new Error("cad_part_boiler_tube requires steam_capacity_kg_h: number"),
+                action, "prism_cad",
+              );
+            }
+            const { boilerTubeEngine } = await import("../../engines/BoilerTubeEngine.js");
+            const data = boilerTubeEngine.calculate(params as { steam_capacity_kg_h: number; [k: string]: unknown });
+            result = { success: true, data };
+            break;
+          }
+          case "cad_part_gasket": {
+            const { gasketDesignEngine } = await import("../../engines/GasketDesignEngine.js");
+            const data = gasketDesignEngine.calculate(params as Record<string, unknown>);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_ai_session_open": {
+            if (!params.session_id || typeof params.session_id !== "string") {
+              return dispatcherError(
+                new Error("cad_ai_session_open requires session_id"),
+                action, "prism_cad",
+              );
+            }
+            const { cadAIStateMachineEngine } = await import("../../engines/CADAIStateMachineEngine.js");
+            const snapshot = cadAIStateMachineEngine.open(params.session_id);
+            const allowed = cadAIStateMachineEngine.allowedEvents(params.session_id);
+            result = { success: true, snapshot, allowed_events: allowed };
             break;
           }
           case "cad_esprit_render_kbm": {
