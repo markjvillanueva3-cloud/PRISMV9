@@ -131,7 +131,7 @@ try {
   );
 } catch (err) {
   // Non-blocking: log the failure but don't disrupt the tool flow
-  process.stderr.write(`[c-to-h-mirror] mirror failed for ${fileName}: ${err?.message || err}\n`);
+  process.stderr.write(`[c-to-h-mirror] mirror failed for ${relPath}: ${err?.message || err}\n`);
 }
 
 exit(0);

@@ -337,6 +337,13 @@ const ACTIONS = [
   "wedm_calculator_run",                   // WEDMCalculatorAIEngine.calculate
   "wedm_power_density_check",              // WEDMPowerDensityGuardEngine.calculateKerfWidth + power density
   "wedm_pre_flight_check",                 // WEDMPreFlightCheckEngine
+  // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH2: 6 unwired WEDM engines
+  "wedm_adaptive_pass_count",              // WEDMAdaptivePassEngine.calculatePassCount
+  "wedm_adaptive_offsets",                 // WEDMAdaptivePassEngine.calculateOffsets
+  "wedm_accessibility_analyze",            // WEDMAccessibilityEngine.analyze
+  "wedm_current_density_validate",         // WEDMCurrentDensityGuardEngine.validate
+  "wedm_benchmark_classify",               // WEDMBenchmarkToleranceEngine.classify
+  "wedm_archive_backfill_state",           // WEDMArchiveBackfillEngine.getState
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2009,6 +2016,62 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = wedmPreFlightCheckEngine.generateChecklist(
               params as Parameters<typeof wedmPreFlightCheckEngine.generateChecklist>[0],
             );
+            break;
+          }
+
+          // ─────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH2: 6 unwired WEDM engines
+          // ─────────────────────────────────────────────────────────────────
+          case "wedm_adaptive_pass_count": {
+            const { wedmAdaptivePassEngine } = await import("../../engines/WEDMAdaptivePassEngine.js");
+            const p = params as Parameters<typeof wedmAdaptivePassEngine.calculatePassCount>[0];
+            if (typeof p?.target_tolerance_mm !== "number" || typeof p?.thickness_mm !== "number") {
+              throw new Error("wedm_adaptive_pass_count requires 'target_tolerance_mm' and 'thickness_mm' (numbers)");
+            }
+            result = { pass_count: wedmAdaptivePassEngine.calculatePassCount(p) };
+            break;
+          }
+          case "wedm_adaptive_offsets": {
+            const { wedmAdaptivePassEngine } = await import("../../engines/WEDMAdaptivePassEngine.js");
+            const p = params as { totalPasses: number; totalOffset: number };
+            if (typeof p?.totalPasses !== "number" || typeof p?.totalOffset !== "number") {
+              throw new Error("wedm_adaptive_offsets requires 'totalPasses' and 'totalOffset' (numbers)");
+            }
+            result = { offsets_mm: wedmAdaptivePassEngine.calculateOffsets(p.totalPasses, p.totalOffset) };
+            break;
+          }
+          case "wedm_accessibility_analyze": {
+            const { wedmAccessibilityEngine } = await import("../../engines/WEDMAccessibilityEngine.js");
+            const p = params as Parameters<typeof wedmAccessibilityEngine.analyze>[0];
+            if (!p?.profiles || !p?.start_holes || !p?.clamps || !p?.workpiece) {
+              throw new Error("wedm_accessibility_analyze requires 'profiles', 'start_holes', 'clamps', 'workpiece'");
+            }
+            result = wedmAccessibilityEngine.analyze(p);
+            break;
+          }
+          case "wedm_current_density_validate": {
+            const { wedmCurrentDensityGuardEngine } = await import("../../engines/WEDMCurrentDensityGuardEngine.js");
+            const p = params as Parameters<typeof wedmCurrentDensityGuardEngine.validate>[0];
+            if (typeof p?.current_A !== "number" || typeof p?.wire_diameter_mm !== "number") {
+              throw new Error("wedm_current_density_validate requires 'current_A' and 'wire_diameter_mm' (numbers)");
+            }
+            result = wedmCurrentDensityGuardEngine.validate(p);
+            break;
+          }
+          case "wedm_benchmark_classify": {
+            const { wedmBenchmarkToleranceEngine } = await import("../../engines/WEDMBenchmarkToleranceEngine.js");
+            const p = params as { deviation_pct: number; key: Parameters<typeof wedmBenchmarkToleranceEngine.classify>[1] };
+            if (typeof p?.deviation_pct !== "number" || !p?.key) {
+              throw new Error("wedm_benchmark_classify requires 'deviation_pct' (number) and 'key' (BenchmarkKey)");
+            }
+            const cls = wedmBenchmarkToleranceEngine.classify(p.deviation_pct, p.key);
+            const band = wedmBenchmarkToleranceEngine.getBand(p.key);
+            result = { classification: cls, band };
+            break;
+          }
+          case "wedm_archive_backfill_state": {
+            const { wedmArchiveBackfillEngine } = await import("../../engines/WEDMArchiveBackfillEngine.js");
+            result = wedmArchiveBackfillEngine.getState();
             break;
           }
 
