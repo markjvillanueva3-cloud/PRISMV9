@@ -360,6 +360,14 @@ const ACTIONS = [
   "wedm_failsafe_from_clearance",          // WEDMFailsafeEngine.planFromClearance
   "wedm_fault_diagnose",                   // WEDMFaultDiagnosisEngine.diagnose
   "wedm_fixture_interference",             // WEDMFixtureInterferenceEngine.analyze
+
+  // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH5: 6 unwired credit/deviation/dielectric/exception/active-query engines
+  "wedm_credit_cost_calc",                 // WEDMCreditCostEngine.calculate
+  "wedm_deviation_analyze",                // WEDMDeviationToTipEngine.analyze
+  "wedm_dielectric_flush_calc",            // WEDMDielectricFlushAdjustEngine.calculate
+  "wedm_exception_handle",                 // WEDMExceptionHandlerEngine.handle
+  "wedm_exception_record",                 // WEDMExceptionHandlerEngine.recordOutcome
+  "wedm_active_query_grid",                // WEDMActiveQueryEngine.generateCandidateGrid
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2201,6 +2209,61 @@ Actions: ${ACTIONS.join(", ")}.`,
               throw new Error("wedm_fixture_interference requires {workpiece, clamps[], profiles[]}");
             }
             result = wedmFixtureInterferenceEngine.analyze(p);
+            break;
+          }
+
+          // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH5: 6 unwired credit/deviation/dielectric/exception/active-query engines
+          case "wedm_credit_cost_calc": {
+            const { WEDMCreditCostEngine } = await import("../../engines/WEDMCreditCostEngine.js");
+            const p = params as Parameters<typeof WEDMCreditCostEngine.calculate>[0];
+            if (!p || typeof p.perimeter_mm !== "number" || typeof p.thickness_mm !== "number" || typeof p.passes !== "number") {
+              throw new Error("wedm_credit_cost_calc requires {perimeter_mm, thickness_mm, passes}");
+            }
+            result = WEDMCreditCostEngine.calculate(p);
+            break;
+          }
+          case "wedm_deviation_analyze": {
+            const { wedmDeviationToTipEngine } = await import("../../engines/WEDMDeviationToTipEngine.js");
+            const arr = (params as { deviations: Parameters<typeof wedmDeviationToTipEngine.analyze>[0] }).deviations
+                      ?? (params as Parameters<typeof wedmDeviationToTipEngine.analyze>[0]);
+            if (!Array.isArray(arr)) throw new Error("wedm_deviation_analyze requires 'deviations[]'");
+            result = wedmDeviationToTipEngine.analyze(arr);
+            break;
+          }
+          case "wedm_dielectric_flush_calc": {
+            const { wedmDielectricFlushAdjustEngine } = await import("../../engines/WEDMDielectricFlushAdjustEngine.js");
+            const p = params as Parameters<typeof wedmDielectricFlushAdjustEngine.calculate>[0];
+            if (!p || typeof p.baseline_flush_pressure_bar !== "number" || typeof p.conductivity_uS_cm !== "number") {
+              throw new Error("wedm_dielectric_flush_calc requires {baseline_flush_pressure_bar, conductivity_uS_cm}");
+            }
+            result = wedmDielectricFlushAdjustEngine.calculate(p);
+            break;
+          }
+          case "wedm_exception_handle": {
+            const { wedmExceptionHandlerEngine } = await import("../../engines/WEDMExceptionHandlerEngine.js");
+            const ex = (params as { exception: Parameters<typeof wedmExceptionHandlerEngine.handle>[0] }).exception
+                     ?? (params as Parameters<typeof wedmExceptionHandlerEngine.handle>[0]);
+            if (!ex || typeof ex.type !== "string") throw new Error("wedm_exception_handle requires {type}");
+            result = wedmExceptionHandlerEngine.handle(ex);
+            break;
+          }
+          case "wedm_exception_record": {
+            const { wedmExceptionHandlerEngine } = await import("../../engines/WEDMExceptionHandlerEngine.js");
+            const p = params as { type: Parameters<typeof wedmExceptionHandlerEngine.recordOutcome>[0]; success: boolean };
+            if (typeof p.type !== "string") throw new Error("wedm_exception_record requires 'type'");
+            if (typeof p.success !== "boolean") throw new Error("wedm_exception_record requires boolean 'success'");
+            wedmExceptionHandlerEngine.recordOutcome(p.type, p.success);
+            result = { recorded: true, type: p.type, success: p.success };
+            break;
+          }
+          case "wedm_active_query_grid": {
+            const { wedmActiveQueryEngine } = await import("../../engines/WEDMActiveQueryEngine.js");
+            const p = params as {
+              features: Parameters<typeof wedmActiveQueryEngine.generateCandidateGrid>[0];
+              opts?: Parameters<typeof wedmActiveQueryEngine.generateCandidateGrid>[1];
+            };
+            if (!p.features || typeof p.features !== "object") throw new Error("wedm_active_query_grid requires 'features'");
+            result = wedmActiveQueryEngine.generateCandidateGrid(p.features, p.opts);
             break;
           }
 

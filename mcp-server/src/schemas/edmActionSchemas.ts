@@ -270,6 +270,115 @@ const wedm_fixture_interference = z
   .passthrough()
   .describe("FixtureInterferenceInput — wire path vs clamp clearance check.");
 
+// ─── ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH5: 6 unwired credit/deviation/dielectric/exception/active-query engines ─
+
+/** wedm_credit_cost_calc — WEDMCreditCostEngine.calculate */
+const wedm_credit_cost_calc = z
+  .object({
+    perimeter_mm: z.number().positive().describe("Cut perimeter (mm)."),
+    thickness_mm: z.number().positive().describe("Workpiece thickness (mm)."),
+    passes: z.number().int().positive().describe("Number of passes."),
+    taper_count: z.number().int().nonnegative().optional(),
+  })
+  .passthrough()
+  .describe("Compute job cost in credits from cutting area + passes.");
+
+/** wedm_deviation_analyze — WEDMDeviationToTipEngine.analyze */
+const wedm_deviation_analyze = z
+  .array(
+    z
+      .object({
+        job_id: z.string().min(1),
+        deviation_type: z.enum([
+          "surface_finish",
+          "cut_speed",
+          "wire_consumption",
+          "cycle_time",
+          "accuracy",
+        ]),
+        predicted_value: z.number(),
+        actual_value: z.number(),
+        unit: z.string().min(1),
+        material: z.string().min(1),
+        thickness_mm: z.number().positive(),
+        wire_type: z.string().min(1),
+      })
+      .passthrough(),
+  )
+  .min(1)
+  .describe("Array of DeviationRecord — engine analyzes for tip-generation patterns.");
+
+/** wedm_dielectric_flush_calc — WEDMDielectricFlushAdjustEngine.calculate */
+const wedm_dielectric_flush_calc = z
+  .object({
+    baseline_flush_pressure_bar: z.number().positive().describe("Baseline flush pressure (bar)."),
+    conductivity_uS_cm: z.number().positive().describe("Measured dielectric conductivity (µS/cm)."),
+    thickness_mm: z.number().positive().optional(),
+  })
+  .passthrough()
+  .describe("DielectricFlushAdjustInput — adjust flush pressure for conductivity + thickness.");
+
+/** wedm_exception_handle — WEDMExceptionHandlerEngine.handle */
+const wedm_exception_handle = z
+  .object({
+    type: z
+      .enum([
+        "wire_break",
+        "short_circuit",
+        "open_circuit",
+        "tank_low",
+        "resistivity_high",
+        "resistivity_low",
+        "servo_fault",
+        "axis_overrun",
+        "wire_tension_out",
+        "filter_clogged",
+      ])
+      .describe("Exception type for recovery-policy lookup."),
+    message: z.string().optional(),
+    at: z.string().optional(),
+    context: z.record(z.string(), z.unknown()).optional(),
+  })
+  .passthrough()
+  .describe("WEDMException for recovery plan lookup via DEFAULT_POLICY ladder.");
+
+/** wedm_exception_record — WEDMExceptionHandlerEngine.recordOutcome */
+const wedm_exception_record = z
+  .object({
+    type: z.enum([
+      "wire_break",
+      "short_circuit",
+      "open_circuit",
+      "tank_low",
+      "resistivity_high",
+      "resistivity_low",
+      "servo_fault",
+      "axis_overrun",
+      "wire_tension_out",
+      "filter_clogged",
+    ]),
+    success: z.boolean().describe("Whether the recovery action succeeded."),
+  })
+  .passthrough()
+  .describe("Record exception-recovery outcome for policy adaptation.");
+
+/** wedm_active_query_grid — WEDMActiveQueryEngine.generateCandidateGrid */
+const wedm_active_query_grid = z
+  .object({
+    features: z.record(z.string(), z.unknown()).describe("UnknownMaterialFeatures (engine-defined shape)."),
+    opts: z
+      .object({
+        spreadMin: z.number().positive().optional(),
+        spreadMax: z.number().positive().optional(),
+        stepsPerAxis: z.number().int().min(2).optional(),
+        centre: z.record(z.string(), z.unknown()).optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough()
+  .describe("Generate candidate WEDMRecipe grid for active learning.");
+
 /** wedm_calibration_generate — WEDMCalibrationReportEngine.generate */
 const wedm_calibration_generate = z
   .object({
@@ -319,4 +428,12 @@ export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   wedm_failsafe_from_clearance,
   wedm_fault_diagnose,
   wedm_fixture_interference,
+
+  // BATCH5 schemas: credit / deviation / dielectric / exception / active-query
+  wedm_credit_cost_calc,
+  wedm_deviation_analyze,
+  wedm_dielectric_flush_calc,
+  wedm_exception_handle,
+  wedm_exception_record,
+  wedm_active_query_grid,
 };
