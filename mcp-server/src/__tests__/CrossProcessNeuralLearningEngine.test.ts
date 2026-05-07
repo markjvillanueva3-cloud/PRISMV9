@@ -481,6 +481,46 @@ describe("CrossProcessNeuralLearningEngine", () => {
     expect(descents).toBeGreaterThanOrEqual(Math.floor(TOTAL_STEPS * 0.8));
   });
 
+  // ───── U-NN-FIX04: true minibatch SGD ─────
+
+  it("batch_size=1 and batch_size=N both converge to similar accuracy (minibatch validity)", () => {
+    // Build a small separable dataset.
+    const N = 32;
+    const records: OutcomeRecord[] = [];
+    for (let i = 0; i < N; i++) {
+      const isSuccess = i % 2 === 0;
+      records.push(makeRecord({
+        id: `b-${i}`,
+        bridge: "sf",
+        process: "mill",
+        request: {
+          tool_diameter_mm: isSuccess ? 6 : 12,
+          depth_of_cut_mm: isSuccess ? 0.3 : 4.0,
+          spindle_rpm: isSuccess ? 8000 : 400,
+          material: isSuccess ? "aluminum_6061" : "ti_6al_4v",
+        },
+        outcome: { kind: isSuccess ? "success" : "failure" },
+      }));
+    }
+
+    // Online SGD (batch=1)
+    const e1 = new CrossProcessNeuralLearningEngine({ seed: 99, momentum: 0.9, learningRate: 0.05 });
+    const r1 = e1.train(records, { epochs: 50, batchSize: 1, shuffle: false });
+
+    // True minibatch (batch=8)
+    const e8 = new CrossProcessNeuralLearningEngine({ seed: 99, momentum: 0.9, learningRate: 0.05 });
+    const r8 = e8.train(records, { epochs: 50, batchSize: 8, shuffle: false });
+
+    // Both should reach ≥80% accuracy on this trivially-separable dataset.
+    // They produce DIFFERENT weights (different optimization paths) but
+    // similar final accuracies.
+    expect(r1.trainAccuracy).toBeGreaterThanOrEqual(0.8);
+    expect(r8.trainAccuracy).toBeGreaterThanOrEqual(0.8);
+    // Both reduce loss meaningfully (not just luck-based ≥80%).
+    expect(r1.finalLoss).toBeLessThan(r1.initialLoss * 0.7);
+    expect(r8.finalLoss).toBeLessThan(r8.initialLoss * 0.7);
+  });
+
   // ───── U-NN-FIX02: response_summary.success label-leak regression ─────
 
   it("training accuracy is independent of response_summary.success (no label leak)", () => {

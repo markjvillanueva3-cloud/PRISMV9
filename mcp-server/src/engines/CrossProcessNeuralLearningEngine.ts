@@ -379,14 +379,16 @@ export class CrossProcessNeuralLearningEngine {
     // that under-reported convergence on a stable model.
     const initialLoss = this.computeMeanLoss(samples);
 
+    // U-NN-FIX04: true minibatch SGD. Gradients are accumulated across batchSize
+    // samples then ONE update is applied with the averaged gradient. Previously
+    // each sample triggered its own update inside the "batch" loop (effectively
+    // online SGD with arbitrary periodicity).
     for (let ep = 0; ep < epochs; ep++) {
       if (shuffle) this.shuffleInPlace(samples);
       for (let i = 0; i < samples.length; i += batchSize) {
         const end = Math.min(i + batchSize, samples.length);
-        for (let j = i; j < end; j++) {
-          const { x, y } = samples[j];
-          this.stepOne(x, y);
-        }
+        const batch: Array<{ x: Float64Array; y: number }> = samples.slice(i, end);
+        this.stepBatch(batch);
       }
       this.totalEpochsRun++;
     }
@@ -694,6 +696,95 @@ export class CrossProcessNeuralLearningEngine {
     }
 
     return { loss, correct: argmax === y };
+  }
+
+  /**
+   * U-NN-FIX04: TRUE minibatch SGD step. Forward + accumulate gradients across
+   * the entire batch, then apply ONE update with the averaged gradient. Uses
+   * the standard chain rule with W2 snapshot (U-NN-FIX01).
+   *
+   * For batch_size=1 this is mathematically equivalent to stepOne (online SGD).
+   * For batch_size=N>1 this is true minibatch SGD with gradient averaging,
+   * which has lower gradient variance and typically more stable convergence.
+   */
+  private stepBatch(batch: Array<{ x: Float64Array; y: number }>): void {
+    const B = batch.length;
+    if (B === 0) return;
+
+    // Snapshot W2 ONCE per batch (constant during gradient accumulation).
+    const W2Snapshot = new Float64Array(this.W2);
+
+    // Gradient accumulators.
+    const gW2 = new Float64Array(OUTPUT_DIM * HIDDEN_DIM);
+    const gb2 = new Float64Array(OUTPUT_DIM);
+    const gW1 = new Float64Array(HIDDEN_DIM * INPUT_DIM);
+    const gb1 = new Float64Array(HIDDEN_DIM);
+
+    for (let s = 0; s < B; s++) {
+      const { x, y } = batch[s];
+      const { hidden, probs } = this.forward(x);
+
+      // dL/dlogits = probs - one_hot(y).
+      const dLogits = new Float64Array(OUTPUT_DIM);
+      for (let o = 0; o < OUTPUT_DIM; o++) {
+        dLogits[o] = probs[o] - (o === y ? 1 : 0);
+      }
+
+      // Output-layer gradients.
+      for (let o = 0; o < OUTPUT_DIM; o++) {
+        const rowOff = o * HIDDEN_DIM;
+        for (let h = 0; h < HIDDEN_DIM; h++) {
+          gW2[rowOff + h] += dLogits[o] * hidden[h];
+        }
+        gb2[o] += dLogits[o];
+      }
+
+      // Hidden-layer gradients (using W2 snapshot, not the accumulator).
+      const dHiddenPre = new Float64Array(HIDDEN_DIM);
+      for (let h = 0; h < HIDDEN_DIM; h++) {
+        let sum = 0;
+        for (let o = 0; o < OUTPUT_DIM; o++) {
+          sum += W2Snapshot[o * HIDDEN_DIM + h] * dLogits[o];
+        }
+        dHiddenPre[h] = (1 - hidden[h] * hidden[h]) * sum;
+      }
+
+      // Input-layer gradients.
+      for (let h = 0; h < HIDDEN_DIM; h++) {
+        const rowOff = h * INPUT_DIM;
+        for (let i = 0; i < INPUT_DIM; i++) {
+          gW1[rowOff + i] += dHiddenPre[h] * x[i];
+        }
+        gb1[h] += dHiddenPre[h];
+      }
+    }
+
+    // Apply ONE update with the AVERAGED gradient.
+    const lr = this.config.learningRate;
+    const mom = this.config.momentum;
+    const invB = 1 / B;
+
+    for (let o = 0; o < OUTPUT_DIM; o++) {
+      const rowOff = o * HIDDEN_DIM;
+      for (let h = 0; h < HIDDEN_DIM; h++) {
+        const grad = gW2[rowOff + h] * invB;
+        this.vW2[rowOff + h] = mom * this.vW2[rowOff + h] - lr * grad;
+        this.W2[rowOff + h] += this.vW2[rowOff + h];
+      }
+      this.vb2[o] = mom * this.vb2[o] - lr * gb2[o] * invB;
+      this.b2[o] += this.vb2[o];
+    }
+
+    for (let h = 0; h < HIDDEN_DIM; h++) {
+      const rowOff = h * INPUT_DIM;
+      for (let i = 0; i < INPUT_DIM; i++) {
+        const grad = gW1[rowOff + i] * invB;
+        this.vW1[rowOff + i] = mom * this.vW1[rowOff + i] - lr * grad;
+        this.W1[rowOff + i] += this.vW1[rowOff + i];
+      }
+      this.vb1[h] = mom * this.vb1[h] - lr * gb1[h] * invB;
+      this.b1[h] += this.vb1[h];
+    }
   }
 
   private computeMeanLoss(samples: Array<{ x: Float64Array; y: number }>): number {
