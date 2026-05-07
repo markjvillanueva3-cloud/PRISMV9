@@ -354,6 +354,81 @@ describe("XPROC-NEURAL T1-02 — end-to-end convergence on synthetic shop-floor 
     expect(cfg.momentum).toBeCloseTo(0.9, 9);
   });
 
+  // ===========================================================================
+  // U-NN-FIX05 — Statistical convergence test
+  // ===========================================================================
+
+  it("initial loss is finite, positive, and bounded — Xavier init produces sane logits", () => {
+    // Tightest current bound. With un-normalized inputs (varying magnitude across
+    // feature slots), the pre-softmax logits are NOT zero-centered, so initial
+    // loss can deviate substantially from the theoretical ln(3) ≈ 1.099 baseline.
+    //
+    // After U-NN-FEAT02 lands Welford z-score input whitening, this should
+    // tighten to |initialLoss - ln(3)| < 0.15. Until then we verify the safety
+    // property: loss is finite, positive, and bounded below the catastrophic
+    // exploding-gradient threshold (loss > 5 means logits are diverging).
+    const TARGET_LN3 = Math.log(NUM_CLASSES);
+    const CATASTROPHIC_LOSS = 5.0;
+    const ds = syntheticDataset(TRAIN_SEED);
+    const { train } = shuffleSplit(ds, TRAIN_RATIO);
+    const result = crossProcessNeuralLearningEngine.train(train, { epochs: 1, batchSize: train.length });
+    expect(Number.isFinite(result.initialLoss)).toBe(true);
+    expect(result.initialLoss).toBeGreaterThan(0);
+    expect(result.initialLoss).toBeLessThan(CATASTROPHIC_LOSS);
+    // Sanity: ln(3) is the theoretical balanced-softmax loss; current loss
+    // should be in the same order-of-magnitude (within 1.5×) even pre-whitening.
+    expect(result.initialLoss).toBeLessThan(TARGET_LN3 * 1.5);
+  });
+
+  it("5-seed mean accuracy beats chance by ≥2σ — convergence is statistically significant", () => {
+    // Per Codex Reviewer #4 finding: 'loss reduces ≥30%' is not statistically
+    // significant. Repeat the experiment across 5 seeds, compute mean and
+    // standard error of the val accuracy, assert mean > chance + 2*SE.
+    const SEEDS = [11, 22, 33, 44, 55];
+    const valAccuracies: number[] = [];
+    for (const seed of SEEDS) {
+      const isolate = new CrossProcessNeuralLearningEngine();
+      isolate.reset(seed);
+      const ds = syntheticDataset(seed);
+      const { train, val } = shuffleSplit(ds, TRAIN_RATIO, seed + 7);
+      isolate.train(train, { epochs: TRAIN_EPOCHS, batchSize: BATCH_SIZE });
+      const evalResult = isolate.evaluate(val);
+      valAccuracies.push(evalResult.accuracy);
+    }
+    const n = valAccuracies.length;
+    const mean = valAccuracies.reduce((a, b) => a + b, 0) / n;
+    const variance = valAccuracies.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+    const stdError = Math.sqrt(variance / n);
+    // Statistically significant beat over chance: mean > 1/3 + 2*SE.
+    expect(mean - 2 * stdError).toBeGreaterThan(CHANCE_ACCURACY);
+    // Mean accuracy should clear the val-floor of every individual run.
+    expect(mean).toBeGreaterThan(VAL_ACC_FLOOR);
+  });
+
+  it("5-seed mean loss reduction is statistically distinguishable from no-op", () => {
+    // For each seed, compute (initialLoss - finalLoss) / initialLoss = relative reduction.
+    // Mean reduction across 5 seeds must be > 2*SE away from zero (i.e. the
+    // null hypothesis 'training does nothing' is rejected at >95% confidence).
+    const SEEDS = [101, 202, 303, 404, 505];
+    const reductions: number[] = [];
+    for (const seed of SEEDS) {
+      const isolate = new CrossProcessNeuralLearningEngine();
+      isolate.reset(seed);
+      const ds = syntheticDataset(seed);
+      const { train } = shuffleSplit(ds, TRAIN_RATIO, seed + 7);
+      const r = isolate.train(train, { epochs: TRAIN_EPOCHS, batchSize: BATCH_SIZE });
+      reductions.push((r.initialLoss - r.finalLoss) / r.initialLoss);
+    }
+    const n = reductions.length;
+    const mean = reductions.reduce((a, b) => a + b, 0) / n;
+    const variance = reductions.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+    const stdError = Math.sqrt(variance / n);
+    // Reject null (no reduction) at >95% confidence: mean > 2*SE.
+    expect(mean - 2 * stdError).toBeGreaterThan(0);
+    // Mean reduction should be substantial (≥30% per the original convergence claim).
+    expect(mean).toBeGreaterThan(0.3);
+  });
+
   it("isolated engine instance trains independently of the singleton", () => {
     const ISOLATE_EPOCHS = 20;
     const isolate = new CrossProcessNeuralLearningEngine();
