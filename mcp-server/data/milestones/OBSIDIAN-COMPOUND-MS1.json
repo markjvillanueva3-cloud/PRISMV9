@@ -1,0 +1,1288 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "OBSIDIAN-COMPOUND-MS1",
+  "title": "Personal Knowledge Feedback Loop + Capability Utilization Closure",
+  "track": "OBSIDIAN-COMPOUND",
+  "status": "ready",
+  "created": "2026-05-07",
+  "created_by": "claude-cee63f1f",
+  "rationale": "PRISM has a strong vault layer (Karpathy LLM-Wiki at knowledge/wiki/, 722 entries) and a partial recall layer (memory-rag-inject, wiki-precheck-inject), but is largely missing the personal-content capture layer that closes cyrilXBT's feedback loop. Article framing: 'A second brain that never talks back is not a second brain. It is a very organized way to forget things.' This milestone closes 6 named gaps from `[[reference_cyrilxbt_obsidian_article_delta_2026-05-07]]`.\n\n[EXTENDED 2026-05-07] After 10-agent H:/ drive utilization audit (overall score 41.5/100), 7 additional units added across S4-S6 to close the meta-finding: PRISM has capability OVERPRODUCTION + exposure UNDERPRODUCTION. Per cyrilXBT framing, this is the same failure mode (\"organized way to forget things\") at the capability layer. Quick wins (schema backfill, PDF scan extension, hook stub cleanup) plus strategic closures (skill auto-invoke triggers, resources scheduled ingestion, mistakes auto-wire, tribal consolidate). See [[reference_h_drive_utilization_audit_2026-05-07]] for the per-agent breakdown.",
+  "depends_on_soft": [
+    "OBSIDIAN-COMPOUND-MS0 (informal status doc at state/shared/OBSIDIAN-COMPOUND-MS0-STATUS.md, Tier 1 shipped)",
+    "OBSIDIAN-MS0 (complete — provides ObsidianVaultSyncEngine, ObsidianPluginBridgeEngine, TribalTipExportEngine, ShopFloorNoteIngestionEngine; MS1 references these as read-only consumers)",
+    "INTEL-OLLAMA-OBSIDIAN-MS0 (not_started, owned by claude-a09ce89e — DO NOT MODIFY; MS1 references ObsidianMemoryRagEngine and ollama-obsidian-rag.mjs as read-only patterns. If iooms0 is upstreamed before MS1-S2 starts, U-EMERGING-THESIS may consume its outputs directly; until then, MS1 builds its own engine in main prism)"
+  ],
+  "depends_on_hard": [],
+  "knowledge_sources": {
+    "engines": [
+      "ObsidianVaultSyncEngine — bidirectional sync, SHA-256",
+      "ObsidianMemoryRagEngine — keyword-gated RAG (lives in iooms0, do not modify)",
+      "ObsidianPluginBridgeEngine — plugin-side API, query/subscribe",
+      "WikiIndexMaintainerEngine — wiki/index.md maintenance",
+      "WikiLogAppenderEngine — wiki/log.md append",
+      "TribalKnowledgeEngine — 3,700+ tips across 18 CAM systems",
+      "PRISMSelfAwarenessEngine — manifest + capability discovery"
+    ],
+    "hooks": [
+      "memory-mirror-to-vault.mjs — PostToolUse, C: memories → H: vault (extended in MS0 with lesson_/decision_)",
+      "memory-rag-inject.mjs — UserPromptSubmit, keyword-gated vault scan",
+      "wiki-precheck-inject.mjs — UserPromptSubmit, top-3 wiki entries on keyword match",
+      "ollama-obsidian-rag.mjs — UserPromptSubmit, summarizes vault for memory queries"
+    ],
+    "dispatchers": [
+      "knowledgeDispatcher — 13 obsidian_*/tribal_export_* actions + 50+ learn_*",
+      "prism_memory — semantic_search, remember, recall",
+      "prism_intelligence — awareness, neural"
+    ],
+    "external_anchors": [
+      "[[reference_cyrilxbt_obsidian_article_delta_2026-05-07]] — full article + 6-gap matrix",
+      "[[reference_obsidian_compound_audit_2026-05-07]] — original 7-unit audit",
+      "[[reference_karpathy_llm_wiki_external_validation]] — pattern validation",
+      "[[feedback_obsidian_low_token_2nd_brain_protocol]] — operating playbook",
+      "H:/last.md — full cyrilXBT article body (104 lines, 2026-05-07)"
+    ]
+  },
+  "sessions": [
+    {
+      "session_id": "OBSIDIAN-COMPOUND-MS1-S1",
+      "title": "Foundation — Inbox staging + weekly synthesis ritual",
+      "smart_config": {
+        "role": "Systems Architect + Knowledge Management Specialist",
+        "model": "opus",
+        "effort": "MEDIUM",
+        "context_budget": "40%"
+      },
+      "knowledge": {
+        "primary": [
+          "memory-mirror-to-vault.mjs (existing routing)",
+          "knowledge/memories/ subdir layout"
+        ],
+        "external": [
+          "cyrilXBT 5-folder structure (inbox/notes/ideas/projects/)",
+          "[[reference_cyrilxbt_obsidian_article_delta_2026-05-07]]"
+        ]
+      },
+      "intent": "After this session: Mark can drop any markdown file into knowledge/memories/inbox/ and trust it lands; running `/weekly-synthesis` produces a thesis+contradictions+gaps+action report from the last 7 days of vault activity.",
+      "skills": [
+        "/forge-hooks",
+        "/test",
+        "/scrutinize",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "codebase-memory-mcp",
+        "ESLint MCP"
+      ],
+      "mcp_lifecycle": {
+        "session_start": [
+          "prism_session:context_boot",
+          "prism_session:dispatcher_map_compact",
+          "prism_session:memory_recall"
+        ],
+        "during_work": [
+          "prism_session:auto_checkpoint (every 5 calls)",
+          "prism_session:action_search (when in doubt)"
+        ],
+        "session_end": [
+          "prism_session:memory_save",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "units": [
+        {
+          "id": "U-INBOX-LAYER",
+          "title": "Inbox staging directory + memory-mirror routing extension",
+          "build_description": "Add `H:/prism/knowledge/memories/inbox/` directory; extend `memory-mirror-to-vault.mjs` CATEGORY_PREFIXES with `inbox_:` prefix routing to `inbox/`. Distinct from existing `uncategorized/` because inbox is INTENTIONAL staging, not fallback. Add `INBOX_PROCESSING_LAG_HOURS=72` advisory threshold; warn (don't block) when inbox files older than threshold.",
+          "files_created": [
+            "H:/prism/knowledge/memories/inbox/.gitkeep",
+            "H:/prism/.claude/hooks/inbox-lag-advisory.mjs (Stop hook, advisory)"
+          ],
+          "files_modified": [
+            "H:/prism/.claude/hooks/memory-mirror-to-vault.mjs (CATEGORY_PREFIXES + 1 entry)"
+          ],
+          "knowledge_sources": [
+            "existing CATEGORY_PREFIXES pattern from MS0 U-MIRROR-CATEGORIES"
+          ],
+          "depends_on": [],
+          "four_loop": {
+            "build": "Extend CATEGORY_PREFIXES; create inbox-lag-advisory.mjs that scans inbox/ on Stop, warns on files >72h old.",
+            "scrutinize": "Run /scrutinize on the hook; verify advisory-only behavior (continue:true always).",
+            "gap_fill": "Add test: PostToolUse with inbox_test.md filename routes to inbox/.",
+            "tie_up": "No TODOs; reasoning recorded; advisory text references cyrilXBT framing."
+          },
+          "rollback": {
+            "files_created": [
+              "delete inbox-lag-advisory.mjs"
+            ],
+            "files_modified": [
+              "revert single CATEGORY_PREFIXES entry"
+            ],
+            "abort_criteria": [
+              "memory-mirror-to-vault.mjs throws on Write/Edit (regression)",
+              "inbox-lag-advisory.mjs blocks Stop (must be advisory only)",
+              "lesson_/decision_ routing from MS0 broken"
+            ],
+            "rollback_procedure": "git checkout HEAD -- H:/prism/.claude/hooks/memory-mirror-to-vault.mjs && rm H:/prism/.claude/hooks/inbox-lag-advisory.mjs"
+          },
+          "exit_criteria": [
+            "Writing inbox_test_2026-05-07.md to user memory dir routes to knowledge/memories/inbox/ (not uncategorized/)",
+            "Existing routing for feedback_/project_/user_/reference_/lesson_/decision_ unchanged (regression test passes)",
+            "inbox-lag-advisory.mjs runs in <500ms and never blocks Stop"
+          ]
+        },
+        {
+          "id": "U-WEEKLY-SYNTHESIS",
+          "title": "Weekly synthesis slash command",
+          "build_description": "New skill at `H:/.claude/commands/weekly-synthesis.md` that prompts Claude to read all vault files modified in last 7 days, produce: (1) emerging thesis, (2) contradictions vs prior beliefs, (3) knowledge gaps, (4) one highest-leverage action. Output writes to `knowledge/summaries/weekly-synthesis-YYYY-WW.md`.",
+          "files_created": [
+            "H:/.claude/commands/weekly-synthesis.md"
+          ],
+          "files_modified": [],
+          "knowledge_sources": [
+            "cyrilXBT weekly synthesis prompt template (article paragraph 73-82)"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER"
+          ],
+          "four_loop": {
+            "build": "Author markdown command file with allowed-tools: Read, Glob, Write. Body instructs reading vault, applying 4-question template, writing output.",
+            "scrutinize": "Run /scrutinize on the markdown; verify no banned patterns (toBeDefined, etc.).",
+            "gap_fill": "Add a recovery instruction: if vault is too small for synthesis, surface the smallest-vault baseline.",
+            "tie_up": "Cross-link to [[reference_cyrilxbt_obsidian_article_delta_2026-05-07]] in the command body."
+          },
+          "rollback": {
+            "files_created": [
+              "delete weekly-synthesis.md"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "Skill not registered in Claude Code skill list after creation",
+              "Skill prompt body exceeds 4000 chars (token waste)",
+              "Output write target conflicts with existing file"
+            ],
+            "rollback_procedure": "rm H:/.claude/commands/weekly-synthesis.md"
+          },
+          "exit_criteria": [
+            "Skill appears in available-skills list at next SessionStart",
+            "Invoking /weekly-synthesis produces a 4-section markdown to summaries/weekly-synthesis-YYYY-WW.md",
+            "Output cites at least 3 specific vault files by path (proves it actually read the vault)"
+          ]
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Both units shipped + tested",
+          "/weekly-synthesis can run end-to-end on current vault state and produces non-empty output",
+          "inbox/ subdir exists, lag-advisory hook fires once and exits clean"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+1%"
+      },
+      "feature_cascade": {
+        "new_hooks": [
+          "inbox-lag-advisory.mjs"
+        ],
+        "new_actions": [],
+        "new_skills": [
+          "/weekly-synthesis"
+        ],
+        "available_to": [
+          "OBSIDIAN-COMPOUND-MS1-S2",
+          "OBSIDIAN-COMPOUND-MS1-S3",
+          "OBSIDIAN-COMPOUND-MS1-S5",
+          "OBSIDIAN-COMPOUND-MS1-S6"
+        ]
+      },
+      "omega_floor": 0.9,
+      "svi_delta_target": "+0.5%",
+      "compaction_points": [],
+      "consumes": [
+        "ObsidianVaultSyncEngine",
+        "memory-mirror-to-vault.mjs"
+      ]
+    },
+    {
+      "session_id": "OBSIDIAN-COMPOUND-MS1-S2",
+      "title": "Daily personal brief + emerging thesis engine",
+      "smart_config": {
+        "role": "ML/Knowledge-Synthesis Engineer + Systems Architect",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      },
+      "knowledge": {
+        "primary": [
+          "generate-claude-brief.mjs (existing template + Wiki+memory pulse section from MS0 U-BRIEF-WIKI)",
+          "memory-mirror-to-vault.mjs (mtime-based file selection)",
+          "ObsidianMemoryRagEngine (vault scan pattern — for reference, do not modify)",
+          "S1 outputs (inbox/ staging dir + /weekly-synthesis skill)"
+        ],
+        "external": [
+          "cyrilXBT daily brief prompt (article paragraph 62-69)"
+        ]
+      },
+      "intent": "After this session: every weekday at 6am, an automated Claude run reads inbox+notes from the last 24h/7d and writes a brief with 3 connections + 1 pattern + 1 question to inbox/brief-YYYY-MM-DD.md. Mark reads it before opening any other app.",
+      "skills": [
+        "/dedup",
+        "/forge-engines",
+        "/forge-hooks",
+        "/test",
+        "/scrutinize",
+        "/checkpoint",
+        "/scope",
+        "/codebase-memory-tracing"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "codebase-memory-mcp",
+        "ESLint MCP"
+      ],
+      "mcp_lifecycle": {
+        "session_start": [
+          "prism_session:context_boot",
+          "prism_session:dispatcher_map_compact",
+          "prism_session:memory_recall"
+        ],
+        "during_work": [
+          "prism_session:auto_checkpoint",
+          "prism_session:action_search 'connection finder'"
+        ],
+        "session_end": [
+          "prism_session:memory_save",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "units": [
+        {
+          "id": "U-DAILY-PERSONAL-BRIEF",
+          "title": "Daily personal brief generator",
+          "build_description": "New script at `H:/prism/mcp-server/scripts/generate-personal-brief.mjs`. Reads `knowledge/memories/inbox/*.md` (24h) + `knowledge/memories/**/*.md` (7d) + `knowledge/wiki/log.md` (24h). Composes Ollama prompt: '3 connections + 1 pattern + 1 question.' Writes output to `knowledge/memories/inbox/brief-YYYY-MM-DD.md`. Add cron entry to fire at 06:00 weekdays via `prism_session:cron-bootstrap` registration.",
+          "files_created": [
+            "H:/prism/mcp-server/scripts/generate-personal-brief.mjs",
+            "H:/prism/mcp-server/src/__tests__/PersonalBriefGenerator.test.ts (≥10 it() cases)"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/data/state/cron-jobs.json (add entry; if file doesn't exist create as schemaVersion 1.0.0)"
+          ],
+          "knowledge_sources": [
+            "generate-claude-brief.mjs structure",
+            "Ollama call pattern from ollama-obsidian-rag.mjs"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER"
+          ],
+          "four_loop": {
+            "build": "Script reads vault subset, composes Ollama prompt, writes brief. Test mocks Ollama (deterministic stub) and asserts the brief file structure (4 markdown sections: connections / pattern / question / source-citations).",
+            "scrutinize": "/prism-review for prompt-engineering safety (no injection vectors); /scrutinize for stub-test patterns (must validate ACTUAL output structure, not toBeDefined).",
+            "gap_fill": "Add edge case: empty vault produces a 'too-empty-to-synthesize' brief that names the threshold (per cyrilXBT 'vault is never too empty to find something worth thinking about' — so brief surfaces what little exists).",
+            "tie_up": "Cross-reference [[reference_cyrilxbt_obsidian_article_delta_2026-05-07]] in script header docblock."
+          },
+          "rollback": {
+            "files_created": [
+              "delete generate-personal-brief.mjs + test file"
+            ],
+            "files_modified": [
+              "remove cron entry; restore prior cron-jobs.json"
+            ],
+            "abort_criteria": [
+              "Brief generator runs >60s on 100-file vault (perf regression)",
+              "Output file contains Ollama raw error string instead of synthesized brief",
+              "Cron entry conflicts with existing job (collision check)"
+            ],
+            "rollback_procedure": "rm scripts/generate-personal-brief.mjs src/__tests__/PersonalBriefGenerator.test.ts && git checkout HEAD -- mcp-server/data/state/cron-jobs.json"
+          },
+          "exit_criteria": [
+            "Test asserts brief contains 4 distinct markdown sections (`## Connections`, `## Pattern`, `## Question`, `## Sources`) — structural validation against Ollama mock output",
+            "Test asserts brief includes ≥3 source-file paths from the vault read window (proves it actually consulted vault, not just hallucinated)",
+            "Test asserts empty-vault baseline produces a brief naming the smallest-vault path forward (machinist-acceptance: 'this brief would be useful even on day 3')"
+          ]
+        },
+        {
+          "id": "U-EMERGING-THESIS",
+          "title": "Emerging thesis engine — active belief stack from recent memories",
+          "build_description": "New engine `EmergingThesisEngine.ts` in main `H:/prism/mcp-server/src/engines/`. Method: `synthesize(window: '24h'|'7d'|'30d'): { thesis: string; supporting_files: string[]; confidence: number }`. Reads vault, identifies repeated concepts (TF-IDF over markdown bodies), names the implicit thesis. Wired into `prism_memory:emerging_thesis` dispatcher action. Used by U-DAILY-PERSONAL-BRIEF and U-WEEKLY-SYNTHESIS.",
+          "files_created": [
+            "H:/prism/mcp-server/src/engines/EmergingThesisEngine.ts",
+            "H:/prism/mcp-server/src/__tests__/EmergingThesisEngine.test.ts (≥12 it() cases)"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/src/tools/dispatchers/memoryDispatcher.ts (add `emerging_thesis` action)",
+            "H:/prism/mcp-server/src/schemas/memoryActionSchemas.ts (add EmergingThesisParams schema)"
+          ],
+          "knowledge_sources": [
+            "TF-IDF reference implementation in any existing search engine",
+            "memoryDispatcher existing action pattern"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER"
+          ],
+          "four_loop": {
+            "build": "Implement TF-IDF over vault markdown bodies; rank concepts by frequency × inverse-document-frequency; produce thesis statement with confidence score.",
+            "scrutinize": "/physics-verify (NA — no physics); /prism-review for engine pattern correctness; /scrutinize for AtomicValue compliance ({value, unit:'thesis-confidence', source}).",
+            "gap_fill": "Add tests for: empty vault, single-file vault, contradictory-content vault (low confidence), strongly-themed vault (high confidence).",
+            "tie_up": "Wire into dispatcher with action `emerging_thesis`, schema validation, lazy import."
+          },
+          "rollback": {
+            "files_created": [
+              "delete EmergingThesisEngine.ts + test"
+            ],
+            "files_modified": [
+              "revert action enum + schema entry"
+            ],
+            "abort_criteria": [
+              "TF-IDF computation >2s on 1000-file vault (perf)",
+              "Confidence scores non-deterministic across runs on same vault state",
+              "Action enum/schema/case mismatch (dispatcher wiring break)"
+            ],
+            "rollback_procedure": "rm src/engines/EmergingThesisEngine.ts src/__tests__/EmergingThesisEngine.test.ts && git checkout HEAD -- src/tools/dispatchers/memoryDispatcher.ts src/schemas/memoryActionSchemas.ts"
+          },
+          "exit_criteria": [
+            "Test: vault containing 5 files all referencing 'thin-wall milling' produces thesis containing 'thin-wall' with confidence ≥0.7",
+            "Test: vault with contradictory beliefs produces confidence ≤0.4 (uncertainty correctly surfaced)",
+            "Round-trip E2E: invoke through `prism_memory:emerging_thesis` dispatcher; output matches engine singleton output exactly"
+          ]
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Daily brief generator runs end-to-end against current vault",
+          "EmergingThesisEngine returns non-trivial thesis with confidence on current vault",
+          "Both wired into dispatchers (U-EMERGING-THESIS) or cron (U-DAILY-PERSONAL-BRIEF)",
+          "All ≥22 it() tests passing"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "prism_memory:emerging_thesis"
+        ],
+        "new_skills": [],
+        "new_engines": [
+          "EmergingThesisEngine"
+        ],
+        "new_scripts": [
+          "generate-personal-brief.mjs"
+        ],
+        "available_to": [
+          "OBSIDIAN-COMPOUND-MS1-S3",
+          "OBSIDIAN-COMPOUND-MS1-S6"
+        ]
+      },
+      "omega_floor": 0.9,
+      "svi_delta_target": "+0.5%",
+      "compaction_points": [],
+      "consumes": [
+        "ObsidianVaultSyncEngine",
+        "WikiIndexMaintainerEngine",
+        "PRISMCreativeReasoningEngine"
+      ]
+    },
+    {
+      "session_id": "OBSIDIAN-COMPOUND-MS1-S3",
+      "title": "Active layer — webhook capture + contradiction detector",
+      "smart_config": {
+        "role": "Backend Engineer + ML Engineer + Security",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "65%"
+      },
+      "knowledge": {
+        "primary": [
+          "Express route pattern from H:/prism/mcp-server/src/routes/",
+          "Auth middleware H:/prism/mcp-server/src/middleware/",
+          "EmergingThesisEngine (from S2) — for contradiction detector to consult belief stack",
+          "S1 outputs (inbox/ as webhook landing zone)"
+        ],
+        "external": [
+          "cyrilXBT N8N pipeline schema (article paragraph 27-30)",
+          "Readwise/Telegram webhook docs"
+        ]
+      },
+      "intent": "After this session: external sources (Readwise highlights, Telegram bot, RSS, Twitter bookmarks) can POST to a PRISM webhook endpoint and land in `knowledge/memories/inbox/`. New memories are auto-scanned for contradictions against existing beliefs; contradictions surfaced via wiki/log.md + UserPromptSubmit injection.",
+      "skills": [
+        "/dedup",
+        "/forge-engines",
+        "/forge-hooks",
+        "/forge-mcp-wire",
+        "/security-audit",
+        "/test",
+        "/scrutinize",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP",
+        "codebase-memory-mcp"
+      ],
+      "mcp_lifecycle": {
+        "session_start": [
+          "prism_session:context_boot",
+          "prism_session:dispatcher_map_compact",
+          "prism_session:memory_recall",
+          "prism_session:action_search 'webhook ingest'"
+        ],
+        "during_work": [
+          "prism_session:auto_checkpoint",
+          "prism_session:tool_route_best"
+        ],
+        "session_end": [
+          "prism_session:memory_save",
+          "prism_session:checkpoint_enhanced",
+          "prism_session:wip_capture"
+        ]
+      },
+      "units": [
+        {
+          "id": "U-CAPTURE-WEBHOOK",
+          "title": "Webhook capture endpoint for external personal-knowledge sources",
+          "build_description": "Add Express route `POST /api/intake/webhook` at `H:/prism/mcp-server/src/routes/intake.ts`. Accepts `{ source: 'readwise'|'telegram'|'rss'|'manual', content: string, metadata?: object }`. Validates HMAC signature against `INTAKE_WEBHOOK_SECRET` env var. Writes to `knowledge/memories/inbox/<source>-<ts>.md` with frontmatter. Wired into `prism_intake:webhook_ingest` dispatcher action for programmatic test access. Rate-limited 60 req/min per source.",
+          "files_created": [
+            "H:/prism/mcp-server/src/routes/intake.ts",
+            "H:/prism/mcp-server/src/engines/IntakeWebhookEngine.ts",
+            "H:/prism/mcp-server/src/__tests__/IntakeWebhookEngine.test.ts (≥15 it() cases including HMAC reject, rate limit, malformed payload, oversized payload, NaN sources)"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/src/tools/dispatchers/intakeDispatcher.ts (or contextDispatcher if intake doesn't exist; check first)",
+            "H:/prism/mcp-server/src/schemas/intakeActionSchemas.ts (new file likely)"
+          ],
+          "knowledge_sources": [
+            "existing route pattern (e.g. mcp-server/src/routes/health.ts)",
+            "existing HMAC pattern"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER"
+          ],
+          "four_loop": {
+            "build": "Route + engine + dispatcher action; HMAC verify; write to inbox/.",
+            "scrutinize": "/security-audit on the route (HMAC, rate limit, payload size cap); /prism-review.",
+            "gap_fill": "Tests for: valid HMAC pass, invalid HMAC reject (401), missing signature (401), rate-limit exceed (429), oversized payload (413), unknown source (400), malformed JSON (400), unicode in content (passes), Readwise typical payload (passes with metadata extraction).",
+            "tie_up": "Document HMAC secret rotation; cite cyrilXBT capture-friction principle."
+          },
+          "rollback": {
+            "files_created": [
+              "delete route + engine + test"
+            ],
+            "files_modified": [
+              "revert dispatcher + schema"
+            ],
+            "abort_criteria": [
+              "Route accepts requests with invalid HMAC (CRITICAL security regression)",
+              "Rate limit doesn't fire above 60 req/min",
+              "Payload size ≥1MB accepted (memory regression)"
+            ],
+            "rollback_procedure": "rm src/routes/intake.ts src/engines/IntakeWebhookEngine.ts src/__tests__/IntakeWebhookEngine.test.ts && git checkout HEAD -- src/tools/dispatchers/ src/schemas/"
+          },
+          "exit_criteria": [
+            "Test: POST with valid HMAC + Readwise payload writes to knowledge/memories/inbox/readwise-<ts>.md with verified frontmatter",
+            "Test: POST with INVALID HMAC returns 401 and writes NOTHING to inbox/ (security boundary)",
+            "Test: 61st request in 60s window returns 429 (rate limit enforced)"
+          ]
+        },
+        {
+          "id": "U-CONTRADICTION-DETECTOR",
+          "title": "Contradiction detector — flags new memories that conflict with prior beliefs",
+          "build_description": "New engine `ContradictionDetectorEngine.ts` in main `H:/prism/mcp-server/src/engines/`. Method: `detectConflicts(newMemoryPath: string): { conflicts: Array<{otherFile: string; assertion: string; conflictType: 'direct'|'implicit'|'numerical'; confidence: number}>; }`. Compares assertions in new memory body against EmergingThesisEngine output + recent vault content via Ollama NLI prompt. Wires into `prism_memory:contradiction_check` dispatcher action. Auto-fires from a new PostToolUse hook `contradiction-scan-on-memory-write.mjs` whenever a memory file is written.",
+          "files_created": [
+            "H:/prism/mcp-server/src/engines/ContradictionDetectorEngine.ts",
+            "H:/prism/mcp-server/src/__tests__/ContradictionDetectorEngine.test.ts (≥12 it() cases)",
+            "H:/prism/.claude/hooks/contradiction-scan-on-memory-write.mjs"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/src/tools/dispatchers/memoryDispatcher.ts (add contradiction_check action)",
+            "H:/prism/mcp-server/src/schemas/memoryActionSchemas.ts (add ContradictionCheckParams)"
+          ],
+          "knowledge_sources": [
+            "EmergingThesisEngine (S2 output — belief stack consulted)",
+            "Ollama NLI prompt template — adapt from ollama-obsidian-rag.mjs"
+          ],
+          "depends_on": [
+            "U-EMERGING-THESIS",
+            "U-INBOX-LAYER"
+          ],
+          "four_loop": {
+            "build": "Engine + hook + dispatcher action. Hook fires on memory writes, calls engine async, appends conflicts to wiki/log.md and surfaces via UserPromptSubmit injection on next prompt.",
+            "scrutinize": "/scrutinize for false-positive rate (target <20% on synthetic conflict corpus). /prism-review for AtomicValue confidence outputs.",
+            "gap_fill": "Tests for: direct contradiction (A says X, B says ¬X) → high confidence; implicit contradiction (A implies X, B implies ¬X) → med confidence; numerical contradiction (A=5, B=10 same param) → high; unrelated content → no conflict; empty memory → no conflict; missing EmergingThesisEngine → graceful skip (don't throw).",
+            "tie_up": "Confidence scores follow AtomicValue convention. Hook is non-blocking (continue:true)."
+          },
+          "rollback": {
+            "files_created": [
+              "delete engine + test + hook"
+            ],
+            "files_modified": [
+              "revert dispatcher + schema"
+            ],
+            "abort_criteria": [
+              "False-positive rate >30% on synthetic test corpus (engine quality)",
+              "Hook blocks Stop or Write (must be advisory)",
+              "Engine throws when EmergingThesisEngine unavailable (must skip gracefully)"
+            ],
+            "rollback_procedure": "rm src/engines/ContradictionDetectorEngine.ts src/__tests__/ContradictionDetectorEngine.test.ts H:/prism/.claude/hooks/contradiction-scan-on-memory-write.mjs && git checkout HEAD -- src/tools/dispatchers/memoryDispatcher.ts src/schemas/memoryActionSchemas.ts"
+          },
+          "exit_criteria": [
+            "Test: feeding 'I believe X' memory after vault contains 'X is false' returns conflict with confidence ≥0.7 + correctly cites the prior file",
+            "Test: feeding unrelated memory returns conflicts: [] (no false positives on orthogonal content)",
+            "Test: missing EmergingThesisEngine wired (mock-disabled scenario) returns empty conflicts gracefully — engine doesn't throw",
+            "Round-trip E2E: invoke `prism_memory:contradiction_check` dispatcher action and assert output matches engine singleton output"
+          ]
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Webhook accepts valid HMAC, rejects invalid, rate-limits enforced",
+          "Contradiction detector flags ≥80% of synthetic direct contradictions, <20% false positive rate",
+          "Hook fires on memory writes without blocking",
+          "All ≥27 it() tests pass"
+        ],
+        "omega_floor": 0.92,
+        "svi_delta_target": "+3%"
+      },
+      "feature_cascade": {
+        "new_hooks": [
+          "contradiction-scan-on-memory-write.mjs"
+        ],
+        "new_actions": [
+          "prism_intake:webhook_ingest",
+          "prism_memory:contradiction_check"
+        ],
+        "new_skills": [],
+        "new_engines": [
+          "IntakeWebhookEngine",
+          "ContradictionDetectorEngine"
+        ],
+        "new_routes": [
+          "POST /api/intake/webhook"
+        ],
+        "available_to": [
+          "OBSIDIAN-COMPOUND-MS1-S1",
+          "OBSIDIAN-COMPOUND-MS1-S2",
+          "OBSIDIAN-COMPOUND-MS1-S6"
+        ]
+      },
+      "omega_floor": 0.9,
+      "svi_delta_target": "+0.5%",
+      "compaction_points": [],
+      "consumes": [
+        "ObsidianVaultSyncEngine",
+        "DuplicationGuardEngine"
+      ]
+    },
+    {
+      "session_id": "OBSIDIAN-COMPOUND-MS1-S4",
+      "title": "Utilization closure quick wins — schema, scan paths, hook stubs",
+      "smart_config": {
+        "role": "Systems Engineer + Cleanup Specialist",
+        "model": "sonnet",
+        "effort": "LOW",
+        "context_budget": "25%"
+      },
+      "knowledge": {
+        "primary": [
+          "settings.json hook list",
+          "PDFProcessingPipelineEngine.ts (existing)",
+          "mcp-server/data/state/ JSON files"
+        ],
+        "external": [
+          "[[reference_h_drive_utilization_audit_2026-05-07]] — 10-agent synthesis 41.5/100, calls out 277 orphan hooks, 79% schema gap, H:/-root PDFs unprocessed"
+        ]
+      },
+      "intent": "After this session: 4 bare continue:true stubs removed from settings.json (frees Stop hook timeout slots); H:/ root + H:/PRISM/ registered in PDF scan paths (3 audit PDFs auto-ingest); 1,085 unversioned state JSONs get schemaVersion: 1.0.0 (closes 79% compliance gap).",
+      "skills": [
+        "/scrutinize",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "codebase-memory-mcp",
+        "ESLint MCP"
+      ],
+      "mcp_lifecycle": {
+        "session_start": [
+          "prism_session:context_boot",
+          "prism_session:dispatcher_map_compact"
+        ],
+        "during_work": [
+          "prism_session:auto_checkpoint"
+        ],
+        "session_end": [
+          "prism_session:memory_save",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "units": [
+        {
+          "id": "U-HOOK-STUB-CLEANUP",
+          "title": "Remove 4 bare continue:true stubs from Stop event hooks list",
+          "build_description": "Hook Utilization Census (Agent 6) flagged 4 bare process.stdout.write({continue:true}) entries in C:/Users/Mark Villanueva/.claude/settings.json Stop hook list (lines ~281,286,291,296). Each consumes hook timeout budget for zero logic. Remove them. Verify Stop event still fires non-stub hooks (scrutinize-before-stop, enforce-handoff-topic, etc.).",
+          "files_created": [],
+          "files_modified": [
+            "C:/Users/Mark Villanueva/.claude/settings.json (4 stub entries removed)"
+          ],
+          "knowledge_sources": [
+            "Hook Utilization Census Agent 6 finding"
+          ],
+          "depends_on": [],
+          "four_loop": {
+            "build": "grep settings.json for the 4 bare stubs; remove via JSON splice; verify other Stop hooks intact.",
+            "scrutinize": "/scrutinize on settings.json after edit; verify it parses and hook count decreased by exactly 4.",
+            "gap_fill": "No additional tests needed — config-only.",
+            "tie_up": "Document in commit msg with reference to Agent 6 finding."
+          },
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "restore via .backups copy made pre-edit"
+            ],
+            "abort_criteria": [
+              "settings.json fails to parse after edit",
+              "wired hook count decreases by !=4 (collateral damage)",
+              "mirror to H:/.claude/settings.json fails"
+            ],
+            "rollback_procedure": "cp .backups/<utc>/settings.json C:/Users/Mark\\ Villanueva/.claude/settings.json"
+          },
+          "exit_criteria": [
+            "settings.json parses cleanly (node -e \"JSON.parse(...)\" exits 0)",
+            "Stop hook list contains exactly N-4 hook entries vs pre-edit count",
+            "c-to-h-mirror replicates the change to H:/.claude/settings.json within 5s of save"
+          ],
+          "metrics": {
+            "stub_identification": "List the 4 stubs by file:lineNumber from H:/.claude/settings.json. Replacement: remove with no replacement (verified non-load-bearing via 14-day execution log).",
+            "acceptance": "post-edit settings.json hooks.Stop.length == prior_count - 4 AND zero references in any other hook chain"
+          }
+        },
+        {
+          "id": "U-PDF-SCAN-EXTEND",
+          "title": "Register H:/ root and H:/PRISM/ in PDFProcessingPipelineEngine scan paths",
+          "build_description": "External Knowledge Scout (Agent 10) found 3 audit PDFs (PRISM-Definitive-Audit-v5-FINAL.pdf, v5.1-FINAL, Q2-v3) at H:/ root totaling ~2.2MB, never processed because PDFProcessingPipelineEngine only scans mcp-server/data/machine-handbooks/. Add H:/ root (depth 1) + H:/PRISM/ (depth 2) to the scan paths array. Watcher mode optional; one-shot scan acceptable for MVP.",
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/mcp-server/src/engines/PDFProcessingPipelineEngine.ts (scan paths extended)",
+            "companion test if path-array is part of existing test"
+          ],
+          "knowledge_sources": [
+            "Agent 10 finding",
+            "existing PDFProcessingPipelineEngine source"
+          ],
+          "depends_on": [],
+          "four_loop": {
+            "build": "Read engine, find scan-paths array, append H:/ + H:/PRISM/ entries with depth caps to avoid scanning JM Die programs.",
+            "scrutinize": "/scrutinize for path-injection safety; verify glob patterns are safe.",
+            "gap_fill": "Add test: when invoked with H:/ in scan paths, finds the 3 root-level audit PDFs.",
+            "tie_up": "Cite Agent 10 finding in code comment."
+          },
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "revert engine to single-path scan"
+            ],
+            "abort_criteria": [
+              "engine throws when scanning H:/",
+              "scan recurses into JM Die directory accidentally and times out",
+              "PDF count after scan exceeds 100 (over-scan signal)"
+            ],
+            "rollback_procedure": "git checkout HEAD -- src/engines/PDFProcessingPipelineEngine.ts"
+          },
+          "exit_criteria": [
+            "After scan: extraction-log.json contains entries for the 3 H:/-root audit PDFs",
+            "Scan completes in <30s on H:/ root depth-1",
+            "JM Die programs are NOT in scan results (depth cap respected)"
+          ],
+          "metrics": {
+            "ingestion_success_rate": "at least 0.95 across newly-registered PDFs",
+            "duration_cap": "Per-PDF extraction under 60s; per-path batch under 30min",
+            "depth_cap": "Recursion depth under 5"
+          }
+        },
+        {
+          "id": "U-SCHEMA-VERSION-BACKFILL",
+          "title": "Backfill schemaVersion: 1.0.0 on 1,085 unversioned state JSONs",
+          "build_description": "State File Auditor (Agent 8) found 79% of 1,369 state JSONs lack schemaVersion. CLAUDE.md mandates this on every state file. Write one-shot mass-edit script at scripts/backfill-schema-version.mjs that: (1) globs H:/prism/mcp-server/data/state/**/*.json + H:/prism/state/**/*.json, (2) for each file: parse JSON, if no top-level schemaVersion key, add schemaVersion: '1.0.0' + lastBackfillTs, write atomic, (3) emit summary report. Skip files matching .backup, *.tmp, .gitkeep.",
+          "files_created": [
+            "H:/prism/scripts/backfill-schema-version.mjs",
+            "H:/prism/mcp-server/src/__tests__/SchemaVersionBackfill.test.ts (≥10 it() cases including: idempotent re-run, skip already-versioned, atomic write, malformed JSON skip, large-file handling)"
+          ],
+          "files_modified": [
+            "~1,085 state JSON files (schemaVersion added)"
+          ],
+          "knowledge_sources": [
+            "Agent 8 finding",
+            "existing atomicWrite utility in src/utils/"
+          ],
+          "depends_on": [],
+          "four_loop": {
+            "build": "Script with --dry-run mode; verify against sample 50 files first; then full apply.",
+            "scrutinize": "/scrutinize for race-condition safety (uses atomicWrite from utils).",
+            "gap_fill": "Tests cover: file with schemaVersion (skip), file without (add), file with invalid JSON (skip + log), concurrent-write scenario (atomicWrite handles).",
+            "tie_up": "Report: <pre-count> unversioned -> <post-count> unversioned. Target: post-count = 0."
+          },
+          "rollback": {
+            "files_created": [
+              "delete script + test"
+            ],
+            "files_modified": [
+              "restore via git checkout from before-backfill commit; no .backups dir needed since change is additive (just remove the schemaVersion key)"
+            ],
+            "abort_criteria": [
+              "Any state file fails to round-trip parse after edit",
+              "atomicWrite races with active engine writers (lock conflict)",
+              "post-count > 50 unversioned (script is buggy)"
+            ],
+            "rollback_procedure": "node scripts/backfill-schema-version.mjs --revert (script supports revert via marker key) OR git checkout HEAD~1 -- mcp-server/data/state/ state/"
+          },
+          "exit_criteria": [
+            "Test: dry-run on synthetic 5-file fixture reports correct add/skip counts",
+            "Test: idempotent — running script twice produces same output as once",
+            "Live run: post-count of unversioned state JSONs = 0 (verified by counter script)"
+          ],
+          "metrics": {
+            "pre_run_baseline": "Count of state JSON files lacking schemaVersion equals 1085 (matches H:/ utilization audit baseline).",
+            "post_run_target": "Count of state JSON files lacking schemaVersion equals 0 (zero residual).",
+            "consumer_compat": "All consumers of patched files load without throwing (smoke test: prism_dev:capability_census post-patch)"
+          }
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "settings.json stub-free",
+          "PDF scan finds 3 root-level audits",
+          "state-file unversioned-count = 0"
+        ],
+        "omega_floor": 0.92,
+        "svi_delta_target": "+1%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "new_engines": [],
+        "new_scripts": [
+          "scripts/backfill-schema-version.mjs"
+        ],
+        "available_to": [
+          "OBSIDIAN-COMPOUND-MS1-S5",
+          "OBSIDIAN-COMPOUND-MS1-S6"
+        ]
+      },
+      "omega_floor": 0.9,
+      "svi_delta_target": "+0.5%",
+      "compaction_points": [],
+      "consumes": [
+        "PDFProcessingPipelineEngine"
+      ]
+    },
+    {
+      "session_id": "OBSIDIAN-COMPOUND-MS1-S5",
+      "title": "Skill auto-invoke triggers + Resources scheduled ingestion",
+      "smart_config": {
+        "role": "Systems Engineer + UX (skill discoverability)",
+        "model": "opus",
+        "effort": "MEDIUM",
+        "context_budget": "40%"
+      },
+      "knowledge": {
+        "primary": [
+          "skill-usage-stats.json (telemetry)",
+          "existing skill .md frontmatter conventions",
+          "cron-jobs.json",
+          "S1 outputs (skill discovery surface) + S4 outputs (schema-versioned state for skill-telemetry.json)"
+        ],
+        "external": [
+          "[[reference_h_drive_utilization_audit_2026-05-07]] — Agent 9 score 18/100, 11/506 skills invoked, /continue-roadmap suggested 273x invoked 0x",
+          "Agent 4 finding 163,958 Resources files at 0% coverage"
+        ]
+      },
+      "intent": "After this session: top 50 skills with high suggestion counts but zero invocations have trigger:autoSuggest metadata so they auto-fire when their keywords appear. Mark stops typing /command-X explicitly and the system pushes the right skill at the right time. AND: H:/Resources/ (163K files) is on a weekly cron that pulls new files into knowledge/memories/inbox/ via existing learn_ingest_* actions.",
+      "skills": [
+        "/forge-skills",
+        "/test",
+        "/scrutinize",
+        "/codebase-memory-tracing"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "codebase-memory-mcp",
+        "ESLint MCP"
+      ],
+      "mcp_lifecycle": {
+        "session_start": [
+          "prism_session:context_boot",
+          "prism_session:memory_recall"
+        ],
+        "during_work": [
+          "prism_session:auto_checkpoint"
+        ],
+        "session_end": [
+          "prism_session:memory_save",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "units": [
+        {
+          "id": "U-SKILL-TRIGGER-META",
+          "title": "Auto-invoke trigger metadata on top 50 high-suggestion-zero-invoke skills",
+          "build_description": "Skill Utilization Analyst (Agent 9) found /continue-roadmap with 273 suggestions and 0 invocations, /action-search 242/0, /algorithm-inspect 62/0. These are high-interest dark skills. Read skill-usage-stats.json, identify top 50 by suggestions/invocations gap, add trigger:autoSuggest YAML frontmatter to each skill .md file with keyword patterns derived from the skill body. NEVER auto-execute — only auto-surface as a hint.",
+          "files_created": [
+            "H:/prism/scripts/skill-trigger-backfill.mjs (script that proposes triggers from skill body and applies on confirmation)"
+          ],
+          "files_modified": [
+            "~50 skill .md files in H:/.claude/commands/ + H:/prism/.claude/commands/"
+          ],
+          "knowledge_sources": [
+            "Agent 9 finding",
+            "existing skill frontmatter pattern from skills like /smart, /scout that already have trigger metadata"
+          ],
+          "depends_on": [],
+          "four_loop": {
+            "build": "Script reads telemetry, ranks skills, extracts top-3 keywords from each body, proposes frontmatter, applies with --apply flag.",
+            "scrutinize": "/scrutinize for over-triggering (target: <10% prompt false-positive rate). Test on synthetic prompt corpus.",
+            "gap_fill": "Tests: skill with existing trigger (skip), skill missing frontmatter (add), keyword extraction from skill body (assert non-trivial keywords), false-positive rate measurement.",
+            "tie_up": "Capture before/after invocation counts in 7-day rolling test; if no uplift, revert."
+          },
+          "rollback": {
+            "files_created": [
+              "delete script"
+            ],
+            "files_modified": [
+              "git checkout HEAD -- H:/.claude/commands/ H:/prism/.claude/commands/"
+            ],
+            "abort_criteria": [
+              "Auto-suggest false-positive rate >20% on prompt corpus",
+              "Skill suggester noise increases by >50% (drowns useful suggestions)",
+              "Any skill body breaks frontmatter parsing"
+            ],
+            "rollback_procedure": "node scripts/skill-trigger-backfill.mjs --revert"
+          },
+          "exit_criteria": [
+            "Test: top-50 skills get non-empty trigger.autoSuggest.keywords arrays",
+            "7-day rolling: invocation count for these 50 skills increases >=3x (push-beats-pull validated)",
+            "False-positive rate on synthetic prompt corpus <10% (no spam)"
+          ],
+          "metrics": {
+            "top_50_selection": "Top 50 skills by sessionInvocationCount over last 30 days from skill-telemetry.json; ties broken by lexicographic name; only include skills with current trigger.autoSuggest empty/missing",
+            "coverage_target": "at least 50 skills get non-empty trigger.autoSuggest.keywords post-run",
+            "false_positive_rate": "under 5% on synthetic prompt corpus (200 prompts)"
+          }
+        },
+        {
+          "id": "U-RESOURCES-INGEST-CRON",
+          "title": "Schedule weekly H:/Resources/ scan into knowledge/memories/inbox/",
+          "build_description": "Resources Auditor (Agent 4) found 163,958 files in H:/Resources/ at 0% coverage. Add weekly cron entry that invokes existing learn_ingest_url or learn_ingest_document on each new (mtime-since-last-scan) file. Output: write inbox/resources-<filename>-<ts>.md with frontmatter pointing to source. Subsequent U-EMERGING-THESIS + U-DAILY-PERSONAL-BRIEF will surface them.",
+          "files_created": [
+            "H:/prism/scripts/resources-weekly-scan.mjs",
+            "H:/prism/mcp-server/src/__tests__/ResourcesWeeklyScan.test.ts (>=10 it() cases)"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/data/state/cron-jobs.json (add weekly scan)"
+          ],
+          "knowledge_sources": [
+            "Agent 4 finding",
+            "existing learn_ingest_* actions",
+            "cron-jobs.json structure"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER"
+          ],
+          "four_loop": {
+            "build": "Script: glob Resources, filter by mtime > last-scan-ts (state file), for each new file route to learn_ingest based on extension, write inbox marker.",
+            "scrutinize": "/scrutinize for path-traversal safety; verify per-file cap on first run (<=5K files batch).",
+            "gap_fill": "Tests: empty Resources dir (no inbox writes), 10K Resources files (batched processing), repeat run within 1 day (skips already-scanned), unsupported file type (skip with log).",
+            "tie_up": "First-run report: how many files queued vs how many would overflow."
+          },
+          "rollback": {
+            "files_created": [
+              "delete script + test"
+            ],
+            "files_modified": [
+              "remove cron entry"
+            ],
+            "abort_criteria": [
+              "First scan times out (>60s)",
+              "Inbox directory accumulates >10K files in single run",
+              "PostToolUse memory-mirror chokes on the volume"
+            ],
+            "rollback_procedure": "rm scripts/resources-weekly-scan.mjs src/__tests__/ResourcesWeeklyScan.test.ts && git checkout HEAD -- mcp-server/data/state/cron-jobs.json"
+          },
+          "exit_criteria": [
+            "Test: 100-file synthetic Resources fixture produces 100 inbox entries with correct frontmatter",
+            "Test: re-run within 1 day skips all 100 (idempotent on mtime)",
+            "Live first-run: completes in <60s, queues <=5K files (rest deferred to next week)"
+          ],
+          "metrics": {
+            "cron_schedule": "23 3 * * * (daily 03:23 local time, off-peak)",
+            "batch_size": "at most 5000 files per run",
+            "error_budget": "at most 2% failed-ingest count per batch",
+            "duration_cap": "under 60s steady-state, under 300s for first cold run"
+          }
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "Skill invocation rate >=3x on tagged skills (rolling 7d)",
+          "Resources scan landing files in inbox/ within 24h",
+          "No false-positive surge in skill suggester"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+2%"
+      },
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "new_engines": [],
+        "new_scripts": [
+          "scripts/skill-trigger-backfill.mjs",
+          "scripts/resources-weekly-scan.mjs"
+        ],
+        "available_to": [
+          "OBSIDIAN-COMPOUND-MS1-S6"
+        ]
+      },
+      "omega_floor": 0.9,
+      "svi_delta_target": "+0.5%",
+      "compaction_points": [],
+      "consumes": []
+    },
+    {
+      "session_id": "OBSIDIAN-COMPOUND-MS1-S6",
+      "title": "Mistakes-wire + Tribal-consolidate — close the feedback loop",
+      "smart_config": {
+        "role": "Systems Engineer + ML/Knowledge-Synthesis Engineer",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "50%"
+      },
+      "knowledge": {
+        "primary": [
+          "error-learner hook (existing)",
+          "TribalKnowledgeEngine + 4,245 ingested tips",
+          "EmergingThesisEngine (S2 output)",
+          "S3 ContradictionDetectorEngine + S4 outputs + S5 skill-trigger metadata"
+        ],
+        "external": [
+          "[[reference_h_drive_utilization_audit_2026-05-07]] — Agent 5 finding mistakes/ category empty despite feedback failures occurring; tribal write-only at <5% query rate"
+        ]
+      },
+      "intent": "After this session: every uncommitted-restart-after-failure produces a memories/mistakes/<sig>.md auto-postmortem. AND: weekly cron mines high-confidence tribal tips (>=2 sources, >=3 invocations) and promotes them to memories/reference/ where /weekly-synthesis can synthesize them.",
+      "skills": [
+        "/dedup",
+        "/forge-engines",
+        "/forge-hooks",
+        "/test",
+        "/scrutinize",
+        "/codebase-memory-tracing"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "codebase-memory-mcp",
+        "ESLint MCP"
+      ],
+      "mcp_lifecycle": {
+        "session_start": [
+          "prism_session:context_boot",
+          "prism_session:memory_recall"
+        ],
+        "during_work": [
+          "prism_session:auto_checkpoint"
+        ],
+        "session_end": [
+          "prism_session:memory_save",
+          "prism_session:checkpoint_enhanced"
+        ]
+      },
+      "units": [
+        {
+          "id": "U-MEMORIES-MISTAKES-WIRE",
+          "title": "Auto-create memories/mistakes/ entries on uncommitted-restart-after-failure",
+          "build_description": "memories/mistakes/ subdir exists in vault schema but is empty (Agent 5). Wire SelfImprovementPatternEngine + error-learner hook so that when a session ends with uncommitted changes after >1 stop attempts (signal of failure-then-restart), an auto-postmortem markdown is written to mistakes/<YYYY-MM-DD>-<failure-sig-hash>.md with: error pattern, files involved, last 3 commits, scrutiny verdict if any, suggested fix.",
+          "files_created": [
+            "H:/prism/.claude/hooks/auto-postmortem-on-failure-restart.mjs",
+            "H:/prism/mcp-server/src/engines/AutoPostmortemEngine.ts",
+            "H:/prism/mcp-server/src/__tests__/AutoPostmortemEngine.test.ts (>=12 it() cases)"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/src/tools/dispatchers/memoryDispatcher.ts (add postmortem_create action — note: claimed by claude-13840683 currently, MUST claim before edit and resync)",
+            "H:/prism/mcp-server/src/schemas/memoryActionSchemas.ts (also currently claimed)"
+          ],
+          "knowledge_sources": [
+            "Agent 5 finding",
+            "existing error-learner hook structure",
+            "SelfImprovementPatternEngine"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER",
+            "U-CONTRADICTION-DETECTOR"
+          ],
+          "four_loop": {
+            "build": "Engine reads recent stop hook telemetry; if >1 stop in <30min with uncommitted-state matching error signature, generate postmortem markdown. Hook fires on Stop. Wire into dispatcher.",
+            "scrutinize": "/scrutinize for false-positive postmortem creation (target <5% — only fire on real failures, not e.g. user-initiated stops).",
+            "gap_fill": "Tests: 1 stop = no postmortem (single stop is normal); 3 stops in 5min = 1 postmortem; 3 stops with NO uncommitted state = no postmortem; postmortem already exists for this signature = update vs create.",
+            "tie_up": "Cite Agent 5 finding; verify mistakes/ subdir auto-created on first postmortem (memory-mirror routing handles this)."
+          },
+          "rollback": {
+            "files_created": [
+              "delete hook + engine + test"
+            ],
+            "files_modified": [
+              "revert dispatcher + schema (re-coordinate with claude-13840683)"
+            ],
+            "abort_criteria": [
+              "False-positive rate >5% (creates postmortems on benign stops)",
+              "Hook adds >200ms to Stop event (latency regression)",
+              "Postmortem file size >50KB (verbosity regression)"
+            ],
+            "rollback_procedure": "rm hook + engine + test && git checkout HEAD -- src/tools/dispatchers/memoryDispatcher.ts src/schemas/memoryActionSchemas.ts"
+          },
+          "exit_criteria": [
+            "Test: 3 stops in 5min with uncommitted state writes exactly 1 postmortem to memories/mistakes/",
+            "Test: 1 stop with uncommitted state writes 0 postmortems",
+            "Test: Postmortem markdown contains: error-signature-hash, files-touched, last-3-commits, suggested-fix sections"
+          ],
+          "metrics": {
+            "trigger_condition": "at least 3 Stop events in 5min OR uncommitted-restart-after-failure pattern",
+            "postmortem_format": "Markdown with named sections: Context, Failure, Root Cause, Detection, Fix, Prevention",
+            "max_postmortems_per_day": 10
+          }
+        },
+        {
+          "id": "U-TRIBAL-CONSOLIDATE",
+          "title": "Weekly cron promoting high-confidence tribal tips to memories/reference/",
+          "build_description": "Knowledge Vault Coverage (Agent 5) found 4,245 tribal tips ingested in 10 days but <5% queried. Tips are write-only. Add weekly cron that calls TribalKnowledgeEngine to identify tips with: (a) cited by >=2 sources, (b) accessed >=3 times in last month (or any access if no telemetry), (c) not yet promoted. For each, write a synthesis to memories/reference/tribal-<topic>-<date>.md. /weekly-synthesis will then surface these as part of normal vault synthesis.",
+          "files_created": [
+            "H:/prism/scripts/tribal-consolidate-weekly.mjs",
+            "H:/prism/mcp-server/src/__tests__/TribalConsolidate.test.ts (>=10 it() cases)"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/data/state/cron-jobs.json (add weekly entry)"
+          ],
+          "knowledge_sources": [
+            "Agent 5 finding",
+            "existing TribalKnowledgeEngine search/recall API"
+          ],
+          "depends_on": [
+            "U-INBOX-LAYER",
+            "U-WEEKLY-SYNTHESIS"
+          ],
+          "four_loop": {
+            "build": "Script: query tribal engine for high-confidence tips; group by topic; synthesize via Ollama; write to memories/reference/tribal-<topic>-YYYY-WW.md with frontmatter linking to source tips.",
+            "scrutinize": "/scrutinize for synthesis quality (target: each promoted tip has >=1 specific physical claim with citation).",
+            "gap_fill": "Tests: empty tribal corpus (no writes), single high-confidence tip (no synthesis, just promotion), 50+ tips on one topic (synthesizes to <=2KB summary), already-promoted topic (skip vs update).",
+            "tie_up": "First-run report: how many tips qualified, how many topics emerged, how many memories written."
+          },
+          "rollback": {
+            "files_created": [
+              "delete script + test"
+            ],
+            "files_modified": [
+              "remove cron entry"
+            ],
+            "abort_criteria": [
+              "Synthesis quality <70% (vague summaries with no citations)",
+              "Cron writes >100 reference memories in single week (over-promotion)",
+              "TribalKnowledgeEngine API changes mid-script and breaks query"
+            ],
+            "rollback_procedure": "rm script + test && git checkout HEAD -- mcp-server/data/state/cron-jobs.json"
+          },
+          "exit_criteria": [
+            "Test: synthetic 50-tip corpus on one topic synthesizes to <=2KB markdown with >=3 citations",
+            "Test: re-run within 1 week skips already-promoted topics (idempotent)",
+            "Live first-run: produces >=5 reference memories with citation count >=1 each"
+          ],
+          "metrics": {
+            "cluster_threshold": "cosine_similarity at least 0.75 AND cluster_size at least 3",
+            "aggregate_confidence_floor": "promoted memory carries mean(source_tip_confidence) at least 0.6",
+            "cadence": "weekly cron (Monday 04:13 local), idempotent (1-week dedup window)"
+          }
+        }
+      ],
+      "exit_gate": {
+        "criteria": [
+          "memories/mistakes/ subdir non-empty after first failure-restart in test scenario",
+          "memories/reference/tribal-* entries created weekly",
+          "Both visible in /weekly-synthesis output"
+        ],
+        "omega_floor": 0.92,
+        "svi_delta_target": "+3%"
+      },
+      "feature_cascade": {
+        "new_hooks": [
+          "auto-postmortem-on-failure-restart.mjs"
+        ],
+        "new_actions": [
+          "prism_memory:postmortem_create"
+        ],
+        "new_skills": [],
+        "new_engines": [
+          "AutoPostmortemEngine"
+        ],
+        "new_scripts": [
+          "scripts/tribal-consolidate-weekly.mjs"
+        ],
+        "available_to": []
+      },
+      "omega_floor": 0.9,
+      "svi_delta_target": "+0.5%",
+      "compaction_points": [],
+      "consumes": [
+        "TribalKnowledgeEngine",
+        "QdrantMemoryEngine"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "protective_hooks": [
+      "inbox-lag-advisory.mjs (BUILT in U-INBOX-LAYER, built_in_session=S1) — protects against forgotten inbox processing",
+      "contradiction-scan-on-memory-write.mjs (BUILT in U-CONTRADICTION-DETECTOR, built_in_session=S3) — protects against silent belief contradictions",
+      "auto-postmortem-on-failure-restart.mjs (BUILT in U-MEMORIES-MISTAKES-WIRE, built_in_session=S6) — protects against silent failure-without-postmortem"
+    ],
+    "mcp_actions": [
+      "prism_intake:webhook_ingest (BUILT in U-CAPTURE-WEBHOOK, built_in_session=S3)",
+      "prism_memory:emerging_thesis (BUILT in U-EMERGING-THESIS, built_in_session=S2)",
+      "prism_memory:contradiction_check (BUILT in U-CONTRADICTION-DETECTOR, built_in_session=S3)",
+      "prism_memory:postmortem_create (BUILT in U-MEMORIES-MISTAKES-WIRE, built_in_session=S6)"
+    ],
+    "skills": [
+      "/weekly-synthesis (BUILT in U-WEEKLY-SYNTHESIS, built_in_session=S1)"
+    ],
+    "engines": [
+      "EmergingThesisEngine (BUILT in U-EMERGING-THESIS, built_in_session=S2) — TF-IDF over vault, returns AtomicValue {value, unit:'thesis-confidence', source}",
+      "IntakeWebhookEngine (BUILT in U-CAPTURE-WEBHOOK, built_in_session=S3) — HMAC-verified webhook ingest with rate limit",
+      "ContradictionDetectorEngine (BUILT in U-CONTRADICTION-DETECTOR, built_in_session=S3) — Ollama-NLI conflict detection, returns AtomicValue {value, unit:'contradiction-confidence', source} per conflict",
+      "AutoPostmortemEngine (BUILT in U-MEMORIES-MISTAKES-WIRE, built_in_session=S6) — synthesizes failure postmortems from stop telemetry"
+    ],
+    "scripts": [
+      "generate-personal-brief.mjs (BUILT in U-DAILY-PERSONAL-BRIEF, built_in_session=S2) — cron-triggered daily brief generator",
+      "backfill-schema-version.mjs (BUILT in U-SCHEMA-VERSION-BACKFILL, built_in_session=S4)",
+      "skill-trigger-backfill.mjs (BUILT in U-SKILL-TRIGGER-META, built_in_session=S5)",
+      "resources-weekly-scan.mjs (BUILT in U-RESOURCES-INGEST-CRON, built_in_session=S5)",
+      "tribal-consolidate-weekly.mjs (BUILT in U-TRIBAL-CONSOLIDATE, built_in_session=S6)"
+    ],
+    "ownership_audit": "Each artifact BUILT in exactly one unit. No double-claims (verified by Stage10 Agent7: SCORE 95). Daily-brief script (U-DAILY-PERSONAL-BRIEF) is a script not a skill, registered via cron-jobs.json."
+  },
+  "enforcement": {
+    "active_during_execution": [
+      "knowledge-consult (PRE) — verify domain sources read",
+      "context-retention (PRE)",
+      "stub-detector (POST)",
+      "test-quality (POST) — tests must validate output values, not toBeDefined",
+      "test-legitimacy (POST) — banned patterns blocked",
+      "wiring-agent (POST) — engine→dispatcher wiring required",
+      "scrutinize-before-stop (STOP) — 3-of-3 gate",
+      "stop_on_unwired_assets (STOP) — every engine has test + dispatcher entry",
+      "memory-mirror-to-vault (POST) — memory writes auto-mirror"
+    ],
+    "test_floor": "≥10 it() cases per new engine; ≥3 failure modes; ≥2 adversarial inputs (NaN, Infinity, empty, oversize); real assertions against output values (no toBeDefined/toBeTruthy/toBeGreaterThan(0))"
+  },
+  "mcp_lifecycle": {
+    "session_start": "prism_session:context_boot, dispatcher_map_compact, memory_recall, system_snapshot, action_search '<unit>'",
+    "during_work": "prism_session:auto_checkpoint (every 5-10 calls), action_search, tool_route_best, wip_capture",
+    "session_end": "prism_session:memory_save, system_snapshot, checkpoint_enhanced"
+  },
+  "feature_cascade_summary": {
+    "new_hooks_total": 3,
+    "new_actions_total": 4,
+    "new_skills_total": 1,
+    "new_engines_total": 4,
+    "new_routes_total": 1,
+    "new_scripts_total": 5
+  },
+  "cross_track_dependencies": [
+    "Soft: assumes memoryDispatcher exists and is editable (verify it's not under active claim by another chat before MS1-S2 + S3 begin)",
+    "Soft: knowledge/wiki/ + knowledge/memories/ vault structure (owned by no specific track; cross-cutting concern)"
+  ],
+  "baseline_inventory_impact": {
+    "engines_added": 4,
+    "hooks_added": 3,
+    "skills_added": 1,
+    "scripts_added": 5,
+    "actions_added": 4,
+    "regenerate_baseline": true
+  },
+  "session_count_estimate": 6,
+  "total_units": 13,
+  "completed_units": 0,
+  "omega_floor": 0.9,
+  "compact_checkpoints": [
+    {
+      "after_unit_id": "U-DAILY-PERSONAL-BRIEF",
+      "cumulative_unit_index": 3
+    },
+    {
+      "after_unit_id": "U-CONTRADICTION-DETECTOR",
+      "cumulative_unit_index": 6
+    },
+    {
+      "after_unit_id": "U-SCHEMA-VERSION-BACKFILL",
+      "cumulative_unit_index": 9
+    },
+    {
+      "after_unit_id": "U-MEMORIES-MISTAKES-WIRE",
+      "cumulative_unit_index": 12
+    }
+  ],
+  "defers_to": [
+    {
+      "milestone": "ACTION-PRUNE-MS0",
+      "scope": "untested+unskilled actions wave",
+      "status": "future"
+    },
+    {
+      "milestone": "HOOK-CONSOLIDATE-MS0",
+      "scope": "Full 277-hook orphan triage",
+      "status": "future"
+    },
+    {
+      "milestone": "WORKTREE-CONSOLIDATE-MS0",
+      "scope": "5 lanes 600-850 commits ahead of main",
+      "status": "in_progress"
+    },
+    {
+      "milestone": "LOCAL-LLM-NIM-MS0",
+      "scope": "H:/Tools/nim 3.8GB Llama cache integration",
+      "status": "future"
+    }
+  ],
+  "unit_id_convention": {
+    "used": "U-{DOMAIN_WORD}-{DESCRIPTOR}",
+    "canonical": "U-{PREFIX}{NN}",
+    "rationale": "Word-suffix form is conventional in PRISM. MS1 follows tolerated variant.",
+    "accepted_by": "Agent 2 scrutiny 2026-05-07"
+  },
+  "engine_specs": {
+    "ContradictionDetectorEngine": {
+      "method": "NLI cross-encoder via Ollama + embedding cosine + polarity-flip heuristic fallback",
+      "contradiction_threshold": 0.75,
+      "forbidden": [
+        "pure-regex contradiction matching",
+        "negation-token-only detection"
+      ]
+    },
+    "EmergingThesisEngine": {
+      "embedding_model": "nomic-embed-text-v1.5 (Ollama)",
+      "clustering": "HDBSCAN min_cluster_size=5 min_samples=3 metric=cosine",
+      "seed": 42,
+      "re_cluster_cadence": "nightly + on-write (debounced 60s)",
+      "epistemic_only": true
+    },
+    "DailyPersonalBriefEngine": {
+      "connection_method": "top-3 by cosine similarity at least 0.72 among notes touched in last 7 days; co-occurrence boost +0.05 if both cited in same wiki entry within 30 days; tie-broken by recency desc",
+      "epistemic_only": true,
+      "consumed_by_machining": false
+    },
+    "AutoPostmortemEngine": {
+      "deterministic_routing": true,
+      "LLM_in_routing_decision": false,
+      "epistemic_only": true
+    },
+    "memory-mirror-routing": {
+      "deterministic": true,
+      "LLM_in_decision": false,
+      "fallback": "uncategorized/"
+    }
+  }
+}
