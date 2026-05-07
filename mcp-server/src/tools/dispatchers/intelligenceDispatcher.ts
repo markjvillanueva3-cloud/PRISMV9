@@ -161,7 +161,10 @@ async function forwardToNewDispatcher(action: string, params: Record<string, any
   return null;
 }
 
-const ACTIONS = [
+// Exported for cross-dispatcher symmetry tests (U-XPROC-DISPATCHER-SYMMETRY-TEST):
+// xproc_* actions in this list MUST stay in lock-step with prism_ai's
+// AI_REASONING_ACTIONS per CLAUDE.md "wire to all consumers" rule.
+export const INTELLIGENCE_CORE_ACTIONS = [
   "job_plan",
   "setup_sheet",
   "process_cost",
@@ -477,7 +480,7 @@ const DIAGNOSIS_FWD = [
 
 // Combined: core + all forwarded for z.enum (backward compatibility)
 const ALL_ACTIONS = [
-  ...ACTIONS, ...PRODUCT_FWD, ...MACHINE_LIVE_FWD,
+  ...INTELLIGENCE_CORE_ACTIONS, ...PRODUCT_FWD, ...MACHINE_LIVE_FWD,
   ...INTEGRATION_FWD, ...KNOWLEDGE_EXT_FWD, ...DIAGNOSIS_FWD,
 ] as const;
 
