@@ -1,0 +1,151 @@
+{
+  "id": "MS-P0-V",
+  "title": "WEDM Baseline Verification",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P0",
+  "status": "complete",
+  "created": "2026-04-16",
+  "completed_at": "2026-04-22T10:45:00.000Z",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "philosophy": "Replace stale claims with digest-verified counts. Zero new code. Every downstream phase cites this baseline.",
+  "total_units": 4,
+  "completed_units": 4,
+  "sessions": 1,
+  "dependencies": [],
+  "omega_target": 1.0,
+  "svi_delta_target": 0.01,
+
+  "knowledge_sources": {
+    "engines": ["DispatcherInventoryEngine"],
+    "tribal": ["mcp-server/audits/R0-P0/U04-skills-scripts-hooks-audit.md"],
+    "formulas": [],
+    "reference": [
+      "PRISM-INVENTORY-2026-04-15.md",
+      "mcp-server/scripts/wedm_generate_digest.ts",
+      "mcp-server/data/state/WEDM_DIGEST.json",
+      "mcp-server/data/state/BASELINE_INVENTORY.json",
+      "CLAUDE.md AUTO-WEDM block"
+    ]
+  },
+
+  "smart_config": {
+    "role": "Auditor",
+    "model": "sonnet",
+    "effort": "LOW",
+    "context_budget_pct": 15
+  },
+
+  "skills": ["/health", "/prism-review", "/forge-audit", "/scope"],
+  "plugins": ["Vitest MCP (dry run)", "ripgrep"],
+
+  "mcp_lifecycle": [
+    "context_boot",
+    "dispatcher_map",
+    "memory_recall",
+    "system_snapshot",
+    "auto_checkpoint",
+    "memory_save",
+    "checkpoint_enhanced"
+  ],
+
+  "units": [
+    {
+      "id": "U-P0-V01",
+      "title": "Regenerate WEDM_DIGEST.json",
+      "loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+      "files_created": [],
+      "files_modified": ["mcp-server/data/state/WEDM_DIGEST.json"],
+      "abort_conditions": [
+        "script fails",
+        "digest counts differ > 5% from grep-verified counts"
+      ],
+      "rollback": "git checkout mcp-server/data/state/WEDM_DIGEST.json",
+      "exit_criteria": [
+        "Digest file mtime > all src/engines/WEDM*.ts mtimes",
+        "jq '.engines.count' WEDM_DIGEST.json returns 95 ±0",
+        "jq '.hooks.count' WEDM_DIGEST.json returns 22 ±0",
+        "Machinist-acceptance: 'I can see exactly which engines exist right now'"
+      ]
+    },
+    {
+      "id": "U-P0-V02",
+      "title": "Reconcile CLAUDE.md AUTO-WEDM counts",
+      "files_modified": ["CLAUDE.md"],
+      "abort_conditions": ["any cited platform figure mutated (only subset figures in AUTO-WEDM block may be edited)"],
+      "rollback": "git checkout CLAUDE.md",
+      "exit_criteria": [
+        "engines line matches digest exactly",
+        "hooks line matches digest exactly",
+        "state files line matches digest exactly",
+        "Platform counts referenced (not mutated) with file citation"
+      ]
+    },
+    {
+      "id": "U-P0-V03",
+      "title": "Write WEDM_CONSOLIDATED_BASELINE.json with dispatcher-wiring status",
+      "files_created": ["mcp-server/data/state/WEDM_CONSOLIDATED_BASELINE.json"],
+      "abort_conditions": ["orphan ratio not computed", "schema fails Zod parse"],
+      "rollback": "rm mcp-server/data/state/WEDM_CONSOLIDATED_BASELINE.json",
+      "exit_criteria": [
+        "File exists with schemaVersion ≥ 1",
+        "Every 95 WEDM engine classified (wired | orphan | background)",
+        "Orphan ratio reported as percentage, compared to platform-wide 70%",
+        "All 61 prism_edm actions mapped to engines"
+      ]
+    },
+    {
+      "id": "U-P0-V04",
+      "title": "Deprecate CAMX-V17-P9 in roadmap-index",
+      "files_modified": [
+        "mcp-server/data/roadmap-index.json",
+        "mcp-server/data/milestones/CAMX-V17-P9.json"
+      ],
+      "files_created": ["state/shared/CAMX-V17-P9-MIGRATION.md"],
+      "abort_conditions": [
+        "any CAMX-V17-P9 unit not mapped to a P3 unit",
+        "roadmap-index.json Zod parse fails"
+      ],
+      "rollback": "git checkout mcp-server/data/roadmap-index.json mcp-server/data/milestones/CAMX-V17-P9.json",
+      "exit_criteria": [
+        "jq '.milestones[\"CAMX-V17-P9\"].status' roadmap-index.json returns 'DEPRECATED'",
+        "Mapping table camx_unit_id → replacement_p3_unit_id written",
+        "BASELINE_INVENTORY.json re-verified (no orphan milestones)"
+      ]
+    }
+  ],
+
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-digest-freshness",
+      "description": "warns if WEDM_DIGEST.json mtime > 7 days old",
+      "built_in": "U-P0-V03"
+    },
+    "action": {
+      "name": "prism_edm:wedm_digest",
+      "built_in": "U-P0-V03"
+    },
+    "skill": {
+      "name": "/wedm-audit",
+      "built_in": "U-P0-V03"
+    }
+  },
+
+  "exit_gate": {
+    "criteria": [
+      "digest current",
+      "CLAUDE.md counts accurate",
+      "baseline JSON committed",
+      "CAMX-V17-P9 deprecated"
+    ],
+    "omega_target": 1.0,
+    "svi_delta": "+1%"
+  },
+
+  "feature_cascade": {
+    "new_hooks": ["wedm-digest-freshness"],
+    "new_actions": ["prism_edm:wedm_digest"],
+    "new_skills": ["/wedm-audit"],
+    "available_to": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"]
+  }
+}

@@ -20,6 +20,29 @@ describe("MillMasterOrchestratorFacadeEngine", () => {
     it("should have orchestrate method", () => {
       expect(typeof millMasterOrchestratorFacadeEngine.orchestrate).toBe("function");
     });
+
+    it("facade records request_type on failure response", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+      });
+      expect(response.request_type).toBe("print_to_program");
+    });
+
+    it("warnings mention the missing engine name", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+      });
+      const joined = response.warnings.join(" ");
+      expect(joined).toMatch(/MillPrintToProgramEngine|MillP2POrchestrator/);
+    });
+
+    it("warnings reference roadmap placeholder for follow-up", async () => {
+      const response = await millMasterOrchestratorFacadeEngine.orchestrate({
+        request_type: "print_to_program",
+      });
+      const joined = response.warnings.join(" ");
+      expect(joined).toMatch(/P1-U13|not yet been created|roadmap/i);
+    });
   });
 
   describe("orchestrate — routing", () => {

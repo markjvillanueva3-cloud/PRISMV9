@@ -3,7 +3,7 @@
  *
  * Models: Wire EDM and sinker EDM process parameters.
  * - Material removal rate from discharge energy
- * - Surface roughness: Ra = k_ra × I_p^0.40 × t_on^0.28 [Klocke 2013 canonical]
+ * - Surface roughness: Klocke canonical via shared utility (U-W100-03a)
  * - Electrode wear ratio
  * - Gap voltage and current settings
  * - Flushing requirements
@@ -14,10 +14,13 @@
  *
  * Reference: Jameson — Electrical Discharge Machining,
  *            CIRP Annals EDM process models,
- *            Sodick/Makino EDM technical guides
+ *            Sodick/Makino EDM technical guides,
+ *            Klocke (2013) Manufacturing Processes 4, Table 8.3
  *
  * Actions: edm_parameter_calc
  */
+
+import { klockeRa, getRaCoefficients } from "./utils/klockeRa.js";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -105,8 +108,8 @@ export class EDMParameterEngine {
     const mrrConst = edmType === "wire" ? 0.0001 : 0.0003;
     const mrr = mrrConst * peakI * ton * freq / 1e6 * matFactor; // mm³/min
 
-    // Surface roughness: Ra = k_ra × I_p^0.40 × t_on^0.28 [Klocke 2013 canonical]
-    const ra = 0.38 * Math.pow(peakI, 0.40) * Math.pow(ton, 0.28);
+    // Surface roughness: Klocke canonical via shared utility
+    const ra = klockeRa(peakI, ton, matKey);
 
     // Override Ra if target specified
     let actualRa = ra;

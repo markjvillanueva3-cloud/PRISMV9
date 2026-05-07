@@ -74,6 +74,8 @@ export class WEDMTribalRuntimeEngine {
     this.reloadTips();
   }
 
+  private learnedTipCount = 0;
+
   reloadTips(): void {
     this.tips = (WEDM_KNOWLEDGE_TIPS as readonly TribalTip[]).slice();
     for (const t of this.tips) {
@@ -223,12 +225,48 @@ export class WEDMTribalRuntimeEngine {
     };
   }
 
+  /**
+   * Register a runtime-learned tip so it becomes selectable alongside the
+   * curated corpus. Called by WEDMTribalTipLearnerEngine on auto-approval.
+   */
+  registerLearnedTip(tip: {
+    text: string;
+    keywords: string[];
+    tags: string[];
+    confidence: number;
+    source?: string;
+    learned_from?: string;
+  }): string {
+    const id = "learned::" + Date.now() + "::" + Math.random().toString(36).slice(2, 8);
+    const runtimeTip = {
+      id,
+      category: (tip.tags.find(t => t.startsWith("action:"))?.split(":")[1]) ?? "learned",
+      title: (tip.text.split(".")[0] ?? tip.text).slice(0, 80),
+      body: tip.text,
+      tags: tip.tags,
+      keywords: tip.keywords,
+      confidence: tip.confidence,
+      source: tip.source ?? "learned",
+      created_at: new Date().toISOString(),
+    } as unknown as TribalTip;
+    this.tips.push(runtimeTip);
+    this.learnedTipCount += 1;
+    return id;
+  }
+
+  /**
+   * Count of tips registered at runtime via registerLearnedTip.
+   */
+  getLearnedTipCount(): number {
+    return this.learnedTipCount;
+  }
   resetForTests(): void {
     this.usageCounts.clear();
     this.selectionLatencies.length = 0;
     this.servedTotal = 0;
     this.seenActions.clear();
     this.totalSelections = 0;
+    this.learnedTipCount = 0;
     this.reloadTips();
   }
 }

@@ -10,6 +10,7 @@
  *   - Emits QUALITY_SCORE_UPDATED events on every compute
  */
 import { z } from "zod";
+import { readFileSync } from "node:fs";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
@@ -21,6 +22,87 @@ import { getCogMetrics } from "./spDispatcher.js";
 
 const DEFAULT_WEIGHTS = { R: 0.25, C: 0.20, P: 0.15, S: 0.30, L: 0.10 };
 const THRESHOLDS = { RELEASE: 0.70, ACCEPTABLE: 0.65, WARNING: 0.50, SAFETY_MIN: 0.70 };
+
+/**
+ * Tier ladder for safety/quality gating. Values match canonical
+ * `state/shared/omega-thresholds.json` schemaVersion 1.0.0:
+ *   shop_floor (Ω≥0.95, S≥0.98) — five-sigma; G-code → real machine
+ *   production (Ω≥0.90, S≥0.95) — four-sigma; production release
+ *   proven_out (Ω≥0.85, S≥0.90) — proven recipe / 3 clean outcomes
+ *   sim        (Ω≥0.50, S≥0.70) — simulation/exploration (S<0.70 = BLOCKED)
+ * Inline values are FALLBACK only — used when JSON file is missing/malformed.
+ * Loader prefers JSON so ops can tune tiers without a code deploy.
+ */
+const TIER_FALLBACK: OmegaTierLadder = {
+  source: "fallback",
+  shop_floor:  { omega_min: 0.95, safety_min: 0.98 },
+  production:  { omega_min: 0.90, safety_min: 0.95 },
+  proven_out:  { omega_min: 0.85, safety_min: 0.90 },
+  sim:         { omega_min: 0.50, safety_min: 0.70 },
+};
+const TIER_JSON_DEFAULT_PATH = "H:/prism/state/shared/omega-thresholds.json";
+const TIER_NAMES = ["shop_floor", "production", "proven_out", "sim"] as const;
+type TierName = typeof TIER_NAMES[number];
+export interface OmegaTier { omega_min: number; safety_min: number; }
+export interface OmegaTierLadder {
+  source: "json" | "fallback";
+  shop_floor: OmegaTier;
+  production: OmegaTier;
+  proven_out: OmegaTier;
+  sim: OmegaTier;
+}
+
+let _tierCache: OmegaTierLadder | null = null;
+
+function isValidThreshold(v: unknown): v is number {
+  return typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1;
+}
+
+function parseTier(raw: unknown): OmegaTier | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { omega_min?: unknown; safety_min?: unknown };
+  if (!isValidThreshold(r.omega_min) || !isValidThreshold(r.safety_min)) return null;
+  return { omega_min: r.omega_min, safety_min: r.safety_min };
+}
+
+/**
+ * Load tier ladder from JSON, falling back to inline defaults on any failure.
+ * Cached after first call. Pass custom `jsonPath` for tests; pass `forceReload`
+ * to bypass cache when the JSON has been updated mid-session.
+ */
+export function loadOmegaTiers(forceReload = false, jsonPath: string = TIER_JSON_DEFAULT_PATH): OmegaTierLadder {
+  if (_tierCache !== null && !forceReload) return _tierCache;
+  try {
+    const raw: unknown = JSON.parse(readFileSync(jsonPath, "utf8"));
+    const obj = raw as { tiers?: Record<string, unknown> };
+    if (!obj?.tiers || typeof obj.tiers !== "object") throw new Error("missing tiers");
+    const parsed: { source: "json" } & Partial<Record<TierName, OmegaTier>> = { source: "json" };
+    for (const name of TIER_NAMES) {
+      const t = parseTier(obj.tiers[name]);
+      if (!t) throw new Error(`tier ${name} invalid`);
+      parsed[name] = t;
+    }
+    _tierCache = parsed as OmegaTierLadder;
+  } catch (err) {
+    const msg = (err as Error)?.message || String(err);
+    try { log.warn?.(`omega-thresholds.json load failed (using fallback): ${msg}`); } catch { /* logger optional */ }
+    _tierCache = { ...TIER_FALLBACK };
+  }
+  return _tierCache;
+}
+
+/** Returns the highest tier whose thresholds are met by (omega, safety), or null if none pass. */
+export function getTierForOmega(omega: number, safety: number): TierName | null {
+  const ladder = loadOmegaTiers();
+  for (const name of TIER_NAMES) {
+    const t = ladder[name];
+    if (omega >= t.omega_min && safety >= t.safety_min) return name;
+  }
+  return null;
+}
+
+/** Reset the tier cache. Test-only — production code should not call this. */
+export function _resetOmegaTierCache(): void { _tierCache = null; }
 
 /** Clamp a component score to [0, 1] range */
 function clamp01(v: number): number { return Math.max(0, Math.min(1, v)); }
@@ -69,11 +151,16 @@ function computeOmega(components: { R: number; C: number; P: number; S: number; 
       omega: entry.score, status, components: clamped, safety_passed: safetyPassed,
     }, { category: "quality", priority: safetyPassed ? "normal" : "high", source: "OmegaDispatcher" });
   } catch { /* event emission is best-effort */ }
+  const omegaRounded = Math.round(omega * 10000) / 10000;
+  // tier is best-effort — null when no tier passes (omega/safety below sim minimums)
+  let tier: TierName | null = null;
+  try { tier = getTierForOmega(omegaRounded, S); } catch { /* tier loader best-effort */ }
   return {
-    omega: Math.round(omega * 10000) / 10000, components: clamped, weights: DEFAULT_WEIGHTS, status,
+    omega: omegaRounded, components: clamped, weights: DEFAULT_WEIGHTS, status,
     hard_constraint_passed: safetyPassed,
     breakdown: Object.fromEntries(Object.entries(breakdown).map(([k, v]) => [k, Math.round(v * 10000) / 10000])),
     recommendations: recommendations.slice(0, 5), timestamp: entry.timestamp,
+    tier,
   };
 }
 

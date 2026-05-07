@@ -1,9 +1,8 @@
 ---
-policy:
-  tier: 3
-  triggers:
-    - "lathe-studio"
+name: lathe-studio
+description: /lathe-studio — Lathe Programming Studio Pipeline
 ---
+
 # /lathe-studio — Lathe Programming Studio Pipeline
 
 Launch the Lathe Studio wizard — full pipeline from part geometry to optimized turning G-code with tribal knowledge injection, collision checking, and physics-validated speed/feed.

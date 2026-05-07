@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "domain": "machine_def",
+  "created_at": "2026-04-22T09:00:00Z",
+  "description": "Canonical field names for machine definition and kinematics",
+  "owner_unit": "CAM-UIX-INFRA-00/U-ONTOLOGY-SEED01",
+  "entry_count": 64,
+  "categories": {
+    "machine_type": {
+      "canonical": "machine_type",
+      "aliases": {
+        "mastercam": ["machine_type", "machine_class"],
+        "fusion360": ["machineType", "machineClass"],
+        "hypermill": ["machine_type", "kinematic_type"],
+        "nx_cam": ["machine_type", "machineClass"]
+      },
+      "valid_values": ["3_axis_vertical", "3_axis_horizontal", "4_axis", "5_axis_trunnion", "5_axis_swivel", "5_axis_nutator", "lathe_2_axis", "lathe_c_axis", "lathe_y_axis", "mill_turn", "swiss", "multi_spindle"]
+    },
+    "spindle_max_rpm": {
+      "canonical": "max_spindle_speed",
+      "aliases": {
+        "mastercam": ["max_spindle_rpm", "spindle_max", "max_rpm"],
+        "fusion360": ["maximumSpindleSpeed", "maxRPM"],
+        "hypermill": ["max_rpm", "spindle_limit"],
+        "nx_cam": ["maxSpindleSpeed", "spindleMax"]
+      },
+      "unit_class": "angular_velocity",
+      "typical_range": {"min": 6000, "max": 60000, "unit": "rpm"}
+    },
+    "spindle_power": {
+      "canonical": "spindle_power_kw",
+      "aliases": {
+        "mastercam": ["spindle_hp", "spindle_power", "motor_power"],
+        "fusion360": ["spindlePower", "motorPower"],
+        "hypermill": ["power_kw", "spindle_kw"],
+        "nx_cam": ["spindlePower", "motorKW"]
+      },
+      "unit_class": "power",
+      "typical_range": {"min": 5, "max": 100, "unit": "kW"}
+    },
+    "spindle_torque": {
+      "canonical": "max_torque_nm",
+      "aliases": {
+        "mastercam": ["max_torque", "spindle_torque", "torque_nm"],
+        "fusion360": ["maximumTorque", "spindleTorque"],
+        "hypermill": ["torque_max", "spindle_torque"],
+        "nx_cam": ["maxTorque", "spindleTorqueNm"]
+      },
+      "unit_class": "torque",
+      "typical_range": {"min": 50, "max": 2000, "unit": "Nm"}
+    },
+    "x_travel": {
+      "canonical": "x_axis_travel",
+      "aliases": {
+        "mastercam": ["x_travel", "x_range", "x_stroke"],
+        "fusion360": ["xTravel", "xAxisRange"],
+        "hypermill": ["travel_x", "x_stroke"],
+        "nx_cam": ["xTravel", "xAxisStroke"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 200, "max": 10000, "unit": "mm"}
+    },
+    "y_travel": {
+      "canonical": "y_axis_travel",
+      "aliases": {
+        "mastercam": ["y_travel", "y_range", "y_stroke"],
+        "fusion360": ["yTravel", "yAxisRange"],
+        "hypermill": ["travel_y", "y_stroke"],
+        "nx_cam": ["yTravel", "yAxisStroke"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 200, "max": 3000, "unit": "mm"}
+    },
+    "z_travel": {
+      "canonical": "z_axis_travel",
+      "aliases": {
+        "mastercam": ["z_travel", "z_range", "z_stroke"],
+        "fusion360": ["zTravel", "zAxisRange"],
+        "hypermill": ["travel_z", "z_stroke"],
+        "nx_cam": ["zTravel", "zAxisStroke"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 200, "max": 2000, "unit": "mm"}
+    },
+    "a_axis_range": {
+      "canonical": "a_axis_limits",
+      "aliases": {
+        "mastercam": ["a_range", "a_travel", "a_min_max"],
+        "fusion360": ["aAxisRange", "aTravel"],
+        "hypermill": ["a_limits", "a_range"],
+        "nx_cam": ["aAxisLimits", "aRange"]
+      },
+      "unit_class": "angle",
+      "typical_range": {"min": -120, "max": 120, "unit": "deg"},
+      "applicable_to": ["4_axis", "5_axis_trunnion", "5_axis_swivel"]
+    },
+    "c_axis_range": {
+      "canonical": "c_axis_limits",
+      "aliases": {
+        "mastercam": ["c_range", "c_travel", "c_min_max"],
+        "fusion360": ["cAxisRange", "cTravel"],
+        "hypermill": ["c_limits", "c_range"],
+        "nx_cam": ["cAxisLimits", "cRange"]
+      },
+      "unit_class": "angle",
+      "typical_range": {"min": -9999, "max": 9999, "unit": "deg"},
+      "applicable_to": ["4_axis", "5_axis_trunnion", "5_axis_swivel", "lathe_c_axis", "mill_turn"]
+    },
+    "rapid_rate": {
+      "canonical": "rapid_traverse_rate",
+      "aliases": {
+        "mastercam": ["rapid_rate", "rapid_feed", "max_rapid"],
+        "fusion360": ["rapidRate", "rapidFeed"],
+        "hypermill": ["rapid_feedrate", "g0_rate"],
+        "nx_cam": ["rapidRate", "traverseRate"]
+      },
+      "unit_class": "velocity",
+      "typical_range": {"min": 10000, "max": 60000, "unit": "mm/min"}
+    },
+    "tool_change_time": {
+      "canonical": "atc_time",
+      "aliases": {
+        "mastercam": ["tool_change_time", "atc_seconds"],
+        "fusion360": ["toolChangeTime", "atcTime"],
+        "hypermill": ["tc_time", "tool_change_s"],
+        "nx_cam": ["toolChangeTime", "atcDuration"]
+      },
+      "unit_class": "time",
+      "typical_range": {"min": 0.5, "max": 30, "unit": "s"}
+    },
+    "tool_capacity": {
+      "canonical": "atc_capacity",
+      "aliases": {
+        "mastercam": ["tool_capacity", "magazine_size", "atc_slots"],
+        "fusion360": ["toolCapacity", "magazineSize"],
+        "hypermill": ["tool_magazine", "atc_count"],
+        "nx_cam": ["toolCapacity", "magazineSlots"]
+      },
+      "unit_class": "count",
+      "typical_range": {"min": 10, "max": 200, "unit": "tools"}
+    },
+    "controller_type": {
+      "canonical": "controller",
+      "aliases": {
+        "mastercam": ["control", "controller_type", "cnc_control"],
+        "fusion360": ["controller", "controllerType"],
+        "hypermill": ["controller", "cnc_type"],
+        "nx_cam": ["controller", "cncType"]
+      },
+      "valid_values": ["fanuc", "siemens_840d", "heidenhain", "okuma_osp", "mazak", "mitsubishi", "haas", "brother", "doosan", "dmg_mori_celos"]
+    }
+  }
+}

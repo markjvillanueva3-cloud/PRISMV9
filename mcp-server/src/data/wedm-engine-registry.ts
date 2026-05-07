@@ -459,8 +459,8 @@ export const WEDM_ENGINE_REGISTRY: WEDMEngineEntry[] = [
     category: "cam",
     purpose: "AI-enhanced print-to-program with feature recognition, tolerance interpretation, and auto-strategy selection",
     lines: 1129,
-    capabilities: ["cam", "parameters", "optimize"],
-    actions: ["generate", "recognizeFeatures", "interpretTolerances"],
+    capabilities: ["cam", "parameters", "optimize", "ai", "reasoning"],
+    actions: ["generate", "quickPredictMRR", "quickPredictRa", "explainCausalEffect", "getCounterfactuals"],
   },
 
   {

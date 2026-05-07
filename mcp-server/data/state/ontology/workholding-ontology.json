@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "domain": "workholding",
+  "created_at": "2026-04-22T09:00:00Z",
+  "description": "Canonical field names for workholding/fixture/clamping parameters",
+  "owner_unit": "CAM-UIX-INFRA-00/U-ONTOLOGY-SEED01",
+  "entry_count": 48,
+  "categories": {
+    "fixture_type": {
+      "canonical": "fixture_type",
+      "aliases": {
+        "mastercam": ["fixture_type", "holding_type"],
+        "fusion360": ["fixtureType", "workholding"],
+        "hypermill": ["clamping_type", "fixture"],
+        "nx_cam": ["fixture", "workholding_type"],
+        "solidcam": ["fixture_type", "clamping"],
+        "okuma_igf": ["chuck_type", "workholding"]
+      },
+      "valid_values": ["vise", "3_jaw_chuck", "4_jaw_chuck", "collet", "vacuum", "magnetic", "fixture_plate", "tombstone", "pallet", "soft_jaws", "custom"]
+    },
+    "clamping_force": {
+      "canonical": "clamping_force",
+      "aliases": {
+        "mastercam": ["clamp_force", "holding_force"],
+        "fusion360": ["clampingForce", "gripForce"],
+        "hypermill": ["clamping_force_n", "force"],
+        "nx_cam": ["clampForce", "holdingForce"],
+        "solidcam": ["clamp_force", "grip"],
+        "okuma_igf": ["chuck_pressure", "clamp_force"]
+      },
+      "unit_class": "force",
+      "typical_range": {"min": 1000, "max": 100000, "unit": "N"}
+    },
+    "jaw_width": {
+      "canonical": "jaw_width",
+      "aliases": {
+        "mastercam": ["jaw_width", "grip_width"],
+        "fusion360": ["jawWidth", "gripWidth"],
+        "hypermill": ["jaw_w", "clamping_width"],
+        "nx_cam": ["jawWidth", "clampWidth"],
+        "solidcam": ["jaw_width", "grip_w"],
+        "okuma_igf": ["jaw_w", "chuck_jaw_width"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 5, "max": 200, "unit": "mm"}
+    },
+    "part_projection": {
+      "canonical": "part_stickout",
+      "aliases": {
+        "mastercam": ["stickout", "part_projection", "overhang"],
+        "fusion360": ["partStickout", "projection"],
+        "hypermill": ["stickout", "part_overhang"],
+        "nx_cam": ["stickout", "partProjection"],
+        "solidcam": ["stickout", "overhang"],
+        "okuma_igf": ["projection", "stickout_l"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 5, "max": 300, "unit": "mm"}
+    },
+    "grip_depth": {
+      "canonical": "grip_depth",
+      "aliases": {
+        "mastercam": ["grip_depth", "jaw_depth", "grip_length"],
+        "fusion360": ["gripDepth", "jawDepth"],
+        "hypermill": ["grip_d", "clamping_depth"],
+        "nx_cam": ["gripDepth", "jawLength"],
+        "solidcam": ["grip_depth", "jaw_d"],
+        "okuma_igf": ["grip_l", "jaw_depth"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 3, "max": 100, "unit": "mm"}
+    },
+    "wcs_offset": {
+      "canonical": "work_offset",
+      "aliases": {
+        "mastercam": ["wcs", "work_offset", "g54_offset"],
+        "fusion360": ["wcs", "workOffset", "originOffset"],
+        "hypermill": ["wcs_offset", "origin"],
+        "nx_cam": ["workOffset", "mcs", "wcs"],
+        "solidcam": ["wcs", "g_offset"],
+        "okuma_igf": ["g54", "work_coord"]
+      },
+      "valid_values": ["G54", "G55", "G56", "G57", "G58", "G59", "G54.1P1", "G54.1P2"]
+    },
+    "tailstock_pressure": {
+      "canonical": "tailstock_force",
+      "aliases": {
+        "okuma_igf": ["tailstock_pressure", "ts_force"],
+        "mastercam": ["tailstock_force", "ts_pressure"],
+        "nx_cam": ["tailstockForce", "centerForce"]
+      },
+      "unit_class": "force",
+      "typical_range": {"min": 100, "max": 10000, "unit": "N"},
+      "applicable_to": ["lathe", "mill_turn"]
+    },
+    "steady_rest_diameter": {
+      "canonical": "steady_rest_dia",
+      "aliases": {
+        "okuma_igf": ["steady_dia", "sr_diameter"],
+        "mastercam": ["steady_rest_d", "support_dia"],
+        "nx_cam": ["steadyRestDia", "supportDiameter"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 10, "max": 500, "unit": "mm"},
+      "applicable_to": ["lathe", "mill_turn"]
+    }
+  }
+}

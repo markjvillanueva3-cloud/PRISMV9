@@ -1,0 +1,160 @@
+{
+  "id": "WEDM-NEXT-MS0",
+  "title": "Wire EDM Next-Gen — ML Optimization, Thermal Physics, Multi-Machine Scheduling",
+  "track": "WEDM-NEXT",
+  "status": "in_progress",
+  "created_at": "2026-04-22",
+  "dependencies": ["WEDM-ERP-MS0"],
+  "priority": "HIGH",
+  "description": "Next-generation Wire EDM capabilities: ML-driven parameter optimization, advanced thermal/recast physics, wire break prediction, multi-machine scheduling, real-time adaptive control integration.",
+  "phases": [
+    {
+      "id": "P1-ML-OPT",
+      "title": "ML Parameter Optimization",
+      "units": ["U-WN01", "U-WN02", "U-WN03", "U-WN04"]
+    },
+    {
+      "id": "P2-THERMAL",
+      "title": "Advanced Thermal Physics",
+      "units": ["U-WN05", "U-WN06", "U-WN07"]
+    },
+    {
+      "id": "P3-PREDICT",
+      "title": "Predictive Models",
+      "units": ["U-WN08", "U-WN09", "U-WN10"]
+    },
+    {
+      "id": "P4-MULTI",
+      "title": "Multi-Machine Scheduling",
+      "units": ["U-WN11", "U-WN12", "U-WN13"]
+    },
+    {
+      "id": "P5-ADAPTIVE",
+      "title": "Real-Time Adaptive Control",
+      "units": ["U-WN14", "U-WN15", "U-WN16"]
+    }
+  ],
+  "unit_list": [
+    {
+      "id": "U-WN01",
+      "title": "WEDMMLParameterOptimizerEngine — Bayesian optimization for cutting parameters",
+      "status": "complete",
+      "phase": "P1-ML-OPT",
+      "deliverables": ["engine", "dispatcher_action", "tests"],
+      "completed_at": "2026-04-22"
+    },
+    {
+      "id": "U-WN02",
+      "title": "WEDMFeatureImportanceEngine — SHAP/feature importance for parameter sensitivity",
+      "status": "complete",
+      "phase": "P1-ML-OPT",
+      "deliverables": ["engine", "dispatcher_action", "tests"],
+      "completed_at": "2026-04-22"
+    },
+    {
+      "id": "U-WN03",
+      "title": "WEDMTransferLearningEngine — Cross-material/machine parameter transfer",
+      "status": "complete",
+      "phase": "P1-ML-OPT",
+      "deliverables": ["engine", "dispatcher_action", "tests"],
+      "completed_at": "2026-04-22"
+    },
+    {
+      "id": "U-WN04",
+      "title": "WEDMOnlineLearningEngine — Incremental learning from production feedback",
+      "status": "complete",
+      "phase": "P1-ML-OPT",
+      "deliverables": ["engine", "dispatcher_action", "tests"],
+      "completed_at": "2026-04-22"
+    },
+    {
+      "id": "U-WN05",
+      "title": "WEDMThermalFieldEngine — FEM-based thermal field prediction during cutting",
+      "status": "complete",
+      "phase": "P2-THERMAL",
+      "deliverables": ["engine", "dispatcher_action", "tests"],
+      "completed_at": "2026-04-22"
+    },
+    {
+      "id": "U-WN06",
+      "title": "WEDMRecastLayerMLEngine — ML prediction of recast layer thickness",
+      "status": "pending",
+      "phase": "P2-THERMAL",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN07",
+      "title": "WEDMHeatAffectedZoneEngine — HAZ depth prediction with microstructure impact",
+      "status": "pending",
+      "phase": "P2-THERMAL",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN08",
+      "title": "WEDMWireBreakPredictorEngine — ML model for wire break risk prediction",
+      "status": "pending",
+      "phase": "P3-PREDICT",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN09",
+      "title": "WEDMSurfaceIntegrityPredictorEngine — Ra/Rz/residual stress prediction",
+      "status": "pending",
+      "phase": "P3-PREDICT",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN10",
+      "title": "WEDMCycleTimeMLEngine — ML-based cycle time estimation with confidence",
+      "status": "pending",
+      "phase": "P3-PREDICT",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN11",
+      "title": "WEDMMultiMachineSchedulerEngine — Optimal job-to-machine assignment",
+      "status": "pending",
+      "phase": "P4-MULTI",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN12",
+      "title": "WEDMWireInventoryOptimizerEngine — Wire type/diameter inventory optimization",
+      "status": "pending",
+      "phase": "P4-MULTI",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN13",
+      "title": "WEDMCapacityPlannerEngine — Multi-machine capacity planning with constraints",
+      "status": "pending",
+      "phase": "P4-MULTI",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN14",
+      "title": "WEDMAdaptiveGapControlEngine — Real-time gap voltage adaptation",
+      "status": "pending",
+      "phase": "P5-ADAPTIVE",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN15",
+      "title": "WEDMFlushingAdaptiveEngine — Dynamic flushing pressure optimization",
+      "status": "pending",
+      "phase": "P5-ADAPTIVE",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    },
+    {
+      "id": "U-WN16",
+      "title": "WEDMDigitalTwinSyncEngine — Real-time digital twin synchronization",
+      "status": "pending",
+      "phase": "P5-ADAPTIVE",
+      "deliverables": ["engine", "dispatcher_action", "tests"]
+    }
+  ],
+  "total_units": 16,
+  "completed_units": 5,
+  "sessions_p50": 8,
+  "sessions_p90": 12
+}

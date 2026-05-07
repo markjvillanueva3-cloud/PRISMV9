@@ -984,5 +984,10 @@ export function createEdmRouter(callTool: CallToolFn): Router {
     } catch (e) { next(e); }
   });
 
+  // ── U-WGAP09: Pre-flight safety checklist ───────────────────────────
+  router.post("/preflight", requirePermission("edm:read"), async (req, res, next) => {
+    try { res.json(await invoke("wedm_preflight_check", req.body)); } catch (e) { next(e); }
+  });
+
   return router;
 }

@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "created_at": "2026-04-22T07:00:00Z",
+  "description": "Per-source rate limit configuration for CAM-UIX ingestion sources S1-S11. Used by CAMIngestOrchestratorEngine to throttle requests and respect ToS/robots.txt.",
+  "owner_unit": "CAM-UIX-INFRA-00/U-RATELIMIT01",
+  "global_defaults": {
+    "requests_per_minute": 10,
+    "requests_per_hour": 300,
+    "requests_per_day": 5000,
+    "retry_after_429_seconds": 60,
+    "max_retries": 3,
+    "backoff_multiplier": 2.0,
+    "respect_robots_txt": true,
+    "respect_rate_limit_headers": true,
+    "user_agent": "PRISM-CAM-Ingest/1.0 (+https://prism-mfg.io/bot)"
+  },
+  "per_source_limits": {
+    "S1_manufacturer_doc_scrape": {
+      "description": "Vendor help sites (Autodesk, OpenMind, Siemens, PTC, Hexagon)",
+      "requests_per_minute": 5,
+      "requests_per_hour": 100,
+      "requests_per_day": 1000,
+      "crawl_delay_seconds": 10,
+      "respect_robots_txt": true,
+      "domains": {
+        "help.autodesk.com": {"rpm": 3, "crawl_delay": 15},
+        "knowledge.autodesk.com": {"rpm": 3, "crawl_delay": 15},
+        "docs.plm.automation.siemens.com": {"rpm": 2, "crawl_delay": 20},
+        "support.ptc.com": {"rpm": 2, "crawl_delay": 20},
+        "academy.openmind-tech.com": {"rpm": 3, "crawl_delay": 15},
+        "nexus.hexagonmi.com": {"rpm": 2, "crawl_delay": 20}
+      }
+    },
+    "S2_forum_scrape": {
+      "description": "Public forums (CNCzone, eMastercam, Reddit, vendor communities)",
+      "requests_per_minute": 2,
+      "requests_per_hour": 60,
+      "requests_per_day": 500,
+      "crawl_delay_seconds": 30,
+      "respect_robots_txt": true,
+      "domains": {
+        "www.cnczone.com": {"rpm": 1, "crawl_delay": 60, "note": "Very conservative — community site"},
+        "www.emastercam.com": {"rpm": 2, "crawl_delay": 30},
+        "forums.autodesk.com": {"rpm": 2, "crawl_delay": 30},
+        "www.reddit.com": {"rpm": 1, "requires_api": true, "api_tier": "commercial", "note": "Use Reddit Data API, not scrape"},
+        "community.sw.siemens.com": {"rpm": 1, "crawl_delay": 60}
+      },
+      "legal_notes": "Forum ToS typically allow read-only browsing; cite thread URL + author handle; no PII storage"
+    },
+    "S3_trade_press": {
+      "description": "Trade publications (MMS, CTE, American Machinist)",
+      "requests_per_minute": 3,
+      "requests_per_hour": 50,
+      "requests_per_day": 300,
+      "crawl_delay_seconds": 20,
+      "prefer_rss": true,
+      "domains": {
+        "www.mmsonline.com": {"rpm": 2, "rss_url": "https://www.mmsonline.com/rss"},
+        "www.ctemag.com": {"rpm": 2},
+        "www.americanmachinist.com": {"rpm": 2}
+      },
+      "legal_notes": "RSS-first for headlines; full-article behind paywall = cite-only"
+    },
+    "S4_certification_curricula": {
+      "description": "Certification program docs (Mastercam CAMP, Autodesk ACU, OpenMind Academy)",
+      "requests_per_minute": 2,
+      "requests_per_hour": 30,
+      "requests_per_day": 200,
+      "crawl_delay_seconds": 30,
+      "legal_notes": "Public syllabus/outline only; exam content requires partnership"
+    },
+    "S5_api_sdk_docs": {
+      "description": "Scripting API references (adsk.cam, NetHook3, NXOpen)",
+      "requests_per_minute": 5,
+      "requests_per_hour": 150,
+      "requests_per_day": 1500,
+      "crawl_delay_seconds": 10,
+      "domains": {
+        "help.autodesk.com/view/fusion360/ENU/": {"rpm": 3, "path_prefix": "/cloudhelp/ENU/Fusion-API/"},
+        "developer.autodesk.com": {"rpm": 3},
+        "docs.plm.automation.siemens.com/tdoc/nx/": {"rpm": 2}
+      },
+      "legal_notes": "Public API docs; OpenAPI/Swagger preferred when available"
+    },
+    "S6_postprocessor_libraries": {
+      "description": "Post-processor file repositories (HSM-Post-Library, shop-local posts)",
+      "requests_per_minute": 10,
+      "requests_per_hour": 300,
+      "requests_per_day": 3000,
+      "crawl_delay_seconds": 5,
+      "domains": {
+        "github.com/Autodesk/hsm-post-processor": {"rpm": 30, "note": "GitHub API allows 5000/hr authenticated"},
+        "cam.autodesk.com/posts": {"rpm": 5}
+      },
+      "legal_notes": "Per-file SPDX check required; GPL/MPL isolation for closed-source"
+    },
+    "S7_sample_reverse_engineering": {
+      "description": "JMDie archive program analysis (local files, no network)",
+      "requests_per_minute": 1000,
+      "requests_per_hour": 50000,
+      "requests_per_day": 500000,
+      "note": "Local file reads — no external rate limit. Throttle for CPU/memory.",
+      "local_only": true,
+      "file_batch_size": 100,
+      "parallel_workers": 4
+    },
+    "S8_patents": {
+      "description": "Patent databases (USPTO, EPO, Google Patents)",
+      "requests_per_minute": 2,
+      "requests_per_hour": 30,
+      "requests_per_day": 200,
+      "crawl_delay_seconds": 30,
+      "domains": {
+        "patents.google.com": {"rpm": 2, "crawl_delay": 30},
+        "patft.uspto.gov": {"rpm": 1, "crawl_delay": 60, "note": "USPTO is very slow"},
+        "worldwide.espacenet.com": {"rpm": 1, "crawl_delay": 60}
+      },
+      "legal_notes": "Public patent text is fair use; algorithm extraction for cleanroom requires care"
+    },
+    "S9_standards": {
+      "description": "Standards bodies (ISO, DIN) — mostly purchase required",
+      "requests_per_minute": 1,
+      "requests_per_hour": 10,
+      "requests_per_day": 50,
+      "crawl_delay_seconds": 60,
+      "legal_notes": "Most ISO/DIN content is paywalled; ingest public abstracts only unless licensed"
+    },
+    "S10_social_and_events": {
+      "description": "Social media and event archives (X/Twitter, LinkedIn, IMTS/EMO)",
+      "requests_per_minute": 1,
+      "requests_per_hour": 20,
+      "requests_per_day": 100,
+      "crawl_delay_seconds": 60,
+      "domains": {
+        "x.com": {"rpm": 1, "requires_api": true, "api_tier": "enterprise", "note": "X API v2 enterprise required"},
+        "www.linkedin.com": {"rpm": 0, "blocked": true, "note": "LinkedIn prohibits scraping — manual only"}
+      },
+      "legal_notes": "API access required for X/Twitter; LinkedIn blocked"
+    },
+    "S11_vendor_training_recordings": {
+      "description": "Video training platforms (Pluralsight, Udemy, CamInstructor, vendor webinars)",
+      "requests_per_minute": 1,
+      "requests_per_hour": 10,
+      "requests_per_day": 50,
+      "crawl_delay_seconds": 120,
+      "legal_notes": "Paid platforms require enterprise license (Pluralsight Flow, Udemy Business API); no DRM circumvention",
+      "video_processing": {
+        "whisper_tier": "small",
+        "gpu_hours_per_day_cap": 2,
+        "transcript_cache_dir": "data/ingestion_cache/transcripts/"
+      }
+    }
+  },
+  "rate_limit_enforcement": {
+    "storage": "data/ingestion_cache/rate_limits/",
+    "tracking_granularity": "per_domain",
+    "sliding_window_minutes": 60,
+    "burst_allowance_pct": 10,
+    "429_backoff_strategy": "exponential",
+    "log_violations": true,
+    "alert_on_repeated_429": true
+  }
+}

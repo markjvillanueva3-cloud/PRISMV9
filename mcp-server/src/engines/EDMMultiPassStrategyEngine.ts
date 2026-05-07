@@ -491,7 +491,7 @@ function calculateOffsets(
   let cumulativeRemoved = 0;
 
   // Compute DiBitonto offset chain using material gamma
-  const gamma = 0.25; // default steel — caller should provide material-specific
+  const gamma = EDM_PHYSICS.toenshoff.gamma.steel; // default steel — caller should provide material-specific
   const gapScale = (wireRadius_mm * 2) / 0.25;
   const offsetChain = computeDiBitontoOffsets(wireRadius_mm * 2, totalPasses, gamma, 42.5 * gapScale);
 

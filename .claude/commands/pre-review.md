@@ -1,9 +1,8 @@
 ---
-policy:
-  tier: 1
-  triggers:
-    - "pre-review"
+name: pre-review
+description: /pre-review — DeepSeek-R1 First-Pass Review
 ---
+
 # /pre-review — DeepSeek-R1 First-Pass Review
 
 Manually invoke a DeepSeek-R1 chain-of-thought draft for a medium-complex task before Claude refines it. Saves ~60% of Claude tokens on tasks where R1's draft is mostly right and Claude's job is to polish for correctness, safety, and PRISM-domain integration.

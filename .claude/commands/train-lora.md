@@ -1,9 +1,8 @@
 ---
-policy:
-  tier: 3
-  triggers:
-    - "train-lora"
+name: train-lora
+description: Train LoRA — Nightly Adapter Training From Shop Outcomes
 ---
+
 # Train LoRA — Nightly Adapter Training From Shop Outcomes
 
 Kick off a LoRA fine-tune of the local base model using recent shop outcomes as training signal. Queries `OutcomeTrackingEngine` for good/adjusted records, emits a training manifest, and shells out to the Python trainer.

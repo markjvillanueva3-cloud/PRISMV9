@@ -27,6 +27,9 @@ const ACTIONS = ["decision_log", "failure_library", "error_capture", "pre_write_
   // INTEL-OLLAMA-OBSIDIAN-MS0/P2-U03: UnifiedErrorLedgerEngine surface
   "error_ledger_append", "error_ledger_append_and_embed",
   "error_ledger_recent", "error_ledger_recall_similar",
+  // ORPHAN-WIRE: 7 high-severity orphan engines surfaced via dispatcher actions
+  "agi_containment_evaluate", "collision_obb_check", "collision_hazard_detect",
+  "ccd_check_move", "dup_guard_check", "sem_sim_check", "swiss_collision_check_all"
 ] as const;
 
 function ok(data: any) {
@@ -795,6 +798,79 @@ export function registerGuardDispatcher(server: any): void {
             const limit = typeof params?.limit === "number" ? params.limit : 3;
             const hits = await e4.recallSimilar(sig, limit);
             return ok({ hits, count: hits.length });
+          }
+
+          // ============================================================================
+          // ORPHAN-WIRE actions — 7 previously-unwired guard/safety engines
+          // ============================================================================
+
+          case "agi_containment_evaluate": {
+            const { agiSafetyContainmentEngine } = await import("../../engines/AGISafetyContainmentEngine.js");
+            const candidate = (params.candidate ?? params) as any;
+            if (!candidate || typeof candidate !== "object") return ok({ error: "Missing candidate object" });
+            return ok(agiSafetyContainmentEngine.evaluate(candidate));
+          }
+
+          case "collision_obb_check": {
+            const { collisionEngine } = await import("../../engines/CollisionEngine.js");
+            const a = (params.a ?? params.obbA) as any;
+            const b = (params.b ?? params.obbB) as any;
+            if (!a || !b) return ok({ error: "Missing OBB pair (a, b)" });
+            return ok(collisionEngine.checkOBBCollision(a, b));
+          }
+
+          case "collision_hazard_detect": {
+            const { CollisionHazardDetectorEngine } = await import("../../engines/CollisionHazardDetectorEngine.js");
+            const input = (params.input ?? params) as any;
+            return ok(CollisionHazardDetectorEngine.analyze(input));
+          }
+
+          case "ccd_check_move": {
+            const { continuousCollisionDetectionEngine } = await import("../../engines/ContinuousCollisionDetectionEngine.js");
+            const { Vector3 } = await import("../../engines/CollisionEngine.js");
+            const toolGeometry = (params.toolGeometry ?? params.tool) as unknown;
+            if (!toolGeometry || !Array.isArray(params.obstacles)) {
+              return ok({ error: "Missing tool or obstacles[] params" });
+            }
+            // CCD engine requires Vector3 class instances (uses .subtract / .length / etc).
+            // Accept plain {x,y,z} objects from JSON callers and inflate to Vector3.
+            const toV3 = (p: any) => p instanceof Vector3 ? p : new Vector3(p?.x ?? 0, p?.y ?? 0, p?.z ?? 0);
+            const ccdParams = {
+              ...params,
+              toolGeometry,
+              startPosition: toV3(params.startPosition),
+              endPosition: toV3(params.endPosition),
+            };
+            return ok(continuousCollisionDetectionEngine.checkMove(ccdParams as any));
+          }
+
+          case "dup_guard_check": {
+            const { duplicationGuardEngine } = await import("../../engines/DuplicationGuardEngine.js");
+            const keyword = (params.keyword ?? params.query) as string | undefined;
+            if (typeof keyword !== "string" || keyword.length === 0) {
+              return ok({ error: "Missing keyword/query param" });
+            }
+            const types = Array.isArray(params.types) ? (params.types as any) : undefined;
+            return ok({ matches: await duplicationGuardEngine.searchExisting(keyword, types) });
+          }
+
+          case "sem_sim_check": {
+            const { semanticSimilarityGuardEngine } = await import("../../engines/SemanticSimilarityGuardEngine.js");
+            const content1 = (params.content1 ?? params.a) as string | undefined;
+            const content2 = (params.content2 ?? params.b) as string | undefined;
+            if (typeof content1 !== "string" || typeof content2 !== "string") {
+              return ok({ error: "Both content1 and content2 must be strings" });
+            }
+            const similarity = semanticSimilarityGuardEngine.computeSimilarity(content1, content2);
+            return ok({ similarity, content1_len: content1.length, content2_len: content2.length });
+          }
+
+          case "swiss_collision_check_all": {
+            const { swissTypeCollisionEngine } = await import("../../engines/SwissTypeCollisionEngine.js");
+            if (!params.config || !params.state) {
+              return ok({ error: "Missing config or state params" });
+            }
+            return ok(swissTypeCollisionEngine.checkAll(params.config as any, params.state as any));
           }
 
           default:

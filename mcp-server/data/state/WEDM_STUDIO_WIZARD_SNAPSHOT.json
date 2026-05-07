@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "snapshotVersion": "1.0.0",
+  "recorded": "2026-04-21",
+  "milestone": "MS-P7.5-FE-GAPS",
+  "unit": "U-P7.5-FE-01",
+  "rationale": "Initial snapshot — locks the R5-identified 'cleanest vertical' (WireEdmStudio 6-step wizard stack) against silent drift. Any file-content change or semantic-API drift must be accompanied by a snapshotVersion bump + rationale update in this file.",
+
+  "wizard_schema": {
+    "total_steps": 6,
+    "step_sequence": ["import", "review", "wcs", "toolpath", "optimize", "program"],
+    "step_ids": {
+      "import":   { "order": 1, "component": "StepImport.tsx",   "purpose": "CAD intake (DXF/DWG/STEP/PDF) + geometry parse" },
+      "review":   { "order": 2, "component": "StepReview.tsx",   "purpose": "Geometry validation + feature review" },
+      "wcs":      { "order": 3, "component": "StepWcs.tsx",      "purpose": "Work coordinate system + start-hole selection" },
+      "toolpath": { "order": 4, "component": "StepToolpath.tsx", "purpose": "Wire path strategy + rough/skim pass planning" },
+      "optimize": { "order": 5, "component": "StepOptimize.tsx", "purpose": "Physics-optimized parameter selection (Ra / MRR / surface)" },
+      "program":  { "order": 6, "component": "StepProgram.tsx",  "purpose": "G-code emission via post-processor" }
+    },
+    "forward_navigation": [
+      "advanceToReview", "advanceToWcs", "advanceToToolpath",
+      "advanceToOptimize", "advanceToProgram"
+    ],
+    "backward_navigation": [
+      "backToImport", "backToReview", "backToWcs", "backToToolpath", "backToOptimize"
+    ]
+  },
+
+  "wedm_studio_context": {
+    "file": "mcp-server/web/src/contexts/WedmStudioContext.tsx",
+    "provider_export": "WedmStudioProvider",
+    "hook_exports": ["useWedmNavigation", "useWedmData"],
+    "public_types": ["QualityEvent", "WedmJobRecord"],
+    "required_navigation_surface": {
+      "setCurrentStep": "(step: StepId) => void",
+      "currentStep": "StepId",
+      "steps": "ReadonlyArray<StepId>"
+    },
+    "required_data_surface": {
+      "markStepComplete": "(step: StepId) => void",
+      "markStepError": "(step: StepId, error: string) => void",
+      "markStale": "(step: StepId) => void",
+      "setStepData": "(step: StepId, data: unknown) => void",
+      "setFileInfo": "(info: FileInfo) => void"
+    }
+  },
+
+  "use_wedm_pipeline": {
+    "file": "mcp-server/web/src/hooks/useWedmPipeline.ts",
+    "exports": [
+      "useWedmStep",
+      "useParseGeometry",
+      "useValidateGeometry",
+      "useSelection",
+      "useMultipass",
+      "useGcode",
+      "useQuickGenerate"
+    ]
+  },
+
+  "wizard_shell": {
+    "file": "mcp-server/web/src/components/wedm-studio/WizardShell.tsx",
+    "exported_props_interface": "WizardStepProps"
+  },
+
+  "profile_canvas": {
+    "file": "mcp-server/web/src/components/wedm-studio/ProfileCanvas.tsx",
+    "responsibility": "837 LOC geometry rendering + overlay (wire path, start-hole markers, WCS indicators, feature highlights). Critical rendering substrate for every step after import."
+  },
+
+  "protected_files": {
+    "mcp-server/web/src/pages/WireEdmStudioPage.tsx": {
+      "loc": 148,
+      "sha256": "636565cf9c09af918085eb14f3c50df40c5f8acc5f093e4a6a336329bba5267b",
+      "role": "root shell — wires WedmStudioProvider to 6-step WizardShell"
+    },
+    "mcp-server/web/src/contexts/WedmStudioContext.tsx": {
+      "loc": 429,
+      "sha256": "570e5a223767c459a20fe6c8d99bf1823c1c1724c1a7443469ec00459ec11d27",
+      "role": "split-context provider (navigation + data) with useWedmNavigation + useWedmData hooks"
+    },
+    "mcp-server/web/src/hooks/useWedmPipeline.ts": {
+      "loc": 219,
+      "sha256": "a145c3900569d735931cd3235b76da9f44b23864b52fa0b1d9bcd3bf741ff3b6",
+      "role": "backend dispatcher call wrappers — 7 step/pipeline hooks"
+    },
+    "mcp-server/web/src/components/wedm-studio/WizardShell.tsx": {
+      "loc": 312,
+      "sha256": "ee5aec8d3eead735aaff741adb1e1630cb1ee828c0ae3708b0a9eed74b8c1c5d",
+      "role": "step-navigation chrome + progress indicator + shared step chrome"
+    },
+    "mcp-server/web/src/components/wedm-studio/ProfileCanvas.tsx": {
+      "loc": 838,
+      "sha256": "e01b37b572696923724bba63c1f684cb7c63b80040454db02b81f29e7e288eba",
+      "role": "geometry renderer + overlay (wire path, WCS markers, start-hole indicators)"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepImport.tsx": {
+      "loc": 689,
+      "sha256": "b618430de83d9168cf56038b0dcc07cb38f11664452f60584da85d2a42c32c7c",
+      "role": "step 1 — CAD file intake + parse"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepReview.tsx": {
+      "loc": 730,
+      "sha256": "c6346b6b92de27bfa1854f7eec6531f095e001e581ad49d98d6ff9f54975e6d2",
+      "role": "step 2 — geometry validation + feature list"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepWcs.tsx": {
+      "loc": 644,
+      "sha256": "6581816be933dfaa9f8ad7465a3e36e0a432108a486a8065f96e85e6cb298cc9",
+      "role": "step 3 — WCS + start-hole selection"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepToolpath.tsx": {
+      "loc": 715,
+      "sha256": "7e2b28502f3b69f44c0cdc36f6f3b366931f516e71835edc76a8705d8a1e2bd4",
+      "role": "step 4 — wire path strategy + pass planning"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepOptimize.tsx": {
+      "loc": 1055,
+      "sha256": "eb04ac5b2660b0ae98abf82ea131246d3317f9930ac42fd17127b0bc1fa4c995",
+      "role": "step 5 — physics parameter optimization (largest step; widest surface)"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepProgram.tsx": {
+      "loc": 689,
+      "sha256": "1e622757cc63d2851f0461239434360108b43d21aa3501c55839d1e162248147",
+      "role": "step 6 — G-code emission + controller dialect post"
+    },
+    "mcp-server/web/src/components/wedm-studio/StepErrorCard.tsx": {
+      "loc": 42,
+      "sha256": "9ee3f1b21d4868bd76659c6c59d45b77d690c565ceeb8432cbf61c129498b135",
+      "role": "shared error surface used by each step"
+    },
+    "mcp-server/web/src/components/wedm-studio/InfoTip.tsx": {
+      "loc": 37,
+      "sha256": "c66e822bcaf8477cee252a087a6cda3b987d23b34db162d0761c3606b8c16d62",
+      "role": "shared inline help tooltip used across steps"
+    }
+  },
+
+  "total_protected_loc": 6545,
+
+  "drift_policy": {
+    "content_hash_check": "any SHA256 mismatch with protected_files[path].sha256 blocks commit unless snapshotVersion bumped and rationale updated",
+    "step_count_invariant": "wizard_schema.total_steps MUST equal 6 and step_sequence MUST match exact order [import, review, wcs, toolpath, optimize, program]",
+    "context_api_invariant": "hook_exports [useWedmNavigation, useWedmData] MUST remain — rename requires snapshotVersion bump",
+    "pipeline_api_invariant": "7 exports in use_wedm_pipeline MUST remain — removals require snapshotVersion bump",
+    "file_deletion_invariant": "none of the 13 protected_files keys may be deleted without snapshot version bump AND rationale explaining replacement"
+  }
+}

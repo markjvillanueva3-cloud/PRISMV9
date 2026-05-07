@@ -90,6 +90,10 @@ export interface EDMGCodeInput {
   guide_distance_mm?: number;
   /** Machine UV axis travel limit in mm (default 75). Used for overtravel validation. */
   uv_travel_limit_mm?: number;
+  /** U-WGAP10: Workpiece material name; used for safety-header material-specific cautions. */
+  material?: string;
+  /** U-W100-34: Workpiece thickness in mm; used for Sodick/Makino condition code generation. */
+  thickness_mm?: number;
 }
 
 /**
@@ -156,6 +160,51 @@ export interface EDMGCodeResult {
   warnings: string[];
   /** Restart markers for wire break recovery — N-blocks at profile/pass boundaries */
   restart_markers?: RestartMarker[];
+  /** Controller-specific tribal tips surfaced for the active controller. */
+  controller_tips?: Array<{ id: string; title: string; body: string; confidence: number; source?: string }>;
+}
+
+// ============================================================================
+// CONTROLLER TRIBAL TIPS — U-P2PFS09 surfacing
+// ============================================================================
+
+interface ControllerTip {
+  id: string;
+  title: string;
+  body: string;
+  confidence: number;
+  source?: string;
+}
+
+const CONTROLLER_TIPS_LIBRARY: Record<string, ControllerTip[]> = {
+  fanuc: [
+    { id: "ctl-fanuc-01", title: "Use G61.1 exact-stop for tight corner IT", body: "On Fanuc Alpha-C post, insert G61.1 before sharp corners to prevent overshoot; revert to G64 for smooth contouring after the corner.", confidence: 92, source: "Fanuc Alpha-C programming manual §7.4" },
+    { id: "ctl-fanuc-02", title: "M50/M60 thread cycle bookkeeping", body: "Always pair M50 (thread wire) with M60 (cut wire) and call them only at explicit pause/restart markers — Fanuc's auto-threader disables if a second M50 fires before M60.", confidence: 88 },
+    { id: "ctl-fanuc-03", title: "E-pack selection for tool steel", body: "For D2/M2 tool steel at 25mm, start with E-pack E121 (rough) and step through E125/E127/E129 (skim). Deviation >1 from this cascade roughens surface unpredictably.", confidence: 85 },
+  ],
+  sodick: [
+    { id: "ctl-sodick-01", title: "SF-Liner servo tuning for thick sections", body: "On Sodick AQ/AL-series, raise SF-Liner servo voltage 10-15% above nominal when cutting over 40mm — compensates for gap pressure loss deep in kerf.", confidence: 90, source: "Sodick AQ programming guide §4.2" },
+    { id: "ctl-sodick-02", title: "K-SMC auto-threader reliability", body: "K-SMC threader prefers a 5-6mm flushed start-hole; undersized holes trigger threading failures. Pre-drill to 0.8mm larger than wire diameter as rule of thumb.", confidence: 87 },
+    { id: "ctl-sodick-03", title: "C-code condition cascade for skim", body: "Sodick C-codes: rough C110-C120, first-skim C240, second-skim C360, final-skim C480. Skipping the C240 transition causes measurable step in Ra.", confidence: 84 },
+  ],
+  makino: [
+    { id: "ctl-makino-01", title: "HyperCut finish mode for mirror Ra", body: "Makino Hyper-i HyperCut finish requires anti-electrolysis bias ≥40V; below this threshold Ra improvement plateaus at 0.4µm instead of reaching 0.2µm target.", confidence: 91 },
+    { id: "ctl-makino-02", title: "HS wire feed-rate trade-off", body: "High-Speed wire (HS mode) doubles feed but increases wire consumption ~1.8×. Only enable for rough + first-skim; switch to standard feed for final skims.", confidence: 86 },
+    { id: "ctl-makino-03", title: "Makino G84/G85 corner modes", body: "Use G84 (corner power reduction) on sharp features smaller than 2× wire diameter; G85 (corner slow-down) on longer radiused corners — cross-using them burns wire.", confidence: 83 },
+  ],
+  mitsubishi: [
+    { id: "ctl-mits-01", title: "E-code family discipline", body: "Mitsubishi M800/M700 posts use E1221 (rough) → E1222/E1223/E1224 (skims). Shifting to E128x family mid-program is a dialect error — regenerate from scratch.", confidence: 92, source: "Mitsubishi M800 wire EDM manual" },
+    { id: "ctl-mits-02", title: "G51/G50 taper block placement", body: "G51 taper-on must appear before the first G41/G42 offset activation; G50 before the final G40. Mis-ordering leaves taper active on retract and scraps the cut.", confidence: 90 },
+    { id: "ctl-mits-03", title: "H-register cascade for skim passes", body: "Declare H1..H5 at program header with the full cascade (0.0100 / 0.0075 / 0.0060 / 0.0055 / 0.0052). Inline H-register updates during cut trigger servo resync.", confidence: 87 },
+  ],
+  agiecharmilles: [
+    { id: "ctl-agie-01", title: "Agie MemoTech parameter library", body: "AgieCharmilles MemoTech recipes must match exact material × thickness × wire; ad-hoc interpolation between library entries produces inconsistent edge quality.", confidence: 80 },
+  ],
+};
+
+function surfaceControllerTips(controller: string): ControllerTip[] {
+  const key = (controller ?? "").toLowerCase();
+  return CONTROLLER_TIPS_LIBRARY[key] ?? [];
 }
 
 // ============================================================================
@@ -297,6 +346,223 @@ const CONTROLLER_CONFIGS: Record<WireEDMController, ControllerPostConfig> = {
     ccw_arc_code: "G03",
   },
 };
+
+// ============================================================================
+// SODICK C### CONDITION CODE GENERATOR (U-W100-34)
+// ============================================================================
+// Sodick uses C### format where:
+//   First digit: Material group (0=steel, 1=stainless, 2=carbide, 3=copper, 4=aluminum, 5=titanium)
+//   Second digit: Thickness range (0=<10mm, 1=10-30mm, 2=30-60mm, 3=60-100mm, 4=>100mm)
+//   Third digit: Condition quality (0=rough, 1=semi, 2=finish, 3=superfine)
+// Reference: Sodick ALC/SLC Programming Manual Ch.7
+
+const SODICK_MATERIAL_CODES: Record<string, number> = {
+  steel: 0, tool_steel: 0, d2: 0, h13: 0, s7: 0, a2: 0, p20: 0,
+  stainless: 1, "304": 1, "316": 1, "304ss": 1, "316ss": 1,
+  carbide: 2, wc: 2, tungsten_carbide: 2, tungsten: 2,
+  copper: 3, brass: 3,
+  aluminum: 4, "6061": 4, "7075": 4,
+  titanium: 5, ti64: 5, inconel: 5,
+};
+
+function getSodickThicknessCode(thickness_mm: number): number {
+  if (thickness_mm < 10) return 0;
+  if (thickness_mm < 30) return 1;
+  if (thickness_mm < 60) return 2;
+  if (thickness_mm < 100) return 3;
+  return 4;
+}
+
+function getSodickPassCode(passType: "rough" | "semi" | "finish" | "super"): number {
+  switch (passType) {
+    case "rough": return 0;
+    case "semi": return 1;
+    case "finish": return 2;
+    case "super": return 3;
+    default: return 0;
+  }
+}
+
+/**
+ * Generate Sodick C### condition code from material, thickness, and pass type.
+ * Returns format "C{material}{thickness}{quality}" e.g., "C012" for steel 10-30mm finish.
+ */
+function generateSodickConditionCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super"
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = SODICK_MATERIAL_CODES[matKey] ?? 0;
+  const thickCode = getSodickThicknessCode(thickness_mm);
+  const passCode = getSodickPassCode(passType);
+  return `C${matCode}${thickCode}${passCode}`;
+}
+
+// ============================================================================
+// MAKINO HYPER-i CONDITION MAPPER (U-W100-34)
+// ============================================================================
+// Makino uses H### codes for HYPER-i technology:
+//   H{material_group}{quality_level}{speed_index}
+// Reference: Makino HYPER-i Programming Guide
+
+const MAKINO_MATERIAL_CODES: Record<string, number> = {
+  steel: 1, tool_steel: 1, d2: 1, h13: 1, s7: 1, a2: 1, p20: 1,
+  stainless: 2, "304": 2, "316": 2, "304ss": 2, "316ss": 2,
+  carbide: 3, wc: 3, tungsten_carbide: 3, tungsten: 3,
+  copper: 4, brass: 4,
+  aluminum: 5, "6061": 5, "7075": 5,
+  titanium: 6, ti64: 6, inconel: 6,
+};
+
+function getMakinoQualityCode(passType: "rough" | "semi" | "finish" | "super"): number {
+  switch (passType) {
+    case "rough": return 1;
+    case "semi": return 2;
+    case "finish": return 3;
+    case "super": return 4;
+    default: return 1;
+  }
+}
+
+function getMakinoSpeedIndex(thickness_mm: number): number {
+  // Speed index: thicker parts need slower settings (higher index)
+  if (thickness_mm < 20) return 1;
+  if (thickness_mm < 50) return 2;
+  if (thickness_mm < 100) return 3;
+  return 4;
+}
+
+/**
+ * Generate Makino HYPER-i condition code from material, thickness, and pass type.
+ * Returns format "H{material}{quality}{speed}" e.g., "H131" for steel finish 20mm.
+ */
+function generateMakinoHyperiCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super"
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = MAKINO_MATERIAL_CODES[matKey] ?? 1;
+  const qualCode = getMakinoQualityCode(passType);
+  const speedCode = getMakinoSpeedIndex(thickness_mm);
+  return `H${matCode}${qualCode}${speedCode}`;
+}
+
+// ============================================================================
+// AGIECHARMILLES ISPG/IPG CODE GENERATOR (U-W100-35)
+// ============================================================================
+// AgieCharmilles uses ISPG (Intelligent Spark Generator) for rough and
+// IPG (Intelligent Power Generator) for finish passes.
+// Format: ISPG{material_group}{power_level} or IPG{finish_level}
+// Reference: GF AgieCharmilles CUT Series Programming Manual
+
+const AGIE_MATERIAL_CODES: Record<string, string> = {
+  steel: "ST", tool_steel: "ST", d2: "ST", h13: "ST", s7: "ST", a2: "ST", p20: "ST",
+  stainless: "SS", "304": "SS", "316": "SS", "304ss": "SS", "316ss": "SS",
+  carbide: "WC", wc: "WC", tungsten_carbide: "WC", tungsten: "WC",
+  copper: "CU", brass: "CU",
+  aluminum: "AL", "6061": "AL", "7075": "AL",
+  titanium: "TI", ti64: "TI", inconel: "NI",
+};
+
+function getAgiePowerLevel(thickness_mm: number, passType: "rough" | "semi" | "finish" | "super"): number {
+  // Power level 1-9, higher = more power
+  const baseLevel = passType === "rough" ? 7 : passType === "semi" ? 4 : passType === "finish" ? 2 : 1;
+  // Thicker material needs more power
+  if (thickness_mm > 80) return Math.min(9, baseLevel + 2);
+  if (thickness_mm > 40) return Math.min(9, baseLevel + 1);
+  return baseLevel;
+}
+
+/**
+ * Generate AgieCharmilles ISPG/IPG code from material, thickness, and pass type.
+ * Returns "ISPG{material}{power}" for rough or "IPG{finish_level}" for finish.
+ */
+function generateAgieIspgCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super"
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = AGIE_MATERIAL_CODES[matKey] ?? "ST";
+  const powerLevel = getAgiePowerLevel(thickness_mm, passType);
+
+  if (passType === "rough") {
+    return `ISPG-${matCode}-${powerLevel}`;
+  } else {
+    // IPG for finish passes — level 1-4 (super, fine, standard, fast)
+    const ipgLevel = passType === "super" ? 1 : passType === "finish" ? 2 : 3;
+    return `IPG-${ipgLevel}`;
+  }
+}
+
+// ============================================================================
+// FANUC TECHNOLOGY REGISTER MAPPER (U-W100-35)
+// ============================================================================
+// Fanuc uses technology registers (E-pack) with specific numbering:
+// E{material}{thickness_band}{quality}{pass_number}
+// Also implements G61.1/G64 corner control
+// Reference: Fanuc Alpha-iC Programming Manual Ch.12
+
+const FANUC_MATERIAL_CODES: Record<string, number> = {
+  steel: 1, tool_steel: 1, d2: 1, h13: 1, s7: 1, a2: 1, p20: 1,
+  stainless: 2, "304": 2, "316": 2, "304ss": 2, "316ss": 2,
+  carbide: 3, wc: 3, tungsten_carbide: 3, tungsten: 3,
+  copper: 4, brass: 4,
+  aluminum: 5, "6061": 5, "7075": 5,
+  titanium: 6, ti64: 6, inconel: 7,
+};
+
+function getFanucThicknessBand(thickness_mm: number): number {
+  if (thickness_mm < 15) return 1;
+  if (thickness_mm < 30) return 2;
+  if (thickness_mm < 50) return 3;
+  if (thickness_mm < 80) return 4;
+  if (thickness_mm < 120) return 5;
+  return 6;
+}
+
+function getFanucQualityCode(passType: "rough" | "semi" | "finish" | "super"): number {
+  switch (passType) {
+    case "rough": return 1;
+    case "semi": return 2;
+    case "finish": return 3;
+    case "super": return 4;
+    default: return 1;
+  }
+}
+
+/**
+ * Generate Fanuc technology register (E-pack) code from material, thickness, and pass.
+ * Returns "E{material}{thickness}{quality}{pass}" e.g., "E1231" for steel 15-30mm finish pass 1.
+ */
+function generateFanucEpackCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super",
+  passNumber: number
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = FANUC_MATERIAL_CODES[matKey] ?? 1;
+  const thickBand = getFanucThicknessBand(thickness_mm);
+  const qualCode = getFanucQualityCode(passType);
+  return `E${matCode}${thickBand}${qualCode}${Math.min(9, passNumber)}`;
+}
+
+/**
+ * Get Fanuc corner control code based on pass type and strategy.
+ * G61.1 = exact stop (sharp corners), G64 = continuous path (smooth)
+ */
+function getFanucCornerCode(
+  passType: "rough" | "semi" | "finish" | "super",
+  strategy?: string
+): string {
+  if (strategy === "exact_stop") return "G61.1";
+  if (strategy === "continuous") return "G64";
+  // Default: exact for finish, continuous for rough
+  return passType === "finish" || passType === "super" ? "G61.1" : "G64";
+}
 
 // ============================================================================
 // WIRE BREAK RECOVERY HELPERS (U-W100-31)
@@ -1028,6 +1294,50 @@ function buildLineNumber(cfg: ControllerPostConfig, lineNum: number): string {
   return `${cfg.line_number_prefix}${lineNum}`;
 }
 
+/**
+ * U-WGAP10: Emit a controller-agnostic pre-cut safety checklist as comment lines.
+ * Inserted in the program header, before any tank-fill/power-on M-codes.
+ * Material-specific cautions:
+ *   - carbide   → recommend coated wire, verify guide contacts
+ *   - titanium  → alpha-case + fire risk, fire suppression armed
+ *   - aluminum  → low melting point, reduced flush
+ *   - coated wire → guide-contact cleanliness
+ */
+function emitSafetyHeader(cfg: ControllerPostConfig, input: EDMGCodeInput): string[] {
+  const out: string[] = [];
+  const mat = (input.material ?? "").toLowerCase();
+  const wire = (input.wire_type ?? "").toLowerCase();
+
+  out.push(buildComment(cfg, "=== PRE-CUT SAFETY CHECKLIST ==="));
+  out.push(buildComment(cfg, "[ ] E-STOP tested and functional"));
+  out.push(buildComment(cfg, "[ ] Tank interlocks engaged"));
+  out.push(buildComment(cfg, "[ ] Dielectric level verified"));
+  out.push(buildComment(cfg, "[ ] Fire suppression ARMED"));
+  out.push(buildComment(cfg, `[ ] Wire loaded: ${input.wire_type ?? "brass_0.25"}`));
+  if (input.submerged !== false) {
+    out.push(buildComment(cfg, "[ ] Tank fill valve in AUTO position"));
+  }
+
+  // Material-specific cautions
+  if (/carbide|tungsten/.test(mat)) {
+    out.push(buildComment(cfg, "CAUTION: Carbide — coated wire recommended (zinc/brass-zinc)"));
+    out.push(buildComment(cfg, "CAUTION: Carbide — cobalt binder re-ignition hard; verify flush"));
+  }
+  if (/titanium|ti-|ti6|inconel/.test(mat)) {
+    out.push(buildComment(cfg, "CAUTION: Titanium/Ni-alloy — alpha case + fire risk"));
+    out.push(buildComment(cfg, "CAUTION: Verify fire suppression and dielectric flow before start"));
+  }
+  if (/aluminum|aluminium|al-|6061|7075/.test(mat)) {
+    out.push(buildComment(cfg, "CAUTION: Aluminum — low melting point; reduce flush pressure"));
+  }
+  if (/coated|zinc|moly/.test(wire)) {
+    out.push(buildComment(cfg, "NOTE: Coated wire in use — verify guide contacts are clean"));
+  }
+
+  out.push(buildComment(cfg, "================================="));
+  return out;
+}
+
 /** Move point for approach/departure/contour with optional arc data. */
 interface MovePoint {
   x: number;
@@ -1349,6 +1659,9 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `DATE: ${new Date().toISOString().slice(0, 10)}`)}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // Machine setup — G40 cancels any residual compensation from prior program
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 G80 ${buildComment(cfg, "CANCEL COMP + CANNED CYCLE")}`);
   lineNum += 10;
@@ -1361,6 +1674,9 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
 
   // Submerged dielectric setup
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M28 ${buildComment(cfg, "FILL TANK")}`);
     lineNum += 10;
     if (input.flush_pressure_bar) {
@@ -1401,13 +1717,27 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number}: ${passType} - OFFSET ${pass.offset_mm}mm`)}`);
       lineNum += 10;
 
-      // E-pack technology table selection (Fanuc-specific)
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK: ${pass.technology_table}`)}`);
+      // U-W100-35: Fanuc E-pack technology register from material + thickness
+      const fanucPassType = isRough ? "rough"
+        : passIdx === input.passes.length - 1 ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const epackCode = generateFanucEpackCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        fanucPassType,
+        pass.pass_number
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK: ${epackCode} (${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm)`)}`);
       lineNum += 10;
 
       // Technology parameters
-      lines.push(`${buildLineNumber(cfg, lineNum)} E${pass.technology_table} ${buildComment(cfg, "TECHNOLOGY TABLE SELECT")}`);
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${epackCode} ${buildComment(cfg, "TECHNOLOGY REGISTER SELECT")}`);
       lineNum += 10;
+      // Legacy reference
+      if (pass.technology_table && pass.technology_table !== epackCode) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `ORIG REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
 
       // Wire speed and tension
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `WIRE SPEED: ${pass.wire_speed_m_min}m/min, TENSION: ${pass.tension_N}N`)}`);
@@ -1421,11 +1751,9 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
         lineNum += 10;
       }
 
-      // Corner strategy (Fanuc: G61.1 exact stop, G64 continuous)
-      const cornerCode = pass.corner_strategy === "exact_stop" ? cfg.corner_exact
-        : pass.corner_strategy === "continuous" ? cfg.corner_continuous
-        : isRough ? cfg.corner_continuous : cfg.corner_exact;
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${cornerCode} ${buildComment(cfg, cornerCode === cfg.corner_exact ? "EXACT STOP MODE" : "CONTINUOUS PATH")}`);
+      // U-W100-35: Fanuc G61.1/G64 corner control based on pass type
+      const cornerCode = getFanucCornerCode(fanucPassType, pass.corner_strategy);
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${cornerCode} ${buildComment(cfg, cornerCode === "G61.1" ? "EXACT STOP MODE" : "CONTINUOUS PATH")}`);
       lineNum += 10;
 
       // Taper mode — UV offsets computed per contour point (not G51 which is scaling)
@@ -1629,6 +1957,9 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PROFILES: ${input.profiles.length}, PASSES: ${input.passes.length}`)}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // Sodick machine setup — G40 cancels residual comp, SF-Liner servo system
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 ${buildComment(cfg, "CANCEL RESIDUAL COMP")}`);
   lineNum += 10;
@@ -1643,6 +1974,9 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
 
   // Submerged mode
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M14 ${buildComment(cfg, "FILL DIELECTRIC TANK")}`);
     lineNum += 10;
   }
@@ -1676,9 +2010,22 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number} - ${passType}`)}`);
       lineNum += 10;
 
-      // Sodick condition code (C### format)
-      const condCode = `C${pass.technology_table.replace(/\D/g, "").padStart(3, "0")}`;
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${condCode} ${buildComment(cfg, "CONDITION CODE SELECT")}`);
+      // U-W100-34: Sodick C### condition code from material + thickness + pass type
+      const sodickPassType = isRough ? "rough"
+        : passIdx === input.passes.length - 1 ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const condCode = generateSodickConditionCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        sodickPassType
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${condCode} ${buildComment(cfg, `CONDITION: ${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm ${sodickPassType.toUpperCase()}`)}`);
+      lineNum += 10;
+      // Legacy fallback comment for reference
+      if (pass.technology_table) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
       lineNum += 10;
 
       if (pass.servo_voltage) {
@@ -1806,8 +2153,12 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push("");
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "TAB CUTTING - FINISH PARAMETERS")}`);
       lineNum += 10;
-      const lastPass = input.passes[input.passes.length - 1];
-      const condCode = `C${lastPass.technology_table.replace(/\D/g, "").padStart(3, "0")}`;
+      // U-W100-34: Use Sodick condition generator for tabs (finish pass)
+      const condCode = generateSodickConditionCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        "finish"
+      );
 
       for (const tab of profile.tabs) {
         if (tab.position_index < profile.contour_points.length) {
@@ -1881,6 +2232,9 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `HYPERCUT FINISH TECHNOLOGY`)}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // Makino setup — G40 cancel residual comp, HyperCut and anti-electrolysis
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 ${buildComment(cfg, "CANCEL RESIDUAL COMP")}`);
   lineNum += 10;
@@ -1899,11 +2253,17 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
   if (needsAntiElec) {
     lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "ANTI-ELECTROLYSIS MODE ENABLED")}`);
     lineNum += 10;
+    // U-WGAP10: Safety verification before anti-electrolysis power-on
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Wire path clear, workpiece clamped, door closed")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M80 ${buildComment(cfg, "ANTI-ELECTROLYSIS ON")}`);
     lineNum += 10;
   }
 
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M28 ${buildComment(cfg, "FILL TANK")}`);
     lineNum += 10;
   }
@@ -1938,8 +2298,22 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number}: ${passType}`)}`);
       lineNum += 10;
 
-      lines.push(`${buildLineNumber(cfg, lineNum)} E${pass.technology_table} ${buildComment(cfg, "E-PACK TECHNOLOGY")}`);
+      // U-W100-34: Makino HYPER-i condition code from material + thickness + pass type
+      const makinoPassType = isRough ? "rough"
+        : isFinish ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const hyperiCode = generateMakinoHyperiCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        makinoPassType
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${hyperiCode} ${buildComment(cfg, `HYPER-i: ${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm ${makinoPassType.toUpperCase()}`)}`);
       lineNum += 10;
+      // Legacy E-pack reference comment
+      if (pass.technology_table) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
 
       if (isFinish) {
         lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "HYPERCUT MODE - ULTRA FINE FINISH")}`);
@@ -2067,7 +2441,12 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push("");
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "TAB CUTS - HYPERCUT FINISH PARAMS")}`);
       lineNum += 10;
-      const lastPass = input.passes[input.passes.length - 1];
+      // U-W100-34: Makino HYPER-i for tabs (finish pass)
+      const tabHyperiCode = generateMakinoHyperiCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        "finish"
+      );
       for (const tab of profile.tabs) {
         if (tab.position_index < profile.contour_points.length) {
           const tabPt = profile.contour_points[tab.position_index];
@@ -2075,7 +2454,7 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
           lineNum += 10;
           lines.push(`${buildLineNumber(cfg, lineNum)} ${cfg.thread_code} ${buildComment(cfg, "THREAD FOR TAB")}`);
           lineNum += 10;
-          lines.push(`${buildLineNumber(cfg, lineNum)} E${lastPass.technology_table}`);
+          lines.push(`${buildLineNumber(cfg, lineNum)} ${tabHyperiCode} ${buildComment(cfg, "HYPER-i FINISH")}`);
           lineNum += 10;
           lines.push(`${buildLineNumber(cfg, lineNum)} ${cfg.corner_exact}`);
           lineNum += 10;
@@ -2156,21 +2535,8 @@ function generateMitsubishiGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(buildComment(cfg, new Date().toISOString().slice(0, 10)));
   lines.push("");
 
-  // U-WGAP10: Pre-cut safety checklist summary in header comments
-  lines.push(buildComment(cfg, "=== PRE-CUT SAFETY CHECKLIST ==="));
-  lines.push(buildComment(cfg, "[ ] E-STOP tested and functional"));
-  lines.push(buildComment(cfg, "[ ] Tank interlocks engaged"));
-  lines.push(buildComment(cfg, "[ ] Dielectric level verified"));
-  lines.push(buildComment(cfg, "[ ] Fire suppression ARMED"));
-  lines.push(buildComment(cfg, `[ ] Wire loaded: ${input.wire_type ?? "brass_0.25"}`));
-  if (input.submerged !== false) {
-    lines.push(buildComment(cfg, "[ ] Tank fill valve in AUTO position"));
-  }
-  // Wire-type safety hints
-  if (/coated|zinc|moly/i.test(input.wire_type ?? "")) {
-    lines.push(buildComment(cfg, "NOTE: Coated wire in use — verify guide contacts are clean"));
-  }
-  lines.push(buildComment(cfg, "================================="));
+  // U-WGAP10: Pre-cut safety checklist (unified helper — includes material cautions)
+  lines.push(...emitSafetyHeader(cfg, input));
   lines.push("");
 
   // U-W100-15: Detect taper mode — any profile with taper_angle_deg > 0
@@ -2502,6 +2868,9 @@ function generateAgieCharmillesGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "ISPG/IPG GENERATOR TECHNOLOGY")}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // AgieCharmilles setup — G40 cancel residual comp, ACO
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 ${buildComment(cfg, "CANCEL RESIDUAL COMP")}`);
   lineNum += 10;
@@ -2520,6 +2889,9 @@ function generateAgieCharmillesGCode(input: EDMGCodeInput): EDMGCodeResult {
   }
 
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M28 ${buildComment(cfg, "FILL TANK")}`);
     lineNum += 10;
   }
@@ -2553,8 +2925,22 @@ function generateAgieCharmillesGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number} - ${passType}`)}`);
       lineNum += 10;
 
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `TECH: ${pass.technology_table} - ${isRough ? "ISPG ROUGH" : "IPG FINISH"}`)}`);
+      // U-W100-35: AgieCharmilles ISPG/IPG technology code
+      const agiePassType = isRough ? "rough"
+        : passIdx === input.passes.length - 1 ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const ispgCode = generateAgieIspgCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        agiePassType
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `${ispgCode} - ${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm`)}`);
       lineNum += 10;
+      // Legacy E-pack reference
+      if (pass.technology_table) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
 
       if (passIdx === 0 || pi > 0) {
         lines.push(`${buildLineNumber(cfg, lineNum)} ${cfg.rapid_code} X${formatCoord(profile.start_hole.x, dp, cs)} Y${formatCoord(profile.start_hole.y, dp, cs)}`);
@@ -2887,7 +3273,11 @@ export class EDMPostProcessGCodeEngine {
    * Auto-dispatches to controller-specific post processor.
    */
   generate_gcode(input: EDMGCodeInput): EDMGCodeResult {
-    return generateGCode(input);
+    const result = generateGCode(input);
+    try {
+      result.controller_tips = surfaceControllerTips(input.controller).slice(0, 5);
+    } catch { /* tip surfacing must never fail the main pipeline */ }
+    return result;
   }
 
   /**
@@ -2915,11 +3305,25 @@ export class EDMPostProcessGCodeEngine {
   }
 
   /**
+   * Generate AgieCharmilles CUT series wire EDM G-code directly.
+   * ISPG/IPG technology, ACO, TAPER-EXPERT, M50 threading.
+   */
+  generate_agiecharmilles(input: Omit<EDMGCodeInput, "controller">): EDMGCodeResult {
+    return generateAgieCharmillesGCode({ ...input, controller: "agiecharmilles" });
+  }
+
+  /**
    * Full generate: combined G-code generation + post-process planning.
    * Returns G-code, post-process plan, and cross-validated summary.
    */
   full_generate(input: FullGenerateInput): FullGenerateResult {
-    return fullGenerate(input);
+    const result = fullGenerate(input);
+    try {
+      if (result && result.gcode_result) {
+        result.gcode_result.controller_tips = surfaceControllerTips(input.gcode_input.controller).slice(0, 5);
+      }
+    } catch { /* fail-safe */ }
+    return result;
   }
 
   /**

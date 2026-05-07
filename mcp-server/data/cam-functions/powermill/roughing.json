@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "system_id": "powermill",
+  "section_key": "roughing",
+  "version": "2024",
+  "extracted_from": "Autodesk PowerMill 2024 Reference Help (Roughing Strategies — Model Area Clearance, Vortex, Offset, Profile, Slice, Plunge, Adaptive Clearance Boundary, Raster, Rest Roughing, Stock Model)",
+  "categories": [
+    "model_area_clearance",
+    "vortex",
+    "plunge",
+    "adaptive",
+    "rest_and_helpers"
+  ],
+  "operations": {
+    "model_area_clearance": {
+      "category": "model_area_clearance",
+      "display_name": "Model Area Clearance (MAC)",
+      "description": "Canonical PowerMill cavity clearance — offset/parallel/raster fill within the stock minus the model. Workhorse roughing strategy.",
+      "parameter_count": 23,
+      "dialog_tabs": ["geometry", "tool", "block", "limits", "feed_speed", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 },
+          "tool_holder_check": { "type": "boolean", "default": true }
+        },
+        "block": {
+          "block_type": { "type": "enum", "values": ["box", "cylinder", "triangle_mesh", "stock_model"], "default": "box" },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 0.5 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 10, "default": 0.2 },
+          "rest_machining_enabled": { "type": "boolean", "default": false }
+        },
+        "limits": {
+          "stepover_pct_of_dia": { "type": "number", "min": 5, "max": 80, "default": 50 },
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "minimum_machining_height_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.5 }
+        },
+        "feed_speed": {
+          "cut_feed_mm_per_min": { "type": "number", "required": true },
+          "plunge_feed_mm_per_min": { "type": "number", "required": true },
+          "spindle_rpm": { "type": "number", "required": true },
+          "rapid_feed_mm_per_min": { "type": "number", "default": 10000 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["ramp", "helical", "vertical_arc", "horizontal_arc", "straight"], "default": "ramp" },
+          "lead_in_angle_deg": { "type": "number", "min": 0.5, "max": 30, "default": 5 },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 },
+          "skim_distance_mm": { "type": "number", "min": 0, "max": 10, "default": 1 }
+        }
+      }
+    },
+    "offset_area_clearance": {
+      "category": "model_area_clearance",
+      "display_name": "Offset Area Clearance (OAC)",
+      "description": "Offset/parallel-to-boundary toolpath inside Model Area Clearance — smoother, more constant chip load than zigzag raster.",
+      "parameter_count": 18,
+      "dialog_tabs": ["geometry", "tool", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "limits": {
+          "offset_count": { "type": "number", "min": 1, "max": 999, "default": 100 },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 50, "default": 4 },
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 0.5 },
+          "smooth_offsets": { "type": "boolean", "default": true },
+          "trochoidal_corners": { "type": "boolean", "default": true },
+          "trochoidal_arc_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 20 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["ramp", "helical", "horizontal_arc"], "default": "helical" },
+          "lead_in_angle_deg": { "type": "number", "min": 0.5, "max": 30, "default": 3 },
+          "lead_out_type": { "type": "enum", "values": ["arc", "vertical", "straight"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "profile_area_clearance": {
+      "category": "model_area_clearance",
+      "display_name": "Profile Area Clearance (PAC)",
+      "description": "Profile-only (no fill) Model Area Clearance — clears stock against the boundary contour and stops; pair with another op for the fill.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "tool", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "limits": {
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 0.3 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 10, "default": 0.1 },
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 25, "default": 1.5 },
+          "use_part_stepover": { "type": "boolean", "default": false },
+          "profile_pass_count": { "type": "number", "min": 1, "max": 10, "default": 1 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "ramp", "vertical_arc"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "slice_area_clearance": {
+      "category": "model_area_clearance",
+      "display_name": "Slice Area Clearance",
+      "description": "Z-constant slice (waterline) variant of MAC — single horizontal pass at each defined Z level. Good for vertical wall finishing pre-pass.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "slice", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "slice": {
+          "slice_count": { "type": "number", "min": 1, "max": 999, "default": 10 },
+          "slice_top_z_mm": { "type": "number", "required": true },
+          "slice_bottom_z_mm": { "type": "number", "required": true },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 0.3 },
+          "include_flats": { "type": "boolean", "default": true },
+          "threshold_angle_deg": { "type": "number", "min": 0, "max": 89, "default": 30 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "vertical_arc", "horizontal_arc"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "vortex_clearance": {
+      "category": "vortex",
+      "display_name": "Vortex (Adaptive High-Efficiency Clearance)",
+      "description": "PowerMill's signature adaptive trochoidal strategy — constant tool engagement at deep DOC, full flute usage. Canonical envelope: ≤12% radial engagement, up to 2.5×D axial DOC, feed_per_tooth ~30-40% above conventional roughing.",
+      "parameter_count": 25,
+      "dialog_tabs": ["geometry", "tool", "engagement", "axial", "feed_speed", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_flute_count": { "type": "number", "min": 1, "max": 12, "default": 4 },
+          "tool_loc_to_dia_ratio": { "type": "number", "min": 0.5, "max": 6, "default": 3 },
+          "tool_holder_check": { "type": "boolean", "default": true }
+        },
+        "engagement": {
+          "max_radial_engagement_pct": { "type": "number", "min": 1, "max": 25, "default": 8 },
+          "min_radial_engagement_pct": { "type": "number", "min": 0, "max": 10, "default": 0 },
+          "max_arc_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 15 },
+          "constant_engagement": { "type": "boolean", "default": true }
+        },
+        "axial": {
+          "axial_doc_to_dia_ratio": { "type": "number", "min": 0.5, "max": 3.0, "default": 1.5 },
+          "axial_doc_mm": { "type": "number", "required": false },
+          "min_z_step_mm": { "type": "number", "min": 0.1, "max": 20, "default": 1 }
+        },
+        "feed_speed": {
+          "feed_per_tooth_mm": { "type": "number", "min": 0.01, "max": 1.0, "default": 0.10 },
+          "spindle_rpm": { "type": "number", "required": true },
+          "cut_feed_mm_per_min": { "type": "number", "required": true },
+          "engage_feed_pct": { "type": "number", "min": 20, "max": 100, "default": 50 }
+        },
+        "linking": {
+          "smooth_path": { "type": "boolean", "default": true },
+          "lead_in_type": { "type": "enum", "values": ["helical", "ramp"], "default": "helical" },
+          "lead_in_radius_pct_dia": { "type": "number", "min": 5, "max": 50, "default": 25 },
+          "stay_within_boundary": { "type": "boolean", "default": true },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "plunge_roughing": {
+      "category": "plunge",
+      "display_name": "Plunge Roughing",
+      "description": "Pure axial plunging across a grid — used when radial cutting is unstable (very deep cavity, long-overhang tool, very hard material).",
+      "parameter_count": 17,
+      "dialog_tabs": ["geometry", "tool", "grid", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_axial_loc_mm": { "type": "number", "required": true },
+          "is_plunge_capable": { "type": "boolean", "default": true }
+        },
+        "grid": {
+          "grid_pattern": { "type": "enum", "values": ["square", "triangular", "user_defined"], "default": "square" },
+          "grid_spacing_pct_dia": { "type": "number", "min": 30, "max": 90, "default": 60 },
+          "grid_overlap_mm": { "type": "number", "min": 0, "max": 5, "default": 0.5 }
+        },
+        "limits": {
+          "max_plunge_depth_mm": { "type": "number", "min": 0.5, "max": 200, "default": 25 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 1 },
+          "stepdown_mm": { "type": "number", "min": 0.5, "max": 25, "default": 5 },
+          "peck_enabled": { "type": "boolean", "default": true },
+          "peck_depth_mm": { "type": "number", "min": 0.5, "max": 25, "default": 2 }
+        },
+        "linking": {
+          "plunge_feed_mm_per_min": { "type": "number", "required": true },
+          "retract_to_safe_z_between_plunges": { "type": "boolean", "default": true },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "plunge_mill_pocket": {
+      "category": "plunge",
+      "display_name": "Plunge Mill Pocket",
+      "description": "Stepped plunge across a closed pocket — bridges plunge roughing and conventional milling for narrow slots where neither alone works.",
+      "parameter_count": 12,
+      "dialog_tabs": ["geometry", "tool", "limits"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_axial_loc_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "stepover_pct_dia": { "type": "number", "min": 30, "max": 90, "default": 75 },
+          "stepdown_mm": { "type": "number", "min": 0.5, "max": 50, "default": 5 },
+          "max_plunge_depth_mm": { "type": "number", "min": 0.5, "max": 200, "default": 30 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 0.5 },
+          "plunge_feed_mm_per_min": { "type": "number", "required": true },
+          "spindle_rpm": { "type": "number", "required": true },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 }
+        }
+      }
+    },
+    "adaptive_clearance_boundary": {
+      "category": "adaptive",
+      "display_name": "Adaptive Clearance Boundary",
+      "description": "Constrains adaptive (Vortex-style) toolpath inside an explicit boundary — used to apply Vortex selectively to a region while keeping conventional ops elsewhere.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "tool", "boundary", "engagement"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "tool_corner_radius_mm": { "type": "number", "default": 0 }
+        },
+        "boundary": {
+          "boundary_curve": { "type": "geometry_ref", "required": true },
+          "boundary_offset_mm": { "type": "number", "min": -10, "max": 10, "default": 0 },
+          "include_islands": { "type": "boolean", "default": true },
+          "extend_outside_boundary_mm": { "type": "number", "min": 0, "max": 5, "default": 0.5 }
+        },
+        "engagement": {
+          "max_radial_engagement_pct": { "type": "number", "min": 1, "max": 25, "default": 10 },
+          "axial_doc_mm": { "type": "number", "min": 0.5, "max": 50, "default": 6 },
+          "feed_per_tooth_mm": { "type": "number", "min": 0.01, "max": 1, "default": 0.1 },
+          "spindle_rpm": { "type": "number", "required": true },
+          "cut_feed_mm_per_min": { "type": "number", "required": true }
+        }
+      }
+    },
+    "raster_area_clearance": {
+      "category": "adaptive",
+      "display_name": "Raster Area Clearance",
+      "description": "Lace/zigzag fill inside Model Area Clearance — fastest cycle when straight-line motion is dominant; less-constant chip load than offset.",
+      "parameter_count": 16,
+      "dialog_tabs": ["geometry", "tool", "raster", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true },
+          "stock": { "type": "geometry_ref", "required": true },
+          "boundary": { "type": "geometry_ref", "required": false }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "raster": {
+          "raster_angle_deg": { "type": "number", "min": 0, "max": 180, "default": 0 },
+          "stepover_mm": { "type": "number", "min": 0.05, "max": 50, "default": 4 },
+          "lace_or_one_way": { "type": "enum", "values": ["lace", "one_way", "alternating_offset"], "default": "lace" }
+        },
+        "limits": {
+          "stepdown_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 10, "default": 0.5 },
+          "thickness_axial_mm": { "type": "number", "min": 0, "max": 10, "default": 0.2 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["ramp", "vertical", "horizontal_arc"], "default": "ramp" },
+          "lead_in_angle_deg": { "type": "number", "min": 0.5, "max": 30, "default": 5 },
+          "transition_path": { "type": "enum", "values": ["raise_to_safe_z", "skim", "direct"], "default": "skim" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "rest_roughing": {
+      "category": "rest_and_helpers",
+      "display_name": "Rest Roughing (Stock-Model-Driven)",
+      "description": "Rough-clear only the residue left by a previous (larger) tool's pass — driven by an updated stock model. Standard roughing → rest-roughing cascade gives best stock removal economics.",
+      "parameter_count": 13,
+      "dialog_tabs": ["geometry", "rest_source", "tool", "limits", "linking"],
+      "parameters": {
+        "geometry": {
+          "model": { "type": "geometry_ref", "required": true }
+        },
+        "rest_source": {
+          "stock_model_id": { "type": "string", "required": true },
+          "previous_tool_id": { "type": "string", "required": true },
+          "previous_tool_diameter_mm": { "type": "number", "required": true },
+          "minimum_residue_mm": { "type": "number", "min": 0.1, "max": 10, "default": 0.5 }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true }
+        },
+        "limits": {
+          "stepover_pct_dia": { "type": "number", "min": 5, "max": 80, "default": 40 },
+          "stepdown_mm": { "type": "number", "min": 0.05, "max": 10, "default": 0.5 },
+          "stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0.3 }
+        },
+        "linking": {
+          "lead_in_type": { "type": "enum", "values": ["arc", "ramp", "vertical_arc"], "default": "arc" },
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 3 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    },
+    "stock_model_management": {
+      "category": "rest_and_helpers",
+      "display_name": "Stock Model Management",
+      "description": "Maintains the live in-process workpiece stock model so subsequent rest ops know what's left. Not a cutting op itself — but the bookkeeping that makes rest machining work.",
+      "parameter_count": 12,
+      "dialog_tabs": ["identity", "source", "update", "validation"],
+      "parameters": {
+        "identity": {
+          "stock_model_id": { "type": "string", "required": true },
+          "stock_model_name": { "type": "string", "required": true }
+        },
+        "source": {
+          "initial_stock": { "type": "geometry_ref", "required": true },
+          "tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.05 },
+          "mode": { "type": "enum", "values": ["mesh", "voxel", "boundary_rep"], "default": "mesh" }
+        },
+        "update": {
+          "auto_update_after_each_op": { "type": "boolean", "default": true },
+          "include_holder_envelope": { "type": "boolean", "default": false },
+          "lock_after_setup_change": { "type": "boolean", "default": true }
+        },
+        "validation": {
+          "verify_against_simulation": { "type": "boolean", "default": true },
+          "warn_on_air_cut_pct_above": { "type": "number", "min": 1, "max": 100, "default": 30 },
+          "warn_on_negative_stock": { "type": "boolean", "default": true },
+          "min_residue_to_record_mm": { "type": "number", "min": 0.001, "max": 5, "default": 0.05 }
+        }
+      }
+    },
+    "drill_for_clearance": {
+      "category": "rest_and_helpers",
+      "display_name": "Drill (Pre-Pierce / Chip-Release)",
+      "description": "Centerline drilling used as a pre-pierce for non-plungeable inserts or as a chip-release point for deep pockets. Treated as a roughing helper, not a finishing op.",
+      "parameter_count": 12,
+      "dialog_tabs": ["geometry", "tool", "cycle", "linking"],
+      "parameters": {
+        "geometry": {
+          "drill_points": { "type": "geometry_ref", "required": true }
+        },
+        "tool": {
+          "tool_id": { "type": "string", "required": true },
+          "tool_diameter_mm": { "type": "number", "required": true },
+          "drill_point_angle_deg": { "type": "number", "min": 60, "max": 180, "default": 135 }
+        },
+        "cycle": {
+          "cycle_type": { "type": "enum", "values": ["G81_drill", "G73_high_speed_peck", "G83_deep_peck", "G82_dwell"], "default": "G73_high_speed_peck" },
+          "peck_depth_mm": { "type": "number", "min": 0.5, "max": 25, "default": 3 },
+          "depth_mm": { "type": "number", "min": 0.5, "max": 200, "default": 10 },
+          "dwell_seconds": { "type": "number", "min": 0, "max": 5, "default": 0 },
+          "spindle_rpm": { "type": "number", "required": true },
+          "feed_mm_per_min": { "type": "number", "required": true }
+        },
+        "linking": {
+          "retract_height_mm": { "type": "number", "min": 0, "max": 100, "default": 5 },
+          "safe_z_mm": { "type": "number", "min": 0, "max": 200, "default": 25 }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Vortex Engagement Discipline",
+      "key_concepts": [
+        "Canonical envelope: max_radial_engagement_pct ≤ 12% AND axial_doc_to_dia_ratio ≤ 2.5",
+        "feed_per_tooth scales up by 30-40% vs traditional roughing",
+        "tool_loc_to_dia_ratio ≥ 3 to take advantage of deep axial DOC"
+      ],
+      "best_practices": [
+        "Start with 8% radial / 1.5×D axial / 0.10 mm fpt — tighten as confidence grows",
+        "Always set smooth_path=true — sharp corners cause spike loads",
+        "Use a long-flute (≥3×D LOC) end mill to fully exploit axial DOC"
+      ]
+    },
+    {
+      "topic": "MAC vs OAC vs Profile vs Slice — When to Pick Which",
+      "key_concepts": [
+        "MAC = full cavity clearance with offset/raster fill",
+        "OAC = offset-only fill (smoother, more constant chip load than zigzag)",
+        "PAC = profile-only (no fill) — pair with another op for the fill",
+        "Slice = waterline slice at each Z level — single horizontal pass per slice"
+      ],
+      "best_practices": [
+        "OAC > MAC raster on steel — constant chip load reduces tool wear",
+        "Slice for vertical-wall pre-finish before zlevel finish",
+        "Profile + MAC raster fill is the safest mass-clearance combination"
+      ]
+    },
+    {
+      "topic": "Stock Model / Rest Machining Strategy",
+      "key_concepts": [
+        "Stock model tracks live in-process workpiece between ops",
+        "Rest roughing only cuts what the previous (larger) tool left",
+        "Rule of thumb: rest tool diameter ≤ 0.5× previous tool diameter for it to be worth running"
+      ],
+      "best_practices": [
+        "auto_update_after_each_op = true to keep stock model authoritative",
+        "Verify air-cut % below 30% — high air-cut means stock model is stale",
+        "Lock stock model after setup change to avoid silent invalidation"
+      ]
+    },
+    {
+      "topic": "Plunge Roughing — When It Is Right",
+      "key_concepts": [
+        "Use when radial cutting is unstable: deep cavity, long-overhang tool, very hard material",
+        "Tool must be plunge-capable (center-cutting end mill)",
+        "Grid spacing 60-75% of tool diameter; smaller for harder materials"
+      ],
+      "best_practices": [
+        "Always enable peck for axial depth > 1×D",
+        "Plunge feed = 30-50% of cut feed; never run plunge at full cut feed",
+        "Add a chamfer or pre-drilled hole to the plunge entry zone"
+      ]
+    },
+    {
+      "topic": "Adaptive Clearance Boundary — Selective Vortex",
+      "key_concepts": [
+        "Apply Vortex/adaptive only to a region while keeping conventional ops elsewhere",
+        "Useful for: hard-to-reach pockets, regions with chatter, areas where Vortex's deep axial helps",
+        "Boundary curve drives the engagement envelope"
+      ],
+      "best_practices": [
+        "Use boundary_offset_mm = 0 unless explicitly trimming a region",
+        "Set extend_outside_boundary_mm = 0.5 to avoid leaving stock at the boundary",
+        "Verify in simulation before posting — boundary-driven adaptive can miss corners"
+      ]
+    },
+    {
+      "topic": "Drill-for-Clearance as a Roughing Helper",
+      "key_concepts": [
+        "Pre-pierce: non-plungeable insert needs a starter hole",
+        "Chip-release: deep pocket benefits from a chip-evacuation hole near the deepest point",
+        "Use G73 (high-speed peck) for shallow-to-medium depths; G83 (deep peck) for >5×D depth"
+      ],
+      "best_practices": [
+        "Pre-pierce hole diameter ≥ 1.05× plunge tool diameter",
+        "G73 is faster than G83 for non-extreme depths — only use G83 when chip evacuation is the limit",
+        "Always retract to safe Z between hole groups when reaching across the part"
+      ]
+    }
+  ]
+}

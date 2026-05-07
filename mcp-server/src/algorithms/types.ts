@@ -131,7 +131,8 @@ export interface AlgorithmMeta {
   domain?:
     | "physics" | "thermal" | "surface" | "stability" | "constitutive" | "toolpath"
     | "force" | "signal" | "planning" | "optimization" | "tool_life" | "ml"
-    | "dynamics" | "control" | "numerical" | "power" | "collision" | "geometry";
+    | "dynamics" | "control" | "numerical" | "power" | "collision" | "geometry"
+    | "wear" | "vibration" | "process";
   /** Category within domain */
   category?: string;
   /** Brief description */

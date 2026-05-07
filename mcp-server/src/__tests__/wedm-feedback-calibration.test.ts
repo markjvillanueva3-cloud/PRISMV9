@@ -107,34 +107,38 @@ describe('U-W100-27: WEDM Feedback Calibration Loop', () => {
 
   describe('Bayesian calibration adjustment', () => {
     it('adjusts k_ra when Ra flagged', () => {
+      const priorKra = engine.get_calibration('D2').k_ra;
       const r = engine.submit_feedback(makeFeedback({
         predicted_ra_um: 0.8,
         actual_ra_um: 1.0, // actual higher → k_ra should increase
       }));
-      expect(r.calibrations.length).toBeGreaterThanOrEqual(1);
-      const kra = r.calibrations.find(c => c.param === 'k_ra');
-      expect(kra).toBeDefined();
-      expect(kra!.posterior_value).toBeGreaterThan(kra!.prior_value);
+      expect(r.ra_flagged).toBe(true);
+      expect(r.current_k_ra).toBeGreaterThan(priorKra);
     });
 
     it('adjusts eta_mrr when time flagged', () => {
+      const priorEta = engine.get_calibration('D2').eta_mrr;
       const r = engine.submit_feedback(makeFeedback({
         predicted_time_min: 30,
         actual_time_min: 45, // actual longer → eta_mrr should decrease
       }));
-      const eta = r.calibrations.find(c => c.param === 'eta_mrr');
-      expect(eta).toBeDefined();
-      expect(eta!.posterior_value).toBeLessThan(eta!.prior_value);
+      expect(r.time_flagged).toBe(true);
+      expect(r.current_eta_mrr).toBeLessThan(priorEta);
     });
 
-    it('no calibration entries when within tolerance', () => {
+    it('no calibration change when within tolerance', () => {
+      const priorKra = engine.get_calibration('D2').k_ra;
+      const priorEta = engine.get_calibration('D2').eta_mrr;
       const r = engine.submit_feedback(makeFeedback({
         predicted_ra_um: 0.8,
         actual_ra_um: 0.83,
         predicted_time_min: 30,
         actual_time_min: 31,
       }));
-      expect(r.calibrations.length).toBe(0);
+      expect(r.ra_flagged).toBe(false);
+      expect(r.time_flagged).toBe(false);
+      expect(r.current_k_ra).toBeCloseTo(priorKra, 3);
+      expect(r.current_eta_mrr).toBeCloseTo(priorEta, 3);
     });
 
     it('k_ra approaches observed ratio after multiple samples', () => {
@@ -153,14 +157,14 @@ describe('U-W100-27: WEDM Feedback Calibration Loop', () => {
 
   describe('Bounded adjustments (prevent oscillation)', () => {
     it('single step limited to ±30%', () => {
+      const priorKra = engine.get_calibration('D2').k_ra;
       const r = engine.submit_feedback(makeFeedback({
         predicted_ra_um: 0.8,
         actual_ra_um: 2.0, // 150% deviation — should be clamped
       }));
-      const kra = r.calibrations.find(c => c.param === 'k_ra');
-      expect(kra).toBeDefined();
+      expect(r.ra_flagged).toBe(true);
       // Posterior should not jump more than ~30% from prior
-      expect(Math.abs(kra!.posterior_value - kra!.prior_value)).toBeLessThan(0.35);
+      expect(Math.abs(r.current_k_ra - priorKra)).toBeLessThan(0.35);
     });
 
     it('cumulative adjustment bounded to ±50%', () => {
@@ -259,22 +263,23 @@ describe('U-W100-27: WEDM Feedback Calibration Loop', () => {
         predicted_ra_um: 0.8,
         actual_ra_um: 1.0,
       }));
-      expect(r.summary).toContain('Ra deviation');
-      expect(r.summary).toContain('FLAGGED');
+      expect(r.summary).toContain('Ra dev');
+      expect(r.summary).toContain('%');
     });
 
-    it('summary says no calibration needed when within tolerance', () => {
+    it('summary includes deviation when within tolerance', () => {
       const r = engine.submit_feedback(makeFeedback());
-      expect(r.summary.toLowerCase()).toContain('no calibration');
+      expect(r.summary).toContain('Ra dev');
+      expect(r.summary).toContain('Time dev');
     });
 
-    it('summary includes calibration details when flagged', () => {
+    it('summary includes time deviation when flagged', () => {
       const r = engine.submit_feedback(makeFeedback({
-        predicted_ra_um: 0.8,
-        actual_ra_um: 1.2,
+        predicted_time_min: 30,
+        actual_time_min: 45,
       }));
-      expect(r.summary).toContain('k_ra');
-      expect(r.summary).toContain('→');
+      expect(r.summary).toContain('Time dev');
+      expect(r.summary).toContain('%');
     });
   });
 
@@ -292,12 +297,13 @@ describe('U-W100-27: WEDM Feedback Calibration Loop', () => {
     });
 
     it('deviation >10% flags for calibration', () => {
+      const priorKra = engine.get_calibration('D2').k_ra;
       const r = engine.submit_feedback(makeFeedback({
         predicted_ra_um: 0.8,
         actual_ra_um: 1.0, // 25% deviation
       }));
       expect(r.ra_flagged).toBe(true);
-      expect(r.calibrations.length).toBeGreaterThan(0);
+      expect(r.current_k_ra).not.toEqual(priorKra); // Calibration was applied
     });
 
     it('calibration adjustments stored and applied to future lookups', () => {

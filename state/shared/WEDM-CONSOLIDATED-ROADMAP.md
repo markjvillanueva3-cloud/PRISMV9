@@ -1,18 +1,60 @@
 # WEDM CONSOLIDATED ROADMAP — Deep-Learning, Deep-Logic, Near-AGI Wire EDM System
 
 **Track:** WEDM-CONSOLIDATED
-**Version:** 1.3.1
-**Generated:** 2026-04-16 (v1.0), patched 2026-04-16 (v1.1 Stage-10 fixes, v1.2 Round-4 closure, v1.3 Round-5 Codex-frontend alignment)
-**Generator:** RGS pipeline v10 (project-level, scrutiny-hardened). Walked stages 1-9 inline; Stage 10 10-agent parallel scrutiny results in Section 11; **Round 4 convergent scrutiny (goal-planner + collective-intelligence-coordinator + safety-physics) results in Section 12; Round 5 Codex-frontend alignment (researcher + code-analyzer + Plan) results in Section 13.**
+**Version:** 1.4
+**Generated:** 2026-04-16 (v1.0), patched 2026-04-16 (v1.1 Stage-10 fixes, v1.2 Round-4 closure, v1.3 Round-5 Codex-frontend alignment, v1.3.1 MS-P7.5 expansion), **refreshed 2026-04-21 (v1.4 — inventory drift reconciliation + 11-file archive)**.
+**Generator:** RGS pipeline v10 (project-level, scrutiny-hardened). Walked stages 1-9 inline; Stage 10 10-agent parallel scrutiny results in Section 11; Round 4 convergent scrutiny (goal-planner + collective-intelligence-coordinator + safety-physics) results in Section 12; Round 5 Codex-frontend alignment (researcher + code-analyzer + Plan) results in Section 13. **v1.4 refresh: count-only, no new scrutiny rounds — 5-day drift reconciliation after zero phase closures.**
 **Authority:** Sequencing authority across six WEDM tracks. Individual milestone envelopes under `mcp-server/data/milestones/WEDM-*.json` remain the unit-of-work source of truth.
-**Quality Benchmarks:** `mcp-server/audits/R0-P0/U04-skills-scripts-hooks-audit.md` (format) + `WEDM-UNIFIED-ROADMAP.md` (session structure) + `CAMX-RESTRUCTURED-ROADMAP-v24.md` (scrutiny hardening).
-**Platform source of truth:** `H:/prism/PRISM-INVENTORY-2026-04-15.md` (cited, not mutated).
+**Quality Benchmarks:** `mcp-server/audits/R0-P0/U04-skills-scripts-hooks-audit.md` (format) + archived WEDM-UNIFIED-ROADMAP.md (session structure, now in `plans-archive/wedm/2026-04-21/`) + `CAMX-RESTRUCTURED-ROADMAP-v24.md` (scrutiny hardening).
+**Platform source of truth:** `H:/prism/PRISM-INVENTORY-LATEST.md` (live, auto-regenerated on SessionStart).
 **Omega Target:** 1.0 across every milestone.
-**SVI Target:** +25 % cumulative (plan achieves +45 % after v1.2 closure — headroom for any failed gate to revert without dropping below target).
+**SVI Target:** +25 % cumulative (plan achieves +45 % after v1.2 closure — headroom for any failed gate to revert without dropping below target). **Current SVI Ψ: 0.875 / 1.0 (WEDM subset, unchanged from v1.3.1).**
 **v1.2 additions:** 3 new milestones (MS-P0.5-COORD, MS-P1.5-ONESHOT, MS-P2.5-SAFETY) / 21 new units / ~6,400 LOC — close the print→CNC one-shot promise (coverage 47%→95%, synergy 0.20→0.65, S(x) 0.24→0.72).
 **v1.3 additions:** 1 new milestone (MS-P7.5-FE-GAPS) / 6 new units / ~2,100 LOC — close the R5 Codex-frontend gaps (WireEdmStudio drift gate, calculator wire_edm mode hygiene, 4 hardcoded `fanuc-wire-standard` literals, Print Drop bridge page, unified job-session store, 4 orphan API clients). Canonical frontend path declared: `mcp-server/web/` (legacy `/web/` retired under Universal 0.6 codegen per R5 Decision #3).
 
 **v1.3.1 expansion (2026-04-16, late):** MS-P7.5-FE-GAPS expanded from 6 → 7 units / ~2,100 → ~2,480 LOC / 2 → 3 sessions after verifying the actual Codex wizard scope. U-P7.5-FE-01 now snapshots the full **5,862 LOC Studio wizard stack** (12 files: WireEdmStudioPage + WedmStudioContext + useWedmPipeline + WizardShell + ProfileCanvas + 6 Step components + StepErrorCard + InfoTip), and new **U-P7.5-FE-07** reconciles the WireEdmStudioPage (/wire-edm, 6-step authoring) vs WireEdmWizardPage (/wire-edm-wizard, single-page quick planner, `appw_stage: 'APPW-MS0 machining calculation'`) duality — binding the Wizard to APPW-MS0/MS1 lifecycles and the `solveWireEdmWizard` backend contract.
+
+---
+
+## v1.4 REFRESH CHANGELOG (2026-04-21)
+
+**Zero phase closures in the 5 days since v1.3.1** — all 23 MS-P* milestones (P0.5 → P10) remain `not_started` in `roadmap-index.json`. `FMERGE-MS1` is the only `in_progress` entry.
+
+**Inventory drift reconciled** (re-measured 2026-04-21):
+
+| Asset | v1.3.1 count (04-16) | v1.4 count (04-21) | Δ |
+|---|---|---|---|
+| WEDM/WireEDM engines | 95 | **146** | **+51** |
+| EDM-prefixed engines (non-WEDM) | — | **19** | new row |
+| Dispatcher actions (`prism_edm`) | 61 | 61 | 0 |
+| Orchestration stages | 30 | 30 | 0 |
+| Controller dialects | 5 | 5 | 0 |
+| WEDM tests | 65 | 65 | 0 |
+| WEDM skills (`~/.claude/commands/wedm-*.md`, `wire-edm-*.md`) | 12 | **23** | **+11** |
+| WEDM hooks (`.claude/hooks/lib/wedm-*`) | 22 | 22 | 0 |
+| Frontend pages | 4 | 4 | 0 |
+| Tribal tips (WEDM) | 46 | 46 | 0 |
+| Formulas (WEDM, MIT-cited) | 14 | 14 | 0 |
+| AGI state files (`data/state/WEDM_*.json/.jsonl`) | 39 | **46** | **+7** |
+| SVI Ψ (WEDM) | 0.875 | 0.875 | 0 |
+
+**Interpretation:** +51 engines + 11 skills in 5 days indicates continued infrastructure build-out happening via other tracks (CAD-COMPLETE-MS0, LATHE-PROD-READY-MS0 cross-dependencies), but none landed in the WEDM-specific MS-P* progression. The DL/ML (P4), GNN (P5), and validation (P6) work this roadmap plans remains untouched.
+
+**Archive action (v1.4):** 11 superseded source roadmaps moved to `H:/prism/plans-archive/wedm/2026-04-21/` with README mapping each to its subsuming section of this master:
+
+| Archived | Subsumed by |
+|---|---|
+| `WIRE-EDM-COMPREHENSIVE-ROADMAP.md` | Stage 1-2 (brief + codebase audit) |
+| `WIRE_EDM_PIPELINE_ROADMAP.md` | MS-P1-100PCT |
+| `WEDM_VALIDATION_ROADMAP.md` | MS-P6-VAL30 |
+| `WEDM-MS1-AUDIT-REPORT.md` | Section 11 Stage-10 scrutiny |
+| `WEDM-UNIFIED-ROADMAP.md` | MS-P7-UI-M1..M7 |
+| `WEDM-CALIBRATE-ROADMAP.md` | WEDM-CAL-MS0..MS4 (complete) |
+| `CWEDM-CALCULATOR-WIRING-ROADMAP.md` | Calculator track (CWEDM-MS0 complete) |
+| `WEDM-AGI-INTELLIGENCE-ROADMAP.md` + SCRUTINIZED variants (3 files) | MS-P4-DL-CORE, MS-P4-DL-PRED, MS-P5-GNN, MS-P9-XAI |
+| `WEDM-CONSOLIDATED-SCRUTINY-2026-04-16.md` | Section 12 Round-4 convergent scrutiny |
+
+**Milestone envelopes (`mcp-server/data/milestones/WEDM-*.json` + `CWEDM-*.json`) are NOT archived** — they remain the per-unit source of truth and are still referenced by live tooling.
 
 ---
 
@@ -82,24 +124,25 @@ Every stage's output is recorded here so downstream reviewers can audit the deci
 | JM DIE programs (total) | 36,929 | — |
 | JM DIE WEDM programs | 2,500+ | 26 of 2,500+ indexed with published conditions |
 
-**WEDM-scoped subset** (from `wedm_generate_digest.ts`, 2026-04-16, digest-verified):
+**WEDM-scoped subset** (re-measured 2026-04-21 via live filesystem glob; supersedes the 2026-04-16 digest snapshot):
 
 | Asset Class | WEDM Count | Source |
 |-------------|------------|--------|
-| WEDM/EDM engines | **95** of 1,869 | `src/engines/WEDM*.ts`, `EDM*.ts`, `WireEDM*.ts` |
-| Dispatcher actions (`prism_edm`) | **61** of 2,720+ | `edmDispatcher.ts` |
+| WEDM/WireEDM engines | **146** of 2,712 | `src/engines/WEDM*.ts`, `WireEDM*.ts` (excludes `.test.ts`) |
+| EDM-prefixed engines (non-WEDM) | **19** | `src/engines/EDM*.ts` |
+| Dispatcher actions (`prism_edm`) | **61** of 6,638 | `edmDispatcher.ts` |
 | Orchestration stages | **30** | `WEDMCompleteOrchestrationEngine` (1,502 LOC) |
 | Controller dialects supported | **5** | Mitsubishi, Sodick, Makino, AgieCharmilles, Fanuc |
-| WEDM tests | **65** files of 1,255 total (30,966 LOC) | `src/__tests__/wedm-*.test.ts` |
-| WEDM skills | **12** of 66 | `~/.claude/commands/wedm-*.md` |
-| WEDM hooks | **22** of 227 (16 safety + 2 SVI + 2 perception + 2 learning) | `.claude/hooks/lib/wedm-*.mjs` |
+| WEDM tests | **65** files of 2,668 total (30,966 LOC) | `src/__tests__/wedm-*.test.ts` |
+| WEDM skills | **23** of 61 | `~/.claude/commands/wedm-*.md`, `wire-edm-*.md` |
+| WEDM hooks | **22** of 59 (16 safety + 2 SVI + 2 perception + 2 learning) | `.claude/hooks/lib/wedm-*.mjs`, `wedm_safety_hooks.py` |
 | Frontend pages | **4** | `WireEdmUploadPage`, `WireEdmWizardPage`, `WireEdmResultsPage`, `WireEdmStudioPage` |
 | Tribal tips (WEDM) | **46** of 4,493 (20 field + 26 MIT) | `wedm-knowledge-tips.ts` |
 | Formulas (WEDM) | **14** of 509 with MIT citations | `PUBLISHED_FORMULAS` + registry |
-| AGI state files | **39** | `data/state/WEDM_*.json` |
-| SVI Ψ (WEDM) | **0.875** / 1.0 | WEDM-AGI-P4 closeout commit 826c9014 |
+| AGI state files | **46** | `data/state/WEDM_*.json` + `*.jsonl` + `*.flag` + `wedm-reservations.json` |
+| SVI Ψ (WEDM) | **0.875** / 1.0 | WEDM-AGI-P4 closeout commit 826c9014 (unchanged) |
 
-**Inflation reconciliation (from R0-P0 U04 audit):** engine count drifts across `CLAUDE.md` (97), `WEDM-UNIFIED` ("29 physics engines"), digest (95). **This roadmap uses the digest 95 as canonical.** The 1,869 platform number is the full engine population; 95 is the name-globbed WEDM subset.
+**Inflation reconciliation (v1.4):** engine count grew from 95 → 146 (+51) over 5 days via cross-track infrastructure builds (CAD-COMPLETE-MS0, LATHE-PROD-READY-MS0 work touches shared physics/geometry). `CLAUDE.md` line-item counts are auto-regenerated per SessionStart and may lag by a session; `PRISM-INVENTORY-LATEST.md` is authoritative.
 
 **Key integration implication for sequencing:** the 70 % platform-wide engine-orphan ratio means Phase P8 (FE↔BE audit) cannot assume every WEDM engine already has a dispatcher path. P0 must surface per-WEDM-engine wiring status via `DispatcherInventoryEngine`, otherwise P9 wiring work inherits an unbounded scope.
 

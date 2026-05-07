@@ -489,6 +489,12 @@
             "command": "bash /h/prism/.claude/helpers/review-complete.sh 2>/dev/null || true",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/posttool-mcp-backend-audit.mjs",
+            "timeout": 50000,
+            "continueOnError": true
           }
         ]
       },

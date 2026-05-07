@@ -2025,6 +2025,172 @@ export function registerDevDispatcher(server: any): void {
               model: typeof params.model === "string" ? params.model : undefined,
               host: typeof params.host === "string" ? params.host : undefined,
             });
+          case "foresight_report": {
+            const { foresightOrchestratorEngine } = await import(
+              "../../engines/ForesightOrchestratorEngine.js"
+            );
+            const report = await foresightOrchestratorEngine.reportFor({
+              description: String(params.description ?? ""),
+              unitClass: params.unitClass as string | undefined,
+              proposedFiles: params.proposedFiles as string[] | undefined,
+              contextTokensUsed: params.contextTokensUsed as number | undefined,
+              contextTokensLimit: params.contextTokensLimit as number | undefined,
+              modelName: params.modelName as string | undefined,
+            });
+            result = { success: true, report };
+            break;
+          }
+
+          case "error_budget_set_target": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            errorBudgetEngine.setTarget({
+              service: String(params.service),
+              availabilityTarget: Number(params.availabilityTarget),
+              windowHours: Number(params.windowHours),
+            });
+            result = { success: true, service: params.service, target: { availabilityTarget: Number(params.availabilityTarget), windowHours: Number(params.windowHours) } };
+            break;
+          }
+
+          case "error_budget_record": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            errorBudgetEngine.record({
+              service: String(params.service),
+              success: Boolean(params.success),
+              weight: params.weight != null ? Number(params.weight) : undefined,
+              at: params.at != null ? Number(params.at) : undefined,
+            });
+            result = { success: true };
+            break;
+          }
+
+          case "error_budget_status": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            const status = errorBudgetEngine.status(String(params.service));
+            result = { success: true, status };
+            break;
+          }
+
+          case "error_budget_list": {
+            const { errorBudgetEngine } = await import(
+              "../../engines/ErrorBudgetEngine.js"
+            );
+            result = { success: true, services: errorBudgetEngine.listServices() };
+            break;
+          }
+
+          case "distributed_critical_path": {
+            const { distributedCriticalPathEngine } = await import(
+              "../../engines/DistributedCriticalPathEngine.js"
+            );
+            const analysis = distributedCriticalPathEngine.analyze(
+              (params.tasks as Array<{ id: string; duration: number; owner: string; predecessors?: string[] }>) ?? []
+            );
+            result = { success: true, analysis };
+            break;
+          }
+
+          case "replan_evaluate": {
+            const { replanTriggerEngine } = await import(
+              "../../engines/ReplanTriggerEngine.js"
+            );
+            const verdict = replanTriggerEngine.evaluate({
+              plan: params.plan as Parameters<typeof replanTriggerEngine.evaluate>[0]["plan"],
+              currentState: params.currentState as Record<string, unknown>,
+              currentTime: params.currentTime as number | undefined,
+              lostResources: params.lostResources as string[] | undefined,
+              externalEvents: params.externalEvents as string[] | undefined,
+              timeBudgetRemainingMs: params.timeBudgetRemainingMs as number | undefined,
+              minTimeBudgetMs: params.minTimeBudgetMs as number | undefined,
+            });
+            result = { success: true, verdict };
+            break;
+          }
+
+          case "schema_snapshot": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            const id = schemaMigrationRollbackEngine.snapshot(
+              String(params.target),
+              params.data,
+              Number(params.version),
+              params.label as string | undefined,
+            );
+            result = { success: true, snapshotId: id };
+            break;
+          }
+
+          case "schema_restore_snapshot": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            const data = schemaMigrationRollbackEngine.restoreFromSnapshot(String(params.snapshotId));
+            result = { success: true, data };
+            break;
+          }
+
+          case "schema_history": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            const history = schemaMigrationRollbackEngine.historyFor(String(params.target));
+            result = { success: true, history };
+            break;
+          }
+
+          case "schema_migrations_list": {
+            const { schemaMigrationRollbackEngine } = await import(
+              "../../engines/SchemaMigrationRollbackEngine.js"
+            );
+            // Strip the up/down callables — they cannot round-trip through JSON-RPC
+            const migrations = schemaMigrationRollbackEngine.listMigrations().map((m) => ({ from: m.from, to: m.to }));
+            result = { success: true, migrations };
+            break;
+          }
+
+          case "failure_risk_analyze": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const profile = failureModeAnticipationEngine.analyzeFailureRisk(
+              params.conditions as Parameters<typeof failureModeAnticipationEngine.analyzeFailureRisk>[0]
+            );
+            result = { success: true, profile };
+            break;
+          }
+
+          case "failure_modes_list": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const modes = failureModeAnticipationEngine.getFailureModes();
+            result = { success: true, modes };
+            break;
+          }
+
+          case "failure_mode_get": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const mode = failureModeAnticipationEngine.getFailureMode(String(params.id));
+            if (!mode) { result = { success: false, error: `unknown failure mode '${String(params.id)}'` }; break; }
+            result = { success: true, mode };
+            break;
+          }
+
+          case "failure_cascade_chain": {
+            const { failureModeAnticipationEngine } = await import(
+              "../../engines/FailureModeAnticipationEngine.js"
+            );
+            const chain = failureModeAnticipationEngine.getCascadeChain(String(params.failureId));
+            result = { success: true, chain };
             break;
           }
 

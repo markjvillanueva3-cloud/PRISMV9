@@ -4,6 +4,34 @@
   "updated_at": "2026-04-18",
   "milestones": [
     {
+      "id": "WORKTREE-CONSOLIDATE-MS0",
+      "title": "H: Drive Worktree Consolidation — Land Stranded Commits + Fix Lint-Staged Root Cause",
+      "track": "INFRA-CONSOLIDATE",
+      "status": "in_progress",
+      "total_units": 32,
+      "completed_units": 9,
+      "completed_phases": ["P0-FOUNDATION", "P1-FAST-FORWARD", "P4-5-ORPHAN-BRANCHES (quick-wins subset)"],
+      "deferred_phases": ["P6-DEDUP-AUDIT (orphan files subtask blocked by pre-delete-guard stem-matching)"],
+      "graduated_units": [
+        "U-FF03: cam-ms1-93a0 grew 16→626 commits since audit; needs dedicated phase",
+        "P4-5 graduation candidates: work/ai-aware-harden +22 (5 WEDM safety engines MISSING from main), work/wedm-consolidated +44, work/lathe-master +62, claude/interesting-shamir +22"
+      ],
+      "main_advanced_to": "10835ee77",
+      "branch_count": "before=54 → after=41 (-13 deleted)",
+      "worktree_count": "before=43 → after=32 (-11 pruned)",
+      "tags_created": ["archive/snapshot-2026-02-01"],
+      "last_session": "claude-e7271397 (2026-05-06)",
+      "dependencies": [],
+      "blocks": [],
+      "envelope_path": "milestones/WORKTREE-CONSOLIDATE-MS0.json",
+      "priority": "HIGH",
+      "sessions_p50": 8,
+      "sessions_p90": 10,
+      "description": "Consolidate 45 worktrees by cherry-picking stranded commits into a side branch, fast-forwarding to main, and pruning dead trees. Fixes lint-staged stash-leakage root cause (FIX1/FIX2 pattern). Lands ppgh05 (798 commits / Multus engine), ppg-advancedpost (682), mill-worktree (MS-AI-WIRING U1-U17). See state/shared/WORKTREE-AUDIT-2026-05-06.md + DOMAIN-SCRUTINY-2026-05-06.md.",
+      "version": "1.0.0",
+      "context_doc": "H:/.claude/plans/brainstorm-a-generate-a-purring-matsumoto.md"
+    },
+    {
       "id": "INGEST-MS0",
       "title": "Foundation: Folder Scanner & Ingestion Pipeline",
       "track": "INGEST",
@@ -8296,14 +8324,17 @@
       "supersedes_tail_of": [
         "WEDM-100PCT-MS0"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 4,
       "completed_units": 0,
       "sessions": "2",
       "envelope_path": "milestones/MS-P1-100PCT.json",
       "authoritative_doc": "state/shared/WEDM-CONSOLIDATED-ROADMAP.md",
       "priority": "P0",
-      "owner": "Claude-AI"
+      "owner": "Claude-AI",
+      "envelope_file": "mcp-server/data/milestones/MS-P1-100PCT.json",
+      "updated_at": "2026-04-21",
+      "closed_at": "2026-04-21"
     },
     {
       "id": "MS-P1.5-ONESHOT",
@@ -8313,7 +8344,7 @@
         "MS-P0.5-COORD",
         "MS-P1-100PCT"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 7,
       "completed_units": 0,
       "sessions": "3",
@@ -8322,7 +8353,8 @@
       "priority": "P0",
       "owner": "Claude-AI",
       "scrutiny_round": 4,
-      "closes_gap": "12-stage Print->CNC coverage (from 47% to 95%)"
+      "closes_gap": "12-stage Print->CNC coverage (from 47% to 95%)",
+      "closed_at": "2026-04-21"
     },
     {
       "id": "MS-P2-GAPFILL",
@@ -8409,14 +8441,16 @@
         "MS-P2-GAPFILL",
         "MS-P2.5-SAFETY"
       ],
-      "status": "not_started",
+      "status": "in_progress",
       "total_units": 5,
       "completed_units": 0,
       "sessions": "2",
       "envelope_path": "milestones/MS-P4-DL-CORE.json",
       "authoritative_doc": "state/shared/WEDM-CONSOLIDATED-ROADMAP.md",
       "priority": "P0",
-      "owner": "Claude-AI"
+      "owner": "Claude-AI",
+      "envelope_file": "mcp-server/data/milestones/MS-P4-DL-CORE.json",
+      "updated_at": "2026-04-21"
     },
     {
       "id": "MS-P4-DL-PRED",
@@ -8589,7 +8623,7 @@
         "APPW-MS0",
         "APPW-MS1"
       ],
-      "status": "not_started",
+      "status": "in_progress",
       "total_units": 7,
       "completed_units": 0,
       "sessions": "3",
