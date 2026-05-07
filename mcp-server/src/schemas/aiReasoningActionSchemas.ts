@@ -310,6 +310,9 @@ export const AI_REASONING_ACTIONS = [
   "xproc_attention_baseline_reset",
   // T1-05 AGIBridge (composer)
   "xproc_agi_compose",
+  // U-NN-FEAT03: PhysicsFeatureExtractorEngine — Kienzle/Taylor/chatter/Ra/thermal
+  "xproc_physics_features",
+  "xproc_physics_features_batch",
   // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 unwired AI/reasoning engines
   "cognitive_budget_allocate",      // CognitiveBudgetAllocatorEngine.allocate
   "ensemble_register_member",       // EnsembleModelSelectorEngine.registerMember
@@ -1488,6 +1491,8 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_attention_baseline_get: z.object({}).passthrough(),
   xproc_attention_baseline_reset: z.object({}).passthrough(),
   xproc_agi_compose: z.object({}).passthrough(),
+  xproc_physics_features: z.object({}).passthrough(),
+  xproc_physics_features_batch: z.object({}).passthrough(),
   // ENGINE-WIRE-AI-MS0/U-WIRE-AI-BATCH1: 12 newly-wired AI engines
   cognitive_budget_allocate: z.object({
     kind: z.enum(["read", "edit", "create", "refactor", "review", "analysis", "chat"])

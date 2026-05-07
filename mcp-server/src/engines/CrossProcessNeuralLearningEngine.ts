@@ -60,6 +60,10 @@ import type {
   OutcomeBridge,
   OutcomeProcess,
 } from "./CrossProcessOutcomeStore.js";
+import {
+  PhysicsFeatureExtractorEngine,
+  PHYSICS_FEATURE_DIM,
+} from "./PhysicsFeatureExtractorEngine.js";
 
 // ============================================================================
 // CONSTANTS
@@ -70,7 +74,10 @@ import type {
 // Schema 2.0.0→2.1.0 with U-NN-FEAT02: Welford z-score state added for
 //   numeric feature whitening. 2.0.0 models load with empty Welford and
 //   will warm-up from scratch.
-export const SCHEMA_VERSION = "2.1.0";
+// Schema 2.1.0→2.2.0 with U-NN-FEAT03: 5 physics features appended
+//   (Kienzle force, Taylor life, chatter risk, Brammertz Ra, thermal load).
+//   Input dim 131→136. Welford extended to cover physics features too.
+export const SCHEMA_VERSION = "2.2.0";
 
 const NUMERIC_KEYS_DIM = 7;
 const BRIDGE_DIM = 5;
@@ -80,6 +87,11 @@ const TOOL_MATERIAL_BUCKETS = 16;
 const MACHINE_FAMILY_BUCKETS = 16;
 const OPERATION_BUCKETS = 16;
 const AUX_DIM = 4;
+// U-NN-FEAT03: physics-derived features go through the same Welford
+// accumulator as the raw numerics — they're real-valued continuous inputs.
+const PHYSICS_DIM = PHYSICS_FEATURE_DIM; // = 5
+// Total numerics seen by Welford = raw (7) + physics (5) = 12.
+const TOTAL_NUMERIC_DIM = NUMERIC_KEYS_DIM + PHYSICS_DIM;
 
 export const INPUT_DIM =
   NUMERIC_KEYS_DIM +
@@ -89,7 +101,8 @@ export const INPUT_DIM =
   TOOL_MATERIAL_BUCKETS +
   MACHINE_FAMILY_BUCKETS +
   OPERATION_BUCKETS +
-  AUX_DIM; // 7+5+3+64+16+16+16+4 = 131
+  AUX_DIM +
+  PHYSICS_DIM; // 7+5+3+64+16+16+16+4+5 = 136
 export const HIDDEN_DIM = 16;
 export const OUTPUT_DIM = 3;
 
@@ -246,12 +259,14 @@ export class CrossProcessNeuralLearningEngine {
   private vW2: Float64Array;
   private vb2: Float64Array;
 
-  // U-NN-FEAT02: Welford online mean/variance for numeric feature z-scoring.
+  // U-NN-FEAT02/03: Welford online mean/variance for numeric feature z-scoring.
+  // Slots 0..6 = raw numerics (NUMERIC_KEYS), slots 7..11 = physics features
+  // (Kienzle force, Taylor life, chatter risk, Brammertz Ra, thermal load).
   // Updated incrementally inside train() before featurize is called per sample.
   // Persisted in serialize() and restored in loadFrom().
   private welfordCount = 0;
-  private welfordMean: Float64Array; // [NUMERIC_KEYS_DIM]
-  private welfordM2: Float64Array;   // [NUMERIC_KEYS_DIM] sum of squared deviations from mean
+  private welfordMean: Float64Array; // [TOTAL_NUMERIC_DIM]
+  private welfordM2: Float64Array;   // [TOTAL_NUMERIC_DIM] sum of squared deviations from mean
 
   // Online metrics
   private totalSamplesSeen = 0;
@@ -279,8 +294,8 @@ export class CrossProcessNeuralLearningEngine {
     this.vW2 = new Float64Array(this.W2.length);
     this.vb2 = new Float64Array(this.b2.length);
 
-    this.welfordMean = new Float64Array(NUMERIC_KEYS_DIM);
-    this.welfordM2 = new Float64Array(NUMERIC_KEYS_DIM);
+    this.welfordMean = new Float64Array(TOTAL_NUMERIC_DIM);
+    this.welfordM2 = new Float64Array(TOTAL_NUMERIC_DIM);
 
     this.xavierInit();
   }
@@ -396,6 +411,34 @@ export class CrossProcessNeuralLearningEngine {
     f[offset++] = Math.min(1, Math.max(0, warn) / 10); // 0..10+ warnings → 0..1
     f[offset++] = record.operator?.id ? 1 : 0;
     f[offset++] = 1; // bias unit
+
+    // 9. Physics features (5) — U-NN-FEAT03. Z-scored using Welford slots
+    //    NUMERIC_KEYS_DIM..TOTAL_NUMERIC_DIM-1 (which welfordUpdate already
+    //    populates with the same PhysicsFeatureExtractor.extract output).
+    //    During warmup or when variance is degenerate, fall back to log1p
+    //    compression of the raw physics value (same logic as raw numerics).
+    const physics = PhysicsFeatureExtractorEngine.extract(record);
+    for (let j = 0; j < PHYSICS_FEATURE_DIM; j++) {
+      const slot = NUMERIC_KEYS.length + j;
+      const raw = Number.isFinite(physics[j]) ? physics[j] : 0;
+      const variance = this.welfordM2[slot] / Math.max(1, this.welfordCount);
+      const useZScore =
+        this.welfordCount >= WELFORD_WARMUP_SAMPLES &&
+        variance > WELFORD_VARIANCE_EPSILON;
+      let normalized: number;
+      if (!useZScore) {
+        normalized = Math.min(1, Math.log1p(raw) / LOG1P_NUMERIC_DIVISOR);
+      } else {
+        const mean = this.welfordMean[slot];
+        const std = Math.sqrt(variance + WELFORD_VARIANCE_EPSILON);
+        normalized = clamp(
+          (raw - mean) / std,
+          -Z_SCORE_CLIP_RANGE,
+          Z_SCORE_CLIP_RANGE,
+        );
+      }
+      f[offset++] = normalized;
+    }
 
     return f;
   }
@@ -635,15 +678,20 @@ export class CrossProcessNeuralLearningEngine {
     eng.lastAccuracy = state.metrics.lastAccuracy;
     // U-NN-FEAT02: restore welford if present (2.1.0+); else stay empty.
     if (state.welford) {
+      // Schema 2.1.0 saved 7 slots (NUMERIC_KEYS_DIM); 2.2.0 saves 12
+      // (TOTAL_NUMERIC_DIM = raw + physics). Accept either; on legacy
+      // 2.1.0 we restore the first 7 slots and physics warms up fresh.
+      const len = state.welford.mean.length;
       if (
-        state.welford.mean.length !== NUMERIC_KEYS_DIM ||
-        state.welford.M2.length !== NUMERIC_KEYS_DIM
+        (len !== NUMERIC_KEYS_DIM && len !== TOTAL_NUMERIC_DIM) ||
+        state.welford.M2.length !== len
       ) {
         throw new Error(
-          `fromSerialized: welford.mean/M2 length mismatch (expected ${NUMERIC_KEYS_DIM})`,
+          `fromSerialized: welford.mean/M2 length mismatch (expected ${NUMERIC_KEYS_DIM} or ${TOTAL_NUMERIC_DIM}, got ${len})`,
         );
       }
       eng.welfordCount = state.welford.count;
+      // Set leaves the rest at 0 — physics slots warm up on next train().
       eng.welfordMean.set(state.welford.mean);
       eng.welfordM2.set(state.welford.M2);
     }
@@ -700,6 +748,8 @@ export class CrossProcessNeuralLearningEngine {
     const reqAny = record.request_summary as Record<string, unknown>;
     this.welfordCount++;
     const n = this.welfordCount;
+
+    // Slots 0..NUMERIC_KEYS_DIM-1: raw numeric features.
     for (let i = 0; i < NUMERIC_KEYS.length; i++) {
       const v = reqAny[NUMERIC_KEYS[i]];
       const x =
@@ -708,6 +758,21 @@ export class CrossProcessNeuralLearningEngine {
       const newMean = oldMean + (x - oldMean) / n;
       this.welfordMean[i] = newMean;
       this.welfordM2[i] += (x - oldMean) * (x - newMean);
+    }
+
+    // Slots NUMERIC_KEYS_DIM..TOTAL_NUMERIC_DIM-1: physics features.
+    // U-NN-FEAT03: extract Kienzle/Taylor/chatter/Ra/thermal and accumulate
+    // them through the same Welford machinery. Each physics feature has its
+    // own native scale (force in N, life in min, Ra in μm), so individual
+    // mean/variance is essential for joint z-scoring.
+    const physics = PhysicsFeatureExtractorEngine.extract(record);
+    for (let j = 0; j < PHYSICS_FEATURE_DIM; j++) {
+      const slot = NUMERIC_KEYS.length + j;
+      const x = Number.isFinite(physics[j]) ? physics[j] : 0;
+      const oldMean = this.welfordMean[slot];
+      const newMean = oldMean + (x - oldMean) / n;
+      this.welfordMean[slot] = newMean;
+      this.welfordM2[slot] += (x - oldMean) * (x - newMean);
     }
   }
 

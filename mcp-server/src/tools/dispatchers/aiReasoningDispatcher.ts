@@ -376,6 +376,23 @@ const XPROC_TIER1_HANDLERS: Record<string, XprocTier1Handler> = {
     const opts = params.opts as Parameters<typeof crossProcessAGIBridge.compose>[2] | undefined;
     return crossProcessAGIBridge.compose(crossProcessNeuralLearningEngine, reqParam, opts);
   },
+  // U-NN-FEAT03: PhysicsFeatureExtractorEngine — 5 physics-derived features
+  xproc_physics_features: async (params) => {
+    const { PhysicsFeatureExtractorEngine, PHYSICS_FEATURE_INDEX } =
+      await import("../../engines/PhysicsFeatureExtractorEngine.js");
+    const record = params.record as Parameters<typeof PhysicsFeatureExtractorEngine.extract>[0] | undefined;
+    if (!record) throw new Error("xproc_physics_features requires `record`");
+    const features = PhysicsFeatureExtractorEngine.extract(record);
+    return { features: Array.from(features), index: PHYSICS_FEATURE_INDEX };
+  },
+  xproc_physics_features_batch: async (params) => {
+    const { PhysicsFeatureExtractorEngine, PHYSICS_FEATURE_DIM } =
+      await import("../../engines/PhysicsFeatureExtractorEngine.js");
+    const records = params.records as Parameters<typeof PhysicsFeatureExtractorEngine.extractBatch>[0] | undefined;
+    if (!Array.isArray(records)) throw new Error("xproc_physics_features_batch requires `records` (array)");
+    const flat = PhysicsFeatureExtractorEngine.extractBatch(records);
+    return { features: Array.from(flat), rows: records.length, cols: PHYSICS_FEATURE_DIM };
+  },
 };
 
 async function routeXprocAction(action: string, params: Record<string, unknown>): Promise<unknown> {
@@ -1696,7 +1713,9 @@ export async function executeAIReasoningAction(
       case "xproc_attention_anomaly":
       case "xproc_attention_baseline_get":
       case "xproc_attention_baseline_reset":
-      case "xproc_agi_compose": {
+      case "xproc_agi_compose":
+      case "xproc_physics_features":
+      case "xproc_physics_features_batch": {
         result = await routeXprocAction(action, params);
         break;
       }

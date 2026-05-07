@@ -436,6 +436,10 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_attention_baseline_get", "xproc_attention_baseline_reset",
   // XPROC-NEURAL-T1-05: AGI bridge — keyword + neural blend composer
   "xproc_agi_compose",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-FEAT03: PhysicsFeatureExtractorEngine —
+  // 5 physics-derived features (Kienzle force, Taylor life, chatter risk,
+  // Brammertz Ra, thermal load) for the cross-process neural learner.
+  "xproc_physics_features", "xproc_physics_features_batch",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1366,6 +1370,67 @@ export function registerIntelligenceDispatcher(server: any): void {
             content: [{
               type: "text" as const,
               text: JSON.stringify({ action, success: true, ...out }),
+            }],
+          };
+        }
+
+        // === XPROC-NEURAL-OPTIMIZE/U-NN-FEAT03: PhysicsFeatureExtractorEngine ===
+        // Returns 5 physics features per OutcomeRecord:
+        //   0. kienzle_force_N   (Fc = kc1_1 · ap · h^(1-mc))
+        //   1. taylor_life_min   (T  = (C/Vc)^(1/n))
+        //   2. chatter_risk_idx  (ap/D slenderness proxy)
+        //   3. surface_ra_um     (Brammertz fz²/(32·r))
+        //   4. thermal_load_W    (Fc · Vc / 60)
+        if (action === "xproc_physics_features") {
+          const { PhysicsFeatureExtractorEngine, PHYSICS_FEATURE_INDEX } =
+            await import("../../engines/PhysicsFeatureExtractorEngine.js");
+          const record = params.record as Parameters<
+            typeof PhysicsFeatureExtractorEngine.extract
+          >[0] | undefined;
+          if (!record) {
+            return dispatcherError(
+              "xproc_physics_features requires `record`",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const features = PhysicsFeatureExtractorEngine.extract(record);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                features: Array.from(features),
+                index: PHYSICS_FEATURE_INDEX,
+              }),
+            }],
+          };
+        }
+        if (action === "xproc_physics_features_batch") {
+          const { PhysicsFeatureExtractorEngine, PHYSICS_FEATURE_DIM } =
+            await import("../../engines/PhysicsFeatureExtractorEngine.js");
+          const records = params.records as Parameters<
+            typeof PhysicsFeatureExtractorEngine.extractBatch
+          >[0] | undefined;
+          if (!Array.isArray(records)) {
+            return dispatcherError(
+              "xproc_physics_features_batch requires `records` (array)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const flat = PhysicsFeatureExtractorEngine.extractBatch(records);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action,
+                success: true,
+                features: Array.from(flat),
+                rows: records.length,
+                cols: PHYSICS_FEATURE_DIM,
+              }),
             }],
           };
         }

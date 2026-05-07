@@ -170,10 +170,14 @@ describe("CrossProcessNeuralLearningEngine", () => {
     expect(x[4]).toBeGreaterThan(0);
   });
 
-  it("featurize bias unit is always 1 at the last slot", () => {
+  it("featurize bias unit is always 1 at the aux block (post-physics, slot INPUT_DIM-PHYSICS_FEATURE_DIM-1)", () => {
+    // Pre-FEAT03 the bias unit lived at slot INPUT_DIM-1 (last position).
+    // FEAT03 appended 5 physics features AFTER the aux block, so the bias
+    // now sits at INPUT_DIM - 5 (PHYSICS_FEATURE_DIM) - 1 = INPUT_DIM - 6.
+    const PHYSICS_FEATURE_DIM = 5;
     const r = makeRecord({});
     const x = engine.featurize(r);
-    expect(x[INPUT_DIM - 1]).toBe(1);
+    expect(x[INPUT_DIM - PHYSICS_FEATURE_DIM - 1]).toBe(1);
   });
 
   // ───── recordToLabel ─────
@@ -256,7 +260,7 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   it("predict throws on wrong input length", () => {
     const wrong = new Float64Array(INPUT_DIM - 1);
-    expect(() => engine.predict(wrong)).toThrow(/length must be 131/);
+    expect(() => engine.predict(wrong)).toThrow(/length must be 136/);
   });
 
   // ───── train ─────
@@ -434,15 +438,16 @@ describe("CrossProcessNeuralLearningEngine", () => {
 
   // ───── schema export ─────
 
-  it("schema and dim constants match documented architecture (131→16→3) post U-NN-FEAT01/02", () => {
-    // 131 = 7 numeric + 5 bridge + 3 process + 64 material + 16 tool +
-    //       16 machine + 16 operation + 4 aux. Reviewers 3/4 flagged the
-    //       4-bucket material hash → ~76% collision rate. Schema 2.0.0
-    //       brought the wider buckets; 2.1.0 added Welford z-score state.
-    expect(INPUT_DIM).toBe(131);
+  it("schema and dim constants match documented architecture (136→16→3) post U-NN-FEAT01/02/03", () => {
+    // 136 = 7 numeric + 5 bridge + 3 process + 64 material + 16 tool +
+    //       16 machine + 16 operation + 4 aux + 5 physics. Schema 2.0.0
+    //       brought the wider buckets, 2.1.0 added Welford z-score state,
+    //       2.2.0 added the physics-feature input slots (Kienzle, Taylor,
+    //       chatter, Brammertz, thermal).
+    expect(INPUT_DIM).toBe(136);
     expect(HIDDEN_DIM).toBe(16);
     expect(OUTPUT_DIM).toBe(3);
-    expect(SCHEMA_VERSION).toBe("2.1.0");
+    expect(SCHEMA_VERSION).toBe("2.2.0");
   });
 
   // ───── U-NN-FIX01: backprop numeric-gradient correctness ─────

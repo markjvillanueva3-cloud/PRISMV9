@@ -61,7 +61,9 @@ const ACCURACY_OVER_CHANCE_VAL = 0.1;
 const MAX_GENERALIZATION_GAP = 0.35;
 const MIN_GENERALIZATION_GAP = -0.5;
 // U-NN-FEAT01: input layer expanded 32→131 via wider categorical hash buckets.
-const NETWORK_INPUT_DIM = 131;
+// U-NN-FEAT03: input layer expanded 131→136 via 5 physics features
+//   (Kienzle force, Taylor life, chatter risk, Brammertz Ra, thermal load).
+const NETWORK_INPUT_DIM = 136;
 const NETWORK_HIDDEN_DIM = 16;
 const NETWORK_OUTPUT_DIM = 3;
 const FLOAT_TOLERANCE_DIGITS = 6;
@@ -517,11 +519,12 @@ describe("XPROC-NEURAL T1-02 — end-to-end convergence on synthetic shop-floor 
     expect(distinctBuckets).toBeGreaterThan(OLD_MATERIAL_BUCKETS * 10);
   });
 
-  it("widened bucket counts produce INPUT_DIM=131 (7+5+3+64+16+16+16+4)", () => {
+  it("widened bucket counts + physics produce INPUT_DIM=136 (7+5+3+64+16+16+16+4+5)", () => {
     // U-NN-FEAT01 architectural change: input layer expanded 32→131 dims.
+    // U-NN-FEAT03: +5 physics features → 136 dims total.
     // 7 numeric + 5 bridge + 3 process + 64 material + 16 tool_material +
-    // 16 machine_family + 16 operation + 4 aux.
-    expect(INPUT_DIM).toBe(131);
+    // 16 machine_family + 16 operation + 4 aux + 5 physics = 136.
+    expect(INPUT_DIM).toBe(136);
   });
 
   // ===========================================================================
@@ -594,8 +597,9 @@ describe("XPROC-NEURAL T1-02 — end-to-end convergence on synthetic shop-floor 
     const welford1 = after1.welford;
     if (!welford1) throw new Error("welford state missing after first train");
     expect(welford1.count).toBe(half);
-    expect(welford1.mean.length).toBe(7); // NUMERIC_KEYS_DIM
-    expect(welford1.M2.length).toBe(7);
+    // U-NN-FEAT03: Welford now covers 7 raw + 5 physics = 12 slots.
+    expect(welford1.mean.length).toBe(12);
+    expect(welford1.M2.length).toBe(12);
 
     isolate.train(secondHalf, { epochs: 1, batchSize: secondHalf.length });
     const after2 = isolate.serialize();
@@ -619,6 +623,50 @@ describe("XPROC-NEURAL T1-02 — end-to-end convergence on synthetic shop-floor 
     // At least one feature must show variance > 0 (synthetic data is varied).
     const someVariance = welford2.M2.some((v) => v > 0);
     expect(someVariance).toBe(true);
+  });
+
+  // ===========================================================================
+  // U-NN-FEAT03 — Physics features wire into the NN's input layer
+  // ===========================================================================
+
+  it("physics-feature slots are populated in the input vector (last 5 dims, post-aux)", () => {
+    // Build a record with all numerics needed for Kienzle, Taylor, and
+    // Brammertz. featurize() should produce non-zero values in the 5
+    // physics slots at INPUT_DIM-5..INPUT_DIM-1.
+    const PHYSICS_DIM = 5;
+    const isolate = new CrossProcessNeuralLearningEngine();
+    isolate.reset(TRAIN_SEED);
+    const ds = syntheticDataset(TRAIN_SEED);
+    const x = isolate.featurize(ds[0]);
+    const physicsStart = INPUT_DIM - PHYSICS_DIM;
+    let nonZeroPhysicsSlots = 0;
+    for (let i = physicsStart; i < INPUT_DIM; i++) {
+      if (x[i] !== 0) nonZeroPhysicsSlots++;
+    }
+    // At least 3 of 5 physics features should fire on a complete record
+    // (Kienzle force needs material+ap+fz; Taylor needs material+Vc;
+    //  Brammertz needs fz; chatter needs ap+D; thermal needs all of those).
+    expect(nonZeroPhysicsSlots).toBeGreaterThanOrEqual(3);
+  });
+
+  it("physics-feature pipeline preserves convergence (loss reduction with physics features active)", () => {
+    // Smoke test: training with physics features enabled (the new default
+    // post-FEAT03) must still converge. Original convergence test runs
+    // against the dataset which lacks tool_diameter_mm/feed_rate, so most
+    // physics features will be 0, but the additional slots must not break
+    // the network's ability to learn from the categorical+numeric signal.
+    const isolate = new CrossProcessNeuralLearningEngine();
+    isolate.reset(TRAIN_SEED);
+    const ds = syntheticDataset(TRAIN_SEED);
+    const { train } = shuffleSplit(ds, TRAIN_RATIO);
+    const result = isolate.train(train, {
+      epochs: TRAIN_EPOCHS,
+      batchSize: BATCH_SIZE,
+    });
+    // Final loss must be at least 30% lower than initial loss
+    // (same threshold as pre-FEAT03 convergence — physics shouldn't HURT).
+    expect(result.finalLoss).toBeLessThan(result.initialLoss * 0.7);
+    expect(result.trainAccuracy).toBeGreaterThan(CHANCE_ACCURACY);
   });
 
   it("isolated engine instance trains independently of the singleton", () => {
