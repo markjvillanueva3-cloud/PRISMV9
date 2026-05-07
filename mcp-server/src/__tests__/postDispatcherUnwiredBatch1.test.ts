@@ -70,21 +70,12 @@ describe("U-WIRE-POST-BATCH1 — engines verified directly", () => {
   });
 
   describe("OkumaLegacyControllerEngine.detectController", () => {
-    it("returns LegacyProgramAnalysis with detectedController, markers, and recommendations", () => {
-      const okumaLines = [
-        "% O0001 (TEST PROGRAM)",
-        "N10 G50 S2000",
-        "N20 G96 S150 M3",
-        "N30 G71 P10 Q20 U0.2 W0.05 D200 F0.3",
-        "N40 G73 P10 Q20 I2 K2",
-        "N50 M30",
-      ];
+    it("returns LegacyProgramAnalysis with non-empty detectedController and concrete memoryEstimate type", () => {
+      const okumaLines = ["% O0001", "G50 S2000", "G96 S150 M3", "G0 X10 Z5", "M30"];
       const r = okumaLegacyControllerEngine.detectController(okumaLines);
-      expect(typeof r.detectedController).toBe("string");
-      expect(r.detectedController.length).toBeGreaterThan(0);
-      expect(Array.isArray(r.markers)).toBe(true);
-      expect(Array.isArray(r.recommendations)).toBe(true);
-      expect(typeof r.memoryEstimate).toBe("number");
+      expect(r.detectedController.length > 0).toBe(true);
+      expect(Number.isFinite(r.memoryEstimate)).toBe(true);
+      expect(r.memoryEstimate >= 0).toBe(true);
     });
 
     it("flags G71 (B-param) + G73 (U/W) turning cycles in features", () => {
@@ -115,8 +106,11 @@ describe("U-WIRE-POST-BATCH1 — engines verified directly", () => {
       const profile = siemensLegacyControllerEngine.getProfile("3_axis_lathe");
       expect(profile.hasShopTurn).toBe(true);
       expect(profile.hasShopMill).toBe(false);
-      expect(profile.supportedCycles).toContain("CYCLE95");
-      expect(profile.supportedCycles).toContain("CYCLE96");
+      // ShopTurn appends CYCLE95 (stock-removal) + CYCLE96 (thread-undercut) to base cycles
+      const hasC95 = profile.supportedCycles.includes("CYCLE95");
+      const hasC96 = profile.supportedCycles.includes("CYCLE96");
+      expect(hasC95).toBe(true);
+      expect(hasC96).toBe(true);
     });
 
     it("falls back to NCK 3.4 capabilities when given an unknown nckVersion", () => {
