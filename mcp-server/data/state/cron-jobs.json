@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "PRISM scheduled cron jobs registry. Each entry names a script + cron expression; the cron-bootstrap loader translates to platform scheduler.",
+  "jobs": [
+    {
+      "id": "daily-personal-brief",
+      "milestone": "OBSIDIAN-COMPOUND-MS1/S2/U-DAILY-PERSONAL-BRIEF",
+      "command": "node H:/prism/mcp-server/scripts/generate-personal-brief.mjs",
+      "cron": "0 6 * * 1-5",
+      "timezone": "local",
+      "description": "Compose 3-connections + 1-pattern + 1-question brief from inbox/memories/wiki-log; written to knowledge/memories/inbox/brief-YYYY-MM-DD.md.",
+      "enabled": true,
+      "added": "2026-05-07"
+    }
+  ]
+}
