@@ -39,7 +39,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
     _xprocQLearning: any, _xprocBandit: any,
-    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any,
+    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any, _xprocCalibrationMonitor: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
@@ -92,6 +92,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocBayesianMLP": return _xprocBayesianMLP ??= (await import("../../engines/CrossProcessBayesianMLPEngine.js")).crossProcessBayesianMLP;
     case "xprocConformal": return _xprocConformal ??= (await import("../../engines/CrossProcessConformalPredictionEngine.js")).crossProcessConformalPrediction;
     case "xprocConformalClassify": return _xprocConformalClassify ??= (await import("../../engines/CrossProcessConformalClassificationEngine.js")).crossProcessConformalClassification;
+    case "xprocCalibrationMonitor": return _xprocCalibrationMonitor ??= (await import("../../engines/ConformalCalibrationMonitorEngine.js")).conformalCalibrationMonitor;
     case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
@@ -366,6 +367,12 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_conformal_classify_stats",
   "xproc_conformal_classify_reset",
   "xproc_conformal_classify_constants",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-CONFORMAL02 — rolling coverage drift monitor
+  "xproc_calibration_monitor_configure",
+  "xproc_calibration_monitor_record",
+  "xproc_calibration_monitor_status",
+  "xproc_calibration_monitor_reset",
+  "xproc_calibration_monitor_constants",
   // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble disagreement
   "xproc_ensemble_predict",
   "xproc_ensemble_disagreement",
@@ -1824,6 +1831,12 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_conformal_classify_stats: "xprocConformalClassify",
           xproc_conformal_classify_reset: "xprocConformalClassify",
           xproc_conformal_classify_constants: "xprocConformalClassify",
+          // XPROC-NEURAL-OPTIMIZE/U-NN-CONFORMAL02 — Calibration Drift Monitor
+          xproc_calibration_monitor_configure: "xprocCalibrationMonitor",
+          xproc_calibration_monitor_record: "xprocCalibrationMonitor",
+          xproc_calibration_monitor_status: "xprocCalibrationMonitor",
+          xproc_calibration_monitor_reset: "xprocCalibrationMonitor",
+          xproc_calibration_monitor_constants: "xprocCalibrationMonitor",
           // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble
           xproc_ensemble_predict: "xprocDeepEnsemble",
           xproc_ensemble_disagreement: "xprocDeepEnsemble",

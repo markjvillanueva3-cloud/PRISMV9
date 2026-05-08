@@ -149,6 +149,14 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_conformal_classify_stats: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
   xproc_conformal_classify_reset: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
   xproc_conformal_classify_constants: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
+  // U-NN-CONFORMAL02: rolling empirical-coverage monitor + drift detector.
+  // Closes the loop on the LAC classifier — detects when production
+  // distribution drift breaks the marginal-coverage assumption.
+  xproc_calibration_monitor_configure: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
+  xproc_calibration_monitor_record: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
+  xproc_calibration_monitor_status: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
+  xproc_calibration_monitor_reset: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
+  xproc_calibration_monitor_constants: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
   xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
@@ -1711,6 +1719,11 @@ export async function executeAIReasoningAction(
       case "xproc_conformal_classify_stats":
       case "xproc_conformal_classify_reset":
       case "xproc_conformal_classify_constants":
+      case "xproc_calibration_monitor_configure":
+      case "xproc_calibration_monitor_record":
+      case "xproc_calibration_monitor_status":
+      case "xproc_calibration_monitor_reset":
+      case "xproc_calibration_monitor_constants":
       case "xproc_ensemble_predict":
       case "xproc_ensemble_disagreement":
       case "xproc_ensemble_constants":
