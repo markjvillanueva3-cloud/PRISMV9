@@ -158,24 +158,134 @@ function topPendingUnits(milestoneProgress, n = 20) {
   return rows;
 }
 
+function domainOf(engineName) {
+  // First Capitalized run, e.g., "LatheBayesian..." → "Lathe".
+  const m = engineName.match(/^([A-Z][a-z]+)/);
+  return m ? m[1] : "Other";
+}
+
 function categorizeUnwiredByDomain(unwired) {
   // Group by leading prefix of engine name to make the wire backlog
   // actionable: a planner sees "98 lathe engines unwired" and knows
   // which domain to staff.
   const buckets = new Map();
   for (const e of unwired) {
-    const m = e.name.match(/^([A-Z][a-zA-Z]*?)(Engine|Lite|Worker)?$/);
-    let prefix = "Other";
-    if (m) {
-      const nm = m[1];
-      // Use the "domain word" — first capitalized run.
-      const w = nm.match(/^([A-Z][a-z]+)/);
-      prefix = w ? w[1] : "Other";
-    }
+    const prefix = domainOf(e.name);
     buckets.set(prefix, (buckets.get(prefix) ?? 0) + 1);
   }
   const rows = [...buckets.entries()].sort((a, b) => b[1] - a[1]);
   return rows.slice(0, 25).map(([domain, count]) => ({ domain, count }));
+}
+
+/**
+ * Per-domain coverage table. For each domain prefix, count engines on
+ * disk (from the audit's `counts.totalCanonicalEngines` distribution
+ * via the unwired list and enginesIndex) and how many are wired.
+ *
+ * Total-on-disk for a domain = wired + unwired in that domain. The
+ * audit doesn't list wired engines, so we approximate: every engine
+ * that ISN'T in the unwired list is treated as wired or wire-exempt.
+ * For per-domain wired counts we walk the engines/ folder names and
+ * subtract the unwired set.
+ */
+async function computeCoverageByDomain(unwired, totalEngines, enginesDir) {
+  const unwiredNames = new Set(unwired.map((e) => e.name));
+  let allEngineFiles = [];
+  try {
+    allEngineFiles = await readdir(enginesDir);
+  } catch {
+    /* fall through with empty list */
+  }
+  const enginesByDomain = new Map();
+  for (const file of allEngineFiles) {
+    if (!file.endsWith(".ts")) continue;
+    const name = file.slice(0, -3);
+    const domain = domainOf(name);
+    if (!enginesByDomain.has(domain)) {
+      enginesByDomain.set(domain, { total: 0, wired: 0, unwired: 0, sample: [] });
+    }
+    const bucket = enginesByDomain.get(domain);
+    bucket.total++;
+    const isUnwired = unwiredNames.has(name);
+    if (isUnwired) {
+      bucket.unwired++;
+      if (bucket.sample.length < 6) bucket.sample.push(name);
+    } else {
+      bucket.wired++;
+    }
+  }
+  const rows = [...enginesByDomain.entries()]
+    .map(([domain, b]) => ({
+      domain,
+      total: b.total,
+      wired: b.wired,
+      unwired: b.unwired,
+      coverage_pct: b.total > 0 ? Math.round((b.wired / b.total) * 100) : 0,
+      sample_unwired: b.sample,
+    }))
+    .sort((a, b) => b.unwired - a.unwired || b.total - a.total);
+  return rows;
+}
+
+/**
+ * Stale milestones: any milestone with `pending > 0` whose
+ * `lastShippedDate` is older than STALE_AGE_DAYS (default 30) — or
+ * whose `shipped === 0` and the envelope claims `not_started` (never
+ * picked up). These are abandoned-roadmap candidates.
+ */
+const STALE_AGE_DAYS = 30;
+
+function computeStaleMilestones(ms) {
+  if (!ms?.milestones) return [];
+  const now = Date.now();
+  const cutoff = now - STALE_AGE_DAYS * 24 * 3600 * 1000;
+  const stale = [];
+  for (const m of ms.milestones) {
+    if (m.total === 0) continue; // no units defined; not stale, just empty
+    if (m.pending === 0) continue; // fully shipped
+    let reason;
+    if (m.shipped === 0 && m.claimedStatus === "not_started") {
+      reason = "never_started";
+    } else if (m.lastShippedDate) {
+      const t = Date.parse(m.lastShippedDate);
+      if (!Number.isNaN(t) && t < cutoff) {
+        reason = `last_shipped_${Math.round((now - t) / (24 * 3600 * 1000))}d_ago`;
+      }
+    }
+    if (reason) {
+      stale.push({
+        id: m.id,
+        track: m.track,
+        pending: m.pending,
+        shipped: m.shipped,
+        total: m.total,
+        lastShippedDate: m.lastShippedDate || null,
+        reason,
+      });
+    }
+  }
+  // Most-stale first: prefer never-started, then largest backlog.
+  stale.sort(
+    (a, b) =>
+      (a.reason === "never_started" ? -1 : 1) -
+        (b.reason === "never_started" ? -1 : 1) ||
+      b.pending - a.pending,
+  );
+  return stale;
+}
+
+/**
+ * Wiki cross-ref: for every engine in the unwired sample, attach the
+ * matching wiki entry name (so `[[<wiki-title>]]` resolves directly).
+ */
+function attachWikiCrossRefs(samples, wikiTitles) {
+  return samples.map((s) => {
+    // Wiki entries are typically the engine name without the "Engine"
+    // suffix (e.g., "AdaptiveFeedModulation" for "AdaptiveFeedModulationEngine").
+    const stripped = s.name.replace(/Engine$/, "");
+    const has = wikiTitles.has(stripped);
+    return { ...s, wikiTitle: has ? stripped : null };
+  });
 }
 
 // Chain-regen: if a dependency's output is older than this, fire its
@@ -255,6 +365,15 @@ async function main() {
   const topPending = topPendingUnits(ms, 24);
   const wireDomains = categorizeUnwiredByDomain(unwired);
 
+  const enginesDir = resolve(REPO_ROOT, "mcp-server/src/engines");
+  const coverageByDomain = await computeCoverageByDomain(
+    unwired,
+    stat.totalEngines,
+    enginesDir,
+  );
+  const staleMilestones = computeStaleMilestones(ms);
+  const sampleUnwired = attachWikiCrossRefs(unwired.slice(0, 25), wikiTitles);
+
   const out = {
     schemaVersion: "1.0.0",
     generatedAt: new Date().toISOString(),
@@ -274,6 +393,8 @@ async function main() {
         ms?.milestones?.filter?.(
           (m) => m.drift && m.drift !== "consistent" && m.drift !== "n/a",
         ).length ?? 0,
+      stale_milestones: staleMilestones.length,
+      domains_tracked: coverageByDomain.length,
     },
 
     sources: {
@@ -291,9 +412,22 @@ async function main() {
     NEEDS_WIRING: {
       summary: `${stat.unwired} engines on disk with no dispatcher reference. Top domains by count:`,
       top_domains: wireDomains,
-      sample_engines: unwired.slice(0, 25),
+      sample_engines: sampleUnwired,
       next_action:
-        "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern).",
+        "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.",
+    },
+
+    COVERAGE_BY_DOMAIN: {
+      summary: `Per-domain wired/unwired breakdown across ${coverageByDomain.length} domain prefixes.`,
+      rows: coverageByDomain,
+    },
+
+    STALE_MILESTONES: {
+      summary: `${staleMilestones.length} milestones flagged as stale (pending > 0 AND last shipped > ${STALE_AGE_DAYS}d ago, OR never started).`,
+      threshold_days: STALE_AGE_DAYS,
+      rows: staleMilestones.slice(0, 40),
+      next_action:
+        "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.",
     },
 
     NEEDS_BUILDING: {
@@ -409,6 +543,34 @@ function renderMD(out) {
   }
   lines.push("");
   lines.push(`**Next action:** ${out.NEEDS_FRONTEND.next_action}`);
+  lines.push("");
+
+  lines.push("## COVERAGE_BY_DOMAIN");
+  lines.push("");
+  lines.push(out.COVERAGE_BY_DOMAIN.summary);
+  lines.push("");
+  lines.push("| Domain | Total | Wired | Unwired | Coverage % |");
+  lines.push("|--------|-------|-------|---------|-----------|");
+  for (const r of out.COVERAGE_BY_DOMAIN.rows.slice(0, 30)) {
+    lines.push(`| ${r.domain} | ${r.total} | ${r.wired} | ${r.unwired} | ${r.coverage_pct}% |`);
+  }
+  lines.push("");
+
+  lines.push("## STALE_MILESTONES");
+  lines.push("");
+  lines.push(out.STALE_MILESTONES.summary);
+  lines.push("");
+  if (out.STALE_MILESTONES.rows.length === 0) {
+    lines.push("_No stale milestones detected._");
+  } else {
+    lines.push("| Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |");
+    lines.push("|-----------|-------|--------|---------|---------------|--------------|");
+    for (const r of out.STALE_MILESTONES.rows.slice(0, 30)) {
+      lines.push(`| ${r.id} | ${r.track || "—"} | ${r.reason} | ${r.pending} | ${r.shipped}/${r.total} | ${(r.lastShippedDate || "never").slice(0, 10)} |`);
+    }
+  }
+  lines.push("");
+  lines.push(`**Next action:** ${out.STALE_MILESTONES.next_action}`);
   lines.push("");
 
   lines.push("## How sessions consume this");
