@@ -73,6 +73,14 @@ const ACTIONS = [
   "lathe_changeover_stats",              // LatheChangeoverBriefEngine.getStats
   "lathe_jmdie_extract_customer",        // LatheJMDieKnowledgeEngine.extractCustomerPatterns
   "lathe_metallurgy_tool_steel_db",      // LatheMetallurgyEngine.getToolSteelDatabase
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH3: 6 unwired knowledge/predictive/troubleshoot engines
+  "lathe_knowledge_harvest_programs",    // LatheKnowledgeHarvesterEngine.harvestFromPrograms
+  "lathe_program_analyze",               // LatheProgramOptimizerEngine.analyzeProgram
+  "lathe_expert_material_strategy",      // LatheExpertAdvisorEngine.getMaterialStrategy
+  "lathe_machine_get_profile",           // LatheMachineIntelligenceEngine.getMachineProfile
+  "lathe_troubleshoot_overhang",         // LatheTroubleshootingIntelligenceEngine.analyzeToolOverhang
+  "lathe_predictive_tool_wear",          // LathePredictiveIntelligenceEngine.predictToolWear
 ] as const;
 
 /** Registers turning dispatcher.
@@ -460,6 +468,59 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_metallurgy_tool_steel_db": {
             const { latheMetallurgyEngine } = await import("../../engines/LatheMetallurgyEngine.js");
             result = { tool_steels: latheMetallurgyEngine.getToolSteelDatabase() };
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH3: 6 unwired knowledge/predictive/troubleshoot engines
+          case "lathe_knowledge_harvest_programs": {
+            const { latheKnowledgeHarvesterEngine } = await import("../../engines/LatheKnowledgeHarvesterEngine.js");
+            result = latheKnowledgeHarvesterEngine.harvestFromPrograms();
+            break;
+          }
+          case "lathe_program_analyze": {
+            const { latheProgramOptimizerEngine } = await import("../../engines/LatheProgramOptimizerEngine.js");
+            const p = params as { content: string; file_path?: string };
+            if (typeof p.content !== "string") throw new Error("lathe_program_analyze requires 'content' (string)");
+            result = latheProgramOptimizerEngine.analyzeProgram(p.content, p.file_path);
+            break;
+          }
+          case "lathe_expert_material_strategy": {
+            const { latheExpertAdvisorEngine } = await import("../../engines/LatheExpertAdvisorEngine.js");
+            const p = params as { category: Parameters<typeof latheExpertAdvisorEngine.getMaterialStrategy>[0] };
+            if (typeof p.category !== "string") throw new Error("lathe_expert_material_strategy requires 'category'");
+            result = latheExpertAdvisorEngine.getMaterialStrategy(p.category);
+            break;
+          }
+          case "lathe_machine_get_profile": {
+            const { latheMachineIntelligenceEngine } = await import("../../engines/LatheMachineIntelligenceEngine.js");
+            const p = params as { machine_type: Parameters<typeof latheMachineIntelligenceEngine.getMachineProfile>[0] };
+            if (typeof p.machine_type !== "string") throw new Error("lathe_machine_get_profile requires 'machine_type'");
+            result = latheMachineIntelligenceEngine.getMachineProfile(p.machine_type);
+            break;
+          }
+          case "lathe_troubleshoot_overhang": {
+            const { latheTroubleshootingIntelligenceEngine } = await import("../../engines/LatheTroubleshootingIntelligenceEngine.js");
+            const p = params as {
+              tool_setup: Parameters<typeof latheTroubleshootingIntelligenceEngine.analyzeToolOverhang>[0];
+              cutting_params: Parameters<typeof latheTroubleshootingIntelligenceEngine.analyzeToolOverhang>[1];
+            };
+            if (!p.tool_setup || !p.cutting_params) {
+              throw new Error("lathe_troubleshoot_overhang requires {tool_setup, cutting_params}");
+            }
+            result = latheTroubleshootingIntelligenceEngine.analyzeToolOverhang(p.tool_setup, p.cutting_params);
+            break;
+          }
+          case "lathe_predictive_tool_wear": {
+            const { lathePredictiveIntelligenceEngine } = await import("../../engines/LathePredictiveIntelligenceEngine.js");
+            const p = params as {
+              conditions: Parameters<typeof lathePredictiveIntelligenceEngine.predictToolWear>[0];
+              tool_state: Parameters<typeof lathePredictiveIntelligenceEngine.predictToolWear>[1];
+              cycle_time_per_part_sec: number;
+            };
+            if (!p.conditions || !p.tool_state || typeof p.cycle_time_per_part_sec !== "number") {
+              throw new Error("lathe_predictive_tool_wear requires {conditions, tool_state, cycle_time_per_part_sec}");
+            }
+            result = lathePredictiveIntelligenceEngine.predictToolWear(p.conditions, p.tool_state, p.cycle_time_per_part_sec);
             break;
           }
 

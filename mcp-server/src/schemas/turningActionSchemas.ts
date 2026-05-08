@@ -265,6 +265,77 @@ const lathe_jmdie_extract_customer = z.object({
 const lathe_metallurgy_tool_steel_db = z.object({}).passthrough()
   .describe("Read tool-steel metallurgical database (no input).");
 
+// ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH3: 6 unwired knowledge/predictive/troubleshoot engines ─
+
+const lathe_knowledge_harvest_programs = z.object({}).passthrough()
+  .describe("Harvest unified knowledge from JM Die programs (no input).");
+
+const lathe_program_analyze = z.object({
+  content: z.string().min(1).describe("Lathe G-code program text."),
+  file_path: z.string().optional(),
+}).passthrough().describe("Analyze a lathe program for optimization opportunities.");
+
+const lathe_expert_material_strategy = z.object({
+  category: z.enum([
+    "mild_steel", "alloy_steel", "stainless_steel", "hardened_steel",
+    "cast_iron", "aluminum", "titanium", "nickel_alloy", "brass", "bronze",
+    "copper", "plastic", "exotic",
+  ]).describe("Material category."),
+}).passthrough().describe("Expert material-machining strategy by category.");
+
+const lathe_machine_get_profile = z.object({
+  machine_type: z.enum([
+    "2_axis_cnc", "live_tooling", "swiss_type", "vtl",
+    "multi_spindle", "sub_spindle", "y_axis", "b_axis", "twin_turret",
+  ]).describe("Lathe machine class."),
+}).passthrough().describe("Read capability profile for a lathe machine class.");
+
+const lathe_troubleshoot_overhang = z.object({
+  tool_setup: z.object({
+    tool_type: z.enum(["turning", "boring_bar", "grooving", "threading", "drill", "parting"]),
+    shank_diameter_mm: z.number().positive(),
+    overhang_mm: z.number().positive(),
+    holder_type: z.enum(["standard", "reduced_shank", "damped", "carbide_shank"]),
+    insert_size_mm: z.number().positive().optional(),
+    tool_material: z.enum(["carbide", "hss", "ceramic", "cbn"]),
+    is_internal: z.boolean(),
+  }).passthrough(),
+  cutting_params: z.object({
+    cutting_speed_m_min: z.number().positive(),
+    feed_mm_rev: z.number().positive(),
+    depth_of_cut_mm: z.number().positive(),
+    operation: z.enum(["roughing", "finishing", "threading", "grooving", "parting", "boring"]),
+    coolant: z.enum(["flood", "mist", "dry", "high_pressure"]),
+  }).passthrough(),
+}).passthrough().describe("Tool overhang L/D analysis for chatter/breakage risk.");
+
+const lathe_predictive_tool_wear = z.object({
+  conditions: z.object({
+    cutting_speed_m_min: z.number().positive(),
+    feed_mm_rev: z.number().positive(),
+    depth_of_cut_mm: z.number().positive(),
+    material: z.string().min(1),
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]),
+    hardness_hrc: z.number().nonnegative().optional(),
+    tool_material: z.enum(["carbide", "ceramic", "cbn", "diamond", "hss"]),
+    tool_coating: z.string().optional(),
+    nose_radius_mm: z.number().positive(),
+    coolant: z.enum(["flood", "mist", "dry", "high_pressure", "cryogenic"]),
+  }).passthrough(),
+  tool_state: z.object({
+    tool_id: z.string().min(1),
+    edge_number: z.number().int().nonnegative(),
+    time_in_cut_min: z.number().nonnegative(),
+    volume_removed_cm3: z.number().nonnegative(),
+    current_vb_mm: z.number().nonnegative().optional(),
+    current_kt_mm: z.number().nonnegative().optional(),
+    insert_grade: z.string().min(1),
+    coating: z.string().optional(),
+    operations_count: z.number().int().nonnegative(),
+  }).passthrough(),
+  cycle_time_per_part_sec: z.number().positive(),
+}).passthrough().describe("Predict tool wear progression using Taylor + condition factors.");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -283,4 +354,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_changeover_stats,
   lathe_jmdie_extract_customer,
   lathe_metallurgy_tool_steel_db,
+
+  // BATCH3 schemas: knowledge/predictive/troubleshoot
+  lathe_knowledge_harvest_programs,
+  lathe_program_analyze,
+  lathe_expert_material_strategy,
+  lathe_machine_get_profile,
+  lathe_troubleshoot_overhang,
+  lathe_predictive_tool_wear,
 };
