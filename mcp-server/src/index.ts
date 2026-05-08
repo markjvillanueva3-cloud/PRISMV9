@@ -54,6 +54,8 @@ import { registerOmegaDispatcher } from "./tools/dispatchers/omegaDispatcher.js"
 import { registerValidationDispatcher } from "./tools/dispatchers/validationDispatcher.js";
 import { registerDocumentDispatcher } from "./tools/dispatchers/documentDispatcher.js";
 import { registerInboxDispatcher } from "./tools/dispatchers/inboxDispatcher.js";
+import { registerIntakeDispatcher } from "./tools/dispatchers/intakeDispatcher.js";
+import { createIntakeRouter } from "./routes/intake.js";
 import { registerRalphDispatcher } from "./tools/dispatchers/ralphDispatcher.js";
 import { registerKnowledgeDispatcher } from "./tools/dispatchers/knowledgeDispatcher.js";
 import { registerDevDispatcher } from "./tools/dispatchers/devDispatcher.js";
@@ -566,6 +568,8 @@ async function registerTools(): Promise<void> {
 
   // DocuRead Inbox (8 actions) — Document intake, classification, part matching
   registerInboxDispatcher(server);
+  // OBSIDIAN-COMPOUND-MS1/S3/U-CAPTURE-WEBHOOK
+  registerIntakeDispatcher(server);
   
   // Dev Workflow (7 actions)
   registerDevDispatcher(server);
@@ -822,6 +826,12 @@ async function runHTTP(): Promise<void> {
   await registerTools();
   
   const app = express();
+  // OBSIDIAN-COMPOUND-MS1/S3/U-CAPTURE-WEBHOOK — MUST mount BEFORE
+  // express.json so the raw body parser inside intake router sees the
+  // exact bytes the HMAC was computed over (express.json would otherwise
+  // consume the body stream first and break HMAC verification).
+  app.use("/api/intake", createIntakeRouter());
+
   app.use(express.json());
   registerOAuthHttpRoutes(app);
   
