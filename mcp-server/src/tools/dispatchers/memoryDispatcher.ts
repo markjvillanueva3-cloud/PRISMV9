@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine",
     {
       action: z.enum([
         "get_health",
@@ -75,6 +75,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "voice_validate",
         // OBSIDIAN-CONTENT-MS2/U-CAPTURE-SHARPEN: raw→punchy capture assessment
         "capture_sharpen",
+        // OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS: Ollama nomic-embed-text wrapper
+        "embed_text",
+        "embed_pairwise_cosine",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -581,8 +584,49 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS — Ollama embedding for a single text
+          case "embed_text": {
+            const { ollamaEmbedderEngine } = await import("../../engines/OllamaEmbedderEngine.js");
+            const text = typeof params.text === "string" ? params.text : "";
+            if (!text) {
+              result = { ok: false, error: "missing-text-param" };
+              break;
+            }
+            const r = await ollamaEmbedderEngine.embed(text);
+            result = r.ok
+              ? { ok: true, dims: r.vector.length, vector: r.vector }
+              : { ok: false, error: r.error };
+            break;
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS — pairwise cosine similarity for N inputs
+          case "embed_pairwise_cosine": {
+            const { ollamaEmbedderEngine } = await import("../../engines/OllamaEmbedderEngine.js");
+            const inputs = Array.isArray(params.inputs) ? params.inputs : [];
+            const valid = inputs.filter(
+              (x: unknown): x is { path: string; text: string } =>
+                !!x && typeof x === "object" &&
+                typeof (x as { path?: unknown }).path === "string" &&
+                typeof (x as { text?: unknown }).text === "string",
+            );
+            if (valid.length === 0) {
+              result = { ok: false, error: "no-valid-inputs", embedded: 0, failed: [], pairs: [] };
+              break;
+            }
+            const r = await ollamaEmbedderEngine.pairwiseCosine(valid);
+            result = {
+              ok: r.ok,
+              embedded: r.embedded,
+              failed: r.failed,
+              pairs: r.similarities
+                ? Array.from(r.similarities.entries()).map(([k, s]) => ({ pair: k, similarity: s }))
+                : [],
+            };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -598,5 +642,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (26 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create + 1 performance-report + 1 connections-materialize + 1 content-brief-create + 1 voice-validate + 1 capture-sharpen)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (28 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create + 1 performance-report + 1 connections-materialize + 1 content-brief-create + 1 voice-validate + 1 capture-sharpen + 2 ollama-embedding)");
 }
