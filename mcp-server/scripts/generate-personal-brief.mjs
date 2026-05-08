@@ -322,7 +322,47 @@ export async function generateBrief(opts = {}) {
     mkdirSync(dirname(outputPath), { recursive: true });
     writeFileSync(outputPath, content, "utf8");
   }
-  return { ok: true, outputPath: dryRun ? null : outputPath, content, sources };
+
+  // OBSIDIAN-CONTENT-MS2 integration: alongside the Ollama narrative brief,
+  // also run DailyPersonalBriefEngine to produce deterministic cosine-similarity
+  // connections AND materialize them as standalone notes. The two artifacts
+  // are complementary — the narrative brief is for reading, the connection
+  // notes are for compounding (each pair becomes a persistent reference).
+  let materializedSummary = null;
+  if (!opts.skipMaterialize) {
+    try {
+      const distEngine = resolve(__dirname, "..", "dist", "engines", "DailyPersonalBriefEngine.js");
+      let mod;
+      if (existsSync(distEngine)) {
+        mod = await import(`file:///${distEngine.replace(/\\/g, "/")}`);
+      } else {
+        const tsx = await import("tsx/esm/api");
+        mod = await tsx.tsImport(
+          resolve(__dirname, "..", "src", "engines", "DailyPersonalBriefEngine.ts"),
+          import.meta.url,
+        );
+      }
+      const briefResult = mod.dailyPersonalBriefEngine.synthesize({
+        vaultRoot: memoriesRoot,
+        now,
+        materializeConnections: true,
+        connectionsApply: !dryRun,
+      });
+      materializedSummary = briefResult.materialized ?? null;
+    } catch (err) {
+      // Non-fatal: the narrative brief already shipped. Log and continue.
+      // eslint-disable-next-line no-console
+      console.error(`brief-warn: connection materialization failed (${err?.message ?? err})`);
+    }
+  }
+
+  return {
+    ok: true,
+    outputPath: dryRun ? null : outputPath,
+    content,
+    sources,
+    materialized: materializedSummary,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -333,6 +373,7 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--dry-run") args.dryRun = true;
+    else if (a === "--skip-materialize") args.skipMaterialize = true;
     else if (a === "--vault") args.vaultRoot = argv[++i];
     else if (a === "--out") args.outputPath = argv[++i];
     else if (a === "--window-7d-ms") args.windowMemories = Number(argv[++i]);

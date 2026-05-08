@@ -39,6 +39,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
+import { connectionMaterializerEngine } from "./ConnectionMaterializerEngine.js";
 
 export interface DailyBriefConnection {
   /** Absolute path of note A (alphabetically first of the pair). */
@@ -72,6 +73,20 @@ export interface DailyBriefResult {
   threshold: number;
   /** ISO8601 timestamp of synthesis. */
   generated_at: string;
+  /**
+   * Present when `materializeConnections: true` was requested. Summarizes the
+   * ConnectionMaterializerEngine pass that ran on the same `connections` list.
+   * The vault talks back: each daily connection becomes a persistent note
+   * rather than evaporating with that day's brief.
+   */
+  materialized?: {
+    apply: boolean;
+    wrote: number;
+    skipped_exists: number;
+    updated: number;
+    errored: number;
+    paths: string[];
+  };
 }
 
 export interface DailyBriefOptions {
@@ -89,6 +104,20 @@ export interface DailyBriefOptions {
   maxNotes?: number;
   /** Cap on wiki files scanned per call. Default 2000. */
   maxWiki?: number;
+  /**
+   * When true, the top-N connections are also persisted to disk via
+   * ConnectionMaterializerEngine. Default false (backward-compatible).
+   * cyrilXBT JARVIS rationale: a connection that lives only inside today's
+   * brief evaporates; making it a standalone note lets it compound.
+   */
+  materializeConnections?: boolean;
+  /** Override the connections directory used when materializing. */
+  connectionsDir?: string;
+  /**
+   * When true (default when materializeConnections is true), actually write
+   * connection files. Set false for dry-run materialization.
+   */
+  connectionsApply?: boolean;
 }
 
 const DEFAULT_VAULT_ROOT = "H:/prism/knowledge/memories";
@@ -445,6 +474,29 @@ export class DailyPersonalBriefEngine {
     }));
 
     const pattern = renderPattern(top, docs);
+
+    // Optional: materialize each connection as a standalone note in the
+    // connections/ directory so daily connections compound rather than
+    // evaporating with that day's brief. Default off for backward compat.
+    let materialized: DailyBriefResult["materialized"] = undefined;
+    if (opts.materializeConnections && top.length > 0) {
+      const apply = opts.connectionsApply !== false;
+      const matReport = connectionMaterializerEngine.materialize(top, {
+        connectionsDir: opts.connectionsDir,
+        apply,
+        mode: "skip",
+        now,
+      });
+      materialized = {
+        apply,
+        wrote: matReport.counters.wrote,
+        skipped_exists: matReport.counters.skipped_exists,
+        updated: matReport.counters.updated,
+        errored: matReport.counters.errored,
+        paths: matReport.results.map((r) => r.filePath),
+      };
+    }
+
     return {
       brief_date: briefDate,
       connections: top,
@@ -454,6 +506,7 @@ export class DailyPersonalBriefEngine {
       analyzed_wiki: wikiFiles.length,
       threshold,
       generated_at: generatedAt,
+      ...(materialized ? { materialized } : {}),
     };
   }
 }
