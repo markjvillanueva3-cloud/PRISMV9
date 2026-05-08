@@ -403,6 +403,87 @@ const wedm_calibration_generate = z
   .passthrough()
   .describe("CalibrationInput to compare shop program against published benchmarks.");
 
+// ─── ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH6: 6 unwired audit/awareness/dxf/degradation/ewc engines ─
+
+const AUTONOMY_AUDIT_ACTIONS = [
+  "promote", "demote", "manual_promote", "manual_degrade", "status_read", "history_read",
+] as const;
+const AUTONOMY_AUDIT_OUTCOMES = ["success", "denied", "failed"] as const;
+
+/** wedm_autonomy_audit_record — WEDMAutonomyAuditEngine.record */
+const wedm_autonomy_audit_record = z
+  .object({
+    action: z.enum(AUTONOMY_AUDIT_ACTIONS).describe("HTTP action against the autonomy API."),
+    user_id: z.string().nullable().describe("Auth principal."),
+    user_roles: z.array(z.string()).default([]).describe("Auth roles from Bearer."),
+    remote_ip: z.string().nullable().default(null),
+    actor: z.string().nullable().default(null),
+    reason: z.string().nullable().default(null),
+    level_from: z.number().nullable().default(null),
+    level_to: z.number().nullable().default(null),
+    outcome: z.enum(AUTONOMY_AUDIT_OUTCOMES).describe("Outcome of the request."),
+    error: z.string().nullable().default(null),
+    counter_signed: z.boolean().default(false),
+  })
+  .passthrough()
+  .describe("Append a tamper-evident autonomy-audit log entry.");
+
+/** wedm_awareness_register_dispatcher — WEDMAwarenessAdoptionEngine.registerDispatcher */
+const wedm_awareness_register_dispatcher = z
+  .object({
+    dispatcher: z.string().min(1).describe("Dispatcher name (e.g. 'prism_edm')."),
+    actions: z.array(z.string().min(1)).min(1).describe("List of action names exposed by the dispatcher."),
+  })
+  .passthrough()
+  .describe("Register a dispatcher's WEDM-relevant action surface for adoption tracking.");
+
+/** wedm_dxf_validate — WEDMDXFClosureValidatorEngine.validate */
+const wedm_dxf_validate = z
+  .array(
+    z
+      .object({
+        id: z.string().min(1),
+        type: z.enum(["line", "arc", "circle", "polyline", "spline"]),
+        start: z.object({ x: z.number(), y: z.number() }),
+        end: z.object({ x: z.number(), y: z.number() }),
+        center: z.object({ x: z.number(), y: z.number() }).optional(),
+        radius: z.number().optional(),
+        bulge: z.number().optional(),
+      })
+      .passthrough(),
+  )
+  .min(1)
+  .describe("Validate DXF segment closure (gap/overlap/winding/self-intersect).");
+
+/** wedm_degradation_update — WEDMDegradationModelEngine.update */
+const wedm_degradation_update = z
+  .object({
+    dt_hours: z.number().positive().describe("Tick length in hours."),
+    wire_tension_gf: z.number().nonnegative(),
+    wire_feed_mm_s: z.number().nonnegative(),
+    discharge_current_A: z.number().nonnegative(),
+    pulse_on_us: z.number().nonnegative(),
+    pulses: z.number().nonnegative(),
+    conductivity_uS_cm: z.number().nonnegative(),
+    flow_L_min: z.number().nonnegative(),
+    debris_rate_mg_hr: z.number().nonnegative(),
+    pulse_energy_mJ: z.number().nonnegative(),
+  })
+  .passthrough()
+  .describe("Apply incremental usage delta and return updated degradation snapshot.");
+
+/** wedm_degradation_snapshot — WEDMDegradationModelEngine.snapshot */
+const wedm_degradation_snapshot = z
+  .object({})
+  .passthrough()
+  .describe("Read current degradation snapshot (no input required).");
+
+/** wedm_ewc_list_slots — WEDMEWCMemoryEngine.listSlots */
+const wedm_ewc_list_slots = z
+  .object({})
+  .passthrough()
+  .describe("List EWC consolidation slots (no input required).");
+
 export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   // Legacy EDM actions - validation delegated to individual engines.
   // BATCH2 schemas added for stricter validation.
@@ -436,4 +517,12 @@ export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   wedm_exception_handle,
   wedm_exception_record,
   wedm_active_query_grid,
+
+  // BATCH6 schemas: audit / awareness / dxf-closure / degradation / EWC-memory
+  wedm_autonomy_audit_record,
+  wedm_awareness_register_dispatcher,
+  wedm_dxf_validate,
+  wedm_degradation_update,
+  wedm_degradation_snapshot,
+  wedm_ewc_list_slots,
 };

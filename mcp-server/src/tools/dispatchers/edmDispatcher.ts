@@ -368,6 +368,14 @@ const ACTIONS = [
   "wedm_exception_handle",                 // WEDMExceptionHandlerEngine.handle
   "wedm_exception_record",                 // WEDMExceptionHandlerEngine.recordOutcome
   "wedm_active_query_grid",                // WEDMActiveQueryEngine.generateCandidateGrid
+
+  // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH6: 6 unwired audit/awareness/dxf/degradation/ewc engines
+  "wedm_autonomy_audit_record",            // WEDMAutonomyAuditEngine.record
+  "wedm_awareness_register_dispatcher",    // WEDMAwarenessAdoptionEngine.registerDispatcher
+  "wedm_dxf_validate",                     // WEDMDXFClosureValidatorEngine.validate
+  "wedm_degradation_update",               // WEDMDegradationModelEngine.update
+  "wedm_degradation_snapshot",             // WEDMDegradationModelEngine.snapshot
+  "wedm_ewc_list_slots",                   // WEDMEWCMemoryEngine.listSlots
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2264,6 +2272,52 @@ Actions: ${ACTIONS.join(", ")}.`,
             };
             if (!p.features || typeof p.features !== "object") throw new Error("wedm_active_query_grid requires 'features'");
             result = wedmActiveQueryEngine.generateCandidateGrid(p.features, p.opts);
+            break;
+          }
+
+          // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH6: 6 unwired audit/awareness/dxf/degradation/ewc engines
+          case "wedm_autonomy_audit_record": {
+            const { wedmAutonomyAuditEngine } = await import("../../engines/WEDMAutonomyAuditEngine.js");
+            const p = params as Parameters<typeof wedmAutonomyAuditEngine.record>[0];
+            if (!p || typeof p.action !== "string") throw new Error("wedm_autonomy_audit_record requires {action}");
+            result = wedmAutonomyAuditEngine.record(p);
+            break;
+          }
+          case "wedm_awareness_register_dispatcher": {
+            const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
+            const p = params as Parameters<typeof wedmAwarenessAdoptionEngine.registerDispatcher>[0];
+            if (!p || typeof p.dispatcher !== "string" || !Array.isArray(p.actions)) {
+              throw new Error("wedm_awareness_register_dispatcher requires {dispatcher, actions[]}");
+            }
+            wedmAwarenessAdoptionEngine.registerDispatcher(p);
+            result = { registered: true, dispatcher: p.dispatcher, action_count: p.actions.length };
+            break;
+          }
+          case "wedm_dxf_validate": {
+            const { wedmDXFClosureValidatorEngine } = await import("../../engines/WEDMDXFClosureValidatorEngine.js");
+            const segments = (params as { segments: Parameters<typeof wedmDXFClosureValidatorEngine.validate>[0] }).segments
+                          ?? (params as Parameters<typeof wedmDXFClosureValidatorEngine.validate>[0]);
+            if (!Array.isArray(segments)) throw new Error("wedm_dxf_validate requires 'segments[]'");
+            result = wedmDXFClosureValidatorEngine.validate(segments);
+            break;
+          }
+          case "wedm_degradation_update": {
+            const { wedmDegradationModelEngine } = await import("../../engines/WEDMDegradationModelEngine.js");
+            const p = params as Parameters<typeof wedmDegradationModelEngine.update>[0];
+            if (!p || typeof p.dt_hours !== "number" || p.dt_hours <= 0) {
+              throw new Error("wedm_degradation_update requires positive 'dt_hours'");
+            }
+            result = wedmDegradationModelEngine.update(p);
+            break;
+          }
+          case "wedm_degradation_snapshot": {
+            const { wedmDegradationModelEngine } = await import("../../engines/WEDMDegradationModelEngine.js");
+            result = wedmDegradationModelEngine.snapshot();
+            break;
+          }
+          case "wedm_ewc_list_slots": {
+            const { wedmEWCMemoryEngine } = await import("../../engines/WEDMEWCMemoryEngine.js");
+            result = { slots: wedmEWCMemoryEngine.listSlots() };
             break;
           }
 
