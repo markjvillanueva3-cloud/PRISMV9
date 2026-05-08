@@ -16,7 +16,6 @@ import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
 import { logActionTelemetry } from "../../utils/actionTelemetry.js";
 import { safeFunctionEval } from "../../utils/safeMathEval.js";
-import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 /** Zod-validated params — dispatcher validates via ACTION_CALC_SCHEMAS before engine calls.
  *  Type is `any` because Zod runtime validation guarantees shape correctness; static types
@@ -158,6 +157,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { mrr_cm3min: result.MRR_cm3min, spindle_rpm: result.spindle_rpm };
     case "coolant_strategy":
       return { strategy: result.recommendation?.strategy, pressure_bar: result.recommendation?.pressure_bar };
+    case "chip_thinning_compensation":
+      return { fz: result?.compensated_feed_per_tooth_mm, factor: result?.compensation_factor, hex: result?.effective_chip_thickness_mm, applied: result?.compensation_applied, multiplier: result?.feedrate_multiplier };
     case "tolerance_analysis":
       return { tolerance_um: result.tolerance_um, grade: result.grade_label, nominal_mm: result.nominal_mm };
     case "fit_analysis":
@@ -325,11 +326,11 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
     case "stochastic_force":
       return { result: `StochForce: μ=${result.value.mean_force_n.toFixed(1)}N σ=${result.value.std_dev_n.toFixed(1)}N CV=${result.value.cv_percent.toFixed(1)}%` };
     case "stochastic_tool_life":
-      return { result: `StochLife: Taylor=${result.value.taylor_life_min.toFixed(1)}min` };
+      return { taylor_min: result?.taylor_life_min, weibull_mean: result?.weibull?.mean_min, weibull_beta: result?.weibull?.beta, p10_min: result?.p10_life_min };
     case "stochastic_thermal":
       return { result: `StochTherm: μ=${result.value.mean_temp_c.toFixed(0)}°C σ=${result.value.std_dev_c.toFixed(0)}°C` };
     case "stochastic_finish":
-      return { result: `StochRa: theory=${result.value.theoretical_ra_um.toFixed(2)}μm actual=${result.value.mean_ra_um.toFixed(2)}μm` };
+      return { theory_um: result?.theoretical_ra_um, mean_um: result?.mean_ra_um, std_um: result?.std_dev_um, p95: result?.p95_ra_um, cpk: result?.cpk_ra };
     case "stochastic_chatter":
       return { result: `StochChatter: safe=${result.value.summary.max_safe_depth_mm.toFixed(2)}mm` };
     case "uncertainty_pipeline":
@@ -514,83 +515,6 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { method: result.method, r2: result.r2, numCoeffs: result.coefficients?.length };
     case "random_matrix_noise_floor":
       return { numSignals: result.numSignals, noiseVariance: result.noiseVariance, threshold: result.threshold };
-    // SF-AI-L1: Speed/Feed Deep Learning
-    case "sf_deep_speed":
-      return { Vc_mpm: result.cutting_speed_mpm, rpm: result.spindle_rpm, confidence: result.confidence, basis: result.physics_basis };
-    case "sf_deep_feed":
-      return { fz_mm: result.feed_per_tooth_mm, fpr_mm: result.feed_per_rev_mm, Vf_mmmin: result.feed_rate_mmmin, balanced: result.chip_load_balanced, confidence: result.confidence };
-    case "sf_deep_tool_life":
-      return { life_min: result.tool_life_min, parts: result.tool_life_parts, weibull_shape: result.weibull_shape, confidence: result.confidence };
-    case "sf_deep_finish":
-      return { Ra_um: result.predicted_Ra_um, range_min: result.achievable_range?.min, range_max: result.achievable_range?.max, confidence: result.confidence };
-    case "sf_deep_power":
-      return { power_kW: result.power_kW, torque_Nm: result.torque_Nm, util_pct: result.power_utilization_pct, within_limits: result.within_machine_limits };
-    case "sf_deep_optimize":
-      return { opt_Vc: result.optimal_speed_mpm, opt_fz: result.optimal_feed_mm, opt_ap: result.optimal_depth_mm, mrr: result.predicted_mrr, life_min: result.predicted_tool_life };
-    case "sf_deep_comprehensive":
-      return { Vc: result.speed?.cutting_speed_mpm, fz: result.feed?.feed_per_tooth_mm, life_min: result.tool_life?.tool_life_min, Ra_um: result.surface_finish?.predicted_Ra_um, confidence: result.overall_confidence };
-    case "sf_deep_cot":
-      return { steps: result.reasoning_steps?.length, answer: result.final_answer, confidence: result.overall_confidence, physics_ok: result.physics_validated };
-    case "sf_deep_feedback":
-      return { success: result.success, job_id: result.job_id };
-    case "sf_deep_stats":
-      return { queries: result.queries_processed, networks: result.neural_networks, feedback: result.self_learning_feedback };
-    // SF-AI-L2: Speed/Feed Advanced AI
-    case "sf_adv_xai":
-      return { features: result?.length, top_feature: result?.[0]?.feature, top_importance: result?.[0]?.importance };
-    case "sf_adv_counterfactual":
-      return { original: result.original_value, counterfactual: result.counterfactual_value, outcome: result.outcome_change, confidence: result.confidence };
-    case "sf_adv_consensus":
-      return { consensus: result.consensus_reached, speed_mpm: result.final_recommendation?.speed_mpm, agreement: result.agreement_score, experts: result.experts?.length };
-    case "sf_adv_causal_dag":
-      return { nodes: result.nodes?.length, edges: result.edges?.length };
-    case "sf_adv_intervention":
-      return { original: result.original_outcome, counterfactual: result.counterfactual_outcome, effect: result.causal_effect, confounders: result.confounders?.length };
-    case "sf_adv_plan":
-      return { strategic_goals: result.strategic?.goals?.length, tactical_actions: result.tactical?.actions?.length, coherence: result.coherence_score };
-    case "sf_adv_self_consistency":
-      return { chains: result.chains?.length, majority: result.majority_answer, agreement: result.agreement_ratio, confidence: result.final_confidence };
-    case "sf_adv_verify":
-      return { valid: result.overall_valid, steps_passed: result.verification_steps?.filter((s: {passed: boolean}) => s.passed)?.length, corrections: result.corrections?.length };
-    case "sf_adv_react":
-      return { steps: result.steps?.length, answer: result.final_answer, confidence: result.confidence };
-    case "sf_adv_reflexion":
-      return { episodes: result.episodes?.length, lessons: result.lessons_learned?.length, improvement: result.improvement_from_reflection };
-    case "sf_adv_comprehensive":
-      return { xai_features: result.feature_importance?.length, consensus_ok: result.consensus?.consensus_reached, verified: result.verification?.overall_valid, confidence: result.overall_confidence };
-    case "sf_adv_stats":
-      return { queries: result.queries_processed, capabilities: result.ai_capabilities?.length, frameworks: result.reasoning_frameworks?.length };
-    // SF-AI-L3: Speed/Feed Ultimate AI
-    case "sf_ult_ensemble":
-      return { architectures: result.members?.length, speed: result.consensus?.speed_mpm, disagreement: result.disagreement, confidence: result.calibrated_confidence };
-    case "sf_ult_episodes_retrieve":
-      return { episodes: result.similar_episodes?.length, success_rate: result.success_rate, failures: result.common_failure_modes?.length };
-    case "sf_ult_episodes_store":
-      return { success: true };
-    case "sf_ult_kg_query":
-      return { paths: result.paths?.length, inferences: result.inferences?.length, constraints: result.constraints_discovered?.length };
-    case "sf_ult_kg_stats":
-      return { nodes: result.nodes, edges: result.edges, types: result.node_types?.length };
-    case "sf_ult_memory_state":
-      return { queries: result.recent_queries?.length, context: result.current_context?.material, refinements: result.refinement_history?.length };
-    case "sf_ult_memory_update":
-      return { success: true };
-    case "sf_ult_tot":
-      return { explored: result.exploration_stats?.nodes_explored, pruned: result.exploration_stats?.nodes_pruned, speed: result.optimal_parameters?.speed_mpm, confidence: result.confidence };
-    case "sf_ult_meta_learn":
-      return { base_speed: result.base_parameters?.speed_mpm, adapted_speed: result.adapted_parameters?.speed_mpm, shift: result.domain_shift_detected, samples: result.few_shot_samples_used };
-    case "sf_ult_active_learn":
-      return { speed: result.suggested_experiment?.speed_mpm, feed: result.suggested_experiment?.feed_mm, info_gain: result.expected_information_gain };
-    case "sf_ult_llm_trace":
-      return { steps: result.reasoning_steps?.length, answer: result.final_answer, prompts: result.interactive_prompts?.length };
-    case "sf_ult_adversarial":
-      return { perturbations: result.perturbations_tested, robustness: result.robustness_score, ood: result.ood_detected, confidence: result.recalibrated_confidence };
-    case "sf_ult_multimodal":
-      return { conflict: result.conflict_detected, speed: result.fused_prediction?.speed_mpm, life: result.fused_prediction?.life_min, confidence: result.fusion_confidence };
-    case "sf_ult_ultimate":
-      return { systems: result.ai_systems_consulted, speed: result.final_recommendation?.speed_mpm, life: result.final_recommendation?.tool_life_min, confidence: result.overall_confidence };
-    case "sf_ult_stats":
-      return { queries: result.queries_processed, systems: result.ai_systems, episodes: result.episodic_memory?.total_episodes };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -637,9 +561,11 @@ const ACTIONS = [
   "wear_progression", "drill_breakthrough", "thermal_growth",
   "bore_finishing", "finishing_pass", "turning_force",
   "tapping_torque", "power_budget",
+  "chip_thinning_compensation",
   "tool_deflection_predict", "chip_formation", "specific_cutting_energy",
   "roughness_convert", "peck_drill_optimize",
   "drill_cycle_optimize", "coating_select",
+  "workpiece_deflection_compensate",
   "geometry_select", "insert_grade_select", "coolant_recommend",
   "monte_carlo_simulate", "monte_carlo_tool_life", "monte_carlo_tolerance", "monte_carlo_histogram",
   "gcode_validate", "gcode_envelope", "gcode_optimize", "gcode_compress", "gcode_analyze",
@@ -725,6 +651,12 @@ const ACTIONS = [
   "waterjet_taper_calc",
   "microstructure_analyze", "microstructure_recommend",
   "calc_energy_analyze", "calc_energy_optimize", "energy_compare",
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SCE: SpecificCuttingEnergyEngine ──
+  "calc_specific_cutting_energy",
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC: SFCOptimizeEngine (Surface Finish Calculator) ──
+  "calc_sfc_optimize",
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC-CMP: SFCCompareEngine (measurements vs spec, Cpk, trend) ──
+  "calc_sfc_compare", "calc_sfc_meets_spec",
   // ── Tool Catalog ──
   "tool_catalog_search", "tool_catalog_lookup", "tool_catalog_assembly",
   "tool_catalog_collision_envelope", "tool_catalog_recommend", "tool_catalog_stats",
@@ -1065,6 +997,28 @@ const ACTIONS = [
   "sparse_solve", "iterative_solve", "matrix_norms", "matrix_factorize",
   "tensor_stress_invariants", "system_identify", "robust_regression",
   "random_matrix_noise_floor",
+  // OPT-WIRE-MS0: BanditParameterOptimizerEngine actions
+  "bandit_register_arm", "bandit_select_arm", "bandit_update_reward",
+  // PHYSICS-WIRE-MS0: wire 11 unwired physics engines
+  "clamping_force_calc", "clamping_force_quick",
+  "cross_phys_upqi", "cross_phys_tool_life", "cross_phys_surface", "cross_phys_stability",
+  "cross_phys_tool_change", "cross_phys_thermal_error", "cross_phys_energy_eff", "cross_phys_dyn_stiffness",
+  "face_driver_analyze", "face_driver_penetration",
+  "mdof_stability", "mdof_stability_eigen", "mdof_compare_sdof",
+  "machine_force_limit_validate", "machine_force_limit_quick",
+  "timoshenko_deflect", "timoshenko_multi_section", "timoshenko_compare", "timoshenko_max_ld",
+  "goal_stability_observe", "goal_stability_analyze",
+  "session_stability_report", "session_stability_lyapunov",
+  "tribal_playbook_validate", "tribal_playbook_ranges", "tribal_playbook_guidance",
+  // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
+  "sfc_calculate", "sfc_feed_for_target",
+  // -- ENGINE-WIRE-MS0/U-WIRE09: 5 leaf physics engines --
+  "engagement_dynamics_calc", "engagement_optimize_adapter",
+  "cutting_fluid_lifecycle_calc", "chip_formation_predict", "surface_measure_calc",
+  // -- ENGINE-WIRE-MS0/U-WIRE10: 5 neural+adaptive engines --
+  "chatter_neural_classify", "thermal_neural_predict",
+  "adaptive_param_space_record", "adaptive_param_space_query",
+  "adaptive_machining_process", "adaptive_physics_bridge",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1133,17 +1087,6 @@ export function registerCalcDispatcher(server: any): void {
             "prism_calc"
           );
         }
-
-        // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
-        let awareness: AwarenessConsultResult | null = null;
-        try {
-          const keywords = extractAwarenessKeywords(action, params);
-          awareness = await consultAwareness({
-            dispatcher: "calc",
-            action,
-            keywords,
-          });
-        } catch { /* awareness failure is non-blocking */ }
 
         // === PRE-CALCULATION HOOKS (9 hooks: lesson recall, validation, compatibility, force bounds, circuit breaker) ===
         const hookCtx = {
@@ -4243,6 +4186,58 @@ export function registerCalcDispatcher(server: any): void {
           case "energy_compare": {
             const { energyOptimizationEngine: eoe3 } = await import("../../engines/EnergyOptimizationEngine.js");
             result = eoe3.compare(params.scenarios ?? []);
+            break;
+          }
+
+          // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SCE: SpecificCuttingEnergyEngine ──
+          case "calc_specific_cutting_energy": {
+            const { specificCuttingEnergyEngine } = await import("../../engines/SpecificCuttingEnergyEngine.js");
+            result = specificCuttingEnergyEngine.calculate(params as Parameters<typeof specificCuttingEnergyEngine.calculate>[0]);
+            break;
+          }
+
+          // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC: SFCOptimizeEngine (Surface Finish Calculator) ──
+          case "calc_sfc_optimize": {
+            const { SFCOptimizeEngine } = await import("../../engines/SFCOptimizeEngine.js");
+            const p = params as Parameters<typeof SFCOptimizeEngine.optimize>[0];
+            if (!p || typeof p !== "object") throw new Error("calc_sfc_optimize requires input object");
+            if (typeof p.targetRa !== "number" || !(p.targetRa > 0)) {
+              throw new Error("calc_sfc_optimize requires positive 'targetRa' (µm)");
+            }
+            if (typeof p.operation !== "string" || p.operation.length === 0) {
+              throw new Error("calc_sfc_optimize requires 'operation' (turning/milling/grinding/boring)");
+            }
+            if (typeof p.material !== "string" || p.material.length === 0) {
+              throw new Error("calc_sfc_optimize requires 'material'");
+            }
+            result = SFCOptimizeEngine.optimize(p);
+            break;
+          }
+
+          // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC-CMP: SFCCompareEngine ──
+          case "calc_sfc_compare": {
+            const { SFCCompareEngine } = await import("../../engines/SFCCompareEngine.js");
+            const p = params as Parameters<typeof SFCCompareEngine.compare>[0];
+            if (!p || typeof p !== "object") throw new Error("calc_sfc_compare requires input object");
+            if (!Array.isArray(p.measurements) || p.measurements.length === 0) {
+              throw new Error("calc_sfc_compare requires non-empty 'measurements' array");
+            }
+            if (!p.specification || typeof p.specification !== "object") {
+              throw new Error("calc_sfc_compare requires 'specification' object");
+            }
+            result = SFCCompareEngine.compare(p);
+            break;
+          }
+          case "calc_sfc_meets_spec": {
+            const { SFCCompareEngine } = await import("../../engines/SFCCompareEngine.js");
+            const p = params as { ra: number; specification: Parameters<typeof SFCCompareEngine.meetsSpec>[1] };
+            if (typeof p.ra !== "number" || !Number.isFinite(p.ra) || p.ra < 0) {
+              throw new Error("calc_sfc_meets_spec requires non-negative numeric 'ra' (µm)");
+            }
+            if (!p.specification || typeof p.specification !== "object") {
+              throw new Error("calc_sfc_meets_spec requires 'specification' object");
+            }
+            result = { meetsSpec: SFCCompareEngine.meetsSpec(p.ra, p.specification) };
             break;
           }
 
@@ -8396,427 +8391,448 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
-          // ── SF-AI-L1: Speed/Feed Deep Learning (10 actions) ──
-          case "sf_deep_speed": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.predictSpeed(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type,
-              params.hardness_HB
-            );
+          // ── PHYSICS-WIRE-MS0: 11 previously unwired physics engines (27 actions) ──
+          case "clamping_force_calc": {
+            const { clampingForceEngine: cfe } = await import("../../engines/ClampingForceEngine.js");
+            result = cfe.calculate(params as ValidatedParams);
             break;
           }
-          case "sf_deep_feed": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.predictFeed(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.speed_mpm,
-              params.cut_type,
-              params.axial_depth_mm,
-              params.radial_depth_mm
-            );
+          case "clamping_force_quick": {
+            const { clampingForceEngine: cfe } = await import("../../engines/ClampingForceEngine.js");
+            result = cfe.quickEstimate(params as ValidatedParams);
             break;
           }
-          case "sf_deep_tool_life": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.predictToolLife(
-              params.material,
-              params.speed_mpm,
-              params.feed_mm,
-              params.depth_mm
-            );
+          case "cross_phys_upqi": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().unifiedProcessQualityIndex(params as ValidatedParams);
             break;
           }
-          case "sf_deep_finish": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.predictSurfaceFinish(
-              params.feed_mm,
-              params.corner_radius_mm,
-              params.operation,
-              params.cut_type
-            );
+          case "cross_phys_tool_life": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().coupledToolLife(params as ValidatedParams);
             break;
           }
-          case "sf_deep_power": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.predictPower(
-              params.material,
-              params.speed_mpm,
-              params.feed_mm,
-              params.axial_depth_mm,
-              params.radial_depth_mm,
-              params.machine_power_kW
-            );
+          case "cross_phys_surface": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().multiSourceSurfaceFinish(params as ValidatedParams);
             break;
           }
-          case "sf_deep_optimize": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.bayesianOptimize(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              {
-                max_power_kW: params.max_power_kW,
-                min_tool_life_min: params.min_tool_life_min,
-                max_Ra_um: params.max_Ra_um,
-              }
-            );
+          case "cross_phys_stability": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().processStabilityMargin(params as ValidatedParams);
             break;
           }
-          case "sf_deep_comprehensive": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = await speedFeedDeepLearningEngine.comprehensiveAnalysis({
-              material: params.material,
-              tool_diameter_mm: params.tool_diameter_mm,
-              flutes: params.flutes,
-              operation: params.operation,
-              cut_type: params.cut_type,
-              hardness_HB: params.hardness_HB,
-              corner_radius_mm: params.corner_radius_mm,
-              axial_depth_mm: params.axial_depth_mm,
-              radial_depth_mm: params.radial_depth_mm,
-              machine_power_kW: params.machine_power_kW,
-            });
+          case "cross_phys_tool_change": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().optimalToolChangePoint(params as ValidatedParams);
             break;
           }
-          case "sf_deep_cot": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.chainOfThoughtAnalysis(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type
-            );
+          case "cross_phys_thermal_error": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().thermalGeometricErrorBudget(params as ValidatedParams);
             break;
           }
-          case "sf_deep_feedback": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            speedFeedDeepLearningEngine.recordFeedback(
-              params.job_id,
-              {
-                speed_mpm: params.predicted_speed_mpm,
-                feed_mm: params.predicted_feed_mm,
-                tool_life_min: params.predicted_tool_life_min,
-                Ra_um: params.predicted_Ra_um,
-              },
-              {
-                speed_mpm: params.actual_speed_mpm,
-                feed_mm: params.actual_feed_mm,
-                tool_life_min: params.actual_tool_life_min,
-                Ra_um: params.actual_Ra_um,
-              }
-            );
-            result = { success: true, job_id: params.job_id, message: "Feedback recorded for self-learning" };
+          case "cross_phys_energy_eff": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().cuttingEnergyEfficiency(params as ValidatedParams);
             break;
           }
-          case "sf_deep_stats": {
-            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
-            result = speedFeedDeepLearningEngine.stats();
+          case "cross_phys_dyn_stiffness": {
+            const { CrossPhysicsCouplingEngine: CPCE } = await import("../../engines/CrossPhysicsCouplingEngine.js");
+            result = new CPCE().dynamicProcessStiffness(params as ValidatedParams);
             break;
           }
-
-          // ── SF-AI-L2: Speed/Feed Advanced AI (12 actions) ──
-          case "sf_adv_xai": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.getFeatureImportance(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.cut_type,
-              params.hardness_HB
-            );
+          case "face_driver_analyze": {
+            const { faceDriverTorqueEngine: fdt } = await import("../../engines/FaceDriverTorqueEngine.js");
+            { const p = params as ValidatedParams; result = fdt.analyze(p.driver, p.part, p.requiredTorqueNm); }
             break;
           }
-          case "sf_adv_counterfactual": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.getCounterfactual(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type,
-              params.feature,
-              params.change_percent
-            );
+          case "face_driver_penetration": {
+            const { faceDriverTorqueEngine: fdt } = await import("../../engines/FaceDriverTorqueEngine.js");
+            { const p = params as ValidatedParams; result = fdt.recommendPenetration(p.targetTorqueNm, p.driver, p.part); }
             break;
           }
-          case "sf_adv_consensus": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.getMultiExpertConsensus(
-              params.material,
-              params.tool_diameter_mm,
-              params.operation,
-              params.cut_type
-            );
+          case "mdof_stability": {
+            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
+            result = mdof.compute(params as ValidatedParams);
             break;
           }
-          case "sf_adv_causal_dag": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.getCausalDAG();
+          case "mdof_stability_eigen": {
+            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
+            result = mdof.computeWithEigenvalue(params as ValidatedParams);
             break;
           }
-          case "sf_adv_intervention": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.performIntervention(
-              params.variable,
-              params.value,
-              params.material,
-              {
-                speed_mpm: params.current_speed_mpm,
-                feed_mm: params.current_feed_mm,
-                depth_mm: params.current_depth_mm,
-              }
-            );
+          case "mdof_compare_sdof": {
+            const { mdofStabilityEngine: mdof } = await import("../../engines/MDOFStabilityEngine.js");
+            result = mdof.compareSDOFvsMDOF(params as ValidatedParams);
             break;
           }
-          case "sf_adv_plan": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.createPlan(
-              params.material,
-              params.operations,
-              {
-                shift_hours: params.shift_hours,
-                target_parts: params.target_parts,
-                quality_focus: params.quality_focus,
-              }
-            );
+          case "machine_force_limit_validate": {
+            const { machineForceLimitValidationEngine: mfl } = await import("../../engines/MachineForceLimitValidationEngine.js");
+            result = mfl.validate(params as ValidatedParams);
             break;
           }
-          case "sf_adv_self_consistency": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.selfConsistency(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type,
-              params.num_chains
-            );
+          case "machine_force_limit_quick": {
+            const { machineForceLimitValidationEngine: mfl } = await import("../../engines/MachineForceLimitValidationEngine.js");
+            { const p = params as ValidatedParams; result = mfl.quickValidate(p.powerKw, p.torqueNm, p.rpm, p.machineSpecs); }
             break;
           }
-          case "sf_adv_verify": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.verifyParameters(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type,
-              params.proposed_speed_mpm
-            );
+          case "timoshenko_deflect": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            result = td.calculate(params as ValidatedParams);
             break;
           }
-          case "sf_adv_react": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.reactOptimize(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.target_mrr
-            );
+          case "timoshenko_multi_section": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            result = td.calculateMultiSection(params as ValidatedParams);
             break;
           }
-          case "sf_adv_reflexion": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.learnFromFailures(
-              params.material,
-              params.tool_diameter_mm,
-              params.operation,
-              params.failure_history
-            );
+          case "timoshenko_compare": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            result = td.compareModels(params as ValidatedParams);
             break;
           }
-          case "sf_adv_comprehensive": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = await speedFeedAdvancedAIEngine.advancedAnalysis({
-              material: params.material,
-              tool_diameter_mm: params.tool_diameter_mm,
-              flutes: params.flutes,
-              operation: params.operation,
-              cut_type: params.cut_type,
-              target_mrr: params.target_mrr,
-              failure_history: params.failure_history,
-            });
+          case "timoshenko_max_ld": {
+            const { timoshenkoDeflectionEngine: td } = await import("../../engines/TimoshenkoDeflectionEngine.js");
+            const p = params as ValidatedParams;
+            result = td.calculateMaxLD(p.params ?? p, p.max_deflection_um ?? p.maxDeflection_um);
             break;
           }
-          case "sf_adv_stats": {
-            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
-            result = speedFeedAdvancedAIEngine.stats();
+          case "goal_stability_observe": {
+            const { goalStabilityVerifierEngine: gsv } = await import("../../engines/GoalStabilityVerifierEngine.js");
+            gsv.observe(params as ValidatedParams);
+            result = { observed: true };
+            break;
+          }
+          case "goal_stability_analyze": {
+            const { goalStabilityVerifierEngine: gsv } = await import("../../engines/GoalStabilityVerifierEngine.js");
+            result = gsv.analyze();
+            break;
+          }
+          case "session_stability_report": {
+            const { sessionStabilityEngine: sse } = await import("../../engines/SessionStabilityEngine.js");
+            const p = params as ValidatedParams;
+            if (p.state) sse.recordState(p.state);
+            result = sse.generateReport(p.state ?? p);
+            break;
+          }
+          case "session_stability_lyapunov": {
+            const { sessionStabilityEngine: sse } = await import("../../engines/SessionStabilityEngine.js");
+            result = sse.analyzeLyapunov((params as ValidatedParams).state ?? params);
+            break;
+          }
+          case "tribal_playbook_validate": {
+            const { tribalPlaybookEnforcementEngine: tpe } = await import("../../engines/TribalPlaybookEnforcementEngine.js");
+            const p = params as ValidatedParams;
+            result = tpe.validate(p.parameters ?? p, p.context ?? {});
+            break;
+          }
+          case "tribal_playbook_ranges": {
+            const { tribalPlaybookEnforcementEngine: tpe } = await import("../../engines/TribalPlaybookEnforcementEngine.js");
+            result = { ranges: tpe.getRecommendedRanges((params as ValidatedParams).material) };
+            break;
+          }
+          case "tribal_playbook_guidance": {
+            const { tribalPlaybookEnforcementEngine: tpe } = await import("../../engines/TribalPlaybookEnforcementEngine.js");
+            const p = params as ValidatedParams;
+            result = { tips: tpe.searchGuidance(p.query, p.material, p.operation) };
             break;
           }
 
-          // ── SF-AI-L3: Speed/Feed Ultimate AI (14 actions) ──
-          case "sf_ult_ensemble": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.getDeepEnsemblePrediction(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type
-            );
+          // ── PHYSICS-WIRE-MS0: wire 6 pre-existing orphan actions ──
+          case "tool_collision_query": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            const p = params as ValidatedParams;
+            if (p.tool_id && p.holder_id) {
+              result = toolCatalogEngine.collisionEnvelope({ tool_id: p.tool_id, holder_type: p.holder_type, holder_taper: p.holder_taper, stickout_mm: p.stickout_mm });
+            } else {
+              result = { tools: toolCatalogEngine.collisionDataBatch(p) };
+            }
             break;
           }
-          case "sf_ult_episodes_retrieve": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.retrieveEpisodes(
-              params.material,
-              params.operation,
-              params.cut_type,
-              params.limit
-            );
+          case "tool_find_optimal": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.recommend(params as ValidatedParams);
             break;
           }
-          case "sf_ult_episodes_store": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            speedFeedUltimateAIEngine.storeEpisode({
-              id: params.id,
-              timestamp: Date.now(),
-              material: params.material,
-              operation: params.operation,
-              cut_type: params.cut_type,
-              parameters: {
-                speed_mpm: params.speed_mpm,
-                feed_mm: params.feed_mm,
-                depth_mm: params.depth_mm,
-              },
-              outcome: params.outcome,
-              tool_life_achieved_min: params.tool_life_achieved_min,
-              surface_finish_achieved_um: params.surface_finish_achieved_um,
-              notes: params.notes,
-            });
-            result = { success: true, episode_id: params.id };
+          case "physics_calibrate_submit": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.submit(params as ValidatedParams);
             break;
           }
-          case "sf_ult_kg_query": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.queryKnowledgeGraph(
-              params.start_node,
-              params.relation,
-              params.max_depth
-            );
+          case "physics_calibrate_predict": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.predict(params as ValidatedParams);
             break;
           }
-          case "sf_ult_kg_stats": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.getKnowledgeGraphStats();
+          case "physics_calibrate_state": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.getState();
             break;
           }
-          case "sf_ult_memory_state": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.getWorkingMemoryState();
-            break;
-          }
-          case "sf_ult_memory_update": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            speedFeedUltimateAIEngine.updateWorkingMemoryContext({
-              material: params.material,
-              operation: params.operation,
-              tool_diameter_mm: params.tool_diameter_mm,
-              constraints: params.constraints,
-            });
-            result = { success: true, context_updated: true };
-            break;
-          }
-          case "sf_ult_tot": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.treeOfThoughtsOptimize(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type,
-              params.max_depth,
-              params.branching_factor
-            );
-            break;
-          }
-          case "sf_ult_meta_learn": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.metaLearn(
-              params.target_material,
-              params.tool_diameter_mm,
-              params.operation,
-              params.cut_type,
-              params.few_shot_samples
-            );
-            break;
-          }
-          case "sf_ult_active_learn": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.suggestNextExperiment(
-              params.material,
-              {
-                min_speed: params.min_speed,
-                max_speed: params.max_speed,
-                min_feed: params.min_feed,
-                max_feed: params.max_feed,
-              },
-              params.exploration_weight
-            );
-            break;
-          }
-          case "sf_ult_llm_trace": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.generateLLMCLITrace(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type
-            );
-            break;
-          }
-          case "sf_ult_adversarial": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.validateRobustness(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type,
-              params.num_perturbations
-            );
-            break;
-          }
-          case "sf_ult_multimodal": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.fuseMultiModal(
-              params.material,
-              params.tool_diameter_mm,
-              params.flutes,
-              params.operation,
-              params.cut_type
-            );
-            break;
-          }
-          case "sf_ult_ultimate": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = await speedFeedUltimateAIEngine.ultimateAnalysis({
-              material: params.material,
-              tool_diameter_mm: params.tool_diameter_mm,
-              flutes: params.flutes,
-              operation: params.operation,
-              cut_type: params.cut_type,
-              few_shot_samples: params.few_shot_samples,
-            });
-            break;
-          }
-          case "sf_ult_stats": {
-            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
-            result = speedFeedUltimateAIEngine.stats();
+          case "physics_calibrate_reset": {
+            const { physicsAutoCalibrationEngine } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = physicsAutoCalibrationEngine.reset(params as ValidatedParams);
             break;
           }
 
-          default:
+          // ── OPT-WIRE-MS0: 5 unwired optimization engines (8 actions) ──
+          case "drill_cycle_optimize": {
+            const { drillCycleOptimizationEngine } = await import("../../engines/DrillCycleOptimizationEngine.js");
+            result = drillCycleOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── COG-BRIDGE-FOLLOWUP/U-WIRE-CALC-PECK: complete the half-wired peck_drill_optimize action.
+          // The action was in the enum + result-slimmer (line 244) but had no case handler — calls
+          // were silently returning the unrelated result of whatever case fell through to.
+          case "peck_drill_optimize": {
+            const { peckDrillingOptimizationEngine } = await import("../../engines/PeckDrillingOptimizationEngine.js");
+            result = peckDrillingOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── COG-BRIDGE-FOLLOWUP/U-WIRE-CALC-DEFL: wire WorkpieceDeflectionCompensationEngine.
+          // Cantilevered bar deflection physics for live-tooling lathes (Euler-Bernoulli + hex/round
+          // section properties). Engine signature is calculate(action, input) — pass action through.
+          case "workpiece_deflection_compensate": {
+            const { workpieceDeflectionCompensationEngine } = await import("../../engines/WorkpieceDeflectionCompensationEngine.js");
+            result = workpieceDeflectionCompensationEngine.calculate(action, params as ValidatedParams);
+            break;
+          }
+          case "finishing_pass": {
+            const { finishingPassOptimizationEngine } = await import("../../engines/FinishingPassOptimizationEngine.js");
+            result = finishingPassOptimizationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "adaptive_engagement_calc": {
+            const { adaptiveEngagementEngine } = await import("../../engines/AdaptiveEngagementEngine.js");
+            result = adaptiveEngagementEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "chance_constrained_optimize": {
+            const { chanceConstrainedOptimizationEngine } = await import("../../engines/ChanceConstrainedOptimizationEngine.js");
+            result = chanceConstrainedOptimizationEngine.optimize(params as ValidatedParams);
+            break;
+          }
+          case "bandit_register_arm": {
+            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
+            banditParameterOptimizerEngine.registerArm(params as ValidatedParams);
+            result = { registered: true };
+            break;
+          }
+          case "bandit_select_arm": {
+            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
+            result = banditParameterOptimizerEngine.selectArm((params as ValidatedParams).context);
+            break;
+          }
+          case "bandit_update_reward": {
+            const { banditParameterOptimizerEngine } = await import("../../engines/BanditParameterOptimizerEngine.js");
+            const p = params as ValidatedParams;
+            banditParameterOptimizerEngine.updateReward(p.armId, p.reward, p.context);
+            result = { updated: true };
+            break;
+          }
+
+          // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
+          case "sfc_calculate": {
+            const { SFCCalculateEngine } = await import("../../engines/SFCCalculateEngine.js");
+            result = SFCCalculateEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "sfc_feed_for_target": {
+            const { SFCCalculateEngine } = await import("../../engines/SFCCalculateEngine.js");
+            const p = params as ValidatedParams;
+            result = { feed: SFCCalculateEngine.calculateFeedForTarget(p.targetRa, p.operation, p.toolNoseRadius, p.toolDiameter) };
+            break;
+          }
+
+          // ENGINE-WIRE-MS0/U-WIRE02: 5 leaf-physics engines wired (4 orphan enum slots + 1 new action)
+          case "power_budget": {
+            const { cuttingPowerBudgetEngine } = await import("../../engines/CuttingPowerBudgetEngine.js");
+            result = cuttingPowerBudgetEngine.calculate(params as Parameters<typeof cuttingPowerBudgetEngine.calculate>[0]);
+            break;
+          }
+          case "stochastic_dimension": {
+            const { stochasticDimensionalEngine } = await import("../../engines/StochasticDimensionalEngine.js");
+            result = stochasticDimensionalEngine.simulate(params as Parameters<typeof stochasticDimensionalEngine.simulate>[0]);
+            break;
+          }
+          case "stochastic_finish": {
+            const { stochasticSurfaceFinishEngine } = await import("../../engines/StochasticSurfaceFinishEngine.js");
+            const av = stochasticSurfaceFinishEngine.compute(params as Parameters<typeof stochasticSurfaceFinishEngine.compute>[0]);
+            result = (av && typeof av === "object" && "value" in av) ? (av as { value: unknown }).value : av;
+            break;
+          }
+          case "stochastic_tool_life": {
+            const { stochasticToolLifeEngine } = await import("../../engines/StochasticToolLifeEngine.js");
+            const av = stochasticToolLifeEngine.compute(params as Parameters<typeof stochasticToolLifeEngine.compute>[0]);
+            result = (av && typeof av === "object" && "value" in av) ? (av as { value: unknown }).value : av;
+            break;
+          }
+          case "chip_thinning_compensation": {
+            const { chipThinningCompensationEngine } = await import("../../engines/ChipThinningCompensationEngine.js");
+            result = chipThinningCompensationEngine.calculate(params as Parameters<typeof chipThinningCompensationEngine.calculate>[0]);
+            break;
+          }
+          case "engagement_dynamics_calc": {
+            const { engagementDynamicsEngine } = await import("../../engines/EngagementDynamicsEngine.js");
+            result = engagementDynamicsEngine.calculateSegmentProfile(
+              (params as any).segment,
+              (params as any).feed_per_tooth ?? 0.1,
+              (params as any).flutes ?? 4,
+            );
+            break;
+          }
+          case "engagement_optimize_adapter": {
+            const { engagementOptimizerAdapter } = await import("../../engines/EngagementOptimizerAdapter.js");
+            result = engagementOptimizerAdapter.selectEngagementOrchestrated(
+              params as unknown as Parameters<typeof engagementOptimizerAdapter.selectEngagementOrchestrated>[0],
+            );
+            break;
+          }
+          case "cutting_fluid_lifecycle_calc": {
+            const { cuttingFluidLifecycleEngine } = await import("../../engines/CuttingFluidLifecycleEngine.js");
+            result = cuttingFluidLifecycleEngine.simulate(
+              params as unknown as Parameters<typeof cuttingFluidLifecycleEngine.simulate>[0],
+            );
+            break;
+          }
+          case "chip_formation_predict": {
+            const { chipFormationPredictionEngine } = await import("../../engines/ChipFormationPredictionEngine.js");
+            result = chipFormationPredictionEngine.calculate(
+              params as unknown as Parameters<typeof chipFormationPredictionEngine.calculate>[0],
+            );
+            break;
+          }
+          case "surface_measure_calc": {
+            const { SurfaceMeasureEngine } = await import("../../engines/SurfaceMeasureEngine.js");
+            const p = params as Record<string, unknown>;
+            const subAction = typeof p.action_type === "string" ? p.action_type : "get_standard_specs";
+            if (subAction === "record") {
+              result = SurfaceMeasureEngine.recordMeasurement(p as Parameters<typeof SurfaceMeasureEngine.recordMeasurement>[0]);
+            } else if (subAction === "list") {
+              result = SurfaceMeasureEngine.listByPart(
+                typeof p.partNumber === "string" ? p.partNumber : "",
+                typeof p.featureName === "string" ? p.featureName : undefined,
+              );
+            } else if (subAction === "statistics") {
+              result = SurfaceMeasureEngine.getStatistics(
+                typeof p.partNumber === "string" ? p.partNumber : "",
+                typeof p.featureName === "string" ? p.featureName : "",
+                (typeof p.parameter === "string" ? p.parameter : "Ra") as Parameters<typeof SurfaceMeasureEngine.getStatistics>[2],
+              );
+            } else {
+              result = { specifications: SurfaceMeasureEngine.getStandardSpecifications() };
+            }
+            break;
+          }
+                    case "chatter_neural_classify": {
+            const { chatterNeuralClassifierEngine } = await import("../../engines/ChatterNeuralClassifierEngine.js");
+            const p = params as Record<string, unknown>;
+            const frf = {
+              frequencyBins: Array.isArray(p.frequencyBins) ? p.frequencyBins as number[] : [100, 200, 300, 400, 500],
+              magnitudes: Array.isArray(p.magnitudes) ? p.magnitudes as number[] : [0.1, 0.2, 0.3, 0.2, 0.1],
+            };
+            const features = {
+              spindleRpm: typeof p.spindleRpm === "number" ? p.spindleRpm : 5000,
+              axialDepthMm: typeof p.axialDepthMm === "number" ? p.axialDepthMm : 5,
+              radialDepthMm: typeof p.radialDepthMm === "number" ? p.radialDepthMm : 5,
+              feedPerToothMm: typeof p.feedPerToothMm === "number" ? p.feedPerToothMm : 0.1,
+              toolDiameterMm: typeof p.toolDiameterMm === "number" ? p.toolDiameterMm : 10,
+              fluteCount: typeof p.fluteCount === "number" ? p.fluteCount : 4,
+              overhangMm: typeof p.overhangMm === "number" ? p.overhangMm : 50,
+              materialIsoGroup: (typeof p.materialIsoGroup === "string" ? p.materialIsoGroup : "P") as "P"|"M"|"K"|"N"|"S"|"H",
+              helixAngleDeg: typeof p.helixAngleDeg === "number" ? p.helixAngleDeg : undefined,
+              kc11Mpa: typeof p.kc11Mpa === "number" ? p.kc11Mpa : undefined,
+              machineStiffnessNPerUm: typeof p.machineStiffnessNPerUm === "number" ? p.machineStiffnessNPerUm : undefined,
+              naturalFrequencyHz: typeof p.naturalFrequencyHz === "number" ? p.naturalFrequencyHz : undefined,
+            };
+            result = chatterNeuralClassifierEngine.classify(frf, features);
+            break;
+          }
+          case "thermal_neural_predict": {
+            const { thermalNeuralPredictorEngine } = await import("../../engines/ThermalNeuralPredictorEngine.js");
+            const p = params as Record<string, unknown>;
+            const input = {
+              material: {
+                iso_group: (typeof p.material_iso_group === "string" ? p.material_iso_group : "P") as "P"|"M"|"K"|"N"|"S"|"H",
+                thermal_conductivity_w_mk: typeof p.thermal_conductivity_w_mk === "number" ? p.thermal_conductivity_w_mk : undefined,
+                specific_heat_j_kgk: typeof p.specific_heat_j_kgk === "number" ? p.specific_heat_j_kgk : undefined,
+                density_kg_m3: typeof p.density_kg_m3 === "number" ? p.density_kg_m3 : undefined,
+              },
+              tool: {
+                material: (typeof p.tool_material === "string" ? p.tool_material : "carbide") as "carbide"|"ceramic"|"cbn"|"pcd"|"hss",
+                coating: typeof p.tool_coating === "string" ? p.tool_coating as "uncoated"|"TiN"|"TiAlN"|"AlTiN"|"DLC" : undefined,
+                thermal_conductivity_w_mk: typeof p.tool_conductivity_w_mk === "number" ? p.tool_conductivity_w_mk : undefined,
+              },
+              conditions: {
+                cutting_speed_mpm: typeof p.cutting_speed_mpm === "number" ? p.cutting_speed_mpm : 200,
+                feed_per_tooth_mm: typeof p.feed_per_tooth_mm === "number" ? p.feed_per_tooth_mm : 0.1,
+                axial_depth_mm: typeof p.axial_depth_mm === "number" ? p.axial_depth_mm : 5,
+                radial_depth_mm: typeof p.radial_depth_mm === "number" ? p.radial_depth_mm : 5,
+                cutting_force_n: typeof p.cutting_force_n === "number" ? p.cutting_force_n : 500,
+              },
+              coolant: {
+                type: (typeof p.coolant_type === "string" ? p.coolant_type : "flood") as "dry"|"flood"|"mql"|"cryogenic",
+                flow_rate_lpm: typeof p.coolant_flow_lpm === "number" ? p.coolant_flow_lpm : undefined,
+                temperature_c: typeof p.coolant_temp_c === "number" ? p.coolant_temp_c : undefined,
+              },
+              history: typeof p.cutting_time_s === "number" ? { cutting_time_s: p.cutting_time_s } : undefined,
+            };
+            result = thermalNeuralPredictorEngine.predict(input);
+            break;
+          }
+          case "adaptive_param_space_record": {
+            const { adaptiveParameterSpaceEngine } = await import("../../engines/AdaptiveParameterSpaceEngine.js");
+            const p = params as Record<string, unknown>;
+            adaptiveParameterSpaceEngine.recordOperation({
+              parameters: typeof p.parameters === "object" && p.parameters !== null ? p.parameters as Record<string, number> : {},
+              timestamp: new Date().toISOString(),
+              outcome: (typeof p.outcome === "string" ? p.outcome : "success") as "success"|"marginal"|"failure",
+              context: typeof p.context === "object" && p.context !== null ? p.context as Record<string, unknown> : {},
+            });
+            result = adaptiveParameterSpaceEngine.getStatistics();
+            break;
+          }
+          case "adaptive_param_space_query": {
+            const { adaptiveParameterSpaceEngine } = await import("../../engines/AdaptiveParameterSpaceEngine.js");
+            const p = params as Record<string, unknown>;
+            const count = typeof p.count === "number" ? p.count : 5;
+            result = {
+              statistics: adaptiveParameterSpaceEngine.getStatistics(),
+              explorationTargets: adaptiveParameterSpaceEngine.suggestExplorationTargets(count),
+              unexploredGaps: adaptiveParameterSpaceEngine.identifyUnexploredGaps().slice(0, count),
+              exploredRegions: adaptiveParameterSpaceEngine.getExploredRegions().slice(0, count),
+            };
+            break;
+          }
+          case "adaptive_machining_process": {
+            const { adaptiveMachiningIntegrationEngine } = await import("../../engines/AdaptiveMachiningIntegrationEngine.js");
+            result = adaptiveMachiningIntegrationEngine.process(
+              params as unknown as Parameters<typeof adaptiveMachiningIntegrationEngine.process>[0]
+            );
+            break;
+          }
+          case "adaptive_physics_bridge": {
+            const { adaptivePhysicsBridgeEngine } = await import("../../engines/AdaptivePhysicsBridgeEngine.js");
+            const p = params as Record<string, unknown>;
+            const conditions = {
+              feed_mm_rev: typeof p.feed_mm_rev === "number" ? p.feed_mm_rev : 0.2,
+              depth_of_cut_mm: typeof p.depth_of_cut_mm === "number" ? p.depth_of_cut_mm : 2,
+              cutting_speed_mpm: typeof p.cutting_speed_mpm === "number" ? p.cutting_speed_mpm : 150,
+              material: (typeof p.material === "string" ? p.material : "steel") as "steel"|"stainless"|"aluminum"|"cast_iron"|"titanium"|"superalloy",
+              tool_diameter_mm: typeof p.tool_diameter_mm === "number" ? p.tool_diameter_mm : undefined,
+              rake_angle_deg: typeof p.rake_angle_deg === "number" ? p.rake_angle_deg : undefined,
+              insert_nose_radius_mm: typeof p.insert_nose_radius_mm === "number" ? p.insert_nose_radius_mm : undefined,
+              chipbreaker_type: typeof p.chipbreaker_type === "string" ? p.chipbreaker_type as "none"|"light"|"medium"|"heavy" : undefined,
+              coolant: typeof p.coolant === "boolean" ? p.coolant : true,
+            };
+            const cuttingPower = typeof p.cutting_power_kw === "number" ? p.cutting_power_kw : 5;
+            const ratedPower = typeof p.rated_power_kw === "number" ? p.rated_power_kw : 15;
+            const cuttingTime = typeof p.cutting_time_min === "number" ? p.cutting_time_min : 30;
+            result = adaptivePhysicsBridgeEngine.performIntegratedAnalysis(conditions, cuttingPower, ratedPower, cuttingTime);
+            break;
+          }
+default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
 
@@ -8866,7 +8882,7 @@ export function registerCalcDispatcher(server: any): void {
             if (extracted && Object.keys(extracted).length > 0) {
               const slimLevel = getSlimLevel(pressurePct);
               return {
-                content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness({ action, ...extracted, _slimmed: true }, awareness), slimLevel)) }]
+                content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true }, slimLevel)) }]
               };
             }
           } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -8879,35 +8895,9 @@ export function registerCalcDispatcher(server: any): void {
           }, { category: "calculation", priority: "normal", source: "calcDispatcher" });
         } catch { /* best-effort */ }
 
-        // MILL-AGI-P0.2: Record milling reasoning trace for core milling actions
-        const MILLING_TRACE_ACTIONS = new Set([
-          "cutting_force", "tool_life", "surface_finish", "mrr", "speed_feed",
-          "deflection", "stability", "kienzle_milling", "thermal", "chip_load",
-          "chip_formation", "chip_diagnose", "thin_wall_params", "thin_wall_deflection",
-          "chatter_stability_sld", "chatter_multi_frequency", "tool_deflection_predict"
-        ]);
-        if (MILLING_TRACE_ACTIONS.has(action)) {
-          try {
-            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
-            millingReasoningTraceLedgerEngine.recordTraceSync({
-              dispatcher: "calcDispatcher",
-              action,
-              keywords: extractAwarenessKeywords(action, params),
-              inputs_summary: JSON.stringify(calcExtractKeyValues(action, params)).slice(0, 200),
-              outputs_summary: JSON.stringify(calcExtractKeyValues(action, result)).slice(0, 200),
-              confidence: result?.confidence ?? (awareness?.ok ? 0.85 : 0.7),
-              awareness_used: awareness?.ok ?? false,
-              tribal_tips_used: awareness?.summary?.length ?? 0,
-              duration_ms: Date.now() - calcStart,
-              engines_consulted: ["KienzleForceModel", "TaylorToolLife", "ManufacturingCalculations"].filter(() => true),
-              physics_validated: result?.is_safe !== false,
-            });
-          } catch { /* trace recording is non-blocking */ }
-        }
-
         logActionTelemetry(action, Date.now() - calcStart, true, "prism_calc");
         return {
-          content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness(result, awareness), getSlimLevel(pressurePct))) }]
+          content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }]
         };
 
       } catch (error) {

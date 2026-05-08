@@ -625,13 +625,24 @@ const tapping_torque = z.object({
 
 const power_budget = z.object({
   machine_power_kW: posNum,
+  machine_max_torque_Nm: optPosNum,
+  machine_base_rpm: optPosNum,
+  machine_max_rpm: optPosNum,
   cutting_speed_m_min: posNum,
   depth_of_cut_mm: posNum,
-  feed_mm_rev: posNum,
+  width_of_cut_mm: optPosNum,
+  // U-WIRE02: schema-engine alignment — engine accepts feed_mm_rev OR (feed_mm_tooth × flutes)
+  feed_mm_rev: optPosNum,
+  feed_mm_tooth: optPosNum,
+  flutes: z.number().int().positive().optional(),
   tool_diameter_mm: optPosNum,
+  workpiece_diameter_mm: optPosNum,
   number_of_teeth: z.number().int().positive().optional(),
   kc1_1: optPosNum,
   mc: optNum,
+  material_kc1_1: optPosNum,
+  material_mc: optNum,
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
   efficiency: z.number().min(0).max(1).optional(),
   material_id: materialRef,
   material: materialRef,
@@ -2391,6 +2402,111 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
       input: z.record(z.string(), z.unknown()),
     })).optional(),
   }).passthrough(),
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC-CMP: SFCCompareEngine (measurements vs spec, Cpk, trend) ──
+  calc_sfc_compare: z.object({
+    measurements: z.array(z.object({
+      ra: z.number().min(0),
+      rz: z.number().min(0).optional(),
+      rt: z.number().min(0).optional(),
+      location: z.string().optional(),
+      timestamp: z.string().optional(),
+    })).min(1).describe("One or more Ra measurements with optional Rz/Rt/location/timestamp."),
+    specification: z.object({
+      targetRa: z.number().min(0),
+      toleranceRa: z.number().min(0),
+      maxRa: z.number().min(0).optional(),
+      minRa: z.number().min(0).optional(),
+      targetRz: z.number().min(0).optional(),
+      toleranceRz: z.number().min(0).optional(),
+    }).describe("Surface finish specification (target ± tolerance, optional explicit max/min)."),
+    predictedRa: z.number().min(0).optional(),
+    historicalAvgRa: z.number().min(0).optional(),
+    historicalStdDev: z.number().min(0).optional(),
+  }).passthrough(),
+  calc_sfc_meets_spec: z.object({
+    ra: z.number().min(0).describe("Measured Ra (µm)."),
+    specification: z.object({
+      targetRa: z.number().min(0),
+      toleranceRa: z.number().min(0),
+      maxRa: z.number().min(0).optional(),
+      minRa: z.number().min(0).optional(),
+      targetRz: z.number().min(0).optional(),
+      toleranceRz: z.number().min(0).optional(),
+    }),
+  }).passthrough(),
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC-CMP: SFCCompareEngine (measurements vs spec, Cpk, trend) ──
+  calc_sfc_compare: z.object({
+    measurements: z.array(z.object({
+      ra: z.number().min(0),
+      rz: z.number().min(0).optional(),
+      rt: z.number().min(0).optional(),
+      location: z.string().optional(),
+      timestamp: z.string().optional(),
+    })).min(1).describe("One or more Ra measurements with optional Rz/Rt/location/timestamp."),
+    specification: z.object({
+      targetRa: z.number().min(0),
+      toleranceRa: z.number().min(0),
+      maxRa: z.number().min(0).optional(),
+      minRa: z.number().min(0).optional(),
+      targetRz: z.number().min(0).optional(),
+      toleranceRz: z.number().min(0).optional(),
+    }).describe("Surface finish specification (target ± tolerance, optional explicit max/min)."),
+    predictedRa: z.number().min(0).optional(),
+    historicalAvgRa: z.number().min(0).optional(),
+    historicalStdDev: z.number().min(0).optional(),
+  }).passthrough(),
+  calc_sfc_meets_spec: z.object({
+    ra: z.number().min(0).describe("Measured Ra (µm)."),
+    specification: z.object({
+      targetRa: z.number().min(0),
+      toleranceRa: z.number().min(0),
+      maxRa: z.number().min(0).optional(),
+      minRa: z.number().min(0).optional(),
+      targetRz: z.number().min(0).optional(),
+      toleranceRz: z.number().min(0).optional(),
+    }),
+  }).passthrough(),
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SFC: SFCOptimizeEngine (Surface Finish Calculator) ──
+  calc_sfc_optimize: z.object({
+    targetRa: z.number().min(0.025).max(50).describe("Target surface roughness Ra (µm). Range 0.025–50."),
+    toleranceRa: z.number().min(0.001).max(10).optional().describe("Tolerance band on Ra (µm)."),
+    operation: z.enum(["turning", "milling", "grinding", "boring"]),
+    material: z.enum(["aluminum", "steel", "stainless", "titanium", "cast_iron", "brass"]),
+    toolNoseRadius: z.number().min(0.1).max(25).optional().describe("Tool nose radius (mm). Required for turning/boring Ra prediction."),
+    toolDiameter: z.number().min(0.1).max(200).optional().describe("Tool diameter (mm). Required for milling Ra prediction."),
+    fluteCount: z.number().int().min(1).max(12).optional(),
+    currentFeedRate: z.number().min(0.001).max(10).optional(),
+    currentSpeed: z.number().min(1).max(1000).optional(),
+    minFeedRate: z.number().min(0.001).max(1).optional(),
+    maxFeedRate: z.number().min(0.1).max(10).optional(),
+    minSpeed: z.number().min(10).max(500).optional(),
+    maxSpeed: z.number().min(50).max(1000).optional(),
+    prioritize: z.enum(["surface_finish", "productivity", "tool_life", "balanced"]).optional(),
+  }).passthrough(),
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SCE: SpecificCuttingEnergyEngine ──
+  calc_specific_cutting_energy: z.object({
+    // Method 1: force + chip geometry
+    cutting_force_N: z.number().positive().optional(),
+    chip_width_mm: z.number().positive().optional(),
+    chip_thickness_mm: z.number().positive().optional(),
+    // Method 2: Kienzle coefficients
+    kc1_1: z.number().positive().optional(),
+    mc: z.number().min(0).max(1).optional(),
+    feed_mm: z.number().positive().optional(),
+    // Common cutting context
+    mrr_cm3_min: z.number().positive().optional(),
+    cutting_speed_m_min: z.number().positive().optional(),
+    depth_of_cut_mm: z.number().positive().optional(),
+    width_of_cut_mm: z.number().positive().optional(),
+    // Job context
+    volume_to_remove_cm3: z.number().positive().optional(),
+    machining_time_min: z.number().positive().optional(),
+    machine_standby_power_kW: z.number().nonnegative().optional(),
+    spindle_efficiency: z.number().gt(0).max(1).optional(),
+    // Energy/sustainability
+    electricity_cost_per_kWh: z.number().positive().optional(),
+    energy_source: z.enum(["grid_average", "coal", "natural_gas", "nuclear", "renewable"]).optional(),
+  }).passthrough(),
   kdtree_nearest: z.object({
     points: z.array(z.object({ x: z.number(), y: z.number(), z: z.number() })),
     query_x: z.number(),
@@ -2669,6 +2785,81 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     observed_wear_data: z.array(z.object({ time_min: z.number().min(0), wear_mm: z.number().min(0) })).optional().describe("Observed wear data for Bayesian updating"),
   }).passthrough(),
 
+  // ── ENGINE-WIRE-MS0/U-WIRE02: orphan-action backfill ─────────────
+  // ── Stochastic Dimensional (StochasticDimensionalEngine.simulate) ──
+  stochastic_dimension: z.object({
+    nominal_mm: posNum.describe("Nominal dimension [mm]"),
+    usl_mm: posNum.describe("Upper spec limit [mm]"),
+    lsl_mm: posNum.describe("Lower spec limit [mm]"),
+    machine_repeatability_um: optPosNum.describe("Machine positioning repeatability (2σ) [µm]"),
+    machine_accuracy_um: optPosNum.describe("Machine positioning accuracy (systematic) [µm]"),
+    thermal_coeff_um_per_C: optPosNum.describe("Thermal expansion coefficient α [µm/°C]"),
+    ambient_temp_amplitude_C: optPosNum.describe("Sinusoidal ambient temperature amplitude [°C]"),
+    thermal_cycle_hours: optPosNum.describe("Thermal cycle period [h]"),
+    wear_rate_um_per_part: optPosNum.describe("Progressive wear-driven dimensional shift [µm/part]"),
+    tool_change_interval: z.number().int().positive().optional().describe("Parts between tool changes"),
+    wear_compensation_interval: z.number().int().positive().optional().describe("Parts between offset updates"),
+    cutting_force_N: optPosNum.describe("Cutting force [N] for deflection coupling"),
+    force_cv_pct: z.number().min(0).optional().describe("Force coefficient of variation [%]"),
+    tool_stiffness_N_per_um: optPosNum.describe("Tool stiffness [N/µm]"),
+    fixture_repeatability_um: optPosNum.describe("Fixture repeatability [µm]"),
+    spindle_runout_um: optPosNum.describe("Spindle runout TIR [µm]"),
+    hardness_cv_pct: z.number().min(0).optional().describe("Hardness coefficient of variation [%]"),
+    hardness_force_sensitivity: optPosNum.describe("Force sensitivity to hardness dF/dHRC [N/HRC]"),
+    gage_rr_um: optPosNum.describe("Gauge R&R uncertainty [µm]"),
+    production_qty: z.number().int().positive().optional().describe("Production run size [parts]"),
+    mc_samples_per_part: z.number().int().positive().optional().describe("Monte Carlo samples per part"),
+    spc_subgroup_size: z.number().int().positive().optional().describe("SPC subgroup size"),
+  }).passthrough(),
+
+  // ── Stochastic Surface Finish (StochasticSurfaceFinishEngine.compute) ──
+  stochastic_finish: z.object({
+    material: z.string().min(1).describe("Material designation, e.g. 'Ti-6Al-4V', 'AISI 4140'"),
+    feed_mm: posNum.describe("Feed per rev (turning) or per tooth (milling) [mm]"),
+    tool_nose_radius_mm: posNum.describe("Tool nose radius [mm]"),
+    cutting_speed_mpm: posNum.describe("Cutting speed Vc [m/min]"),
+    operation: z.enum(["turning", "milling"]).optional().describe("Operation type (default: turning)"),
+    tool_diameter_mm: optPosNum.describe("Tool diameter [mm] (milling)"),
+    flute_count: z.number().int().positive().optional().describe("Number of flutes (milling)"),
+    runout_um: optPosNum.describe("Radial runout [µm] (default 5)"),
+    damping_ratio: z.number().min(0).max(1).optional().describe("Damping ratio ζ (default 0.03)"),
+    natural_freq_hz: optPosNum.describe("Natural frequency [Hz] (default 800)"),
+    depth_mm: optPosNum.describe("Depth of cut [mm]"),
+    width_mm: optPosNum.describe("Width of cut [mm]"),
+    vb_mm: z.number().min(0).optional().describe("Current flank wear VB [mm] (default 0)"),
+    target_ra_um: optPosNum.describe("Target Ra for Cpk calculation [µm]"),
+    n_trials: z.number().int().positive().optional().describe("Monte Carlo trials (default 2000)"),
+    method: z.enum(["mc", "fosm", "both"]).optional().describe("Propagation method (default 'both')"),
+  }).passthrough(),
+
+  // ── Stochastic Tool Life (StochasticToolLifeEngine.compute, Weibull/Wiener/Bayes) ──
+  stochastic_tool_life: z.object({
+    material: z.string().min(1).describe("Material designation"),
+    cutting_speed_mpm: posNum.describe("Cutting speed Vc [m/min]"),
+    feed_mm: posNum.describe("Feed [mm/rev or mm/tooth]"),
+    depth_mm: posNum.describe("Depth of cut [mm]"),
+    tool_material: z.enum(["carbide", "ceramic", "cbn", "hss"]).optional().describe("Tool material (default carbide)"),
+    coating: z.enum(["TiAlN", "TiN", "AlCrN", "uncoated", "diamond"]).optional().describe("Tool coating"),
+    wear_limit_mm: optPosNum.describe("Flank wear limit VB [mm] (default 0.3)"),
+    n_trials: z.number().int().positive().optional().describe("Monte Carlo trials"),
+    observed_wear: z.array(z.object({
+      time_min: z.number().min(0),
+      wear_mm: z.number().min(0),
+    }).passthrough()).optional().describe("Observed wear samples for Bayesian update"),
+    target_time_min: optPosNum.describe("Target service time for reliability calc [min]"),
+    method: z.enum(["weibull", "wiener", "bayesian", "all"]).optional().describe("Stochastic method (default 'all')"),
+  }).passthrough(),
+
+  // ── Chip Thinning Compensation (ChipThinningCompensationEngine.calculate) ──
+  chip_thinning_compensation: z.object({
+    feed_per_tooth_mm: posNum.describe("Programmed feed per tooth fz [mm]"),
+    radial_engagement_mm: posNum.describe("Radial engagement ae [mm]"),
+    tool_diameter_mm: posNum.describe("Tool diameter D [mm]"),
+    axial_depth_mm: optPosNum.describe("Axial depth ap [mm] (informational)"),
+    max_compensation_factor: optPosNum.describe("Cap on compensation multiplier (default 2.0)"),
+    min_engagement_pct: z.number().min(0).max(100).optional().describe("Minimum engagement % below which compensation is limited (default 5)"),
+  }).passthrough(),
+
   // ── Thermal Compensation Model (ThermalCompensationModelEngine) ──
   thermal_compensation_model: z.object({
     machine_type: z.enum(["vmc", "hmc", "5axis"]).optional().describe("Machine type (default: vmc)"),
@@ -2942,322 +3133,205 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     n: z.number().int().positive().describe("Number of observations (rows)"),
     alpha: z.number().min(0).max(1).optional().describe("Significance level (default 0.05)"),
   }).passthrough(),
-
-  // ============================================================================
-  // SPEED/FEED DEEP LEARNING (SF-AI-L1) — 10 actions
-  // Neural network, Monte Carlo, Bayesian optimization, chain-of-thought
-  // ============================================================================
-
-  sf_deep_speed: z.object({
-    material: z.string().describe("Material designation (e.g., '4140', 'Ti-6Al-4V', '6061')"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes/teeth"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    hardness_HB: z.number().positive().optional().describe("Material hardness in Brinell"),
-  }).passthrough(),
-
-  sf_deep_feed: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes/teeth"),
-    speed_mpm: posNum.describe("Cutting speed in m/min"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    axial_depth_mm: z.number().positive().optional().describe("Axial depth of cut"),
-    radial_depth_mm: z.number().positive().optional().describe("Radial depth of cut"),
-  }).passthrough(),
-
-  sf_deep_tool_life: z.object({
-    material: z.string().describe("Material designation"),
-    speed_mpm: posNum.describe("Cutting speed in m/min"),
-    feed_mm: posNum.describe("Feed per tooth in mm"),
-    depth_mm: posNum.describe("Depth of cut in mm"),
-  }).passthrough(),
-
-  sf_deep_finish: z.object({
-    feed_mm: posNum.describe("Feed per tooth in mm"),
-    corner_radius_mm: posNum.describe("Tool corner radius in mm"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-  }).passthrough(),
-
-  sf_deep_power: z.object({
-    material: z.string().describe("Material designation"),
-    speed_mpm: posNum.describe("Cutting speed in m/min"),
-    feed_mm: posNum.describe("Feed per tooth in mm"),
-    axial_depth_mm: posNum.describe("Axial depth of cut"),
-    radial_depth_mm: posNum.describe("Radial depth of cut"),
-    machine_power_kW: z.number().positive().optional().describe("Machine spindle power limit"),
-  }).passthrough(),
-
-  sf_deep_optimize: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    max_power_kW: z.number().positive().optional().describe("Maximum power constraint"),
-    min_tool_life_min: z.number().positive().optional().describe("Minimum tool life constraint"),
-    max_Ra_um: z.number().positive().optional().describe("Maximum surface finish constraint"),
-  }).passthrough(),
-
-  sf_deep_comprehensive: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    hardness_HB: z.number().positive().optional().describe("Material hardness"),
-    corner_radius_mm: z.number().positive().optional().describe("Tool corner radius"),
-    axial_depth_mm: z.number().positive().optional().describe("Axial depth of cut"),
-    radial_depth_mm: z.number().positive().optional().describe("Radial depth of cut"),
-    machine_power_kW: z.number().positive().optional().describe("Machine power limit"),
-  }).passthrough(),
-
-  sf_deep_cot: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-  }).passthrough(),
-
-  sf_deep_feedback: z.object({
-    job_id: z.string().describe("Job identifier for tracking"),
-    predicted_speed_mpm: posNum.describe("Predicted cutting speed"),
-    predicted_feed_mm: posNum.describe("Predicted feed per tooth"),
-    predicted_tool_life_min: posNum.describe("Predicted tool life"),
-    predicted_Ra_um: posNum.describe("Predicted surface finish"),
-    actual_speed_mpm: z.number().positive().optional().describe("Actual cutting speed used"),
-    actual_feed_mm: z.number().positive().optional().describe("Actual feed used"),
-    actual_tool_life_min: z.number().positive().optional().describe("Actual tool life achieved"),
-    actual_Ra_um: z.number().positive().optional().describe("Actual surface finish measured"),
-  }).passthrough(),
-
-  sf_deep_stats: z.object({}).passthrough(),
-
-  // ============================================================================
-  // SPEED/FEED ADVANCED AI (SF-AI-L2) — 12 actions
-  // XAI, Multi-Expert Consensus, Causal Reasoning, Hierarchical Planning
-  // ============================================================================
-
-  sf_adv_xai: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    hardness_HB: z.number().positive().optional().describe("Material hardness"),
-  }).passthrough(),
-
-  sf_adv_counterfactual: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    feature: z.enum(["speed", "feed", "depth"]).describe("Feature to modify"),
-    change_percent: z.number().describe("Percentage change (-100 to +100)"),
-  }).passthrough(),
-
-  sf_adv_consensus: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-  }).passthrough(),
-
-  sf_adv_causal_dag: z.object({}).passthrough(),
-
-  sf_adv_intervention: z.object({
-    variable: z.enum(["speed", "Vc", "feed", "fz", "depth", "ap"]).describe("Variable to intervene on"),
-    value: posNum.describe("New value for the variable"),
-    material: z.string().describe("Material designation"),
-    current_speed_mpm: posNum.describe("Current cutting speed"),
-    current_feed_mm: posNum.describe("Current feed per tooth"),
-    current_depth_mm: posNum.describe("Current depth of cut"),
-  }).passthrough(),
-
-  sf_adv_plan: z.object({
-    material: z.string().describe("Material designation"),
-    operations: z.array(z.object({
-      type: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]),
-      volume_cm3: posNum,
-    })).describe("List of operations with material volume"),
-    shift_hours: z.number().positive().optional().describe("Shift duration in hours"),
-    target_parts: z.number().int().positive().optional().describe("Target number of parts"),
-    quality_focus: z.boolean().optional().describe("Prioritize quality over speed"),
-  }).passthrough(),
-
-  sf_adv_self_consistency: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    num_chains: z.number().int().positive().optional().describe("Number of reasoning chains"),
-  }).passthrough(),
-
-  sf_adv_verify: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    proposed_speed_mpm: posNum.describe("Proposed cutting speed to verify"),
-  }).passthrough(),
-
-  sf_adv_react: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    target_mrr: posNum.describe("Target material removal rate in cm³/min"),
-  }).passthrough(),
-
-  sf_adv_reflexion: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    failure_history: z.array(z.object({
-      attempt: z.string(),
-      failure_mode: z.string(),
-    })).describe("History of failed attempts and failure modes"),
-  }).passthrough(),
-
-  sf_adv_comprehensive: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    target_mrr: z.number().positive().optional().describe("Target MRR in cm³/min"),
-    failure_history: z.array(z.object({
-      attempt: z.string(),
-      failure_mode: z.string(),
-    })).optional().describe("History of failed attempts"),
-  }).passthrough(),
-
-  sf_adv_stats: z.object({}).passthrough(),
-
-  // ============================================================================
-  // SPEED/FEED ULTIMATE AI (SF-AI-L3) — 14 actions
-  // Deep Ensemble, Episodic Memory, Knowledge Graph, Tree of Thoughts,
-  // Meta-Learning, Active Learning, LLM CLI, Adversarial, Multi-Modal
-  // ============================================================================
-
-  sf_ult_ensemble: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-  }).passthrough(),
-
-  sf_ult_episodes_retrieve: z.object({
-    material: z.string().describe("Material designation"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    limit: z.number().int().positive().optional().describe("Max episodes to retrieve"),
-  }).passthrough(),
-
-  sf_ult_episodes_store: z.object({
-    id: z.string().describe("Episode ID"),
-    material: z.string().describe("Material designation"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    speed_mpm: posNum.describe("Cutting speed used"),
-    feed_mm: posNum.describe("Feed per tooth used"),
-    depth_mm: posNum.describe("Depth of cut used"),
-    outcome: z.enum(["success", "chatter", "tool_break", "poor_finish", "excessive_wear"]).describe("Outcome"),
-    tool_life_achieved_min: z.number().positive().optional().describe("Achieved tool life"),
-    surface_finish_achieved_um: z.number().positive().optional().describe("Achieved surface finish"),
-    notes: z.string().optional().describe("Additional notes"),
-  }).passthrough(),
-
-  sf_ult_kg_query: z.object({
-    start_node: z.string().describe("Starting node for graph traversal"),
-    relation: z.string().optional().describe("Filter by relation type"),
-    max_depth: z.number().int().positive().optional().describe("Maximum traversal depth"),
-  }).passthrough(),
-
-  sf_ult_kg_stats: z.object({}).passthrough(),
-
-  sf_ult_memory_state: z.object({}).passthrough(),
-
-  sf_ult_memory_update: z.object({
-    material: z.string().optional().describe("Current material context"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).optional().describe("Current operation"),
-    tool_diameter_mm: z.number().positive().optional().describe("Current tool diameter"),
-    constraints: z.array(z.string()).optional().describe("Active constraints"),
-  }).passthrough(),
-
-  sf_ult_tot: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    max_depth: z.number().int().positive().optional().describe("Max search depth"),
-    branching_factor: z.number().int().positive().optional().describe("Branches per node"),
-  }).passthrough(),
-
-  sf_ult_meta_learn: z.object({
-    target_material: z.string().describe("Target material for adaptation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    few_shot_samples: z.array(z.object({
-      material: z.string(),
-      speed_mpm: posNum,
-      feed_mm: posNum,
-    })).optional().describe("Few-shot examples for adaptation"),
-  }).passthrough(),
-
-  sf_ult_active_learn: z.object({
-    material: z.string().describe("Material designation"),
-    min_speed: posNum.describe("Known min speed"),
-    max_speed: posNum.describe("Known max speed"),
-    min_feed: posNum.describe("Known min feed"),
-    max_feed: posNum.describe("Known max feed"),
-    exploration_weight: z.number().min(0).max(1).optional().describe("Exploration vs exploitation (0-1)"),
-  }).passthrough(),
-
-  sf_ult_llm_trace: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-  }).passthrough(),
-
-  sf_ult_adversarial: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    num_perturbations: z.number().int().positive().optional().describe("Number of perturbations to test"),
-  }).passthrough(),
-
-  sf_ult_multimodal: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-  }).passthrough(),
-
-  sf_ult_ultimate: z.object({
-    material: z.string().describe("Material designation"),
-    tool_diameter_mm: posNum.describe("Tool diameter in mm"),
-    flutes: z.number().int().positive().describe("Number of flutes"),
-    operation: z.enum(["milling", "turning", "drilling", "tapping", "reaming", "boring", "thread_milling"]).describe("Operation type"),
-    cut_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Cut type"),
-    few_shot_samples: z.array(z.object({
-      material: z.string(),
-      speed_mpm: posNum,
-      feed_mm: posNum,
-    })).optional().describe("Few-shot examples for meta-learning"),
-  }).passthrough(),
-
-  sf_ult_stats: z.object({}).passthrough(),
+  // ── PHYSICS-WIRE-MS0: 27 actions wiring 11 previously unwired physics engines ──
+  clamping_force_calc: z.object({}).passthrough().describe("Clamping force calculation (full)"),
+  clamping_force_quick: z.object({}).passthrough().describe("Clamping force quick estimate"),
+  cross_phys_upqi: z.object({}).passthrough().describe("Unified process quality index (cross-physics coupling)"),
+  cross_phys_tool_life: z.object({}).passthrough().describe("Coupled tool life (thermal+wear+force)"),
+  cross_phys_surface: z.object({}).passthrough().describe("Multi-source surface finish prediction"),
+  cross_phys_stability: z.object({}).passthrough().describe("Process stability margin (multi-physics)"),
+  cross_phys_tool_change: z.object({}).passthrough().describe("Optimal tool change point"),
+  cross_phys_thermal_error: z.object({}).passthrough().describe("Thermal/geometric error budget"),
+  cross_phys_energy_eff: z.object({}).passthrough().describe("Cutting energy efficiency"),
+  cross_phys_dyn_stiffness: z.object({}).passthrough().describe("Dynamic process stiffness"),
+  face_driver_analyze: z.object({}).passthrough().describe("Face driver torque analysis"),
+  face_driver_penetration: z.object({}).passthrough().describe("Face driver penetration recommendation"),
+  mdof_stability: z.object({}).passthrough().describe("MDOF chatter stability (modal analysis)"),
+  mdof_stability_eigen: z.object({}).passthrough().describe("MDOF stability via eigenvalue method"),
+  mdof_compare_sdof: z.object({}).passthrough().describe("MDOF vs SDOF stability comparison"),
+  machine_force_limit_validate: z.object({}).passthrough().describe("Machine force-limit full validation"),
+  machine_force_limit_quick: z.object({}).passthrough().describe("Machine force-limit quick check"),
+  timoshenko_deflect: z.object({}).passthrough().describe("Timoshenko beam deflection (shear-corrected)"),
+  timoshenko_multi_section: z.object({}).passthrough().describe("Timoshenko multi-section deflection"),
+  timoshenko_compare: z.object({}).passthrough().describe("Timoshenko vs Euler-Bernoulli comparison"),
+  timoshenko_max_ld: z.object({
+    diameter_mm: z.number().positive().describe("Tool diameter (mm)"),
+    material_E_GPa: z.number().positive().describe("Young's modulus (GPa)"),
+    cutting_force_N: z.number().positive().describe("Cutting force (N)"),
+    max_deflection_mm: z.number().positive().describe("Maximum allowable deflection (mm)"),
+  }).passthrough().describe("Max L/D ratio under deflection limit"),
+  goal_stability_observe: z.object({}).passthrough().describe("Record a goal observation (stability verifier)"),
+  goal_stability_analyze: z.object({}).passthrough().describe("Analyze goal stability history"),
+  session_stability_report: z.object({}).passthrough().describe("Session stability full report (Lyapunov)"),
+  session_stability_lyapunov: z.object({}).passthrough().describe("Session Lyapunov analysis"),
+  tribal_playbook_validate: z.object({}).passthrough().describe("Validate machining params against tribal playbook"),
+  tribal_playbook_ranges: z.object({
+    material: z.string().describe("Material name or ISO group"),
+  }).passthrough().describe("Get recommended parameter ranges for material"),
+  tribal_playbook_guidance: z.object({
+    query: z.string().describe("Search query"),
+    material: z.string().optional(),
+    operation: z.string().optional(),
+  }).passthrough().describe("Search tribal playbook guidance"),
+  // ── ENGINE-WIRE-MS0/U-WIRE09: 5 leaf physics engines ──
+  engagement_dynamics_calc: z.object({
+    segment: z.object({
+      id: z.string().describe("Segment identifier"),
+      points: z.array(z.object({ x: z.number(), y: z.number(), z: z.number() }).passthrough()).min(1).describe("Toolpath points (Cartesian, may be zero or negative)"),
+      type: z.enum(["linear", "arc", "helix", "rapid"]).describe("Segment type"),
+      toolDiameter: posNum.describe("Tool diameter (mm)"),
+      depthOfCut: posNum.describe("Axial depth of cut (mm)"),
+    }).passthrough().describe("Toolpath segment"),
+    feed_per_tooth: optPosNum.describe("Feed per tooth (mm)"),
+    flutes: optPosNum.describe("Number of flutes"),
+  }).passthrough().describe("Calculate engagement profile for a toolpath segment"),
+  engagement_optimize_adapter: z.object({
+    decision_point: z.string().describe("Decision point identifier (e.g. p2p.engagement_optimize)"),
+    operation_type: z.enum(["milling_rough", "milling_finish", "turning", "drilling"]).describe("Operation type"),
+    tool_diameter_mm: posNum.describe("Tool diameter (mm)"),
+    stock_depth_mm: posNum.describe("Stock depth to remove axially (mm)"),
+    stock_width_mm: optPosNum.describe("Stock width to remove radially (mm)"),
+    fz_mm: optPosNum.describe("Feed per tooth / rev (mm)"),
+    rpm: optPosNum.describe("Spindle RPM"),
+    flute_count: optPosNum.describe("Flute count"),
+    kc1_1: optPosNum.describe("Material Kienzle kc1.1 (N/mm²)"),
+    mc: optNum.describe("Material mc exponent"),
+    machine_torque_limit_nm: optPosNum.describe("Machine torque limit (N·m)"),
+    stick_out_mm: optPosNum.describe("Tool stick-out (mm)"),
+    youngs_modulus_gpa: optPosNum.describe("Young's modulus (GPa)"),
+    ap_critical_chatter_mm: optPosNum.describe("Chatter-lobe critical ap (mm)"),
+    objective: z.enum(["speed", "quality", "cost", "balanced", "tool_life"]).optional().describe("Optimization objective"),
+  }).passthrough().describe("Physics-backed ae/ap engagement optimization via pipeline orchestrator"),
+  cutting_fluid_lifecycle_calc: z.object({
+    initial_concentration_pct: posNum.describe("Initial coolant concentration (%)"),
+    sump_volume_L: posNum.describe("Sump volume (liters)"),
+    coolant_type: z.enum(["semisynthetic", "synthetic", "soluble_oil", "straight_oil"]).describe("Coolant type"),
+    target_min_pct: optPosNum.describe("Target minimum concentration (%)"),
+    target_max_pct: optPosNum.describe("Target maximum concentration (%)"),
+    machine_hours_per_day: optPosNum.describe("Machine duty hours per day"),
+    ambient_temp_C: optNum.describe("Ambient temperature (°C)"),
+    tramp_oil_rate_mL_hr: optPosNum.describe("Tramp oil ingress rate (mL/hour)"),
+    skimmer_present: optBool.describe("Skimmer present?"),
+    biocide_applied: optBool.describe("Biocide treatment applied?"),
+    water_hardness_ppm: optPosNum.describe("Makeup water hardness (ppm CaCO3)"),
+    coolant_cost_per_L: optPosNum.describe("Coolant cost per liter"),
+    disposal_cost_per_L: optPosNum.describe("Disposal cost per liter"),
+    downtime_cost_per_hr: optPosNum.describe("Downtime cost per hour"),
+    sump_change_time_hr: optPosNum.describe("Sump change time (hours)"),
+    horizon_days: optPosNum.describe("Simulation horizon (days)"),
+  }).passthrough().describe("Simulate coolant lifecycle, health, and optimal replacement interval"),
+  chip_formation_predict: z.object({
+    cutting_speed_m_min: posNum.describe("Cutting speed (m/min)"),
+    feed_mm_rev: posNum.describe("Feed per revolution (mm/rev)"),
+    depth_of_cut_mm: posNum.describe("Depth of cut (mm)"),
+    rake_angle_deg: z.number().describe("Tool rake angle (degrees, positive or negative)"),
+    workpiece_hardness_hrc: optPosNum.describe("Workpiece hardness (HRC)"),
+    workpiece_ductility: z.enum(["brittle", "moderate", "ductile", "very_ductile"]).optional().describe("Workpiece ductility"),
+    workpiece_elongation_pct: optPosNum.describe("Elongation at break (%)"),
+    friction_coefficient: optPosNum.describe("Tool-chip friction coefficient"),
+    tool_has_chipbreaker: optBool.describe("Tool has chipbreaker geometry"),
+    tool_nose_radius_mm: optPosNum.describe("Tool nose radius (mm)"),
+    coolant_active: optBool.describe("Coolant active during cutting"),
+  }).passthrough().describe("Predict chip morphology using Merchant's circle and Ernst-Merchant classification"),
+  surface_measure_calc: z.object({
+    action_type: z.enum(["record", "list", "statistics", "get_standard_specs"]).optional()
+      .describe("Sub-action: record a measurement, list by part, get statistics, or get standard specs"),
+    partNumber: optStr.describe("Part number (for record/list/statistics)"),
+    featureName: optStr.describe("Feature name (for record/list/statistics)"),
+    parameter: z.enum(["Ra","Rz","Rq","Rt","Rp","Rv","Rsk","Rku","Rsm","Rpc","Sa","Sz","Sq","Sp","Sv","Ssk","Sku"]).optional()
+      .describe("Roughness parameter for statistics query"),
+  }).passthrough().describe("Surface roughness measurement recording, retrieval, statistics, and standard specs"),
+  // -- ENGINE-WIRE-MS0/U-WIRE10: 5 neural+adaptive engines --
+  chatter_neural_classify: z.object({
+    frequencyBins: z.array(z.number()).min(1).describe('FRF frequency bins (Hz)'),
+    magnitudes: z.array(z.number()).min(1).describe('FRF magnitude values'),
+    spindleRpm: posNum.describe('Spindle speed (RPM)'),
+    axialDepthMm: posNum.describe('Axial depth of cut (mm)'),
+    radialDepthMm: posNum.describe('Radial depth of cut (mm)'),
+    feedPerToothMm: posNum.describe('Feed per tooth (mm)'),
+    toolDiameterMm: posNum.describe('Tool diameter (mm)'),
+    fluteCount: z.number().int().min(1).describe('Number of flutes'),
+    overhangMm: posNum.describe('Tool overhang (mm)'),
+    materialIsoGroup: z.enum(['P','M','K','N','S','H']).describe('ISO material group'),
+    helixAngleDeg: optPosNum.describe('Helix angle (degrees)'),
+    kc11Mpa: optPosNum.describe('Kienzle kc1.1 coefficient (MPa)'),
+    machineStiffnessNPerUm: optPosNum.describe('Machine stiffness (N/um)'),
+    naturalFrequencyHz: optPosNum.describe('Natural frequency (Hz)'),
+  }).passthrough().describe('1D-CNN neural classifier for chatter stability: stable/at_risk/chatter'),
+  thermal_neural_predict: z.object({
+    material_iso_group: z.enum(['P','M','K','N','S','H']).describe('ISO material group'),
+    thermal_conductivity_w_mk: optPosNum.describe('Material thermal conductivity (W/mK)'),
+    specific_heat_j_kgk: optPosNum.describe('Specific heat capacity (J/kgK)'),
+    density_kg_m3: optPosNum.describe('Material density (kg/m3)'),
+    tool_material: z.enum(['carbide','ceramic','cbn','pcd','hss']).describe('Tool substrate material'),
+    tool_coating: z.enum(['uncoated','TiN','TiAlN','AlTiN','DLC']).optional().describe('Tool coating type'),
+    tool_conductivity_w_mk: optPosNum.describe('Tool thermal conductivity (W/mK)'),
+    cutting_speed_mpm: posNum.describe('Cutting speed (m/min)'),
+    feed_per_tooth_mm: posNum.describe('Feed per tooth (mm)'),
+    axial_depth_mm: posNum.describe('Axial depth of cut (mm)'),
+    radial_depth_mm: posNum.describe('Radial depth of cut (mm)'),
+    cutting_force_n: posNum.describe('Cutting force (N)'),
+    coolant_type: z.enum(['dry','flood','mql','cryogenic']).describe('Coolant strategy'),
+    coolant_flow_lpm: optPosNum.describe('Coolant flow rate (L/min)'),
+    coolant_temp_c: optNum.describe('Coolant temperature (C)'),
+    cutting_time_s: optPosNum.describe('Accumulated cutting time (s)'),
+  }).passthrough().describe('Physics-LSTM hybrid temperature prediction with coating degradation risk'),
+  adaptive_param_space_record: z.object({
+    parameters: z.record(z.string(), z.number()).describe('Parameter name to value map'),
+    outcome: z.enum(['success','marginal','failure']).describe('Operation outcome'),
+    context: z.record(z.string(), z.unknown()).optional().describe('Additional context metadata'),
+  }).passthrough().describe('Record operation outcome to expand the adaptive parameter space'),
+  adaptive_param_space_query: z.object({
+    count: z.number().int().min(1).max(20).optional().describe('Number of exploration targets (default 5)'),
+  }).passthrough().describe('Query adaptive parameter space: stats, gaps, exploration targets'),
+  adaptive_machining_process: z.object({
+    domain: z.enum(['milling','turning','mill_turn']).describe('Machining domain'),
+    requestType: z.enum(['pre_analysis','real_time','post_analysis','full_cycle']).describe('Analysis type'),
+    material: z.string().min(1).describe('Material name or identifier'),
+    materialIso: z.enum(['P','M','K','N','S','H']).describe('ISO material group'),
+    machineId: z.string().min(1).describe('Machine identifier'),
+    toolId: z.string().min(1).describe('Tool identifier'),
+    operationType: z.string().min(1).describe('Operation type'),
+    milling: z.object({
+      toolDiameter: z.number().positive(),
+      flutes: z.number().int().min(1),
+      axialDepth: z.number().positive(),
+      radialDepth: z.number().positive(),
+      feedPerTooth: z.number().positive(),
+      cuttingSpeed: z.number().positive(),
+      toolpathType: z.enum(['linear','trochoidal','adaptive','hsr']),
+    }).optional().describe('Milling-specific parameters'),
+    turning: z.object({
+      diameter: z.number().positive(),
+      depthOfCut: z.number().positive(),
+      feedPerRev: z.number().positive(),
+      leadAngle: z.number(),
+      noseRadius: z.number().positive(),
+      cuttingSpeed: z.number().positive(),
+      cssEnabled: z.boolean(),
+      operationType: z.enum(['od_turning','id_boring','facing','grooving','threading','parting']),
+    }).optional().describe('Turning-specific parameters'),
+    environment: z.object({
+      ambientTemp: z.number(),
+      humidity: z.number(),
+      machineUptime: z.number(),
+    }).optional().describe('Environmental conditions'),
+    includeFailureAnalysis: optBool.describe('Include failure mode analysis'),
+    includeEnvironmentalAnalysis: optBool.describe('Include environmental sensitivity analysis'),
+    includeRecommendations: optBool.describe('Include operation recommendations'),
+  }).passthrough().describe('Unified adaptive machining integration: milling/turning pre/real-time/post analysis'),
+  adaptive_physics_bridge: z.object({
+    feed_mm_rev: posNum.describe('Feed per revolution (mm/rev)'),
+    depth_of_cut_mm: posNum.describe('Depth of cut (mm)'),
+    cutting_speed_mpm: posNum.describe('Cutting speed (m/min)'),
+    material: z.enum(['steel','stainless','aluminum','cast_iron','titanium','superalloy']).describe('Workpiece material'),
+    tool_diameter_mm: optPosNum.describe('Tool diameter (mm)'),
+    rake_angle_deg: optNum.describe('Tool rake angle (degrees)'),
+    insert_nose_radius_mm: optPosNum.describe('Insert nose radius (mm)'),
+    chipbreaker_type: z.enum(['none','light','medium','heavy']).optional().describe('Chipbreaker type'),
+    coolant: optBool.describe('Coolant active'),
+    cutting_power_kw: optPosNum.describe('Current cutting power (kW)'),
+    rated_power_kw: optPosNum.describe('Machine rated power (kW)'),
+    cutting_time_min: optPosNum.describe('Cutting time (min)'),
+  }).passthrough().describe('Integrated adaptive physics bridge: chip+coolant+spindle+wear analysis'),
 };
