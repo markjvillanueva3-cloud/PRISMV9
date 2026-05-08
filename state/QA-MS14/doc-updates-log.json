@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS14-P0-U02",
   "title": "System Documentation Updates Log",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "COMPLETE",
   "verdict": "PASS — Documentation updates tracked. Key corrections: engine count 74→182, cadence count 40→103, hook count 112→136 (total system), action count 500→1060.",
-
   "updates": [
     {
       "target": "Session MEMORY.md",
@@ -28,15 +29,38 @@
       "details": "completed_milestones advancing from pre-QA baseline to 54/80"
     }
   ],
-
   "key_corrections": {
-    "engine_count": { "before": 74, "after": 182, "delta": "+146% (was a 131% undercount)" },
-    "action_count": { "before": 500, "after": 1060, "delta": "+112% (was a 55% undercount)" },
-    "cadence_count": { "before": 40, "after": 103, "delta": "+158% (found in QA-MS13)" },
-    "hook_count": { "before": 112, "after": 136, "delta": "+21% (domain=112, cognitive=18, built-in=6)" },
-    "ts_errors": { "before": 28, "after": 0, "delta": "All resolved" }
+    "engine_count": {
+      "before": 74,
+      "after": 182,
+      "delta": "+146% (was a 131% undercount)"
+    },
+    "action_count": {
+      "before": 500,
+      "after": 1060,
+      "delta": "+112% (was a 55% undercount)"
+    },
+    "cadence_count": {
+      "before": 40,
+      "after": 103,
+      "delta": "+158% (found in QA-MS13)"
+    },
+    "hook_count": {
+      "before": 112,
+      "after": 136,
+      "delta": "+21% (domain=112, cognitive=18, built-in=6)"
+    },
+    "ts_errors": {
+      "before": 28,
+      "after": 0,
+      "delta": "All resolved"
+    }
   },
-
   "findings": [],
-  "exit_conditions_met": { "claude_md_updated": true, "master_index_updated": true, "gsd_state_updated": true, "memories_updated": true }
+  "exit_conditions_met": {
+    "claude_md_updated": true,
+    "master_index_updated": true,
+    "gsd_state_updated": true,
+    "memories_updated": true
+  }
 }

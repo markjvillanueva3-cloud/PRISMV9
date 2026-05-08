@@ -1,31 +1,30 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS3-P0-U05",
   "title": "SurfaceFinishEngine: Ra/Rz Prediction Accuracy",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:55:00Z",
   "status": "COMPLETE",
   "verdict": "PASS — 1 MEDIUM finding FIXED (milling Ra ae/D factor removed)",
-
   "surface_finish_model": {
     "source_file": "src/engines/ManufacturingCalculations.ts",
     "function": "calculateSurfaceFinish",
     "line": 539,
     "turning_formula": "Ra_theoretical = f^2 / (32 * r) * 1000 [μm]",
     "milling_formula": "Ra_theoretical = f^2 * ae / (32 * D * r) * 1000 [μm]",
-    "process_factor": 2.0,
+    "process_factor": 2,
     "actual_Ra": "Ra_theoretical * process_factor"
   },
-
   "turning_formula_verification": {
     "standard_reference": "Brammertz: Ra = f^2 / (32 * r_epsilon)",
     "implementation": "Ra_theoretical = (f*f) / (32*r) * 1000",
     "unit_conversion": "f in mm, r in mm → f^2/(32*r) in mm → *1000 for μm",
     "correct": true
   },
-
   "Rz_Ra_conversion": {
     "ratios_by_operation": {
-      "turning": 4.0,
+      "turning": 4,
       "milling": 5.5,
       "grinding": 6.5,
       "boring": 4.2,
@@ -35,20 +34,17 @@
     "reasonable": true,
     "operation_lookup": "Case-insensitive with fallback to is_milling flag"
   },
-
   "Rt_approximation": {
     "formula": "Rt = Rz * 1.3",
     "reference_range": "1.2-1.5 typical",
     "correct": true
   },
-
   "process_factor": {
-    "value": 2.0,
+    "value": 2,
     "description": "Fixed multiplier from theoretical to actual Ra",
     "reference_range": "1.2 (grinding) to 3.0+ (rough machining)",
     "note": "2.0 is a reasonable median for general machining operations"
   },
-
   "findings": [
     {
       "id": "F36",
@@ -63,7 +59,6 @@
       "fix_applied": "Removed milling branch with ae/D factor. Now uses standard Brammertz formula for both turning and milling."
     }
   ],
-
   "verification_tests": {
     "turning_baseline": "f=0.1mm, r=0.8mm → Ra_th = 0.01/(32*0.8)*1000 = 0.39μm, Ra_actual = 0.78μm ✓",
     "roughing_feed": "f=0.3mm, r=0.4mm → Ra_th = 0.09/(32*0.4)*1000 = 7.03μm, Ra_actual = 14.06μm, 'rough' warning ✓",
@@ -72,7 +67,6 @@
     "Rt": "Rz=3.12 → Rt = 3.12*1.3 = 4.06μm ✓",
     "unknown_operation": "operation='EDM' → warning + fallback to turning/milling ratio ✓"
   },
-
   "exit_conditions_met": {
     "Ra_theoretical_formula_verified": true,
     "Ra_to_Rz_conversion_verified": true,

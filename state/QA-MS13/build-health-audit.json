@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS13-P0-U05",
   "title": "Build Health + Bundle Size Regression Check",
   "auditor": "claude-opus-4.6",
@@ -19,5 +21,9 @@
   },
   "regression_recommendation": "Add CI step to track dist/index.js size and alert on >10% growth between commits",
   "findings": [],
-  "exit_conditions_met": { "build_succeeds": true, "warnings_cataloged": true, "bundle_size_documented": true }
+  "exit_conditions_met": {
+    "build_succeeds": true,
+    "warnings_cataloged": true,
+    "bundle_size_documented": true
+  }
 }

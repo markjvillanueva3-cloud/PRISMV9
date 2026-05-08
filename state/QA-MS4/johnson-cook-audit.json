@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS4-P0-U00",
   "title": "Johnson-Cook Flow Stress Model Verification",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T00:10:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - J-C formula correctly implemented, parameter handling verified",
-
   "model": {
     "source_file": "src/engines/ManufacturingCalculations.ts",
     "function": "calculateJohnsonCookStress",
@@ -17,7 +18,6 @@
       "thermal_term": "1 - ((T - T_ref) / (T_melt - T_ref))^m"
     }
   },
-
   "formula_verification": {
     "strain_hardening": {
       "formula": "sigma_y = A + B * eps^n",
@@ -26,7 +26,7 @@
     },
     "strain_rate_sensitivity": {
       "formula": "1 + C * ln(eps_dot / eps_dot_ref)",
-      "eps_dot_ref": 1.0,
+      "eps_dot_ref": 1,
       "rate_clamping": "max(eps_dot/eps_dot_ref, 1) - prevents ln(negative)",
       "correct": true,
       "note": "Clamping to min 1 means compression at sub-reference rates gives no rate effect (conservative)"
@@ -41,7 +41,6 @@
     "output_clamping": "stress = max(final_stress, 0) - prevents negative stress",
     "overall_correct": true
   },
-
   "parameter_validation": {
     "note": "No material-specific J-C parameters are stored in the engine. Parameters are passed by the caller (calcDispatcher from params or material registry).",
     "typical_ranges": {
@@ -53,9 +52,7 @@
     },
     "no_range_validation_in_function": "Function accepts any numeric values - relies on caller validation"
   },
-
   "findings": [],
-
   "verification_tests": {
     "pure_yield": "eps=0.001, rate=1, T=T_ref -> sigma = A + B*0.001^n ~ A (quasi-static yield)",
     "strain_hardening": "eps=0.5, rate=1, T=T_ref -> sigma = A + B*0.5^n (hardening only)",
@@ -63,7 +60,6 @@
     "thermal_softening": "eps=0.5, rate=1, T=0.5*(T_melt-T_ref)+T_ref -> thermal_term = 1-0.5^m",
     "near_melt": "T=0.95*T_melt -> warning generated, thermal_term near 0"
   },
-
   "exit_conditions_met": {
     "jc_formula_verified": true,
     "parameter_ranges_validated": true,

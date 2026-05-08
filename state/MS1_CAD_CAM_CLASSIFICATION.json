@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "scan_date": "2026-02-23",
   "total_files": 59,
   "source_directories": [
@@ -22,7 +24,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Adaptive clearing toolpath with engagement angle calculation, trochoidal milling, and HSM-style adaptive strategies. Calculates radial engagement and adjusts feeds accordingly.",
-      "key_functions": ["engagement.calculate", "generateAdaptivePath", "trochoidalPattern"],
+      "key_functions": [
+        "engagement.calculate",
+        "generateAdaptivePath",
+        "trochoidalPattern"
+      ],
       "potential_duplicate": null
     },
     {
@@ -33,7 +39,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Adaptive tessellation engine with quality presets (draft, standard, high, ultra, step_equivalent). Controls chord tolerance, angle tolerance, and segment counts for mesh generation from curves/surfaces.",
-      "key_functions": ["tessellate", "presets.draft", "presets.standard", "presets.high", "presets.ultra"],
+      "key_functions": [
+        "tessellate",
+        "presets.draft",
+        "presets.standard",
+        "presets.high",
+        "presets.ultra"
+      ],
       "potential_duplicate": null
     },
     {
@@ -44,7 +56,13 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Generates blade/airfoil surfaces as proper NURBS through airfoil sections. Handles pressure/suction surfaces, span interpolation, G2 continuity, and rational NURBS weights for turbomachinery applications.",
-      "key_functions": ["generateBladeSurface", "_normalizeSectionPointCount", "_buildControlPointGrid", "_generateChordKnots", "_calculateAirfoilWeights"],
+      "key_functions": [
+        "generateBladeSurface",
+        "_normalizeSectionPointCount",
+        "_buildControlPointGrid",
+        "_generateChordKnots",
+        "_calculateAirfoilWeights"
+      ],
       "potential_duplicate": null
     },
     {
@@ -55,7 +73,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Advanced sweep and loft operations including extrude (with taper, thin-wall), revolve, sweep along path, and loft between sections with guide rails and transitions. Fusion 360-style operations.",
-      "key_functions": ["extrude", "revolve", "sweep", "loft"],
+      "key_functions": [
+        "extrude",
+        "revolve",
+        "sweep",
+        "loft"
+      ],
       "potential_duplicate": null
     },
     {
@@ -66,7 +89,13 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Core B-Rep CAD generator with topology data structures (vertex/edge/face/shell/solid). Includes entity ID management, assembly support, boolean operations, and entity storage/export. The primary BREP kernel.",
-      "key_functions": ["topology.nextId", "topology.reset", "topology.store", "topology.get", "topology.exportAll"],
+      "key_functions": [
+        "topology.nextId",
+        "topology.reset",
+        "topology.store",
+        "topology.get",
+        "topology.exportAll"
+      ],
       "potential_duplicate": null
     },
     {
@@ -77,7 +106,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Tessellates B-Rep solids into triangle meshes. Reads STEP ADVANCED_FACE entities and converts them to vertices, normals, and triangles with per-face mapping. Based on MIT 18.433 Computational Geometry.",
-      "key_functions": ["tessellateBrep", "tessellateFace"],
+      "key_functions": [
+        "tessellateBrep",
+        "tessellateFace"
+      ],
       "potential_duplicate": null
     },
     {
@@ -88,7 +120,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Core B-spline evaluation: knot span finding via binary search, Cox-de Boor basis function computation. Foundational math library for NURBS operations.",
-      "key_functions": ["findKnotSpan", "basisFunctions"],
+      "key_functions": [
+        "findKnotSpan",
+        "basisFunctions"
+      ],
       "potential_duplicate": "PRISM_CAD_KERNEL_MIT.js (overlapping deBoor/knot span functionality)"
     },
     {
@@ -99,7 +134,14 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "MEGA COMPOSITE FILE. Contains: (1) BVH/AABB spatial data structure for collision detection, (2) PRISM_COLLISION_ENGINE integration, (3) Johnson-Cook material database aliases, (4) Thermal properties database, (5) Complete fixture/vise database (Kurt, Schunk, etc.) with clamping force calculations. Needs decomposition.",
-      "key_functions": ["AABB.create", "AABB.fromPoints", "checkCollisionsBVH", "recommendVise", "recommendFixture", "calculateMinClampingForce"],
+      "key_functions": [
+        "AABB.create",
+        "AABB.fromPoints",
+        "checkCollisionsBVH",
+        "recommendVise",
+        "recommendFixture",
+        "calculateMinClampingForce"
+      ],
       "potential_duplicate": null,
       "notes": "COMPOSITE - should be split into BVH, collision, fixture subsystems during integration"
     },
@@ -111,7 +153,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Central hub connecting all CAD/CAM data sources to PRISM. Registers external data sources (HSMWorks 2026, Mastercam Multiaxis, Mastercam 3D, Okuma, Siemens NX) with their capabilities, databases, and selectors.",
-      "key_functions": ["registeredSources.hsmworks2026", "registeredSources.mastercamMultiaxis", "registeredSources.mastercam3D"],
+      "key_functions": [
+        "registeredSources.hsmworks2026",
+        "registeredSources.mastercamMultiaxis",
+        "registeredSources.mastercam3D"
+      ],
       "potential_duplicate": null
     },
     {
@@ -122,7 +168,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Confidence scoring system for CAD generation quality. Scores dimensions (clear_digital=100 to missing=0), features (complete/partial/inferred/ambiguous), and correlations (verified/single_view/inferred). Grades A-F with color coding.",
-      "key_functions": ["scores.dimension", "scores.feature", "scores.correlation", "scores.grades"],
+      "key_functions": [
+        "scores.dimension",
+        "scores.feature",
+        "scores.correlation",
+        "scores.grades"
+      ],
       "potential_duplicate": null
     },
     {
@@ -133,7 +184,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "CAD kernel with NURBS/B-Spline algorithms from MIT 2.158J. Implements De Boor evaluation, knot span finding. Foundational spline math library.",
-      "key_functions": ["deBoorEvaluate", "_findKnotSpan"],
+      "key_functions": [
+        "deBoorEvaluate",
+        "_findKnotSpan"
+      ],
       "potential_duplicate": "PRISM_BSPLINE_ENGINE.js (overlapping B-spline basis functions)"
     },
     {
@@ -144,7 +198,15 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Core 3D math library: vec3 operations (add, sub, scale, dot, cross, normalize, lerp, distance, midpoint), matrix operations, and tolerance constants. Foundation utility used by all CAD engines.",
-      "key_functions": ["vec3.create", "vec3.add", "vec3.sub", "vec3.cross", "vec3.normalize", "vec3.dot", "vec3.distance"],
+      "key_functions": [
+        "vec3.create",
+        "vec3.add",
+        "vec3.sub",
+        "vec3.cross",
+        "vec3.normalize",
+        "vec3.dot",
+        "vec3.distance"
+      ],
       "potential_duplicate": null
     },
     {
@@ -155,7 +217,10 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Quality validation for generated CAD models. Checks topology, mesh density, chord error, angle deviation, and STEP equivalence. Reports pass/fail with scores, issues, and recommendations.",
-      "key_functions": ["validate", "_validateTopology"],
+      "key_functions": [
+        "validate",
+        "_validateTopology"
+      ],
       "potential_duplicate": null
     },
     {
@@ -166,7 +231,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Comprehensive CAM kernel with toolpath strategy parameters (roughing/semi-finish/finishing/HSM). Defines DOC, WOC, speed factors, feed factors, and engagement limits per operation type. Based on MIT 2.008, Sandvik data.",
-      "key_functions": ["STRATEGY_PARAMS", "ROUGHING_DOC_PERCENT", "HSM_RADIAL_ENGAGEMENT_MAX"],
+      "key_functions": [
+        "STRATEGY_PARAMS",
+        "ROUGHING_DOC_PERCENT",
+        "HSM_RADIAL_ENGAGEMENT_MAX"
+      ],
       "potential_duplicate": "PRISM_CAM_KERNEL_MIT.js (subset - MIT version is smaller, less complete)"
     },
     {
@@ -177,7 +246,9 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "CAM kernel with offset curve generation for cutter compensation (MIT 2.158J, 2.008). Handles open/closed curve offsets with normal calculation and miter joining.",
-      "key_functions": ["offsetCurve2D"],
+      "key_functions": [
+        "offsetCurve2D"
+      ],
       "potential_duplicate": "PRISM_CAM_KERNEL_COMPLETE.js (superset contains equivalent functionality)"
     },
     {
@@ -188,7 +259,9 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Toolpath parameter definitions from HyperMill CAM Manual. Defines approach/retract macro types (axial, circular, profile-oriented, ramp, helix) with parameters and applications.",
-      "key_functions": ["approachRetractMacros.types"],
+      "key_functions": [
+        "approachRetractMacros.types"
+      ],
       "potential_duplicate": null
     },
     {
@@ -199,7 +272,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "2D polygon clipping engine (Clipper2-style). Implements boolean operations (union, intersection, difference, XOR) on polygons using integer arithmetic with configurable scale factor. Used for toolpath offsetting and pocket boundaries.",
-      "key_functions": ["point", "path", "paths", "clipPolygons"],
+      "key_functions": [
+        "point",
+        "path",
+        "paths",
+        "clipPolygons"
+      ],
       "potential_duplicate": null
     },
     {
@@ -210,7 +288,11 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Construction geometry system for planes, axes, and points (Fusion 360 style). Creates offset planes, angled planes, midplanes, tangent planes, construction axes through points/edges, and reference points.",
-      "key_functions": ["createOffsetPlane", "createPlaneAtAngle", "_rotateVectorAroundAxis"],
+      "key_functions": [
+        "createOffsetPlane",
+        "createPlaneAtAngle",
+        "_rotateVectorAroundAxis"
+      ],
       "potential_duplicate": null
     },
     {
@@ -221,7 +303,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Surface curvature analysis: Gaussian (angle defect), mean, principal curvatures, shape index, and curvedness. Uses mixed Voronoi areas (Meyer et al. 2003). Key for adaptive toolpath stepover and surface quality assessment.",
-      "key_functions": ["computeAll", "computeGaussian", "computeMean", "computePrincipal", "_computeMixedVoronoiAreas"],
+      "key_functions": [
+        "computeAll",
+        "computeGaussian",
+        "computeMean",
+        "computePrincipal",
+        "_computeMixedVoronoiAreas"
+      ],
       "potential_duplicate": null
     },
     {
@@ -232,7 +320,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Mill-turn CAM engine for multi-channel machines. Configures main/sub spindle, upper/lower turret, milling spindle. Supports synchronization types (wait, transfer, balanced, simultaneous, timed) and Y-axis/B-axis milling.",
-      "key_functions": ["machineConfig", "channels", "syncTypes"],
+      "key_functions": [
+        "machineConfig",
+        "channels",
+        "syncTypes"
+      ],
       "potential_duplicate": null
     },
     {
@@ -243,7 +335,9 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "2D pocket toolpath generator with real coordinates. Supports zigzag, spiral, and parallel patterns. Calculates tool moves (rapid, feed, plunge), statistics (distances, estimated time), and island avoidance.",
-      "key_functions": ["generatePocket"],
+      "key_functions": [
+        "generatePocket"
+      ],
       "potential_duplicate": null
     },
     {
@@ -254,7 +348,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Parametric feature history tree manager with undo/redo. Tracks feature types (extrude, revolve, sweep, loft, hole, thread, fillet, chamfer, shell, boolean ops), dependencies, and parameters. Supports rollback and replay.",
-      "key_functions": ["state", "featureTypes", "undo", "redo", "rollback"],
+      "key_functions": [
+        "state",
+        "featureTypes",
+        "undo",
+        "redo",
+        "rollback"
+      ],
       "potential_duplicate": null
     },
     {
@@ -265,7 +365,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Feature interaction analysis for manufacturing planning. Builds precedence graphs (thread after hole, counterbore after hole, etc.), detects interference, shared setups, access blocking, and tolerance relationships. Based on MIT 16.410, 2.008.",
-      "key_functions": ["PRECEDENCE_RULES", "INTERACTION_TYPES", "buildPrecedenceGraph"],
+      "key_functions": [
+        "PRECEDENCE_RULES",
+        "INTERACTION_TYPES",
+        "buildPrecedenceGraph"
+      ],
       "potential_duplicate": null
     },
     {
@@ -276,7 +380,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Mesh-based feature recognition: detects cylindrical features (holes, bosses) via circle fitting on grouped face normals, and pockets (closed depressions). Outputs feature type, center, radius, normal, confidence score.",
-      "key_functions": ["detectCylindricalFeatures", "detectPockets", "_groupFacesByNormal", "_fitCircle"],
+      "key_functions": [
+        "detectCylindricalFeatures",
+        "detectPockets",
+        "_groupFacesByNormal",
+        "_fitCircle"
+      ],
       "potential_duplicate": "PRISM_COMPLETE_FEATURE_ENGINE.js (text-based recognition vs mesh-based here)"
     },
     {
@@ -287,7 +396,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Constant and variable radius filleting on solid edges. Clones solid, processes each edge with rolling-ball or setback approach, validates radius against edge geometry.",
-      "key_functions": ["filletEdges", "_filletSingleEdge"],
+      "key_functions": [
+        "filletEdges",
+        "_filletSingleEdge"
+      ],
       "potential_duplicate": null
     },
     {
@@ -298,7 +410,11 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Parametric sketch constraint solver (Fusion 360 style). Supports horizontal, vertical, coincident, tangent, equal, parallel, perpendicular, fix, midpoint, concentric, collinear, symmetry, and smooth constraints.",
-      "key_functions": ["constraintTypes", "applyHorizontalVertical", "solve"],
+      "key_functions": [
+        "constraintTypes",
+        "applyHorizontalVertical",
+        "solve"
+      ],
       "potential_duplicate": "PRISM_SKETCH_ENGINE.js (SKETCH_ENGINE has broader scope; this focuses on constraints)"
     },
     {
@@ -309,7 +425,14 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "COMPOSITE FILE. Primary: geodesic distance computation (Dijkstra, Fast Marching Method, iso-curves, distance field, curve skeleton extraction). ALSO EMBEDS: duplicate copy of PRISM_NURBS_ADVANCED_ENGINE (from line 449) and NURBS curve intersection code. Needs decomposition.",
-      "key_functions": ["computeDijkstra", "computeFastMarching", "computePath", "computeIsoCurves", "computeDistanceField", "computeCurveSkeleton"],
+      "key_functions": [
+        "computeDijkstra",
+        "computeFastMarching",
+        "computePath",
+        "computeIsoCurves",
+        "computeDistanceField",
+        "computeCurveSkeleton"
+      ],
       "potential_duplicate": null,
       "notes": "COMPOSITE - contains embedded PRISM_NURBS_ADVANCED_ENGINE duplicate starting at line 449"
     },
@@ -321,7 +444,11 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Core computational geometry algorithms: Delaunay triangulation (Bowyer-Watson), convex hull, Voronoi diagrams. Based on MIT RES.16-002. General-purpose geometry primitives.",
-      "key_functions": ["delaunay.triangulate", "delaunay.addPoint", "delaunay.createSuperTriangle"],
+      "key_functions": [
+        "delaunay.triangulate",
+        "delaunay.addPoint",
+        "delaunay.createSuperTriangle"
+      ],
       "potential_duplicate": null
     },
     {
@@ -332,7 +459,9 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "PARTIAL",
       "description": "Machine collision detection system. Initializes collision zones from machine CAD databases (Okuma, learning engine, model DB). Lightweight orchestrator that delegates to actual BVH collision checks.",
-      "key_functions": ["initForMachine"],
+      "key_functions": [
+        "initForMachine"
+      ],
       "potential_duplicate": null
     },
     {
@@ -343,7 +472,11 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Marching Cubes isosurface extraction (Lorensen & Cline 1987). Contains full edge/triangle lookup tables for extracting triangle meshes from scalar fields. Used for voxel-to-mesh conversion.",
-      "key_functions": ["edgeTable", "triTable", "extractIsosurface"],
+      "key_functions": [
+        "edgeTable",
+        "triTable",
+        "extractIsosurface"
+      ],
       "potential_duplicate": null
     },
     {
@@ -354,7 +487,13 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Lathe/turning toolpath generation: OD roughing (multiple passes with DOC control), ID boring, facing, threading, grooving. Generates proper rapid/feed moves with safe retract positions.",
-      "key_functions": ["turning.odRough", "turning.idBore", "turning.face", "turning.thread", "turning.groove"],
+      "key_functions": [
+        "turning.odRough",
+        "turning.idBore",
+        "turning.face",
+        "turning.thread",
+        "turning.groove"
+      ],
       "potential_duplicate": null
     },
     {
@@ -365,7 +504,12 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Quadric Error Metrics (QEM) mesh simplification for LOD generation (Garland & Heckbert 1997). Computes initial quadrics, builds edge heap, collapses edges iteratively until target triangle count reached.",
-      "key_functions": ["decimate", "_computeInitialQuadrics", "_buildEdgeList", "_buildEdgeHeap"],
+      "key_functions": [
+        "decimate",
+        "_computeInitialQuadrics",
+        "_buildEdgeList",
+        "_buildEdgeHeap"
+      ],
       "potential_duplicate": null
     },
     {
@@ -376,7 +520,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Motion planning with Probabilistic Roadmap (PRM), potential fields, and CNC-specific applications. Samples collision-free configurations, builds connectivity graph, finds shortest path. Based on MIT 16.410, Stanford CS 326.",
-      "key_functions": ["prm", "_randomPoint", "_connectSamples"],
+      "key_functions": [
+        "prm",
+        "_randomPoint",
+        "_connectSamples"
+      ],
       "potential_duplicate": null
     },
     {
@@ -387,7 +535,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "5-axis toolpath engine with tool axis control (lead/lag/tilt angles from surface normals), singularity avoidance, smooth axis interpolation, and collision-aware axis adjustment. Core multi-axis CAM module.",
-      "key_functions": ["toolAxisControl.fromNormalWithAngles", "_rotateAroundAxis", "_normalize", "_cross"],
+      "key_functions": [
+        "toolAxisControl.fromNormalWithAngles",
+        "_rotateAroundAxis",
+        "_normalize",
+        "_cross"
+      ],
       "potential_duplicate": null
     },
     {
@@ -398,7 +551,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "NURBS curve/surface evaluation, knot insertion, curve derivatives, curve splitting. Based on Stanford CS 348A, Piegl & Tiller. Compact but complete rational B-spline library.",
-      "key_functions": ["evaluateCurve", "evaluateSurface", "insertKnot", "curveDerivative", "splitCurve"],
+      "key_functions": [
+        "evaluateCurve",
+        "evaluateSurface",
+        "insertKnot",
+        "curveDerivative",
+        "splitCurve"
+      ],
       "potential_duplicate": "PRISM_NURBS_LIBRARY.js (similar basis evaluation; this is more compact), also duplicated inside PRISM_GEODESIC_DISTANCE_ENGINE.js"
     },
     {
@@ -409,7 +568,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Complete NURBS library with basis functions (Cox-de Boor), curve evaluation with derivatives, surface evaluation with normals, and utility functions. More structured than NURBS_ADVANCED with basis/curve/surface/utils sections.",
-      "key_functions": ["basis.N", "basis.basisFunctions", "curve.evaluate", "surface.evaluate", "surface.normal"],
+      "key_functions": [
+        "basis.N",
+        "basis.basisFunctions",
+        "curve.evaluate",
+        "surface.evaluate",
+        "surface.normal"
+      ],
       "potential_duplicate": "PRISM_NURBS_ADVANCED_ENGINE.js (overlapping evaluation logic)"
     },
     {
@@ -420,7 +585,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Surface offset and shell creation. Offsets mesh vertices along normals (smooth or face normals) and creates thin-wall shells by combining outer/inner offset meshes with flipped normals. Based on MIT 2.158J.",
-      "key_functions": ["offsetMesh", "createShell"],
+      "key_functions": [
+        "offsetMesh",
+        "createShell"
+      ],
       "potential_duplicate": null
     },
     {
@@ -431,7 +599,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Parametric feature definitions with constraints and relations. Defines hole, pocket, boss, slot, chamfer, fillet with their parameters, constraints (e.g., cornerRadius <= width/2), and derived relations (e.g., tapDrill = diameter - pitch).",
-      "key_functions": ["featureDefinitions.hole", "featureDefinitions.pocket", "featureDefinitions.boss", "featureDefinitions.slot"],
+      "key_functions": [
+        "featureDefinitions.hole",
+        "featureDefinitions.pocket",
+        "featureDefinitions.boss",
+        "featureDefinitions.slot"
+      ],
       "potential_duplicate": null
     },
     {
@@ -442,7 +615,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Priority system for selecting best available CAD model: uploaded_cad(100) > scanned(90) > verified(80) > learned(70) > generated(50) > placeholder(10). Queries Okuma DB, learning engine, and model DB to find best candidate.",
-      "key_functions": ["getBestModel", "priorities"],
+      "key_functions": [
+        "getBestModel",
+        "priorities"
+      ],
       "potential_duplicate": null
     },
     {
@@ -465,7 +641,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Rest/remaining material machining with voxel-based stock model. Creates voxel stock, simulates previous tool removal, identifies remaining material, and generates rest machining toolpaths with smaller tools.",
-      "key_functions": ["stockModel.create", "simulateToolRemoval", "identifyRestMaterial", "generateRestToolpath"],
+      "key_functions": [
+        "stockModel.create",
+        "simulateToolRemoval",
+        "identifyRestMaterial",
+        "generateRestToolpath"
+      ],
       "potential_duplicate": "PRISM_VOXEL_STOCK_ENGINE.js (overlapping voxel stock model creation)"
     },
     {
@@ -476,7 +657,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Siemens 840D-specific 5-axis CAM programming. Defines TRAORI transformation modes, tool orientation modes (A3B3C3, LEAD/TILT, ORIWKS), and generates NC program headers. Controller-specific post-processing.",
-      "key_functions": ["transformationModes", "orientationModes", "generateProgramHeader"],
+      "key_functions": [
+        "transformationModes",
+        "orientationModes",
+        "generateProgramHeader"
+      ],
       "potential_duplicate": null
     },
     {
@@ -487,7 +672,11 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Extracts silhouette edges for a given view direction by finding edges where one adjacent face is front-facing and the other back-facing. Used for wireframe/NPR rendering. Based on MIT 6.837.",
-      "key_functions": ["extractSilhouette", "_faceNormal", "_normalize"],
+      "key_functions": [
+        "extractSilhouette",
+        "_faceNormal",
+        "_normalize"
+      ],
       "potential_duplicate": null
     },
     {
@@ -498,7 +687,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "2D sketch engine with sketch management, entity creation (lines, circles, arcs, rectangles), work planes (XY/XZ/YZ), grid snapping, and constraint support. Full parametric sketch workflow for CAD modeling.",
-      "key_functions": ["createSketch", "state", "addLine", "addCircle", "addArc"],
+      "key_functions": [
+        "createSketch",
+        "state",
+        "addLine",
+        "addCircle",
+        "addArc"
+      ],
       "potential_duplicate": "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js (constraint solver is a subset of this)"
     },
     {
@@ -509,7 +704,13 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Direct solid editing: press/pull, fillet, chamfer, shell, combine, split, draft, offset face operations. Fusion 360-style direct modeling with constant/variable/chord-length radius types and rolling-ball/setback corners.",
-      "key_functions": ["pressPull", "createFillet", "createChamfer", "shell", "combine"],
+      "key_functions": [
+        "pressPull",
+        "createFillet",
+        "createChamfer",
+        "shell",
+        "combine"
+      ],
       "potential_duplicate": "PRISM_FILLETING_ENGINE.js (fillet operations overlap)"
     },
     {
@@ -520,7 +721,12 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Surface-surface intersection curve tracing. Finds initial intersection points by sampling, then traces curves using marching method. Based on MIT 2.158J (Patrikalakis). Compact implementation.",
-      "key_functions": ["intersect", "_findStarts", "_trace", "_refine"],
+      "key_functions": [
+        "intersect",
+        "_findStarts",
+        "_trace",
+        "_refine"
+      ],
       "potential_duplicate": null
     },
     {
@@ -531,7 +737,12 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "Point cloud to surface reconstruction: Poisson reconstruction (Kazhdan), Ball Pivoting Algorithm (Bernardini). Builds octree, computes indicator function from normals, solves Poisson equation, extracts isosurface.",
-      "key_functions": ["poissonReconstruction", "ballPivoting", "_buildOctree", "_solvePoissonEquation"],
+      "key_functions": [
+        "poissonReconstruction",
+        "ballPivoting",
+        "_buildOctree",
+        "_solvePoissonEquation"
+      ],
       "potential_duplicate": null
     },
     {
@@ -542,7 +753,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Toolpath optimization: arc fitting (replaces linear segments with G2/G3 arcs within tolerance), with tight/standard/rough tolerance presets (5/10/50 micron). Reduces program size and improves surface finish.",
-      "key_functions": ["arcFitting.fitArc", "arcFitting.findCircleCenter", "arcFitting.tolerances"],
+      "key_functions": [
+        "arcFitting.fitArc",
+        "arcFitting.findCircleCenter",
+        "arcFitting.tolerances"
+      ],
       "potential_duplicate": null
     },
     {
@@ -553,7 +768,15 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Comprehensive toolpath strategy catalog: defines all available 3D finishing (blend, cleanup, constant_z, contour_3D, corner, flowline, geodesic), roughing, and multi-axis strategies with axes (3D/5-axis), category, and capability flags.",
-      "key_functions": ["BLEND_FINISHING", "CLEANUP", "CONSTANT_Z", "CONTOUR_3D", "CORNER_FINISHING", "FLOWLINE", "GEODESIC"],
+      "key_functions": [
+        "BLEND_FINISHING",
+        "CLEANUP",
+        "CONSTANT_Z",
+        "CONTOUR_3D",
+        "CORNER_FINISHING",
+        "FLOWLINE",
+        "GEODESIC"
+      ],
       "potential_duplicate": "PRISM_FEATURE_STRATEGY_COMPLETE.js (strategy vs feature-to-strategy mapping)"
     },
     {
@@ -564,7 +787,12 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Persistent homology / topological data analysis engine. Builds simplicial complexes, computes filtrations, tracks Betti numbers (beta_0, beta_1, beta_2). Uses persistence diagrams for shape analysis. Innovation-level topological feature detection.",
-      "key_functions": ["createSimplex", "computeFiltration", "computePersistence", "config"],
+      "key_functions": [
+        "createSimplex",
+        "computeFiltration",
+        "computePersistence",
+        "config"
+      ],
       "potential_duplicate": null
     },
     {
@@ -575,7 +803,14 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "COMPLETE",
       "description": "3D viewport rendering engine with configurable colors for backgrounds, grids, axes, toolpaths (rapid/feed/plunge/retract/arc), stock, fixtures, tools, and workpieces. Manages multiple viewports, selection, measurement, and section planes.",
-      "key_functions": ["config", "state", "createViewport", "render", "selectObject", "measureDistance"],
+      "key_functions": [
+        "config",
+        "state",
+        "createViewport",
+        "render",
+        "selectObject",
+        "measureDistance"
+      ],
       "potential_duplicate": null
     },
     {
@@ -586,7 +821,11 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Multi-factor toolpath strategy decision engine. Weights feature (0.25), material (0.20), machine (0.20), tool (0.15), productivity (0.10), quality (0.10) factors. Selects optimal strategy per machine type from strategy database.",
-      "key_functions": ["decisionFactors", "strategyDatabase", "selectStrategy"],
+      "key_functions": [
+        "decisionFactors",
+        "strategyDatabase",
+        "selectStrategy"
+      ],
       "potential_duplicate": null
     },
     {
@@ -597,7 +836,10 @@
       "mfg_relevance": "MEDIUM",
       "implementation_quality": "PARTIAL",
       "description": "High-level CAD system registration: lists components (sketch entities, constraint solver, 3D features, AI generator, UI) and capabilities (sketching, constraints, features, direct modeling, AI). Thin orchestrator referencing external modules.",
-      "key_functions": ["components", "capabilities"],
+      "key_functions": [
+        "components",
+        "capabilities"
+      ],
       "potential_duplicate": null,
       "notes": "Thin orchestrator - references undefined globals (ADVANCED_SKETCH_ENTITIES, ENHANCED_CONSTRAINT_SOLVER, etc.)"
     },
@@ -609,7 +851,10 @@
       "mfg_relevance": "LOW",
       "implementation_quality": "COMPLETE",
       "description": "Fortune's sweep-line Voronoi diagram construction. Includes priority queue, bounding box, polygon edge discretization. Used for medial axis extraction and toolpath spacing optimization.",
-      "key_functions": ["PriorityQueue", "config"],
+      "key_functions": [
+        "PriorityQueue",
+        "config"
+      ],
       "potential_duplicate": null
     },
     {
@@ -620,7 +865,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Voxel-based stock simulation with adaptive resolution and octree acceleration. Tracks material volume, removed volume, overcut/undercut with color coding. Up to 10M voxels. Used for stock removal simulation and verification.",
-      "key_functions": ["initializeFromBox", "simulateToolRemoval", "config", "state"],
+      "key_functions": [
+        "initializeFromBox",
+        "simulateToolRemoval",
+        "config",
+        "state"
+      ],
       "potential_duplicate": "PRISM_REST_MACHINING_ENGINE.js (overlapping voxel stock model)"
     },
     {
@@ -631,7 +881,13 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Hybrid feature recognition with multiple methods (pattern, keyword, geometric, inference). Falls back through methods to find best confidence. Also includes material recognition and complete CAD-to-CAM pipeline (feature->material->tools->toolpaths->gcode).",
-      "key_functions": ["recognizeFeatures", "_patternRecognition", "_keywordRecognition", "_geometricRecognition", "_inferenceRecognition"],
+      "key_functions": [
+        "recognizeFeatures",
+        "_patternRecognition",
+        "_keywordRecognition",
+        "_geometricRecognition",
+        "_inferenceRecognition"
+      ],
       "potential_duplicate": "PRISM_FEATURE_RECOGNITION_ENHANCED.js (mesh-based vs this multi-method approach)"
     },
     {
@@ -642,7 +898,14 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Complete CAD generation engine with embedded math utilities, vector/matrix ops, and feature-to-geometry conversion. Large monolithic engine (2914 lines) that generates 3D geometry from feature descriptions. Includes its own vec3/cross/dot math.",
-      "key_functions": ["config", "math.vec3", "math.add", "math.sub", "math.cross", "generateFromFeatures"],
+      "key_functions": [
+        "config",
+        "math.vec3",
+        "math.add",
+        "math.sub",
+        "math.cross",
+        "generateFromFeatures"
+      ],
       "potential_duplicate": "PRISM_CAD_MATH.js (duplicated math utilities)"
     },
     {
@@ -653,7 +916,12 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Feature type definitions with full recognition patterns, operations, and tool mappings. Defines pocket, hole (thru/blind/counterbore/countersink/tapped), slot, thread with regex patterns, keyword matching, and CAM operation sequences.",
-      "key_functions": ["featureTypes.pocket", "featureTypes.hole", "featureTypes.slot", "featureTypes.thread"],
+      "key_functions": [
+        "featureTypes.pocket",
+        "featureTypes.hole",
+        "featureTypes.slot",
+        "featureTypes.thread"
+      ],
       "potential_duplicate": "PRISM_PARAMETRIC_CAD_ENHANCEMENT_ENGINE.js (overlapping feature definitions)"
     },
     {
@@ -664,7 +932,10 @@
       "mfg_relevance": "HIGH",
       "implementation_quality": "COMPLETE",
       "description": "Feature-to-toolpath-strategy mapping for 95 feature types. Maps each feature (pocket_open, pocket_closed, etc.) to roughing, semi-finish, and finishing strategy lists with preferred tools. Comprehensive manufacturing strategy encyclopedia.",
-      "key_functions": ["features.pocket_open", "features.pocket_closed"],
+      "key_functions": [
+        "features.pocket_open",
+        "features.pocket_closed"
+      ],
       "potential_duplicate": "PRISM_TOOLPATH_STRATEGIES_COMPLETE.js (complementary - strategies catalog vs feature-to-strategy mapping)"
     }
   ],
@@ -735,13 +1006,24 @@
     {
       "file": "PRISM_BVH_ENGINE.js",
       "lines": 6562,
-      "embedded_modules": ["BVH/AABB spatial index", "PRISM_COLLISION_ENGINE integration", "Johnson-Cook material DB aliases", "Thermal properties DB", "Fixture/Vise database (Kurt, Schunk)", "Clamping force calculator"],
+      "embedded_modules": [
+        "BVH/AABB spatial index",
+        "PRISM_COLLISION_ENGINE integration",
+        "Johnson-Cook material DB aliases",
+        "Thermal properties DB",
+        "Fixture/Vise database (Kurt, Schunk)",
+        "Clamping force calculator"
+      ],
       "recommendation": "Split into: (1) BVH spatial index core, (2) Collision detection service, (3) Fixture/vise database (move to separate data module)"
     },
     {
       "file": "PRISM_GEODESIC_DISTANCE_ENGINE.js",
       "lines": 4050,
-      "embedded_modules": ["Geodesic distance algorithms", "NURBS_ADVANCED_ENGINE duplicate (from line 449)", "NURBS curve intersection"],
+      "embedded_modules": [
+        "Geodesic distance algorithms",
+        "NURBS_ADVANCED_ENGINE duplicate (from line 449)",
+        "NURBS curve intersection"
+      ],
       "recommendation": "Remove embedded NURBS duplicate. Keep geodesic + curve intersection, import NURBS from canonical source."
     }
   ],

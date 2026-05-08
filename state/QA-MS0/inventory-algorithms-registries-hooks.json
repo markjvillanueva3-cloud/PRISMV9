@@ -1,74 +1,114 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "QA-MS0-U02",
   "title": "Ground-Truth Inventory: Algorithms, Registries & Hooks",
   "generated_at": "2026-02-27T14:30:00Z",
   "generated_by": "claude-opus-4.6",
   "method": "Static code analysis — Glob of algorithm/hook directories, Grep of registrations, prior verified registry counts from CURRENT_POSITION.md",
-
   "algorithms": {
     "directory": "mcp-server/src/algorithms/",
     "total_files": 52,
     "implementation_files": 50,
-    "support_files": ["types.ts", "index.ts"],
+    "support_files": [
+      "types.ts",
+      "index.ts"
+    ],
     "registered_in_ALGORITHM_REGISTRY": 50,
     "registration_location": "mcp-server/src/algorithms/index.ts",
     "categories": {
       "physics_cutting": {
         "count": 15,
         "files": [
-          "KienzleForceModel.ts", "ExtendedTaylorModel.ts", "ChipThinningCompensation.ts",
-          "JohnsonCookModel.ts", "SurfaceFinishPredictor.ts", "ThermalPartitionModel.ts",
-          "GilbertMRRModel.ts", "ToolDeflectionModel.ts", "ChipBreakingModel.ts",
-          "CoolantFlowModel.ts", "ToolWearPrediction.ts", "ChipEvacuationModel.ts",
-          "ChipVolumeRate.ts", "JaegerTempField.ts", "UsuiWearModel.ts"
+          "KienzleForceModel.ts",
+          "ExtendedTaylorModel.ts",
+          "ChipThinningCompensation.ts",
+          "JohnsonCookModel.ts",
+          "SurfaceFinishPredictor.ts",
+          "ThermalPartitionModel.ts",
+          "GilbertMRRModel.ts",
+          "ToolDeflectionModel.ts",
+          "ChipBreakingModel.ts",
+          "CoolantFlowModel.ts",
+          "ToolWearPrediction.ts",
+          "ChipEvacuationModel.ts",
+          "ChipVolumeRate.ts",
+          "JaegerTempField.ts",
+          "UsuiWearModel.ts"
         ]
       },
       "stability_vibration": {
         "count": 6,
         "files": [
-          "StabilityLobeDiagram.ts", "SpindleVibFFTModel.ts", "FRFStabilityLobe.ts",
-          "RCSA.ts", "STFTChatter.ts", "WaveletBreakage.ts"
+          "StabilityLobeDiagram.ts",
+          "SpindleVibFFTModel.ts",
+          "FRFStabilityLobe.ts",
+          "RCSA.ts",
+          "STFTChatter.ts",
+          "WaveletBreakage.ts"
         ]
       },
       "thermal_fea": {
         "count": 2,
-        "files": ["ThermalFEAModel.ts", "FEASolver2D.ts"]
+        "files": [
+          "ThermalFEAModel.ts",
+          "FEASolver2D.ts"
+        ]
       },
       "ml_statistical": {
         "count": 10,
         "files": [
-          "BayesianWearModel.ts", "EnsemblePredictorModel.ts", "NeuralInference.ts",
-          "TimeSeriesPredictor.ts", "AnomalyDetector.ts", "ClusteringEngine.ts",
-          "DecisionTreeClassifier.ts", "RegressionEngine.ts", "KalmanFilter.ts",
+          "BayesianWearModel.ts",
+          "EnsemblePredictorModel.ts",
+          "NeuralInference.ts",
+          "TimeSeriesPredictor.ts",
+          "AnomalyDetector.ts",
+          "ClusteringEngine.ts",
+          "DecisionTreeClassifier.ts",
+          "RegressionEngine.ts",
+          "KalmanFilter.ts",
           "DigitalTwinEstimator.ts"
         ]
       },
       "optimization": {
         "count": 8,
         "files": [
-          "GeneticOptimizer.ts", "SimulatedAnnealing.ts", "ParticleSwarm.ts",
-          "MonteCarlo.ts", "BayesianOptimizer.ts", "AntColonyTSP.ts",
-          "DPMultiPass.ts", "ILPAssignment.ts"
+          "GeneticOptimizer.ts",
+          "SimulatedAnnealing.ts",
+          "ParticleSwarm.ts",
+          "MonteCarlo.ts",
+          "BayesianOptimizer.ts",
+          "AntColonyTSP.ts",
+          "DPMultiPass.ts",
+          "ILPAssignment.ts"
         ]
       },
       "control_signal": {
         "count": 4,
         "files": [
-          "AdaptiveControllerModel.ts", "PIDController.ts", "FuzzyController.ts",
+          "AdaptiveControllerModel.ts",
+          "PIDController.ts",
+          "FuzzyController.ts",
           "FFTAnalyzer.ts"
         ]
       },
       "geometry_collision": {
         "count": 3,
-        "files": ["MinkowskiSum.ts", "SweptVolumeCollision.ts", "CWEZBuffer.ts"]
+        "files": [
+          "MinkowskiSum.ts",
+          "SweptVolumeCollision.ts",
+          "CWEZBuffer.ts"
+        ]
       },
       "planning": {
         "count": 2,
-        "files": ["CSPSetupPlan.ts", "InterpolationEngine.ts"]
+        "files": [
+          "CSPSetupPlan.ts",
+          "InterpolationEngine.ts"
+        ]
       }
     }
   },
-
   "registries": {
     "verified_date": "2026-02-22",
     "materials": {
@@ -102,14 +142,29 @@
     },
     "registry_manager": "mcp-server/src/registries/index.ts",
     "total_registries_in_code": 9,
-    "registry_names": ["materials", "machines", "tools", "alarms", "formulas", "skills", "scripts", "agents", "hooks"]
+    "registry_names": [
+      "materials",
+      "machines",
+      "tools",
+      "alarms",
+      "formulas",
+      "skills",
+      "scripts",
+      "agents",
+      "hooks"
+    ]
   },
-
   "hooks": {
     "directory": "mcp-server/src/hooks/",
     "total_files": 22,
     "hook_definition_files": 17,
-    "support_files": ["hookBridge.ts", "hookRegistration.ts", "index.ts", "CadenceDefinitions.ts", "SpecialtyCadences.ts"],
+    "support_files": [
+      "hookBridge.ts",
+      "hookRegistration.ts",
+      "index.ts",
+      "CadenceDefinitions.ts",
+      "SpecialtyCadences.ts"
+    ],
     "total_hooks_registered": 157,
     "registration_references_in_bridge": 39,
     "categories": {

@@ -1,10 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "QA-MS7-U04",
   "title": "Formula Registry Data Quality Audit",
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "PASS",
-  "scope": "FormulaRegistry.ts \u00e2\u20ac\u201d 11 built-in + ~490 JSON formulas, consumer tracking",
+  "scope": "FormulaRegistry.ts â€” 11 built-in + ~490 JSON formulas, consumer tracking",
   "file": "src/registries/FormulaRegistry.ts",
   "lines": 975,
   "architecture": {
@@ -49,13 +51,13 @@
     "json_formulas": "499 in FORMULA_REGISTRY.json",
     "total_after_dedup": "~500 (12 built-in + 489 unique from JSON, ~10 overlap)",
     "envelope_claim": "500",
-    "severity": "OK \u2014 consistent"
+    "severity": "OK — consistent"
   },
   "data_quality_checks": {
-    "consumer_tracking": "Each formula tracks which engine(s) consume it \u00e2\u20ac\u201d enables dependency analysis",
+    "consumer_tracking": "Each formula tracks which engine(s) consume it â€” enables dependency analysis",
     "source_modules": "12 source modules (ManufacturingCalculations, AdvancedCalculations, ToolpathCalculations, etc.)",
     "parameter_validation": "Each formula defines required parameters with types and units",
-    "unit_consistency": "SI units throughout (N, m, Pa, K, m/s) \u00e2\u20ac\u201d consistent with QA-MS3 findings"
+    "unit_consistency": "SI units throughout (N, m, Pa, K, m/s) â€” consistent with QA-MS3 findings"
   },
   "findings": [
     {
@@ -109,7 +111,7 @@
         "ManufacturingCalculations"
       ],
       "verified_in": "QA-MS3 (CuttingForceEngine audit)",
-      "status": "VERIFIED \u2014 cross-referenced with QA-MS3"
+      "status": "VERIFIED — cross-referenced with QA-MS3"
     },
     {
       "test": "Formula consumer tracking",
@@ -119,7 +121,7 @@
         "johnson_cook": "consumers = [MaterialEngine, CuttingForceEngine]",
         "altintas_budak": "consumers = [StabilityEngine]"
       },
-      "status": "VERIFIED \u2014 consumer tracking enables dependency impact analysis"
+      "status": "VERIFIED — consumer tracking enables dependency impact analysis"
     }
   ]
 }

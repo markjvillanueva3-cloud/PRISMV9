@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS12-P0-U01",
   "title": "Auto-Hook Proxy: Universal Hook Wrapping Verification",
   "auditor": "claude-opus-4.6",
@@ -13,16 +15,37 @@
     "layer_1_universal": {
       "function": "wrapWithUniversalHooks(toolName, handler)",
       "scope": "ALL prism_* tools (45 dispatchers)",
-      "capabilities": ["Session journal","Compaction detection/rehydration","80+ cadence auto-fire functions","Error learning","Anti-regression","Quality gates","Memory graph","Telemetry","Pattern matching","Response slimming"]
+      "capabilities": [
+        "Session journal",
+        "Compaction detection/rehydration",
+        "80+ cadence auto-fire functions",
+        "Error learning",
+        "Anti-regression",
+        "Quality gates",
+        "Memory graph",
+        "Telemetry",
+        "Pattern matching",
+        "Response slimming"
+      ]
     },
     "layer_2_safety": {
       "function": "wrapToolWithAutoHooks(toolName, handler)",
       "scope": "Calc tools only (24 tools)",
-      "capabilities": ["CALC-BEFORE/AFTER-EXEC-001 hooks","Lambda safety proof validation (threshold 0.9)","Critical Lambda < 0.5 = SAFETY BLOCK","Phi factual verification for web tools","REFL-002 error hooks"]
+      "capabilities": [
+        "CALC-BEFORE/AFTER-EXEC-001 hooks",
+        "Lambda safety proof validation (threshold 0.9)",
+        "Critical Lambda < 0.5 = SAFETY BLOCK",
+        "Phi factual verification for web tools",
+        "REFL-002 error hooks"
+      ]
     }
   },
   "bypass_paths": 0,
   "disable_mechanism": "AUTO_HOOK_CONFIG.enabled = false (global kill switch)",
   "findings": [],
-  "exit_conditions_met": { "wrapping_confirmed": true, "bypass_paths_identified": true, "performance_impact_assessed": true }
+  "exit_conditions_met": {
+    "wrapping_confirmed": true,
+    "bypass_paths_identified": true,
+    "performance_impact_assessed": true
+  }
 }

@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS10-P0-U00",
   "title": "StabilityEngine Chatter Prediction Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T06:00:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - Two complementary stability implementations, both based on Altintas theory, with proper safety-critical thresholds",
-
   "implementations": {
     "AdvancedCalculations_calculateStabilityLobes": {
       "file": "src/engines/AdvancedCalculations.ts",
@@ -21,17 +22,28 @@
       },
       "used_by": "calcDispatcher 'stability' action"
     },
-
     "RegenerativeChatterPredictor": {
       "file": "src/engines/RegenerativeChatterPredictor.ts",
       "lines": 198,
       "safety_class": "SAFETY CRITICAL",
       "model": "Altintas-Budak analytical stability model",
       "features": {
-        "cut_types": ["slotting", "half_immersion_up", "half_immersion_down", "quarter_immersion", "full_immersion", "turning"],
+        "cut_types": [
+          "slotting",
+          "half_immersion_up",
+          "half_immersion_down",
+          "quarter_immersion",
+          "full_immersion",
+          "turning"
+        ],
         "directional_factor": "Per cut-type directional coefficient mu",
         "lobe_count": 20,
-        "severity_levels": ["stable", "marginal", "chatter", "severe_chatter"],
+        "severity_levels": [
+          "stable",
+          "marginal",
+          "chatter",
+          "severe_chatter"
+        ],
         "optimal_rpm": "Nearest lobe peak for maximum stable depth"
       },
       "output": {
@@ -44,9 +56,11 @@
       "used_by": "intelligenceDispatcher 'chatter_predict' action + calcDispatcher 'chatter_predict'"
     }
   },
-
   "cross_reference_QA_MS4": "QA-MS4 stability-lobe-audit.json verified the SDOF analytical model, eigenvalue formulation, and lobe generation. This audit confirms both implementations are consistent with that verification.",
-
   "findings": [],
-  "exit_conditions_met": { "stability_algorithm_verified": true, "chatter_thresholds_validated": true, "toolpath_integration_verified": true }
+  "exit_conditions_met": {
+    "stability_algorithm_verified": true,
+    "chatter_thresholds_validated": true,
+    "toolpath_integration_verified": true
+  }
 }

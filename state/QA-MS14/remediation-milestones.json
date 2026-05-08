@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS14-P0-U01",
   "title": "Remediation Milestones for Critical Issues",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "COMPLETE",
   "verdict": "COMPLETE — 6 remediation milestones proposed. REM-MS0 already complete. REM-MS1 through REM-MS5 cover remaining P1/P2 items.",
-
   "milestones": [
     {
       "id": "REM-MS0",
@@ -22,7 +23,9 @@
       "scope": "M-001 through M-009: Safety threshold unification, coolant validation, input validation, hook field alignment, empty catch fix",
       "items": 9,
       "effort": "2-3 sessions",
-      "dependencies": ["REM-MS0"],
+      "dependencies": [
+        "REM-MS0"
+      ],
       "priority": "HIGH"
     },
     {
@@ -32,7 +35,9 @@
       "scope": "M-006: Add tests for 18 untested safety-critical actions",
       "items": 1,
       "effort": "2 sessions",
-      "dependencies": ["REM-MS1"],
+      "dependencies": [
+        "REM-MS1"
+      ],
       "priority": "HIGH"
     },
     {
@@ -42,7 +47,9 @@
       "scope": "M-010 through M-015: GSD sync, guard naming, omega calc, ralph, telemetry, cross-registry",
       "items": 6,
       "effort": "2-3 sessions",
-      "dependencies": ["REM-MS0"],
+      "dependencies": [
+        "REM-MS0"
+      ],
       "priority": "MEDIUM"
     },
     {
@@ -52,7 +59,9 @@
       "scope": "L-006, L-009 through L-013: Safety factor worst-case, atomic compliance, engine findings, parameter normalization",
       "items": 6,
       "effort": "2 sessions",
-      "dependencies": ["REM-MS1"],
+      "dependencies": [
+        "REM-MS1"
+      ],
       "priority": "MEDIUM"
     },
     {
@@ -66,18 +75,51 @@
       "priority": "LOW"
     }
   ],
-
   "dependency_graph": {
-    "REM-MS0": { "status": "COMPLETE", "unblocks": ["REM-MS1", "REM-MS3"] },
-    "REM-MS1": { "blocked_by": ["REM-MS0"], "unblocks": ["REM-MS2", "REM-MS4"] },
-    "REM-MS2": { "blocked_by": ["REM-MS1"], "unblocks": [] },
-    "REM-MS3": { "blocked_by": ["REM-MS0"], "unblocks": [] },
-    "REM-MS4": { "blocked_by": ["REM-MS1"], "unblocks": [] },
-    "REM-MS5": { "blocked_by": [], "unblocks": [] }
+    "REM-MS0": {
+      "status": "COMPLETE",
+      "unblocks": [
+        "REM-MS1",
+        "REM-MS3"
+      ]
+    },
+    "REM-MS1": {
+      "blocked_by": [
+        "REM-MS0"
+      ],
+      "unblocks": [
+        "REM-MS2",
+        "REM-MS4"
+      ]
+    },
+    "REM-MS2": {
+      "blocked_by": [
+        "REM-MS1"
+      ],
+      "unblocks": []
+    },
+    "REM-MS3": {
+      "blocked_by": [
+        "REM-MS0"
+      ],
+      "unblocks": []
+    },
+    "REM-MS4": {
+      "blocked_by": [
+        "REM-MS1"
+      ],
+      "unblocks": []
+    },
+    "REM-MS5": {
+      "blocked_by": [],
+      "unblocks": []
+    }
   },
-
   "total_remediation_effort": "9-13 sessions",
-
   "findings": [],
-  "exit_conditions_met": { "remediation_milestones_generated": true, "each_has_units_and_deliverables": true, "dependency_graph_established": true }
+  "exit_conditions_met": {
+    "remediation_milestones_generated": true,
+    "each_has_units_and_deliverables": true,
+    "dependency_graph_established": true
+  }
 }

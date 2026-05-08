@@ -1,54 +1,80 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS2-P0-U01",
   "title": "GuardEngine Naming Confusion Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:45:00Z",
   "status": "COMPLETE",
   "verdict": "3 MEDIUM findings — naming inconsistencies between dispatcher name, behavior, and action categories",
-
   "dispatcher_profile": {
     "tool_name": "prism_guard",
     "file": "src/tools/dispatchers/guardDispatcher.ts",
     "declared_purpose": "Reasoning + Enforcement + AutoHook diagnostics",
     "total_actions": 14,
     "action_list": [
-      "decision_log", "failure_library", "error_capture",
-      "pre_write_gate", "pre_write_diff", "pre_call_validate",
-      "autohook_status", "autohook_test",
-      "pattern_scan", "pattern_history",
-      "learning_query", "learning_save",
-      "lkg_status", "priority_score"
+      "decision_log",
+      "failure_library",
+      "error_capture",
+      "pre_write_gate",
+      "pre_write_diff",
+      "pre_call_validate",
+      "autohook_status",
+      "autohook_test",
+      "pattern_scan",
+      "pattern_history",
+      "learning_query",
+      "learning_save",
+      "lkg_status",
+      "priority_score"
     ]
   },
-
   "behavior_categorization": {
     "actual_guards_blocking": {
-      "actions": ["pre_write_gate", "pre_write_diff"],
+      "actions": [
+        "pre_write_gate",
+        "pre_write_diff"
+      ],
       "count": 2,
       "behavior": "CAN block operations (pre_write_gate blocks >50-line writes without approval, pre_write_diff blocks writes to unread files)"
     },
     "validation_lookup": {
-      "actions": ["pre_call_validate"],
+      "actions": [
+        "pre_call_validate"
+      ],
       "count": 1,
       "behavior": "Rename lookup — checks if a tool name was renamed, returns RENAMED or NOT_IN_RENAME_MAP. Does NOT validate or block."
     },
     "logging_tracking": {
-      "actions": ["decision_log", "failure_library", "error_capture"],
+      "actions": [
+        "decision_log",
+        "failure_library",
+        "error_capture"
+      ],
       "count": 3,
       "behavior": "Record decisions, failure patterns, and errors to JSONL files. Purely observational."
     },
     "diagnostics": {
-      "actions": ["autohook_status", "autohook_test"],
+      "actions": [
+        "autohook_status",
+        "autohook_test"
+      ],
       "count": 2,
       "behavior": "Read hook execution history and fire test hooks. Purely diagnostic."
     },
     "learning_python": {
-      "actions": ["pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score"],
+      "actions": [
+        "pattern_scan",
+        "pattern_history",
+        "learning_query",
+        "learning_save",
+        "lkg_status",
+        "priority_score"
+      ],
       "count": 6,
       "behavior": "Python script wrappers for pattern detection, learning store, LKG tracker, priority scoring. No guarding."
     }
   },
-
   "naming_patterns_across_codebase": {
     "guard_prefix": {
       "prism_guard_dispatcher": "14 actions — only 2 are actual guards",
@@ -66,7 +92,6 @@
       "CoolantValidationEngine.ts": "checkBrackets — actual checking"
     }
   },
-
   "findings": [
     {
       "id": "F21",
@@ -95,7 +120,6 @@
       "fix": "Document this clearly in GSD or add a prism_guard action that reports the locations of actual safety guards."
     }
   ],
-
   "exit_conditions_met": {
     "all_naming_patterns_cataloged": true,
     "inconsistencies_identified": true,

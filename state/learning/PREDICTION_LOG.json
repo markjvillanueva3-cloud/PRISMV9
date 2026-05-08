@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "predictionLog": {
     "metadata": {
       "version": "1.0",
@@ -17,8 +19,18 @@
         "phase": 0,
         "createdAt": "2026-01-26T02:50:00Z",
         "predicted": {
-          "effort": {"value": 15, "uncertainty": 4, "ci": 0.95, "unit": "tool_calls"},
-          "time": {"value": 8, "uncertainty": 2, "ci": 0.95, "unit": "minutes"}
+          "effort": {
+            "value": 15,
+            "uncertainty": 4,
+            "ci": 0.95,
+            "unit": "tool_calls"
+          },
+          "time": {
+            "value": 8,
+            "uncertainty": 2,
+            "ci": 0.95,
+            "unit": "minutes"
+          }
         },
         "actual": {
           "effort": 28,
@@ -30,7 +42,7 @@
         },
         "percentError": {
           "effort": 86.7,
-          "time": 50.0
+          "time": 50
         },
         "status": "COMPLETE",
         "completedAt": "2026-01-26T03:15:00Z",
@@ -39,18 +51,18 @@
     ],
     "aggregateMetrics": {
       "effort": {
-        "mae": 13.0,
+        "mae": 13,
         "mape": 86.7,
-        "rmse": 13.0,
+        "rmse": 13,
         "bias": 86.7,
         "r2": null,
         "dataPoints": 1
       },
       "time": {
-        "mae": 4.0,
-        "mape": 50.0,
-        "rmse": 4.0,
-        "bias": 50.0,
+        "mae": 4,
+        "mape": 50,
+        "rmse": 4,
+        "bias": 50,
         "r2": null,
         "dataPoints": 1
       },

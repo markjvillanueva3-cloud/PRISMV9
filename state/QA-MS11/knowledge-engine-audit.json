@@ -1,22 +1,60 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS11-P0-U00",
   "title": "KnowledgeEngine Search/Retrieval Logic Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T07:00:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - Dual-engine knowledge system: KnowledgeGraphEngine (920 lines, in-memory graph with typed nodes/edges) + KnowledgeQueryEngine (1031 lines, cross-registry unified search)",
-
   "engines": {
     "KnowledgeGraphEngine": {
       "file": "src/engines/KnowledgeGraphEngine.ts",
       "lines": 920,
-      "actions": ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse", "graph_add", "graph_search", "graph_stats", "graph_history", "graph_get"],
+      "actions": [
+        "graph_query",
+        "graph_infer",
+        "graph_discover",
+        "graph_predict",
+        "graph_traverse",
+        "graph_add",
+        "graph_search",
+        "graph_stats",
+        "graph_history",
+        "graph_get"
+      ],
       "action_count": 10,
       "architecture": {
         "storage": "In-memory Map<string, GraphNode> + GraphEdge[]",
         "seeding": "seedGraph() on first use — 7 materials, 6 tools, 4 machines, 5 strategies, 4 coatings, 6 failure modes, 3 manufacturers, 3 applications",
-        "node_types": ["material", "tool", "machine", "strategy", "property", "failure_mode", "application", "coating", "manufacturer"],
-        "edge_types": ["has_property", "requires_strategy", "fails_with", "best_tool", "machined_on", "made_by", "coated_with", "used_for", "causes", "prevents", "similar_to", "exceeds_limit", "optimal_for", "alternative_to", "learned_from"],
+        "node_types": [
+          "material",
+          "tool",
+          "machine",
+          "strategy",
+          "property",
+          "failure_mode",
+          "application",
+          "coating",
+          "manufacturer"
+        ],
+        "edge_types": [
+          "has_property",
+          "requires_strategy",
+          "fails_with",
+          "best_tool",
+          "machined_on",
+          "made_by",
+          "coated_with",
+          "used_for",
+          "causes",
+          "prevents",
+          "similar_to",
+          "exceeds_limit",
+          "optimal_for",
+          "alternative_to",
+          "learned_from"
+        ],
         "seed_nodes": 38,
         "seed_edges": 52
       },
@@ -35,11 +73,25 @@
       "file": "src/engines/KnowledgeQueryEngine.ts",
       "lines": 1031,
       "class": "KnowledgeQueryEngine (singleton: knowledgeEngine)",
-      "registries_searched": ["materials", "machines", "tools", "alarms", "formulas", "skills", "scripts", "agents", "hooks"],
+      "registries_searched": [
+        "materials",
+        "machines",
+        "tools",
+        "alarms",
+        "formulas",
+        "skills",
+        "scripts",
+        "agents",
+        "hooks"
+      ],
       "search_algorithms": {
         "unified_search": "Cross-registry search with auto-detect relevant registries via REGISTRY_PATTERNS regex map, TTL cache (5min, 100 entries)",
         "relevance_scoring": "4-tier: exact name match (1.0) > starts-with (0.9) > contains (0.7) > description match (0.5) > partial word (0.3-0.6)",
-        "match_types": ["exact", "partial", "semantic"],
+        "match_types": [
+          "exact",
+          "partial",
+          "semantic"
+        ],
         "cross_registry_query": "Task-based cross-registry with relationship building and workflow generation",
         "formula_query": "Domain-aware formula search with related formula discovery (same-category + shared-inputs)"
       },
@@ -51,7 +103,10 @@
       "source_catalog": "KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG: same 12 KB modules (independent copy, no cross-engine import)"
     }
   },
-
   "findings": [],
-  "exit_conditions_met": { "search_algorithm_logic_verified": true, "retrieval_ranking_logic_verified": true, "knowledge_base_integration_points_documented": true }
+  "exit_conditions_met": {
+    "search_algorithm_logic_verified": true,
+    "retrieval_ranking_logic_verified": true,
+    "knowledge_base_integration_points_documented": true
+  }
 }

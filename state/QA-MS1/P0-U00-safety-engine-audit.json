@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS1-P0-U00",
   "title": "SafetyEngine S(x) Scoring Formula Verification",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T22:00:00Z",
   "status": "COMPLETE",
   "verdict": "2 CRITICAL (FIXED), 3 MEDIUM, 2 LOW findings",
-
   "safety_chain_map": {
     "description": "S(x) safety scoring is distributed across 5 files, not a single SafetyEngine",
     "components": [
@@ -39,23 +40,28 @@
       },
       {
         "file": "src/hooks/SafetyQualityHooks.ts",
-        "functions": ["preCalculateSafety", "postCalculateSafety", "preGcodeSafety", "postToolpathSafety", "machineLimitGuard"],
+        "functions": [
+          "preCalculateSafety",
+          "postCalculateSafety",
+          "preGcodeSafety",
+          "postToolpathSafety",
+          "machineLimitGuard"
+        ],
         "role": "5 blocking hooks for parameter/result/toolpath/machine limit validation",
         "threshold_source": "Absolute limits (not S(x)-based)"
       }
     ]
   },
-
   "s_x_formula_verification": {
     "weights": {
-      "physical_limits": 0.20,
-      "force_safety": 0.20,
+      "physical_limits": 0.2,
+      "force_safety": 0.2,
       "thermal_safety": 0.15,
       "tool_life": 0.15,
       "machine_capability": 0.15,
       "edge_cases": 0.15
     },
-    "weight_sum": 1.00,
+    "weight_sum": 1,
     "weight_sum_valid": true,
     "formula": "S(x) = Σ(component_score × weight) for all 6 components",
     "score_range": "[0.0, 1.0]",
@@ -64,7 +70,6 @@
     "warning_zone_removed": true,
     "warning_zone_note": "QA-MS1 FIX comments indicate WARNING zone was previously removed"
   },
-
   "findings": [
     {
       "id": "F01",
@@ -98,7 +103,10 @@
       "id": "F03",
       "severity": "MEDIUM",
       "title": "SAFETY_THRESHOLD defined in two files — divergence risk",
-      "files": ["src/utils/validators.ts:137", "src/types/prism-schema.ts:355"],
+      "files": [
+        "src/utils/validators.ts:137",
+        "src/types/prism-schema.ts:355"
+      ],
       "issue": "SAFETY_THRESHOLD = 0.70 is defined as a hardcoded constant in two separate files. Both currently agree at 0.70, but if one is changed without the other, different parts of the system would enforce different thresholds.",
       "impact": "Maintenance hazard. A future change could create threshold inconsistency between validators and enforcement hooks.",
       "fix": "Define SAFETY_THRESHOLD in exactly one canonical location (prism-schema.ts) and import everywhere else."
@@ -145,39 +153,65 @@
       "fix": "Either compute it from actual context or remove the field from ExecutionPlan if it's not meaningful."
     }
   ],
-
   "safety_hooks_audit": {
     "total_safety_hooks": 5,
     "all_blocking": true,
     "hooks_verified": [
       {
         "id": "pre-calculate-safety",
-        "limits_checked": ["spindleRpm <= 60000", "feedRate <= 50000", "feedPerTooth <= 1.0", "depthOfCut <= 50mm", "toolDiameter > 0"],
+        "limits_checked": [
+          "spindleRpm <= 60000",
+          "feedRate <= 50000",
+          "feedPerTooth <= 1.0",
+          "depthOfCut <= 50mm",
+          "toolDiameter > 0"
+        ],
         "physically_sensible": true
       },
       {
         "id": "post-calculate-safety",
-        "limits_checked": ["cuttingForce_N <= 100000", "spindlePower_kW <= 150", "torque_Nm <= 5000", "deflection_mm <= 0.5"],
+        "limits_checked": [
+          "cuttingForce_N <= 100000",
+          "spindlePower_kW <= 150",
+          "torque_Nm <= 5000",
+          "deflection_mm <= 0.5"
+        ],
         "physically_sensible": true
       },
       {
         "id": "pre-gcode-safety",
-        "limits_checked": ["rapidTraverse <= 100000 mm/min", "spindleRpm <= 60000", "feedRate <= 50000", "plungeRate <= 10000", "coolantCode in [M7,M8,M9,M7M8]"],
+        "limits_checked": [
+          "rapidTraverse <= 100000 mm/min",
+          "spindleRpm <= 60000",
+          "feedRate <= 50000",
+          "plungeRate <= 10000",
+          "coolantCode in [M7,M8,M9,M7M8]"
+        ],
         "physically_sensible": true
       },
       {
         "id": "post-toolpath-safety",
-        "limits_checked": ["collisionDetected", "envelopeExceeded", "rapidThroughMaterial", "gougeDetected", "minClearance >= 1.0mm"],
+        "limits_checked": [
+          "collisionDetected",
+          "envelopeExceeded",
+          "rapidThroughMaterial",
+          "gougeDetected",
+          "minClearance >= 1.0mm"
+        ],
         "physically_sensible": true
       },
       {
         "id": "machine-limit-guard",
-        "limits_checked": ["spindleRpm vs maxRpm", "power vs maxPower", "torque vs maxTorque", "6-axis travel X/Y/Z/A/B/C"],
+        "limits_checked": [
+          "spindleRpm vs maxRpm",
+          "power vs maxPower",
+          "torque vs maxTorque",
+          "6-axis travel X/Y/Z/A/B/C"
+        ],
         "physically_sensible": true
       }
     ]
   },
-
   "hookengine_built_in_hooks_audit": {
     "total_blocking_hooks": 8,
     "hooks": [
@@ -191,7 +225,6 @@
       "DISPATCH-ACTION-VALIDATE-001 — invalid dispatcher action"
     ]
   },
-
   "test_coverage": {
     "existing_test": "src/__tests__/system-comprehensive.test.ts:467 — verifies SAFETY_THRESHOLD === 0.70",
     "missing_tests": [
@@ -202,7 +235,6 @@
       "Integration test: full chain from computeSafetyScore → EnforcementHooks → HookEngine"
     ]
   },
-
   "summary": {
     "critical_findings": 2,
     "medium_findings": 3,

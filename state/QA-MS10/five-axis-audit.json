@@ -1,18 +1,18 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS10-P0-U02",
   "title": "FiveAxisEngine Multi-Axis Toolpath Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T06:00:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - 5 specialized engines with lazy loading, SAFETY CRITICAL designation, proper kinematic/singularity/collision coverage",
-
   "dispatcher_overview": {
     "file": "src/tools/dispatchers/fiveAxisDispatcher.ts (83 lines)",
     "tool_name": "prism_5axis",
     "safety_class": "SAFETY CRITICAL — singularity/collision/RTCP errors cause crashes",
     "total_actions": 5
   },
-
   "engines": {
     "RTCP_CompensationEngine": {
       "action": "rtcp_calc",
@@ -41,19 +41,20 @@
       "purpose": "Solves inverse kinematics for tool-tip position + orientation → axis positions"
     }
   },
-
   "loading_pattern": {
     "strategy": "Lazy singleton — each engine loaded on first use via ??= pattern",
     "rationale": "5-axis engines are specialized; most sessions don't need all 5"
   },
-
   "safety_assessment": {
     "singularity_detection": "Dedicated engine prevents gimbal lock scenarios",
     "collision_avoidance": "Work envelope validation + tilt optimization",
     "RTCP_compensation": "Ensures tool tip follows programmed path regardless of rotary axis positions",
     "gouge_prevention": "Tilt optimization considers surface normal to avoid gouge"
   },
-
   "findings": [],
-  "exit_conditions_met": { "kinematic_model_verified": true, "tool_orientation_verified": true, "collision_detection_verified": true }
+  "exit_conditions_met": {
+    "kinematic_model_verified": true,
+    "tool_orientation_verified": true,
+    "collision_detection_verified": true
+  }
 }

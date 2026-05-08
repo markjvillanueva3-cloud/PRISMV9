@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS12-P0-U03",
   "title": "prism_autopilot_d: Autopilot Action Verification",
   "auditor": "claude-opus-4.6",
@@ -11,17 +13,55 @@
     "action_count": 7
   },
   "actions": [
-    { "name": "autopilot", "purpose": "Full execution with swarms, ralph loops, formula optimization", "module": "AutoPilot (lazy-loaded)" },
-    { "name": "autopilot_quick", "purpose": "Minimal execution — no swarms, 1 ralph loop, no formula opt", "module": "AutoPilot (lazy-loaded)" },
-    { "name": "brainstorm_lenses", "purpose": "7-lens analysis (assumptions, alternatives, inversions, fusions, tenX, simplifications, futureProof)", "module": "AutoPilot" },
-    { "name": "formula_optimize", "purpose": "Formula parameter optimization", "module": "AutoPilot" },
-    { "name": "autopilot_v2", "purpose": "Next-gen autopilot with enhanced orchestration", "module": "AutoPilotV2 (lazy-loaded)" },
-    { "name": "registry_status", "purpose": "Report status of all registries", "module": "Inline" },
-    { "name": "working_tools", "purpose": "List all available tool names", "module": "Inline" }
+    {
+      "name": "autopilot",
+      "purpose": "Full execution with swarms, ralph loops, formula optimization",
+      "module": "AutoPilot (lazy-loaded)"
+    },
+    {
+      "name": "autopilot_quick",
+      "purpose": "Minimal execution — no swarms, 1 ralph loop, no formula opt",
+      "module": "AutoPilot (lazy-loaded)"
+    },
+    {
+      "name": "brainstorm_lenses",
+      "purpose": "7-lens analysis (assumptions, alternatives, inversions, fusions, tenX, simplifications, futureProof)",
+      "module": "AutoPilot"
+    },
+    {
+      "name": "formula_optimize",
+      "purpose": "Formula parameter optimization",
+      "module": "AutoPilot"
+    },
+    {
+      "name": "autopilot_v2",
+      "purpose": "Next-gen autopilot with enhanced orchestration",
+      "module": "AutoPilotV2 (lazy-loaded)"
+    },
+    {
+      "name": "registry_status",
+      "purpose": "Report status of all registries",
+      "module": "Inline"
+    },
+    {
+      "name": "working_tools",
+      "purpose": "List all available tool names",
+      "module": "Inline"
+    }
   ],
-  "deprecated": { "ralph_loop_lite": "DEPRECATED — was generating fake scores (Law 2 violation)" },
+  "deprecated": {
+    "ralph_loop_lite": "DEPRECATED — was generating fake scores (Law 2 violation)"
+  },
   "lazy_loading": "require() for AutoPilot and AutoPilotV2 to reduce startup time",
-  "safety": { "auto_hook_proxy": "All actions wrapped by wrapWithUniversalHooks", "safety_score": "S(x) >= 0.70 enforced", "ralph_deprecation": "Fake score generation explicitly removed" },
+  "safety": {
+    "auto_hook_proxy": "All actions wrapped by wrapWithUniversalHooks",
+    "safety_score": "S(x) >= 0.70 enforced",
+    "ralph_deprecation": "Fake score generation explicitly removed"
+  },
   "findings": [],
-  "exit_conditions_met": { "all_actions_inventoried": true, "decision_logic_verified": true, "safety_guardrails_verified": true }
+  "exit_conditions_met": {
+    "all_actions_inventoried": true,
+    "decision_logic_verified": true,
+    "safety_guardrails_verified": true
+  }
 }

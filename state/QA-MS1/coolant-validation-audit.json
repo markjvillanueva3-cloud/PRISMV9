@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "QA-MS1-U01",
   "title": "CoolantValidationEngine Bracket & Edge Case Audit",
   "generated_at": "2026-02-27T17:00:00Z",
@@ -10,14 +12,23 @@
     "mcp-server/src/algorithms/CoolantFlowModel.ts (287 lines, full read)",
     "mcp-server/src/tools/dispatchers/safetyDispatcher.ts (wiring grep)"
   ],
-
   "bracket_verification": {
     "speed_brackets": {
       "location": "CoolantValidationEngine.ts:282-286",
       "brackets": [
-        { "condition": "> 300 m/min", "multiplier": 1.4 },
-        { "condition": "> 200 m/min", "multiplier": 1.2 },
-        { "condition": "<= 200 m/min", "multiplier": 1.0, "implicit": true }
+        {
+          "condition": "> 300 m/min",
+          "multiplier": 1.4
+        },
+        {
+          "condition": "> 200 m/min",
+          "multiplier": 1.2
+        },
+        {
+          "condition": "<= 200 m/min",
+          "multiplier": 1,
+          "implicit": true
+        }
       ],
       "ordering_correct": true,
       "no_dead_branches": true,
@@ -27,12 +38,36 @@
     "ld_pressure_brackets": {
       "location": "CoolantValidationEngine.ts:378-383 (pressure), 458-478 (chip evacuation)",
       "brackets": [
-        { "range": "L/D < 3", "pressure_bar": 10, "strategy": "STANDARD" },
-        { "range": "L/D 3-5", "pressure_bar": 20, "strategy": "STANDARD" },
-        { "range": "L/D 5-8", "pressure_bar": 40, "strategy": "PECK_CYCLE" },
-        { "range": "L/D 8-12", "pressure_bar": 70, "strategy": "HIGH_PRESSURE" },
-        { "range": "L/D 12-20", "pressure_bar": 100, "strategy": "HIGH_PRESSURE" },
-        { "range": "L/D > 20", "pressure_bar": 150, "strategy": "GUNDRILLING" }
+        {
+          "range": "L/D < 3",
+          "pressure_bar": 10,
+          "strategy": "STANDARD"
+        },
+        {
+          "range": "L/D 3-5",
+          "pressure_bar": 20,
+          "strategy": "STANDARD"
+        },
+        {
+          "range": "L/D 5-8",
+          "pressure_bar": 40,
+          "strategy": "PECK_CYCLE"
+        },
+        {
+          "range": "L/D 8-12",
+          "pressure_bar": 70,
+          "strategy": "HIGH_PRESSURE"
+        },
+        {
+          "range": "L/D 12-20",
+          "pressure_bar": 100,
+          "strategy": "HIGH_PRESSURE"
+        },
+        {
+          "range": "L/D > 20",
+          "pressure_bar": 150,
+          "strategy": "GUNDRILLING"
+        }
       ],
       "contiguous": true,
       "no_gaps": true,
@@ -63,11 +98,14 @@
     },
     "thermal_status": {
       "location": "CoolantValidationEngine.ts:660-665",
-      "tiers": ["SAFE", "MARGINAL", "RISK"],
+      "tiers": [
+        "SAFE",
+        "MARGINAL",
+        "RISK"
+      ],
       "logic_correct": true
     }
   },
-
   "findings": [
     {
       "id": "CV-CRITICAL-001",
@@ -161,7 +199,6 @@
       "evidence": "safetyDispatcher.ts:57-58, :137"
     }
   ],
-
   "rubric_scores": {
     "correctness": {
       "score": 3,
@@ -182,7 +219,6 @@
     "composite_omega_qa": "0.35*3 + 0.25*3 + 0.25*3 + 0.15*5 = 1.05 + 0.75 + 0.75 + 0.75 = 3.30",
     "pass_fail": "CONDITIONAL PASS — no component below 3, but critical MQL bug and titanium dry machining must be fixed"
   },
-
   "recommended_fixes": [
     {
       "priority": "P0",

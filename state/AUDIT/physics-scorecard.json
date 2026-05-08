@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "session": "0-PRE-3",
   "date": "2026-03-24",
   "categories_audited": [
@@ -17,25 +19,105 @@
     "MISCATEGORIZED": 1
   },
   "corrections_from_triage": [
-    {"engine": "KienzleForceModelEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "436 LOC, full Kienzle with rake/wear/speed corrections, 12 material ISO groups, milling forces"},
-    {"engine": "JohnsonCookEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "60+ alloy database, flow stress calculation with strain/rate/thermal terms"},
-    {"engine": "ConstitutiveModelEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "9 constitutive models (Zerilli-Armstrong, MTS, Voce, PTW, Paris Law, Norton Creep, Larson-Miller, Hollomon, Machinability)"},
-    {"engine": "ForceCapabilityEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "Machine force/power/torque feasibility, Kienzle cutting force, thermal growth, wear amplification"},
-    {"engine": "WearForceCompensationEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "Archard abrasive wear, flank wear→force correction (Smithey 2000), thermal-compensated deflection"},
-    {"engine": "WorkholdingForceEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "Vise/chuck/vacuum/magnetic clamping force, friction coefficient, safety factor validation"},
-    {"engine": "ChatterPredictionEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "SLD generation (Altintas/Tlusty), DFT spectral chatter detection, critical speed analysis"},
-    {"engine": "VibrationAnalysisEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "SDOF/MDOF modal analysis, FRF generation, half-power bandwidth"},
-    {"engine": "ResidualStressPredictionEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "7 models: Hertzian, thermal, combined, burnishing, phase transform, relaxation, sensitivity. erfc implementation"},
-    {"engine": "RoughnessConversionEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "6 roughness scale conversions (Ra/Rz/Rq/Rt/CLA/N-grade), ISO 4287/1302"},
-    {"engine": "InstantaneousEngagementEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "367 LOC, per-block ae/ap/Deff computation, chip thinning, corner engagement, ball end mill corrections"},
-    {"engine": "StepoverOptimizationEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "Curvature-adaptive stepover, ball/barrel/flat/bull cutter formulas, Choi & Jerard 1998"}
+    {
+      "engine": "KienzleForceModelEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "436 LOC, full Kienzle with rake/wear/speed corrections, 12 material ISO groups, milling forces"
+    },
+    {
+      "engine": "JohnsonCookEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "60+ alloy database, flow stress calculation with strain/rate/thermal terms"
+    },
+    {
+      "engine": "ConstitutiveModelEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "9 constitutive models (Zerilli-Armstrong, MTS, Voce, PTW, Paris Law, Norton Creep, Larson-Miller, Hollomon, Machinability)"
+    },
+    {
+      "engine": "ForceCapabilityEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "Machine force/power/torque feasibility, Kienzle cutting force, thermal growth, wear amplification"
+    },
+    {
+      "engine": "WearForceCompensationEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "Archard abrasive wear, flank wear→force correction (Smithey 2000), thermal-compensated deflection"
+    },
+    {
+      "engine": "WorkholdingForceEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "Vise/chuck/vacuum/magnetic clamping force, friction coefficient, safety factor validation"
+    },
+    {
+      "engine": "ChatterPredictionEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "SLD generation (Altintas/Tlusty), DFT spectral chatter detection, critical speed analysis"
+    },
+    {
+      "engine": "VibrationAnalysisEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "SDOF/MDOF modal analysis, FRF generation, half-power bandwidth"
+    },
+    {
+      "engine": "ResidualStressPredictionEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "7 models: Hertzian, thermal, combined, burnishing, phase transform, relaxation, sensitivity. erfc implementation"
+    },
+    {
+      "engine": "RoughnessConversionEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "6 roughness scale conversions (Ra/Rz/Rq/Rt/CLA/N-grade), ISO 4287/1302"
+    },
+    {
+      "engine": "InstantaneousEngagementEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "367 LOC, per-block ae/ap/Deff computation, chip thinning, corner engagement, ball end mill corrections"
+    },
+    {
+      "engine": "StepoverOptimizationEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "Curvature-adaptive stepover, ball/barrel/flat/bull cutter formulas, Choi & Jerard 1998"
+    }
   ],
   "remaining_partial": [
-    {"engine": "VibrationIsolatorEngine", "verdict": "PARTIAL", "reason": "74 LOC, functional but small — transmissibility + static deflection. Adequate for scope."},
-    {"engine": "VibratoryFeederEngine", "verdict": "PARTIAL", "reason": "85 LOC, conveying velocity + feed rate. Adequate for scope."},
-    {"engine": "OutputBudgetEnforcerEngine", "verdict": "MISCATEGORIZED", "reason": "Infrastructure engine, not physics. Should be in System Infrastructure category."},
-    {"engine": "ChipConveyorEngine", "verdict": "PARTIAL", "reason": "Manufacturing process, not cutting physics per se. Functional."},
-    {"engine": "ChipLoadEngine", "verdict": "PARTIAL", "reason": "Simple but functional chip load calculator."}
+    {
+      "engine": "VibrationIsolatorEngine",
+      "verdict": "PARTIAL",
+      "reason": "74 LOC, functional but small — transmissibility + static deflection. Adequate for scope."
+    },
+    {
+      "engine": "VibratoryFeederEngine",
+      "verdict": "PARTIAL",
+      "reason": "85 LOC, conveying velocity + feed rate. Adequate for scope."
+    },
+    {
+      "engine": "OutputBudgetEnforcerEngine",
+      "verdict": "MISCATEGORIZED",
+      "reason": "Infrastructure engine, not physics. Should be in System Infrastructure category."
+    },
+    {
+      "engine": "ChipConveyorEngine",
+      "verdict": "PARTIAL",
+      "reason": "Manufacturing process, not cutting physics per se. Functional."
+    },
+    {
+      "engine": "ChipLoadEngine",
+      "verdict": "PARTIAL",
+      "reason": "Simple but functional chip load calculator."
+    }
   ],
   "triage_accuracy_for_physics": {
     "triage_said_empty": 12,

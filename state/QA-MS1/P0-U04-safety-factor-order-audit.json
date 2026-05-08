@@ -1,13 +1,13 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS1-P0-U04",
   "title": "Safety Factor Application Order Verification",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T22:50:00Z",
   "status": "COMPLETE",
   "verdict": "0 CRITICAL, 0 MEDIUM, 1 LOW. Safety factors are correctly applied as post-hoc ratios, not pre-calculation multipliers.",
-
   "key_finding": "PRISM uses safety factors as OUTPUT RATIOS (available/required), not INPUT MULTIPLIERS. This architecture inherently avoids the ordering problem because uncertainty is computed on the raw physics result, and the safety factor is a separate metric derived from the same result.",
-
   "safety_factor_patterns": [
     {
       "engine": "AdvancedCalculations.ts (deflection)",
@@ -65,7 +65,6 @@
       "order_correct": true
     }
   ],
-
   "uncertainty_propagation_model": {
     "primary_source": "ManufacturingCalculations.ts (Kienzle force model)",
     "mechanism": "Fc_range = [Fc × (1-uncertainty%), Fc × (1+uncertainty%)]",
@@ -76,7 +75,6 @@
     "propagation": "Uncertainty bounds are returned alongside point estimates. Downstream consumers can use Fc_range to compute worst-case safety factors.",
     "gap_noted": "Downstream engines (ClampingSimEngine, FixtureDesignEngine, etc.) use point estimates, not worst-case bounds. The built-in safety factor floor (2.5) compensates but isn't formally linked to the uncertainty range."
   },
-
   "findings": [
     {
       "id": "F17",
@@ -87,7 +85,6 @@
       "fix": "Consider using Fc_range[1] (upper bound) for safety-critical sizing calculations, or document that the SF of 2.5 covers the uncertainty envelope."
     }
   ],
-
   "summary": {
     "critical_findings": 0,
     "medium_findings": 0,

@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "session": "0-PRE-2",
   "date": "2026-03-24",
   "category": "Pipeline & Orchestration",
@@ -12,14 +14,35 @@
     "EMPTY": 0
   },
   "corrections_from_triage": [
-    {"engine": "FeasibilityOrchestratorEngine", "triage": "PARTIAL", "human": "PRODUCTION", "reason": "Real multi-layer analysis chaining 5 sub-engines"},
-    {"engine": "PredictiveMaintenanceOrchestratorEngine", "triage": "EMPTY", "human": "PRODUCTION", "reason": "ISO 10816 vibration, multi-signal weighted health scoring, exponential decay"},
-    {"engine": "VideoReplayPipelineEngine", "triage": "PARTIAL", "human": "PRODUCTION", "reason": "Real FFmpeg + CadQuery integration with file I/O"}
+    {
+      "engine": "FeasibilityOrchestratorEngine",
+      "triage": "PARTIAL",
+      "human": "PRODUCTION",
+      "reason": "Real multi-layer analysis chaining 5 sub-engines"
+    },
+    {
+      "engine": "PredictiveMaintenanceOrchestratorEngine",
+      "triage": "EMPTY",
+      "human": "PRODUCTION",
+      "reason": "ISO 10816 vibration, multi-signal weighted health scoring, exponential decay"
+    },
+    {
+      "engine": "VideoReplayPipelineEngine",
+      "triage": "PARTIAL",
+      "human": "PRODUCTION",
+      "reason": "Real FFmpeg + CadQuery integration with file I/O"
+    }
   ],
   "triage_accuracy_note": "Automated triage under-classifies engines with rich interfaces + dynamic imports. EMPTY count across all categories likely inflated by 15-25%.",
   "remaining_partial": [
-    {"engine": "ToolCallPipelineEngine", "reason": "Infrastructure engine, no manufacturing logic, but functional for its purpose"},
-    {"engine": "VideoReplayOrchestratorEngine", "reason": "Good structure, needs execution path testing"}
+    {
+      "engine": "ToolCallPipelineEngine",
+      "reason": "Infrastructure engine, no manufacturing logic, but functional for its purpose"
+    },
+    {
+      "engine": "VideoReplayOrchestratorEngine",
+      "reason": "Good structure, needs execution path testing"
+    }
   ],
   "pipeline_readiness": {
     "PrintToProgramPipelineEngine": "PRODUCTION (1618 LOC)",

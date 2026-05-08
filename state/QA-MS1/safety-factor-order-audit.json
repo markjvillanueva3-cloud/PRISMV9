@@ -1,12 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "P0-U04",
   "title": "Safety Factor Application Order Verification",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T01:50:00Z",
   "status": "PASS",
-
   "principle": "Safety factors must be applied AFTER uncertainty propagation, never before. Applying SF before uncertainty would double-count conservatism or mask real risk.",
-
   "engines_audited": [
     {
       "engine": "AdvancedCalculations.ts",
@@ -46,17 +46,29 @@
       "order": "N/A — Lambda validates post-hoc, does not modify calculations"
     }
   ],
-
   "violations_found": 0,
-
   "findings": [
-    { "severity": "OK", "finding": "All safety factors are computed as OUTPUT RATIOS (force available / force required) — not as input multipliers" },
-    { "severity": "OK", "finding": "ClampingSimEngine correctly applies SF to derive required force from calculated cutting force — proper sequence" },
-    { "severity": "OK", "finding": "CoolantValidation material factors are engineering adjustments, not safety factors — correctly applied" },
-    { "severity": "OK", "finding": "No instances found of SF applied before uncertainty propagation" },
-    { "severity": "INFO", "finding": "Uncertainty propagation itself is not explicitly implemented in most engines — values are deterministic. SF serves as the primary conservatism mechanism." }
+    {
+      "severity": "OK",
+      "finding": "All safety factors are computed as OUTPUT RATIOS (force available / force required) — not as input multipliers"
+    },
+    {
+      "severity": "OK",
+      "finding": "ClampingSimEngine correctly applies SF to derive required force from calculated cutting force — proper sequence"
+    },
+    {
+      "severity": "OK",
+      "finding": "CoolantValidation material factors are engineering adjustments, not safety factors — correctly applied"
+    },
+    {
+      "severity": "OK",
+      "finding": "No instances found of SF applied before uncertainty propagation"
+    },
+    {
+      "severity": "INFO",
+      "finding": "Uncertainty propagation itself is not explicitly implemented in most engines — values are deterministic. SF serves as the primary conservatism mechanism."
+    }
   ],
-
   "exit_conditions_met": {
     "all_paths_verified": true,
     "no_pre_uncertainty_SF": true,

@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "RALPH-1770348904045-kr4uo8",
   "target": "Registry Loader Implementation Plan:\n1. Create dist/loaders/registryLoader.js that loads FORMULA_REGISTRY.json (490 formulas) and 35 machine ENHANCED JS files (~824 machines) at server startup\n2. Wire into dist/index.js after server initialization\n3. Pattern: Read JSON/JS → Parse → Register in existing Map-based registries\n4. Critical fields: formula_id, equation, parameters for formulas; machine_id, manufacturer, specs for machines\n5. Error handling: Log failures, continue loading, report final...",
   "target_type": "content",

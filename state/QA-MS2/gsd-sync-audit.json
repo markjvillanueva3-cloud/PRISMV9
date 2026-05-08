@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS2-P0-U03",
   "title": "GSD Sync State Accuracy vs Live System",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:50:00Z",
   "status": "COMPLETE",
   "verdict": "2 MEDIUM findings (1 FIXED) — engine and hook counts diverge between GSD fallback, live scan, and QA-MS0 verified values",
-
   "counting_methodology": {
     "gsd_live_scan": {
       "method": "getSystemCounts() in gsdDispatcher.ts:31-50",
@@ -15,14 +16,23 @@
     },
     "qa_ms0_verified": {
       "source": "state/QA-MS0/ inventories (verified by hand audit)",
-      "counts": { "dispatchers": 45, "actions": 1060, "engines": 169, "algorithms": 50, "hooks": 157 }
+      "counts": {
+        "dispatchers": 45,
+        "actions": 1060,
+        "engines": 169,
+        "algorithms": 50,
+        "hooks": 157
+      }
     },
     "live_filesystem_scan": {
       "method": "ls + wc -l (actual filesystem at audit time)",
-      "results": { "dispatchers": 45, "engine_files": 190, "hook_files": 21 }
+      "results": {
+        "dispatchers": 45,
+        "engine_files": 190,
+        "hook_files": 21
+      }
     }
   },
-
   "comparison_matrix": {
     "dispatchers": {
       "gsd_fallback": 45,
@@ -45,7 +55,6 @@
       "explanation": "GSD fallback (179) counts total hook DEFINITIONS registered at runtime. Live scan (21) counts .ts FILES in hooks/ directory. QA-MS0 (157) counted verified hook registrations. The GSD fallback is stale — should be 157 per QA-MS0."
     }
   },
-
   "stale_entries": [
     {
       "field": "engines fallback",
@@ -69,14 +78,12 @@
       "issue": "Hardcoded fallback string references stale counts"
     }
   ],
-
   "sync_accuracy": {
     "dispatchers": "100% (45/45)",
     "engines": "89% (169/190 — methodology difference, not data staleness)",
     "hooks": "GSD fallback is 14% overstated (179 vs 157)",
     "overall": "Dispatcher counts are accurate. Engine and hook counts suffer from methodology mismatch between file-count (GSD live scan) and functional-unit-count (QA-MS0)."
   },
-
   "findings": [
     {
       "id": "F27",
@@ -99,7 +106,6 @@
       "fix": "Filter by pattern (e.g., *Engine.ts) or maintain a registry of known engines. Or document that 'engines' count includes all engine-directory files, not just functional engines."
     }
   ],
-
   "exit_conditions_met": {
     "gsd_vs_live_compared": true,
     "stale_entries_identified": true,

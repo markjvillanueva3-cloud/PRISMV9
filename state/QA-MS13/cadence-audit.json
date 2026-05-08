@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS13-P0-U04",
   "title": "Cadence Function Audit",
   "auditor": "claude-opus-4.6",
@@ -13,20 +15,138 @@
     "invocation_file": "src/tools/autoHookWrapper.ts (2621 lines, imports all 103)"
   },
   "cadence_categories": {
-    "session_lifecycle": ["autoSessionLifecycleStart", "autoSessionLifecycleEnd", "autoSessionHealthPoll", "autoSessionQualityTrack", "autoSessionMetricsSnapshot", "autoSessionHandoffGenerate", "autoNextSessionPrep"],
-    "context_management": ["autoContextPressure", "autoContextCompress", "autoContextPullBack", "autoContextRehydrate", "autoContextPressureRecommend", "autoCompress"],
-    "compaction": ["autoCompactionDetect", "autoCompactionSurvival", "autoPreCompactionDump", "autoCompactionTrend"],
-    "telemetry": ["autoTelemetrySnapshot", "autoTelemetryAnomalyCheck", "autoTelemetrySloCheck", "autoTelemetryResolve"],
-    "error_learning": ["autoErrorLearn", "autoD3ErrorChain", "autoD3LkgUpdate", "autoAntiRegression"],
-    "memory": ["autoMemoryExternalize", "autoMemoryGraphFlush", "autoMemoryGraphIntegrity", "autoMemoryGraphEvict"],
-    "pattern_matching": ["autoPatternMatch", "autoPatternStatsUpdate", "autoFailurePatternSync", "autoPatternDetect"],
-    "cognitive": ["autoCognitiveUpdate", "autoCognitiveStatePersist", "autoCognitiveStateRestore"],
-    "skills": ["autoSkillHint", "autoSkillContextMatch", "autoSkillHookMatch", "autoSkillPreload", "autoPhaseSkillLoader"],
-    "quality": ["autoQualityGate", "autoVariationCheck", "autoDecisionCapture"],
-    "budget": ["autoBudgetTrack", "autoBudgetReport"],
-    "python_bridge": ["autoPythonCompactionPredict", "autoPythonCompress", "autoPythonExpand"],
-    "orchestration": ["autoGroupedSwarmDispatch", "autoATCSParallelUpgrade", "autoATCSCheckpointScan"],
-    "misc": ["autoTodoRefresh", "autoCheckpoint", "autoAttentionScore", "autoAttentionAnchor", "autoRecoveryManifest", "autoHandoffPackage", "autoPreTaskRecon", "autoWarmStartData", "autoInputValidation", "autoD4CacheCheck", "autoD4DiffCheck", "autoD4BatchTick", "autoD4PerfSummary", "autoTrajectoryRecord", "autoTrajectoryFinalize", "autoResponseTemplate", "autoTemplateOptimizer", "autoResumeDetector", "autoLearningStorePersist", "autoComplianceAuditBoot", "autoSLBConsume", "autoBridgeHealthCheck", "autoRegistryRefresh", "autoGsdAccessSummary", "autoSwarmPatternDecay", "autoNLHookValidate", "autoOmegaHistoryPersist", "autoOmegaHistoryRestore", "autoConversationalMemorySave", "autoScriptQueueDrain", "autoRoadmapHeartbeat", "autoCalcPreEnrich", "autoKnowledgePreWarm", "autoJobLearningPersist", "autoRalphScoreCapture", "autoFocusOptimize", "autoRelevanceFilter", "autoWipCapture", "autoLearningQuery", "autoStateReconstruct", "autoPriorityScore", "autoKvCacheStabilityCheck", "autoKvStabilityPeriodic", "autoDispatcherByteTrack", "autoSuperpowerBoot", "autoNLHookEvaluator", "autoHookActivationPhaseCheck", "autoDocAntiRegression", "autoAgentRecommend", "autoScriptRecommend", "autoKnowledgeCrossQuery", "autoPfpPatternExtract"]
+    "session_lifecycle": [
+      "autoSessionLifecycleStart",
+      "autoSessionLifecycleEnd",
+      "autoSessionHealthPoll",
+      "autoSessionQualityTrack",
+      "autoSessionMetricsSnapshot",
+      "autoSessionHandoffGenerate",
+      "autoNextSessionPrep"
+    ],
+    "context_management": [
+      "autoContextPressure",
+      "autoContextCompress",
+      "autoContextPullBack",
+      "autoContextRehydrate",
+      "autoContextPressureRecommend",
+      "autoCompress"
+    ],
+    "compaction": [
+      "autoCompactionDetect",
+      "autoCompactionSurvival",
+      "autoPreCompactionDump",
+      "autoCompactionTrend"
+    ],
+    "telemetry": [
+      "autoTelemetrySnapshot",
+      "autoTelemetryAnomalyCheck",
+      "autoTelemetrySloCheck",
+      "autoTelemetryResolve"
+    ],
+    "error_learning": [
+      "autoErrorLearn",
+      "autoD3ErrorChain",
+      "autoD3LkgUpdate",
+      "autoAntiRegression"
+    ],
+    "memory": [
+      "autoMemoryExternalize",
+      "autoMemoryGraphFlush",
+      "autoMemoryGraphIntegrity",
+      "autoMemoryGraphEvict"
+    ],
+    "pattern_matching": [
+      "autoPatternMatch",
+      "autoPatternStatsUpdate",
+      "autoFailurePatternSync",
+      "autoPatternDetect"
+    ],
+    "cognitive": [
+      "autoCognitiveUpdate",
+      "autoCognitiveStatePersist",
+      "autoCognitiveStateRestore"
+    ],
+    "skills": [
+      "autoSkillHint",
+      "autoSkillContextMatch",
+      "autoSkillHookMatch",
+      "autoSkillPreload",
+      "autoPhaseSkillLoader"
+    ],
+    "quality": [
+      "autoQualityGate",
+      "autoVariationCheck",
+      "autoDecisionCapture"
+    ],
+    "budget": [
+      "autoBudgetTrack",
+      "autoBudgetReport"
+    ],
+    "python_bridge": [
+      "autoPythonCompactionPredict",
+      "autoPythonCompress",
+      "autoPythonExpand"
+    ],
+    "orchestration": [
+      "autoGroupedSwarmDispatch",
+      "autoATCSParallelUpgrade",
+      "autoATCSCheckpointScan"
+    ],
+    "misc": [
+      "autoTodoRefresh",
+      "autoCheckpoint",
+      "autoAttentionScore",
+      "autoAttentionAnchor",
+      "autoRecoveryManifest",
+      "autoHandoffPackage",
+      "autoPreTaskRecon",
+      "autoWarmStartData",
+      "autoInputValidation",
+      "autoD4CacheCheck",
+      "autoD4DiffCheck",
+      "autoD4BatchTick",
+      "autoD4PerfSummary",
+      "autoTrajectoryRecord",
+      "autoTrajectoryFinalize",
+      "autoResponseTemplate",
+      "autoTemplateOptimizer",
+      "autoResumeDetector",
+      "autoLearningStorePersist",
+      "autoComplianceAuditBoot",
+      "autoSLBConsume",
+      "autoBridgeHealthCheck",
+      "autoRegistryRefresh",
+      "autoGsdAccessSummary",
+      "autoSwarmPatternDecay",
+      "autoNLHookValidate",
+      "autoOmegaHistoryPersist",
+      "autoOmegaHistoryRestore",
+      "autoConversationalMemorySave",
+      "autoScriptQueueDrain",
+      "autoRoadmapHeartbeat",
+      "autoCalcPreEnrich",
+      "autoKnowledgePreWarm",
+      "autoJobLearningPersist",
+      "autoRalphScoreCapture",
+      "autoFocusOptimize",
+      "autoRelevanceFilter",
+      "autoWipCapture",
+      "autoLearningQuery",
+      "autoStateReconstruct",
+      "autoPriorityScore",
+      "autoKvCacheStabilityCheck",
+      "autoKvStabilityPeriodic",
+      "autoDispatcherByteTrack",
+      "autoSuperpowerBoot",
+      "autoNLHookEvaluator",
+      "autoHookActivationPhaseCheck",
+      "autoDocAntiRegression",
+      "autoAgentRecommend",
+      "autoScriptRecommend",
+      "autoKnowledgeCrossQuery",
+      "autoPfpPatternExtract"
+    ]
   },
   "trigger_mechanism": "All cadences are invoked by autoHookWrapper.ts based on call number (callNum), time-based intervals, and state conditions. Not cron-scheduled — event-driven per dispatcher call.",
   "findings": [
@@ -38,5 +158,9 @@
       "recommendation": "Update constants.ts CADENCE_COUNT to 103"
     }
   ],
-  "exit_conditions_met": { "all_cadences_inventoried": true, "trigger_conditions_verified": true, "cadence_to_hook_wiring_verified": true }
+  "exit_conditions_met": {
+    "all_cadences_inventoried": true,
+    "trigger_conditions_verified": true,
+    "cadence_to_hook_wiring_verified": true
+  }
 }

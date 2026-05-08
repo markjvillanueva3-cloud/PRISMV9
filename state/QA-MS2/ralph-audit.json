@@ -1,24 +1,39 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS2-P0-U02",
   "title": "RalphEngine QA Logic Review",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:45:00Z",
   "status": "COMPLETE",
   "verdict": "2 MEDIUM, 1 LOW findings — loop is single-pass despite name, no convergence or anti-regression",
-
   "architecture": {
     "file": "src/tools/dispatchers/ralphDispatcher.ts",
     "tool_name": "prism_ralph",
-    "actions": ["loop", "scrutinize", "assess"],
-    "four_phases": ["SCRUTINIZE", "IMPROVE", "VALIDATE", "ASSESS"],
+    "actions": [
+      "loop",
+      "scrutinize",
+      "assess"
+    ],
+    "four_phases": [
+      "SCRUTINIZE",
+      "IMPROVE",
+      "VALIDATE",
+      "ASSESS"
+    ],
     "api_backed": "All phases make REAL Claude API calls via fetch to api.anthropic.com/v1/messages",
-    "validators": ["SAFETY_AUDITOR", "CODE_REVIEWER", "SPEC_VERIFIER", "FORMULA_VALIDATOR", "COMPLETENESS_CHECKER"],
+    "validators": [
+      "SAFETY_AUDITOR",
+      "CODE_REVIEWER",
+      "SPEC_VERIFIER",
+      "FORMULA_VALIDATOR",
+      "COMPLETENESS_CHECKER"
+    ],
     "model_usage": {
       "scrutinize_improve_validate": "apiConfig.sonnetModel (Sonnet)",
       "assess": "apiConfig.opusModel (Opus)"
     }
   },
-
   "grading_logic": {
     "method": "LLM-driven via prompt",
     "assess_prompt_line": 62,
@@ -27,7 +42,6 @@
     "grade_extraction": "LLM free-text response — no structured JSON parsing",
     "omega_formula_in_prompt": "Ω(x) = 0.25R + 0.20C + 0.15P + 0.30S + 0.10L — matches omegaDispatcher"
   },
-
   "loop_behavior": {
     "action": "loop",
     "line": 86,
@@ -38,9 +52,12 @@
     "session_saved": true,
     "save_location": "state/ralph_loops/ralph_{timestamp}.json"
   },
-
   "validator_coverage": {
-    "default_validators_for_loop": ["SAFETY_AUDITOR", "CODE_REVIEWER", "COMPLETENESS_CHECKER"],
+    "default_validators_for_loop": [
+      "SAFETY_AUDITOR",
+      "CODE_REVIEWER",
+      "COMPLETENESS_CHECKER"
+    ],
     "all_5_available": true,
     "prompt_quality": {
       "SAFETY_AUDITOR": "Manufacturing-specific: tool breakage, machine crashes, operator safety",
@@ -51,7 +68,6 @@
     },
     "severity_format": "CRITICAL/HIGH/MEDIUM/LOW + SCORE (0-1) — consistent across all validators"
   },
-
   "findings": [
     {
       "id": "F24",
@@ -84,7 +100,6 @@
       "fix": "Add a post-processing step that extracts grade via regex or use JSON-mode response format."
     }
   ],
-
   "exit_conditions_met": {
     "grading_logic_verified": true,
     "loop_convergence_logic_verified": "ABSENT — single pass only (F24)",

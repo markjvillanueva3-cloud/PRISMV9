@@ -1,16 +1,16 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "PRISM Append-Only State Schema",
   "description": "Schema for append-only state persistence with event sourcing",
   "version": "1.0.0",
-  
   "definitions": {
     "timestamp": {
       "type": "string",
       "format": "date-time",
       "description": "ISO 8601 timestamp"
     },
-    
     "eventType": {
       "type": "string",
       "enum": [
@@ -31,18 +31,26 @@
         "COMPACT"
       ]
     },
-    
     "event": {
       "type": "object",
-      "required": ["id", "type", "timestamp", "data"],
+      "required": [
+        "id",
+        "type",
+        "timestamp",
+        "data"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^EVT-[0-9]{8}-[0-9]{6}-[0-9]{4}$",
           "description": "Unique event ID: EVT-YYYYMMDD-HHMMSS-NNNN"
         },
-        "type": { "$ref": "#/definitions/eventType" },
-        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "type": {
+          "$ref": "#/definitions/eventType"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
         "sequence": {
           "type": "integer",
           "minimum": 0,
@@ -53,7 +61,10 @@
           "description": "Session that generated this event"
         },
         "parentEventId": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Previous event ID for chain linking"
         },
         "data": {
@@ -66,17 +77,23 @@
         }
       }
     },
-    
     "checkpoint": {
       "type": "object",
-      "required": ["id", "timestamp", "sequence", "state"],
+      "required": [
+        "id",
+        "timestamp",
+        "sequence",
+        "state"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^CP-[0-9]{8}-[0-9]{6}$",
           "description": "Checkpoint ID: CP-YYYYMMDD-HHMMSS"
         },
-        "timestamp": { "$ref": "#/definitions/timestamp" },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
         "sequence": {
           "type": "integer",
           "description": "Event sequence at checkpoint time"
@@ -95,15 +112,24 @@
         },
         "type": {
           "type": "string",
-          "enum": ["AUTO", "MANUAL", "EMERGENCY", "SESSION_END"],
+          "enum": [
+            "AUTO",
+            "MANUAL",
+            "EMERGENCY",
+            "SESSION_END"
+          ],
           "default": "AUTO"
         }
       }
     },
-    
     "stateVersion": {
       "type": "object",
-      "required": ["version", "sequence", "lastEventId", "lastCheckpointId"],
+      "required": [
+        "version",
+        "sequence",
+        "lastEventId",
+        "lastCheckpointId"
+      ],
       "properties": {
         "version": {
           "type": "string",
@@ -133,89 +159,153 @@
       }
     }
   },
-  
   "type": "object",
-  "required": ["meta", "version", "events", "checkpoints", "currentState"],
+  "required": [
+    "meta",
+    "version",
+    "events",
+    "checkpoints",
+    "currentState"
+  ],
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["schema", "created", "lastModified"],
+      "required": [
+        "schema",
+        "created",
+        "lastModified"
+      ],
       "properties": {
         "schema": {
           "type": "string",
           "const": "prism-append-only-state-v1"
         },
-        "created": { "$ref": "#/definitions/timestamp" },
-        "lastModified": { "$ref": "#/definitions/timestamp" },
-        "compactedAt": { "$ref": "#/definitions/timestamp" },
-        "compactedFromSequence": { "type": "integer" }
+        "created": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "lastModified": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "compactedAt": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "compactedFromSequence": {
+          "type": "integer"
+        }
       }
     },
-    
-    "version": { "$ref": "#/definitions/stateVersion" },
-    
+    "version": {
+      "$ref": "#/definitions/stateVersion"
+    },
     "events": {
       "type": "array",
-      "items": { "$ref": "#/definitions/event" },
+      "items": {
+        "$ref": "#/definitions/event"
+      },
       "description": "Append-only event log"
     },
-    
     "checkpoints": {
       "type": "array",
-      "items": { "$ref": "#/definitions/checkpoint" },
+      "items": {
+        "$ref": "#/definitions/checkpoint"
+      },
       "description": "State snapshots for fast recovery"
     },
-    
     "currentState": {
       "type": "object",
       "description": "Materialized view of current state (rebuilt from events)"
     }
   },
-  
   "eventDataSchemas": {
     "STATE_INIT": {
-      "required": ["initialState"],
+      "required": [
+        "initialState"
+      ],
       "properties": {
-        "initialState": { "type": "object" },
-        "source": { "type": "string" }
+        "initialState": {
+          "type": "object"
+        },
+        "source": {
+          "type": "string"
+        }
       }
     },
     "STATE_UPDATE": {
-      "required": ["path", "value"],
+      "required": [
+        "path",
+        "value"
+      ],
       "properties": {
-        "path": { "type": "string", "description": "JSON path to update" },
-        "value": { "description": "New value" },
-        "previousValue": { "description": "Old value for rollback" }
+        "path": {
+          "type": "string",
+          "description": "JSON path to update"
+        },
+        "value": {
+          "description": "New value"
+        },
+        "previousValue": {
+          "description": "Old value for rollback"
+        }
       }
     },
     "STATE_PATCH": {
-      "required": ["patch"],
+      "required": [
+        "patch"
+      ],
       "properties": {
-        "patch": { "type": "object", "description": "JSON merge patch" }
+        "patch": {
+          "type": "object",
+          "description": "JSON merge patch"
+        }
       }
     },
     "CHECKPOINT_CREATE": {
-      "required": ["checkpointId"],
+      "required": [
+        "checkpointId"
+      ],
       "properties": {
-        "checkpointId": { "type": "string" },
-        "reason": { "type": "string" }
+        "checkpointId": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
       }
     },
     "PROGRESS_UPDATE": {
-      "required": ["completed", "total"],
+      "required": [
+        "completed",
+        "total"
+      ],
       "properties": {
-        "completed": { "type": "integer" },
-        "total": { "type": "integer" },
-        "currentItem": { "type": "string" },
-        "percentage": { "type": "number" }
+        "completed": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "currentItem": {
+          "type": "string"
+        },
+        "percentage": {
+          "type": "number"
+        }
       }
     },
     "ROLLBACK": {
-      "required": ["targetCheckpointId"],
+      "required": [
+        "targetCheckpointId"
+      ],
       "properties": {
-        "targetCheckpointId": { "type": "string" },
-        "reason": { "type": "string" },
-        "eventsDiscarded": { "type": "integer" }
+        "targetCheckpointId": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "eventsDiscarded": {
+          "type": "integer"
+        }
       }
     }
   }

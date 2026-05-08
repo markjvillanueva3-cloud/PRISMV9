@@ -1,1 +1,1385 @@
-{"_items":[{"family":"Fanuc","models":["fanuc.cps","fanuc compact.cps","fanuc incremental.cps","fanuc turning.cps","fanuc inspection.cps","fanuc robotics.cps","fanuc simulation.cps"],"capabilities":["MILLING","TURNING","INSPECTION","ROBOTICS","SIMULATION"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","1","2","3","4","5","6","7","8","9","10"],"gcode":"G05.1 Q1 R<level>"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":true},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["G05.1 Nano smoothing L1-L10","G68.2 tilted work plane","Custom macro B support","AICC (AI contour control)","Incremental programming option"],"postCount":7},{"family":"Haas","models":{"_items":["haas.cps","haas NGC.cps","haas ST-series.cps","haas DS.cps","haas EC.cps","haas UMC.cps","haas VR.cps","haas desktop.cps","haas CL-1.cps","haas NGC turning.cps","haas NGC mill-turn.cps","haas ST-10.cps","haas ST-20.cps","haas ST-30.cps","haas ST-10Y.cps","haas ST-20Y.cps","haas ST-20SS.cps","haas ST-25Y.cps","haas ST-30Y.cps","haas ST-35.cps"],"_total":55,"_showing":20},"capabilities":["MILLING","TURNING","MILL_TURN","SIMULATION"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G187","levels":["off","rough","medium","finish"],"gcode":"G187 P<1-3> E<tolerance>"},"safeRetract":{"methods":["G28","G53","clearance"],"default":"G28"},"multiAxis":{"method":"DWO","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":true},"feeds":{"highFeedrate_mm":6096,"highFeedrate_inch":240,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["G187 surface smoothing P1(rough)/P2(medium)/P3(finish)","DWO G254/G255 dynamic work offsets","NGC next-gen control features","WIPS wireless probing","Visual Quick Code (VQC)","Sub-spindle support (DS/ST-SS models)","Y-axis live tooling (ST-Y models)"],"postCount":55},{"family":"Siemens","models":["siemens 802D.cps","siemens 808D.cps","siemens 810D.cps","siemens 828D.cps","siemens 840C.cps","siemens 840D.cps","siemens ONE.cps","siemens turning.cps","siemens mill-turn.cps","siemens 840D inspect.cps","siemens SINUMERIK.cps"],"capabilities":["MILLING","TURNING","MILL_TURN","SIMULATION"],"extension":".mpf","codePage":"ANSI","programNameIsInteger":false,"smoothing":{"type":"CYCLE832","levels":["off","rough","semi-finish","finish"],"gcode":"CYCLE832(<tolerance>,_,1)"},"safeRetract":{"methods":["SUPA","G53"],"default":"SUPA"},"multiAxis":{"method":"TRAORI","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":true,"allowHelical":true,"allowSpiral":true,"maxSweep_deg":360,"minRadius_mm":0.001,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":true},"feeds":{"highFeedrate_mm":9999,"highFeedrate_inch":400,"feedPerRev":true},"tolerance_mm":0.005,"minimumChordLength_mm":0.1,"uniqueFeatures":["CYCLE832 high-speed smoothing","TRAORI 5-axis transformation","SUPA safe retract to machine zero","ShopMill/ShopTurn conversational","Structured programming with subroutines","COMPCAD 3D cutter compensation","SINUMERIK ONE digital twin"],"postCount":11},{"family":"Heidenhain","models":["heidenhain.cps","heidenhain 145.cps","heidenhain 155.cps","heidenhain 407.cps","heidenhain 426.cps","heidenhain ISO.cps","heidenhain turning.cps","heidenhain inspection.cps"],"capabilities":["MILLING","TURNING","INSPECTION","SIMULATION"],"extension":".h","codePage":"ANSI","programNameIsInteger":false,"smoothing":{"type":"native","levels":["off","on","automatic"],"gcode":"M128 (TCP on) / FUNCTION TCPM"},"safeRetract":{"methods":["clearance"],"default":"clearance"},"multiAxis":{"method":"plane_spatial","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":true,"allowHelical":true,"allowSpiral":true,"maxSweep_deg":5400,"minRadius_mm":0.001,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":true},"feeds":{"highFeedrate_mm":9999,"highFeedrate_inch":394,"feedPerRev":false},"tolerance_mm":0.005,"minimumChordLength_mm":0.1,"uniqueFeatures":["Plane Spatial / Cycle19 tilted work plane","Function TCPM 5-axis tool center point","M128/M129 TCP toggle","Conversational (plain text) programming","Max circular sweep 5400° (15 full revolutions)","Touch probe cycles (400-series)","KinematicsOpt auto-calibration"],"postCount":8},{"family":"Mazak","models":{"_items":["mazak.cps","mazak EZ.cps","mazak Integrex.cps","mazak Integrex i-200.cps","mazak Integrex i-300.cps","mazak Integrex i-400.cps","mazak Integrex i-500.cps","mazak Integrex e-series.cps","mazak Integrex j-series.cps","mazak QTU.cps","mazak Quick Turn.cps","mazak Quick Turn 200.cps","mazak Quick Turn 250.cps","mazak Quick Turn 350.cps","mazak Quick Turn 450.cps","mazak laser.cps","mazak turning.cps","mazak mill-turn.cps","mazak VTC.cps","mazak HCN.cps"],"_total":60,"_showing":20},"capabilities":["MILLING","TURNING","MILL_TURN","LASER","SIMULATION"],"extension":".eia","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","on"],"gcode":"G05.1 Q1 (Mazatrol smooth)"},"safeRetract":{"methods":["G28","G30","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["Mazatrol SmoothAi / SmoothG / SmoothX","Integrex DONE IN ONE mill-turn","G43.4 TCP for 5-axis","Second spindle and lower turret support","Laser processing (cutting, cladding, FSW)","PALLETECH automation integration","VARIAXIS 5-axis simultaneous"],"postCount":62},{"family":"Okuma","models":["okuma.cps","okuma LB3000 mill-turn.cps","okuma turning.cps"],"capabilities":["MILLING","TURNING","MILL_TURN","SIMULATION"],"extension":".min","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"none","levels":["off"],"gcode":"N/A (OSP Super-NURBS built-in)"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":5000,"highFeedrate_inch":200,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["OSP control (proprietary, not ISO)","G15 H1 DWO (dynamic work offset)","Super-NURBS built-in path smoothing","Thermo-Friendly Concept","Collision Avoidance System (CAS)","5-axis Auto Tuning System"],"postCount":3},{"family":"Brother","models":["brother.cps","brother Speedio.cps","brother multi-tasking.cps","brother inspection.cps"],"capabilities":["MILLING","INSPECTION","SIMULATION"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","on"],"gcode":"G05.1 Q1"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"none","tcpSupport":false,"maxSimultaneousAxes":3},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":true},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":false},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["High-speed tapping (16,000 rpm spindle)","30-tool ATC rapid change (<1s)","C-axis for multi-tasking models","Speedio compact footprint","CNC-C00 control"],"postCount":4},{"family":"DMG Mori","models":["dmg mori CMX Fanuc.cps","dmg mori NHX.cps","dmg mori NLX mill-turn.cps"],"capabilities":["MILLING","TURNING","MILL_TURN"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","on"],"gcode":"G05.1 Q1 (Fanuc-based) or CYCLE832 (Siemens-based)"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["CELOS control interface","Dual controller support (Fanuc or Siemens)","Machine Protection Control (MPC)","3D quickSET auto-alignment","NLX integrated mill-turn"],"postCount":3},{"family":"Makino","models":["makino.cps","makino A500Z.cps","makino D200Z.cps","makino D300.cps","makino D500.cps","makino Slim3N.cps"],"capabilities":["MILLING","SIMULATION"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"SGI","levels":["off","on","automatic"],"gcode":"G05.1 Q1 (SGI — Super Geometric Intelligence)"},"safeRetract":{"methods":["G28","G53"],"default":"G53"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":true,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.001,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":false},"feeds":{"highFeedrate_mm":9000,"highFeedrate_inch":354,"feedPerRev":false},"tolerance_mm":0.002,"minimumChordLength_mm":0.1,"uniqueFeatures":["SGI (Super Geometric Intelligence) smoothing","AIAPC (AI Adaptive Process Control)","Fanuc-based Professional 6 control","High-speed die/mold machining","D200Z/D300 5-axis graphite/hardened steel","A500Z horizontal 5-axis"],"postCount":6},{"family":"Hurco","models":["hurco.cps","hurco 3D.cps","hurco TMX8-MY.cps","hurco TMX8-MYS.cps","hurco TMX10-MY.cps","hurco TMX10-MYS.cps"],"capabilities":["MILLING","TURNING","SIMULATION"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"none","levels":["off"],"gcode":"N/A (UltiMotion built-in)"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"none","tcpSupport":false,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":false,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":5000,"highFeedrate_inch":200,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["WinMax / MAX5 conversational control","UltiMotion built-in path smoothing","DXF import on-control","Solid model import capability","TMX mill-turn with Y-axis and sub-spindle"],"postCount":6},{"family":"Doosan","models":["doosan VMC Fanuc.cps","doosan turning.cps","doosan mill-turn.cps"],"capabilities":["MILLING","TURNING","MILL_TURN"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","on"],"gcode":"G05.1 Q1 (Fanuc-based)"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["Fanuc-based control (Fanuc 0i / 31i)","Puma turning series","DNM/DVF milling series","SMX mill-turn multi-tasking"],"postCount":3},{"family":"Datron","models":["datron C5.cps","datron ISO.cps","datron MCR.cps","datron Next.cps","datron Next inspection.cps"],"capabilities":["MILLING","INSPECTION","SIMULATION"],"extension":".nc","codePage":"UTF-8","programNameIsInteger":false,"smoothing":{"type":"none","levels":["off"],"gcode":"N/A (Datron next proprietary)"},"safeRetract":{"methods":["clearance"],"default":"clearance"},"multiAxis":{"method":"none","tcpSupport":false,"maxSimultaneousAxes":3},"arcs":{"format":"IJK","allow3D":false,"allowHelical":false,"allowSpiral":false,"maxSweep_deg":180,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":true},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":false},"tolerance_mm":0.005,"minimumChordLength_mm":0.1,"uniqueFeatures":["High-speed micro-machining (60,000 rpm)","Vacuum table workholding","Integrated tool measurement","Datron next control (proprietary)","Engraving and dental milling"],"postCount":5},{"family":"Tormach","models":["tormach.cps","tormach jet.cps","tormach PathPilot turning.cps","tormach 8L.cps"],"capabilities":["MILLING","TURNING","JET"],"extension":".nc","codePage":"ASCII","programNameIsInteger":false,"smoothing":{"type":"none","levels":["off"],"gcode":"N/A"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"none","tcpSupport":false,"maxSimultaneousAxes":3},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":2540,"highFeedrate_inch":100,"feedPerRev":false},"tolerance_mm":0.025,"minimumChordLength_mm":0.5,"uniqueFeatures":["PathPilot control (LinuxCNC-based)","Affordable hobbyist/prototyping","Waterjet support (Tormach jet)","8L benchtop lathe"],"postCount":4},{"family":"Fadal","models":["fadal.cps"],"capabilities":["MILLING"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"none","levels":["off"],"gcode":"N/A"},"safeRetract":{"methods":["G28"],"default":"G28"},"multiAxis":{"method":"none","tcpSupport":false,"maxSimultaneousAxes":3},"arcs":{"format":"both","allow3D":false,"allowHelical":false,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":false,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":5080,"highFeedrate_inch":200,"feedPerRev":false},"tolerance_mm":0.025,"minimumChordLength_mm":0.5,"uniqueFeatures":["Legacy Fadal 88HS / CNC88 control","32MP / 32iB control upgrade path"],"postCount":1},{"family":"GRBL","models":["grbl.cps","grbl laser.cps"],"capabilities":["MILLING","LASER"],"extension":".nc","codePage":"ASCII","programNameIsInteger":false,"smoothing":{"type":"none","levels":["off"],"gcode":"N/A"},"safeRetract":{"methods":["G28","G53"],"default":"G53"},"multiAxis":{"method":"none","tcpSupport":false,"maxSimultaneousAxes":3},"arcs":{"format":"both","allow3D":false,"allowHelical":false,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":false,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":2540,"highFeedrate_inch":100,"feedPerRev":false},"tolerance_mm":0.05,"minimumChordLength_mm":0.5,"uniqueFeatures":["Open-source CNC controller","Arduino/ESP32 based","Laser power via spindle PWM (S-value)","Hobby/desktop CNC and laser"],"postCount":2},{"family":"Hermle","models":["hermle.cps","hermle C-series.cps"],"capabilities":["MILLING","SIMULATION"],"extension":".mpf","codePage":"ANSI","programNameIsInteger":false,"smoothing":{"type":"CYCLE832","levels":["off","rough","semi-finish","finish"],"gcode":"CYCLE832(<tolerance>,_,1) (Siemens-based)"},"safeRetract":{"methods":["SUPA","G53"],"default":"SUPA"},"multiAxis":{"method":"TRAORI","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":true,"allowHelical":true,"allowSpiral":true,"maxSweep_deg":360,"minRadius_mm":0.001,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":false},"feeds":{"highFeedrate_mm":9999,"highFeedrate_inch":400,"feedPerRev":false},"tolerance_mm":0.005,"minimumChordLength_mm":0.1,"uniqueFeatures":["Siemens 840D-based (SINUMERIK)","5-axis trunnion table","HACS (Hermle Automation Control System)","High-precision mold/die machining"],"postCount":2},{"family":"Mitsubishi","models":["mitsubishi.cps","mitsubishi wire EDM.cps"],"capabilities":["MILLING","EDM"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"none","levels":["off","on"],"gcode":"G05.1 Q1 (SSS control)"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":false,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":false},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["M800/M80 series CNC","SSS (Super Smooth Surface) control","Wire EDM support","OMR-FF (Optimum Machine Response)"],"postCount":2},{"family":"Nakamura","models":["nakamura.cps","nakamura turning.cps"],"capabilities":["MILLING","TURNING","MILL_TURN"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","on"],"gcode":"G05.1 Q1 (Fanuc-based)"},"safeRetract":{"methods":["G28","G53"],"default":"G28"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":false,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":true},"tolerance_mm":0.01,"minimumChordLength_mm":0.25,"uniqueFeatures":["Fanuc-based control","Multi-turret turning centers","Super NTJX/NTRX multi-tasking","B-axis milling on turning"],"postCount":2},{"family":"Robodrill","models":["robodrill.cps","robodrill DDR.cps"],"capabilities":["MILLING","SIMULATION"],"extension":".nc","codePage":"ASCII","programNameIsInteger":true,"smoothing":{"type":"G05.1","levels":["off","1","2","3","4","5","6","7","8","9","10"],"gcode":"G05.1 Q1 R<level> (Fanuc 31i-B5)"},"safeRetract":{"methods":["G28","G53"],"default":"G53"},"multiAxis":{"method":"G43.4","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":false,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":true,"multipleFeatures":true,"inspection":false},"feeds":{"highFeedrate_mm":6000,"highFeedrate_inch":240,"feedPerRev":false},"tolerance_mm":0.005,"minimumChordLength_mm":0.1,"uniqueFeatures":["Fanuc Robodrill (Fanuc 31i-B5 control)","DDR (Direct Drive Rotary) 5-axis","Ultra-fast tool change (0.7s chip-to-chip)","High-speed drilling and tapping"],"postCount":2},{"family":"Fidia","models":["fidia.cps"],"capabilities":["MILLING"],"extension":".nc","codePage":"ASCII","programNameIsInteger":false,"smoothing":{"type":"none","levels":["off","on"],"gcode":"Look-ahead built-in"},"safeRetract":{"methods":["G28","G53"],"default":"G53"},"multiAxis":{"method":"RTCP","tcpSupport":true,"maxSimultaneousAxes":5},"arcs":{"format":"both","allow3D":true,"allowHelical":true,"allowSpiral":false,"maxSweep_deg":360,"minRadius_mm":0.01,"maxRadius_mm":99999},"probing":{"supported":false,"multipleFeatures":false,"inspection":false},"feeds":{"highFeedrate_mm":9000,"highFeedrate_inch":354,"feedPerRev":false},"tolerance_mm":0.005,"minimumChordLength_mm":0.1,"uniqueFeatures":["Fidia C-series CNC","RTCP (Rotational Tool Center Point)","High-speed die/mold 5-axis","hiFeed / hiFinish look-ahead"],"postCount":1}],"_total":26,"_showing":20}
+{
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
+  "_items": [
+    {
+      "family": "Fanuc",
+      "models": [
+        "fanuc.cps",
+        "fanuc compact.cps",
+        "fanuc incremental.cps",
+        "fanuc turning.cps",
+        "fanuc inspection.cps",
+        "fanuc robotics.cps",
+        "fanuc simulation.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "INSPECTION",
+        "ROBOTICS",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10"
+        ],
+        "gcode": "G05.1 Q1 R<level>"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": true
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "G05.1 Nano smoothing L1-L10",
+        "G68.2 tilted work plane",
+        "Custom macro B support",
+        "AICC (AI contour control)",
+        "Incremental programming option"
+      ],
+      "postCount": 7
+    },
+    {
+      "family": "Haas",
+      "models": {
+        "_items": [
+          "haas.cps",
+          "haas NGC.cps",
+          "haas ST-series.cps",
+          "haas DS.cps",
+          "haas EC.cps",
+          "haas UMC.cps",
+          "haas VR.cps",
+          "haas desktop.cps",
+          "haas CL-1.cps",
+          "haas NGC turning.cps",
+          "haas NGC mill-turn.cps",
+          "haas ST-10.cps",
+          "haas ST-20.cps",
+          "haas ST-30.cps",
+          "haas ST-10Y.cps",
+          "haas ST-20Y.cps",
+          "haas ST-20SS.cps",
+          "haas ST-25Y.cps",
+          "haas ST-30Y.cps",
+          "haas ST-35.cps"
+        ],
+        "_total": 55,
+        "_showing": 20
+      },
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G187",
+        "levels": [
+          "off",
+          "rough",
+          "medium",
+          "finish"
+        ],
+        "gcode": "G187 P<1-3> E<tolerance>"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53",
+          "clearance"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "DWO",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": true
+      },
+      "feeds": {
+        "highFeedrate_mm": 6096,
+        "highFeedrate_inch": 240,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "G187 surface smoothing P1(rough)/P2(medium)/P3(finish)",
+        "DWO G254/G255 dynamic work offsets",
+        "NGC next-gen control features",
+        "WIPS wireless probing",
+        "Visual Quick Code (VQC)",
+        "Sub-spindle support (DS/ST-SS models)",
+        "Y-axis live tooling (ST-Y models)"
+      ],
+      "postCount": 55
+    },
+    {
+      "family": "Siemens",
+      "models": [
+        "siemens 802D.cps",
+        "siemens 808D.cps",
+        "siemens 810D.cps",
+        "siemens 828D.cps",
+        "siemens 840C.cps",
+        "siemens 840D.cps",
+        "siemens ONE.cps",
+        "siemens turning.cps",
+        "siemens mill-turn.cps",
+        "siemens 840D inspect.cps",
+        "siemens SINUMERIK.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN",
+        "SIMULATION"
+      ],
+      "extension": ".mpf",
+      "codePage": "ANSI",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "CYCLE832",
+        "levels": [
+          "off",
+          "rough",
+          "semi-finish",
+          "finish"
+        ],
+        "gcode": "CYCLE832(<tolerance>,_,1)"
+      },
+      "safeRetract": {
+        "methods": [
+          "SUPA",
+          "G53"
+        ],
+        "default": "SUPA"
+      },
+      "multiAxis": {
+        "method": "TRAORI",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": true,
+        "allowHelical": true,
+        "allowSpiral": true,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.001,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": true
+      },
+      "feeds": {
+        "highFeedrate_mm": 9999,
+        "highFeedrate_inch": 400,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.005,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "CYCLE832 high-speed smoothing",
+        "TRAORI 5-axis transformation",
+        "SUPA safe retract to machine zero",
+        "ShopMill/ShopTurn conversational",
+        "Structured programming with subroutines",
+        "COMPCAD 3D cutter compensation",
+        "SINUMERIK ONE digital twin"
+      ],
+      "postCount": 11
+    },
+    {
+      "family": "Heidenhain",
+      "models": [
+        "heidenhain.cps",
+        "heidenhain 145.cps",
+        "heidenhain 155.cps",
+        "heidenhain 407.cps",
+        "heidenhain 426.cps",
+        "heidenhain ISO.cps",
+        "heidenhain turning.cps",
+        "heidenhain inspection.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "INSPECTION",
+        "SIMULATION"
+      ],
+      "extension": ".h",
+      "codePage": "ANSI",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "native",
+        "levels": [
+          "off",
+          "on",
+          "automatic"
+        ],
+        "gcode": "M128 (TCP on) / FUNCTION TCPM"
+      },
+      "safeRetract": {
+        "methods": [
+          "clearance"
+        ],
+        "default": "clearance"
+      },
+      "multiAxis": {
+        "method": "plane_spatial",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": true,
+        "allowHelical": true,
+        "allowSpiral": true,
+        "maxSweep_deg": 5400,
+        "minRadius_mm": 0.001,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": true
+      },
+      "feeds": {
+        "highFeedrate_mm": 9999,
+        "highFeedrate_inch": 394,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.005,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "Plane Spatial / Cycle19 tilted work plane",
+        "Function TCPM 5-axis tool center point",
+        "M128/M129 TCP toggle",
+        "Conversational (plain text) programming",
+        "Max circular sweep 5400° (15 full revolutions)",
+        "Touch probe cycles (400-series)",
+        "KinematicsOpt auto-calibration"
+      ],
+      "postCount": 8
+    },
+    {
+      "family": "Mazak",
+      "models": {
+        "_items": [
+          "mazak.cps",
+          "mazak EZ.cps",
+          "mazak Integrex.cps",
+          "mazak Integrex i-200.cps",
+          "mazak Integrex i-300.cps",
+          "mazak Integrex i-400.cps",
+          "mazak Integrex i-500.cps",
+          "mazak Integrex e-series.cps",
+          "mazak Integrex j-series.cps",
+          "mazak QTU.cps",
+          "mazak Quick Turn.cps",
+          "mazak Quick Turn 200.cps",
+          "mazak Quick Turn 250.cps",
+          "mazak Quick Turn 350.cps",
+          "mazak Quick Turn 450.cps",
+          "mazak laser.cps",
+          "mazak turning.cps",
+          "mazak mill-turn.cps",
+          "mazak VTC.cps",
+          "mazak HCN.cps"
+        ],
+        "_total": 60,
+        "_showing": 20
+      },
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN",
+        "LASER",
+        "SIMULATION"
+      ],
+      "extension": ".eia",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "G05.1 Q1 (Mazatrol smooth)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G30",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "Mazatrol SmoothAi / SmoothG / SmoothX",
+        "Integrex DONE IN ONE mill-turn",
+        "G43.4 TCP for 5-axis",
+        "Second spindle and lower turret support",
+        "Laser processing (cutting, cladding, FSW)",
+        "PALLETECH automation integration",
+        "VARIAXIS 5-axis simultaneous"
+      ],
+      "postCount": 62
+    },
+    {
+      "family": "Okuma",
+      "models": [
+        "okuma.cps",
+        "okuma LB3000 mill-turn.cps",
+        "okuma turning.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN",
+        "SIMULATION"
+      ],
+      "extension": ".min",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off"
+        ],
+        "gcode": "N/A (OSP Super-NURBS built-in)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 5000,
+        "highFeedrate_inch": 200,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "OSP control (proprietary, not ISO)",
+        "G15 H1 DWO (dynamic work offset)",
+        "Super-NURBS built-in path smoothing",
+        "Thermo-Friendly Concept",
+        "Collision Avoidance System (CAS)",
+        "5-axis Auto Tuning System"
+      ],
+      "postCount": 3
+    },
+    {
+      "family": "Brother",
+      "models": [
+        "brother.cps",
+        "brother Speedio.cps",
+        "brother multi-tasking.cps",
+        "brother inspection.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "INSPECTION",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "G05.1 Q1"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "none",
+        "tcpSupport": false,
+        "maxSimultaneousAxes": 3
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": true
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "High-speed tapping (16,000 rpm spindle)",
+        "30-tool ATC rapid change (<1s)",
+        "C-axis for multi-tasking models",
+        "Speedio compact footprint",
+        "CNC-C00 control"
+      ],
+      "postCount": 4
+    },
+    {
+      "family": "DMG Mori",
+      "models": [
+        "dmg mori CMX Fanuc.cps",
+        "dmg mori NHX.cps",
+        "dmg mori NLX mill-turn.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "G05.1 Q1 (Fanuc-based) or CYCLE832 (Siemens-based)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "CELOS control interface",
+        "Dual controller support (Fanuc or Siemens)",
+        "Machine Protection Control (MPC)",
+        "3D quickSET auto-alignment",
+        "NLX integrated mill-turn"
+      ],
+      "postCount": 3
+    },
+    {
+      "family": "Makino",
+      "models": [
+        "makino.cps",
+        "makino A500Z.cps",
+        "makino D200Z.cps",
+        "makino D300.cps",
+        "makino D500.cps",
+        "makino Slim3N.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "SGI",
+        "levels": [
+          "off",
+          "on",
+          "automatic"
+        ],
+        "gcode": "G05.1 Q1 (SGI — Super Geometric Intelligence)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G53"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": true,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.001,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 9000,
+        "highFeedrate_inch": 354,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.002,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "SGI (Super Geometric Intelligence) smoothing",
+        "AIAPC (AI Adaptive Process Control)",
+        "Fanuc-based Professional 6 control",
+        "High-speed die/mold machining",
+        "D200Z/D300 5-axis graphite/hardened steel",
+        "A500Z horizontal 5-axis"
+      ],
+      "postCount": 6
+    },
+    {
+      "family": "Hurco",
+      "models": [
+        "hurco.cps",
+        "hurco 3D.cps",
+        "hurco TMX8-MY.cps",
+        "hurco TMX8-MYS.cps",
+        "hurco TMX10-MY.cps",
+        "hurco TMX10-MYS.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off"
+        ],
+        "gcode": "N/A (UltiMotion built-in)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "none",
+        "tcpSupport": false,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": false,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 5000,
+        "highFeedrate_inch": 200,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "WinMax / MAX5 conversational control",
+        "UltiMotion built-in path smoothing",
+        "DXF import on-control",
+        "Solid model import capability",
+        "TMX mill-turn with Y-axis and sub-spindle"
+      ],
+      "postCount": 6
+    },
+    {
+      "family": "Doosan",
+      "models": [
+        "doosan VMC Fanuc.cps",
+        "doosan turning.cps",
+        "doosan mill-turn.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "G05.1 Q1 (Fanuc-based)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "Fanuc-based control (Fanuc 0i / 31i)",
+        "Puma turning series",
+        "DNM/DVF milling series",
+        "SMX mill-turn multi-tasking"
+      ],
+      "postCount": 3
+    },
+    {
+      "family": "Datron",
+      "models": [
+        "datron C5.cps",
+        "datron ISO.cps",
+        "datron MCR.cps",
+        "datron Next.cps",
+        "datron Next inspection.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "INSPECTION",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "UTF-8",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off"
+        ],
+        "gcode": "N/A (Datron next proprietary)"
+      },
+      "safeRetract": {
+        "methods": [
+          "clearance"
+        ],
+        "default": "clearance"
+      },
+      "multiAxis": {
+        "method": "none",
+        "tcpSupport": false,
+        "maxSimultaneousAxes": 3
+      },
+      "arcs": {
+        "format": "IJK",
+        "allow3D": false,
+        "allowHelical": false,
+        "allowSpiral": false,
+        "maxSweep_deg": 180,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": true
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.005,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "High-speed micro-machining (60,000 rpm)",
+        "Vacuum table workholding",
+        "Integrated tool measurement",
+        "Datron next control (proprietary)",
+        "Engraving and dental milling"
+      ],
+      "postCount": 5
+    },
+    {
+      "family": "Tormach",
+      "models": [
+        "tormach.cps",
+        "tormach jet.cps",
+        "tormach PathPilot turning.cps",
+        "tormach 8L.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "JET"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off"
+        ],
+        "gcode": "N/A"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "none",
+        "tcpSupport": false,
+        "maxSimultaneousAxes": 3
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 2540,
+        "highFeedrate_inch": 100,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.025,
+      "minimumChordLength_mm": 0.5,
+      "uniqueFeatures": [
+        "PathPilot control (LinuxCNC-based)",
+        "Affordable hobbyist/prototyping",
+        "Waterjet support (Tormach jet)",
+        "8L benchtop lathe"
+      ],
+      "postCount": 4
+    },
+    {
+      "family": "Fadal",
+      "models": [
+        "fadal.cps"
+      ],
+      "capabilities": [
+        "MILLING"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off"
+        ],
+        "gcode": "N/A"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "none",
+        "tcpSupport": false,
+        "maxSimultaneousAxes": 3
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": false,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": false,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 5080,
+        "highFeedrate_inch": 200,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.025,
+      "minimumChordLength_mm": 0.5,
+      "uniqueFeatures": [
+        "Legacy Fadal 88HS / CNC88 control",
+        "32MP / 32iB control upgrade path"
+      ],
+      "postCount": 1
+    },
+    {
+      "family": "GRBL",
+      "models": [
+        "grbl.cps",
+        "grbl laser.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "LASER"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off"
+        ],
+        "gcode": "N/A"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G53"
+      },
+      "multiAxis": {
+        "method": "none",
+        "tcpSupport": false,
+        "maxSimultaneousAxes": 3
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": false,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": false,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 2540,
+        "highFeedrate_inch": 100,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.05,
+      "minimumChordLength_mm": 0.5,
+      "uniqueFeatures": [
+        "Open-source CNC controller",
+        "Arduino/ESP32 based",
+        "Laser power via spindle PWM (S-value)",
+        "Hobby/desktop CNC and laser"
+      ],
+      "postCount": 2
+    },
+    {
+      "family": "Hermle",
+      "models": [
+        "hermle.cps",
+        "hermle C-series.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "SIMULATION"
+      ],
+      "extension": ".mpf",
+      "codePage": "ANSI",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "CYCLE832",
+        "levels": [
+          "off",
+          "rough",
+          "semi-finish",
+          "finish"
+        ],
+        "gcode": "CYCLE832(<tolerance>,_,1) (Siemens-based)"
+      },
+      "safeRetract": {
+        "methods": [
+          "SUPA",
+          "G53"
+        ],
+        "default": "SUPA"
+      },
+      "multiAxis": {
+        "method": "TRAORI",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": true,
+        "allowHelical": true,
+        "allowSpiral": true,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.001,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 9999,
+        "highFeedrate_inch": 400,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.005,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "Siemens 840D-based (SINUMERIK)",
+        "5-axis trunnion table",
+        "HACS (Hermle Automation Control System)",
+        "High-precision mold/die machining"
+      ],
+      "postCount": 2
+    },
+    {
+      "family": "Mitsubishi",
+      "models": [
+        "mitsubishi.cps",
+        "mitsubishi wire EDM.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "EDM"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "G05.1 Q1 (SSS control)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": false,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "M800/M80 series CNC",
+        "SSS (Super Smooth Surface) control",
+        "Wire EDM support",
+        "OMR-FF (Optimum Machine Response)"
+      ],
+      "postCount": 2
+    },
+    {
+      "family": "Nakamura",
+      "models": [
+        "nakamura.cps",
+        "nakamura turning.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "TURNING",
+        "MILL_TURN"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "G05.1 Q1 (Fanuc-based)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G28"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": false,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": true
+      },
+      "tolerance_mm": 0.01,
+      "minimumChordLength_mm": 0.25,
+      "uniqueFeatures": [
+        "Fanuc-based control",
+        "Multi-turret turning centers",
+        "Super NTJX/NTRX multi-tasking",
+        "B-axis milling on turning"
+      ],
+      "postCount": 2
+    },
+    {
+      "family": "Robodrill",
+      "models": [
+        "robodrill.cps",
+        "robodrill DDR.cps"
+      ],
+      "capabilities": [
+        "MILLING",
+        "SIMULATION"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": true,
+      "smoothing": {
+        "type": "G05.1",
+        "levels": [
+          "off",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10"
+        ],
+        "gcode": "G05.1 Q1 R<level> (Fanuc 31i-B5)"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G53"
+      },
+      "multiAxis": {
+        "method": "G43.4",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": false,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": true,
+        "multipleFeatures": true,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 6000,
+        "highFeedrate_inch": 240,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.005,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "Fanuc Robodrill (Fanuc 31i-B5 control)",
+        "DDR (Direct Drive Rotary) 5-axis",
+        "Ultra-fast tool change (0.7s chip-to-chip)",
+        "High-speed drilling and tapping"
+      ],
+      "postCount": 2
+    },
+    {
+      "family": "Fidia",
+      "models": [
+        "fidia.cps"
+      ],
+      "capabilities": [
+        "MILLING"
+      ],
+      "extension": ".nc",
+      "codePage": "ASCII",
+      "programNameIsInteger": false,
+      "smoothing": {
+        "type": "none",
+        "levels": [
+          "off",
+          "on"
+        ],
+        "gcode": "Look-ahead built-in"
+      },
+      "safeRetract": {
+        "methods": [
+          "G28",
+          "G53"
+        ],
+        "default": "G53"
+      },
+      "multiAxis": {
+        "method": "RTCP",
+        "tcpSupport": true,
+        "maxSimultaneousAxes": 5
+      },
+      "arcs": {
+        "format": "both",
+        "allow3D": true,
+        "allowHelical": true,
+        "allowSpiral": false,
+        "maxSweep_deg": 360,
+        "minRadius_mm": 0.01,
+        "maxRadius_mm": 99999
+      },
+      "probing": {
+        "supported": false,
+        "multipleFeatures": false,
+        "inspection": false
+      },
+      "feeds": {
+        "highFeedrate_mm": 9000,
+        "highFeedrate_inch": 354,
+        "feedPerRev": false
+      },
+      "tolerance_mm": 0.005,
+      "minimumChordLength_mm": 0.1,
+      "uniqueFeatures": [
+        "Fidia C-series CNC",
+        "RTCP (Rotational Tool Center Point)",
+        "High-speed die/mold 5-axis",
+        "hiFeed / hiFinish look-ahead"
+      ],
+      "postCount": 1
+    }
+  ],
+  "_total": 26,
+  "_showing": 20
+}

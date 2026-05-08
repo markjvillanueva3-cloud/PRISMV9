@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "RALPH-1770383488515-wqwedh",
   "target": "Registry Bootstrap Wiring - dist/index.js modification:\n\nCHANGE: Added after `await registryManager2.initialize();` in registerTools():\n```javascript\ntry {\n  const { bootstrapRegistries } = require(\"./tools/registryBootstrapper.js\");\n  const bootstrapReport = await bootstrapRegistries({\n    formulaRegistry: registryManager2.formulas,\n    machineRegistry: registryManager2.machines\n  });\n  log.info(`[BOOTSTRAP] Formulas: ${bootstrapReport.formulas.loaded}, Machines: ${bootstrapReport.machines.load...",
   "target_type": "code",

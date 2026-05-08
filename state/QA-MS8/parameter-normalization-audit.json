@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS8-P0-U04",
   "title": "Parameter Normalization Consistency Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T04:00:00Z",
   "status": "COMPLETE",
   "verdict": "PASS with NOTE - All 4 manufacturing dispatchers use normalizeParams. calcDispatcher uses Object.assign variant (F44).",
-
   "normalizer": {
     "file": "src/utils/paramNormalizer.ts",
     "function": "normalizeParams(params: Record<string, any>): Record<string, any>",
@@ -13,7 +14,6 @@
     "reverse": "normalizeParamsSnake() for engines expecting snake_case",
     "lazy_import": "All dispatchers use lazy `await import()` with try/catch fallback — graceful degradation if normalizer unavailable"
   },
-
   "dispatcher_patterns": {
     "prism_calc": {
       "pattern": "Object.assign(params, normalizeParams(rawParams))",
@@ -32,7 +32,6 @@
       "note": "Standard pattern"
     }
   },
-
   "cross_dispatcher_consistency": {
     "naming_conventions": "All use snake_case action names (e.g., cutting_force, calculate_tap_drill, strategy_select, create_task)",
     "unit_handling": "Metric internally, imperial conversion via paramNormalizer where needed",
@@ -44,7 +43,6 @@
       "prism_manus": "dispatcherError() utility"
     }
   },
-
   "findings": [
     {
       "id": "F44",
@@ -57,7 +55,6 @@
       "fix": "Align to standard params = normalizeParams(rawParams) pattern"
     }
   ],
-
   "exit_conditions_met": {
     "naming_conventions_consistent": true,
     "unit_handling_consistent": true,

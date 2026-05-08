@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS1-P0-U03",
   "title": "Lambda/Phi Validation in Auto-Hook Proxy",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T22:40:00Z",
   "status": "COMPLETE",
   "verdict": "1 CRITICAL (FIXED), 2 MEDIUM (1 FIXED), 1 LOW. Lambda annotation-only gap resolved.",
-
   "architecture": {
     "two_separate_systems": {
       "system_1": "autoHookWrapper (Lambda/Phi) → fireHook → hookExecutor.execute()",
@@ -19,22 +20,61 @@
       "registration": "index.ts:340-356 — proxy intercepts server.tool() during dispatcher registration"
     }
   },
-
   "lambda_validation": {
     "function": "validateSafetyProof() at autoHookWrapper.ts:215",
     "applied_to": "25 calc tools (24 in AUTO_HOOK_CONFIG.calcTools + prism_calc added at index.ts:329)",
     "trigger": "Post-calculation — runs AFTER handler returns result",
     "scoring": {
-      "start": 1.0,
+      "start": 1,
       "deductions": [
-        { "field": "cutting_speed", "range": "[1, 2000] m/min", "penalty": -0.3, "physically_correct": true },
-        { "field": "feed_per_tooth", "range": "[0.001, 2] mm", "penalty": -0.3, "physically_correct": true },
-        { "field": "axial_depth", "range": "[0.01, 100] mm", "penalty": -0.3, "physically_correct": true },
-        { "field": "tool_diameter", "range": "[0.1, 500] mm", "penalty": -0.3, "physically_correct": true },
-        { "field": "result.cutting_force", "check": "< 0 (negative)", "penalty": -0.5, "physically_correct": true },
-        { "field": "result.power", "check": "< 0 (negative)", "penalty": -0.5, "physically_correct": true },
-        { "field": "result.power", "check": "> 100 kW", "penalty": -0.1, "physically_correct": true },
-        { "field": "result.tool_life", "check": "<= 0", "penalty": -0.5, "physically_correct": true }
+        {
+          "field": "cutting_speed",
+          "range": "[1, 2000] m/min",
+          "penalty": -0.3,
+          "physically_correct": true
+        },
+        {
+          "field": "feed_per_tooth",
+          "range": "[0.001, 2] mm",
+          "penalty": -0.3,
+          "physically_correct": true
+        },
+        {
+          "field": "axial_depth",
+          "range": "[0.01, 100] mm",
+          "penalty": -0.3,
+          "physically_correct": true
+        },
+        {
+          "field": "tool_diameter",
+          "range": "[0.1, 500] mm",
+          "penalty": -0.3,
+          "physically_correct": true
+        },
+        {
+          "field": "result.cutting_force",
+          "check": "< 0 (negative)",
+          "penalty": -0.5,
+          "physically_correct": true
+        },
+        {
+          "field": "result.power",
+          "check": "< 0 (negative)",
+          "penalty": -0.5,
+          "physically_correct": true
+        },
+        {
+          "field": "result.power",
+          "check": "> 100 kW",
+          "penalty": -0.1,
+          "physically_correct": true
+        },
+        {
+          "field": "result.tool_life",
+          "check": "<= 0",
+          "penalty": -0.5,
+          "physically_correct": true
+        }
       ],
       "floor": "Math.max(0, validityScore) — capped at 0",
       "threshold": "lambda_min = 0.9"
@@ -51,7 +91,6 @@
     "action_on_failure": "ANNOTATION ONLY — attaches _safety_warning to result, does NOT block or throw",
     "severity_split": "< 0.5 → 'critical', >= 0.5 → 'warning' (determines _safety_warning.severity)"
   },
-
   "phi_validation": {
     "function": "verifyFactualClaims() at autoHookWrapper.ts:272",
     "applied_to": "2 web tools: web_search, web_fetch",
@@ -61,8 +100,14 @@
       "no_claims": "VERIFIED, phi_score = 1.0",
       "claims_detected_start": 0.7,
       "deductions": [
-        { "condition": "> 3 claims", "penalty": -0.1 },
-        { "condition": "hedging words (may/might/could/possibly/potentially/some)", "penalty": -0.05 }
+        {
+          "condition": "> 3 claims",
+          "penalty": -0.1
+        },
+        {
+          "condition": "hedging words (may/might/could/possibly/potentially/some)",
+          "penalty": -0.05
+        }
       ],
       "verdict_thresholds": {
         "phi_high_0.85": "VERIFIED",
@@ -73,7 +118,6 @@
     },
     "action_on_caveats": "ANNOTATION ONLY — attaches _fact_verification to result"
   },
-
   "proxy_coverage": {
     "wrapped_tools": "ALL prism_* dispatchers (universal hooks)",
     "lambda_wrapped": "25 calc tools",
@@ -86,7 +130,6 @@
     "universal_input_validation": "CAN BLOCK — inputVal.blocked returns SAFETY BLOCK error at line 922-934",
     "note": "Universal hooks provide real blocking; Lambda is advisory only"
   },
-
   "findings": [
     {
       "id": "F13",
@@ -105,7 +148,10 @@
       "id": "F14",
       "severity": "MEDIUM",
       "title": "Hook ID CALC-SAFETY-VIOLATION-001 used with different semantics in two systems",
-      "files": ["src/tools/autoHookWrapper.ts:416", "src/orchestration/HookEngine.ts:241"],
+      "files": [
+        "src/tools/autoHookWrapper.ts:416",
+        "src/orchestration/HookEngine.ts:241"
+      ],
       "issue": "autoHookWrapper fires CALC-SAFETY-VIOLATION-001 as a logging event via hookExecutor (non-blocking). HookEngine evaluates the same hook ID as a hard blocking gate (safetyScore < 0.70). Same ID, different behavior depending on execution path.",
       "impact": "Confusing for audit and debugging. A developer seeing CALC-SAFETY-VIOLATION-001 in logs might assume it blocked when it didn't (autoHookWrapper path) or vice versa.",
       "fix": "Use distinct hook IDs: CALC-SAFETY-VIOLATION-001 for HookEngine's S(x) gate, LAMBDA-SAFETY-WARN-001 for autoHookWrapper's post-calc annotation.",
@@ -116,7 +162,10 @@
       "id": "F15",
       "severity": "MEDIUM",
       "title": "autoHookWrapper fires CALC-SAFETY-VIOLATION-001 with 'score' field, HookEngine expects 'safety_score'",
-      "files": ["src/tools/autoHookWrapper.ts:420", "src/orchestration/HookEngine.ts:242"],
+      "files": [
+        "src/tools/autoHookWrapper.ts:420",
+        "src/orchestration/HookEngine.ts:242"
+      ],
       "issue": "autoHookWrapper passes { score: proofResult.validity_score } but HookEngine looks for context.data.safety_score ?? context.data.S. The field name mismatch means even if the hook somehow reached HookEngine, it would not find the score. Currently these are separate systems so it's not a runtime bug, but it's a naming inconsistency.",
       "impact": "If the systems are ever unified, the field mismatch would cause a silent bypass.",
       "fix": "Standardize on safety_score as the canonical field name in all hook data."
@@ -131,7 +180,6 @@
       "fix": "N/A for current scope."
     }
   ],
-
   "summary": {
     "critical_findings": 1,
     "medium_findings": 2,

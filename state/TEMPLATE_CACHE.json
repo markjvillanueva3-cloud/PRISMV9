@@ -1,9 +1,11 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "cache": {},
   "templates": [
     {
       "category": "execution",
-      "content": "## Task: {task_name}\n\n### Context\n{context}\n\n### Requirements\n{requirements}\n\n### Constraints\n- Safety: S(x) \u2265 0.70\n- Quality: \u03a9(x) \u2265 0.65\n- No placeholders\n\n### Output Format\n{output_format}\n\nExecute the task following PRISM protocols.",
+      "content": "## Task: {task_name}\n\n### Context\n{context}\n\n### Requirements\n{requirements}\n\n### Constraints\n- Safety: S(x) ≥ 0.70\n- Quality: Ω(x) ≥ 0.65\n- No placeholders\n\n### Output Format\n{output_format}\n\nExecute the task following PRISM protocols.",
       "created_at": "2026-02-01T18:58:49.915251",
       "description": "Standard task execution template",
       "id": "TPL-09db63c6",
@@ -14,11 +16,11 @@
         "original_chars": 236,
         "original_tokens": 59,
         "reduction_chars": 85,
-        "reduction_percent": 36.0,
+        "reduction_percent": 36,
         "reduction_tokens": 22
       },
       "name": "Task Execution",
-      "optimized_content": "{context}\n\n{requirements}\n\n- Safety: S(x) \u2265 0.70\n- Quality: \u03a9(x) \u2265 0.65\n- No placeholders\n\n{output_format}\n\nExecute the task following PRISM protocols.",
+      "optimized_content": "{context}\n\n{requirements}\n\n- Safety: S(x) ≥ 0.70\n- Quality: Ω(x) ≥ 0.65\n- No placeholders\n\n{output_format}\n\nExecute the task following PRISM protocols.",
       "updated_at": "2026-02-01T18:58:49.915251",
       "variables": [
         "output_format",
@@ -40,7 +42,7 @@
         "original_chars": 183,
         "original_tokens": 45,
         "reduction_chars": 0,
-        "reduction_percent": 0.0,
+        "reduction_percent": 0,
         "reduction_tokens": 0
       },
       "name": "Material Query",

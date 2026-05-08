@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS4-P0-U04",
   "title": "Thermal Partition Algorithms Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T00:10:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - Two complementary thermal models: Trigger-Chao (physics-based) and Loewen-Shaw (empirical). Both correctly implemented.",
-
   "implementations_found": {
     "ThermalPartitionModel_algorithm": {
       "file": "src/algorithms/ThermalPartitionModel.ts",
@@ -26,7 +27,6 @@
       "quality": "Lower fidelity but simpler and faster"
     }
   },
-
   "trigger_chao_verification": {
     "thermal_diffusivity": {
       "formula": "alpha = k / (rho * c)",
@@ -54,28 +54,24 @@
     },
     "partition_sum": "Not explicit fixed partition - temperature derived from physics. Heat regime classification (high_speed/low_speed) based on R_t threshold."
   },
-
   "loewen_shaw_verification": {
     "fixed_partition": {
       "chip": 0.75,
       "tool": 0.15,
-      "workpiece": 0.10,
+      "workpiece": 0.1,
       "sum": "0.75 + 0.15 + 0.10 = 1.00"
     },
     "correct": true,
     "limitation": "Fixed partition ignores speed dependence (identified as F35 in QA-MS3)"
   },
-
   "findings": [],
   "note": "F35 (fixed partition in AdvancedCalculations) was already documented in QA-MS3. The ThermalPartitionModel algorithm provides the physics-based alternative with speed-dependent heat partition via the Trigger-Chao thermal number.",
-
   "verification_tests": {
     "thermal_number_steel": "Vc=150, f=0.1, phi=30deg, steel (alpha~1.4e-5): R_t = V_s*L/alpha >> 10 -> high-speed regime",
     "thermal_number_aluminum": "Same conditions, aluminum (alpha~9.7e-5): R_t much smaller -> may be low-speed regime",
     "partition_sum": "Fixed: 0.75+0.15+0.10 = 1.00",
     "shear_zone_temp": "tau_s=400MPa, rho=7850, c=500 -> theta_s = 0.4*400e6/(7850*500) = 40.8 C (high-speed, reasonable)"
   },
-
   "exit_conditions_met": {
     "heat_partition_ratios_verified": true,
     "temperature_dependent_partition": "Implemented in ThermalPartitionModel via R_t (thermal number)",

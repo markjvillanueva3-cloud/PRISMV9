@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "last_updated": "2026-03-03T19:10:00Z",
   "analysis_version": "1.1.0",
   "learning_status": {
@@ -21,7 +23,10 @@
       "material": 0,
       "safety": 0
     },
-    "platforms_covered": ["Mastercam 2024", "hyperMILL"],
+    "platforms_covered": [
+      "Mastercam 2024",
+      "hyperMILL"
+    ],
     "strategy_db_status": "POPULATED (66 strategies, 16 materials, 6 operations)",
     "tool_rationale_kb_status": "NOT_CREATED",
     "op_sequences_status": "NOT_CREATED"
@@ -52,7 +57,10 @@
       "description": "Thread milling parameter engine — thread mill vs tap selection, helix interpolation, radial engagement.",
       "evidence": "ThreadCalculationEngine + SinglePointThreadEngine exist but no thread milling.",
       "priority": "HIGH",
-      "catalog_sources": ["Threading 2018.1.pdf", "ZK12023_DEGB RevA EMUGE Katalog 160.pdf"],
+      "catalog_sources": [
+        "Threading 2018.1.pdf",
+        "ZK12023_DEGB RevA EMUGE Katalog 160.pdf"
+      ],
       "existing_engine": "ThreadCalculationEngine (geometry only)"
     },
     {
@@ -71,7 +79,10 @@
       "description": "End mill geometry selection — flute count, helix angle, corner radius, variable helix.",
       "evidence": "ToolAssemblyEngine handles holder geometry only. 10+ endmill catalogs available.",
       "priority": "MEDIUM",
-      "catalog_sources": ["Solid End Mills.pdf", "Flash_Solid_catalog_INCH.pdf"],
+      "catalog_sources": [
+        "Solid End Mills.pdf",
+        "Flash_Solid_catalog_INCH.pdf"
+      ],
       "existing_engine": "ToolAssemblyEngine (holder only)"
     },
     {
@@ -81,7 +92,10 @@
       "description": "Insert grade selection for turning — map material class to ISO insert grade (P/M/K/N/S/H).",
       "evidence": "3 turning catalogs available. TurningForceEngine exists but no grade/insert selection.",
       "priority": "MEDIUM",
-      "catalog_sources": ["TURNING_CATALOG_PART 1.pdf", "GC_2023-2024_US_Turning-Grooving.pdf"],
+      "catalog_sources": [
+        "TURNING_CATALOG_PART 1.pdf",
+        "GC_2023-2024_US_Turning-Grooving.pdf"
+      ],
       "existing_engine": "TurningForceEngine (force only)"
     },
     {

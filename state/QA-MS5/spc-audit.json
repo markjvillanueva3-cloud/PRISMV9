@@ -1,12 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "QA-MS5-U05",
   "title": "Statistical Process Control Algorithms Audit",
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T07:25:00Z",
   "status": "PASS",
-
   "note": "The SPC/control category in QA-MS5 covers adaptive controllers rather than traditional SPC charts. AnomalyDetector (SPC Shewhart) was audited in U04. These 4 algorithms provide real-time closed-loop control for CNC processes.",
-
   "algorithms_audited": [
     {
       "name": "AdaptiveControllerModel",
@@ -33,7 +33,11 @@
         },
         "wear": {
           "description": "Feed reduction based on multi-indicator wear estimate",
-          "indicators": ["Time-based: cutting_time/expected_life", "Load-based: (current-baseline)/baseline * 2.5", "VB-based: flank_wear/0.3mm"],
+          "indicators": [
+            "Time-based: cutting_time/expected_life",
+            "Load-based: (current-baseline)/baseline * 2.5",
+            "VB-based: flank_wear/0.3mm"
+          ],
           "feed_reduction": "0.3% per 1% wear above 50% threshold",
           "verified": true,
           "note": "Correct multi-indicator fusion using max(time, load, VB) -- conservative approach"
@@ -43,14 +47,26 @@
           "z_drift": "deltaT * thermal_coeff [um/degC]",
           "x_drift": "deltaT * structure_coeff * machine_factor",
           "compensation": "Negative offsets applied when drift > 5um Z or > 3um X",
-          "machine_types": ["VMC (1.0)", "HMC (1.2)", "lathe (0.6)"],
+          "machine_types": [
+            "VMC (1.0)",
+            "HMC (1.2)",
+            "lathe (0.6)"
+          ],
           "verified": true,
           "note": "Correct thermal drift model with machine-type-dependent structure coefficients"
         }
       },
       "override_limits": {
-        "feed": { "min": 40, "max": 150, "unit": "%" },
-        "spindle": { "min": 50, "max": 120, "unit": "%" },
+        "feed": {
+          "min": 40,
+          "max": 150,
+          "unit": "%"
+        },
+        "spindle": {
+          "min": 50,
+          "max": 120,
+          "unit": "%"
+        },
         "verified": true,
         "note": "Hard limits prevent dangerous overrides -- good safety practice"
       }
@@ -162,18 +178,40 @@
       "safety_class": "standard"
     }
   ],
-
   "findings": [
-    { "severity": "OK", "finding": "AdaptiveControllerModel: 4 control modes with correct engineering formulas and hard override limits (40-150% feed, 50-120% spindle)" },
-    { "severity": "OK", "finding": "AdaptiveControllerModel correctly classified as safety_class='critical' -- generates real-time machine overrides" },
-    { "severity": "OK", "finding": "KalmanFilter: Standard predict-update equations correctly implemented with NIS consistency check" },
-    { "severity": "OK", "finding": "PIDController: Anti-windup, derivative filter, and Ziegler-Nichols auto-tune all correctly formulated" },
-    { "severity": "OK", "finding": "FuzzyController: Complete Mamdani pipeline (fuzzify -> rules -> aggregate -> defuzzify) with 3 membership function types" },
-    { "severity": "OK", "finding": "All 4 algorithms implement Algorithm<I,O> interface consistently" },
-    { "severity": "INFO", "finding": "KalmanFilter uses Gauss-Jordan inversion -- O(n^3). Adequate for typical manufacturing state dimensions (n < 10)." },
-    { "severity": "INFO", "finding": "PIDController Ziegler-Nichols tuning often produces aggressive gains -- in practice, manual tuning adjustment is typical" }
+    {
+      "severity": "OK",
+      "finding": "AdaptiveControllerModel: 4 control modes with correct engineering formulas and hard override limits (40-150% feed, 50-120% spindle)"
+    },
+    {
+      "severity": "OK",
+      "finding": "AdaptiveControllerModel correctly classified as safety_class='critical' -- generates real-time machine overrides"
+    },
+    {
+      "severity": "OK",
+      "finding": "KalmanFilter: Standard predict-update equations correctly implemented with NIS consistency check"
+    },
+    {
+      "severity": "OK",
+      "finding": "PIDController: Anti-windup, derivative filter, and Ziegler-Nichols auto-tune all correctly formulated"
+    },
+    {
+      "severity": "OK",
+      "finding": "FuzzyController: Complete Mamdani pipeline (fuzzify -> rules -> aggregate -> defuzzify) with 3 membership function types"
+    },
+    {
+      "severity": "OK",
+      "finding": "All 4 algorithms implement Algorithm<I,O> interface consistently"
+    },
+    {
+      "severity": "INFO",
+      "finding": "KalmanFilter uses Gauss-Jordan inversion -- O(n^3). Adequate for typical manufacturing state dimensions (n < 10)."
+    },
+    {
+      "severity": "INFO",
+      "finding": "PIDController Ziegler-Nichols tuning often produces aggressive gains -- in practice, manual tuning adjustment is typical"
+    }
   ],
-
   "cpk_cross_reference": {
     "summary": "Two Cpk implementations exist in PRISM. AnomalyDetector's is tautological; ToleranceEngine's is correct.",
     "anomaly_detector_cpk": {
@@ -193,7 +231,6 @@
     },
     "recommendation": "AnomalyDetector should either (a) accept external USL/LSL or (b) remove Cpk output to avoid misleading users"
   },
-
   "spot_checks": [
     {
       "algorithm": "AdaptiveControllerModel",
@@ -217,7 +254,7 @@
       "algorithm": "PIDController",
       "description": "Ziegler-Nichols PID auto-tune calculation",
       "inputs": {
-        "Ku": 10.0,
+        "Ku": 10,
         "Tu": 0.5,
         "type": "PID"
       },
@@ -232,11 +269,17 @@
       "algorithm": "AnomalyDetector Cpk tautology (cross-ref from U04)",
       "description": "Numerical proof that Cpk = k/3 = 1.0 always for AnomalyDetector",
       "inputs": {
-        "data": [10, 10.5, 9.8, 11.0, 10.2],
+        "data": [
+          10,
+          10.5,
+          9.8,
+          11,
+          10.2
+        ],
         "k": 3
       },
       "manual_trace": {
-        "mean": 10.30,
+        "mean": 10.3,
         "sigma": 0.4796,
         "UCL": "10.30 + 3*0.4796 = 11.739",
         "LCL": "10.30 - 3*0.4796 = 8.861",
@@ -244,13 +287,14 @@
         "algebraic_proof": "UCL-μ = kσ, μ-LCL = kσ → Cpk = min(kσ/3σ, kσ/3σ) = k/3 = 1.0"
       },
       "comparison_with_ToleranceEngine": {
-        "nominal": 10, "tolerance": 0.5, "sigma": 0.15,
+        "nominal": 10,
+        "tolerance": 0.5,
+        "sigma": 0.15,
         "Cpk": "min(0.5/(3*0.15), 0.5/(3*0.15)) = 1.111 — varies with σ, meaningful"
       },
       "status": "VERIFIED — tautology confirmed"
     }
   ],
-
   "rubric_scores": {
     "correctness": 5,
     "completeness": 5,
@@ -259,7 +303,6 @@
     "composite": "5.00",
     "pass_fail": "PASS"
   },
-
   "exit_conditions_met": {
     "control_chart_limit_calculations_verified": true,
     "capability_indices_verified": "Cpk exists in 2 implementations: AnomalyDetector (TAUTOLOGICAL — cpk=k/3=1.0 always, documented as MINOR in U04) and ToleranceEngine (CORRECT — uses external USL/LSL). Cross-reference section added above.",

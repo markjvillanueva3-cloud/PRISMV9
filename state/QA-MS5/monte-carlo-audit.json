@@ -1,18 +1,18 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS5-P0-U03",
   "title": "Monte Carlo Simulation Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T01:00:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - Monte Carlo simulation correctly implements 4 distributions, Box-Muller, Sobol sensitivity, and confidence intervals",
-
   "implementation": {
     "file": "src/algorithms/MonteCarlo.ts",
     "class": "MonteCarlo",
     "reference": "Metropolis & Ulam (1949); Saltelli (2002)",
     "safety_class": "standard"
   },
-
   "distributions_verified": {
     "normal": {
       "method": "Box-Muller transform",
@@ -35,7 +35,6 @@
       "correct": true
     }
   },
-
   "statistics_verified": {
     "mean": "Sum/n",
     "variance": "Bessel-corrected (n-1 denominator)",
@@ -44,18 +43,14 @@
     "failure_probability": "Count(X > threshold) / n",
     "all_correct": true
   },
-
   "sensitivity_analysis": {
     "method": "First-order Sobol-like indices",
     "formula": "S_i = Cov(X_i, Y)^2 / (Var(X_i) * Var(Y))",
     "note": "This is actually squared correlation coefficient (R^2), not true Sobol first-order index. True Sobol requires A/B matrix sampling (Saltelli 2002). For linear/monotonic models this approximation is adequate.",
     "practical_impact": "Low - gives correct ranking of variable importance for typical manufacturing models"
   },
-
   "default_output_function": "Product of all variables (models MRR = speed * feed * depth)",
-
   "findings": [],
-
   "exit_conditions_met": {
     "distributions_correct": true,
     "statistics_correct": true,

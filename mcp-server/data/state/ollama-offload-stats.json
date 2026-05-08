@@ -1,13 +1,56 @@
 {
   "schemaVersion": "2.0.0",
-  "lastUpdated": "2026-04-28T00:11:42.432Z",
+  "lastUpdated": "2026-05-08T16:33:37.130Z",
   "lastReset": "2026-04-28T00:11:42.432Z",
-  "offloaded": 0,
-  "keptOnClaude": 0,
-  "estimatedTokensSaved": 0,
+  "offloaded": 2,
+  "keptOnClaude": 1,
+  "estimatedTokensSaved": 300,
   "silentSuggestions": 0,
   "injectedSuggestions": 0,
-  "byCategory": {},
-  "byHook": {},
-  "events": []
+  "byCategory": {
+    "cache-hit": 2
+  },
+  "byHook": {
+    "ollama-task-offloader": {
+      "fired": 1,
+      "offloaded": 0,
+      "kept": 1,
+      "suggested": 0,
+      "tokensSaved": 0
+    },
+    "ollama-engine-api-extractor": {
+      "fired": 2,
+      "offloaded": 2,
+      "kept": 0,
+      "suggested": 0,
+      "tokensSaved": 300
+    }
+  },
+  "events": [
+    {
+      "ts": "2026-05-08T16:24:27.380Z",
+      "hook": "ollama-task-offloader",
+      "decision": "keep",
+      "category": "complex",
+      "snippet": "add all these to the forge-audit slash command so when I tell the other chat to "
+    },
+    {
+      "ts": "2026-05-08T16:33:00.445Z",
+      "hook": "ollama-engine-api-extractor",
+      "decision": "offload",
+      "category": "cache-hit",
+      "tokensSaved": 150,
+      "mode": "cache-hit",
+      "file": "PDFProcessingPipelineEngine.ts"
+    },
+    {
+      "ts": "2026-05-08T16:33:37.130Z",
+      "hook": "ollama-engine-api-extractor",
+      "decision": "offload",
+      "category": "cache-hit",
+      "tokensSaved": 150,
+      "mode": "cache-hit",
+      "file": "PDFProcessingPipelineEngine.ts"
+    }
+  ]
 }

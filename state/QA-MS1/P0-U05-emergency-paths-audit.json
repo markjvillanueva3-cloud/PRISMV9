@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS1-P0-U05",
   "title": "Emergency Stop / Hard Block Paths End-to-End Trace",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:00:00Z",
   "status": "COMPLETE",
   "verdict": "0 CRITICAL (after F01/F02 fixes), 1 MEDIUM, 0 LOW. All 6 hard block paths verified end-to-end.",
-
   "hard_block_paths": [
     {
       "id": "HB-1",
@@ -113,7 +114,6 @@
       "verified": true
     }
   ],
-
   "non_blocking_paths_noted": [
     {
       "path": "Lambda post-calc annotation (autoHookWrapper:414-434)",
@@ -124,7 +124,6 @@
       "note": "These are mode='warning', not 'blocking'. They add warnings but never prevent output. Correct by design — these are quality advisories, not safety gates."
     }
   ],
-
   "bypass_analysis": {
     "catch_blocks_audited": [
       {
@@ -146,7 +145,6 @@
       "PRISM_SAFETY_THRESHOLD env var": "Disconnected — see F04. Cannot lower threshold via env."
     }
   },
-
   "findings": [
     {
       "id": "F18",
@@ -161,7 +159,6 @@
       "fix_applied": "QA-MS1: autoHookWrapper.ts:918 catch block now sets inputBlocked=true and logs the error."
     }
   ],
-
   "summary": {
     "hard_block_paths": 6,
     "all_verified": true,

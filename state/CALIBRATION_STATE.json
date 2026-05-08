@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "calibrationState": {
     "metadata": {
       "version": "1.0.0",
@@ -13,8 +15,8 @@
     "coefficientStatus": {
       "K-SYNERGY-WEIGHT": {
         "id": "K-SYNERGY-WEIGHT",
-        "currentValue": 0.30,
-        "uncertainty": 0.10,
+        "currentValue": 0.3,
+        "uncertainty": 0.1,
         "confidenceInterval": 0.95,
         "calibrationStatus": "UNCALIBRATED",
         "predictionCount": 0,
@@ -61,8 +63,8 @@
       },
       "K-CAP-DOMAIN-WEIGHT": {
         "id": "K-CAP-DOMAIN-WEIGHT",
-        "currentValue": 0.40,
-        "uncertainty": 0.10,
+        "currentValue": 0.4,
+        "uncertainty": 0.1,
         "confidenceInterval": 0.95,
         "calibrationStatus": "UNCALIBRATED",
         "predictionCount": 0,
@@ -78,7 +80,7 @@
       "K-CAP-OPERATION-WEIGHT": {
         "id": "K-CAP-OPERATION-WEIGHT",
         "currentValue": 0.35,
-        "uncertainty": 0.10,
+        "uncertainty": 0.1,
         "confidenceInterval": 0.95,
         "calibrationStatus": "UNCALIBRATED",
         "predictionCount": 0,
@@ -109,7 +111,7 @@
       },
       "K-COVERAGE-THRESHOLD": {
         "id": "K-COVERAGE-THRESHOLD",
-        "currentValue": 0.50,
+        "currentValue": 0.5,
         "uncertainty": 0.05,
         "confidenceInterval": 0.95,
         "calibrationStatus": "FIXED",
@@ -130,7 +132,13 @@
         "confidenceInterval": 0.95,
         "calibrationStatus": "CALIBRATED",
         "predictionCount": 45,
-        "residuals": [-0.02, 0.01, -0.01, 0.03, -0.02],
+        "residuals": [
+          -0.02,
+          0.01,
+          -0.01,
+          0.03,
+          -0.02
+        ],
         "mape": 8.5,
         "bias": -0.002,
         "r_squared": 0.85,
@@ -141,12 +149,18 @@
       },
       "K-EFFORT-001": {
         "id": "K-EFFORT-001",
-        "currentValue": 0.50,
+        "currentValue": 0.5,
         "uncertainty": 0.25,
         "confidenceInterval": 0.95,
         "calibrationStatus": "CALIBRATED",
         "predictionCount": 120,
-        "residuals": [-0.15, 0.08, -0.05, 0.12, -0.08],
+        "residuals": [
+          -0.15,
+          0.08,
+          -0.05,
+          0.12,
+          -0.08
+        ],
         "mape": 15.2,
         "bias": 0.02,
         "r_squared": 0.78,
@@ -162,7 +176,13 @@
         "confidenceInterval": 0.95,
         "calibrationStatus": "CALIBRATED",
         "predictionCount": 80,
-        "residuals": [0.001, -0.001, 0.002, -0.001, 0.001],
+        "residuals": [
+          0.001,
+          -0.001,
+          0.002,
+          -0.001,
+          0.001
+        ],
         "mape": 2.1,
         "bias": 0.0005,
         "r_squared": 0.95,
@@ -181,7 +201,7 @@
       "learningConfig": {
         "updateFrequency": "every_50_tasks",
         "minDataPoints": 5,
-        "confidenceThreshold": 0.70
+        "confidenceThreshold": 0.7
       }
     },
     "formulaStatus": {

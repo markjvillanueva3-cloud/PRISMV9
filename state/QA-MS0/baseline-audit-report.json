@@ -1,31 +1,65 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "QA-MS0-BASELINE",
   "title": "QA-MS0 Baseline Audit Report",
   "version": "1.0.0",
   "generated_at": "2026-02-27T15:30:00Z",
   "generated_by": "claude-opus-4.6",
   "milestone": "QA-MS0: Audit Framework & Baseline",
-
   "executive_summary": {
     "status": "COMPLETE — Baseline established with significant doc drift identified",
     "overall_assessment": "System is functionally sound (builds clean, 4.2MB) but documentation has drifted significantly from code reality. The primary issue is count inflation in docs vs actual underdocumentation of features.",
     "key_metrics": {
-      "dispatchers": { "doc": 45, "code": 45, "match": true },
-      "actions": { "doc": 684, "code": 1060, "delta": "+376 (55%)" },
-      "engines": { "doc": 74, "code": 169, "delta": "+95 (128%)" },
-      "algorithms": { "doc": 50, "code": 50, "match": true },
-      "hooks": { "doc": 27, "code": 157, "delta": "+130 (482%)" }
+      "dispatchers": {
+        "doc": 45,
+        "code": 45,
+        "match": true
+      },
+      "actions": {
+        "doc": 684,
+        "code": 1060,
+        "delta": "+376 (55%)"
+      },
+      "engines": {
+        "doc": 74,
+        "code": 169,
+        "delta": "+95 (128%)"
+      },
+      "algorithms": {
+        "doc": 50,
+        "code": 50,
+        "match": true
+      },
+      "hooks": {
+        "doc": 27,
+        "code": 157,
+        "delta": "+130 (482%)"
+      }
     }
   },
-
   "unit_completion": {
-    "U00_rubric": { "status": "COMPLETE", "deliverable": "state/QA-MS0/rubric.json" },
-    "U01_dispatchers_engines": { "status": "COMPLETE", "deliverable": "state/QA-MS0/inventory-dispatchers-engines.json" },
-    "U02_algorithms_registries_hooks": { "status": "COMPLETE", "deliverable": "state/QA-MS0/inventory-algorithms-registries-hooks.json" },
-    "U03_U04_cross_reference": { "status": "COMPLETE", "deliverable": "state/QA-MS0/cross-reference-discrepancies.json" },
-    "U05_baseline_report": { "status": "COMPLETE", "deliverable": "state/QA-MS0/baseline-audit-report.json (this file)" }
+    "U00_rubric": {
+      "status": "COMPLETE",
+      "deliverable": "state/QA-MS0/rubric.json"
+    },
+    "U01_dispatchers_engines": {
+      "status": "COMPLETE",
+      "deliverable": "state/QA-MS0/inventory-dispatchers-engines.json"
+    },
+    "U02_algorithms_registries_hooks": {
+      "status": "COMPLETE",
+      "deliverable": "state/QA-MS0/inventory-algorithms-registries-hooks.json"
+    },
+    "U03_U04_cross_reference": {
+      "status": "COMPLETE",
+      "deliverable": "state/QA-MS0/cross-reference-discrepancies.json"
+    },
+    "U05_baseline_report": {
+      "status": "COMPLETE",
+      "deliverable": "state/QA-MS0/baseline-audit-report.json (this file)"
+    }
   },
-
   "findings": [
     {
       "id": "F001",
@@ -125,7 +159,6 @@
       "remediation": "Fix the 10 mismatches per doc_fixes_required list."
     }
   ],
-
   "qa_rubric_baseline_scores": {
     "methodology": "Scores based on QA-MS0 rubric.json dimensions, applied to system-wide documentation accuracy",
     "correctness": {
@@ -149,15 +182,37 @@
     "composite_note": "Recalculated: 0.35*4 + 0.25*2 + 0.25*4 + 0.15*4 = 3.50. PASS threshold is 3.0.",
     "pass_fail": "CONDITIONAL PASS — completeness score of 2 is below component_pass threshold of 3. Requires doc fixes to achieve full pass."
   },
-
   "recommended_immediate_actions": [
-    { "priority": "P0", "action": "Update MASTER_INDEX.md total from 684 to 1060 actions", "effort": "5m" },
-    { "priority": "P0", "action": "Update MASTER_INDEX.md prism_intelligence entry with actual action count", "effort": "15m" },
-    { "priority": "P1", "action": "Update 9 stale dispatcher entries in MASTER_INDEX.md", "effort": "30m" },
-    { "priority": "P1", "action": "Update CLAUDE.md hook count from 27 to 157", "effort": "10m" },
-    { "priority": "P1", "action": "Add engine inventory section to MASTER_INDEX (169 engines)", "effort": "1h" },
-    { "priority": "P2", "action": "Verify prism_autopilot_d action count (doc=8, code=7)", "effort": "10m" }
+    {
+      "priority": "P0",
+      "action": "Update MASTER_INDEX.md total from 684 to 1060 actions",
+      "effort": "5m"
+    },
+    {
+      "priority": "P0",
+      "action": "Update MASTER_INDEX.md prism_intelligence entry with actual action count",
+      "effort": "15m"
+    },
+    {
+      "priority": "P1",
+      "action": "Update 9 stale dispatcher entries in MASTER_INDEX.md",
+      "effort": "30m"
+    },
+    {
+      "priority": "P1",
+      "action": "Update CLAUDE.md hook count from 27 to 157",
+      "effort": "10m"
+    },
+    {
+      "priority": "P1",
+      "action": "Add engine inventory section to MASTER_INDEX (169 engines)",
+      "effort": "1h"
+    },
+    {
+      "priority": "P2",
+      "action": "Verify prism_autopilot_d action count (doc=8, code=7)",
+      "effort": "10m"
+    }
   ],
-
   "next_milestone": "QA-MS1: Safety Chain Deep Audit — verify S(x) scoring, coolant validation, safety factor ordering, emergency stop paths"
 }

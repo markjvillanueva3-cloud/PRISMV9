@@ -1,10 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "QA-MS7-U01",
   "title": "Machine Registry Data Quality Audit",
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "PASS",
-  "scope": "MachineRegistry.ts \u00e2\u20ac\u201d ~824 coded entries, 1,015 DB_MANIFEST entries, 1,016 envelope claim",
+  "scope": "MachineRegistry.ts â€” ~824 coded entries, 1,015 DB_MANIFEST entries, 1,016 envelope claim",
   "file": "src/registries/MachineRegistry.ts",
   "lines": 1234,
   "architecture": {
@@ -22,8 +24,8 @@
     "actual_all_machines_json": "920 machine records in ALL_MACHINES.json",
     "code_core_layer": "~824 hardcoded entries",
     "envelope_claim": "1,016",
-    "reconciliation": "920 consolidated + potential ENHANCED overlays \u2248 1,016",
-    "severity": "OK \u2014 within 10% tolerance"
+    "reconciliation": "920 consolidated + potential ENHANCED overlays ≈ 1,016",
+    "severity": "OK — within 10% tolerance"
   },
   "data_quality_checks": {
     "duplicate_handling": "THROW on duplicate ID (consistent with MaterialRegistry)",
@@ -35,7 +37,7 @@
     ],
     "validation": "validateItem() checks required fields + valid machine type",
     "axis_tracking": "Machines indexed by axis count for capability queries",
-    "controller_mapping": "Controller family \u00e2\u2020\u2019 alarm lookup bridge to AlarmRegistry"
+    "controller_mapping": "Controller family â†’ alarm lookup bridge to AlarmRegistry"
   },
   "findings": [
     {
@@ -84,20 +86,20 @@
         "controller": "Haas NGC (correct)",
         "spindle_rpm_max": "8,100 RPM (correct for standard spindle)",
         "spindle_power_kW": "22.4 kW (correct for 30hp motor)",
-        "axes": "3 (X/Y/Z \u2014 correct for VF-2)",
+        "axes": "3 (X/Y/Z — correct for VF-2)",
         "work_envelope": "762 x 406 x 508 mm (correct for VF-2 travels)"
       },
-      "status": "VERIFIED \u2014 all critical fields present and correct"
+      "status": "VERIFIED — all critical fields present and correct"
     },
     {
       "test": "Manufacturer distribution analysis",
       "description": "Verify top manufacturers match global CNC market share",
       "top_5": {
-        "Haas": "132 (14% \u2014 matches US market leader position)",
-        "Mazak": "107 (12% \u2014 matches global #1/2 position)",
-        "DMG_MORI": "94 (10% \u2014 matches global #1/2 position)",
-        "Okuma": "78 (8% \u2014 matches top-5 global position)",
-        "Doosan": "65 (7% \u2014 matches top-10 global position)"
+        "Haas": "132 (14% — matches US market leader position)",
+        "Mazak": "107 (12% — matches global #1/2 position)",
+        "DMG_MORI": "94 (10% — matches global #1/2 position)",
+        "Okuma": "78 (8% — matches top-5 global position)",
+        "Doosan": "65 (7% — matches top-10 global position)"
       },
       "total_manufacturers": 48,
       "assessment": "Distribution reasonably reflects global CNC market",

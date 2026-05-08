@@ -1,10 +1,11 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "QA-MS5-U04",
   "title": "Neural Network / ML Inference Engines Audit",
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T07:20:00Z",
   "status": "PASS",
-
   "algorithms_audited": [
     {
       "name": "NeuralInference",
@@ -191,21 +192,52 @@
       "safety_class": "standard"
     }
   ],
-
   "findings": [
-    { "severity": "OK", "finding": "NeuralInference: Correct forward-pass MLP with 4 activations and sigmoid overflow protection" },
-    { "severity": "OK", "finding": "EnsemblePredictorModel: 3 fusion strategies (avg/vote/best) correctly handle 7 problem types" },
-    { "severity": "OK", "finding": "DecisionTreeClassifier: CART with Gini/entropy, feature importance, and configurable depth" },
-    { "severity": "OK", "finding": "ClusteringEngine: K-Means++ initialization + elbow method + silhouette scoring — complete pipeline" },
-    { "severity": "OK", "finding": "TimeSeriesPredictor: Holt double exponential smoothing with correct level/trend update equations" },
-    { "severity": "OK", "finding": "AnomalyDetector: All 4 Western Electric rules + Nelson Rule 5 correctly implemented with deduplication" },
-    { "severity": "OK", "finding": "All 6 algorithms implement Algorithm<I,O> interface consistently" },
-    { "severity": "INFO", "finding": "NeuralInference is inference-only (no training). Weights must be pre-trained externally — appropriate for embedded manufacturing use." },
-    { "severity": "MINOR", "finding": "AnomalyDetector Cpk is TAUTOLOGICAL: cpk = min((UCL-μ)/(3σ), (μ-LCL)/(3σ)) where UCL=μ+kσ, LCL=μ-kσ → cpk = min(kσ/3σ, kσ/3σ) = k/3 = 1.0 always for default k=3. This output is mathematically meaningless — it cannot distinguish capable from incapable processes. Compare ToleranceEngine.calculateCpk() which correctly uses external USL/LSL." },
-    { "severity": "MINOR", "finding": "NeuralInference has no input normalization or output denormalization. Users must pre-normalize features externally. Manufacturing sensor data varies widely in scale." },
-    { "severity": "MINOR", "finding": "NeuralInference confidence for single linear output defaults to 1.0 — no uncertainty quantification for regression-style predictions." }
+    {
+      "severity": "OK",
+      "finding": "NeuralInference: Correct forward-pass MLP with 4 activations and sigmoid overflow protection"
+    },
+    {
+      "severity": "OK",
+      "finding": "EnsemblePredictorModel: 3 fusion strategies (avg/vote/best) correctly handle 7 problem types"
+    },
+    {
+      "severity": "OK",
+      "finding": "DecisionTreeClassifier: CART with Gini/entropy, feature importance, and configurable depth"
+    },
+    {
+      "severity": "OK",
+      "finding": "ClusteringEngine: K-Means++ initialization + elbow method + silhouette scoring — complete pipeline"
+    },
+    {
+      "severity": "OK",
+      "finding": "TimeSeriesPredictor: Holt double exponential smoothing with correct level/trend update equations"
+    },
+    {
+      "severity": "OK",
+      "finding": "AnomalyDetector: All 4 Western Electric rules + Nelson Rule 5 correctly implemented with deduplication"
+    },
+    {
+      "severity": "OK",
+      "finding": "All 6 algorithms implement Algorithm<I,O> interface consistently"
+    },
+    {
+      "severity": "INFO",
+      "finding": "NeuralInference is inference-only (no training). Weights must be pre-trained externally — appropriate for embedded manufacturing use."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "AnomalyDetector Cpk is TAUTOLOGICAL: cpk = min((UCL-μ)/(3σ), (μ-LCL)/(3σ)) where UCL=μ+kσ, LCL=μ-kσ → cpk = min(kσ/3σ, kσ/3σ) = k/3 = 1.0 always for default k=3. This output is mathematically meaningless — it cannot distinguish capable from incapable processes. Compare ToleranceEngine.calculateCpk() which correctly uses external USL/LSL."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "NeuralInference has no input normalization or output denormalization. Users must pre-normalize features externally. Manufacturing sensor data varies widely in scale."
+    },
+    {
+      "severity": "MINOR",
+      "finding": "NeuralInference confidence for single linear output defaults to 1.0 — no uncertainty quantification for regression-style predictions."
+    }
   ],
-
   "rubric_scores": {
     "correctness": 5,
     "completeness": 4,
@@ -214,24 +246,44 @@
     "composite": "0.35*5 + 0.25*4 + 0.25*5 + 0.15*5 = 1.75 + 1.00 + 1.25 + 0.75 = 4.75",
     "pass_fail": "PASS"
   },
-
   "spot_checks": [
     {
       "algorithm": "NeuralInference",
       "description": "Forward pass through 2-input → 2-hidden (ReLU) → 1-output (linear) network",
       "inputs": {
-        "layer_sizes": [2, 2, 1],
-        "features": [1.0, 0.5],
-        "weights": [0.5, -0.3, 0.2, 0.8, 1.0, -0.5],
-        "biases": [0.1, -0.1, 0.0],
-        "activations": ["relu", "linear"]
+        "layer_sizes": [
+          2,
+          2,
+          1
+        ],
+        "features": [
+          1,
+          0.5
+        ],
+        "weights": [
+          0.5,
+          -0.3,
+          0.2,
+          0.8,
+          1,
+          -0.5
+        ],
+        "biases": [
+          0.1,
+          -0.1,
+          0
+        ],
+        "activations": [
+          "relu",
+          "linear"
+        ]
       },
       "manual_trace": {
         "hidden_neuron_0": "bias[0] + w[0]*x[0] + w[1]*x[1] = 0.1 + 0.5*1.0 + (-0.3)*0.5 = 0.45 → ReLU → 0.45",
         "hidden_neuron_1": "bias[1] + w[2]*x[0] + w[3]*x[1] = -0.1 + 0.2*1.0 + 0.8*0.5 = 0.50 → ReLU → 0.50",
         "output_neuron_0": "bias[2] + w[4]*h[0] + w[5]*h[1] = 0.0 + 1.0*0.45 + (-0.5)*0.50 = 0.20 → linear → 0.20",
-        "expected_prediction": 0.20,
-        "expected_confidence": 1.0,
+        "expected_prediction": 0.2,
+        "expected_confidence": 1,
         "confidence_note": "Single linear output → defaults to 1.0 (no sigmoid/softmax uncertainty)"
       },
       "status": "VERIFIED"
@@ -240,11 +292,17 @@
       "algorithm": "AnomalyDetector",
       "description": "Cpk tautology proof with numerical example",
       "inputs": {
-        "data": [10, 10.5, 9.8, 11.0, 10.2],
+        "data": [
+          10,
+          10.5,
+          9.8,
+          11,
+          10.2
+        ],
         "k": 3
       },
       "manual_trace": {
-        "mean": 10.30,
+        "mean": 10.3,
         "sigma": "sqrt(((10-10.3)^2 + (10.5-10.3)^2 + (9.8-10.3)^2 + (11-10.3)^2 + (10.2-10.3)^2) / 4) = sqrt(0.92/4) = 0.4796",
         "UCL": "10.30 + 3*0.4796 = 11.739",
         "LCL": "10.30 - 3*0.4796 = 8.861",
@@ -266,7 +324,6 @@
       "status": "VERIFIED — tautology confirmed"
     }
   ],
-
   "exit_conditions_met": {
     "network_architecture_verification": true,
     "weight_loading_and_inference_pipeline_verified": true,

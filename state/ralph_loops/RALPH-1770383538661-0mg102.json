@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "RALPH-1770383538661-0mg102",
   "target": "Registry Bootstrap Wiring in dist/index.js registerTools() function.\n\nTHE ACTUAL CODE ADDED (11 lines):\n```javascript\n  // Session 43+: Bootstrap full formula (490) and machine (824) registries from data files\n  try {\n    const { bootstrapRegistries } = require(\"./tools/registryBootstrapper.js\");\n    const bootstrapReport = await bootstrapRegistries({\n      formulaRegistry: registryManager2.formulas,\n      machineRegistry: registryManager2.machines\n    });\n    log.info(`[BOOTSTRAP] Formulas: ${b...",
   "target_type": "code",

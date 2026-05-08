@@ -1,34 +1,56 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS6-P0-U00",
   "title": "prism_intelligence Action Inventory",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T02:00:00Z",
   "status": "COMPLETE",
   "verdict": "250 actions verified (documented as 238 -- delta of 12 from post-count additions)",
-
   "file": "src/tools/dispatchers/intelligenceDispatcher.ts",
   "line_count": 1227,
   "documented_action_count": 238,
   "actual_action_count": 250,
   "delta_explanation": "12 actions added after QA-MS0 inventory: 4 L3_INDUSTRY (tool_crib_status, digital_twin_state, predictive_maintenance_alert, energy_report) + 8 from late ACNC/Shop additions",
-
   "lazy_loaded_engines": 32,
   "engine_list": [
-    "IntelligenceEngine", "JobLearningEngine", "AlgorithmGatewayEngine", "ShopSchedulerEngine",
-    "IntentDecompositionEngine", "ResponseFormatterEngine", "WorkflowChainsEngine", "OnboardingEngine",
-    "SetupSheetEngine", "ConversationalMemoryEngine", "UserWorkflowSkillsEngine", "UserAssistanceSkillsEngine",
-    "MachineConnectivityEngine", "CAMIntegrationEngine", "DNCTransferEngine", "MobileInterfaceEngine",
-    "ERPIntegrationEngine", "MeasurementIntegrationEngine", "InverseSolverEngine", "FailureForensicsEngine",
-    "ApprenticeEngine", "ManufacturingGenomeEngine", "PredictiveMaintenanceEngine", "SustainabilityEngine",
-    "GenerativeProcessEngine", "KnowledgeGraphEngine", "FederatedLearningEngine", "AdaptiveControlEngine",
-    "ProductEngine(SFC)", "ProductEngine(PPG)", "ProductEngine(Shop)", "ProductEngine(ACNC)"
+    "IntelligenceEngine",
+    "JobLearningEngine",
+    "AlgorithmGatewayEngine",
+    "ShopSchedulerEngine",
+    "IntentDecompositionEngine",
+    "ResponseFormatterEngine",
+    "WorkflowChainsEngine",
+    "OnboardingEngine",
+    "SetupSheetEngine",
+    "ConversationalMemoryEngine",
+    "UserWorkflowSkillsEngine",
+    "UserAssistanceSkillsEngine",
+    "MachineConnectivityEngine",
+    "CAMIntegrationEngine",
+    "DNCTransferEngine",
+    "MobileInterfaceEngine",
+    "ERPIntegrationEngine",
+    "MeasurementIntegrationEngine",
+    "InverseSolverEngine",
+    "FailureForensicsEngine",
+    "ApprenticeEngine",
+    "ManufacturingGenomeEngine",
+    "PredictiveMaintenanceEngine",
+    "SustainabilityEngine",
+    "GenerativeProcessEngine",
+    "KnowledgeGraphEngine",
+    "FederatedLearningEngine",
+    "AdaptiveControlEngine",
+    "ProductEngine(SFC)",
+    "ProductEngine(PPG)",
+    "ProductEngine(Shop)",
+    "ProductEngine(ACNC)"
   ],
-
   "routing_pattern": "Cascading ternary: action-group arrays checked with .includes(), fallthrough to IntelligenceEngine",
   "hook_integration": "pre-calculation + post-calculation hooks via hookExecutor",
   "response_slimming": "Context-pressure-aware slimming + response_level parameter",
   "key_value_extraction": "intelligenceExtractKeyValues() covers all 250 actions with per-action field mapping",
-
   "findings": [
     {
       "id": "F40",
@@ -41,7 +63,6 @@
       "fix": "Update constants.ts and documentation to reflect 250 actions"
     }
   ],
-
   "exit_conditions_met": {
     "complete_action_list": true,
     "exact_count_verified": true,

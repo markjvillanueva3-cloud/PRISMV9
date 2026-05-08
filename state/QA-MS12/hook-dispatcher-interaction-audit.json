@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS12-P0-U04",
   "title": "Hook-to-Dispatcher Interaction Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T08:10:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - Hook-dispatcher interaction is well-layered: autoHookWrapper provides universal proxy wrapping (layer 1), HookExecutor provides phase-driven enforcement (layer 2), HookEngine provides event-driven cognitive hooks (layer 3), hookBridge routes cognitive hooks to Python/TS (layer 4). No circular dependencies detected.",
-
   "interaction_matrix": {
     "layer_1_auto_hook_proxy": {
       "component": "autoHookWrapper.ts (2621 lines)",
@@ -52,7 +53,6 @@
       "fallback": "emulateInTypescript() provides pattern-based responses when Python unavailable"
     }
   },
-
   "circular_dependency_check": {
     "result": "NO CIRCULAR DEPENDENCIES",
     "analysis": {
@@ -63,7 +63,6 @@
       "dispatchers_to_hooks": "One-way: Dispatchers fire hooks via hookExecutor.execute(). Hooks may modify data but never directly call dispatchers."
     }
   },
-
   "ordering_analysis": {
     "hook_priority_system": {
       "HookExecutor": "PRIORITY_VALUES map: critical=0, high=1, normal=2, low=3 (lower = runs first)",
@@ -80,14 +79,12 @@
       "7. autoHookWrapper post-execution cadences (telemetry, error learn, anti-regression, etc.)"
     ]
   },
-
   "data_flow": {
     "pre_execution": "autoHookWrapper builds cadence context → fires HookExecutor phases → passes enriched context to dispatcher",
     "post_execution": "Dispatcher result → HookExecutor post-phases → autoHookWrapper cadences → response slimming → return to MCP client",
     "error_path": "Exception → autoHookWrapper catches → fires REFL-002 → autoErrorLearn → autoD3ErrorChain → returns error response",
     "blocking_behavior": "HookExecutor mode=blocking can halt execution. autoHookWrapper Λ(x) < 0.5 blocks calc tools. hookBridge S(x) < 0.70 blocks cognitive hooks."
   },
-
   "findings": [],
   "exit_conditions_met": {
     "interaction_matrix_documented": true,

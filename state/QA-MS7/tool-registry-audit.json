@@ -1,10 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "QA-MS7-U02",
   "title": "Tool Registry Data Quality Audit",
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "CONDITIONAL PASS",
-  "scope": "ToolRegistry.ts \u00e2\u20ac\u201d ~500+ coded entries, 13,967 DB_MANIFEST entries",
+  "scope": "ToolRegistry.ts â€” ~500+ coded entries, 13,967 DB_MANIFEST entries",
   "file": "src/registries/ToolRegistry.ts",
   "lines": 1112,
   "architecture": {
@@ -25,10 +27,10 @@
     "dedup_estimate": "~13,967 unique (CUTTING_TOOLS_INDEX.json has 1,944 duplicates from 6 category files)",
     "code_core_layer": "~500+ hardcoded entries",
     "envelope_claim": "13,967 (matches deduplicated count)",
-    "severity": "OK \u2014 envelope matches unique count"
+    "severity": "OK — envelope matches unique count"
   },
   "data_quality_checks": {
-    "duplicate_handling": "SKIP silently on duplicate ID \u00e2\u20ac\u201d INCONSISTENT with Material/Machine (which THROW)",
+    "duplicate_handling": "SKIP silently on duplicate ID â€” INCONSISTENT with Material/Machine (which THROW)",
     "required_fields": [
       "id",
       "name",
@@ -54,11 +56,11 @@
     },
     {
       "severity": "MAJOR",
-      "finding": "Duplicate ID handling is SKIP (silent) \u00e2\u20ac\u201d inconsistent with Material/Machine registries which THROW. Could mask data corruption."
+      "finding": "Duplicate ID handling is SKIP (silent) â€” inconsistent with Material/Machine registries which THROW. Could mask data corruption."
     },
     {
       "severity": "MINOR",
-      "finding": "13,967 DB entries vs 500+ CORE \u00e2\u20ac\u201d large ENHANCED layer may cause slow initial load"
+      "finding": "13,967 DB entries vs 500+ CORE â€” large ENHANCED layer may cause slow initial load"
     },
     {
       "severity": "INFO",
@@ -88,13 +90,13 @@
       "test": "Duplicate ID behavior verification",
       "description": "Confirm ToolRegistry silently skips duplicate IDs (unlike Material/Machine which THROW)",
       "evidence": {
-        "tool_registry_line": "loadAlarmFile uses Map.set() \u2014 overwrites on duplicate ID",
+        "tool_registry_line": "loadAlarmFile uses Map.set() — overwrites on duplicate ID",
         "material_registry": "THROW on duplicate ID",
         "machine_registry": "THROW on duplicate ID",
         "inconsistency": "ToolRegistry overwrites silently while others throw"
       },
-      "impact": "CUTTING_TOOLS_INDEX.json (1,944 entries) is fully redundant \u2014 all entries exist in category files. Silent overwrite means no data loss but masks the redundancy.",
-      "status": "VERIFIED \u2014 MAJOR finding confirmed"
+      "impact": "CUTTING_TOOLS_INDEX.json (1,944 entries) is fully redundant — all entries exist in category files. Silent overwrite means no data loss but masks the redundancy.",
+      "status": "VERIFIED — MAJOR finding confirmed"
     },
     {
       "test": "Top file contribution analysis",

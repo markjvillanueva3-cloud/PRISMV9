@@ -1,48 +1,134 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "identity": {
-    "name": { "value": "PRISM Manufacturing Intelligence", "timestamp": "2026-04-12T04:15:00Z" },
-    "purpose": { "value": "Safety-critical CNC manufacturing control system. Mathematical errors cause tool explosions, machine crashes, operator injuries.", "timestamp": "2026-04-12T04:15:00Z" },
-    "products": { "value": "Speed & Feed Calculator (SFC), Post Processor Generator (PPG), Shop Manager/Quoting, Auto CNC Programmer (ACNC)", "timestamp": "2026-04-12T04:15:00Z" },
-    "safety_principle": { "value": "NO shortcuts, NO placeholders, NO approximations. Mathematical certainty with uncertainty bounds. Lives depend on correctness.", "timestamp": "2026-04-12T04:15:00Z" }
+    "name": {
+      "value": "PRISM Manufacturing Intelligence",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "purpose": {
+      "value": "Safety-critical CNC manufacturing control system. Mathematical errors cause tool explosions, machine crashes, operator injuries.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "products": {
+      "value": "Speed & Feed Calculator (SFC), Post Processor Generator (PPG), Shop Manager/Quoting, Auto CNC Programmer (ACNC)",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "safety_principle": {
+      "value": "NO shortcuts, NO placeholders, NO approximations. Mathematical certainty with uncertainty bounds. Lives depend on correctness.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "architecture": {
-    "mcp_server": { "value": "H:\\prism\\mcp-server\\ — 82 dispatchers, 2700+ actions, 1455 engines, esbuild (NEVER tsc — OOM). See MASTER_INDEX.md.", "timestamp": "2026-04-12T04:15:00Z" },
-    "state_dir": { "value": "H:\\prism\\state\\ — CURRENT_STATE.json, SESSION_MEMORY.json, CURRENT_POSITION.md", "timestamp": "2026-04-12T04:15:00Z" },
-    "roadmap": { "value": "PRISM-UNIFIED-ROADMAP-v2.md — 532 milestones, 3065 units. roadmap-index.json is task queue.", "timestamp": "2026-04-12T04:15:00Z" },
-    "system": { "value": "DESKTOP-N7MI1VB, Windows 11", "timestamp": "2026-04-12T04:15:00Z" },
-    "build": { "value": "npm run build:fast (esbuild) → dist/index.js ~62MB. Restart Claude app to load.", "timestamp": "2026-04-12T04:15:00Z" }
+    "mcp_server": {
+      "value": "H:\\prism\\mcp-server\\ — 82 dispatchers, 2700+ actions, 1455 engines, esbuild (NEVER tsc — OOM). See MASTER_INDEX.md.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "state_dir": {
+      "value": "H:\\prism\\state\\ — CURRENT_STATE.json, SESSION_MEMORY.json, CURRENT_POSITION.md",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "roadmap": {
+      "value": "PRISM-UNIFIED-ROADMAP-v2.md — 532 milestones, 3065 units. roadmap-index.json is task queue.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "system": {
+      "value": "DESKTOP-N7MI1VB, Windows 11",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "build": {
+      "value": "npm run build:fast (esbuild) → dist/index.js ~62MB. Restart Claude app to load.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "roadmap": {
-    "current_phase": { "value": "WEDM-HARDEN-MS0 — WEDM Hardening — 20-Agent Scrutiny Remediation", "timestamp": "2026-04-12T04:15:00Z" },
-    "milestones": { "value": "532 total, 123 complete, 10 in-progress, 399 not-started", "timestamp": "2026-04-12T04:15:00Z" },
-    "units": { "value": "3065 units, 708 complete, 4 in-progress, 2353 not-started", "timestamp": "2026-04-12T04:15:00Z" },
-    "omega_target": { "value": "1.0 — full Omega for ALL milestones", "timestamp": "2026-04-12T04:15:00Z" }
+    "current_phase": {
+      "value": "WEDM-HARDEN-MS0 — WEDM Hardening — 20-Agent Scrutiny Remediation",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "milestones": {
+      "value": "532 total, 123 complete, 10 in-progress, 399 not-started",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "units": {
+      "value": "3065 units, 708 complete, 4 in-progress, 2353 not-started",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "omega_target": {
+      "value": "1.0 — full Omega for ALL milestones",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "decisions": {
-    "esbuild_not_tsc": { "value": "tsc causes OOM. Always use npm run build:fast (esbuild). Verified multiple times.", "timestamp": "2026-04-12T04:15:00Z" },
-    "mcp_first": { "value": "Use prism_* dispatchers before Desktop Commander or bash for efficiency.", "timestamp": "2026-04-12T04:15:00Z" },
-    "claim_before_work": { "value": "Claim milestones via roadmap_claim before starting work to prevent collision.", "timestamp": "2026-04-12T04:15:00Z" },
-    "no_regression": { "value": "New >= Old always. Any update must maintain or exceed previous functionality.", "timestamp": "2026-04-12T04:15:00Z" }
+    "esbuild_not_tsc": {
+      "value": "tsc causes OOM. Always use npm run build:fast (esbuild). Verified multiple times.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "mcp_first": {
+      "value": "Use prism_* dispatchers before Desktop Commander or bash for efficiency.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "claim_before_work": {
+      "value": "Claim milestones via roadmap_claim before starting work to prevent collision.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "no_regression": {
+      "value": "New >= Old always. Any update must maintain or exceed previous functionality.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "patterns": {
-    "compaction_survival": { "value": "PreCompact writes handoff + RESUME. SessionStart reads .compaction-survival.md + per-agent handoff.", "timestamp": "2026-04-12T04:15:00Z" },
-    "multi_terminal": { "value": "Each terminal claims different milestones. Check AGENT_COORDINATION_STATUS.md for active agents.", "timestamp": "2026-04-12T04:15:00Z" },
-    "build_sequence": { "value": "npm run build:fast → verify output → Restart Claude app to load.", "timestamp": "2026-04-12T04:15:00Z" }
+    "compaction_survival": {
+      "value": "PreCompact writes handoff + RESUME. SessionStart reads .compaction-survival.md + per-agent handoff.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "multi_terminal": {
+      "value": "Each terminal claims different milestones. Check AGENT_COORDINATION_STATUS.md for active agents.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "build_sequence": {
+      "value": "npm run build:fast → verify output → Restart Claude app to load.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "data_stats": {
-    "materials": { "value": "6,372 entries across 7 ISO groups in data/materials/.", "timestamp": "2026-04-12T04:15:00Z" },
-    "machines": { "value": "910 across multiple layers in extracted/machines/.", "timestamp": "2026-04-12T04:15:00Z" },
-    "tools": { "value": "95,608 entries (wired 40%) in data/tools/.", "timestamp": "2026-04-12T04:15:00Z" },
-    "formulas": { "value": "499 total from FORMULA_REGISTRY.json.", "timestamp": "2026-04-12T04:15:00Z" },
-    "tribal_tips": { "value": "4,493 tips (30% wired).", "timestamp": "2026-04-12T04:15:00Z" }
+    "materials": {
+      "value": "6,372 entries across 7 ISO groups in data/materials/.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "machines": {
+      "value": "910 across multiple layers in extracted/machines/.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "tools": {
+      "value": "95,608 entries (wired 40%) in data/tools/.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "formulas": {
+      "value": "499 total from FORMULA_REGISTRY.json.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    },
+    "tribal_tips": {
+      "value": "4,493 tips (30% wired).",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "engines": {
-    "total": { "value": "1,455 engines in src/engines/. All wired via dispatchers.", "timestamp": "2026-04-12T04:15:00Z" }
+    "total": {
+      "value": "1,455 engines in src/engines/. All wired via dispatchers.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "tests": {
-    "vitest": { "value": "1,255 tests. Run via npx vitest run.", "timestamp": "2026-04-12T04:15:00Z" }
+    "vitest": {
+      "value": "1,255 tests. Run via npx vitest run.",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   },
   "svi": {
-    "current": { "value": "SVI = 6.0 × 10^45, Ψ = 97.7%, trend = stable", "timestamp": "2026-04-12T04:15:00Z" }
+    "current": {
+      "value": "SVI = 6.0 × 10^45, Ψ = 97.7%, trend = stable",
+      "timestamp": "2026-04-12T04:15:00Z"
+    }
   }
 }

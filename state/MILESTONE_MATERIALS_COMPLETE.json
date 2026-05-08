@@ -1,8 +1,9 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "milestone": "MATERIALS_DATABASE_COMPLETE",
   "completedAt": "2026-01-27T22:45:00Z",
   "version": "13.2.0",
-  
   "summary": {
     "achievement": "Complete 127-parameter materials database with 100% unique numeric values",
     "materials": 2805,
@@ -11,15 +12,19 @@
     "numericUniqueness": "100%",
     "fingerprintUniqueness": "100%"
   },
-  
   "specifications": {
     "isoGroups": 7,
     "materialTypes": 19,
     "numericParameters": 107,
     "categoricalParameters": 20,
-    "conditionalNullParams": ["rockwell_c/b", "taylor.cbn", "taylor.ceramic", "phase_transformation_temp", "segmentation_frequency"]
+    "conditionalNullParams": [
+      "rockwell_c/b",
+      "taylor.cbn",
+      "taylor.ceramic",
+      "phase_transformation_temp",
+      "segmentation_frequency"
+    ]
   },
-  
   "parameterCategories": {
     "physical": 15,
     "mechanical": 19,
@@ -35,13 +40,11 @@
     "process_specific": 4,
     "identification": 3
   },
-  
   "keyScripts": {
     "generator": "H:\\prism\\scripts\\materials_127_v5.py",
     "verifier": "H:\\prism\\scripts\\materials_verify_127.py",
     "deduplicator": "H:\\prism\\scripts\\materials_100pct_unique.py"
   },
-  
   "transformation": {
     "originalMaterials": 3518,
     "afterDeduplication": 2805,
@@ -49,7 +52,6 @@
     "parameterExpansion": "47 → 127",
     "uniquenessImprovement": "0-75% → 100%"
   },
-  
   "qualityMetrics": {
     "allNumericParams100Unique": true,
     "zeroMissingCoreParams": true,
@@ -57,10 +59,17 @@
     "deterministicHashSeeding": true,
     "crossMaterialUniqueness": true
   },
-  
   "nextPhase": {
     "name": "TOOLS_DATABASE_EXPANSION",
     "target": "5,000+ tools with 85-parameter schema",
-    "categories": ["end_mills", "drills", "taps", "inserts", "tool_holders", "reamers", "boring_bars"]
+    "categories": [
+      "end_mills",
+      "drills",
+      "taps",
+      "inserts",
+      "tool_holders",
+      "reamers",
+      "boring_bars"
+    ]
   }
 }

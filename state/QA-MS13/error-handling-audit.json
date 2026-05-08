@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS13-P0-U03",
   "title": "Error Handling Patterns Consistency Review",
   "auditor": "claude-opus-4.6",
@@ -42,5 +44,10 @@
     "cadence_silent_by_design": "109 catch blocks in cadenceExecutor are intentionally silent (log.debug only) — this is correct for non-critical cadence functions"
   },
   "findings": [],
-  "exit_conditions_met": { "patterns_cataloged": true, "inconsistencies_identified": true, "silent_failures_identified": true, "error_propagation_verified": true }
+  "exit_conditions_met": {
+    "patterns_cataloged": true,
+    "inconsistencies_identified": true,
+    "silent_failures_identified": true,
+    "error_propagation_verified": true
+  }
 }

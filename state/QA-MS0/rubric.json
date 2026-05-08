@@ -1,21 +1,22 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "id": "QA-RUBRIC-v1",
   "version": "1.0.0",
   "created_at": "2026-02-27T12:00:00Z",
   "created_by": "claude-opus-4.6",
   "description": "QA Audit Scoring Rubric — 4-dimension framework for evaluating PRISM system components",
-
   "dimensions": {
     "correctness": {
       "weight": 0.35,
       "description": "Mathematical/logical accuracy of implementations vs specifications",
       "scoring": {
-        "5": "Formula matches reference exactly, all edge cases handled, unit conversions correct",
-        "4": "Formula correct, minor edge cases missing, units correct",
-        "3": "Formula mostly correct, some parameter validation gaps",
-        "2": "Formula has errors or missing terms, significant edge case gaps",
+        "0": "Not implemented or completely broken",
         "1": "Fundamental errors in formula or logic, incorrect results",
-        "0": "Not implemented or completely broken"
+        "2": "Formula has errors or missing terms, significant edge case gaps",
+        "3": "Formula mostly correct, some parameter validation gaps",
+        "4": "Formula correct, minor edge cases missing, units correct",
+        "5": "Formula matches reference exactly, all edge cases handled, unit conversions correct"
       },
       "checks": [
         "Formula matches theoretical reference",
@@ -30,12 +31,12 @@
       "weight": 0.25,
       "description": "Coverage of declared functionality — actions wired, methods implemented, features accessible",
       "scoring": {
-        "5": "100% of declared actions/methods implemented and wired, all documented features accessible",
-        "4": "90-99% coverage, minor gaps are intentional placeholders",
-        "3": "75-89% coverage, some unwired actions or stub methods",
-        "2": "50-74% coverage, significant wiring gaps",
+        "0": "<25% coverage, component is mostly placeholder",
         "1": "25-49% coverage, most actions are stubs or unwired",
-        "0": "<25% coverage, component is mostly placeholder"
+        "2": "50-74% coverage, significant wiring gaps",
+        "3": "75-89% coverage, some unwired actions or stub methods",
+        "4": "90-99% coverage, minor gaps are intentional placeholders",
+        "5": "100% of declared actions/methods implemented and wired, all documented features accessible"
       },
       "checks": [
         "Dispatcher actions map to engine methods",
@@ -50,12 +51,12 @@
       "weight": 0.25,
       "description": "Safety mechanisms, validation guards, and protective measures",
       "scoring": {
-        "5": "All safety checks present, hard blocks enforced, factor ordering correct, emergency paths traced",
-        "4": "Safety checks present, minor gap in edge case coverage",
-        "3": "Core safety checks present, some missing validation paths",
-        "2": "Safety checks partially implemented, bypass paths exist",
+        "0": "No safety mechanisms",
         "1": "Minimal safety checks, critical paths unprotected",
-        "0": "No safety mechanisms"
+        "2": "Safety checks partially implemented, bypass paths exist",
+        "3": "Core safety checks present, some missing validation paths",
+        "4": "Safety checks present, minor gap in edge case coverage",
+        "5": "All safety checks present, hard blocks enforced, factor ordering correct, emergency paths traced"
       },
       "checks": [
         "S(x) scoring enforced with hard block <0.70",
@@ -71,12 +72,12 @@
       "weight": 0.15,
       "description": "Efficiency, caching, resource usage, and scalability",
       "scoring": {
-        "5": "Optimal algorithms, effective caching, minimal memory footprint, no bottlenecks",
-        "4": "Good performance, caching present, minor optimization opportunities",
-        "3": "Acceptable performance, some caching, no critical bottlenecks",
-        "2": "Performance issues, missing caching, noticeable delays",
+        "0": "Unusable performance, timeouts, or memory exhaustion",
         "1": "Significant performance problems, excessive resource usage",
-        "0": "Unusable performance, timeouts, or memory exhaustion"
+        "2": "Performance issues, missing caching, noticeable delays",
+        "3": "Acceptable performance, some caching, no critical bottlenecks",
+        "4": "Good performance, caching present, minor optimization opportunities",
+        "5": "Optimal algorithms, effective caching, minimal memory footprint, no bottlenecks"
       },
       "checks": [
         "Registry loader uses TTL caching",
@@ -88,7 +89,6 @@
       ]
     }
   },
-
   "severity_levels": {
     "CRITICAL": {
       "threshold": "score < 2 in correctness OR safety",
@@ -115,7 +115,6 @@
       "remediation_priority": "P3"
     }
   },
-
   "pass_fail_thresholds": {
     "component_pass": {
       "correctness": ">= 3",
@@ -129,17 +128,31 @@
       "safety_floor": ">= 3 for all safety-critical components"
     }
   },
-
   "composite_score_formula": "Ω_QA = 0.35*correctness + 0.25*completeness + 0.25*safety + 0.15*performance",
-
   "gap_category_mapping": {
-    "correctness_gaps": ["underspecified_steps", "missing_tests"],
-    "completeness_gaps": ["missing_tools", "missing_deps", "orphaned_deliverables", "missing_skills"],
-    "safety_gaps": ["missing_rollback", "missing_exit_conditions"],
-    "performance_gaps": ["effort_mismatch", "sequence_errors"],
-    "cross_cutting": ["role_mismatch", "missing_indexing"]
+    "correctness_gaps": [
+      "underspecified_steps",
+      "missing_tests"
+    ],
+    "completeness_gaps": [
+      "missing_tools",
+      "missing_deps",
+      "orphaned_deliverables",
+      "missing_skills"
+    ],
+    "safety_gaps": [
+      "missing_rollback",
+      "missing_exit_conditions"
+    ],
+    "performance_gaps": [
+      "effort_mismatch",
+      "sequence_errors"
+    ],
+    "cross_cutting": [
+      "role_mismatch",
+      "missing_indexing"
+    ]
   },
-
   "audit_procedure": {
     "per_component": [
       "1. Read source code for the component under audit",

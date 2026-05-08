@@ -1,11 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS4-P0-U03",
   "title": "Chip Formation / Chip Thickness Models Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T00:10:00Z",
   "status": "COMPLETE",
   "verdict": "PASS - Chip thickness models correctly implemented across 3 modules",
-
   "implementations_found": {
     "ChipBreakingModel": {
       "file": "src/algorithms/ChipBreakingModel.ts",
@@ -43,7 +44,6 @@
       "correct": true
     }
   },
-
   "chip_thickness_verification": {
     "turning_single_point": {
       "formula": "h = f * sin(kappa_r)",
@@ -67,17 +67,20 @@
       "reasonable": true
     }
   },
-
   "chip_classification": {
     "scheme": "ISO 3685:1993 chip form codes",
-    "types_implemented": ["broken", "segmented", "continuous", "stringy", "snarled"],
+    "types_implemented": [
+      "broken",
+      "segmented",
+      "continuous",
+      "stringy",
+      "snarled"
+    ],
     "form_codes": "1-8 mapped by material group + geometry",
     "bue_risk_assessment": "Speed-range based per ISO group",
     "comprehensive": true
   },
-
   "findings": [],
-
   "exit_conditions_met": {
     "chip_thickness_model_verified": true,
     "chip_compression_ratio_verified": true,

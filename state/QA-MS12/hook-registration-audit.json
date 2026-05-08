@@ -1,4 +1,6 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS12-P0-U00",
   "title": "Hook Registration System: 112 Hooks Inventory vs Code",
   "auditor": "claude-opus-4.6",
@@ -15,14 +17,40 @@
   "cognitive_hooks": {
     "count": 18,
     "registration_file": "src/hooks/hookBridge.ts (612 lines)",
-    "hook_ids": ["BAYES-001","BAYES-002","BAYES-003","OPT-001","OPT-002","OPT-003","CTX-001","CTX-002","CTX-003","RL-001","RL-002","RL-003","GRAD-001","GRAD-002","GRAD-003","RES-001","RES-002","RES-003"],
+    "hook_ids": [
+      "BAYES-001",
+      "BAYES-002",
+      "BAYES-003",
+      "OPT-001",
+      "OPT-002",
+      "OPT-003",
+      "CTX-001",
+      "CTX-002",
+      "CTX-003",
+      "RL-001",
+      "RL-002",
+      "RL-003",
+      "GRAD-001",
+      "GRAD-002",
+      "GRAD-003",
+      "RES-001",
+      "RES-002",
+      "RES-003"
+    ],
     "routing": "COGNITIVE_PREFIXES routes to Python server (localhost:8765), falls back to TypeScript emulation",
     "safety_gate": "S(x) < 0.70 blocks cognitive hook execution"
   },
   "builtin_hooks": {
     "count": 6,
     "engine": "HookEngine (src/engines/HookEngine.ts)",
-    "hooks": ["BAYES-001 (Prior Init)","BAYES-002 (Change Detection)","OPT-001 (Parameter Optimization)","MULTI-001 (Pareto Analysis)","SAFETY-001 (Safety Validation)","LOG-001 (Execution Logger)"]
+    "hooks": [
+      "BAYES-001 (Prior Init)",
+      "BAYES-002 (Change Detection)",
+      "OPT-001 (Parameter Optimization)",
+      "MULTI-001 (Pareto Analysis)",
+      "SAFETY-001 (Safety Validation)",
+      "LOG-001 (Execution Logger)"
+    ]
   },
   "reconciliation": {
     "claimed": 112,
@@ -33,5 +61,9 @@
     "note": "Claimed 112 = domain hooks only. Total with cognitive + built-in = 136."
   },
   "findings": [],
-  "exit_conditions_met": { "exact_hook_count_determined": true, "registered_vs_unregistered_identified": true, "hook_type_distribution_documented": true }
+  "exit_conditions_met": {
+    "exact_hook_count_determined": true,
+    "registered_vs_unregistered_identified": true,
+    "hook_type_distribution_documented": true
+  }
 }

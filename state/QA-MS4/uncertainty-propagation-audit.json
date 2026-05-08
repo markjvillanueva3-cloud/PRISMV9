@@ -1,30 +1,41 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS4-P0-U05",
   "title": "Uncertainty Propagation (RSS) Correctness Audit",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-28T00:10:00Z",
   "status": "COMPLETE",
   "verdict": "PARTIAL — RSS propagation is NOT implemented. Uncertainty is fixed-percentage bounds, not propagated through calculation chains.",
-
   "rss_status": {
     "formal_rss_implementation": false,
     "search_scope": "Full src/ searched for RSS, uncertainty_propagat, root_sum_square, error_propagat",
     "found_in_docs": "engines/CLAUDE.md mentions 'Uncertainty propagation: RSS (root-sum-square) for independent variables'",
     "found_in_code": "No RSS formula implementation anywhere"
   },
-
   "existing_uncertainty_handling": {
     "KienzleForceModel_algorithm": {
       "file": "src/algorithms/KienzleForceModel.ts",
       "type": "UncertaintyBand",
-      "fields": ["nominal", "low", "high", "confidence", "source"],
+      "fields": [
+        "nominal",
+        "low",
+        "high",
+        "confidence",
+        "source"
+      ],
       "method": "Fixed percentage: +/-15% (verified data) or +/-25% (estimated)",
       "not_propagated": true
     },
     "ManufacturingCalculations_engine": {
       "file": "src/engines/ManufacturingCalculations.ts",
       "type": "CuttingForceResult.uncertainty",
-      "fields": ["Fc_range", "power_range", "confidence", "source"],
+      "fields": [
+        "Fc_range",
+        "power_range",
+        "confidence",
+        "source"
+      ],
       "method": "Same fixed percentage as algorithm: +/-15% or +/-25%",
       "not_propagated": true
     },
@@ -36,14 +47,12 @@
       "StabilityResult": "No uncertainty field (has margin_percent instead)"
     }
   },
-
   "what_rss_would_look_like": {
     "cutting_force_chain": "u_Fc = sqrt((dFc/dkc1_1 * u_kc1_1)^2 + (dFc/dh * u_h)^2 + (dFc/db * u_b)^2)",
     "power_propagation": "u_P = sqrt((dP/dFc * u_Fc)^2 + (dP/dVc * u_Vc)^2)",
     "tool_life_propagation": "u_T = sqrt((dT/dC * u_C)^2 + (dT/dn * u_n)^2 + (dT/dVc * u_Vc)^2)",
     "note": "Currently none of this exists. Each calculation produces independent fixed-% bounds."
   },
-
   "tolerance_engine_rss": {
     "file": "src/engines/ToleranceEngine.ts",
     "has_rss": true,
@@ -51,7 +60,6 @@
     "formula": "u_total = sqrt(sum(tolerance_i^2))",
     "correct_for_its_domain": true
   },
-
   "findings": [
     {
       "id": "F39",
@@ -64,13 +72,11 @@
       "fix": "Either (A) update CLAUDE.md to reflect actual approach (fixed-% bounds), or (B) implement partial derivative RSS for the force -> power -> temperature chain. Option A is pragmatic."
     }
   ],
-
   "mitigating_factors": {
     "tolerance_stack_up": "ToleranceEngine correctly implements RSS for dimensional tolerance analysis",
     "safety_margins": "Conservative fixed-% bounds (25% for estimated data) provide adequate safety margin",
     "kienzle_uncertainty_band": "Force uncertainty (the highest-impact calculation) does have bounds, even if not propagated"
   },
-
   "exit_conditions_met": {
     "rss_formula_verified": "N/A - not implemented for calculations",
     "partial_derivative_propagation": "NOT_IMPLEMENTED",

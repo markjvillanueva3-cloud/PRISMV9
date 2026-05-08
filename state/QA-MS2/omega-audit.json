@@ -1,26 +1,52 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "audit_id": "QA-MS2-P0-U00",
   "title": "OmegaEngine Weight Vector Verification",
   "auditor": "claude-opus-4.6",
   "timestamp": "2026-02-27T23:45:00Z",
   "status": "COMPLETE",
   "verdict": "PASS — Weight vector correct, safety hard constraint verified, F20 FIXED",
-
   "weight_vector": {
     "source_file": "src/tools/dispatchers/omegaDispatcher.ts",
     "definition_line": 21,
-    "weights": { "R": 0.25, "C": 0.20, "P": 0.15, "S": 0.30, "L": 0.10 },
-    "sum": 1.00,
+    "weights": {
+      "R": 0.25,
+      "C": 0.2,
+      "P": 0.15,
+      "S": 0.3,
+      "L": 0.1
+    },
+    "sum": 1,
     "sum_verified": true,
     "components": {
-      "R": { "name": "Reasoning", "weight": 0.25, "source": "SP cog.metrics (auto_score) or explicit" },
-      "C": { "name": "Code", "weight": 0.20, "source": "SP cog.metrics (auto_score) or explicit" },
-      "P": { "name": "Process", "weight": 0.15, "source": "SP cog.metrics (auto_score) or explicit" },
-      "S": { "name": "Safety", "weight": 0.30, "source": "computeSafetyScore() (auto_score) or SP cog.metrics or explicit" },
-      "L": { "name": "Learning", "weight": 0.10, "source": "SP cog.metrics (auto_score) or explicit" }
+      "R": {
+        "name": "Reasoning",
+        "weight": 0.25,
+        "source": "SP cog.metrics (auto_score) or explicit"
+      },
+      "C": {
+        "name": "Code",
+        "weight": 0.2,
+        "source": "SP cog.metrics (auto_score) or explicit"
+      },
+      "P": {
+        "name": "Process",
+        "weight": 0.15,
+        "source": "SP cog.metrics (auto_score) or explicit"
+      },
+      "S": {
+        "name": "Safety",
+        "weight": 0.3,
+        "source": "computeSafetyScore() (auto_score) or SP cog.metrics or explicit"
+      },
+      "L": {
+        "name": "Learning",
+        "weight": 0.1,
+        "source": "SP cog.metrics (auto_score) or explicit"
+      }
     }
   },
-
   "implementation_details": {
     "computeOmega": {
       "line": 36,
@@ -33,16 +59,16 @@
       "exported_for": "SP, ATCS, RoadmapExecutor cross-dispatcher use"
     },
     "safety_hard_constraint": {
-      "threshold": 0.70,
+      "threshold": 0.7,
       "source_constant": "THRESHOLDS.SAFETY_MIN (line 22)",
       "behavior": "S < 0.70 → status='BLOCKED_SAFETY', S >= 0.70 → normal scoring",
       "verified": true
     },
     "thresholds": {
-      "RELEASE": 0.70,
+      "RELEASE": 0.7,
       "ACCEPTABLE": 0.65,
-      "WARNING": 0.50,
-      "SAFETY_MIN": 0.70
+      "WARNING": 0.5,
+      "SAFETY_MIN": 0.7
     },
     "auto_score": {
       "line": 146,
@@ -52,10 +78,12 @@
     },
     "event_integration": {
       "publishes": "QUALITY_SCORE_UPDATED on every compute",
-      "subscribes": ["QUALITY_SCORE_UPDATED (telemetry)", "QUALITY_GATE_FAILED (warning log)"]
+      "subscribes": [
+        "QUALITY_SCORE_UPDATED (telemetry)",
+        "QUALITY_GATE_FAILED (warning log)"
+      ]
     }
   },
-
   "verification_tests": {
     "weight_sum": "0.25 + 0.20 + 0.15 + 0.30 + 0.10 = 1.00 ✓",
     "all_ones": "Ω(1,1,1,1,1) = 0.25+0.20+0.15+0.30+0.10 = 1.00 ✓",
@@ -64,7 +92,6 @@
     "safety_pass": "Ω(1,1,1,0.70,1) → status=RELEASE_READY ✓",
     "clamping": "clamp01(-0.5) = 0, clamp01(1.5) = 1 ✓"
   },
-
   "findings": [
     {
       "id": "F19",
@@ -89,7 +116,6 @@
       "fix_applied": "Changed omegaDispatcher.ts line 91 defaults from 1.0 to 0.0 for all 5 components."
     }
   ],
-
   "exit_conditions_met": {
     "weight_vector_sums_to_1": true,
     "each_component_maps_to_correct_subscore": true,

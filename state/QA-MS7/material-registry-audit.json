@@ -1,10 +1,12 @@
 {
+  "schemaVersion": "1.0.0",
+  "_lastBackfillTs": "2026-05-08T16:41:54.025Z",
   "unit": "QA-MS7-U00",
   "title": "Material Registry Data Quality Audit",
   "auditor": "claude-opus-4-6",
   "timestamp": "2026-02-28T10:00:00Z",
   "status": "PASS",
-  "scope": "MaterialRegistry.ts \u00e2\u20ac\u201d ~1,047 coded entries, 6,509 DB_MANIFEST entries, 3,533 envelope claim",
+  "scope": "MaterialRegistry.ts â€” ~1,047 coded entries, 6,509 DB_MANIFEST entries, 3,533 envelope claim",
   "file": "src/registries/MaterialRegistry.ts",
   "lines": 1533,
   "architecture": {
@@ -35,12 +37,12 @@
     "actual_json_entries": "6,353 across 7 ISO groups (P=2720, M=823, K=123, N=932, S=133, H=364, X=1258)",
     "code_core_layer": "~1,047 hardcoded entries",
     "db_manifest": "6,509 (includes metadata files counted separately)",
-    "envelope_claim": "3,533 (stale \u2014 counted before X_SPECIALTY expansion)",
+    "envelope_claim": "3,533 (stale — counted before X_SPECIALTY expansion)",
     "runtime_estimate": "6,353+ (CORE merged with ENHANCED, deduplicated by ID)",
-    "severity": "INFO \u2014 envelope count is stale but not a bug"
+    "severity": "INFO — envelope count is stale but not a bug"
   },
   "data_quality_checks": {
-    "duplicate_handling": "THROW on duplicate ID \u00e2\u20ac\u201d strict enforcement, good practice",
+    "duplicate_handling": "THROW on duplicate ID â€” strict enforcement, good practice",
     "required_fields": [
       "id",
       "name",
@@ -76,7 +78,7 @@
     },
     {
       "severity": "MINOR",
-      "finding": "Hardness index uses broad ranges (10 HRC buckets) \u00e2\u20ac\u201d sufficient for typical queries but coarse for precision filtering"
+      "finding": "Hardness index uses broad ranges (10 HRC buckets) â€” sufficient for typical queries but coarse for precision filtering"
     },
     {
       "severity": "INFO",
@@ -111,21 +113,21 @@
         "kienzle_kc1_1": "Present for turning/milling/drilling (3 operations)",
         "taylor_C_n": "Present for carbide and HSS",
         "johnson_cook": "A/B/n/C/m parameters present",
-        "machinability_rating": "65% (correct \u2014 baseline is AISI 1212 = 100%)"
+        "machinability_rating": "65% (correct — baseline is AISI 1212 = 100%)"
       },
-      "status": "VERIFIED \u2014 10/10 field categories populated"
+      "status": "VERIFIED — 10/10 field categories populated"
     },
     {
       "test": "ISO group distribution validation",
       "description": "Verify material counts per ISO group against expected manufacturing coverage",
       "actual_counts": {
-        "P_STEELS": "2,720 (43% \u2014 largest group, correct for industry usage)",
-        "X_SPECIALTY": "1,258 (20% \u2014 ceramics, composites, polymers, wood)",
-        "N_NONFERROUS": "932 (15% \u2014 aluminum, copper, titanium alloys)",
-        "M_STAINLESS": "823 (13% \u2014 austenitic, ferritic, martensitic, duplex)",
-        "H_HARDENED": "364 (6% \u2014 steels >45 HRC)",
-        "S_SUPERALLOYS": "133 (2% \u2014 Inconel, Waspaloy, Ti-6Al-4V)",
-        "K_CAST_IRON": "123 (2% \u2014 gray, ductile, CGI, white)"
+        "P_STEELS": "2,720 (43% — largest group, correct for industry usage)",
+        "X_SPECIALTY": "1,258 (20% — ceramics, composites, polymers, wood)",
+        "N_NONFERROUS": "932 (15% — aluminum, copper, titanium alloys)",
+        "M_STAINLESS": "823 (13% — austenitic, ferritic, martensitic, duplex)",
+        "H_HARDENED": "364 (6% — steels >45 HRC)",
+        "S_SUPERALLOYS": "133 (2% — Inconel, Waspaloy, Ti-6Al-4V)",
+        "K_CAST_IRON": "123 (2% — gray, ductile, CGI, white)"
       },
       "assessment": "Distribution matches real-world manufacturing material usage patterns",
       "status": "VERIFIED"
