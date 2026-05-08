@@ -72,17 +72,24 @@ export interface OllamaStatusResult {
   error?: string;
 }
 
+// OBSIDIAN-AUTOMATE-MS3/U-OLLAMA-14B-BUMP: tuned for RTX 4080 SUPER (16GB VRAM).
+// qwen2.5-coder:14b weighs ~9GB and fits entirely on-GPU at ~80 tok/sec.
+// Latency-tolerant hooks (validation, pattern_match) get the better model;
+// speed-critical hooks (grep_index, mcp_route) stay on 7b because their 500ms
+// budget can't absorb 14b first-token latency reliably. ai_feature + code_explain
+// were already on 14b. defaultModel is bumped for hygiene (it covers any
+// future HookType that doesn't yet have an explicit override).
 const DEFAULT_CONFIG: OllamaHookConfig = {
   baseUrl: "http://localhost:11434",
-  defaultModel: "qwen2.5-coder:7b",
+  defaultModel: "qwen2.5-coder:14b",
   modelOverrides: {
-    grep_index: "qwen2.5-coder:7b",
-    mcp_route: "qwen2.5-coder:7b",
+    grep_index: "qwen2.5-coder:7b",   // speed-critical: file routing
+    mcp_route: "qwen2.5-coder:7b",    // speed-critical: dispatcher routing
     ai_feature: "qwen2.5-coder:14b",
     code_explain: "qwen2.5-coder:14b",
-    pattern_match: "qwen2.5-coder:7b",
-    validation: "qwen2.5-coder:7b",
-    general: "qwen2.5-coder:7b",
+    pattern_match: "qwen2.5-coder:14b", // bumped: better classification > 50ms
+    validation: "qwen2.5-coder:14b",    // bumped: catching real bugs > speed
+    general: "qwen2.5-coder:7b",       // fast catch-all for unspecified hooks
   },
   timeoutMs: 500,
   maxTokens: 100,
@@ -107,7 +114,18 @@ export class OllamaHookBridgeEngine {
   private readonly MODEL_CACHE_TTL_MS = 60000; // 1 minute
 
   constructor(config: Partial<OllamaHookConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    // Deep-merge modelOverrides so callers can override one entry without
+    // wiping the rest. Shallow spread `{ ...DEFAULT_CONFIG, ...config }`
+    // would replace the entire modelOverrides table when config supplied
+    // a partial — caught by OllamaHookBridgeEngine.model-routing.test.ts.
+    this.config = {
+      ...DEFAULT_CONFIG,
+      ...config,
+      modelOverrides: {
+        ...DEFAULT_CONFIG.modelOverrides,
+        ...(config.modelOverrides ?? {}),
+      },
+    };
   }
 
   /**
