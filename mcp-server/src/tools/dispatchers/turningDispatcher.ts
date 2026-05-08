@@ -89,6 +89,22 @@ const ACTIONS = [
   "lathe_kinematics_get_machine_specs",  // LatheKinematicsDeepLearningEngine.getMachineSpecs
   "lathe_neural_intel_stats",            // LatheNeuralIntelligenceEngine.getStatistics
   "lathe_jmdie_extract_operations",      // LatheJMDieKnowledgeEngine.extractOperationSequences
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH5: 6 unwired LoRA-cadence/post-uncertainty/deep-reasoning engines
+  "lathe_lora_cadence_state",            // LatheLoRACadenceEngine.getState
+  "lathe_lora_cadence_should_trigger",   // LatheLoRACadenceEngine.shouldTriggerRun
+  "lathe_lora_cadence_active_version",   // LatheLoRACadenceEngine.getActiveVersion
+  "lathe_deep_reasoning_record_outcome", // LatheDeepReasoningEngine.recordOutcome
+  "lathe_post_uncertainty_analyze_block",// LathePostGeneratorUncertaintyEngine.analyzeBlock
+  "lathe_post_uncertainty_prod_ready",   // LathePostGeneratorUncertaintyEngine.isProductionReady
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH6: 6 unwired feedback/stock/deviation/signoff/engagement/chuck engines (stats surfaces)
+  "lathe_actual_feedback_tuning_stats",  // LatheActualFeedbackTuningEngine.getStats
+  "lathe_stock_evolution_stats",         // LatheStockEvolutionEngine.getStats
+  "lathe_deviation_map_stats",           // LatheDeviationMapEngine.getStats
+  "lathe_program_signoff_stats",         // LatheProgramSignoffDossierEngine.getStats
+  "lathe_block_engagement_stats",        // LatheBlockEngagementSimulatorEngine.getStats
+  "lathe_chuck_jaw_setup_stats",         // LatheChuckJawSetupEngine.getStats
 ] as const;
 
 /** Registers turning dispatcher.
@@ -573,6 +589,85 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_jmdie_extract_operations": {
             const { latheJMDieKnowledgeEngine } = await import("../../engines/LatheJMDieKnowledgeEngine.js");
             result = { operation_sequences: latheJMDieKnowledgeEngine.extractOperationSequences() };
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH5: 6 unwired LoRA-cadence/post-uncertainty/deep-reasoning engines
+          case "lathe_lora_cadence_state": {
+            const { latheLoRACadenceEngine } = await import("../../engines/LatheLoRACadenceEngine.js");
+            result = latheLoRACadenceEngine.getState();
+            break;
+          }
+          case "lathe_lora_cadence_should_trigger": {
+            const { latheLoRACadenceEngine } = await import("../../engines/LatheLoRACadenceEngine.js");
+            result = latheLoRACadenceEngine.shouldTriggerRun();
+            break;
+          }
+          case "lathe_lora_cadence_active_version": {
+            const { latheLoRACadenceEngine } = await import("../../engines/LatheLoRACadenceEngine.js");
+            const v = latheLoRACadenceEngine.getActiveVersion();
+            result = { active_version: v };
+            break;
+          }
+          case "lathe_deep_reasoning_record_outcome": {
+            const { latheDeepReasoningEngine } = await import("../../engines/LatheDeepReasoningEngine.js");
+            const p = params as {
+              plan_id: string;
+              outcome: Parameters<typeof latheDeepReasoningEngine.recordOutcome>[1];
+            };
+            if (typeof p.plan_id !== "string" || !p.outcome) {
+              throw new Error("lathe_deep_reasoning_record_outcome requires {plan_id, outcome}");
+            }
+            result = latheDeepReasoningEngine.recordOutcome(p.plan_id, p.outcome);
+            break;
+          }
+          case "lathe_post_uncertainty_analyze_block": {
+            const { lathePostGeneratorUncertaintyEngine } = await import("../../engines/LathePostGeneratorUncertaintyEngine.js");
+            const p = params as { block: string; line_number: number };
+            if (typeof p.block !== "string" || typeof p.line_number !== "number") {
+              throw new Error("lathe_post_uncertainty_analyze_block requires {block, line_number}");
+            }
+            result = lathePostGeneratorUncertaintyEngine.analyzeBlock(p.block, p.line_number);
+            break;
+          }
+          case "lathe_post_uncertainty_prod_ready": {
+            const { lathePostGeneratorUncertaintyEngine } = await import("../../engines/LathePostGeneratorUncertaintyEngine.js");
+            const gcode = (params as { gcode: string[] }).gcode
+                       ?? (params as { lines: string[] }).lines;
+            if (!Array.isArray(gcode)) throw new Error("lathe_post_uncertainty_prod_ready requires 'gcode' (string[])");
+            result = lathePostGeneratorUncertaintyEngine.isProductionReady(gcode);
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH6: 6 unwired feedback/stock/deviation/signoff/engagement/chuck engines (stats surfaces)
+          case "lathe_actual_feedback_tuning_stats": {
+            const { latheActualFeedbackTuningEngine } = await import("../../engines/LatheActualFeedbackTuningEngine.js");
+            result = latheActualFeedbackTuningEngine.getStats();
+            break;
+          }
+          case "lathe_stock_evolution_stats": {
+            const { latheStockEvolutionEngine } = await import("../../engines/LatheStockEvolutionEngine.js");
+            result = latheStockEvolutionEngine.getStats();
+            break;
+          }
+          case "lathe_deviation_map_stats": {
+            const { latheDeviationMapEngine } = await import("../../engines/LatheDeviationMapEngine.js");
+            result = latheDeviationMapEngine.getStats();
+            break;
+          }
+          case "lathe_program_signoff_stats": {
+            const { latheProgramSignoffDossierEngine } = await import("../../engines/LatheProgramSignoffDossierEngine.js");
+            result = latheProgramSignoffDossierEngine.getStats();
+            break;
+          }
+          case "lathe_block_engagement_stats": {
+            const { latheBlockEngagementSimulatorEngine } = await import("../../engines/LatheBlockEngagementSimulatorEngine.js");
+            result = latheBlockEngagementSimulatorEngine.getStats();
+            break;
+          }
+          case "lathe_chuck_jaw_setup_stats": {
+            const { latheChuckJawSetupEngine } = await import("../../engines/LatheChuckJawSetupEngine.js");
+            result = latheChuckJawSetupEngine.getStats();
             break;
           }
 

@@ -374,6 +374,61 @@ const lathe_neural_intel_stats = z.object({}).passthrough()
 const lathe_jmdie_extract_operations = z.object({}).passthrough()
   .describe("Extract operation sequences from JM Die archive (no input).");
 
+// ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH5: 6 unwired LoRA-cadence/post-uncertainty/deep-reasoning engines ─
+
+const lathe_lora_cadence_state = z.object({}).passthrough()
+  .describe("Read LoRA cadence engine state (no input).");
+
+const lathe_lora_cadence_should_trigger = z.object({}).passthrough()
+  .describe("Check whether a LoRA training run should trigger now (no input).");
+
+const lathe_lora_cadence_active_version = z.object({}).passthrough()
+  .describe("Read current active LoRA model version (no input).");
+
+const lathe_deep_reasoning_record_outcome = z.object({
+  plan_id: z.string().min(1).describe("Process plan id the outcome is recorded against."),
+  outcome: z.object({
+    success: z.boolean(),
+    actual_cycle_time_sec: z.number().nonnegative().optional(),
+    quality_results: z.array(z.object({
+      feature_id: z.string().min(1),
+      actual_dimension_mm: z.number(),
+      actual_ra: z.number().nonnegative().optional(),
+    })).optional(),
+    issues_encountered: z.array(z.string()).optional(),
+    operator_notes: z.string().optional(),
+  }).passthrough(),
+}).passthrough().describe("Record actual outcome for a deep-reasoning process plan.");
+
+const lathe_post_uncertainty_analyze_block = z.object({
+  block: z.string().min(1).describe("Single G-code block text."),
+  line_number: z.number().int().nonnegative().describe("Line number within program."),
+}).passthrough().describe("Analyze single block for post-generator uncertainty.");
+
+const lathe_post_uncertainty_prod_ready = z.object({
+  gcode: z.array(z.string()).min(1).describe("G-code program lines."),
+}).passthrough().describe("Check whether a generated post is production-ready.");
+
+// ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH6: 6 unwired feedback/stock/deviation/signoff/engagement/chuck engines (stats surfaces) ─
+
+const lathe_actual_feedback_tuning_stats = z.object({}).passthrough()
+  .describe("Read actual-feedback-tuning engine stats (no input).");
+
+const lathe_stock_evolution_stats = z.object({}).passthrough()
+  .describe("Read stock-evolution engine stats (no input).");
+
+const lathe_deviation_map_stats = z.object({}).passthrough()
+  .describe("Read deviation-map engine stats (no input).");
+
+const lathe_program_signoff_stats = z.object({}).passthrough()
+  .describe("Read program-signoff dossier engine stats (no input).");
+
+const lathe_block_engagement_stats = z.object({}).passthrough()
+  .describe("Read block-engagement simulator stats (no input).");
+
+const lathe_chuck_jaw_setup_stats = z.object({}).passthrough()
+  .describe("Read chuck-jaw setup engine stats (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -408,4 +463,20 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_kinematics_get_machine_specs,
   lathe_neural_intel_stats,
   lathe_jmdie_extract_operations,
+
+  // BATCH5 schemas: LoRA-cadence/post-uncertainty/deep-reasoning
+  lathe_lora_cadence_state,
+  lathe_lora_cadence_should_trigger,
+  lathe_lora_cadence_active_version,
+  lathe_deep_reasoning_record_outcome,
+  lathe_post_uncertainty_analyze_block,
+  lathe_post_uncertainty_prod_ready,
+
+  // BATCH6 schemas: feedback/stock/deviation/signoff/engagement/chuck stats surfaces
+  lathe_actual_feedback_tuning_stats,
+  lathe_stock_evolution_stats,
+  lathe_deviation_map_stats,
+  lathe_program_signoff_stats,
+  lathe_block_engagement_stats,
+  lathe_chuck_jaw_setup_stats,
 };
