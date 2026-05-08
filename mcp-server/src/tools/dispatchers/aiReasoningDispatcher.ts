@@ -157,6 +157,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_calibration_monitor_status: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
   xproc_calibration_monitor_reset: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
   xproc_calibration_monitor_constants: () => import("../../engines/ConformalCalibrationMonitorEngine.js").then(m => m.conformalCalibrationMonitor),
+  // U-NN-CONFORMAL03: APS adaptive prediction sets (Romano et al. 2020).
+  // Same coverage guarantee as LAC, smaller average set on hetero data.
+  xproc_aps_calibrate: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
+  xproc_aps_set: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
+  xproc_aps_stats: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
+  xproc_aps_reset: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
+  xproc_aps_constants: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
   xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
@@ -1724,6 +1731,11 @@ export async function executeAIReasoningAction(
       case "xproc_calibration_monitor_status":
       case "xproc_calibration_monitor_reset":
       case "xproc_calibration_monitor_constants":
+      case "xproc_aps_calibrate":
+      case "xproc_aps_set":
+      case "xproc_aps_stats":
+      case "xproc_aps_reset":
+      case "xproc_aps_constants":
       case "xproc_ensemble_predict":
       case "xproc_ensemble_disagreement":
       case "xproc_ensemble_constants":
