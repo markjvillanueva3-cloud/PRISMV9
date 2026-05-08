@@ -164,6 +164,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_aps_stats: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
   xproc_aps_reset: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
   xproc_aps_constants: () => import("../../engines/CrossProcessAPSClassificationEngine.js").then(m => m.crossProcessAPSClassification),
+  // U-NN-CONFORMAL04: RAPS regularized adaptive prediction sets
+  // (Angelopoulos et al 2021). λ=0 ⇒ APS; λ>0 caps set growth past k_reg.
+  xproc_raps_calibrate: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
+  xproc_raps_set: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
+  xproc_raps_stats: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
+  xproc_raps_reset: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
+  xproc_raps_constants: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
   xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
@@ -1736,6 +1743,11 @@ export async function executeAIReasoningAction(
       case "xproc_aps_stats":
       case "xproc_aps_reset":
       case "xproc_aps_constants":
+      case "xproc_raps_calibrate":
+      case "xproc_raps_set":
+      case "xproc_raps_stats":
+      case "xproc_raps_reset":
+      case "xproc_raps_constants":
       case "xproc_ensemble_predict":
       case "xproc_ensemble_disagreement":
       case "xproc_ensemble_constants":

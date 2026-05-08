@@ -39,7 +39,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
     _xprocQLearning: any, _xprocBandit: any,
-    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any, _xprocCalibrationMonitor: any, _xprocAPS: any,
+    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any, _xprocCalibrationMonitor: any, _xprocAPS: any, _xprocRAPS: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
@@ -94,6 +94,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocConformalClassify": return _xprocConformalClassify ??= (await import("../../engines/CrossProcessConformalClassificationEngine.js")).crossProcessConformalClassification;
     case "xprocCalibrationMonitor": return _xprocCalibrationMonitor ??= (await import("../../engines/ConformalCalibrationMonitorEngine.js")).conformalCalibrationMonitor;
     case "xprocAPS": return _xprocAPS ??= (await import("../../engines/CrossProcessAPSClassificationEngine.js")).crossProcessAPSClassification;
+    case "xprocRAPS": return _xprocRAPS ??= (await import("../../engines/CrossProcessRAPSClassificationEngine.js")).crossProcessRAPSClassification;
     case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
@@ -380,6 +381,12 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_aps_stats",
   "xproc_aps_reset",
   "xproc_aps_constants",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-CONFORMAL04 — RAPS regularized adaptive sets
+  "xproc_raps_calibrate",
+  "xproc_raps_set",
+  "xproc_raps_stats",
+  "xproc_raps_reset",
+  "xproc_raps_constants",
   // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble disagreement
   "xproc_ensemble_predict",
   "xproc_ensemble_disagreement",
@@ -1850,6 +1857,12 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_aps_stats: "xprocAPS",
           xproc_aps_reset: "xprocAPS",
           xproc_aps_constants: "xprocAPS",
+          // XPROC-NEURAL-OPTIMIZE/U-NN-CONFORMAL04 — RAPS regularized adaptive sets
+          xproc_raps_calibrate: "xprocRAPS",
+          xproc_raps_set: "xprocRAPS",
+          xproc_raps_stats: "xprocRAPS",
+          xproc_raps_reset: "xprocRAPS",
+          xproc_raps_constants: "xprocRAPS",
           // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble
           xproc_ensemble_predict: "xprocDeepEnsemble",
           xproc_ensemble_disagreement: "xprocDeepEnsemble",
