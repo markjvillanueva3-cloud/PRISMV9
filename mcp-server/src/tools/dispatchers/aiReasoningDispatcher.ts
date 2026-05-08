@@ -171,6 +171,19 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_raps_stats: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
   xproc_raps_reset: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
   xproc_raps_constants: () => import("../../engines/CrossProcessRAPSClassificationEngine.js").then(m => m.crossProcessRAPSClassification),
+  // U-NN-CONFORMAL05: prediction-log bridge — pairs predictedSet at log
+  // time with actualLabel at outcome time, feeds CalibrationMonitor.
+  // Closes the predictor ↔ monitor loop end-to-end.
+  xproc_predlog_log: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_pair: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_prune: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_configure: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_status: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_pending_ids: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_enable_autosync: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_disable_autosync: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_reset: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  xproc_predlog_constants: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
   xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
@@ -1748,6 +1761,16 @@ export async function executeAIReasoningAction(
       case "xproc_raps_stats":
       case "xproc_raps_reset":
       case "xproc_raps_constants":
+      case "xproc_predlog_log":
+      case "xproc_predlog_pair":
+      case "xproc_predlog_prune":
+      case "xproc_predlog_configure":
+      case "xproc_predlog_status":
+      case "xproc_predlog_pending_ids":
+      case "xproc_predlog_enable_autosync":
+      case "xproc_predlog_disable_autosync":
+      case "xproc_predlog_reset":
+      case "xproc_predlog_constants":
       case "xproc_ensemble_predict":
       case "xproc_ensemble_disagreement":
       case "xproc_ensemble_constants":
