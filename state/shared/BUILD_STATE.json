@@ -1,0 +1,376 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-08T16:16:02.716Z",
+  "headline": {
+    "built_engines": 2269,
+    "built_with_wiki": 774,
+    "needs_wiring": 898,
+    "needs_building_active_units": 2735,
+    "needs_frontend_merge_count": 2,
+    "pending_milestones_with_activity": 1,
+    "drift_milestones": 3
+  },
+  "sources": {
+    "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
+    "milestone_progress": "H:\\prism\\state\\shared\\MILESTONE_PROGRESS.json",
+    "wiki_index": "H:\\prism\\knowledge\\wiki\\index.md",
+    "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
+  },
+  "BUILT": {
+    "summary": "2269/3167 engines wired (72%); 774 wiki entries indexed.",
+    "breakdown": {
+      "totalEngines": 3167,
+      "unwired": 898,
+      "wiredDirect": 2105,
+      "wireExempt": 81,
+      "wiredViaHook": 10,
+      "wiredViaOrch": 57,
+      "wiredViaRoute": 15,
+      "wiredViaSingleton": 1
+    }
+  },
+  "NEEDS_WIRING": {
+    "summary": "898 engines on disk with no dispatcher reference. Top domains by count:",
+    "top_domains": [
+      {
+        "domain": "Other",
+        "count": 153
+      },
+      {
+        "domain": "Lathe",
+        "count": 106
+      },
+      {
+        "domain": "Machine",
+        "count": 17
+      },
+      {
+        "domain": "Multi",
+        "count": 12
+      },
+      {
+        "domain": "Turning",
+        "count": 11
+      },
+      {
+        "domain": "Tool",
+        "count": 10
+      },
+      {
+        "domain": "Five",
+        "count": 9
+      },
+      {
+        "domain": "Shop",
+        "count": 9
+      },
+      {
+        "domain": "Hyper",
+        "count": 7
+      },
+      {
+        "domain": "Milling",
+        "count": 7
+      },
+      {
+        "domain": "Wet",
+        "count": 7
+      },
+      {
+        "domain": "Process",
+        "count": 6
+      },
+      {
+        "domain": "Print",
+        "count": 6
+      },
+      {
+        "domain": "Swiss",
+        "count": 6
+      },
+      {
+        "domain": "Wire",
+        "count": 6
+      },
+      {
+        "domain": "Cross",
+        "count": 6
+      },
+      {
+        "domain": "Consensus",
+        "count": 6
+      },
+      {
+        "domain": "Session",
+        "count": 5
+      },
+      {
+        "domain": "Mobile",
+        "count": 5
+      },
+      {
+        "domain": "Master",
+        "count": 4
+      },
+      {
+        "domain": "Mill",
+        "count": 4
+      },
+      {
+        "domain": "Tribal",
+        "count": 4
+      },
+      {
+        "domain": "Agent",
+        "count": 4
+      },
+      {
+        "domain": "Electrode",
+        "count": 4
+      },
+      {
+        "domain": "Speed",
+        "count": 4
+      }
+    ],
+    "sample_engines": [
+      {
+        "name": "BatchProcessor",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-06T13:07:24.000Z",
+        "sizeKB": 10
+      },
+      {
+        "name": "GCodeTemplateEngine",
+        "suggestedDispatcher": "prism_cam",
+        "mtime": "2026-03-06T13:07:24.000Z",
+        "sizeKB": 58
+      },
+      {
+        "name": "SkillAutoLoader",
+        "suggestedDispatcher": "prism_skill_script",
+        "mtime": "2026-03-06T13:19:48.000Z",
+        "sizeKB": 17
+      },
+      {
+        "name": "WorkholdingIntelligenceEngine",
+        "suggestedDispatcher": "prism_safety",
+        "mtime": "2026-03-06T13:19:48.000Z",
+        "sizeKB": 22
+      },
+      {
+        "name": "EventEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-06T13:23:06.000Z",
+        "sizeKB": 7
+      },
+      {
+        "name": "MetricsEngine",
+        "suggestedDispatcher": "prism_monitoring",
+        "mtime": "2026-03-06T13:23:06.000Z",
+        "sizeKB": 8
+      },
+      {
+        "name": "MigrationEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-06T13:23:06.000Z",
+        "sizeKB": 7
+      },
+      {
+        "name": "PluginEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-06T13:23:06.000Z",
+        "sizeKB": 7
+      },
+      {
+        "name": "ResponseTemplateEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-06T13:23:06.000Z",
+        "sizeKB": 26
+      },
+      {
+        "name": "RoughnessConversionEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-06T13:23:06.000Z",
+        "sizeKB": 7
+      },
+      {
+        "name": "CadBridge",
+        "suggestedDispatcher": "prism_cad",
+        "mtime": "2026-03-06T13:24:20.000Z",
+        "sizeKB": 11
+      },
+      {
+        "name": "CampaignEngine",
+        "suggestedDispatcher": "prism_cam",
+        "mtime": "2026-03-06T13:24:20.000Z",
+        "sizeKB": 56
+      },
+      {
+        "name": "SpindleHarmonicsQualityEngine",
+        "suggestedDispatcher": "prism_quality",
+        "mtime": "2026-03-06T14:08:50.000Z",
+        "sizeKB": 11
+      },
+      {
+        "name": "SessionLifecycleEngine",
+        "suggestedDispatcher": "prism_auth",
+        "mtime": "2026-03-06T17:09:18.000Z",
+        "sizeKB": 18
+      },
+      {
+        "name": "AlarmEscalationEngine",
+        "suggestedDispatcher": "prism_diagnosis",
+        "mtime": "2026-03-07T04:22:46.000Z",
+        "sizeKB": 8
+      },
+      {
+        "name": "DataValidationEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T05:20:52.000Z",
+        "sizeKB": 9
+      },
+      {
+        "name": "CompactFormatterEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T16:25:02.000Z",
+        "sizeKB": 6
+      },
+      {
+        "name": "BatchQueryEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T16:29:28.000Z",
+        "sizeKB": 5
+      },
+      {
+        "name": "QuickCalcEngine",
+        "suggestedDispatcher": "prism_calc",
+        "mtime": "2026-03-07T16:35:40.000Z",
+        "sizeKB": 5
+      },
+      {
+        "name": "OutputBudgetEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T16:47:38.000Z",
+        "sizeKB": 6
+      },
+      {
+        "name": "PromptTemplateEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T16:55:46.000Z",
+        "sizeKB": 5
+      },
+      {
+        "name": "SmartDefaultsEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T17:05:28.000Z",
+        "sizeKB": 6
+      },
+      {
+        "name": "ConversationBudgetEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T17:12:04.000Z",
+        "sizeKB": 5
+      },
+      {
+        "name": "ToolCallBatchEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T17:40:34.000Z",
+        "sizeKB": 6
+      },
+      {
+        "name": "StopConditionEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T17:41:30.000Z",
+        "sizeKB": 7
+      }
+    ],
+    "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern)."
+  },
+  "NEEDS_BUILDING": {
+    "summary": "2735 units across 613 milestones not yet in git.",
+    "drift_cases": [
+      {
+        "id": "MF-MS1",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
+      },
+      {
+        "id": "MF-MS2",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
+      },
+      {
+        "id": "XPROC-NEURAL-OPTIMIZE-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      }
+    ],
+    "top_pending_units": [
+      {
+        "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
+        "unit": "U-NN-LOOP02",
+        "title": "Wire CrossProcessOutcomeStore to publish on FeedbackBus when records arrive",
+        "phase": "P3-CLOSED-LOOP"
+      },
+      {
+        "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
+        "unit": "U-NN-LOOP04",
+        "title": "Wire MillPrintToProgramEngine to emit outcome events post-run",
+        "phase": "P3-CLOSED-LOOP"
+      },
+      {
+        "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
+        "unit": "U-NN-LOOP05",
+        "title": "Wire WEDMPrintToProgramEngine to emit outcome events (Reviewer 5 Option A)",
+        "phase": "P3-CLOSED-LOOP"
+      },
+      {
+        "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
+        "unit": "U-NN-DATA01",
+        "title": "JM Die NC corpus parser — Mastercam-Okuma dialect (lathe priority)",
+        "phase": "P4-REAL-DATA"
+      }
+    ],
+    "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."
+  },
+  "NEEDS_FRONTEND": {
+    "summary": "2 codex frontend build(s) pending merge into mcp-server/web.",
+    "trees": [
+      {
+        "id": "main-web",
+        "path": "mcp-server/web",
+        "role": "canonical",
+        "stack": "React + Vite",
+        "merge_status": "merged",
+        "notes": "Default frontend. CAM/SFC/quote screens live here.",
+        "exists": true,
+        "mtime": 1777307087133.2476
+      },
+      {
+        "id": "cqask-orion-cad",
+        "path": "cqask/ui",
+        "role": "codex-build-pending-merge",
+        "stack": "Next.js 13 + Ant Design + Tailwind",
+        "merge_status": "PENDING_MERGE",
+        "notes": "CAD-via-LLM UI ('orion-cad'). Generates CadQuery models from natural language. Routes are in pages/ — needs port to mcp-server/web/ App Router or kept as standalone subapp.",
+        "exists": true,
+        "mtime": 1776653190765.769
+      },
+      {
+        "id": "mcp-cadquery-frontend",
+        "path": "mcp-cadquery/frontend",
+        "role": "codex-build-pending-merge",
+        "stack": "Vite + React 19 + Three.js (@react-three/fiber)",
+        "merge_status": "PENDING_MERGE",
+        "notes": "3D CAD viewer for CadQuery output. React 19 (newer than main). Embeds via @react-three/fiber. Needs version-align with main React 18 OR sandbox iframe.",
+        "exists": true,
+        "mtime": 1776654178935.5042
+      }
+    ],
+    "next_action": "Decide per build: (a) port to mcp-server/web App Router, (b) keep as standalone subapp under /apps/ with shared auth, or (c) deprecate. Two builds use different React majors (18 vs 19) — version align before merge."
+  }
+}
