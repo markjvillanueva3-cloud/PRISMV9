@@ -119,6 +119,68 @@ const contradiction_check = z.object({
   topK: z.number().int().positive().max(50).optional().describe("Alias for top_k"),
 }).passthrough();
 
+// OBSIDIAN-CONTENT-MS2/U-CAPTURE-SHARPEN — raw→punchy capture assessment.
+const capture_sharpen = z.object({
+  raw: z.string().describe("Raw capture text (single string, may be multi-sentence)"),
+  threshold: z.number().min(0).max(1).optional().describe("Acceptance threshold (default 0.7)"),
+  content_pillar_hint: z.string().optional().describe("Content pillar to use as tag #1"),
+  contentPillarHint: z.string().optional().describe("Alias for content_pillar_hint"),
+}).passthrough();
+
+// OBSIDIAN-CONTENT-MS2/U-VOICE-SPEC — voice-rule validator.
+const voice_validate = z.object({
+  draft: z.string().describe("Full content draft to validate (markdown or plain text)"),
+  voice_spec_path: z.string().optional().describe("Override knowledge/voice-spec.md location"),
+  voiceSpecPath: z.string().optional().describe("Alias for voice_spec_path"),
+}).passthrough();
+
+// OBSIDIAN-CONTENT-MS2/U-CONTENT-BRIEF — cyrilXBT 5-field content brief.
+const content_brief_create = z.object({
+  one_thing: z.string().optional().describe("Single insight, one sentence max"),
+  oneThing: z.string().optional().describe("Alias for one_thing"),
+  proof: z.string().optional().describe("Specific number, example, or result"),
+  audience: z.string().optional().describe("Audience descriptor (specific, not generic)"),
+  reader_before: z.string().optional().describe("What reader believes BEFORE"),
+  readerBefore: z.string().optional().describe("Alias for reader_before"),
+  reader_after: z.string().optional().describe("What reader knows/believes AFTER"),
+  readerAfter: z.string().optional().describe("Alias for reader_after"),
+  source_notes: z.array(z.string()).optional().describe("Wiki-link basenames of source notes"),
+  sourceNotes: z.array(z.string()).optional().describe("Alias for source_notes"),
+  content_pillar: z.string().optional().describe("Pillar tag for downstream PerformanceLoop"),
+  contentPillar: z.string().optional().describe("Alias for content_pillar"),
+  hook_format_hint: z.string().optional().describe("number / story / question / claim / statistic / contrast"),
+  hookFormatHint: z.string().optional().describe("Alias for hook_format_hint"),
+  briefs_dir: z.string().optional().describe("Override knowledge/memories/briefs/ directory"),
+  briefsDir: z.string().optional().describe("Alias for briefs_dir"),
+  apply: z.boolean().optional().describe("If false, dry-run; defaults to true on dispatcher invocation"),
+}).passthrough();
+
+// OBSIDIAN-CONTENT-MS2/U-CONNECTIONS-PERSIST — materialize connection notes.
+const connections_materialize = z.object({
+  connections: z.array(z.object({
+    a: z.string(),
+    b: z.string(),
+    similarity: z.number(),
+    boost: z.number(),
+    combined: z.number(),
+    recency: z.string(),
+  }).passthrough()).optional().describe("List of connections (DailyBriefConnection shape)"),
+  connections_dir: z.string().optional().describe("Override knowledge/memories/connections/ directory"),
+  connectionsDir: z.string().optional().describe("Alias for connections_dir"),
+  mode: z.enum(["skip", "update"]).optional().describe("skip (default, preserves existing) or update (rewrites our marker-bearing files)"),
+  apply: z.boolean().optional().describe("If false, dry-run; defaults to true on dispatcher invocation"),
+}).passthrough();
+
+// OBSIDIAN-CONTENT-MS2/U-PERFORMANCE-LOOP — cyrilXBT JARVIS monthly report.
+const performance_report = z.object({
+  published_dir: z.string().optional().describe("Override knowledge/memories/published/ directory"),
+  publishedDir: z.string().optional().describe("Alias for published_dir"),
+  since_iso: z.string().optional().describe("YYYY-MM-DD floor for publish_date filter; default 30d window"),
+  sinceIso: z.string().optional().describe("Alias for since_iso"),
+  max_files: z.number().int().positive().max(20000).optional().describe("Cap on files scanned"),
+  maxFiles: z.number().int().positive().max(20000).optional().describe("Alias for max_files"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE — auto-postmortem markdown.
 const postmortem_create = z.object({
   events: z.array(z.object({
@@ -156,4 +218,9 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   daily_brief_get,
   contradiction_check,
   postmortem_create,
+  performance_report,
+  connections_materialize,
+  content_brief_create,
+  voice_validate,
+  capture_sharpen,
 };

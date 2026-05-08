@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen",
     {
       action: z.enum([
         "get_health",
@@ -65,6 +65,16 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "contradiction_check",
         // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
         "postmortem_create",
+        // OBSIDIAN-CONTENT-MS2/U-PERFORMANCE-LOOP: cyrilXBT JARVIS monthly report
+        "performance_report",
+        // OBSIDIAN-CONTENT-MS2/U-CONNECTIONS-PERSIST: materialize connection notes
+        "connections_materialize",
+        // OBSIDIAN-CONTENT-MS2/U-CONTENT-BRIEF: cyrilXBT 5-field brief
+        "content_brief_create",
+        // OBSIDIAN-CONTENT-MS2/U-VOICE-SPEC: voice-rule validator
+        "voice_validate",
+        // OBSIDIAN-CONTENT-MS2/U-CAPTURE-SHARPEN: raw→punchy capture assessment
+        "capture_sharpen",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -473,6 +483,79 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-CONTENT-MS2/U-CAPTURE-SHARPEN — raw→punchy assessment
+          case "capture_sharpen": {
+            const { captureSharpenEngine } = await import("../../engines/CaptureSharpenEngine.js");
+            const raw = typeof params.raw === "string" ? params.raw : "";
+            const threshold = typeof params.threshold === "number" ? params.threshold : undefined;
+            const contentPillarHint = typeof params.content_pillar_hint === "string"
+              ? params.content_pillar_hint
+              : (typeof params.contentPillarHint === "string" ? params.contentPillarHint : undefined);
+            result = captureSharpenEngine.assess(raw, { threshold, contentPillarHint });
+            break;
+          }
+
+          // OBSIDIAN-CONTENT-MS2/U-VOICE-SPEC — voice-rule validator
+          case "voice_validate": {
+            const { contentWriterEngine } = await import("../../engines/ContentWriterEngine.js");
+            const draft = typeof params.draft === "string" ? params.draft : "";
+            const voiceSpecPath = typeof params.voice_spec_path === "string"
+              ? params.voice_spec_path
+              : (typeof params.voiceSpecPath === "string" ? params.voiceSpecPath : undefined);
+            result = contentWriterEngine.validate(draft, { voiceSpecPath });
+            break;
+          }
+
+          // OBSIDIAN-CONTENT-MS2/U-CONTENT-BRIEF — cyrilXBT 5-field brief
+          case "content_brief_create": {
+            const { contentBriefEngine } = await import("../../engines/ContentBriefEngine.js");
+            const seed = {
+              oneThing: typeof params.one_thing === "string" ? params.one_thing : (typeof params.oneThing === "string" ? params.oneThing : ""),
+              proof: typeof params.proof === "string" ? params.proof : "",
+              audience: typeof params.audience === "string" ? params.audience : "",
+              readerBefore: typeof params.reader_before === "string" ? params.reader_before : (typeof params.readerBefore === "string" ? params.readerBefore : ""),
+              readerAfter: typeof params.reader_after === "string" ? params.reader_after : (typeof params.readerAfter === "string" ? params.readerAfter : ""),
+              sourceNotes: Array.isArray(params.source_notes) ? params.source_notes : (Array.isArray(params.sourceNotes) ? params.sourceNotes : undefined),
+              contentPillar: typeof params.content_pillar === "string" ? params.content_pillar : (typeof params.contentPillar === "string" ? params.contentPillar : undefined),
+              hookFormatHint: typeof params.hook_format_hint === "string" ? params.hook_format_hint : (typeof params.hookFormatHint === "string" ? params.hookFormatHint : undefined),
+            };
+            const briefsDir = typeof params.briefs_dir === "string"
+              ? params.briefs_dir
+              : (typeof params.briefsDir === "string" ? params.briefsDir : undefined);
+            const apply = params.apply !== false;
+            result = contentBriefEngine.generate(seed, { briefsDir, apply });
+            break;
+          }
+
+          // OBSIDIAN-CONTENT-MS2/U-CONNECTIONS-PERSIST — materialize connection notes
+          case "connections_materialize": {
+            const { connectionMaterializerEngine } = await import("../../engines/ConnectionMaterializerEngine.js");
+            const connections = Array.isArray(params.connections) ? params.connections : [];
+            const connectionsDir = typeof params.connections_dir === "string"
+              ? params.connections_dir
+              : (typeof params.connectionsDir === "string" ? params.connectionsDir : undefined);
+            const mode = (typeof params.mode === "string" ? params.mode : "skip") as "skip" | "update";
+            const apply = params.apply !== false;
+            result = connectionMaterializerEngine.materialize(connections, { connectionsDir, mode, apply });
+            break;
+          }
+
+          // OBSIDIAN-CONTENT-MS2/U-PERFORMANCE-LOOP — cyrilXBT JARVIS monthly report
+          case "performance_report": {
+            const { performanceLoopEngine } = await import("../../engines/PerformanceLoopEngine.js");
+            const publishedDir = typeof params.published_dir === "string"
+              ? params.published_dir
+              : (typeof params.publishedDir === "string" ? params.publishedDir : undefined);
+            const sinceIso = typeof params.since_iso === "string"
+              ? params.since_iso
+              : (typeof params.sinceIso === "string" ? params.sinceIso : undefined);
+            const maxFiles = typeof params.max_files === "number"
+              ? params.max_files
+              : (typeof params.maxFiles === "number" ? params.maxFiles : undefined);
+            result = performanceLoopEngine.monthlyReport({ publishedDir, sinceIso, maxFiles });
+            break;
+          }
+
           // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE — auto-postmortem
           case "postmortem_create": {
             const { autoPostmortemEngine } = await import("../../engines/AutoPostmortemEngine.js");
@@ -499,7 +582,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -515,5 +598,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (21 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (26 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create + 1 performance-report + 1 connections-materialize + 1 content-brief-create + 1 voice-validate + 1 capture-sharpen)");
 }
