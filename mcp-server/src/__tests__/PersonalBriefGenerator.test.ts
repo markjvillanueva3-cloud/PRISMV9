@@ -135,16 +135,17 @@ describe("PersonalBriefGenerator", () => {
     expect(c1).not.toEqual(c2);
   });
 
-  it("empty vault returns a brief whose Connections name a concrete path forward", async () => {
+  it("empty vault returns the exact deterministic baseline brief body", async () => {
     const result = await mod.generateBrief({
       vaultRoot: vaultDir(), now: NOW, ollamaCall: stubOllama("UNUSED"), dryRun: true,
     });
-    const conn = getSection(result.content, "## Connections");
-    expect(/inbox|drop|note|capture|observation/i.test(conn)).toBe(true);
-    for (const h of SECTIONS) expect(result.content.includes(h)).toBe(true);
-    const src = getSection(result.content, "## Sources");
-    expect(/none|empty/i.test(src)).toBe(true);
+    // Exact-body assertion: the empty-vault path is fully deterministic and the
+    // text is the contract — any change should break the test on purpose.
+    const expected = mod.buildEmptyVaultBrief(TODAY);
+    expect(result.content).toBe(expected);
     expect(result.sources).toEqual([]);
+    // And spot-check the content carries the actionable next-step language.
+    expect(result.content.includes("knowledge/memories/inbox")).toBe(true);
   });
 
   it("7-day window includes a 5-day-old note and excludes a 10-day-old note", async () => {
@@ -231,17 +232,30 @@ describe("PersonalBriefGenerator", () => {
     expect(/1 sentence/.test(prompt)).toBe(true);
   });
 
-  it("finalizeBrief is idempotent — header counts unchanged on a second pass", () => {
+  it("finalizeBrief is idempotent — second pass produces the exact same output as the first", () => {
     const sources = ["/x/a.md", "/x/b.md", "/x/c.md"];
     const synth = "## Connections\n1. x 2. y 3. z\n## Pattern\np\n## Question\nq\n## Sources\n- a.md\n- b.md\n- c.md";
     const once = mod.finalizeBrief(synth, sources, TODAY);
     const twice = mod.finalizeBrief(once, sources, TODAY);
-    for (const h of SECTIONS) {
-      const re = new RegExp(`^${h.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}\\s*$`, "gm");
-      const c1 = (once.match(re) ?? []).length;
-      const c2 = (twice.match(re) ?? []).length;
-      expect(c2).toBe(c1);
-      expect(c1 >= 1).toBe(true);
-    }
+    expect(twice).toBe(once);
+  });
+
+  it("finalizeBrief produces the exact expected body for a fully-cited model output", () => {
+    const sources = ["/x/a.md", "/x/b.md", "/x/c.md"];
+    const synth = "## Connections\n1. x\n2. y\n3. z\n\n## Pattern\np\n\n## Question\nq\n\n## Sources\n- a.md\n- b.md\n- c.md";
+    const expected = `# Personal Brief — ${TODAY}\n\n## Connections\n1. x\n2. y\n3. z\n\n## Pattern\np\n\n## Question\nq\n\n## Sources\n- a.md\n- b.md\n- c.md\n`;
+    expect(mod.finalizeBrief(synth, sources, TODAY)).toBe(expected);
+  });
+
+  it("finalizeBrief diagnostic backstop names the missing semantic section by header", () => {
+    // Model returned only Connections + Sources — Pattern and Question are absent.
+    const synth = "## Connections\n1. x\n## Sources\n- a.md\n- b.md\n- c.md";
+    const out = mod.finalizeBrief(synth, ["/x/a.md", "/x/b.md", "/x/c.md"], TODAY);
+    // The backstop names the missing section explicitly so the reader knows
+    // the model failed for that section, not that an empty section is "fine".
+    expect(out.includes("Pattern section absent in model output")).toBe(true);
+    expect(out.includes("Question section absent in model output")).toBe(true);
+    // It must not introduce a fabricated bullet that looks like real content.
+    expect(out.includes("(no content produced for this section)")).toBe(false);
   });
 });

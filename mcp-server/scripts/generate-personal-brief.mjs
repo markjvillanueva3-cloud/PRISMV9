@@ -195,31 +195,54 @@ export function buildEmptyVaultBrief(today) {
   ].join("\n");
 }
 
+/** Headers the brief must always carry, in spec order. */
+const REQUIRED_HEADERS = ["## Connections", "## Pattern", "## Question", "## Sources"];
+
+/** Number of source filenames Sources must cite (drives backfill threshold). */
+const MIN_SOURCE_CITATIONS = 3;
+
 /**
  * Wrap a synthesized brief body with header + source-citation guarantees.
- * If the model omitted ## Sources or cited <3 files, we splice in real
- * filenames from the gathered corpus so the output always meets exit_criteria.
+ *
+ * Backfills ## Sources from the real corpus when the model omits it or
+ * under-cites (<MIN_SOURCE_CITATIONS). If model output is structurally
+ * broken (missing the Connections/Pattern/Question semantic body), the
+ * caller should pass a deterministic fallback synth — this function does
+ * NOT fabricate placeholder section content. It will, as a last resort,
+ * append a self-describing "section absent — re-run synthesis" notice
+ * naming the missing header so the reader knows the model failed to
+ * produce that section rather than seeing fabricated content.
+ *
+ * @param synth   model output (or null)
+ * @param sources real corpus filepaths actually consulted
+ * @param today   YYYY-MM-DD
+ * @returns       finalized markdown body with header + four required sections
  */
 export function finalizeBrief(synth, sources, today) {
-  const header = `# Personal Brief — ${today}\n\n`;
-  let body = (synth ?? "").trim();
-  // Backfill ## Sources if missing or short
+  const headerLine = `# Personal Brief — ${today}`;
+  let raw = (synth ?? "").trim();
+  // Idempotence: if input already carries the header, strip it before re-wrap
+  // so a second pass returns the same string as the first.
+  if (raw.startsWith(headerLine)) {
+    raw = raw.slice(headerLine.length).replace(/^\s+/, "");
+  }
+  let body = raw;
+  const srcList = sources.slice(0, 8).map((s) => `- ${basename(s)}`).join("\n");
   const sourcesMatch = body.match(/##\s*Sources[\s\S]*$/i);
-  if (!sourcesMatch || sources.slice(0, 3).some((s) => !sourcesMatch[0].includes(basename(s)))) {
-    const srcList = sources.slice(0, 8).map((s) => `- ${basename(s)}`).join("\n");
-    if (sourcesMatch) {
-      body = body.replace(/##\s*Sources[\s\S]*$/i, `## Sources\n${srcList}`);
-    } else {
-      body = `${body}\n\n## Sources\n${srcList}`;
-    }
+  const undercited = sourcesMatch && sources.slice(0, MIN_SOURCE_CITATIONS).some((s) => !sourcesMatch[0].includes(basename(s)));
+  if (!sourcesMatch) {
+    body = `${body}\n\n## Sources\n${srcList || "- (none — empty corpus)"}`;
+  } else if (undercited) {
+    body = body.replace(/##\s*Sources[\s\S]*$/i, `## Sources\n${srcList}`);
   }
-  // Ensure all four section headers are present (insert empty if missing).
-  for (const h of ["## Connections", "## Pattern", "## Question", "## Sources"]) {
+  // Diagnostic-only backstop: if the model dropped a semantic section, name
+  // what's missing so the failure is loud, not papered over with a stub.
+  for (const h of REQUIRED_HEADERS) {
     if (!body.includes(h)) {
-      body += `\n\n${h}\n(no content produced for this section)`;
+      body += `\n\n${h}\n_${h.replace(/^##\s+/, "")} section absent in model output — re-run synthesis._`;
     }
   }
-  return header + body + "\n";
+  return `${headerLine}\n\n${body}\n`;
 }
 
 /**
