@@ -140,6 +140,15 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_conformal_stats: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
   xproc_conformal_reset: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
   xproc_conformal_constants: () => import("../../engines/CrossProcessConformalPredictionEngine.js").then(m => m.crossProcessConformalPrediction),
+  // U-NN-CONFORMAL01: split-conformal classification (LAC, Sadinle 2019).
+  // Sibling to the regression engine — sets over discrete classes instead
+  // of intervals. Wraps the cross-process NN's softmax output with
+  // marginal-coverage-guaranteed prediction sets.
+  xproc_conformal_classify_calibrate: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
+  xproc_conformal_classify_set: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
+  xproc_conformal_classify_stats: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
+  xproc_conformal_classify_reset: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
+  xproc_conformal_classify_constants: () => import("../../engines/CrossProcessConformalClassificationEngine.js").then(m => m.crossProcessConformalClassification),
   xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
@@ -1697,6 +1706,11 @@ export async function executeAIReasoningAction(
       case "xproc_conformal_stats":
       case "xproc_conformal_reset":
       case "xproc_conformal_constants":
+      case "xproc_conformal_classify_calibrate":
+      case "xproc_conformal_classify_set":
+      case "xproc_conformal_classify_stats":
+      case "xproc_conformal_classify_reset":
+      case "xproc_conformal_classify_constants":
       case "xproc_ensemble_predict":
       case "xproc_ensemble_disagreement":
       case "xproc_ensemble_constants":

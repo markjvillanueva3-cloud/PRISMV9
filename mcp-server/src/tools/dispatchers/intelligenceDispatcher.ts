@@ -39,7 +39,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
     _xprocQLearning: any, _xprocBandit: any,
-    _xprocBayesianMLP: any, _xprocConformal: any,
+    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
@@ -91,6 +91,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocBandit": return _xprocBandit ??= (await import("../../engines/CrossProcessMultiArmedBanditEngine.js")).crossProcessMultiArmedBandit;
     case "xprocBayesianMLP": return _xprocBayesianMLP ??= (await import("../../engines/CrossProcessBayesianMLPEngine.js")).crossProcessBayesianMLP;
     case "xprocConformal": return _xprocConformal ??= (await import("../../engines/CrossProcessConformalPredictionEngine.js")).crossProcessConformalPrediction;
+    case "xprocConformalClassify": return _xprocConformalClassify ??= (await import("../../engines/CrossProcessConformalClassificationEngine.js")).crossProcessConformalClassification;
     case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
@@ -359,6 +360,12 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_conformal_stats",
   "xproc_conformal_reset",
   "xproc_conformal_constants",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-CONFORMAL01 — split-conformal classification (LAC)
+  "xproc_conformal_classify_calibrate",
+  "xproc_conformal_classify_set",
+  "xproc_conformal_classify_stats",
+  "xproc_conformal_classify_reset",
+  "xproc_conformal_classify_constants",
   // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble disagreement
   "xproc_ensemble_predict",
   "xproc_ensemble_disagreement",
@@ -1811,6 +1818,12 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_conformal_stats: "xprocConformal",
           xproc_conformal_reset: "xprocConformal",
           xproc_conformal_constants: "xprocConformal",
+          // XPROC-NEURAL-OPTIMIZE/U-NN-CONFORMAL01 — Conformal Classification (LAC)
+          xproc_conformal_classify_calibrate: "xprocConformalClassify",
+          xproc_conformal_classify_set: "xprocConformalClassify",
+          xproc_conformal_classify_stats: "xprocConformalClassify",
+          xproc_conformal_classify_reset: "xprocConformalClassify",
+          xproc_conformal_classify_constants: "xprocConformalClassify",
           // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble
           xproc_ensemble_predict: "xprocDeepEnsemble",
           xproc_ensemble_disagreement: "xprocDeepEnsemble",
