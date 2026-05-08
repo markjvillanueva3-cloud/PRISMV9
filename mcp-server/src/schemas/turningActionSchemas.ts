@@ -467,6 +467,15 @@ const lathe_lora_ensemble_orch_stats = z.object({}).passthrough().describe("Read
 const lathe_lora_experiment_stats = z.object({}).passthrough().describe("Read LoRA experiment-tracker stats (no input).");
 const lathe_lora_hyperparam_presets = z.object({}).passthrough().describe("List LoRA hyperparameter presets (no input).");
 
+// BATCH10: LoRA cadence-orch/knowledge-graph/master-orch/model-selector/monitoring/resource-mgr engines
+
+const lathe_lora_cadence_orch_config = z.object({}).passthrough().describe("Read LoRA cadence-orchestrator config (no input).");
+const lathe_lora_knowledge_graph_stats = z.object({}).passthrough().describe("Read LoRA knowledge-graph stats (no input).");
+const lathe_lora_master_orch_stats = z.object({}).passthrough().describe("Read LoRA master-orchestrator stats (no input).");
+const lathe_lora_model_selector_stats = z.object({}).passthrough().describe("Read LoRA model-selector stats (no input).");
+const lathe_lora_monitoring_stats = z.object({}).passthrough().describe("Read LoRA monitoring stats (no input).");
+const lathe_lora_resource_manager_stats = z.object({}).passthrough().describe("Read LoRA resource-manager stats (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -541,4 +550,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_ensemble_orch_stats,
   lathe_lora_experiment_stats,
   lathe_lora_hyperparam_presets,
+
+  // BATCH10 schemas: LoRA cadence-orch/knowledge-graph/master-orch/model-selector/monitoring/resource-mgr
+  lathe_lora_cadence_orch_config,
+  lathe_lora_knowledge_graph_stats,
+  lathe_lora_master_orch_stats,
+  lathe_lora_model_selector_stats,
+  lathe_lora_monitoring_stats,
+  lathe_lora_resource_manager_stats,
 };

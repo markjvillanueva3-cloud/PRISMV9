@@ -129,6 +129,14 @@ const ACTIONS = [
   "lathe_lora_ensemble_orch_stats",         // LatheLoRAEnsembleOrchestratorEngine.getStats
   "lathe_lora_experiment_stats",            // LatheLoRAExperimentTrackerEngine.getStats
   "lathe_lora_hyperparam_presets",          // LatheLoRAHyperparameterOptimizerEngine.listPresets
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH10: 6 unwired LoRA cadence-orch/knowledge-graph/master-orch/model-selector/monitoring/resource-mgr engines
+  "lathe_lora_cadence_orch_config",         // LatheLoRACadenceOrchestratorEngine.getConfig
+  "lathe_lora_knowledge_graph_stats",       // LatheLoRAKnowledgeGraphEngine.getStats
+  "lathe_lora_master_orch_stats",           // LatheLoRAMasterOrchestratorEngine.getStats
+  "lathe_lora_model_selector_stats",        // LatheLoRAModelSelectorEngine.getStats
+  "lathe_lora_monitoring_stats",            // LatheLoRAMonitoringEngine.getStats
+  "lathe_lora_resource_manager_stats",      // LatheLoRAResourceManagerEngine.getStats
 ] as const;
 
 /** Registers turning dispatcher.
@@ -788,6 +796,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_lora_hyperparam_presets": {
             const { latheLoRAHyperparameterOptimizerEngine } = await import("../../engines/LatheLoRAHyperparameterOptimizerEngine.js");
             result = { presets: latheLoRAHyperparameterOptimizerEngine.listPresets() };
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH10: 6 unwired LoRA cadence-orch/knowledge-graph/master-orch/model-selector/monitoring/resource-mgr engines
+          case "lathe_lora_cadence_orch_config": {
+            const { latheLoRACadenceOrchestratorEngine } = await import("../../engines/LatheLoRACadenceOrchestratorEngine.js");
+            result = latheLoRACadenceOrchestratorEngine.getConfig();
+            break;
+          }
+          case "lathe_lora_knowledge_graph_stats": {
+            const { latheLoRAKnowledgeGraphEngine } = await import("../../engines/LatheLoRAKnowledgeGraphEngine.js");
+            result = latheLoRAKnowledgeGraphEngine.getStats();
+            break;
+          }
+          case "lathe_lora_master_orch_stats": {
+            const { latheLoRAMasterOrchestratorEngine } = await import("../../engines/LatheLoRAMasterOrchestratorEngine.js");
+            result = latheLoRAMasterOrchestratorEngine.getStats();
+            break;
+          }
+          case "lathe_lora_model_selector_stats": {
+            const { latheLoRAModelSelectorEngine } = await import("../../engines/LatheLoRAModelSelectorEngine.js");
+            result = latheLoRAModelSelectorEngine.getStats();
+            break;
+          }
+          case "lathe_lora_monitoring_stats": {
+            const { latheLoRAMonitoringEngine } = await import("../../engines/LatheLoRAMonitoringEngine.js");
+            result = latheLoRAMonitoringEngine.getStats();
+            break;
+          }
+          case "lathe_lora_resource_manager_stats": {
+            const { latheLoRAResourceManagerEngine } = await import("../../engines/LatheLoRAResourceManagerEngine.js");
+            result = latheLoRAResourceManagerEngine.getStats();
             break;
           }
 
