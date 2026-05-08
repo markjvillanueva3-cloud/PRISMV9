@@ -86,6 +86,16 @@ const semantic_search = z.object({
   threshold: z.number().min(0).max(1).optional().describe("Minimum similarity score 0-1; below dropped"),
   filter: z.record(z.string(), z.unknown()).optional().describe("Optional Qdrant payload filter"),
 }).passthrough();
+
+// OBSIDIAN-COMPOUND-MS1/S2/U-EMERGING-THESIS — TF-IDF synthesis over vault.
+const emerging_thesis = z.object({
+  window: z.enum(["24h", "7d", "30d"]).optional().describe("Time window over vault mtime; default 7d"),
+  vault_root: z.string().optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().optional().describe("Alias for vault_root"),
+  max_files: z.number().int().positive().max(20000).optional().describe("Cap files scanned"),
+  maxFiles: z.number().int().positive().max(20000).optional().describe("Alias for max_files"),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -99,4 +109,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   record_session_end,
   semantic_search,
   remember,
+  emerging_thesis,
 };

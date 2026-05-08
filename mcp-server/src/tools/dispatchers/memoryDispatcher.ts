@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis",
     {
       action: z.enum([
         "get_health",
@@ -57,6 +57,8 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "agent_memory_reinforce",
         "agent_memory_forget",
         "agent_memory_stats",
+        // OBSIDIAN-COMPOUND-MS1/S2/U-EMERGING-THESIS: TF-IDF synthesis over vault
+        "emerging_thesis",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -405,8 +407,25 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-COMPOUND-MS1/S2/U-EMERGING-THESIS — vault TF-IDF synthesis
+          case "emerging_thesis": {
+            const { emergingThesisEngine } = await import("../../engines/EmergingThesisEngine.js");
+            const window = (typeof params.window === "string" ? params.window : "7d") as "24h" | "7d" | "30d";
+            if (window !== "24h" && window !== "7d" && window !== "30d") {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid window '${window}'. Use one of: 24h, 7d, 30d` }) }] };
+            }
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const maxFiles = typeof params.max_files === "number"
+              ? params.max_files
+              : (typeof params.maxFiles === "number" ? params.maxFiles : undefined);
+            result = emergingThesisEngine.synthesize(window, { vaultRoot, maxFiles });
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -422,5 +441,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (17 actions: 12 graph + 5 agent-memory-fabric)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (18 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis)");
 }
