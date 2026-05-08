@@ -133,19 +133,19 @@ export class SpecificCuttingEnergyEngine {
      * @param Fc - fc
      * @returns void
      */
-    if (Fc && b && h && b > 0 && h > 0) {
+    if (Number.isFinite(Fc) && Number.isFinite(b) && Number.isFinite(h) && Fc! > 0 && b! > 0 && h! > 0) {
       // Method 1: Direct from force and chip cross-section
       // u = Fc / (b × h) [N/mm²] = [J/mm³]
-      u = Fc / (b * h);
+      u = Fc! / (b! * h!);
       u_source = "force_chip_area";
-    } else if (kc1_1 && mc !== undefined && feed) {
+    } else if (Number.isFinite(kc1_1) && Number.isFinite(mc) && Number.isFinite(feed) && kc1_1! > 0 && mc! >= 0 && feed! > 0) {
       // Method 2: From Kienzle model
       // kc = kc1_1 × h^(-mc), u ≈ kc for orthogonal cutting
-      const h_eff = Math.max(feed, 0.01);
-      u = kc1_1 * Math.pow(h_eff, -mc);
+      const h_eff = Math.max(feed!, 0.01);
+      u = kc1_1! * Math.pow(h_eff, -mc!);
       // Convert from N/mm² to J/mm³ (same units but semantic clarity)
       u_source = "kienzle_model";
-    } else if (Fc && Vc && mrrInput && mrrInput > 0) {
+    } else if (Number.isFinite(Fc) && Number.isFinite(Vc) && Number.isFinite(mrrInput) && Fc! > 0 && Vc! > 0 && mrrInput! > 0) {
       // Method 3: From power and MRR
       // P = Fc × Vc / 60000 [kW], u = P / Q [kW / (cm³/min × 1000/60)]
       const P_W = Fc * Vc / 60;  // W (Fc[N] × Vc[m/min] / 60 = N·m/s = W)

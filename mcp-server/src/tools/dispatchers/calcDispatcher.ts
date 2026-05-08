@@ -651,6 +651,8 @@ const ACTIONS = [
   "waterjet_taper_calc",
   "microstructure_analyze", "microstructure_recommend",
   "calc_energy_analyze", "calc_energy_optimize", "energy_compare",
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SCE: SpecificCuttingEnergyEngine ──
+  "calc_specific_cutting_energy",
   // ── Tool Catalog ──
   "tool_catalog_search", "tool_catalog_lookup", "tool_catalog_assembly",
   "tool_catalog_collision_envelope", "tool_catalog_recommend", "tool_catalog_stats",
@@ -4180,6 +4182,13 @@ export function registerCalcDispatcher(server: any): void {
           case "energy_compare": {
             const { energyOptimizationEngine: eoe3 } = await import("../../engines/EnergyOptimizationEngine.js");
             result = eoe3.compare(params.scenarios ?? []);
+            break;
+          }
+
+          // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SCE: SpecificCuttingEnergyEngine ──
+          case "calc_specific_cutting_energy": {
+            const { specificCuttingEnergyEngine } = await import("../../engines/SpecificCuttingEnergyEngine.js");
+            result = specificCuttingEnergyEngine.calculate(params as Parameters<typeof specificCuttingEnergyEngine.calculate>[0]);
             break;
           }
 

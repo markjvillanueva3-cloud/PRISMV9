@@ -2402,6 +2402,30 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
       input: z.record(z.string(), z.unknown()),
     })).optional(),
   }).passthrough(),
+  // ── ENGINE-WIRE-CALC/U-WIRE-CALC-SCE: SpecificCuttingEnergyEngine ──
+  calc_specific_cutting_energy: z.object({
+    // Method 1: force + chip geometry
+    cutting_force_N: z.number().positive().optional(),
+    chip_width_mm: z.number().positive().optional(),
+    chip_thickness_mm: z.number().positive().optional(),
+    // Method 2: Kienzle coefficients
+    kc1_1: z.number().positive().optional(),
+    mc: z.number().min(0).max(1).optional(),
+    feed_mm: z.number().positive().optional(),
+    // Common cutting context
+    mrr_cm3_min: z.number().positive().optional(),
+    cutting_speed_m_min: z.number().positive().optional(),
+    depth_of_cut_mm: z.number().positive().optional(),
+    width_of_cut_mm: z.number().positive().optional(),
+    // Job context
+    volume_to_remove_cm3: z.number().positive().optional(),
+    machining_time_min: z.number().positive().optional(),
+    machine_standby_power_kW: z.number().nonnegative().optional(),
+    spindle_efficiency: z.number().gt(0).max(1).optional(),
+    // Energy/sustainability
+    electricity_cost_per_kWh: z.number().positive().optional(),
+    energy_source: z.enum(["grid_average", "coal", "natural_gas", "nuclear", "renewable"]).optional(),
+  }).passthrough(),
   kdtree_nearest: z.object({
     points: z.array(z.object({ x: z.number(), y: z.number(), z: z.number() })),
     query_x: z.number(),
