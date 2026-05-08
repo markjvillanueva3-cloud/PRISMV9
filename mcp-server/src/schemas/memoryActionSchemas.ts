@@ -107,6 +107,18 @@ const daily_brief_get = z.object({
   maxConnections: z.number().int().positive().max(20).optional().describe("Alias for max_connections"),
 }).passthrough();
 
+// OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
+const contradiction_check = z.object({
+  new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
+  newMemoryPath: z.string().optional().describe("Alias for new_memory_path"),
+  vault_root: z.string().optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().optional().describe("Alias for vault_root"),
+  max_files: z.number().int().positive().max(20000).optional().describe("Cap on candidate vault files scanned"),
+  maxFiles: z.number().int().positive().max(20000).optional().describe("Alias for max_files"),
+  top_k: z.number().int().positive().max(50).optional().describe("Top-K most-similar candidates passed to deeper checks; default 5"),
+  topK: z.number().int().positive().max(50).optional().describe("Alias for top_k"),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -122,4 +134,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   remember,
   emerging_thesis,
   daily_brief_get,
+  contradiction_check,
 };

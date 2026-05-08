@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check",
     {
       action: z.enum([
         "get_health",
@@ -61,6 +61,8 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "emerging_thesis",
         // OBSIDIAN-COMPOUND-MS1/S2/U-DAILY-PERSONAL-BRIEF: cyrilXBT daily brief
         "daily_brief_get",
+        // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
+        "contradiction_check",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -445,8 +447,32 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check
+          case "contradiction_check": {
+            const { contradictionDetectorEngine } = await import("../../engines/ContradictionDetectorEngine.js");
+            const newMemoryPath = typeof params.new_memory_path === "string"
+              ? params.new_memory_path
+              : (typeof params.newMemoryPath === "string" ? params.newMemoryPath : "");
+            if (!newMemoryPath) {
+              return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing required 'new_memory_path' parameter" }) }] };
+            }
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const maxFiles = typeof params.max_files === "number"
+              ? params.max_files
+              : (typeof params.maxFiles === "number" ? params.maxFiles : undefined);
+            const topK = typeof params.top_k === "number"
+              ? params.top_k
+              : (typeof params.topK === "number" ? params.topK : undefined);
+            result = await contradictionDetectorEngine.detectConflicts(newMemoryPath, {
+              vaultRoot, maxFiles, topK,
+            });
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -462,5 +488,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (19 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (20 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check)");
 }
