@@ -1077,6 +1077,90 @@ const mill_milling_twin_sync = z
   .passthrough()
   .describe("Partial<MachineState> for MillingDigitalTwinEngine.sync (anomalies + drift).");
 
+// ─── ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH5: 6 unwired AGI / online-learning / troubleshooting mill engines ─
+
+/** mill_agi_quick_analyze — MillingAGIOrchestrationEngine.quickAnalyze */
+const mill_agi_quick_analyze = z
+  .object({
+    material: z.string().min(1).describe("Material trade name (e.g. '4140', 'Ti-6Al-4V')."),
+    tool_diameter_mm: z.number().positive().describe("Tool diameter (mm)."),
+    cutting_speed_m_min: z.number().positive().describe("Cutting speed Vc (m/min)."),
+    feed_per_tooth_mm: z.number().positive().describe("Feed per tooth fz (mm)."),
+    axial_depth_mm: z.number().positive().describe("Axial depth of cut ap (mm)."),
+  })
+  .passthrough()
+  .describe("AGI orchestrator quick-analyze: force, power, MRR, tool life, quality.");
+
+/** mill_knowledge_orch_recommend — MillingKnowledgeOrchestratorEngine.quickRecommend */
+const mill_knowledge_orch_recommend = z
+  .object({
+    material: z.string().min(1).describe("Material trade name."),
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO material group."),
+    feature_type: z.string().min(1).describe("Feature type (e.g. 'pocket', 'slot', 'face')."),
+    dimensions: z
+      .object({
+        length_mm: z.number().positive().optional(),
+        width_mm: z.number().positive().optional(),
+        depth_mm: z.number().positive().optional(),
+      })
+      .passthrough()
+      .optional()
+      .describe("Optional feature dimensions in mm."),
+    hardness_hrc: z.number().optional(),
+    tool_diameter_mm: z.number().positive().optional(),
+    machine: z.string().optional(),
+    controller: z.string().optional(),
+    customer: z.string().optional(),
+  })
+  .passthrough()
+  .describe("Knowledge-orchestrator quick recommendation: rpm, feed, strategy, confidence, reasoning.");
+
+/** mill_troubleshoot — MillingDeepAIHardeningEngine.troubleshootMillingIssue */
+const mill_troubleshoot = z
+  .object({
+    symptoms: z
+      .array(z.string().min(1))
+      .min(1)
+      .describe("Operator-observed symptoms (chatter, finish, dimensional, etc.)."),
+    material: z.string().optional(),
+    operation: z.string().optional(),
+    tool_type: z.string().optional(),
+    tool_diameter_mm: z.number().positive().optional(),
+    chatter_detected: z.boolean().optional(),
+    surface_finish_ra: z.number().positive().optional(),
+  })
+  .passthrough()
+  .describe("Deep-AI troubleshoot: symptoms → root causes + reasoning chain.");
+
+/** mill_lora_cadence_state — MillingLoRACadenceEngine.getState (no-arg) */
+const mill_lora_cadence_state = z
+  .object({})
+  .passthrough()
+  .describe("No-arg snapshot of LoRA fine-tuning cadence state.");
+
+/** mill_online_record_step — MillingOnlineLearningTrackerEngine.recordStep */
+const mill_online_record_step = z
+  .object({
+    timestamp: z.number().describe("Unix timestamp (ms) of the training step."),
+    prediction_error: z.number().describe("Prediction error for this step."),
+    model_loss: z.number().nonnegative().describe("Model loss value."),
+    learning_rate: z.number().positive().describe("Current learning rate (must be > 0)."),
+    samples_seen: z.number().int().nonnegative().describe("Cumulative samples seen."),
+    feature_importance: z
+      .record(z.string(), z.number())
+      .describe("Feature-name → importance weight map."),
+  })
+  .passthrough()
+  .describe("Record an online-learning step: drift detection + LR adjust + checkpoint flag.");
+
+/** mill_online_detect_drift — MillingOnlineLearningTrackerEngine.detectDrift */
+const mill_online_detect_drift = z
+  .object({
+    error: z.number().describe("Latest prediction error to feed into drift detector."),
+  })
+  .passthrough()
+  .describe("Detect distribution drift from a single error sample.");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -1202,4 +1286,12 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_knowledge_stats,
   mill_ai_unified_recommend,
   mill_milling_twin_sync,
+
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH5: 6 unwired AGI / online-learning / troubleshooting mill engines
+  mill_agi_quick_analyze,
+  mill_knowledge_orch_recommend,
+  mill_troubleshoot,
+  mill_lora_cadence_state,
+  mill_online_record_step,
+  mill_online_detect_drift,
 };

@@ -255,6 +255,13 @@ export const MILL_ACTIONS = [
   "mill_knowledge_stats",              // MillingDeepKnowledgeSynthesisEngine.getSourceStats
   "mill_ai_unified_recommend",         // MillingAIUnificationEngine.quickRecommend
   "mill_milling_twin_sync",            // MillingDigitalTwinEngine.sync
+  // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH5: 6 unwired AGI / online-learning / troubleshooting mill engines
+  "mill_agi_quick_analyze",            // MillingAGIOrchestrationEngine.quickAnalyze
+  "mill_knowledge_orch_recommend",     // MillingKnowledgeOrchestratorEngine.quickRecommend
+  "mill_troubleshoot",                 // MillingDeepAIHardeningEngine.troubleshootMillingIssue
+  "mill_lora_cadence_state",           // MillingLoRACadenceEngine.getState
+  "mill_online_record_step",           // MillingOnlineLearningTrackerEngine.recordStep
+  "mill_online_detect_drift",          // MillingOnlineLearningTrackerEngine.detectDrift
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -804,6 +811,67 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
                         ?? (params as Parameters<typeof millingDigitalTwinEngine.sync>[0]);
             if (!state || typeof state !== "object") throw new Error("mill_milling_twin_sync requires 'machineState'");
             result = millingDigitalTwinEngine.sync(state);
+            break;
+          }
+
+          // ENGINE-WIRE-MILL-MS0/U-WIRE-MILL-BATCH5: 6 unwired AGI / online-learning / troubleshooting mill engines
+          case "mill_agi_quick_analyze": {
+            const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
+            const p = params as {
+              material: string;
+              tool_diameter_mm: number;
+              cutting_speed_m_min: number;
+              feed_per_tooth_mm: number;
+              axial_depth_mm: number;
+            };
+            if (typeof p.material !== "string" || p.material.length === 0) throw new Error("mill_agi_quick_analyze requires 'material'");
+            if (!(p.tool_diameter_mm > 0)) throw new Error("mill_agi_quick_analyze requires positive 'tool_diameter_mm'");
+            if (!(p.cutting_speed_m_min > 0)) throw new Error("mill_agi_quick_analyze requires positive 'cutting_speed_m_min'");
+            if (!(p.feed_per_tooth_mm > 0)) throw new Error("mill_agi_quick_analyze requires positive 'feed_per_tooth_mm'");
+            if (!(p.axial_depth_mm > 0)) throw new Error("mill_agi_quick_analyze requires positive 'axial_depth_mm'");
+            result = millingAGIOrchestrationEngine.quickAnalyze(
+              p.material,
+              p.tool_diameter_mm,
+              p.cutting_speed_m_min,
+              p.feed_per_tooth_mm,
+              p.axial_depth_mm,
+            );
+            break;
+          }
+          case "mill_knowledge_orch_recommend": {
+            const { millingKnowledgeOrchestratorEngine } = await import("../../engines/MillingKnowledgeOrchestratorEngine.js");
+            const req = params as Parameters<typeof millingKnowledgeOrchestratorEngine.quickRecommend>[0];
+            if (!req || typeof req !== "object") throw new Error("mill_knowledge_orch_recommend requires request object");
+            result = millingKnowledgeOrchestratorEngine.quickRecommend(req);
+            break;
+          }
+          case "mill_troubleshoot": {
+            const { millingDeepAIHardeningEngine } = await import("../../engines/MillingDeepAIHardeningEngine.js");
+            const p = params as Parameters<typeof millingDeepAIHardeningEngine.troubleshootMillingIssue>[0];
+            if (!p || !Array.isArray((p as { symptoms?: unknown }).symptoms) || (p as { symptoms: unknown[] }).symptoms.length === 0) {
+              throw new Error("mill_troubleshoot requires non-empty 'symptoms' array");
+            }
+            result = millingDeepAIHardeningEngine.troubleshootMillingIssue(p);
+            break;
+          }
+          case "mill_lora_cadence_state": {
+            const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
+            result = millingLoRACadenceEngine.getState();
+            break;
+          }
+          case "mill_online_record_step": {
+            const { millingOnlineLearningTrackerEngine } = await import("../../engines/MillingOnlineLearningTrackerEngine.js");
+            const p = params as Parameters<typeof millingOnlineLearningTrackerEngine.recordStep>[0];
+            if (!p || typeof p !== "object") throw new Error("mill_online_record_step requires step object");
+            if (!((p as { learning_rate?: number }).learning_rate! > 0)) throw new Error("mill_online_record_step requires positive 'learning_rate'");
+            result = millingOnlineLearningTrackerEngine.recordStep(p);
+            break;
+          }
+          case "mill_online_detect_drift": {
+            const { millingOnlineLearningTrackerEngine } = await import("../../engines/MillingOnlineLearningTrackerEngine.js");
+            const err = (params as { error: number }).error;
+            if (typeof err !== "number" || !Number.isFinite(err)) throw new Error("mill_online_detect_drift requires numeric 'error'");
+            result = millingOnlineLearningTrackerEngine.detectDrift(err);
             break;
           }
 
