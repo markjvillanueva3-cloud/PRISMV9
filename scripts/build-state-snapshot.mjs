@@ -29,7 +29,8 @@
  */
 
 import { readFile, writeFile, readdir, stat } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, statSync, readdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -177,7 +178,50 @@ function categorizeUnwiredByDomain(unwired) {
   return rows.slice(0, 25).map(([domain, count]) => ({ domain, count }));
 }
 
+// Chain-regen: if a dependency's output is older than this, fire its
+// generator before reading. Keeps the snapshot honest across SessionStart
+// fires of build-state-inject without needing a separate daily cron.
+const DEPENDENCY_STALENESS_HOURS = 24;
+
+function ageHours(p) {
+  if (!existsSync(p)) return Infinity;
+  return (Date.now() - statSync(p).mtimeMs) / (1000 * 60 * 60);
+}
+
+function spawnRegen(label, script, timeoutMs = 120_000) {
+  process.stderr.write(`[build-state] regenerating ${label}\n`);
+  const node = process.execPath || "node";
+  const r = spawnSync(node, [script], { timeout: timeoutMs, stdio: "ignore" });
+  if (r.status !== 0) {
+    process.stderr.write(`[build-state] WARN ${label} regen exited ${r.status}\n`);
+  }
+}
+
+function refreshDependenciesIfStale() {
+  // Milestone progress.
+  const msPath = join(STATE_DIR, "MILESTONE_PROGRESS.json");
+  if (ageHours(msPath) > DEPENDENCY_STALENESS_HOURS) {
+    spawnRegen("MILESTONE_PROGRESS", join(REPO_ROOT, "scripts/build-milestone-progress.mjs"));
+  }
+  // Unwired-audit (find latest dated file; if oldest of all candidates is
+  // stale, regenerate).
+  try {
+    const files = readdirSync(STATE_DIR).filter((f) =>
+      /^UNWIRED-ENGINE-AUDIT-\d{4}-\d{2}-\d{2}\.json$/.test(f),
+    );
+    const latest = files.sort().slice(-1)[0];
+    const latestAge = latest ? ageHours(join(STATE_DIR, latest)) : Infinity;
+    if (latestAge > DEPENDENCY_STALENESS_HOURS) {
+      spawnRegen("UNWIRED-ENGINE-AUDIT", join(REPO_ROOT, "scripts/audit-unwired-engines.mjs"), 180_000);
+    }
+  } catch {
+    // No problem — best-effort.
+  }
+}
+
 async function main() {
+  refreshDependenciesIfStale();
+
   const audit = await findLatestUnwiredAudit();
   const ms = await loadMilestoneProgress();
   const wikiTitles = await loadWikiTitles();
