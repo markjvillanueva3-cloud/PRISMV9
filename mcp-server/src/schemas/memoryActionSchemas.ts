@@ -96,6 +96,17 @@ const emerging_thesis = z.object({
   maxFiles: z.number().int().positive().max(20000).optional().describe("Alias for max_files"),
 }).passthrough();
 
+// OBSIDIAN-COMPOUND-MS1/S2/U-DAILY-PERSONAL-BRIEF — cyrilXBT daily brief synth.
+const daily_brief_get = z.object({
+  vault_root: z.string().optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().optional().describe("Alias for vault_root"),
+  wiki_root: z.string().optional().describe("Override wiki root for co-occurrence boost (defaults to knowledge/wiki)"),
+  wikiRoot: z.string().optional().describe("Alias for wiki_root"),
+  threshold: z.number().min(0).max(1).optional().describe("Cosine similarity floor for connections; default 0.72"),
+  max_connections: z.number().int().positive().max(20).optional().describe("Cap on returned connections; default 3"),
+  maxConnections: z.number().int().positive().max(20).optional().describe("Alias for max_connections"),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -110,4 +121,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   semantic_search,
   remember,
   emerging_thesis,
+  daily_brief_get,
 };

@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get",
     {
       action: z.enum([
         "get_health",
@@ -59,6 +59,8 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "agent_memory_stats",
         // OBSIDIAN-COMPOUND-MS1/S2/U-EMERGING-THESIS: TF-IDF synthesis over vault
         "emerging_thesis",
+        // OBSIDIAN-COMPOUND-MS1/S2/U-DAILY-PERSONAL-BRIEF: cyrilXBT daily brief
+        "daily_brief_get",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -424,8 +426,27 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-COMPOUND-MS1/S2/U-DAILY-PERSONAL-BRIEF — cyrilXBT brief synth
+          case "daily_brief_get": {
+            const { dailyPersonalBriefEngine } = await import("../../engines/DailyPersonalBriefEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const wikiRoot = typeof params.wiki_root === "string"
+              ? params.wiki_root
+              : (typeof params.wikiRoot === "string" ? params.wikiRoot : undefined);
+            const threshold = typeof params.threshold === "number" ? params.threshold : undefined;
+            const maxConnections = typeof params.max_connections === "number"
+              ? params.max_connections
+              : (typeof params.maxConnections === "number" ? params.maxConnections : undefined);
+            result = dailyPersonalBriefEngine.synthesize({
+              vaultRoot, wikiRoot, threshold, maxConnections,
+            });
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -441,5 +462,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (18 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (19 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief)");
 }
