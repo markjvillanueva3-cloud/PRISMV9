@@ -11,6 +11,16 @@
       "description": "Compose 3-connections + 1-pattern + 1-question brief from inbox/memories/wiki-log; written to knowledge/memories/inbox/brief-YYYY-MM-DD.md.",
       "enabled": true,
       "added": "2026-05-07"
+    },
+    {
+      "id": "resources-weekly-scan",
+      "milestone": "OBSIDIAN-COMPOUND-MS1/S5/U-RESOURCES-SCAN-CRON",
+      "command": "node H:/prism/scripts/resources-weekly-scan.mjs --apply",
+      "cron": "23 3 * * *",
+      "timezone": "local",
+      "description": "Walk H:/Resources/ for new/touched files (mtime > last-scan-ts); emit one inbox marker per file at knowledge/memories/inbox/resources-<slug>-<sha>-<date>.md. Batch capped at 5000 files; first cold run completes <300s, steady-state <60s. State at mcp-server/data/state/resources-weekly-scan.json.",
+      "enabled": true,
+      "added": "2026-05-08"
     }
   ]
 }
