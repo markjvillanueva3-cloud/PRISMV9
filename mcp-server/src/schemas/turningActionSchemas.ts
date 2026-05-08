@@ -458,6 +458,15 @@ const lathe_lora_embedding_cache_stats = z.object({}).passthrough().describe("Re
 const lathe_lora_adaptive_refinement_stats = z.object({}).passthrough().describe("Read LoRA adaptive-refinement stats (no input).");
 const lathe_lora_attention_analyzer_stats = z.object({}).passthrough().describe("Read LoRA attention-analyzer stats (no input).");
 
+// BATCH9: LoRA benchmark/continual/dataset/ensemble-orch/experiment/hyperparam engines
+
+const lathe_lora_benchmark_test_cases = z.object({}).passthrough().describe("List LoRA benchmark test cases (no input).");
+const lathe_lora_continual_buffer_stats = z.object({}).passthrough().describe("Read LoRA continual-learning replay-buffer stats (no input).");
+const lathe_lora_dataset_stats = z.object({}).passthrough().describe("Read LoRA dataset-builder stats (no input).");
+const lathe_lora_ensemble_orch_stats = z.object({}).passthrough().describe("Read LoRA ensemble-orchestrator stats (no input).");
+const lathe_lora_experiment_stats = z.object({}).passthrough().describe("Read LoRA experiment-tracker stats (no input).");
+const lathe_lora_hyperparam_presets = z.object({}).passthrough().describe("List LoRA hyperparameter presets (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -524,4 +533,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_embedding_cache_stats,
   lathe_lora_adaptive_refinement_stats,
   lathe_lora_attention_analyzer_stats,
+
+  // BATCH9 schemas: LoRA benchmark/continual/dataset/ensemble-orch/experiment/hyperparam
+  lathe_lora_benchmark_test_cases,
+  lathe_lora_continual_buffer_stats,
+  lathe_lora_dataset_stats,
+  lathe_lora_ensemble_orch_stats,
+  lathe_lora_experiment_stats,
+  lathe_lora_hyperparam_presets,
 };

@@ -121,6 +121,14 @@ const ACTIONS = [
   "lathe_lora_embedding_cache_stats",       // LatheLoRAEmbeddingCacheEngine.getStats
   "lathe_lora_adaptive_refinement_stats",   // LatheLoRAAdaptiveRefinementEngine.getStats
   "lathe_lora_attention_analyzer_stats",    // LatheLoRAAttentionAnalyzerEngine.getStats
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH9: 6 unwired LoRA benchmark/continual/dataset/ensemble-orch/experiment/hyperparam engines
+  "lathe_lora_benchmark_test_cases",        // LatheLoRABenchmarkSuiteEngine.getTestCases
+  "lathe_lora_continual_buffer_stats",      // LatheLoRAContinualLearningEngine.getBufferStats
+  "lathe_lora_dataset_stats",               // LatheLoRADatasetBuilderEngine.getStats
+  "lathe_lora_ensemble_orch_stats",         // LatheLoRAEnsembleOrchestratorEngine.getStats
+  "lathe_lora_experiment_stats",            // LatheLoRAExperimentTrackerEngine.getStats
+  "lathe_lora_hyperparam_presets",          // LatheLoRAHyperparameterOptimizerEngine.listPresets
 ] as const;
 
 /** Registers turning dispatcher.
@@ -748,6 +756,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_lora_attention_analyzer_stats": {
             const { latheLoRAAttentionAnalyzerEngine } = await import("../../engines/LatheLoRAAttentionAnalyzerEngine.js");
             result = latheLoRAAttentionAnalyzerEngine.getStats();
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH9: 6 unwired LoRA benchmark/continual/dataset/ensemble-orch/experiment/hyperparam engines
+          case "lathe_lora_benchmark_test_cases": {
+            const { latheLoRABenchmarkSuiteEngine } = await import("../../engines/LatheLoRABenchmarkSuiteEngine.js");
+            result = { test_cases: latheLoRABenchmarkSuiteEngine.getTestCases() };
+            break;
+          }
+          case "lathe_lora_continual_buffer_stats": {
+            const { latheLoRAContinualLearningEngine } = await import("../../engines/LatheLoRAContinualLearningEngine.js");
+            result = latheLoRAContinualLearningEngine.getBufferStats();
+            break;
+          }
+          case "lathe_lora_dataset_stats": {
+            const { latheLoRADatasetBuilderEngine } = await import("../../engines/LatheLoRADatasetBuilderEngine.js");
+            result = latheLoRADatasetBuilderEngine.getStats();
+            break;
+          }
+          case "lathe_lora_ensemble_orch_stats": {
+            const { latheLoRAEnsembleOrchestratorEngine } = await import("../../engines/LatheLoRAEnsembleOrchestratorEngine.js");
+            result = latheLoRAEnsembleOrchestratorEngine.getStats();
+            break;
+          }
+          case "lathe_lora_experiment_stats": {
+            const { latheLoRAExperimentTrackerEngine } = await import("../../engines/LatheLoRAExperimentTrackerEngine.js");
+            result = latheLoRAExperimentTrackerEngine.getStats();
+            break;
+          }
+          case "lathe_lora_hyperparam_presets": {
+            const { latheLoRAHyperparameterOptimizerEngine } = await import("../../engines/LatheLoRAHyperparameterOptimizerEngine.js");
+            result = { presets: latheLoRAHyperparameterOptimizerEngine.listPresets() };
             break;
           }
 
