@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create",
     {
       action: z.enum([
         "get_health",
@@ -63,6 +63,8 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "daily_brief_get",
         // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
         "contradiction_check",
+        // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
+        "postmortem_create",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -471,8 +473,33 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE — auto-postmortem
+          case "postmortem_create": {
+            const { autoPostmortemEngine } = await import("../../engines/AutoPostmortemEngine.js");
+            const events = Array.isArray(params.events) ? params.events : [];
+            const recentCommits = Array.isArray(params.recent_commits)
+              ? params.recent_commits
+              : (Array.isArray(params.recentCommits) ? params.recentCommits : []);
+            const errorDescription = typeof params.error_description === "string"
+              ? params.error_description
+              : (typeof params.errorDescription === "string" ? params.errorDescription : undefined);
+            const scrutinyVerdict = (typeof params.scrutiny_verdict === "string"
+              ? params.scrutiny_verdict
+              : params.scrutinyVerdict) as "PASS" | "FAIL" | "MISSING" | undefined;
+            const mistakesDir = typeof params.mistakes_dir === "string"
+              ? params.mistakes_dir
+              : (typeof params.mistakesDir === "string" ? params.mistakesDir : undefined);
+            const apply = params.apply !== false; // default true for dispatcher invocation
+            const mode = (typeof params.mode === "string" ? params.mode : "create") as "create" | "update";
+            result = autoPostmortemEngine.evaluate(
+              { events, recentCommits, errorDescription, scrutinyVerdict },
+              { mistakesDir, apply, mode },
+            );
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -488,5 +515,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (20 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (21 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create)");
 }

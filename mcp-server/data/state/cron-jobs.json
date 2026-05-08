@@ -21,6 +21,16 @@
       "description": "Walk H:/Resources/ for new/touched files (mtime > last-scan-ts); emit one inbox marker per file at knowledge/memories/inbox/resources-<slug>-<sha>-<date>.md. Batch capped at 5000 files; first cold run completes <300s, steady-state <60s. State at mcp-server/data/state/resources-weekly-scan.json.",
       "enabled": true,
       "added": "2026-05-08"
+    },
+    {
+      "id": "tribal-consolidate-weekly",
+      "milestone": "OBSIDIAN-COMPOUND-MS1/S6/U-TRIBAL-CONSOLIDATE",
+      "command": "node H:/prism/scripts/tribal-consolidate-weekly.mjs --apply",
+      "cron": "13 4 * * 1",
+      "timezone": "local",
+      "description": "Promote high-confidence tribal tip clusters (confidence >= 60, cluster_size >= 3) to knowledge/memories/reference/tribal-<topic>-YYYY-WW.md. Idempotent on ISO-week. Surfaces tribal knowledge as reference material for /weekly-synthesis to incorporate. Deterministic template synthesis (no LLM round-trip).",
+      "enabled": true,
+      "added": "2026-05-08"
     }
   ]
 }

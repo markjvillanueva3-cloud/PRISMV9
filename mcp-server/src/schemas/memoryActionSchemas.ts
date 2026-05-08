@@ -119,6 +119,26 @@ const contradiction_check = z.object({
   topK: z.number().int().positive().max(50).optional().describe("Alias for top_k"),
 }).passthrough();
 
+// OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE — auto-postmortem markdown.
+const postmortem_create = z.object({
+  events: z.array(z.object({
+    ts: z.string().describe("ISO8601 timestamp of the stop attempt"),
+    uncommitted: z.boolean().describe("Whether the working tree had uncommitted changes at this stop"),
+    errorSig: z.string().optional().describe("Optional error signature carried by the stop reason"),
+    filesTouched: z.array(z.string()).optional().describe("Files referenced in the failure context"),
+  }).passthrough()).optional().describe("Stop event list (rolling window)"),
+  recent_commits: z.array(z.string()).optional().describe("Recent commit subjects, most-recent first"),
+  recentCommits: z.array(z.string()).optional().describe("Alias for recent_commits"),
+  error_description: z.string().optional().describe("Optional human-supplied error description"),
+  errorDescription: z.string().optional().describe("Alias for error_description"),
+  scrutiny_verdict: z.enum(["PASS", "FAIL", "MISSING"]).optional().describe("Scrutiny gate verdict"),
+  scrutinyVerdict: z.enum(["PASS", "FAIL", "MISSING"]).optional().describe("Alias for scrutiny_verdict"),
+  mistakes_dir: z.string().optional().describe("Override knowledge/memories/mistakes/ directory"),
+  mistakesDir: z.string().optional().describe("Alias for mistakes_dir"),
+  apply: z.boolean().optional().describe("If false, dry-run; if absent, defaults to true on dispatcher invocation"),
+  mode: z.enum(["create", "update"]).optional().describe("create (default) or update existing postmortem"),
+}).passthrough();
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -135,4 +155,5 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   emerging_thesis,
   daily_brief_get,
   contradiction_check,
+  postmortem_create,
 };
