@@ -431,12 +431,27 @@ class PDFProcessingPipelineEngine {
   // PRIVATE: Filesystem
   // ==========================================================================
 
-  private _findPDFs(maxPdfs?: number): string[] {
-    const locations = [
-      "H:/prism",
-      "H:/PRISM_ARCHIVE_2026-02-01",
-      "H:/prism/BOX",
-    ];
+  /**
+   * Default scan locations + per-root depth caps.
+   *
+   * OBSIDIAN-COMPOUND-MS1/S4/U-PDF-SCAN-EXTEND: H:/ root added at depth 0
+   * (no recursion) so audit PDFs that live outside the prism repo
+   * (PRISM-Definitive-Audit-*.pdf, PRISM-Platform-*.pdf) get ingested.
+   * Depth-0 means "files in this directory only" — protects against
+   * accidentally walking JM Die programs or other large H:/ subtrees.
+   */
+  static readonly DEFAULT_SCAN_LOCATIONS: ReadonlyArray<{ root: string; maxDepth: number }> = [
+    { root: "H:/prism", maxDepth: 12 },
+    { root: "H:/PRISM_ARCHIVE_2026-02-01", maxDepth: 12 },
+    { root: "H:/prism/BOX", maxDepth: 12 },
+    { root: "H:/", maxDepth: 0 },
+  ];
+
+  private _findPDFs(
+    maxPdfs?: number,
+    opts?: { overrideLocations?: ReadonlyArray<{ root: string; maxDepth: number }> },
+  ): string[] {
+    const locations = opts?.overrideLocations ?? PDFProcessingPipelineEngine.DEFAULT_SCAN_LOCATIONS;
 
     const skipDirs = new Set([
       "node_modules", ".git", "dist", ".claude", ".taskmaster",
@@ -446,9 +461,14 @@ class PDFProcessingPipelineEngine {
     const pdfs: string[] = [];
     const limit = maxPdfs || 5000;
 
-    for (const root of locations) {
+    // Dedup by absolute path: H:/ root scan + H:/prism scan would otherwise
+    // both surface H:/prism/foo.pdf if H:/ recursed (it doesn't, but the
+    // dedup is cheap insurance and guards against future maxDepth widening).
+    const seen = new Set<string>();
+
+    for (const { root, maxDepth } of locations) {
       if (!fs.existsSync(root)) continue;
-      this._walkForPDFs(root, pdfs, skipDirs, limit, 0);
+      this._walkForPDFs(root, pdfs, skipDirs, limit, 0, maxDepth, seen);
       if (pdfs.length >= limit) break;
     }
 
@@ -461,8 +481,10 @@ class PDFProcessingPipelineEngine {
     skipDirs: Set<string>,
     limit: number,
     depth: number,
+    maxDepth: number,
+    seen: Set<string>,
   ): void {
-    if (depth > 12 || results.length >= limit) return;
+    if (depth > maxDepth || results.length >= limit) return;
 
     let items: string[];
     try {
@@ -475,7 +497,8 @@ class PDFProcessingPipelineEngine {
       if (results.length >= limit) return;
       if (skipDirs.has(item)) continue;
 
-      // Skip BOX inside prism to avoid double-counting
+      // Skip BOX inside prism to avoid double-counting (BOX is a separate
+      // top-level entry in DEFAULT_SCAN_LOCATIONS).
       if (dir === "H:/prism" && item === "BOX") continue;
 
       const fullPath = path.join(dir, item);
@@ -487,8 +510,11 @@ class PDFProcessingPipelineEngine {
       }
 
       if (stat.isDirectory()) {
-        this._walkForPDFs(fullPath, results, skipDirs, limit, depth + 1);
+        this._walkForPDFs(fullPath, results, skipDirs, limit, depth + 1, maxDepth, seen);
       } else if (item.toLowerCase().endsWith(".pdf")) {
+        const canonical = fullPath.replace(/\\/g, "/");
+        if (seen.has(canonical)) continue;
+        seen.add(canonical);
         results.push(fullPath);
       }
     }
