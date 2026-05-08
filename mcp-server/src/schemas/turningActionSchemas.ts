@@ -429,6 +429,26 @@ const lathe_block_engagement_stats = z.object({}).passthrough()
 const lathe_chuck_jaw_setup_stats = z.object({}).passthrough()
   .describe("Read chuck-jaw setup engine stats (no input).");
 
+// ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH7: 6 unwired LoRA pipeline/cron/registry/health/drift/verification engines ─
+
+const lathe_lora_pipeline_estimated_duration = z.object({}).passthrough()
+  .describe("Read LoRA pipeline estimated duration (no input).");
+
+const lathe_lora_cron_schedule_summary = z.object({}).passthrough()
+  .describe("Read LoRA cron-job schedule summary (no input).");
+
+const lathe_lora_registry_stats = z.object({}).passthrough()
+  .describe("Read LoRA model-registry stats (no input).");
+
+const lathe_lora_health_summary = z.object({}).passthrough()
+  .describe("Read LoRA health-monitor summary (no input).");
+
+const lathe_lora_drift_config = z.object({}).passthrough()
+  .describe("Read LoRA drift-detector config (no input).");
+
+const lathe_lora_verification_test_cases = z.object({}).passthrough()
+  .describe("List LoRA verification test cases (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -479,4 +499,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_program_signoff_stats,
   lathe_block_engagement_stats,
   lathe_chuck_jaw_setup_stats,
+
+  // BATCH7 schemas: LoRA pipeline/cron/registry/health/drift/verification
+  lathe_lora_pipeline_estimated_duration,
+  lathe_lora_cron_schedule_summary,
+  lathe_lora_registry_stats,
+  lathe_lora_health_summary,
+  lathe_lora_drift_config,
+  lathe_lora_verification_test_cases,
 };

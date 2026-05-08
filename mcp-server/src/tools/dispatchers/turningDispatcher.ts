@@ -105,6 +105,14 @@ const ACTIONS = [
   "lathe_program_signoff_stats",         // LatheProgramSignoffDossierEngine.getStats
   "lathe_block_engagement_stats",        // LatheBlockEngagementSimulatorEngine.getStats
   "lathe_chuck_jaw_setup_stats",         // LatheChuckJawSetupEngine.getStats
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH7: 6 unwired LoRA pipeline/cron/registry/health/drift/verification engines
+  "lathe_lora_pipeline_estimated_duration", // LatheLoRAPipelineEngine.getEstimatedDuration
+  "lathe_lora_cron_schedule_summary",       // LatheLoRACronJobEngine.getScheduleSummary
+  "lathe_lora_registry_stats",              // LatheLoRAModelRegistryEngine.getStats
+  "lathe_lora_health_summary",              // LatheLoRAHealthMonitorEngine.getSummary
+  "lathe_lora_drift_config",                // LatheLoRADriftDetectorEngine.getConfig
+  "lathe_lora_verification_test_cases",     // LatheLoRAVerificationEngine.getTestCases
 ] as const;
 
 /** Registers turning dispatcher.
@@ -668,6 +676,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_chuck_jaw_setup_stats": {
             const { latheChuckJawSetupEngine } = await import("../../engines/LatheChuckJawSetupEngine.js");
             result = latheChuckJawSetupEngine.getStats();
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH7: 6 unwired LoRA pipeline/cron/registry/health/drift/verification engines
+          case "lathe_lora_pipeline_estimated_duration": {
+            const { latheLoRAPipelineEngine } = await import("../../engines/LatheLoRAPipelineEngine.js");
+            result = latheLoRAPipelineEngine.getEstimatedDuration();
+            break;
+          }
+          case "lathe_lora_cron_schedule_summary": {
+            const { latheLoRACronJobEngine } = await import("../../engines/LatheLoRACronJobEngine.js");
+            result = { summary: latheLoRACronJobEngine.getScheduleSummary() };
+            break;
+          }
+          case "lathe_lora_registry_stats": {
+            const { latheLoRAModelRegistryEngine } = await import("../../engines/LatheLoRAModelRegistryEngine.js");
+            result = latheLoRAModelRegistryEngine.getStats();
+            break;
+          }
+          case "lathe_lora_health_summary": {
+            const { latheLoRAHealthMonitorEngine } = await import("../../engines/LatheLoRAHealthMonitorEngine.js");
+            result = { summary: latheLoRAHealthMonitorEngine.getSummary() };
+            break;
+          }
+          case "lathe_lora_drift_config": {
+            const { latheLoRADriftDetectorEngine } = await import("../../engines/LatheLoRADriftDetectorEngine.js");
+            result = latheLoRADriftDetectorEngine.getConfig();
+            break;
+          }
+          case "lathe_lora_verification_test_cases": {
+            const { latheLoRAVerificationEngine } = await import("../../engines/LatheLoRAVerificationEngine.js");
+            result = { test_cases: latheLoRAVerificationEngine.getTestCases() };
             break;
           }
 
