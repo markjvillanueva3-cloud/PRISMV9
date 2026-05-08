@@ -306,9 +306,17 @@ function spawnReview(provider, bin, args, stdinPayload) {
  * unreachable; preventing local-Ollama outages from blocking cloud
  * review is the whole point of this being advisory by default.
  */
-async function runOllamaPreflight(prompt) {
+async function runOllamaPreflight(prompt, opts = {}) {
   const start = Date.now();
-  if (!PREFLIGHT_ENABLED) {
+  // Test-time injectable overrides; production callers pass nothing and
+  // the module-scoped env-derived constants apply.
+  const enabled = opts.enabled ?? PREFLIGHT_ENABLED;
+  const url = opts.url ?? PREFLIGHT_URL;
+  const model = opts.model ?? PREFLIGHT_MODEL;
+  const timeoutMs = opts.timeoutMs ?? PREFLIGHT_TIMEOUT_MS;
+  const maxPromptBytes = opts.maxPromptBytes ?? PREFLIGHT_MAX_PROMPT_BYTES;
+  const fetchImpl = opts.fetchImpl ?? globalThis.fetch;
+  if (!enabled) {
     return {
       provider: "ollama-preflight",
       verdict: "skipped",
@@ -319,18 +327,18 @@ async function runOllamaPreflight(prompt) {
     };
   }
   // Trim prompt to local context window — strip the diff middle if needed.
-  const safePrompt = prompt.length > PREFLIGHT_MAX_PROMPT_BYTES
-    ? prompt.slice(0, PREFLIGHT_MAX_PROMPT_BYTES) +
-      `\n\n[preflight: prompt truncated to ${PREFLIGHT_MAX_PROMPT_BYTES} bytes; full diff is ${prompt.length}]`
+  const safePrompt = prompt.length > maxPromptBytes
+    ? prompt.slice(0, maxPromptBytes) +
+      `\n\n[preflight: prompt truncated to ${maxPromptBytes} bytes; full diff is ${prompt.length}]`
     : prompt;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), PREFLIGHT_TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch(PREFLIGHT_URL, {
+    const res = await fetchImpl(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: PREFLIGHT_MODEL,
+        model,
         prompt: safePrompt,
         stream: false,
         options: { temperature: 0.2, num_predict: 600 },
@@ -366,7 +374,7 @@ async function runOllamaPreflight(prompt) {
       provider: "ollama-preflight",
       verdict,
       blockers: blockerLines,
-      notes: `[advisory ${PREFLIGHT_MODEL} ${Date.now() - start}ms] ${verdictNote}`.trim(),
+      notes: `[advisory ${model} ${Date.now() - start}ms] ${verdictNote}`.trim(),
       durationMs: Date.now() - start,
       skipped: false,
       rawOutputPeek: cleaned.slice(0, MAX_OUTPUT_PEEK),
@@ -612,7 +620,33 @@ async function main() {
   console.log(JSON.stringify(out, null, 2));
 }
 
-main().catch((err) => {
-  console.log(JSON.stringify({ ok: false, error: "uncaught", message: err?.message || String(err) }, null, 2));
-  process.exit(2);
-});
+// Only run main() when invoked as a CLI, not when imported by tests.
+// Vitest imports this module to test runOllamaPreflight() in isolation;
+// without this guard, every import would re-trigger the full CLI flow.
+const isCliEntry = (() => {
+  try {
+    const argvUrl = fileURLToPath(import.meta.url);
+    return process.argv[1] && path.resolve(process.argv[1]) === path.resolve(argvUrl);
+  } catch { return false; }
+})();
+
+if (isCliEntry) {
+  main().catch((err) => {
+    console.log(JSON.stringify({ ok: false, error: "uncaught", message: err?.message || String(err) }, null, 2));
+    process.exit(2);
+  });
+}
+
+// Exports for test harness — see OllamaPreflight.test.ts.
+// Public test surface is intentionally minimal: only the local-arm function
+// + the env-config readback so tests can verify mode parsing.
+export {
+  runOllamaPreflight,
+  PREFLIGHT_MODE,
+  PREFLIGHT_ENABLED,
+  PREFLIGHT_GATE,
+  PREFLIGHT_URL,
+  PREFLIGHT_MODEL,
+  PREFLIGHT_TIMEOUT_MS,
+  PREFLIGHT_MAX_PROMPT_BYTES,
+};
