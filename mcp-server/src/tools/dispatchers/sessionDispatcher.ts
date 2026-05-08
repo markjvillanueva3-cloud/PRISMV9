@@ -109,7 +109,9 @@ const ACTIONS = [
   "awareness_command_suggest_string",
   "awareness_filter",
   "awareness_lifecycle_get_current",
-  "awareness_lifecycle_get_history"
+  "awareness_lifecycle_get_history",
+  // OBSIDIAN-AUTOMATE-MS3/U-OLLAMA-HEALTH-EXPOSE: surface OllamaIntegrationEngine
+  "ollama_health"
 ] as const;
 
 function ok(data: any) {
@@ -1398,6 +1400,31 @@ export function registerSessionDispatcher(server: any): void {
               cache.set(sid, engine);
             }
             return ok({ history: engine.getHistory() });
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-OLLAMA-HEALTH-EXPOSE — surface Ollama daemon health
+          case "ollama_health": {
+            const { ollamaIntegrationEngine } = await import("../../engines/OllamaIntegrationEngine.js");
+            const probeFresh = params.probe_fresh === true || params.probeFresh === true;
+            const refreshModels = params.refresh_models === true || params.refreshModels === true;
+            const health = probeFresh
+              ? await ollamaIntegrationEngine.ping()
+              : ollamaIntegrationEngine.snapshotHealth();
+            const models = await ollamaIntegrationEngine.discoverModels(refreshModels);
+            return ok({
+              connected: health.connected,
+              host: health.host,
+              lastPingAt: health.lastPingAt,
+              lastPingOk: health.lastPingOk,
+              lastPingLatencyMs: health.lastPingLatencyMs,
+              avgLatencyMs: health.avgLatencyMs,
+              okStreak: health.okStreak,
+              failStreak: health.failStreak,
+              pingsAttempted: health.pingsAttempted,
+              models,
+              defaultModelMap: ollamaIntegrationEngine.listDefaults(),
+              status: ollamaIntegrationEngine.status(),
+            });
           }
 
           default:

@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -78,6 +78,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS: Ollama nomic-embed-text wrapper
         "embed_text",
         "embed_pairwise_cosine",
+        // OBSIDIAN-AUTOMATE-MS3/U-INBOX-OPS-EXPOSE: on-demand inbox operators
+        "inbox_prune_now",
+        "inbox_promote_now",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -599,6 +602,42 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-AUTOMATE-MS3/U-INBOX-OPS-EXPOSE — run inbox-prune-stale on demand
+          case "inbox_prune_now": {
+            // @ts-expect-error — .mjs script lacks .d.ts; runtime contract is { runInboxPrune(opts): Result }
+            const { runInboxPrune } = await import("../../../scripts/inbox-prune-stale.mjs");
+            const apply = params.apply !== false; // default true
+            const inbox = typeof params.inbox === "string" ? params.inbox : undefined;
+            const archive = typeof params.archive === "string" ? params.archive : undefined;
+            const stateFile = typeof params.state_file === "string"
+              ? params.state_file
+              : (typeof params.stateFile === "string" ? params.stateFile : undefined);
+            result = runInboxPrune({
+              flags: { apply },
+              ...(inbox ? { inbox } : {}),
+              ...(archive ? { archive } : {}),
+              ...(stateFile ? { stateFile } : {}),
+            });
+            break;
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-INBOX-OPS-EXPOSE — run inbox-auto-promote on demand
+          case "inbox_promote_now": {
+            // @ts-expect-error — .mjs script lacks .d.ts; runtime contract is { runInboxAutoPromote(opts): Promise<Result> }
+            const { runInboxAutoPromote } = await import("../../../scripts/inbox-auto-promote.mjs");
+            const apply = params.apply !== false; // default true
+            const inbox = typeof params.inbox === "string" ? params.inbox : undefined;
+            const stateFile = typeof params.state_file === "string"
+              ? params.state_file
+              : (typeof params.stateFile === "string" ? params.stateFile : undefined);
+            result = await runInboxAutoPromote({
+              flags: { apply },
+              ...(inbox ? { inbox } : {}),
+              ...(stateFile ? { stateFile } : {}),
+            });
+            break;
+          }
+
           // OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS — pairwise cosine similarity for N inputs
           case "embed_pairwise_cosine": {
             const { ollamaEmbedderEngine } = await import("../../engines/OllamaEmbedderEngine.js");
@@ -626,7 +665,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
@@ -642,5 +681,5 @@ export function registerMemoryDispatcher(server: McpServer): void {
     }
   );
 
-  log.info("[MEMORY_DISPATCH] prism_memory registered (28 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create + 1 performance-report + 1 connections-materialize + 1 content-brief-create + 1 voice-validate + 1 capture-sharpen + 2 ollama-embedding)");
+  log.info("[MEMORY_DISPATCH] prism_memory registered (30 actions: 12 graph + 5 agent-memory-fabric + 1 emerging-thesis + 1 daily-brief + 1 contradiction-check + 1 postmortem-create + 1 performance-report + 1 connections-materialize + 1 content-brief-create + 1 voice-validate + 1 capture-sharpen + 2 ollama-embedding + 2 inbox-ops)");
 }
