@@ -65,6 +65,14 @@ const ACTIONS = [
   "lathe_birdnest_predict",              // LatheBirdNestPredictorEngine.predict
   "lathe_coaxiality_runout_validate",    // LatheCoaxialityRunoutValidatorEngine.validate
   "lathe_block_time_profile",            // LatheBlockTimeProfilerEngine.profile
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH2: 6 unwired AI/intelligence/knowledge engines
+  "lathe_anomaly_detect_program",        // LatheAnomalyDetectionEngine.detectProgramAnomalies
+  "lathe_causal_build_model",            // LatheCausalInferenceEngine.buildCausalModel
+  "lathe_ensemble_stats",                // LatheEnsembleLearningEngine.getStats
+  "lathe_changeover_stats",              // LatheChangeoverBriefEngine.getStats
+  "lathe_jmdie_extract_customer",        // LatheJMDieKnowledgeEngine.extractCustomerPatterns
+  "lathe_metallurgy_tool_steel_db",      // LatheMetallurgyEngine.getToolSteelDatabase
 ] as const;
 
 /** Registers turning dispatcher.
@@ -411,6 +419,50 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = latheBlockTimeProfilerEngine.profile(params as Parameters<typeof latheBlockTimeProfilerEngine.profile>[0]);
             break;
           }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH2: 6 unwired AI/intelligence/knowledge engines
+          case "lathe_anomaly_detect_program": {
+            const { latheAnomalyDetectionEngine } = await import("../../engines/LatheAnomalyDetectionEngine.js");
+            const program = (params as { program: Parameters<typeof latheAnomalyDetectionEngine.detectProgramAnomalies>[0] }).program
+                          ?? (params as Parameters<typeof latheAnomalyDetectionEngine.detectProgramAnomalies>[0]);
+            if (!program || typeof program.program_id !== "string" || !Array.isArray(program.blocks)) {
+              throw new Error("lathe_anomaly_detect_program requires {program_id, blocks[]}");
+            }
+            result = latheAnomalyDetectionEngine.detectProgramAnomalies(program);
+            break;
+          }
+          case "lathe_causal_build_model": {
+            const { latheCausalInferenceEngine } = await import("../../engines/LatheCausalInferenceEngine.js");
+            const p = params as { domain: Parameters<typeof latheCausalInferenceEngine.buildCausalModel>[0] };
+            if (typeof p.domain !== "string") throw new Error("lathe_causal_build_model requires 'domain'");
+            result = latheCausalInferenceEngine.buildCausalModel(p.domain);
+            break;
+          }
+          case "lathe_ensemble_stats": {
+            const { latheEnsembleLearningEngine } = await import("../../engines/LatheEnsembleLearningEngine.js");
+            result = latheEnsembleLearningEngine.getStats();
+            break;
+          }
+          case "lathe_changeover_stats": {
+            const { latheChangeoverBriefEngine } = await import("../../engines/LatheChangeoverBriefEngine.js");
+            result = latheChangeoverBriefEngine.getStats();
+            break;
+          }
+          case "lathe_jmdie_extract_customer": {
+            const { latheJMDieKnowledgeEngine } = await import("../../engines/LatheJMDieKnowledgeEngine.js");
+            const p = params as { customer: string };
+            if (typeof p.customer !== "string" || p.customer.length === 0) {
+              throw new Error("lathe_jmdie_extract_customer requires non-empty 'customer'");
+            }
+            result = latheJMDieKnowledgeEngine.extractCustomerPatterns(p.customer);
+            break;
+          }
+          case "lathe_metallurgy_tool_steel_db": {
+            const { latheMetallurgyEngine } = await import("../../engines/LatheMetallurgyEngine.js");
+            result = { tool_steels: latheMetallurgyEngine.getToolSteelDatabase() };
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

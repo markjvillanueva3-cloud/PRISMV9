@@ -216,6 +216,55 @@ const hard_turn_optimize = z.object({
 // EXPORT MAP
 // ============================================================================
 
+// ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH2: 6 unwired AI/intelligence/knowledge engines ─
+
+/** lathe_anomaly_detect_program — LatheAnomalyDetectionEngine.detectProgramAnomalies */
+const lathe_anomaly_detect_program = z.object({
+  program_id: z.string().min(1).describe("Program identifier."),
+  program_name: z.string().optional(),
+  blocks: z.array(
+    z.object({
+      line_number: z.number().int().nonnegative(),
+      raw_text: z.string(),
+      g_codes: z.array(z.string()),
+      m_codes: z.array(z.string()),
+      x: z.number().optional(),
+      z: z.number().optional(),
+      f: z.number().optional(),
+      s: z.number().optional(),
+      t: z.number().optional(),
+      comment: z.string().optional(),
+    }).passthrough(),
+  ).min(1).describe("G-code blocks to scan."),
+  metadata: z.record(z.string(), z.any()).optional(),
+}).passthrough().describe("Detect anomalies in a parsed lathe G-code program.");
+
+/** lathe_causal_build_model — LatheCausalInferenceEngine.buildCausalModel */
+const lathe_causal_build_model = z.object({
+  domain: z.enum([
+    "lathe_turning", "lathe_boring", "lathe_threading", "lathe_grooving", "general",
+  ]).describe("Lathe operation domain for the causal model."),
+  customVariables: z.array(z.record(z.string(), z.any())).optional(),
+  customEdges: z.array(z.record(z.string(), z.any())).optional(),
+}).passthrough().describe("Build a structural causal model for a lathe domain.");
+
+/** lathe_ensemble_stats — LatheEnsembleLearningEngine.getStats (no input) */
+const lathe_ensemble_stats = z.object({}).passthrough()
+  .describe("Read ensemble learning stats (no input).");
+
+/** lathe_changeover_stats — LatheChangeoverBriefEngine.getStats (no input) */
+const lathe_changeover_stats = z.object({}).passthrough()
+  .describe("Read changeover-brief generator stats (no input).");
+
+/** lathe_jmdie_extract_customer — LatheJMDieKnowledgeEngine.extractCustomerPatterns */
+const lathe_jmdie_extract_customer = z.object({
+  customer: z.string().min(1).describe("JM Die customer name (e.g. 'ALCOA')."),
+}).passthrough().describe("Extract customer-specific machining patterns from JM Die archive.");
+
+/** lathe_metallurgy_tool_steel_db — LatheMetallurgyEngine.getToolSteelDatabase (no input) */
+const lathe_metallurgy_tool_steel_db = z.object({}).passthrough()
+  .describe("Read tool-steel metallurgical database (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -226,4 +275,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   part_off_force,
   hard_turn_decide,
   hard_turn_optimize,
+
+  // BATCH2 schemas: AI/intelligence/knowledge
+  lathe_anomaly_detect_program,
+  lathe_causal_build_model,
+  lathe_ensemble_stats,
+  lathe_changeover_stats,
+  lathe_jmdie_extract_customer,
+  lathe_metallurgy_tool_steel_db,
 };
