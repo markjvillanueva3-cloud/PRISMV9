@@ -31,6 +31,26 @@
       "description": "Promote high-confidence tribal tip clusters (confidence >= 60, cluster_size >= 3) to knowledge/memories/reference/tribal-<topic>-YYYY-WW.md. Idempotent on ISO-week. Surfaces tribal knowledge as reference material for /weekly-synthesis to incorporate. Deterministic template synthesis (no LLM round-trip).",
       "enabled": true,
       "added": "2026-05-08"
+    },
+    {
+      "id": "monthly-perf-report",
+      "milestone": "OBSIDIAN-AUTOMATE-MS3/U-PERF-REPORT-CRON",
+      "command": "node H:/prism/mcp-server/scripts/monthly-perf-report.mjs",
+      "cron": "1 8 1 * *",
+      "timezone": "local",
+      "description": "Render the cyrilXBT JARVIS feedback-loop monthly report (4 questions: topics-by-BPI, hook outperformance, untried angles, double-down combos) from knowledge/memories/published/ into knowledge/memories/inbox/perf-report-YYYY-MM.md. Calls performanceLoopEngine.monthlyReport(). 1st-of-month at 08:01 local gives prior month a clean publish-date floor.",
+      "enabled": true,
+      "added": "2026-05-08"
+    },
+    {
+      "id": "inbox-prune-stale",
+      "milestone": "OBSIDIAN-AUTOMATE-MS3/U-INBOX-PRUNE-CRON",
+      "command": "node H:/prism/mcp-server/scripts/inbox-prune-stale.mjs --apply",
+      "cron": "7 5 * * *",
+      "timezone": "local",
+      "description": "Archive (cp + unlink) inbox/*.md files older than 48h to knowledge/memories/inbox/archived-stale/. Honors cyrilXBT 'inbox is for triage not storage' rule but softer than delete. Idempotent (already-archived files are skipped). Brief/perf-report files exempt.",
+      "enabled": true,
+      "added": "2026-05-08"
     }
   ]
 }
