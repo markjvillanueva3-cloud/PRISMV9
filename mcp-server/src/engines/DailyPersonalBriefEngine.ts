@@ -118,6 +118,25 @@ export interface DailyBriefOptions {
    * connection files. Set false for dry-run materialization.
    */
   connectionsApply?: boolean;
+  /**
+   * OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS — when supplied, the
+   * connection step uses these similarity values keyed by canonical pairKey
+   * (alphabetical join of paths) instead of computing TF-IDF cosine.
+   *
+   * The motivation is that nomic-embed-text via Ollama gives semantically
+   * cleaner connections than TF-IDF once the vault grows past ~500 notes
+   * (TF-IDF starts conflating themes by shared vocabulary alone — embeddings
+   * separate them by meaning).
+   *
+   * The caller (typically generate-personal-brief.mjs with PRISM_BRIEF_USE_EMBEDDINGS=1)
+   * is responsible for embedding each note and computing pairwise cosine
+   * similarities, then passing the Map here. The engine remains synchronous
+   * and falls back to TF-IDF when the map is omitted.
+   *
+   * Threshold semantics shift between backends — for nomic-embed-text we
+   * recommend `threshold: 0.55` (vs 0.72 for TF-IDF). The caller picks both.
+   */
+  precomputedSimilarities?: Map<string, number>;
 }
 
 const DEFAULT_VAULT_ROOT = "H:/prism/knowledge/memories";
@@ -432,16 +451,22 @@ export class DailyPersonalBriefEngine {
     const boosts = buildCooccurrenceBoosts(noteBaseToPath, wikiFiles);
 
     // All pairs above threshold (post-boost).
+    // Similarity backend: precomputed (embedding-cosine via Ollama) when supplied,
+    // otherwise compute TF-IDF cosine on the fly. The wiki co-occurrence boost
+    // applies in either backend so wiki-validated pairs always rank higher.
+    const precomputed = opts.precomputedSimilarities;
     type Candidate = DailyBriefConnection & { recencyMs: number };
     const candidates: Candidate[] = [];
     for (let i = 0; i < docs.length; i++) {
       for (let j = i + 1; j < docs.length; j++) {
-        const sim = cosineSim(docs[i], docs[j]);
+        const key = pairKey(docs[i].path, docs[j].path);
+        const sim = precomputed
+          ? (precomputed.get(key) ?? 0)
+          : cosineSim(docs[i], docs[j]);
         if (sim < threshold) {
           // Quick path: cannot reach threshold even with the boost.
           if (sim + COOCCURRENCE_BOOST < threshold) continue;
         }
-        const key = pairKey(docs[i].path, docs[j].path);
         const boost = boosts.get(key) ?? 0;
         const combined = Math.min(1, sim + boost);
         if (combined < threshold) continue;

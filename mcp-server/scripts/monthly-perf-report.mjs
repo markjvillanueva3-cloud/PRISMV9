@@ -32,7 +32,7 @@
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -57,7 +57,7 @@ function parseFlags(argv) {
 async function loadEngine() {
   const distEngine = resolve(__dirname, "..", "dist", "engines", "PerformanceLoopEngine.js");
   if (existsSync(distEngine)) {
-    return import(`file:///${distEngine.replace(/\\/g, "/")}`);
+    return import(pathToFileURL(distEngine).href);
   }
   const tsx = await import("tsx/esm/api");
   return tsx.tsImport(

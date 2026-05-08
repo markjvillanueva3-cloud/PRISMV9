@@ -43,6 +43,16 @@
       "added": "2026-05-08"
     },
     {
+      "id": "inbox-auto-promote",
+      "milestone": "OBSIDIAN-AUTOMATE-MS3/U-INBOX-AUTO-PROMOTE",
+      "command": "node H:/prism/mcp-server/scripts/inbox-auto-promote.mjs --apply",
+      "cron": "30 4 * * *",
+      "timezone": "local",
+      "description": "Move sharpen-PASS notes (score >= 0.85, classification confident, dwell >= 24h) from knowledge/memories/inbox/ to their target subfolder (observations/reactions/patterns/questions/numbers). Closes the cyrilXBT capture-to-promote loop. Runs BEFORE prune (05:07) and BEFORE daily-brief (06:00) so inbox/ is clean by brief time.",
+      "enabled": true,
+      "added": "2026-05-08"
+    },
+    {
       "id": "inbox-prune-stale",
       "milestone": "OBSIDIAN-AUTOMATE-MS3/U-INBOX-PRUNE-CRON",
       "command": "node H:/prism/mcp-server/scripts/inbox-prune-stale.mjs --apply",

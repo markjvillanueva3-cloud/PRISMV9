@@ -342,11 +342,72 @@ export async function generateBrief(opts = {}) {
           import.meta.url,
         );
       }
+      // OBSIDIAN-AUTOMATE-MS3/U-EMBEDDING-CONNECTIONS — if PRISM_BRIEF_USE_EMBEDDINGS=1
+      // and Ollama is reachable, embed every note via nomic-embed-text and pass
+      // a precomputed-similarity map to the engine. Threshold drops to 0.55
+      // (calibrated for nomic-embed-text vs 0.72 for TF-IDF).
+      let precomputedSimilarities;
+      let useEmbeddingsThreshold;
+      if (process.env.PRISM_BRIEF_USE_EMBEDDINGS === "1" && !opts.skipEmbeddings) {
+        try {
+          const distEmb = resolve(__dirname, "..", "dist", "engines", "OllamaEmbedderEngine.js");
+          let embMod;
+          if (existsSync(distEmb)) {
+            embMod = await import(`file:///${distEmb.replace(/\\/g, "/")}`);
+          } else {
+            const tsx = await import("tsx/esm/api");
+            embMod = await tsx.tsImport(
+              resolve(__dirname, "..", "src", "engines", "OllamaEmbedderEngine.ts"),
+              import.meta.url,
+            );
+          }
+          // Self-walk the vault for last-7d .md files; the engine does the
+          // same walk internally — as long as both see the same basenames
+          // the precomputed map lookup hits via shared pairKey convention.
+          const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+          const cutoff = now - sevenDaysMs;
+          const inputs = [];
+          const stack = [memoriesRoot];
+          while (stack.length > 0 && inputs.length < 200) {
+            const dir = stack.pop();
+            let entries;
+            try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+            for (const e of entries) {
+              if (e.name.startsWith(".")) continue;
+              const full = join(dir, e.name);
+              if (e.isDirectory()) { stack.push(full); continue; }
+              if (!e.isFile() || !e.name.toLowerCase().endsWith(".md")) continue;
+              let st;
+              try { st = statSync(full); } catch { continue; }
+              if (st.mtimeMs < cutoff) continue;
+              let body;
+              try { body = readFileSync(full, "utf8"); } catch { continue; }
+              if (body.length < 20) continue;
+              inputs.push({ path: full, text: body.slice(0, 4000) });
+            }
+          }
+          if (inputs.length >= 2) {
+            const r = await embMod.ollamaEmbedderEngine.pairwiseCosine(inputs);
+            if (r.ok && r.embedded >= 2) {
+              precomputedSimilarities = r.similarities;
+              useEmbeddingsThreshold = 0.55;
+              console.error(`brief-info: embeddings active (${r.embedded} docs, ${r.similarities.size} pairs)`);
+            } else {
+              console.error(`brief-warn: embeddings disabled — only ${r.embedded} docs embedded; falling back to TF-IDF`);
+            }
+          }
+        } catch (err) {
+          // Non-fatal: silently fall back to TF-IDF.
+          console.error(`brief-warn: embedding fetch failed (${err?.message ?? err}); falling back to TF-IDF`);
+        }
+      }
+
       const briefResult = mod.dailyPersonalBriefEngine.synthesize({
         vaultRoot: memoriesRoot,
         now,
         materializeConnections: true,
         connectionsApply: !dryRun,
+        ...(precomputedSimilarities && { precomputedSimilarities, threshold: useEmbeddingsThreshold }),
       });
       materializedSummary = briefResult.materialized ?? null;
     } catch (err) {

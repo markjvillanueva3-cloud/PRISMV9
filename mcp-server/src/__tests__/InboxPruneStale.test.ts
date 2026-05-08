@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readdirSync, rmSync, utimesSync, statSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readdirSync, rmSync, utimesSync, statSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInboxPrune } from "../../scripts/inbox-prune-stale.mjs";
@@ -205,7 +205,7 @@ describe("inbox-prune-stale (cron entry)", () => {
       flags: { apply: true }, inbox: tmpInbox, archive: tmpArchive, now: NOW, stateFile: tmpStateFile,
     });
     expect(existsSync(tmpStateFile)).toBe(true);
-    const stateRaw = JSON.parse(require("node:fs").readFileSync(tmpStateFile, "utf8"));
+    const stateRaw = JSON.parse(readFileSync(tmpStateFile, "utf8"));
     expect(stateRaw.lastApply).toBe(true);
     expect(stateRaw.lastScanned).toBe(1);
     expect(stateRaw.lastArchived).toBe(1);
