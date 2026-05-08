@@ -113,6 +113,14 @@ const ACTIONS = [
   "lathe_lora_health_summary",              // LatheLoRAHealthMonitorEngine.getSummary
   "lathe_lora_drift_config",                // LatheLoRADriftDetectorEngine.getConfig
   "lathe_lora_verification_test_cases",     // LatheLoRAVerificationEngine.getTestCases
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH8: 6 unwired LoRA voter/combiner/deployment/cache/refinement/attention engines
+  "lathe_lora_voter_stats",                 // LatheLoRAEnsembleVoterEngine.getStats
+  "lathe_lora_combiner_stats",              // LatheLoRAEnsembleCombinerEngine.getStats
+  "lathe_lora_deployment_stats",            // LatheLoRADeploymentEngine.getStats
+  "lathe_lora_embedding_cache_stats",       // LatheLoRAEmbeddingCacheEngine.getStats
+  "lathe_lora_adaptive_refinement_stats",   // LatheLoRAAdaptiveRefinementEngine.getStats
+  "lathe_lora_attention_analyzer_stats",    // LatheLoRAAttentionAnalyzerEngine.getStats
 ] as const;
 
 /** Registers turning dispatcher.
@@ -708,6 +716,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_lora_verification_test_cases": {
             const { latheLoRAVerificationEngine } = await import("../../engines/LatheLoRAVerificationEngine.js");
             result = { test_cases: latheLoRAVerificationEngine.getTestCases() };
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH8: 6 unwired LoRA voter/combiner/deployment/cache/refinement/attention engines
+          case "lathe_lora_voter_stats": {
+            const { latheLoRAEnsembleVoterEngine } = await import("../../engines/LatheLoRAEnsembleVoterEngine.js");
+            result = latheLoRAEnsembleVoterEngine.getStats();
+            break;
+          }
+          case "lathe_lora_combiner_stats": {
+            const { latheLoRAEnsembleCombinerEngine } = await import("../../engines/LatheLoRAEnsembleCombinerEngine.js");
+            result = latheLoRAEnsembleCombinerEngine.getStats();
+            break;
+          }
+          case "lathe_lora_deployment_stats": {
+            const { latheLoRADeploymentEngine } = await import("../../engines/LatheLoRADeploymentEngine.js");
+            result = latheLoRADeploymentEngine.getStats();
+            break;
+          }
+          case "lathe_lora_embedding_cache_stats": {
+            const { latheLoRAEmbeddingCacheEngine } = await import("../../engines/LatheLoRAEmbeddingCacheEngine.js");
+            result = latheLoRAEmbeddingCacheEngine.getStats();
+            break;
+          }
+          case "lathe_lora_adaptive_refinement_stats": {
+            const { latheLoRAAdaptiveRefinementEngine } = await import("../../engines/LatheLoRAAdaptiveRefinementEngine.js");
+            result = latheLoRAAdaptiveRefinementEngine.getStats();
+            break;
+          }
+          case "lathe_lora_attention_analyzer_stats": {
+            const { latheLoRAAttentionAnalyzerEngine } = await import("../../engines/LatheLoRAAttentionAnalyzerEngine.js");
+            result = latheLoRAAttentionAnalyzerEngine.getStats();
             break;
           }
 

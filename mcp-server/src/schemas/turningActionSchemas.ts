@@ -449,6 +449,15 @@ const lathe_lora_drift_config = z.object({}).passthrough()
 const lathe_lora_verification_test_cases = z.object({}).passthrough()
   .describe("List LoRA verification test cases (no input).");
 
+// BATCH8: LoRA voter/combiner/deployment/cache/refinement/attention engines
+
+const lathe_lora_voter_stats = z.object({}).passthrough().describe("Read LoRA ensemble voter stats (no input).");
+const lathe_lora_combiner_stats = z.object({}).passthrough().describe("Read LoRA ensemble combiner stats (no input).");
+const lathe_lora_deployment_stats = z.object({}).passthrough().describe("Read LoRA deployment stats (no input).");
+const lathe_lora_embedding_cache_stats = z.object({}).passthrough().describe("Read LoRA embedding-cache stats (no input).");
+const lathe_lora_adaptive_refinement_stats = z.object({}).passthrough().describe("Read LoRA adaptive-refinement stats (no input).");
+const lathe_lora_attention_analyzer_stats = z.object({}).passthrough().describe("Read LoRA attention-analyzer stats (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -507,4 +516,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_health_summary,
   lathe_lora_drift_config,
   lathe_lora_verification_test_cases,
+
+  // BATCH8 schemas: LoRA voter/combiner/deployment/cache/refinement/attention
+  lathe_lora_voter_stats,
+  lathe_lora_combiner_stats,
+  lathe_lora_deployment_stats,
+  lathe_lora_embedding_cache_stats,
+  lathe_lora_adaptive_refinement_stats,
+  lathe_lora_attention_analyzer_stats,
 };
