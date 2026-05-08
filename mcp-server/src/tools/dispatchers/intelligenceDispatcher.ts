@@ -39,7 +39,7 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocShiftHandler: any, _xprocEWC: any,
     _xprocRewardShaper: any, _xprocPolicyGradient: any,
     _xprocQLearning: any, _xprocBandit: any,
-    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any, _xprocCalibrationMonitor: any, _xprocAPS: any, _xprocRAPS: any, _xprocPredLog: any,
+    _xprocBayesianMLP: any, _xprocConformal: any, _xprocConformalClassify: any, _xprocCalibrationMonitor: any, _xprocAPS: any, _xprocRAPS: any, _xprocPredLog: any, _xprocMondrian: any,
     _xprocDeepEnsemble: any, _xprocCalibration: any,
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
@@ -96,6 +96,7 @@ async function getEngine(name: string): Promise<any> {
     case "xprocAPS": return _xprocAPS ??= (await import("../../engines/CrossProcessAPSClassificationEngine.js")).crossProcessAPSClassification;
     case "xprocRAPS": return _xprocRAPS ??= (await import("../../engines/CrossProcessRAPSClassificationEngine.js")).crossProcessRAPSClassification;
     case "xprocPredLog": return _xprocPredLog ??= (await import("../../engines/ConformalPredictionLogEngine.js")).conformalPredictionLog;
+    case "xprocMondrian": return _xprocMondrian ??= (await import("../../engines/CrossProcessMondrianClassificationEngine.js")).crossProcessMondrianClassification;
     case "xprocDeepEnsemble": return _xprocDeepEnsemble ??= (await import("../../engines/CrossProcessDeepEnsembleEngine.js")).crossProcessDeepEnsemble;
     case "xprocCalibration": return _xprocCalibration ??= (await import("../../engines/CrossProcessCalibrationAuditorEngine.js")).crossProcessCalibrationAuditor;
     case "xprocFedAvg": return _xprocFedAvg ??= (await import("../../engines/CrossProcessFedAvgAggregatorEngine.js")).crossProcessFedAvgAggregator;
@@ -399,6 +400,12 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_predlog_disable_autosync",
   "xproc_predlog_reset",
   "xproc_predlog_constants",
+  // XPROC-NEURAL-OPTIMIZE/U-NN-MONDRIAN01 — class-conditional conformal
+  "xproc_mondrian_calibrate",
+  "xproc_mondrian_set",
+  "xproc_mondrian_stats",
+  "xproc_mondrian_reset",
+  "xproc_mondrian_constants",
   // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble disagreement
   "xproc_ensemble_predict",
   "xproc_ensemble_disagreement",
@@ -1886,6 +1893,12 @@ export function registerIntelligenceDispatcher(server: any): void {
           xproc_predlog_disable_autosync: "xprocPredLog",
           xproc_predlog_reset: "xprocPredLog",
           xproc_predlog_constants: "xprocPredLog",
+          // XPROC-NEURAL-OPTIMIZE/U-NN-MONDRIAN01 — class-conditional Mondrian
+          xproc_mondrian_calibrate: "xprocMondrian",
+          xproc_mondrian_set: "xprocMondrian",
+          xproc_mondrian_stats: "xprocMondrian",
+          xproc_mondrian_reset: "xprocMondrian",
+          xproc_mondrian_constants: "xprocMondrian",
           // XPROC-NEURAL Tier 5 (T5-03) — Deep Ensemble
           xproc_ensemble_predict: "xprocDeepEnsemble",
           xproc_ensemble_disagreement: "xprocDeepEnsemble",

@@ -184,6 +184,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_predlog_disable_autosync: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
   xproc_predlog_reset: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
   xproc_predlog_constants: () => import("../../engines/ConformalPredictionLogEngine.js").then(m => m.conformalPredictionLog),
+  // U-NN-MONDRIAN01: class-conditional conformal classification (Vovk 2003).
+  // Per-class buckets give P(Y∈S|Y=c) ≥ 1−α for every c, not just marginal.
+  xproc_mondrian_calibrate: () => import("../../engines/CrossProcessMondrianClassificationEngine.js").then(m => m.crossProcessMondrianClassification),
+  xproc_mondrian_set: () => import("../../engines/CrossProcessMondrianClassificationEngine.js").then(m => m.crossProcessMondrianClassification),
+  xproc_mondrian_stats: () => import("../../engines/CrossProcessMondrianClassificationEngine.js").then(m => m.crossProcessMondrianClassification),
+  xproc_mondrian_reset: () => import("../../engines/CrossProcessMondrianClassificationEngine.js").then(m => m.crossProcessMondrianClassification),
+  xproc_mondrian_constants: () => import("../../engines/CrossProcessMondrianClassificationEngine.js").then(m => m.crossProcessMondrianClassification),
   xproc_ensemble_predict: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_disagreement: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
   xproc_ensemble_constants: () => import("../../engines/CrossProcessDeepEnsembleEngine.js").then(m => m.crossProcessDeepEnsemble),
@@ -1771,6 +1778,11 @@ export async function executeAIReasoningAction(
       case "xproc_predlog_disable_autosync":
       case "xproc_predlog_reset":
       case "xproc_predlog_constants":
+      case "xproc_mondrian_calibrate":
+      case "xproc_mondrian_set":
+      case "xproc_mondrian_stats":
+      case "xproc_mondrian_reset":
+      case "xproc_mondrian_constants":
       case "xproc_ensemble_predict":
       case "xproc_ensemble_disagreement":
       case "xproc_ensemble_constants":
