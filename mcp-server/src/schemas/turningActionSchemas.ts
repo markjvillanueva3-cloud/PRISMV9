@@ -336,6 +336,44 @@ const lathe_predictive_tool_wear = z.object({
   cycle_time_per_part_sec: z.number().positive(),
 }).passthrough().describe("Predict tool wear progression using Taylor + condition factors.");
 
+// ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH4: 6 unwired tribal/science/reasoning engines ─
+
+const lathe_tribal_stats = z.object({}).passthrough()
+  .describe("Read tribal-injector stats (no input).");
+
+const lathe_unified_science_version = z.object({}).passthrough()
+  .describe("Read unified-science engine version (no input).");
+
+const lathe_unified_science_recommend = z.object({
+  material: z.object({
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]),
+    hardness_hrc: z.number().nonnegative().optional(),
+    hardness_hb: z.number().nonnegative().optional(),
+    tensile_strength_mpa: z.number().positive().optional(),
+    thermal_conductivity_w_mk: z.number().positive(),
+    specific_heat_j_kg_k: z.number().positive(),
+    density_kg_m3: z.number().positive(),
+    melting_point_c: z.number().positive(),
+    work_hardening_exponent: z.number().optional(),
+    thermal_expansion_coeff: z.number().optional(),
+  }).passthrough(),
+  target: z.object({
+    tool_life_min: z.number().positive().optional(),
+    max_ra_um: z.number().positive().optional(),
+    max_deflection_mm: z.number().positive().optional(),
+  }).passthrough(),
+}).passthrough().describe("Recommend cutting parameters for a target outcome.");
+
+const lathe_kinematics_get_machine_specs = z.object({
+  machine_id: z.string().min(1).describe("Machine ID (e.g. 'OKUMA_LB3000').") ,
+}).passthrough().describe("Look up machine specs from kinematics database.");
+
+const lathe_neural_intel_stats = z.object({}).passthrough()
+  .describe("Read neural-intelligence engine statistics (no input).");
+
+const lathe_jmdie_extract_operations = z.object({}).passthrough()
+  .describe("Extract operation sequences from JM Die archive (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -362,4 +400,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_machine_get_profile,
   lathe_troubleshoot_overhang,
   lathe_predictive_tool_wear,
+
+  // BATCH4 schemas: tribal/science/reasoning/neural/jmdie
+  lathe_tribal_stats,
+  lathe_unified_science_version,
+  lathe_unified_science_recommend,
+  lathe_kinematics_get_machine_specs,
+  lathe_neural_intel_stats,
+  lathe_jmdie_extract_operations,
 };

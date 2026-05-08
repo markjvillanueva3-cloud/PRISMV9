@@ -81,6 +81,14 @@ const ACTIONS = [
   "lathe_machine_get_profile",           // LatheMachineIntelligenceEngine.getMachineProfile
   "lathe_troubleshoot_overhang",         // LatheTroubleshootingIntelligenceEngine.analyzeToolOverhang
   "lathe_predictive_tool_wear",          // LathePredictiveIntelligenceEngine.predictToolWear
+
+  // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH4: 6 unwired tribal/science/reasoning engines
+  "lathe_tribal_stats",                  // LatheTribalInjectorEngine.getStats
+  "lathe_unified_science_version",       // LatheUnifiedScienceEngine.getVersion
+  "lathe_unified_science_recommend",     // LatheUnifiedScienceEngine.recommendParameters
+  "lathe_kinematics_get_machine_specs",  // LatheKinematicsDeepLearningEngine.getMachineSpecs
+  "lathe_neural_intel_stats",            // LatheNeuralIntelligenceEngine.getStatistics
+  "lathe_jmdie_extract_operations",      // LatheJMDieKnowledgeEngine.extractOperationSequences
 ] as const;
 
 /** Registers turning dispatcher.
@@ -521,6 +529,50 @@ Actions: ${ACTIONS.join(", ")}.`,
               throw new Error("lathe_predictive_tool_wear requires {conditions, tool_state, cycle_time_per_part_sec}");
             }
             result = lathePredictiveIntelligenceEngine.predictToolWear(p.conditions, p.tool_state, p.cycle_time_per_part_sec);
+            break;
+          }
+
+          // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH4: 6 unwired tribal/science/reasoning engines
+          case "lathe_tribal_stats": {
+            const { latheTribalInjectorEngine } = await import("../../engines/LatheTribalInjectorEngine.js");
+            result = latheTribalInjectorEngine.getStats();
+            break;
+          }
+          case "lathe_unified_science_version": {
+            const { latheUnifiedScienceEngine } = await import("../../engines/LatheUnifiedScienceEngine.js");
+            result = { version: latheUnifiedScienceEngine.getVersion() };
+            break;
+          }
+          case "lathe_unified_science_recommend": {
+            const { latheUnifiedScienceEngine } = await import("../../engines/LatheUnifiedScienceEngine.js");
+            const p = params as {
+              material: Parameters<typeof latheUnifiedScienceEngine.recommendParameters>[0];
+              target: Parameters<typeof latheUnifiedScienceEngine.recommendParameters>[1];
+            };
+            if (!p.material || !p.target) {
+              throw new Error("lathe_unified_science_recommend requires {material, target}");
+            }
+            result = latheUnifiedScienceEngine.recommendParameters(p.material, p.target);
+            break;
+          }
+          case "lathe_kinematics_get_machine_specs": {
+            const { latheKinematicsDeepLearningEngine } = await import("../../engines/LatheKinematicsDeepLearningEngine.js");
+            const p = params as { machine_id: string };
+            if (typeof p.machine_id !== "string" || p.machine_id.length === 0) {
+              throw new Error("lathe_kinematics_get_machine_specs requires non-empty 'machine_id'");
+            }
+            const specs = latheKinematicsDeepLearningEngine.getMachineSpecs(p.machine_id);
+            result = { machine_id: p.machine_id, specs };
+            break;
+          }
+          case "lathe_neural_intel_stats": {
+            const { latheNeuralIntelligenceEngine } = await import("../../engines/LatheNeuralIntelligenceEngine.js");
+            result = latheNeuralIntelligenceEngine.getStatistics();
+            break;
+          }
+          case "lathe_jmdie_extract_operations": {
+            const { latheJMDieKnowledgeEngine } = await import("../../engines/LatheJMDieKnowledgeEngine.js");
+            result = { operation_sequences: latheJMDieKnowledgeEngine.extractOperationSequences() };
             break;
           }
 
