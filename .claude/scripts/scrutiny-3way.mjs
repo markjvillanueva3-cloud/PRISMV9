@@ -85,6 +85,24 @@ const GEMINI_ARGS = process.env.GEMINI_ARGS
   : ["--no-install", "gemini"];
 
 const REVIEW_TIMEOUT_MS = 360_000; // 6 min per provider; covers cold-start + xhigh reasoning on diffs up to 80KB
+
+// OBSIDIAN-AUTOMATE-MS3/U-LOCAL-PREFLIGHT: optional Ollama-driven pre-flight
+// reviewer that runs before (or in parallel with) the cloud trio. Two modes:
+//   PRISM_SCRUTINY_PREFLIGHT=parallel (default) — advisory, runs alongside cloud,
+//                                                  surfaces a 4th verdict in output
+//   PRISM_SCRUTINY_PREFLIGHT=gate     — runs FIRST; local FAIL aborts before
+//                                       cloud is dispatched (saves quota)
+//   PRISM_SCRUTINY_PREFLIGHT=0/off    — disabled, original 3-of-3 path
+// The pre-flight is ADVISORY by default and never marks the gate ledger —
+// the strict 3-of-3 contract (Codex+Gemini+Opus PASS) is unchanged.
+const PREFLIGHT_MODE = (process.env.PRISM_SCRUTINY_PREFLIGHT ?? "parallel").toLowerCase();
+const PREFLIGHT_ENABLED = PREFLIGHT_MODE !== "0" && PREFLIGHT_MODE !== "off" && PREFLIGHT_MODE !== "false";
+const PREFLIGHT_GATE = PREFLIGHT_MODE === "gate";
+const PREFLIGHT_URL = process.env.PRISM_SCRUTINY_PREFLIGHT_URL ?? "http://127.0.0.1:11434/api/generate";
+const PREFLIGHT_MODEL = process.env.PRISM_SCRUTINY_PREFLIGHT_MODEL ?? "deepseek-r1:14b";
+const PREFLIGHT_TIMEOUT_MS = Number(process.env.PRISM_SCRUTINY_PREFLIGHT_TIMEOUT_MS) || 90_000; // 90s — deepseek-r1 reasoning takes time
+const PREFLIGHT_MAX_PROMPT_BYTES = 60_000; // tighter than cloud — local context window pressure
+
 const DEFAULT_MAX_DIFF_BYTES = 80_000;     // truncate huge diffs so providers don't OOM
 const MAX_DIFF_BYTES = (() => {
   const env = process.env.PRISM_SCRUTINY_MAX_DIFF_BYTES;
@@ -278,6 +296,95 @@ function spawnReview(provider, bin, args, stdinPayload) {
   });
 }
 
+/**
+ * Local pre-flight reviewer via Ollama. Uses the same VERDICT contract as
+ * the cloud arm so parseVerdictLine works unchanged. Returns the same
+ * shape spawnReview() returns so downstream output is uniform.
+ *
+ * Never throws on transport failure — returns `skipped: true` instead.
+ * The cloud arm is always allowed to proceed when the local arm is
+ * unreachable; preventing local-Ollama outages from blocking cloud
+ * review is the whole point of this being advisory by default.
+ */
+async function runOllamaPreflight(prompt) {
+  const start = Date.now();
+  if (!PREFLIGHT_ENABLED) {
+    return {
+      provider: "ollama-preflight",
+      verdict: "skipped",
+      blockers: "",
+      notes: "preflight disabled (PRISM_SCRUTINY_PREFLIGHT=off)",
+      durationMs: 0,
+      skipped: true,
+    };
+  }
+  // Trim prompt to local context window — strip the diff middle if needed.
+  const safePrompt = prompt.length > PREFLIGHT_MAX_PROMPT_BYTES
+    ? prompt.slice(0, PREFLIGHT_MAX_PROMPT_BYTES) +
+      `\n\n[preflight: prompt truncated to ${PREFLIGHT_MAX_PROMPT_BYTES} bytes; full diff is ${prompt.length}]`
+    : prompt;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), PREFLIGHT_TIMEOUT_MS);
+  try {
+    const res = await fetch(PREFLIGHT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: PREFLIGHT_MODEL,
+        prompt: safePrompt,
+        stream: false,
+        options: { temperature: 0.2, num_predict: 600 },
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      return {
+        provider: "ollama-preflight",
+        verdict: "skipped",
+        blockers: "",
+        notes: `[preflight: http-${res.status} ${res.statusText} — falling through]`,
+        durationMs: Date.now() - start,
+        skipped: true,
+      };
+    }
+    const body = await res.json();
+    const text = typeof body.response === "string" ? body.response : "";
+    // deepseek-r1 wraps reasoning in <think>...</think>; strip before parsing.
+    const cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    const { verdict: parsedVerdict, firstLine } = parseVerdictLine(cleaned);
+    const verdict = parsedVerdict ?? "fail";
+    const blockerLines = cleaned
+      .split(/\r?\n/)
+      .filter((l) => /^BLOCKER:/i.test(l.trim()))
+      .map((l) => l.trim())
+      .join("\n");
+    const verdictNote = parsedVerdict
+      ? ""
+      : `[VERDICT line missing or malformed; defaulted to FAIL. firstLine="${firstLine.slice(0, 120)}"]`;
+    return {
+      provider: "ollama-preflight",
+      verdict,
+      blockers: blockerLines,
+      notes: `[advisory ${PREFLIGHT_MODEL} ${Date.now() - start}ms] ${verdictNote}`.trim(),
+      durationMs: Date.now() - start,
+      skipped: false,
+      rawOutputPeek: cleaned.slice(0, MAX_OUTPUT_PEEK),
+    };
+  } catch (err) {
+    clearTimeout(timer);
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      provider: "ollama-preflight",
+      verdict: "skipped",
+      blockers: "",
+      notes: `[preflight: ${msg.includes("abort") ? "timeout" : "fetch-failed"} — ${msg.slice(0, 120)}]`,
+      durationMs: Date.now() - start,
+      skipped: true,
+    };
+  }
+}
+
 function buildPromptForCLI(diffInfo, target) {
   const targetLabel = target ? `commit ${target}` : "uncommitted changes";
   const truncationWarning = diffInfo.truncated
@@ -387,12 +494,53 @@ async function main() {
   // Skip-aware parallel dispatch
   const skipCodex = args.skip.includes("codex");
   const skipGemini = args.skip.includes("gemini");
+  const skipPreflight = args.skip.includes("preflight") || !PREFLIGHT_ENABLED;
+
+  // OBSIDIAN-AUTOMATE-MS3/U-LOCAL-PREFLIGHT — gate mode: run local first;
+  // a concrete FAIL aborts before paying for the cloud trio.
+  let preflightResult = null;
+  if (PREFLIGHT_GATE && !skipPreflight) {
+    preflightResult = await runOllamaPreflight(cliPrompt);
+    // Only short-circuit on a concrete FAIL with at least one BLOCKER —
+    // a transport failure (skipped) must NOT block the cloud arm.
+    if (preflightResult.verdict === "fail" && preflightResult.blockers && !preflightResult.skipped) {
+      console.log(JSON.stringify({
+        ok: true,
+        target: args.target || "(uncommitted)",
+        diffBytes: diffInfo.totalBytes,
+        diffTruncated: diffInfo.truncated,
+        gateAborted: true,
+        gateReason: "local-preflight-fail",
+        preflight: {
+          provider: preflightResult.provider,
+          model: PREFLIGHT_MODEL,
+          verdict: preflightResult.verdict,
+          blockers: preflightResult.blockers,
+          notes: preflightResult.notes,
+          durationMs: preflightResult.durationMs,
+        },
+        nextStep:
+          "Local pre-flight reviewer (deepseek-r1:14b) flagged blockers BEFORE cloud dispatch. " +
+          "Review BLOCKER lines, fix, and re-run. To override and force cloud review anyway: " +
+          "--skip preflight, or PRISM_SCRUTINY_PREFLIGHT=parallel for advisory-only mode.",
+        consensus: "preflight-blocked — cloud trio not dispatched (quota saved)",
+      }, null, 2));
+      return;
+    }
+  }
 
   const tasks = [];
   if (!skipCodex) tasks.push(spawnReview("codex", CODEX_BIN, [...CODEX_ARGS], cliPrompt));
   if (!skipGemini) tasks.push(spawnReview("gemini", GEMINI_BIN, [...GEMINI_ARGS], cliPrompt));
+  // Parallel mode: local arm runs alongside cloud, surfaces an advisory verdict.
+  if (!PREFLIGHT_GATE && !skipPreflight) tasks.push(runOllamaPreflight(cliPrompt));
 
-  const results = await Promise.all(tasks);
+  const allResults = await Promise.all(tasks);
+  // Separate the advisory pre-flight from the cloud trio so ledger marking
+  // (which runs only over codex/gemini) sees a clean two-element array.
+  const results = allResults.filter((r) => r.provider !== "ollama-preflight");
+  const parallelPreflight = allResults.find((r) => r.provider === "ollama-preflight") ?? null;
+  if (parallelPreflight) preflightResult = parallelPreflight;
 
   // Auto-record --codex and --gemini marks DIRECTLY via the ledger helper
   // (no shell to scrutiny-mark.mjs — that file is contested by peer chats).
@@ -437,6 +585,19 @@ async function main() {
       notes: r.notes,
       durationMs: r.durationMs,
     })),
+    // Local pre-flight verdict surfaced as a 4th, advisory arm. Does NOT
+    // affect the strict 3-of-3 ledger contract — it's signal, not gate.
+    // When the local arm agrees with cloud, that's strong consensus; when
+    // it disagrees, that's a triangulation flag for the operator.
+    preflight: preflightResult ? {
+      provider: preflightResult.provider,
+      model: PREFLIGHT_MODEL,
+      verdict: preflightResult.verdict,
+      blockers: preflightResult.blockers,
+      notes: preflightResult.notes,
+      durationMs: preflightResult.durationMs,
+      mode: PREFLIGHT_GATE ? "gate (cloud-saver)" : "parallel (advisory)",
+    } : null,
     opusReviewerPrompt: opusPrompt,
     nextStep:
       "Dispatch the Claude Opus reviewer in this chat: Agent({ subagent_type: 'reviewer', " +
