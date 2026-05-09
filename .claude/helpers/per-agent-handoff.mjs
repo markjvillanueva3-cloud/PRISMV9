@@ -634,14 +634,54 @@ function parseArgs(argv) {
 
 const { cmd, args } = parseArgs(process.argv);
 
-// Resolve identity: prefer --terminal for stable cross-invocation identity.
-// If --terminal is passed but no session mapping exists (i.e. the caller didn't
-// explicitly `register`), AUTO-REGISTER it. Previous behavior fell through to
-// inferAgentIdentity → pid-${process.pid} → created a NEW HANDOFF-Agent@HOST_pid-NNNN.md
-// file on every hook invocation because hook PIDs change each fire. That left
-// 100+ orphan handoffs in state/shared/handoffs/.
+/**
+ * PRISM-STAB-MS0/U-B2 (2026-05-09): stdin session_id is authoritative.
+ *
+ * When this helper is invoked from a Claude hook, stdin carries a JSON
+ * payload containing the authoritative session_id. Using it as the
+ * primary identity source aligns with file-claim-guard.mjs (which already
+ * does this) and closes the cross-helper namespace mismatch that caused
+ * "wrong handoff loaded" on simultaneous /compact across multiple chats.
+ *
+ * Rollback: set PRISM_HANDOFF_STDIN_AUTH=0 to fall back to legacy
+ * --terminal-first resolution.
+ */
+function readStdinSessionId() {
+  if (process.env.PRISM_HANDOFF_STDIN_AUTH === "0") return null;
+  try {
+    if (process.stdin.isTTY) return null;
+    const buf = fs.readFileSync(0, "utf-8");
+    if (!buf || !buf.trim().startsWith("{")) return null;
+    const parsed = JSON.parse(buf);
+    const sid = parsed?.session_id || parsed?.sessionId;
+    if (typeof sid === "string" && sid.length >= 8) return sid.slice(0, 36);
+  } catch { /* no stdin or not JSON — fall through to legacy resolution */ }
+  return null;
+}
+
+const stdinSid = readStdinSessionId();
+
+// Resolve identity. Priority order (U-B2):
+//   1) stdin session_id from hook payload — authoritative; produces canonical
+//      claude-XXXXXXXX form matching file-claim-guard.mjs.
+//   2) --terminal arg with auto-register fallback (legacy path; still primary
+//      for Bash invocations like /handoff, /precompact).
+//   3) inferAgentIdentity() — last resort, derives from env.
 let identity;
-if (args.terminal) {
+if (stdinSid) {
+  const canonicalInstance = `claude-${stdinSid.slice(0, 8)}`;
+  // Auto-register so getSessionId() works for follow-up reads in same chat.
+  const existing = getSessionId(canonicalInstance);
+  if (!existing) registerSession(canonicalInstance, "Claude");
+  identity = {
+    family: "Claude",
+    machine: process.env.COMPUTERNAME || "machine",
+    sessionKey: canonicalInstance,
+    instance: canonicalInstance,
+    stdinAuthoritative: true,
+  };
+}
+if (!identity && args.terminal) {
   let session = getSessionId(args.terminal);
   if (!session && cmd !== "unregister") {
     const family = args.agentFamily || "Claude";
