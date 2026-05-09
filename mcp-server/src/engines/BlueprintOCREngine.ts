@@ -14,8 +14,11 @@
  *
  * Actions: blueprint_extract_dimensions, blueprint_extract_gdt,
  *          blueprint_parse_title_block, blueprint_extract_notes,
- *          blueprint_analyze
+ *          blueprint_analyze, blueprint_ingest_phase8
  */
+
+import * as fs from "node:fs";
+import * as readline from "node:readline";
 
 // ============================================================================
 // TYPES
@@ -631,6 +634,212 @@ function detectUnit(text: string): "mm" | "in" {
 }
 
 // ============================================================================
+// PHASE 8 JSONL INGESTION (Docustrata pipeline -> BlueprintOCREngine)
+// ============================================================================
+//
+// Streams the Phase 8 tiered classifier output line-by-line, runs each page's
+// OCR excerpt through analyzeBlueprint(), and aggregates by part number.
+//
+// Source schema (one JSON object per line):
+//   doc_id, filename, disk_path, page_index,
+//   tier1: { drawing_score, black_density, edge_density, width_px, height_px },
+//   tier2: { is_drawing_likely?, strong_indicators?, keyword_hits?,
+//            part_numbers?, ocr_chars?, ocr_excerpt?, part_numbers_clean? }
+//
+// Memory-bounded via createReadStream + readline (does NOT load file into RAM).
+// Skips malformed lines (logs them, doesn't throw) so a truncated tail line
+// never wastes a full corpus pass.
+
+export interface Phase8Tier1 {
+  drawing_score: number;
+  black_density: number;
+  edge_density: number;
+  width_px: number;
+  height_px: number;
+}
+
+export interface Phase8Tier2 {
+  is_drawing_likely?: boolean;
+  strong_indicators?: number;
+  keyword_hits?: number;
+  part_numbers?: string[];
+  ocr_chars?: number;
+  ocr_excerpt?: string;
+  part_numbers_clean?: string[];
+}
+
+export interface Phase8Row {
+  doc_id: string;
+  filename: string;
+  disk_path: string;
+  page_index: number;
+  tier1: Phase8Tier1;
+  tier2?: Phase8Tier2;
+}
+
+export interface IngestedBlueprintRow {
+  doc_id: string;
+  filename: string;
+  disk_path: string;
+  page_index: number;
+  drawing_score: number;
+  part_numbers: string[];
+  analysis: BlueprintAnalysis;
+}
+
+export interface IngestSummary {
+  total_lines: number;
+  parsed: number;
+  malformed: number;
+  analyzed: number;
+  skipped_no_text: number;
+  unique_part_numbers: number;
+  total_dimensions: number;
+  total_gdt: number;
+  pages_with_critical_features: number;
+}
+
+export interface IngestOptions {
+  /** Minimum tier1.drawing_score to run analyzeBlueprint (default 0.3 — matches Phase 8 tier2 gate). */
+  minDrawingScore?: number;
+  /** If set, write IngestedBlueprintRow JSONL to this path (one row per analyzed page). */
+  outPath?: string;
+  /** Optional progress callback fired every N lines (default every 1000). */
+  onProgress?: (linesRead: number, parsed: number) => void;
+  progressInterval?: number;
+  /** Maximum bytes per line before treating as malformed (default 1 MiB — guards against unterminated JSON). */
+  maxLineBytes?: number;
+}
+
+async function ingestPhase8JSONL(
+  jsonlPath: string,
+  options: IngestOptions = {},
+): Promise<{ summary: IngestSummary; byPartNumber: Record<string, IngestedBlueprintRow[]> }> {
+  const minScore = options.minDrawingScore ?? 0.3;
+  const progressInterval = options.progressInterval ?? 1000;
+  const maxLineBytes = options.maxLineBytes ?? 1024 * 1024;
+
+  if (!fs.existsSync(jsonlPath)) {
+    throw new Error(`Phase 8 JSONL not found: ${jsonlPath}`);
+  }
+
+  const summary: IngestSummary = {
+    total_lines: 0,
+    parsed: 0,
+    malformed: 0,
+    analyzed: 0,
+    skipped_no_text: 0,
+    unique_part_numbers: 0,
+    total_dimensions: 0,
+    total_gdt: 0,
+    pages_with_critical_features: 0,
+  };
+
+  const byPartNumber: Record<string, IngestedBlueprintRow[]> = {};
+  let outStream: fs.WriteStream | null = null;
+  if (options.outPath) {
+    outStream = fs.createWriteStream(options.outPath, { flags: "w", encoding: "utf-8" });
+  }
+
+  const stream = fs.createReadStream(jsonlPath, { encoding: "utf-8" });
+  const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+
+  try {
+    for await (const rawLine of rl) {
+      summary.total_lines++;
+      const line = rawLine.trim();
+      if (line.length === 0) continue;
+      if (line.length > maxLineBytes) {
+        summary.malformed++;
+        continue;
+      }
+
+      let row: Phase8Row;
+      try {
+        row = JSON.parse(line) as Phase8Row;
+      } catch {
+        summary.malformed++;
+        continue;
+      }
+
+      // Required-field guard — malformed if structurally wrong
+      if (
+        typeof row.doc_id !== "string" ||
+        typeof row.page_index !== "number" ||
+        !Number.isFinite(row.page_index) ||
+        !row.tier1 ||
+        typeof row.tier1.drawing_score !== "number" ||
+        !Number.isFinite(row.tier1.drawing_score)
+      ) {
+        summary.malformed++;
+        continue;
+      }
+      summary.parsed++;
+
+      // Skip pages below the score threshold (they aren't drawings)
+      if (row.tier1.drawing_score < minScore) {
+        if (summary.parsed % progressInterval === 0) {
+          options.onProgress?.(summary.total_lines, summary.parsed);
+        }
+        continue;
+      }
+
+      const ocrText = row.tier2?.ocr_excerpt ?? "";
+      const partNumbers = row.tier2?.part_numbers_clean ?? [];
+
+      if (ocrText.length === 0 && partNumbers.length === 0) {
+        summary.skipped_no_text++;
+        continue;
+      }
+
+      const analysis = analyzeBlueprint(ocrText);
+      summary.analyzed++;
+      summary.total_dimensions += analysis.summary.total_dimensions;
+      summary.total_gdt += analysis.summary.total_gdt;
+      if (analysis.summary.critical_features.length > 0) {
+        summary.pages_with_critical_features++;
+      }
+
+      const ingested: IngestedBlueprintRow = {
+        doc_id: row.doc_id,
+        filename: row.filename,
+        disk_path: row.disk_path,
+        page_index: row.page_index,
+        drawing_score: row.tier1.drawing_score,
+        part_numbers: partNumbers,
+        analysis,
+      };
+
+      // Index pages WITHOUT a part number under "__unknown__" so they aren't lost
+      const keys = partNumbers.length > 0 ? partNumbers : ["__unknown__"];
+      for (const key of keys) {
+        if (!byPartNumber[key]) byPartNumber[key] = [];
+        byPartNumber[key].push(ingested);
+      }
+
+      outStream?.write(JSON.stringify(ingested) + "\n");
+
+      if (summary.parsed % progressInterval === 0) {
+        options.onProgress?.(summary.total_lines, summary.parsed);
+      }
+    }
+  } finally {
+    rl.close();
+    stream.close();
+    if (outStream) {
+      await new Promise<void>((resolve) => outStream!.end(resolve));
+    }
+  }
+
+  // Exclude the synthetic "__unknown__" bucket from the unique-part-number count
+  summary.unique_part_numbers = Object.keys(byPartNumber).filter(
+    (k) => k !== "__unknown__",
+  ).length;
+
+  return { summary, byPartNumber };
+}
+
+// ============================================================================
 // SINGLETON + EXPORTS
 // ============================================================================
 
@@ -641,4 +850,5 @@ export const blueprintOCREngine = {
   extractNotes,
   analyzeBlueprint,
   detectUnit,
+  ingestPhase8JSONL,
 };
