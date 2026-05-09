@@ -173,6 +173,11 @@ async function forwardToNewDispatcher(action: string, params: Record<string, any
 export const INTELLIGENCE_CORE_ACTIONS = [
   // OBSIDIAN-AUTOMATE-MS3/U-DIGITAL-TWIN-EXPOSE: ProcessDigitalTwinEngine surface
   "digital_twin_compute",
+  // OBSIDIAN-AUTOMATE-MS3/U-DIGITAL-TWIN-FORMULAS-EXPOSE: 4 numerical methods from DigitalTwinFormulasEngine
+  "digital_twin_ekf_predict",
+  "digital_twin_ekf_update",
+  "digital_twin_drift_detect",
+  "digital_twin_divergence",
   "job_plan",
   "setup_sheet",
   "process_cost",
@@ -973,6 +978,39 @@ export function registerIntelligenceDispatcher(server: any): void {
         // Handle these actions inline before deprecation/core routing —
         // ProcessIntelligenceRouterEngine has its own request shape and
         // doesn't fit the IntelligenceEngine action map.
+        // OBSIDIAN-AUTOMATE-MS3/U-DIGITAL-TWIN-FORMULAS-EXPOSE — surface DigitalTwinFormulasEngine
+        // case "digital_twin_ekf_predict":
+        // case "digital_twin_ekf_update":
+        // case "digital_twin_drift_detect":
+        // case "digital_twin_divergence":
+        // Four numerical methods for state estimation + drift detection that the
+        // engine had planned but were never wired. EKF for sensor fusion, CUSUM
+        // for shift detection, KL+RMSE for twin↔reality model divergence.
+        if (action === "digital_twin_ekf_predict" ||
+            action === "digital_twin_ekf_update" ||
+            action === "digital_twin_drift_detect" ||
+            action === "digital_twin_divergence") {
+          const { digitalTwinFormulasEngine } = await import(
+            "../../engines/DigitalTwinFormulasEngine.js"
+          );
+          let result;
+          if (action === "digital_twin_ekf_predict") {
+            result = digitalTwinFormulasEngine.ekfPredict(params as Parameters<typeof digitalTwinFormulasEngine.ekfPredict>[0]);
+          } else if (action === "digital_twin_ekf_update") {
+            result = digitalTwinFormulasEngine.ekfUpdate(params as Parameters<typeof digitalTwinFormulasEngine.ekfUpdate>[0]);
+          } else if (action === "digital_twin_drift_detect") {
+            result = digitalTwinFormulasEngine.driftDetect(params as Parameters<typeof digitalTwinFormulasEngine.driftDetect>[0]);
+          } else {
+            result = digitalTwinFormulasEngine.modelDivergence(params as Parameters<typeof digitalTwinFormulasEngine.modelDivergence>[0]);
+          }
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, result }),
+            }],
+          };
+        }
+
         // OBSIDIAN-AUTOMATE-MS3/U-DIGITAL-TWIN-EXPOSE — surface ProcessDigitalTwinEngine
         // case "digital_twin_compute":
         // Cascades 7 physics models (Kienzle force → deflection → temperature →
