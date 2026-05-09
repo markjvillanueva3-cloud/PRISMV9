@@ -253,6 +253,89 @@ export function buildBundle({ mode = "standard" } = {}) {
   return out;
 }
 
+/**
+ * PRISM-STAB-MS0/U-A2-extended (2026-05-09): daemon mode.
+ *
+ * Run with --daemon to enter a long-running aggregator that re-builds the
+ * bundle every --tick=<seconds> (default 30) and writes both:
+ *   state/shared/context-bundle.json   (machine-readable, used by hooks)
+ *   state/shared/context-bundle.html   (browser-readable, future Quartz cross-link)
+ *   state/shared/context-bundle.md     (markdown bundle text — same as stdout mode)
+ *
+ * Per-prompt hooks should READ context-bundle.json instead of forking 24 separate
+ * injectors that each compute the same data. This is Phase C1 from the spec.
+ *
+ * Spawn (one-shot, foreground): node prism-awareness-bundle.mjs --daemon
+ * Spawn (supervised):           via daemon-supervisor.mjs (when shipped)
+ */
+async function runDaemon({ mode, tickSeconds }) {
+  const { mkdirSync } = await import("node:fs");
+  const path = (await import("node:path")).default;
+  const OUT_DIR = "H:/prism/state/shared";
+  const JSON_OUT = path.join(OUT_DIR, "context-bundle.json");
+  const HTML_OUT = path.join(OUT_DIR, "context-bundle.html");
+  const MD_OUT = path.join(OUT_DIR, "context-bundle.md");
+  mkdirSync(OUT_DIR, { recursive: true });
+
+  const tick = async () => {
+    const tStart = Date.now();
+    const md = buildBundle({ mode });
+    const meta = {
+      generatedAt: new Date().toISOString(),
+      mode,
+      durationMs: 0, // filled below
+      sources: SOURCES,
+      bytes: Buffer.byteLength(md, "utf-8"),
+      schemaVersion: "1.0.0",
+    };
+    meta.durationMs = Date.now() - tStart;
+
+    // Markdown (raw bundle text)
+    try {
+      const fs = await import("node:fs/promises");
+      await fs.writeFile(`${MD_OUT}.tmp-${process.pid}`, md);
+      await fs.rename(`${MD_OUT}.tmp-${process.pid}`, MD_OUT);
+    } catch (e) { process.stderr.write(`md write fail: ${e.message}\n`); }
+
+    // JSON (meta + body for programmatic consumers)
+    try {
+      const fs = await import("node:fs/promises");
+      const obj = { ...meta, body: md };
+      await fs.writeFile(`${JSON_OUT}.tmp-${process.pid}`, JSON.stringify(obj, null, 2));
+      await fs.rename(`${JSON_OUT}.tmp-${process.pid}`, JSON_OUT);
+    } catch (e) { process.stderr.write(`json write fail: ${e.message}\n`); }
+
+    // Minimal HTML (raw <pre> wrapped — Quartz can swap in later)
+    try {
+      const fs = await import("node:fs/promises");
+      const escaped = md
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const html = `<!doctype html><html><head><meta charset="utf-8">
+<title>PRISM Context Bundle</title>
+<style>body{font:14px/1.45 ui-monospace,monospace;background:#0e1117;color:#c9d1d9;margin:0;padding:24px;max-width:1100px}h1,h2,h3{color:#58a6ff}pre{white-space:pre-wrap;word-break:break-word}</style>
+</head><body>
+<h1>PRISM Context Bundle <small>(${meta.mode}, ${meta.bytes} bytes, ${meta.durationMs} ms)</small></h1>
+<p>Generated: ${meta.generatedAt} · Refresh interval: ${tickSeconds}s · Source: <code>prism-awareness-bundle.mjs --daemon</code></p>
+<pre>${escaped}</pre>
+</body></html>`;
+      await fs.writeFile(`${HTML_OUT}.tmp-${process.pid}`, html);
+      await fs.rename(`${HTML_OUT}.tmp-${process.pid}`, HTML_OUT);
+    } catch (e) { process.stderr.write(`html write fail: ${e.message}\n`); }
+
+    process.stderr.write(`[bundle-daemon] tick ok mode=${meta.mode} bytes=${meta.bytes} ms=${meta.durationMs}\n`);
+  };
+
+  // Initial tick + interval
+  await tick();
+  const interval = setInterval(() => { tick().catch((e) => process.stderr.write(`tick err: ${e.message}\n`)); }, tickSeconds * 1000);
+  // Graceful shutdown
+  const stop = () => { clearInterval(interval); process.exit(0); };
+  process.on("SIGINT", stop);
+  process.on("SIGTERM", stop);
+  // Keep alive
+  await new Promise(() => {}); // never resolves; daemon-supervisor controls lifecycle
+}
+
 // CLI entrypoint — only runs when invoked directly (`node prism-awareness-bundle.mjs`),
 // not when imported as a module by the engine.
 const isMainModule =
@@ -261,5 +344,14 @@ const isMainModule =
   import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"));
 
 if (isMainModule) {
-  process.stdout.write(buildBundle({ mode: modeFlag }));
+  if (args.includes("--daemon")) {
+    const tickArg = args.find((a) => a.startsWith("--tick="));
+    const tickSeconds = tickArg ? Number(tickArg.split("=")[1]) || 30 : 30;
+    runDaemon({ mode: modeFlag, tickSeconds }).catch((e) => {
+      process.stderr.write(`prism-awareness-bundle daemon: fatal ${e.message}\n`);
+      process.exit(1);
+    });
+  } else {
+    process.stdout.write(buildBundle({ mode: modeFlag }));
+  }
 }
