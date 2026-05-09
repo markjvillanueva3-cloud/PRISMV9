@@ -1,0 +1,65 @@
+# U-A5 settings.json patch (pre-staged)
+
+**Why pre-staged:** at the time U-A5 shipped (2026-05-09), peer chats `claude-671e2b1f` and
+`claude-cee63f1f` held active claims on `C:/Users/wompu/.claude/settings.json`. Per
+lane-discipline doctrine I did not edit settings.json directly. The hook file is committed
+and ready; just needs this 5-line registration to wire in.
+
+## Apply when settings.json is no longer claimed
+
+In `C:/Users/wompu/.claude/settings.json`, find the SessionStart hooks block — specifically
+the `session-id-pin.mjs` entry (currently line 50-54). Insert the new entry right after it,
+before `portable-node-guard.mjs`. The diff below is the literal change:
+
+```diff
+           {
+             "type": "command",
+             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/session-id-pin.mjs",
+             "timeout": 1500
+           },
++          {
++            "type": "command",
++            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/settings-mirror-guard.mjs",
++            "timeout": 2000
++          },
+           {
+             "type": "command",
+             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/portable-node-guard.mjs",
+             "timeout": 5000
+           },
+```
+
+## Apply via Edit tool (preferred)
+
+```
+Edit C:/Users/wompu/.claude/settings.json:
+  old_string: (5-line session-id-pin entry + 5-line portable-node-guard entry — see diff above)
+  new_string: (same with the 5-line settings-mirror-guard entry inserted between them)
+```
+
+After the edit:
+1. Validate JSON: `node -e "JSON.parse(require('fs').readFileSync('C:/Users/wompu/.claude/settings.json'))"`
+2. Verify mirror sync: hash of C: should equal H: (the c-to-h-mirror PostToolUse hook fires on the Edit; if not, manually `cp C:/Users/wompu/.claude/settings.json H:/.claude/settings.json`).
+
+## What this hook does
+
+`H:/prism/.claude/hooks/settings-mirror-guard.mjs` (already on disk, committed):
+
+- Runs at every SessionStart (after `session-id-pin`, before any hook that reads settings).
+- Hashes both layers; exits silently if equal.
+- If drift detected:
+  - Always reconciles C: → H: (canonical direction per CLAUDE.md).
+  - If H: was newer (someone edited H: directly against doctrine) → emits a LOUD warning so the user knows their H: edits got overwritten.
+  - If C: was newer (external script bypassed c-to-h-mirror) → quiet sync, log only.
+- Logs every reconciliation to `state/shared/settings-mirror-guard.log` (JSONL).
+- Always non-blocking; emits `{continue:true}`.
+
+## Rollback
+
+`PRISM_MIRROR_GUARD_OFF=1` in env disables the guard.
+
+## Provenance
+
+- Hook file commit: pending in this session
+- Spec: `state/shared/specs/2026-05-09-prism-stabilization-design.md` § A5
+- Roadmap: `state/shared/specs/2026-05-09-prism-stabilization-roadmap.md` § U-A5
