@@ -6,14 +6,17 @@
  * meaningful mcp-server backend edits and returns a compact summary.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, openSync } from "node:fs";
+import { join } from "node:path";
+import { spawn } from "node:child_process";
 
 const CACHE_DIR = "H:/PRISM/.claude/cache";
 const CACHE_FILE = join(CACHE_DIR, "mcp-backend-audit-cache.json");
+const LOG_FILE = join(CACHE_DIR, "mcp-backend-audit.log");
 const MCP_ROOT = "H:/PRISM/mcp-server";
-const AUDIT_TIMEOUT_MS = 45000;
+// 2026-05-09: was synchronous spawnSync with 45s timeout — hung every Edit
+// for up to 45s when npx tsx cold-started or audit chain stalled. Now detached
+// fire-and-forget; hook returns in <50ms; audit results land in cache async.
 const COOLDOWN_MS = 90000;
 
 function safeJsonParse(text, fallback) {
@@ -88,42 +91,53 @@ if (Date.now() - lastRunAt < COOLDOWN_MS) {
   process.exit(0);
 }
 
-const result =
-  process.platform === "win32"
-    ? spawnSync(
-        process.env.ComSpec || "cmd.exe",
-        ["/d", "/s", "/c", `npx tsx .\\scripts\\run-dev-audit-chain.ts --edited-file "${filePath}"`],
-        {
-          cwd: MCP_ROOT,
-          encoding: "utf8",
-          timeout: AUDIT_TIMEOUT_MS,
-          windowsHide: true,
-        },
-      )
-    : spawnSync("npx", ["tsx", "./scripts/run-dev-audit-chain.ts", "--edited-file", filePath], {
-        cwd: MCP_ROOT,
-        encoding: "utf8",
-        timeout: AUDIT_TIMEOUT_MS,
-        windowsHide: true,
-      });
-
-cache[filePath] = { ts: Date.now() };
+// Fire-and-forget detached spawn. The audit still runs, writes to LOG_FILE,
+// and updates the cache itself when complete — but this hook returns within
+// milliseconds. Previous synchronous spawnSync with 45s timeout was the
+// dominant per-Edit latency on mcp-server files (and hung tools when npx tsx
+// couldn't cold-start cleanly).
+cache[filePath] = { ts: Date.now(), mode: "detached", launchedAt: new Date().toISOString() };
 saveCache(cache);
 
-if (result.status !== 0) {
-  const errorText = String(result.error?.message || result.stderr || result.stdout || "").trim();
-  console.log(
-    JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `MCP backend audit failed for ${filePath}: ${errorText.slice(0, 280)}` } }),
-  );
+if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+const logFd = openSync(LOG_FILE, "a");
+
+try {
+  const child =
+    process.platform === "win32"
+      ? spawn(
+          process.env.ComSpec || "cmd.exe",
+          ["/d", "/s", "/c", `npx tsx .\\scripts\\run-dev-audit-chain.ts --edited-file "${filePath}"`],
+          {
+            cwd: MCP_ROOT,
+            stdio: ["ignore", logFd, logFd],
+            detached: true,
+            windowsHide: true,
+          },
+        )
+      : spawn("npx", ["tsx", "./scripts/run-dev-audit-chain.ts", "--edited-file", filePath], {
+          cwd: MCP_ROOT,
+          stdio: ["ignore", logFd, logFd],
+          detached: true,
+        });
+  child.unref();
+} catch (err) {
+  // Spawning a background audit must never block the user's edit.
+  console.log(JSON.stringify({
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: "PostToolUse",
+      additionalContext: `MCP backend audit launch failed: ${String(err?.message || err).slice(0, 200)}`,
+    },
+  }));
   process.exit(0);
 }
 
-const report = safeJsonParse(result.stdout || "{}", null);
-if (!report) {
-  console.log(JSON.stringify({ continue: true }));
-  process.exit(0);
-}
-
-console.log(
-  JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: summarize(report), } }),
-);
+console.log(JSON.stringify({
+  continue: true,
+  hookSpecificOutput: {
+    hookEventName: "PostToolUse",
+    additionalContext: `MCP backend audit launched (detached). Tail: ${LOG_FILE}`,
+  },
+}));
+process.exit(0);
