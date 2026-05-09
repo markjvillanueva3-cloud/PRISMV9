@@ -476,6 +476,21 @@ const lathe_lora_model_selector_stats = z.object({}).passthrough().describe("Rea
 const lathe_lora_monitoring_stats = z.object({}).passthrough().describe("Read LoRA monitoring stats (no input).");
 const lathe_lora_resource_manager_stats = z.object({}).passthrough().describe("Read LoRA resource-manager stats (no input).");
 
+// OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE: surface LatheOnMachineProbeCycleEngine
+const lathe_omv_probe_generate = z.object({
+  cycle: z.enum(["od_measure", "id_measure", "face_z_measure", "groove_width", "thread_start", "work_offset_bump"]).describe("Probe cycle type"),
+  nominal_mm: z.number().positive().describe("Nominal dimension in mm (diameter for OD/ID, Z for face, width for groove)"),
+  tol_mm: z.number().positive().describe("Plus/minus tolerance in mm (one-sided for unilateral)"),
+  probe_feed_mm_min: z.number().positive().optional().describe("Probe feed mm/min (default 1000)"),
+  approach_mm: z.number().positive().optional().describe("Approach rapid clearance above target mm (default 5)"),
+  macro_override: z.number().int().positive().optional().describe("Probe macro number override (Renishaw default per cycle)"),
+  wcs: z.enum(["G54", "G55", "G56", "G57", "G58", "G59"]).optional().describe("Active work coordinate system for offset bump (default G54)"),
+  axis: z.enum(["X", "Z"]).optional().describe("Axis for single-axis probes (X or Z; default X for OD/ID)"),
+  probe_stylus_length_mm: z.number().positive().optional().describe("Probe stylus length mm (clearance check)"),
+}).describe("Generate Renishaw OMV probe-cycle G-code for a lathe (LatheOnMachineProbeCycleEngine.generate).");
+
+const lathe_omv_probe_stats = z.object({}).passthrough().describe("List supported OMV probe cycle types + reference (no input).");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -558,4 +573,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_lora_model_selector_stats,
   lathe_lora_monitoring_stats,
   lathe_lora_resource_manager_stats,
+
+  // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE
+  lathe_omv_probe_generate,
+  lathe_omv_probe_stats,
 };

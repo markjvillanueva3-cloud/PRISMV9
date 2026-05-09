@@ -18,6 +18,8 @@ import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js
 
 let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any, _partoff: any;
 let _cpkSurrogate: any, _insertLife: any, _offsetComp: any, _robustOpt: any;
+// OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE
+let _omvProbe: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "chuck": return _chuck ??= (await import("../../engines/ChuckJawForceEngine.js")).chuckJawForceEngine;
@@ -31,6 +33,8 @@ async function getEngine(name: string): Promise<any> {
     case "insertLife": return _insertLife ??= (await import("../../engines/TurningInsertLifeEngine.js")).turningInsertLifeEngine;
     case "offsetComp": return _offsetComp ??= (await import("../../engines/TurningOffsetCompensationEngine.js")).turningOffsetCompensationEngine;
     case "robustOpt": return _robustOpt ??= (await import("../../engines/TurningRobustOptimizerEngine.js")).turningRobustOptimizerEngine;
+    // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE
+    case "omvProbe": return _omvProbe ??= (await import("../../engines/LatheOnMachineProbeCycleEngine.js")).latheOnMachineProbeCycleEngine;
     default: throw new Error(`Unknown turning engine: ${name}`);
   }
 }
@@ -137,6 +141,10 @@ const ACTIONS = [
   "lathe_lora_model_selector_stats",        // LatheLoRAModelSelectorEngine.getStats
   "lathe_lora_monitoring_stats",            // LatheLoRAMonitoringEngine.getStats
   "lathe_lora_resource_manager_stats",      // LatheLoRAResourceManagerEngine.getStats
+
+  // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE: surface LatheOnMachineProbeCycleEngine
+  "lathe_omv_probe_generate",               // LatheOnMachineProbeCycleEngine.generate (Renishaw OMV macro G-code)
+  "lathe_omv_probe_stats",                  // LatheOnMachineProbeCycleEngine.getStats (supported cycles + ref)
 ] as const;
 
 /** Registers turning dispatcher.
@@ -828,6 +836,35 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_lora_resource_manager_stats": {
             const { latheLoRAResourceManagerEngine } = await import("../../engines/LatheLoRAResourceManagerEngine.js");
             result = latheLoRAResourceManagerEngine.getStats();
+            break;
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE: surface LatheOnMachineProbeCycleEngine
+          case "lathe_omv_probe_generate": {
+            const engine = await getEngine("omvProbe");
+            const cycle = params.cycle;
+            const nominalMm = params.nominal_mm ?? params.nominalMm;
+            const tolMm = params.tol_mm ?? params.tolMm;
+            if (!cycle || nominalMm === undefined || tolMm === undefined) {
+              result = { error: "cycle, nominal_mm, and tol_mm are required" };
+              break;
+            }
+            result = engine.generate({
+              cycle,
+              nominal_mm: nominalMm,
+              tol_mm: tolMm,
+              probe_feed_mm_min: params.probe_feed_mm_min ?? params.probeFeedMmMin,
+              approach_mm: params.approach_mm ?? params.approachMm,
+              macro_override: params.macro_override ?? params.macroOverride,
+              wcs: params.wcs,
+              axis: params.axis,
+              probe_stylus_length_mm: params.probe_stylus_length_mm ?? params.probeStylusLengthMm,
+            });
+            break;
+          }
+          case "lathe_omv_probe_stats": {
+            const engine = await getEngine("omvProbe");
+            result = engine.getStats();
             break;
           }
 
