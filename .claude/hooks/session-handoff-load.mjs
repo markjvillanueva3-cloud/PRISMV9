@@ -34,7 +34,12 @@ const STABLE_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
 // Windows where shell-script wrappers without .cmd suffix aren't directly
 // invokable via spawnSync.
 const NODE_BIN = process.env.PORTABLE_NODE_BIN || process.execPath;
-const STALE_FAMILY_FALLBACK_MAX_MIN = 15;
+// PRISM-STAB-MS0/U-B4 (2026-05-09): family-latest fuzzy fallback eliminated.
+// Setting this to 0 means: never load a handoff that didn't match THIS chat
+// exactly (by instance ID and optional topic). The legacy 15-min window was a
+// half-measure that still permitted cross-chat contamination during the
+// vulnerable interval. Override to non-zero to restore legacy behavior.
+const STALE_FAMILY_FALLBACK_MAX_MIN = Number(process.env.PRISM_HANDOFF_FAMILY_FALLBACK_MIN || 0);
 
 function readStdinSafe() {
   try {
@@ -140,13 +145,21 @@ function main() {
     return;
   }
 
-  // Family-latest fallback older than threshold → do NOT contaminate THIS chat
+  // PRISM-STAB-MS0/U-B4: family-latest fallback (fuzzy match across chats in
+  // the same family) eliminated by default. STALE_FAMILY_FALLBACK_MAX_MIN=0
+  // means "any family-latest match is rejected — only exact instance matches
+  // count". This guarantees no cross-chat contamination on simultaneous
+  // /compact storms. Set PRISM_HANDOFF_FAMILY_FALLBACK_MIN=15 to restore the
+  // legacy "load if <15min old" behavior if needed.
   const isFamilyFallback = handoff.matchedBy === "family-latest";
   const ageMin = Number(handoff.age_minutes ?? 0);
-  if (isFamilyFallback && ageMin > STALE_FAMILY_FALLBACK_MAX_MIN) {
+  if (isFamilyFallback && ageMin >= STALE_FAMILY_FALLBACK_MAX_MIN) {
     process.stdout.write(JSON.stringify({
       continue: true,
-      systemMessage: `📂 Handoff: fresh session for ${instance} (family fallback was ${ageMin}m old — skipped to avoid cross-chat contamination)`,
+      systemMessage:
+        STALE_FAMILY_FALLBACK_MAX_MIN === 0
+          ? `📂 Handoff: fresh session for ${instance} (no exact handoff for this chat; family-latest fallback disabled by U-B4 to prevent cross-chat contamination — run /handoff in the originating chat to recover its state)`
+          : `📂 Handoff: fresh session for ${instance} (family fallback was ${ageMin}m old — skipped to avoid cross-chat contamination)`,
     }));
     return;
   }
