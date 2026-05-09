@@ -1,0 +1,501 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Strategic update-points registry. Lists every canonical surface that audits / rgs runs may invalidate, with the regenerator command (or 'manual' for surfaces that require Claude judgment), tier (0=atomic, must-refresh-every-run; 5=external/optional), trigger conditions, and lane-discipline locks. Consumed by apply-update-points.mjs and the forge-audit + rgs6 postflight passes.",
+  "tiers": {
+    "0": "atomic counts and snapshots — refresh on every audit/rgs run",
+    "1": "knowledge indexes — refresh when drift detected or asset count changes",
+    "2": "doctrine surfaces — flag for Claude manual review on drift",
+    "3": "skills/hooks/scripts — flag for surface change, register new wirings",
+    "4": "memory surfaces — append-only, audit for staleness",
+    "5": "external systems — optional opt-in (Obsidian, system-viz)"
+  },
+  "lanes_locked": {
+    "claude-0413eca6": [
+      "state/shared/system-viz/**",
+      "scripts/system-viz-*.mjs",
+      "scripts/h-drive-*.mjs",
+      "scripts/merge-*.mjs"
+    ],
+    "claude-845cf238": [
+      "scripts/distill-tribal.mjs",
+      ".claude/commands/distill-tribal.md",
+      "WIKI_SCHEMA.md"
+    ],
+    "claude-cee63f1f": [
+      "mcp-server/src/tools/dispatchers/turning*",
+      "mcp-server/src/tools/dispatchers/edm*",
+      "mcp-server/src/tools/dispatchers/resourceHarvester*",
+      "mcp-server/src/schemas/turning*",
+      "mcp-server/src/schemas/edm*",
+      "mcp-server/src/schemas/resourceHarvester*"
+    ],
+    "claude-d9860be8": [
+      "Docustrata/.index/phase9*"
+    ]
+  },
+  "points": [
+    {
+      "id": "prism-inventory",
+      "name": "PRISM-INVENTORY-LATEST.md",
+      "category": "index",
+      "tier": 0,
+      "path": "PRISM-INVENTORY-LATEST.md",
+      "regenerator": "node scripts/update-prism-inventory.mjs --quiet",
+      "triggers": ["always"],
+      "stalenessHours": 24,
+      "rationale": "Authoritative live counts (engines/dispatchers/actions/hooks). Every audit must read fresh data; SessionStart hook also throttles 24h refresh."
+    },
+    {
+      "id": "build-state",
+      "name": "BUILD_STATE",
+      "category": "index",
+      "tier": 0,
+      "path": "state/shared/BUILD_STATE.json",
+      "regenerator": "node scripts/build-state-snapshot.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 24,
+      "rationale": "BUILT/NEEDS_WIRING/NEEDS_BUILDING/NEEDS_FRONTEND snapshot. forge-audit subtracts shipped from gap lists."
+    },
+    {
+      "id": "milestone-progress",
+      "name": "MILESTONE_PROGRESS",
+      "category": "index",
+      "tier": 0,
+      "path": "state/shared/MILESTONE_PROGRESS.json",
+      "regenerator": "node scripts/build-milestone-progress.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 24,
+      "rationale": "Git-grounded shipped vs claimed delta. Drift cases are highest-value gap candidates."
+    },
+    {
+      "id": "claude-brief",
+      "name": "CLAUDE-BRIEF.md",
+      "category": "awareness",
+      "tier": 0,
+      "path": "state/shared/CLAUDE-BRIEF.md",
+      "regenerator": "node mcp-server/scripts/generate-claude-brief.mjs",
+      "triggers": ["always", "post-audit"],
+      "stalenessHours": 24,
+      "rationale": "Continuous-awareness backbone. Brief drift monitor flags >12h re-inject; full regen on >24h."
+    },
+    {
+      "id": "build-context",
+      "name": "PRISM-BUILD-CONTEXT.md",
+      "category": "awareness",
+      "tier": 0,
+      "path": "state/shared/PRISM-BUILD-CONTEXT.md",
+      "regenerator": "node mcp-server/scripts/generate-build-context.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 24,
+      "rationale": "Last 7d commits, peer claims, per-chat handoffs, queued next."
+    },
+    {
+      "id": "build-vision",
+      "name": "PRISM-BUILD-VISION.md",
+      "category": "awareness",
+      "tier": 1,
+      "path": "state/shared/PRISM-BUILD-VISION.md",
+      "regenerator": "node mcp-server/scripts/generate-build-vision.mjs",
+      "triggers": ["audit-finds-vision-gap"],
+      "stalenessHours": 168,
+      "rationale": "Per-component max-value vision, audit-mapped gaps. Auto-injected; rebuild weekly or on vision-spec change."
+    },
+    {
+      "id": "engine-digest",
+      "name": "ENGINE_DIGEST.md",
+      "category": "index",
+      "tier": 1,
+      "path": "mcp-server/data/docs/ENGINE_DIGEST.md",
+      "regenerator": "node mcp-server/scripts/inventory-engines.mjs",
+      "triggers": ["count-drift", "new-engine-found"],
+      "stalenessHours": 48,
+      "rationale": "1-line per engine; check-before-create gate. Stale digest causes false negatives in duplication guard."
+    },
+    {
+      "id": "dispatcher-digest",
+      "name": "DISPATCHER_DIGEST.md",
+      "category": "index",
+      "tier": 1,
+      "path": "mcp-server/data/docs/DISPATCHER_DIGEST.md",
+      "regenerator": "node mcp-server/scripts/inventory-algos-regs-hooks.mjs",
+      "triggers": ["count-drift", "new-dispatcher-found"],
+      "stalenessHours": 48,
+      "rationale": "Action counts per dispatcher. Used by route-first discipline."
+    },
+    {
+      "id": "code-system-index",
+      "name": "CODE_SYSTEM_INDEX.json",
+      "category": "index",
+      "tier": 1,
+      "path": "mcp-server/data/docs/CODE_SYSTEM_INDEX.json",
+      "regenerator": "node scripts/regen-code-index.mjs",
+      "triggers": ["new-asset-found"],
+      "stalenessHours": 72,
+      "rationale": "Shortcode→path map (E####/D##/A##/T####). Powers /code-index."
+    },
+    {
+      "id": "shared-index-surfaces",
+      "name": "PRISM_SHARED_INDEX_SURFACES",
+      "category": "index",
+      "tier": 1,
+      "path": "state/shared/PRISM_SHARED_INDEX_SURFACES.json",
+      "regenerator": "node scripts/index/build-shared-index-surfaces.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 48,
+      "rationale": "Cross-agent index registry. Search-first discipline depends on this being fresh."
+    },
+    {
+      "id": "command-bridge",
+      "name": "claude-codex-command-registry",
+      "category": "protocol",
+      "tier": 1,
+      "path": "state/shared/claude-codex-command-registry.json",
+      "regenerator": "node scripts/index/build-command-bridge.mjs",
+      "triggers": ["new-skill-found", "new-command-found"],
+      "stalenessHours": 72,
+      "rationale": "Slash-command parity registry across Claude/Codex."
+    },
+    {
+      "id": "tribal-embed-index",
+      "name": "tribal-embed-index.json",
+      "category": "index",
+      "tier": 1,
+      "path": "state/shared/tribal-embed-index.json",
+      "regenerator": "node .claude/scripts/tribal-embed-index.mjs --update",
+      "triggers": ["wiki-or-memory-edit", "always"],
+      "stalenessHours": 24,
+      "rationale": "Vector index over wiki+memories+extraction-log. L6 autowire keeps it incremental; this is the safety-net full sweep."
+    },
+    {
+      "id": "ai-priority-ranks",
+      "name": "ai-priority-ranks.json",
+      "category": "ai-ranking",
+      "tier": 1,
+      "path": "state/shared/ai-priority-ranks.json",
+      "regenerator": "node .claude/scripts/ai-priority-rank.mjs",
+      "triggers": ["new-milestone-envelope", "always"],
+      "stalenessHours": 24,
+      "rationale": "Scores units across system-knowledge/dev-tools/deep-reasoning/deep-learning/ai-systems per AI-PRIORITY LAW."
+    },
+    {
+      "id": "atomic-roadmap",
+      "name": "atomic-roadmap-emit",
+      "category": "roadmap",
+      "tier": 1,
+      "path": "state/shared/atomic-roadmap-*.json",
+      "regenerator": "node .claude/scripts/atomic-roadmap-emit.mjs",
+      "triggers": ["after-ai-priority-rank", "after-roadmap-drift"],
+      "stalenessHours": 48,
+      "rationale": "Tier 0→5 ordered roadmap split into 6 chat lanes. Depends on ai-priority-ranks."
+    },
+    {
+      "id": "roadmap-drift-audit",
+      "name": "roadmap-drift",
+      "category": "roadmap",
+      "tier": 1,
+      "path": "state/shared/roadmap-drift-*.md",
+      "regenerator": "node scripts/audit-roadmap-drift.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 48,
+      "rationale": "Detects envelope-vs-git drift. Pairs with envelope-sync-auto.mjs for auto-apply."
+    },
+    {
+      "id": "unwired-audit",
+      "name": "UNWIRED-ENGINE-AUDIT",
+      "category": "index",
+      "tier": 1,
+      "path": "state/shared/UNWIRED-ENGINE-AUDIT-*.json",
+      "regenerator": "node scripts/audit-unwired-engines.mjs",
+      "triggers": ["new-engine-found", "always"],
+      "stalenessHours": 48,
+      "rationale": "898 unwired engines + suggestedDispatcher. Wire-batch fodder for forge-engines."
+    },
+    {
+      "id": "awareness-counts",
+      "name": "awareness counts sync",
+      "category": "awareness",
+      "tier": 1,
+      "path": "state/shared/AWARENESS_*.json",
+      "regenerator": "node scripts/sync-awareness-counts.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 24,
+      "rationale": "Keeps prismSelfAwarenessEngine count facts in sync with disk truth."
+    },
+    {
+      "id": "claudemd-project",
+      "name": "Project CLAUDE.md",
+      "category": "doctrine",
+      "tier": 2,
+      "path": "CLAUDE.md",
+      "regenerator": "manual",
+      "triggers": ["doctrine-change-detected"],
+      "stalenessHours": 720,
+      "rationale": "Cannot auto-regenerate — Claude must edit when audit detects doctrine drift, new enforcement axis, or stale references."
+    },
+    {
+      "id": "claudemd-global",
+      "name": "Global CLAUDE.md (~/.claude/CLAUDE.md)",
+      "category": "doctrine",
+      "tier": 2,
+      "path": "C:/Users/wompu/.claude/CLAUDE.md",
+      "regenerator": "manual",
+      "triggers": ["doctrine-change-detected"],
+      "stalenessHours": 720,
+      "rationale": "Must edit C: copy only — c-to-h-mirror hook auto-replicates to H:."
+    },
+    {
+      "id": "gsd-quick",
+      "name": "GSD_QUICK.md",
+      "category": "gsd",
+      "tier": 2,
+      "path": "mcp-server/data/docs/gsd/GSD_QUICK.md",
+      "regenerator": "manual",
+      "triggers": ["session-lifecycle-change"],
+      "stalenessHours": 168,
+      "rationale": "Session lifecycle reference. Update when SessionStart/Stop/UserPromptSubmit hook profile changes."
+    },
+    {
+      "id": "gsd-dev-protocol",
+      "name": "DEV_PROTOCOL.md",
+      "category": "gsd",
+      "tier": 2,
+      "path": "mcp-server/data/docs/gsd/DEV_PROTOCOL.md",
+      "regenerator": "manual",
+      "triggers": ["protocol-change"],
+      "stalenessHours": 168,
+      "rationale": "Full dev protocol with command-bridge and shared-directive links."
+    },
+    {
+      "id": "gsd-micro",
+      "name": "GSD_MICRO.md",
+      "category": "gsd",
+      "tier": 2,
+      "path": "mcp-server/data/docs/gsd/GSD_MICRO.md",
+      "regenerator": "manual",
+      "triggers": ["multi-chat-rule-change"],
+      "stalenessHours": 168,
+      "rationale": "Multi-chat coordination rules + worktree routing details."
+    },
+    {
+      "id": "directive-mcp",
+      "name": "CLAUDE-CODEX-MCP-DIRECTIVE",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md",
+      "regenerator": "manual",
+      "triggers": ["mcp-route-change", "new-dispatcher-added"],
+      "stalenessHours": 168,
+      "rationale": "MCP-server development capability rules. Stale → cross-agent dispatch drift."
+    },
+    {
+      "id": "directive-coordination",
+      "name": "CLAUDE-CODEX-COORDINATION-DIRECTIVE",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+      "regenerator": "manual",
+      "triggers": ["coordination-rule-change"],
+      "stalenessHours": 168,
+      "rationale": "Concurrent-work discipline. Lane discipline + workboard semantics."
+    },
+    {
+      "id": "directive-roadmap",
+      "name": "CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md",
+      "regenerator": "manual",
+      "triggers": ["roadmap-gate-change"],
+      "stalenessHours": 168,
+      "rationale": "Finish-first gate, SVI trigger for next collaborative pass."
+    },
+    {
+      "id": "directive-task-queue",
+      "name": "CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md",
+      "regenerator": "manual",
+      "triggers": ["queue-protocol-change"],
+      "stalenessHours": 168,
+      "rationale": "Task claims + heartbeat protocol across agent families."
+    },
+    {
+      "id": "directive-svi",
+      "name": "CLAUDE-CODEX-SVI-DIRECTIVE",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md",
+      "regenerator": "manual",
+      "triggers": ["svi-formula-change"],
+      "stalenessHours": 168,
+      "rationale": "SVI / Psi / watch-status behavior. Coupled with omega-thresholds."
+    },
+    {
+      "id": "directive-search-token",
+      "name": "CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md",
+      "regenerator": "manual",
+      "triggers": ["search-tooling-change"],
+      "stalenessHours": 168,
+      "rationale": "Index-first search behavior, token economy."
+    },
+    {
+      "id": "omega-thresholds",
+      "name": "omega-thresholds.json",
+      "category": "protocol",
+      "tier": 2,
+      "path": "state/shared/omega-thresholds.json",
+      "regenerator": "manual",
+      "triggers": ["safety-tier-change"],
+      "stalenessHours": 720,
+      "rationale": "Safety-tier S(x) and Ω thresholds. Manual edits ONLY — versioned."
+    },
+    {
+      "id": "rgs6-skill",
+      "name": "rgs6 skill",
+      "category": "skill",
+      "tier": 3,
+      "path": "C:/Users/wompu/.claude/commands/rgs6.md",
+      "regenerator": "manual",
+      "triggers": ["rgs-pipeline-change"],
+      "stalenessHours": 168,
+      "rationale": "Master rgs flow. v6.1 added AI-PRIORITY LAW + S2.5 stage."
+    },
+    {
+      "id": "forge-audit-skill",
+      "name": "forge-audit skill",
+      "category": "skill",
+      "tier": 3,
+      "path": "C:/Users/wompu/.claude/commands/forge-audit.md",
+      "regenerator": "manual",
+      "triggers": ["audit-rule-change"],
+      "stalenessHours": 168,
+      "rationale": "Forge audit pipeline. Hosts the postflight call to apply-update-points."
+    },
+    {
+      "id": "container-skills",
+      "name": "container skills (project)",
+      "category": "skill",
+      "tier": 3,
+      "path": ".claude/commands/*.md",
+      "regenerator": "manual",
+      "triggers": ["new-skill-needed", "skill-stale"],
+      "stalenessHours": 720,
+      "rationale": "Project-scoped slash commands. Inventory via PRISM-COMMANDS-MANIFEST.md."
+    },
+    {
+      "id": "settings-hooks",
+      "name": "settings.json hooks",
+      "category": "hook",
+      "tier": 3,
+      "path": "C:/Users/wompu/.claude/settings.json",
+      "regenerator": "manual",
+      "triggers": ["new-hook-shipped", "hook-removed"],
+      "stalenessHours": 720,
+      "rationale": "Hook wirings. Edit C: only — c-to-h-mirror auto-replicates. Always backup before edit."
+    },
+    {
+      "id": "memory-index",
+      "name": "MEMORY.md (auto-memory index)",
+      "category": "memory",
+      "tier": 4,
+      "path": "C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md",
+      "regenerator": "manual",
+      "triggers": ["new-memory-saved"],
+      "stalenessHours": 168,
+      "rationale": "Auto-memory index, must stay <200 lines. Append entries inline; never write long-form into MEMORY.md."
+    },
+    {
+      "id": "memories-tree",
+      "name": "knowledge/memories/**",
+      "category": "memory",
+      "tier": 4,
+      "path": "knowledge/memories",
+      "regenerator": "node scripts/obsidian-memory-sync.mjs",
+      "triggers": ["new-feedback-or-project-fact"],
+      "stalenessHours": 720,
+      "rationale": "Source of truth for tribal memories. Mirror to Obsidian via memory-sync."
+    },
+    {
+      "id": "obsidian-vault",
+      "name": "Obsidian vault mirror",
+      "category": "external",
+      "tier": 5,
+      "path": "(env OBSIDIAN_VAULT)",
+      "regenerator": "node .claude/scripts/tribal-obsidian-mirror.mjs",
+      "triggers": ["always", "vault-changed"],
+      "stalenessHours": 24,
+      "rationale": "Optional 5th source corpus. Soft-skips when vault not located."
+    },
+    {
+      "id": "wiki-lessons",
+      "name": "wiki/lessons/",
+      "category": "knowledge",
+      "tier": 1,
+      "path": "knowledge/wiki/lessons",
+      "regenerator": "node .claude/scripts/auto-build-compounding-proposals.mjs --batch",
+      "triggers": ["new-milestone-shipped", "always"],
+      "stalenessHours": 168,
+      "rationale": "Auto-distilled lessons from envelope rationale. L3 of tribal-knowledge leverage plan."
+    },
+    {
+      "id": "system-viz",
+      "name": "/system-viz live graph",
+      "category": "viz",
+      "tier": 5,
+      "path": "state/shared/system-viz",
+      "regenerator": "manual:flag-only",
+      "lockedTo": "claude-0413eca6",
+      "triggers": ["always", "new-asset-found"],
+      "stalenessHours": 24,
+      "rationale": "LANE-LOCKED to claude-0413eca6 — do NOT regenerate from this lane. Apply-update-points emits a stub asking the system-viz lane to regen."
+    },
+    {
+      "id": "self-awareness-engine",
+      "name": "prismSelfAwarenessEngine",
+      "category": "awareness",
+      "tier": 1,
+      "path": "mcp-server/src/engines/PrismSelfAwarenessEngine.ts",
+      "regenerator": "node scripts/rebuild-awareness-cache.mjs",
+      "triggers": ["awareness-cache-stale"],
+      "stalenessHours": 48,
+      "rationale": "Awareness cache feeding searchTribalKnowledge / recommendAIFeatures. Engine code is manual; cache is regenerable."
+    },
+    {
+      "id": "master-index",
+      "name": "Master index",
+      "category": "index",
+      "tier": 1,
+      "path": "mcp-server/data/docs/MASTER_INDEX.json",
+      "regenerator": "node mcp-server/scripts/generate-master-index.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 48,
+      "rationale": "Top-level cross-domain index used by master-index-search-gate hook."
+    },
+    {
+      "id": "master-index-compact",
+      "name": "Master index (compact)",
+      "category": "index",
+      "tier": 1,
+      "path": "mcp-server/data/docs/MASTER_INDEX_COMPACT.json",
+      "regenerator": "node mcp-server/scripts/generate-master-index-compact.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 48,
+      "rationale": "Token-bounded variant of the master index."
+    },
+    {
+      "id": "count-drift",
+      "name": "count-drift detection",
+      "category": "index",
+      "tier": 0,
+      "path": "(stdout)",
+      "regenerator": "node mcp-server/scripts/check-count-drift.mjs",
+      "triggers": ["always"],
+      "stalenessHours": 0,
+      "rationale": "Cross-checks PRISM-INVENTORY-LATEST counts vs source-tree truth. Fails fast if drift > threshold."
+    }
+  ]
+}
