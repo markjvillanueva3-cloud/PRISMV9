@@ -32,6 +32,10 @@ const STAGE_TIMEOUT_MS: Record<string, number> = {
   "/cam/assign-tool": 30_000,
   "/cam/toolpath": 180_000,  // Toolpath gen: 5-60+ seconds
   "/cam/toolpath/status": 10_000,
+  "/cam/operations": 30_000,
+  "/cam/toolpath/validity": 30_000,
+  "/cam/cycle-time": 30_000,
+  "/cam/materials": 15_000,
   "/cam/post": 60_000,       // Post-processing can be slow for large programs
   "/data/projects": 15_000,
   "/data/folder/list": 30_000,
@@ -222,6 +226,93 @@ export interface ToolpathStatusResult {
   job_id: string;
   status: "generating" | "complete" | "error" | "timeout" | "expired";
   elapsed_sec: number;
+  error?: string;
+}
+
+export interface CamOperationListItem {
+  setup_name: string;
+  setup_index: number;
+  operation_name: string;
+  operation_index: number;
+  /** Fusion's adsk.cam.OperationTypes enum value (numeric). null if unavailable. */
+  operation_type: number | null;
+  strategy: string;
+  /** false = edits made after last toolpath generation; cached G-code is stale. */
+  is_toolpath_valid: boolean | null;
+  is_suppressed: boolean | null;
+  tool: { description: string; type: string } | null;
+  /** Subset of expressions: tool_spindleSpeed, tool_feedCutting, tool_feedEntry, tool_stepdown, tool_stepover. */
+  speed_feed?: Record<string, string>;
+}
+
+export interface CamOperationListResult {
+  operations: CamOperationListItem[];
+  count: number;
+  error?: string;
+}
+
+export interface CamToolpathValidityItem {
+  setup_name: string;
+  operation_name: string;
+  operation_index: number;
+  is_toolpath_valid: boolean;
+}
+
+export interface CamToolpathValidityResult {
+  operations: CamToolpathValidityItem[];
+  valid_count: number;
+  invalid_count: number;
+  /** True only when every queried operation is valid AND at least one exists. */
+  all_valid: boolean;
+  error?: string;
+}
+
+export interface CamCycleTimeOperation {
+  operation_name: string;
+  operation_index: number;
+  cycle_time_sec: number;
+  cycle_time_min: number;
+}
+
+export interface CamCycleTimeSetup {
+  setup_name: string;
+  setup_index: number;
+  operations: CamCycleTimeOperation[];
+  setup_cycle_time_sec: number;
+  setup_cycle_time_min: number;
+}
+
+export interface CamCycleTimeResult {
+  setups: CamCycleTimeSetup[];
+  total_cycle_time_sec: number;
+  total_cycle_time_min: number;
+  error?: string;
+}
+
+export interface CamMaterialEntry {
+  name: string;
+  id: string;
+  appearance: string;
+}
+
+export interface CamBodyAssignment {
+  body_name: string;
+  body_index: number;
+  material_name: string;
+  material_id: string;
+}
+
+export interface CamSetupMaterial {
+  setup_name: string;
+  setup_index: number;
+  stock_material: string;
+}
+
+export interface CamMaterialsResult {
+  body_materials: CamMaterialEntry[];
+  body_assignments: CamBodyAssignment[];
+  cam_setup_materials: CamSetupMaterial[];
+  count: number;
   error?: string;
 }
 
@@ -1334,6 +1425,52 @@ result = {"success": True, "feature_name": mirrors.add(mi).name}
    */
   async getToolpathStatus(jobId: string): Promise<ToolpathStatusResult> {
     return this._get<ToolpathStatusResult>(`/cam/toolpath/status?job_id=${encodeURIComponent(jobId)}`);
+  }
+
+  /**
+   * Enumerate every CAM operation across setups, optionally scoped to one setup.
+   * Returns strategy + tool + key speed/feed expressions + per-op validity.
+   * Used by orchestrators that need to know what already exists before posting.
+   */
+  async listCamOperations(setupName?: string): Promise<CamOperationListResult> {
+    const path = setupName
+      ? `/cam/operations?name=${encodeURIComponent(setupName)}`
+      : "/cam/operations";
+    return this._get<CamOperationListResult>(path);
+  }
+
+  /**
+   * Per-operation toolpath up-to-date check. Cheap read — no kernel work, no
+   * regeneration. Use this before posting to decide whether the cached G-code
+   * is still authoritative.
+   */
+  async getToolpathValidity(setupName?: string): Promise<CamToolpathValidityResult> {
+    const path = setupName
+      ? `/cam/toolpath/validity?name=${encodeURIComponent(setupName)}`
+      : "/cam/toolpath/validity";
+    return this._get<CamToolpathValidityResult>(path);
+  }
+
+  /**
+   * Cycle-time estimate per operation + setup totals + grand total.
+   * Reads `operation.cycleTime` (seconds) — operations that have never been
+   * generated return 0; pair with getToolpathValidity() if you need certainty.
+   */
+  async getCycleTime(setupName?: string): Promise<CamCycleTimeResult> {
+    const path = setupName
+      ? `/cam/cycle-time?name=${encodeURIComponent(setupName)}`
+      : "/cam/cycle-time";
+    return this._get<CamCycleTimeResult>(path);
+  }
+
+  /**
+   * Materials available in the active document. Returns the design material
+   * library, per-body assignments, and per-setup stock material expressions.
+   * PRISM uses this to confirm Fusion's material matches the Kienzle material
+   * loaded for force/feed calculation.
+   */
+  async getCamMaterials(): Promise<CamMaterialsResult> {
+    return this._get<CamMaterialsResult>("/cam/materials");
   }
 
   /**

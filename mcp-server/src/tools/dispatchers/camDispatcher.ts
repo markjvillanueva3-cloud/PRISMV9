@@ -1483,6 +1483,8 @@ export const ACTIONS = [
   "energy_add_to_cost", "energy_carbon_footprint", "energy_suggest_savings",
   // F360-AP-MS1 — AutoProgramOrchestratorEngine (2 actions)
   "f360_auto_program", "f360_auto_program_status",
+  // F360 Live Bridge — read-only CAM introspection (4 actions, OBSIDIAN-AUTOMATE-MS3/U-FUSION-LIVE-READ)
+  "f360_live_operations", "f360_live_toolpath_validity", "f360_live_cycle_time", "f360_live_materials",
   // PostDownloadEngine (PP-MS4/U-PP21) — 3 actions
   "ppg_format_download", "ppg_setup_sheet", "ppg_manifest",
   // ProveOutModeEngine (PP-MS5/U-PP24) — 2 actions
@@ -10327,6 +10329,29 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "f360_auto_program_status": {
             // Status check — returns cached pipeline result if available
             result = { success: true, pipeline_id: params.pipeline_id, status: "complete", message: "Pipeline status tracking requires persistent store — use f360_auto_program directly" };
+            break;
+          }
+
+          // F360 Live Bridge read-only CAM introspection (OBSIDIAN-AUTOMATE-MS3/U-FUSION-LIVE-READ).
+          // Each routes a single GET to PRISMBridge.py — no kernel work, no mutation.
+          case "f360_live_operations": {
+            const { fusion360LiveBridgeEngine } = await import("../../engines/Fusion360LiveBridgeEngine.js");
+            result = await fusion360LiveBridgeEngine.listCamOperations(params.setup_name as string | undefined);
+            break;
+          }
+          case "f360_live_toolpath_validity": {
+            const { fusion360LiveBridgeEngine } = await import("../../engines/Fusion360LiveBridgeEngine.js");
+            result = await fusion360LiveBridgeEngine.getToolpathValidity(params.setup_name as string | undefined);
+            break;
+          }
+          case "f360_live_cycle_time": {
+            const { fusion360LiveBridgeEngine } = await import("../../engines/Fusion360LiveBridgeEngine.js");
+            result = await fusion360LiveBridgeEngine.getCycleTime(params.setup_name as string | undefined);
+            break;
+          }
+          case "f360_live_materials": {
+            const { fusion360LiveBridgeEngine } = await import("../../engines/Fusion360LiveBridgeEngine.js");
+            result = await fusion360LiveBridgeEngine.getCamMaterials();
             break;
           }
 
