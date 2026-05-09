@@ -1,0 +1,39 @@
+name: Dockerfile sync check
+
+# Both Dockerfiles (root + mcp-server/) must remain byte-identical.
+# Per CLAUDE.md no-delete-assets rule we keep both, but drift between them
+# means the runtime image you build depends on which Compose file you use —
+# a silent footgun. This guard fails the PR if they diverge.
+
+on:
+  pull_request:
+    paths:
+      - 'Dockerfile'
+      - 'mcp-server/Dockerfile'
+      - '.github/workflows/dockerfile-sync.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - 'mcp-server/Dockerfile'
+
+jobs:
+  compare:
+    name: Compare Dockerfile copies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Dockerfile == mcp-server/Dockerfile
+        shell: bash
+        run: |
+          if ! cmp -s Dockerfile mcp-server/Dockerfile; then
+            echo "::error::Dockerfile and mcp-server/Dockerfile diverged."
+            echo "Diff:"
+            diff -u Dockerfile mcp-server/Dockerfile || true
+            echo ""
+            echo "Fix: copy the canonical (root) Dockerfile over the mcp-server copy:"
+            echo "  cp Dockerfile mcp-server/Dockerfile"
+            exit 1
+          fi
+          echo "Dockerfiles are byte-identical."

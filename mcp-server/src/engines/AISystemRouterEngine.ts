@@ -205,13 +205,27 @@ export class AISystemRouterEngine {
           break;
         case "docker-physics-agent":
         case "docker-batch-processor": {
+          // Two-step probe: daemon up, then required image actually built.
+          // Without the image-inspect check we report `reachable=true` even
+          // though `prism-{physics-agent,batch-processor}:latest` were never
+          // built — callers then route real physics/batch work into a void.
           try {
             execSync("docker ps", { stdio: "ignore", timeout: 2_000 });
-            reachable = true;
-            detail = "docker daemon up";
           } catch {
             reachable = false;
             detail = "docker daemon unreachable";
+            break;
+          }
+          const imageName = backend === "docker-physics-agent"
+            ? "prism-physics-agent:latest"
+            : "prism-batch-processor:latest";
+          try {
+            execSync(`docker image inspect ${imageName}`, { stdio: "ignore", timeout: 2_000 });
+            reachable = true;
+            detail = `docker daemon up + image ${imageName} present`;
+          } catch {
+            reachable = false;
+            detail = `daemon up but image ${imageName} not built`;
           }
           break;
         }

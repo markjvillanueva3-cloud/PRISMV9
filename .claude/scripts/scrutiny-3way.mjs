@@ -80,9 +80,12 @@ const CODEX_ARGS = process.env.CODEX_ARGS
   : ["--no-install", "codex", "exec", "--skip-git-repo-check", "-c", "model_reasoning_effort=\"medium\""];
 const GEMINI_BIN = process.env.GEMINI_BIN ?? resolveNpx();
 // Same stdin convention. `gemini` with no -p / no positional reads stdin.
+// Pin gemini-2.5-pro for its 1M-token context — lets the Gemini arm review
+// large diffs the Codex/Opus arms have to truncate. Override via GEMINI_ARGS
+// or by changing the model flag if a newer pro variant ships.
 const GEMINI_ARGS = process.env.GEMINI_ARGS
   ? process.env.GEMINI_ARGS.split(" ")
-  : ["--no-install", "gemini"];
+  : ["--no-install", "gemini", "-m", "gemini-2.5-pro"];
 
 const REVIEW_TIMEOUT_MS = 360_000; // 6 min per provider; covers cold-start + xhigh reasoning on diffs up to 80KB
 
@@ -109,6 +112,16 @@ const MAX_DIFF_BYTES = (() => {
   if (!env) return DEFAULT_MAX_DIFF_BYTES;
   const n = Number.parseInt(env, 10);
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_DIFF_BYTES;
+})();
+// Gemini 2.5 Pro has a 1M-token context window — we can ship 10× the diff to
+// the Gemini arm before truncating, so it can review large refactors that
+// Codex/Opus have to read through a soda straw. Override via env if needed.
+const DEFAULT_GEMINI_MAX_DIFF_BYTES = 800_000;
+const GEMINI_MAX_DIFF_BYTES = (() => {
+  const env = process.env.PRISM_SCRUTINY_GEMINI_MAX_DIFF_BYTES;
+  if (!env) return DEFAULT_GEMINI_MAX_DIFF_BYTES;
+  const n = Number.parseInt(env, 10);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_GEMINI_MAX_DIFF_BYTES;
 })();
 const MAX_OUTPUT_PEEK = 8_000;     // stored in ledger notes
 
@@ -161,7 +174,7 @@ function parseArgs(argv) {
   return out;
 }
 
-function captureDiff(target) {
+function captureDiff(target, maxBytes = MAX_DIFF_BYTES) {
   try {
     // Codex blocker #4: previously did `git show ${target}` interpolated
     // into a shell. A maliciously named branch/tag could inject shell
@@ -183,9 +196,9 @@ function captureDiff(target) {
       maxBuffer: 16 * 1024 * 1024,
       timeout: 8000,
     }).toString();
-    if (out.length > MAX_DIFF_BYTES) {
+    if (out.length > maxBytes) {
       return {
-        text: out.slice(0, MAX_DIFF_BYTES) + `\n\n... [truncated at ${MAX_DIFF_BYTES} bytes — full diff is ${out.length} bytes]`,
+        text: out.slice(0, maxBytes) + `\n\n... [truncated at ${maxBytes} bytes — full diff is ${out.length} bytes]`,
         truncated: true,
         totalBytes: out.length,
       };
@@ -495,8 +508,16 @@ async function main() {
     }, null, 2));
     process.exit(2);
   }
+  // Gemini 2.5 Pro arm gets a separately captured (larger) diff. Skip the
+  // second git call when no upgrade would happen — keeps the fast path fast.
+  const geminiDiffInfo = GEMINI_MAX_DIFF_BYTES > MAX_DIFF_BYTES
+    ? captureDiff(args.target, GEMINI_MAX_DIFF_BYTES)
+    : diffInfo;
 
   const cliPrompt = buildPromptForCLI(diffInfo, args.target);
+  const geminiPrompt = geminiDiffInfo === diffInfo
+    ? cliPrompt
+    : buildPromptForCLI(geminiDiffInfo, args.target);
   const opusPrompt = buildOpusReviewerPrompt(diffInfo, args.target);
 
   // Skip-aware parallel dispatch
@@ -539,7 +560,7 @@ async function main() {
 
   const tasks = [];
   if (!skipCodex) tasks.push(spawnReview("codex", CODEX_BIN, [...CODEX_ARGS], cliPrompt));
-  if (!skipGemini) tasks.push(spawnReview("gemini", GEMINI_BIN, [...GEMINI_ARGS], cliPrompt));
+  if (!skipGemini) tasks.push(spawnReview("gemini", GEMINI_BIN, [...GEMINI_ARGS], geminiPrompt));
   // Parallel mode: local arm runs alongside cloud, surfaces an advisory verdict.
   if (!PREFLIGHT_GATE && !skipPreflight) tasks.push(runOllamaPreflight(cliPrompt));
 
