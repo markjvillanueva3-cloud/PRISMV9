@@ -376,6 +376,12 @@ const ACTIONS = [
   "wedm_degradation_update",               // WEDMDegradationModelEngine.update
   "wedm_degradation_snapshot",             // WEDMDegradationModelEngine.snapshot
   "wedm_ewc_list_slots",                   // WEDMEWCMemoryEngine.listSlots
+
+  // OBSIDIAN-AUTOMATE-MS3/U-WEDM-FEEDBACK-EXPOSE: surface WEDMFeedbackCalibrationEngine
+  "wedm_feedback_submit",                  // WEDMFeedbackCalibrationEngine.submit_feedback
+  "wedm_feedback_get_calibration",         // WEDMFeedbackCalibrationEngine.get_calibration
+  "wedm_feedback_history",                 // WEDMFeedbackCalibrationEngine.get_history
+  "wedm_feedback_reset",                   // WEDMFeedbackCalibrationEngine.reset_calibration
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2318,6 +2324,49 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_ewc_list_slots": {
             const { wedmEWCMemoryEngine } = await import("../../engines/WEDMEWCMemoryEngine.js");
             result = { slots: wedmEWCMemoryEngine.listSlots() };
+            break;
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-WEDM-FEEDBACK-EXPOSE: surface WEDMFeedbackCalibrationEngine
+          case "wedm_feedback_submit": {
+            const { wedmFeedbackCalibrationEngine } = await import("../../engines/WEDMFeedbackCalibrationEngine.js");
+            const fb = params as Parameters<typeof wedmFeedbackCalibrationEngine.submit_feedback>[0];
+            if (!fb || typeof fb !== "object" ||
+                typeof fb.material !== "string" ||
+                typeof fb.thickness_mm !== "number" ||
+                typeof fb.predicted_ra_um !== "number" ||
+                typeof fb.actual_ra_um !== "number" ||
+                typeof fb.predicted_time_min !== "number" ||
+                typeof fb.actual_time_min !== "number") {
+              throw new Error("wedm_feedback_submit requires WEDMFeedback with material/thickness_mm/predicted_ra_um/actual_ra_um/predicted_time_min/actual_time_min");
+            }
+            result = wedmFeedbackCalibrationEngine.submit_feedback(fb);
+            break;
+          }
+          case "wedm_feedback_get_calibration": {
+            const { wedmFeedbackCalibrationEngine } = await import("../../engines/WEDMFeedbackCalibrationEngine.js");
+            const material = (params as { material?: unknown }).material;
+            if (typeof material !== "string" || material.length === 0) {
+              throw new Error("wedm_feedback_get_calibration requires 'material' string");
+            }
+            result = wedmFeedbackCalibrationEngine.get_calibration(material);
+            break;
+          }
+          case "wedm_feedback_history": {
+            const { wedmFeedbackCalibrationEngine } = await import("../../engines/WEDMFeedbackCalibrationEngine.js");
+            const limit = (params as { limit?: unknown }).limit;
+            const lim = typeof limit === "number" && limit > 0 ? limit : 20;
+            result = { history: wedmFeedbackCalibrationEngine.get_history(lim) };
+            break;
+          }
+          case "wedm_feedback_reset": {
+            const { wedmFeedbackCalibrationEngine } = await import("../../engines/WEDMFeedbackCalibrationEngine.js");
+            const material = (params as { material?: unknown }).material;
+            if (typeof material !== "string" || material.length === 0) {
+              throw new Error("wedm_feedback_reset requires 'material' string");
+            }
+            wedmFeedbackCalibrationEngine.reset_calibration(material);
+            result = { reset: true, material };
             break;
           }
 

@@ -484,6 +484,31 @@ const wedm_ewc_list_slots = z
   .passthrough()
   .describe("List EWC consolidation slots (no input required).");
 
+// OBSIDIAN-AUTOMATE-MS3/U-WEDM-FEEDBACK-EXPOSE: surface WEDMFeedbackCalibrationEngine
+const wedm_feedback_submit = z.object({
+  material: z.string().min(1).describe("Material code (e.g. D2, 304SS, INC718)"),
+  thickness_mm: z.number().positive().describe("Workpiece thickness in mm"),
+  predicted_ra_um: z.number().nonnegative().describe("Predicted surface finish Ra (µm) from program generation"),
+  actual_ra_um: z.number().nonnegative().describe("Actual measured surface finish Ra (µm)"),
+  predicted_time_min: z.number().positive().describe("Predicted cycle time (min)"),
+  actual_time_min: z.number().positive().describe("Actual cycle time (min)"),
+  notes: z.string().optional().describe("Operator notes"),
+  wire_breaks: z.number().int().nonnegative().optional().describe("Wire breaks during job"),
+  machine: z.string().optional().describe("Machine identifier (for stratification)"),
+}).describe("Submit operator feedback to update Bayesian calibration constants (k_ra, eta_mrr).");
+
+const wedm_feedback_get_calibration = z.object({
+  material: z.string().min(1).describe("Material to retrieve calibration constants for"),
+}).describe("Get current Bayesian calibration constants and sample count for a material.");
+
+const wedm_feedback_history = z.object({
+  limit: z.number().int().positive().max(500).optional().describe("Max history rows to return (default 20)"),
+}).describe("Get recent feedback submission history with timestamps.");
+
+const wedm_feedback_reset = z.object({
+  material: z.string().min(1).describe("Material to reset calibration for"),
+}).describe("Reset calibration constants for a material back to defaults.");
+
 export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   // Legacy EDM actions - validation delegated to individual engines.
   // BATCH2 schemas added for stricter validation.
@@ -525,4 +550,10 @@ export const EDM_ACTION_SCHEMAS: Record<string, z.ZodTypeAny> = {
   wedm_degradation_update,
   wedm_degradation_snapshot,
   wedm_ewc_list_slots,
+
+  // OBSIDIAN-AUTOMATE-MS3/U-WEDM-FEEDBACK-EXPOSE
+  wedm_feedback_submit,
+  wedm_feedback_get_calibration,
+  wedm_feedback_history,
+  wedm_feedback_reset,
 };
