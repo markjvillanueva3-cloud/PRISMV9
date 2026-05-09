@@ -20,6 +20,8 @@ let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any, 
 let _cpkSurrogate: any, _insertLife: any, _offsetComp: any, _robustOpt: any;
 // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE
 let _omvProbe: any;
+// OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11
+let _firstPiece: any, _envBreach: any, _auxAxis: any, _drf: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "chuck": return _chuck ??= (await import("../../engines/ChuckJawForceEngine.js")).chuckJawForceEngine;
@@ -35,6 +37,11 @@ async function getEngine(name: string): Promise<any> {
     case "robustOpt": return _robustOpt ??= (await import("../../engines/TurningRobustOptimizerEngine.js")).turningRobustOptimizerEngine;
     // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE
     case "omvProbe": return _omvProbe ??= (await import("../../engines/LatheOnMachineProbeCycleEngine.js")).latheOnMachineProbeCycleEngine;
+    // OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11
+    case "firstPiece": return _firstPiece ??= (await import("../../engines/LatheFirstPieceApprovalEngine.js")).latheFirstPieceApprovalEngine;
+    case "envBreach": return _envBreach ??= (await import("../../engines/LatheEnvelopeBreachReplayEngine.js")).latheEnvelopeBreachReplayEngine;
+    case "auxAxis": return _auxAxis ??= (await import("../../engines/LatheAuxAxisTimingEngine.js")).latheAuxAxisTimingEngine;
+    case "drf": return _drf ??= (await import("../../engines/LatheDatumReferenceFrameEngine.js")).latheDatumReferenceFrameEngine;
     default: throw new Error(`Unknown turning engine: ${name}`);
   }
 }
@@ -145,6 +152,16 @@ const ACTIONS = [
   // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE: surface LatheOnMachineProbeCycleEngine
   "lathe_omv_probe_generate",               // LatheOnMachineProbeCycleEngine.generate (Renishaw OMV macro G-code)
   "lathe_omv_probe_stats",                  // LatheOnMachineProbeCycleEngine.getStats (supported cycles + ref)
+
+  // OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11: 4 small lathe orphans
+  "lathe_first_piece_approval_evaluate",    // LatheFirstPieceApprovalEngine.evaluate
+  "lathe_first_piece_approval_stats",       // LatheFirstPieceApprovalEngine.getStats
+  "lathe_envelope_breach_replay",           // LatheEnvelopeBreachReplayEngine.replay
+  "lathe_envelope_breach_replay_stats",     // LatheEnvelopeBreachReplayEngine.getStats
+  "lathe_aux_axis_timing_analyze",          // LatheAuxAxisTimingEngine.analyze
+  "lathe_aux_axis_timing_stats",            // LatheAuxAxisTimingEngine.getStats
+  "lathe_datum_reference_frame_assign",     // LatheDatumReferenceFrameEngine.assign
+  "lathe_datum_reference_frame_stats",      // LatheDatumReferenceFrameEngine.getStats
 ] as const;
 
 /** Registers turning dispatcher.
@@ -864,6 +881,72 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "lathe_omv_probe_stats": {
             const engine = await getEngine("omvProbe");
+            result = engine.getStats();
+            break;
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11: 4 small lathe orphans
+          case "lathe_first_piece_approval_evaluate": {
+            const engine = await getEngine("firstPiece");
+            result = engine.evaluate({
+              job_id: params.job_id ?? params.jobId,
+              part_number: params.part_number ?? params.partNumber,
+              operator: params.operator,
+              inspector: params.inspector,
+              readings: params.readings,
+              warning_band_fraction: params.warning_band_fraction ?? params.warningBandFraction,
+              instrument_uncertainty_mm: params.instrument_uncertainty_mm ?? params.instrumentUncertaintyMm,
+            });
+            break;
+          }
+          case "lathe_first_piece_approval_stats": {
+            const engine = await getEngine("firstPiece");
+            result = engine.getStats();
+            break;
+          }
+          case "lathe_envelope_breach_replay": {
+            const engine = await getEngine("envBreach");
+            result = engine.replay({
+              blocks: params.blocks,
+              envelope: params.envelope,
+            });
+            break;
+          }
+          case "lathe_envelope_breach_replay_stats": {
+            const engine = await getEngine("envBreach");
+            result = engine.getStats();
+            break;
+          }
+          case "lathe_aux_axis_timing_analyze": {
+            const engine = await getEngine("auxAxis");
+            result = engine.analyze({
+              operations: params.operations,
+              turret: params.turret,
+              rapid_rate: params.rapid_rate ?? params.rapidRate,
+              spindle_accel: params.spindle_accel ?? params.spindleAccel,
+              turret_base_index_s: params.turret_base_index_s ?? params.turretBaseIndexS,
+              turret_step_time_s: params.turret_step_time_s ?? params.turretStepTimeS,
+            });
+            break;
+          }
+          case "lathe_aux_axis_timing_stats": {
+            const engine = await getEngine("auxAxis");
+            result = engine.getStats();
+            break;
+          }
+          case "lathe_datum_reference_frame_assign": {
+            const engine = await getEngine("drf");
+            result = engine.assign({
+              part_id: params.part_id ?? params.partId,
+              features: params.features,
+              fixed_primary: params.fixed_primary ?? params.fixedPrimary,
+              fixed_secondary: params.fixed_secondary ?? params.fixedSecondary,
+              fixed_tertiary: params.fixed_tertiary ?? params.fixedTertiary,
+            });
+            break;
+          }
+          case "lathe_datum_reference_frame_stats": {
+            const engine = await getEngine("drf");
             result = engine.getStats();
             break;
           }

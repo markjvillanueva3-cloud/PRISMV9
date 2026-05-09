@@ -476,6 +476,16 @@ const lathe_lora_model_selector_stats = z.object({}).passthrough().describe("Rea
 const lathe_lora_monitoring_stats = z.object({}).passthrough().describe("Read LoRA monitoring stats (no input).");
 const lathe_lora_resource_manager_stats = z.object({}).passthrough().describe("Read LoRA resource-manager stats (no input).");
 
+// OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11: 4 small lathe orphans (FirstPiece, EnvelopeReplay, AuxAxis, DRF)
+const lathe_first_piece_approval_evaluate = z.object({}).passthrough().describe("First-piece approval evaluation: pass {job_id, part_number, operator, inspector, readings[], optional warning_band_fraction + instrument_uncertainty_mm}.");
+const lathe_first_piece_approval_stats = z.object({}).passthrough().describe("Get first-piece approval defaults + reference (no input).");
+const lathe_envelope_breach_replay = z.object({}).passthrough().describe("Envelope breach replay: pass {blocks[], envelope} to detect chuck/tailstock/steady_rest/x_limit/z_limit hits.");
+const lathe_envelope_breach_replay_stats = z.object({}).passthrough().describe("Get envelope breach component list + reference (no input).");
+const lathe_aux_axis_timing_analyze = z.object({}).passthrough().describe("Auxiliary-axis timing analysis: pass {operations[], turret, optional rapid_rate, spindle_accel, turret_base_index_s, turret_step_time_s}.");
+const lathe_aux_axis_timing_stats = z.object({}).passthrough().describe("Get aux-axis timing component count + reference (no input).");
+const lathe_datum_reference_frame_assign = z.object({}).passthrough().describe("Assign datum reference frame (A/B/C): pass {part_id, features[], optional fixed_primary/secondary/tertiary}.");
+const lathe_datum_reference_frame_stats = z.object({}).passthrough().describe("Get DRF DOF model + applied rules (no input).");
+
 // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE: surface LatheOnMachineProbeCycleEngine
 const lathe_omv_probe_generate = z.object({
   cycle: z.enum(["od_measure", "id_measure", "face_z_measure", "groove_width", "thread_start", "work_offset_bump"]).describe("Probe cycle type"),
@@ -577,4 +587,14 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // OBSIDIAN-AUTOMATE-MS3/U-PROBE-EXPOSE
   lathe_omv_probe_generate,
   lathe_omv_probe_stats,
+
+  // OBSIDIAN-AUTOMATE-MS3/U-WIRE-LATHE-BATCH11
+  lathe_first_piece_approval_evaluate,
+  lathe_first_piece_approval_stats,
+  lathe_envelope_breach_replay,
+  lathe_envelope_breach_replay_stats,
+  lathe_aux_axis_timing_analyze,
+  lathe_aux_axis_timing_stats,
+  lathe_datum_reference_frame_assign,
+  lathe_datum_reference_frame_stats,
 };
