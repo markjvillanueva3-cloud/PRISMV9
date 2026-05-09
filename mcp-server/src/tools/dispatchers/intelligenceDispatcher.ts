@@ -171,6 +171,8 @@ async function forwardToNewDispatcher(action: string, params: Record<string, any
 // xproc_* actions in this list MUST stay in lock-step with prism_ai's
 // AI_REASONING_ACTIONS per CLAUDE.md "wire to all consumers" rule.
 export const INTELLIGENCE_CORE_ACTIONS = [
+  // OBSIDIAN-AUTOMATE-MS3/U-DIGITAL-TWIN-EXPOSE: ProcessDigitalTwinEngine surface
+  "digital_twin_compute",
   "job_plan",
   "setup_sheet",
   "process_cost",
@@ -971,6 +973,29 @@ export function registerIntelligenceDispatcher(server: any): void {
         // Handle these actions inline before deprecation/core routing —
         // ProcessIntelligenceRouterEngine has its own request shape and
         // doesn't fit the IntelligenceEngine action map.
+        // OBSIDIAN-AUTOMATE-MS3/U-DIGITAL-TWIN-EXPOSE — surface ProcessDigitalTwinEngine
+        // case "digital_twin_compute":
+        // Cascades 7 physics models (Kienzle force → deflection → temperature →
+        // thermal growth → Taylor tool life → surface roughness → cost) into one
+        // coupled prediction. Was previously orphan: zero dispatcher consumers.
+        if (action === "digital_twin_compute") {
+          const { processDigitalTwinEngine } = await import(
+            "../../engines/ProcessDigitalTwinEngine.js"
+          );
+          // Engine accepts the full DigitalTwinInput shape; pass params through.
+          // No legacy aliasing needed — this is a fresh action.
+          const result = processDigitalTwinEngine.compute(params as Parameters<typeof processDigitalTwinEngine.compute>[0]);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                action: "digital_twin_compute",
+                result,
+              }),
+            }],
+          };
+        }
+
         if (action === "process_pipeline_stages") {
           const { ProcessIntelligenceRouterEngine } = await import(
             "../../engines/ProcessIntelligenceRouterEngine.js"
