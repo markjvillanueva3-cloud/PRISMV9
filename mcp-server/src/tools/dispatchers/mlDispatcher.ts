@@ -68,6 +68,10 @@ let _protoNet: typeof import("../../engines/PrototypicalNetworkEngine.js").proto
 let _protoMAML: typeof import("../../engines/ProtoMAMLFewShotEngine.js").protoMAMLFewShotEngine | null = null;
 // Ollama task offloading
 let _offloader: typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine | null = null;
+// OBSIDIAN-AUTOMATE-MS3/U-JM-EXPOSE-1
+let _jmAnalyzer: typeof import("../../engines/JMDieProgramAnalyzerEngine.js").jmDieProgramAnalyzerEngine | null = null;
+let _jmLearning: typeof import("../../engines/JMDieProgramLearningEngine.js").jmDieProgramLearningEngine | null = null;
+let _jmRecipe: typeof import("../../engines/JMDieRecipeRetrieverEngine.js").jmDieRecipeRetrieverEngine | null = null;
 
 async function getEngine(name: string): Promise<unknown> {
   switch (name) {
@@ -141,6 +145,13 @@ async function getEngine(name: string): Promise<unknown> {
       return _protoMAML ??= (await import("../../engines/ProtoMAMLFewShotEngine.js")).protoMAMLFewShotEngine;
     case "offloader":
       return _offloader ??= (await import("../../engines/OllamaTaskOffloaderEngine.js")).ollamaTaskOffloaderEngine;
+    // OBSIDIAN-AUTOMATE-MS3/U-JM-EXPOSE-1
+    case "jmAnalyzer":
+      return _jmAnalyzer ??= (await import("../../engines/JMDieProgramAnalyzerEngine.js")).jmDieProgramAnalyzerEngine;
+    case "jmLearning":
+      return _jmLearning ??= (await import("../../engines/JMDieProgramLearningEngine.js")).jmDieProgramLearningEngine;
+    case "jmRecipe":
+      return _jmRecipe ??= (await import("../../engines/JMDieRecipeRetrieverEngine.js")).jmDieRecipeRetrieverEngine;
     default:
       throw new Error(`Unknown engine: ${name}`);
   }
@@ -1336,6 +1347,49 @@ export function registerMLDispatcher(server: unknown): void {
             const categories = engine.getSupportedCategories();
             const available = await engine.checkOllamaAvailable();
             result = { success: true, ollamaAvailable: available, installedModels: models, supportedCategories: categories };
+            break;
+          }
+
+          // OBSIDIAN-AUTOMATE-MS3/U-JM-EXPOSE-1: surface JM Die analyzer + learning + recipe engines
+          case "jm_program_analyze": {
+            const engine = await getEngine("jmAnalyzer") as typeof import("../../engines/JMDieProgramAnalyzerEngine.js").jmDieProgramAnalyzerEngine;
+            const analysis = engine.analyzeProgram(params.file_path as string);
+            result = analysis === null
+              ? { success: false, reason: "analyzer returned null (file unreadable or unsupported)" }
+              : { success: true, analysis };
+            break;
+          }
+
+          case "jm_pattern_query": {
+            const engine = await getEngine("jmLearning") as typeof import("../../engines/JMDieProgramLearningEngine.js").jmDieProgramLearningEngine;
+            const patterns = await engine.query({
+              machineType: params.machineType as string | undefined,
+              category: params.category as string | undefined,
+              minFrequency: params.minFrequency as number | undefined,
+              limit: (params.limit as number) ?? 20,
+            });
+            result = { success: true, count: patterns.length, patterns };
+            break;
+          }
+
+          case "jm_recipe_retrieve": {
+            const engine = await getEngine("jmRecipe") as typeof import("../../engines/JMDieRecipeRetrieverEngine.js").jmDieRecipeRetrieverEngine;
+            const retrieved = engine.retrieve({
+              material: params.material as string | undefined,
+              iso_group: params.iso_group as "P" | "M" | "K" | "N" | "S" | "H" | undefined,
+              operation: params.operation as
+                | "roughing" | "finishing" | "semi_finishing" | "drilling" | "threading"
+                | "grooving" | "parting" | "facing" | "boring" | "tapping"
+                | undefined,
+              machine_type: params.machine_type as
+                | "lathe" | "mill" | "wire_edm" | "sinker_edm" | "grinder"
+                | undefined,
+              customer: params.customer as string | undefined,
+              tool_type: params.tool_type as string | undefined,
+              tool_diameter_mm: params.tool_diameter_mm as number | undefined,
+              tolerance_mm: params.tolerance_mm as number | undefined,
+            });
+            result = { success: true, retrieved };
             break;
           }
 

@@ -130,6 +130,10 @@ export const ML_ACTIONS = [
   "offload_decide",
   "offload_execute",
   "offload_stats",
+  // OBSIDIAN-AUTOMATE-MS3/U-JM-EXPOSE-1: surface JM Die analyzer + learning + recipe
+  "jm_program_analyze",
+  "jm_pattern_query",
+  "jm_recipe_retrieve",
 ] as const;
 
 export type MLAction = typeof ML_ACTIONS[number];
@@ -870,6 +874,32 @@ export const ACTION_ML_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   }).describe("Execute a task on local Ollama"),
 
   offload_stats: z.object({}).describe("Get Ollama offload statistics"),
+
+  // OBSIDIAN-AUTOMATE-MS3/U-JM-EXPOSE-1: surface JM Die analyzer + learning + recipe engines
+  jm_program_analyze: z.object({
+    file_path: z.string().min(1).describe("Absolute path to a JM Die program file (.MIN, .NC, .mcx-8) to analyze"),
+  }).describe("Analyze a JM Die program for material/customer/operation patterns (JMDieProgramAnalyzerEngine.analyzeProgram)"),
+
+  jm_pattern_query: z.object({
+    machineType: z.enum(["mill", "lathe", "wedm"]).optional().describe("Restrict to a single machine type"),
+    category: z.enum(["roughing", "finishing", "threading", "drilling", "profiling"]).optional().describe("Operation category"),
+    minFrequency: z.number().int().nonnegative().optional().describe("Minimum pattern frequency cutoff"),
+    limit: z.number().int().positive().max(200).default(20).describe("Max patterns to return"),
+  }).describe("Query learned program patterns from the JM Die archive (JMDieProgramLearningEngine.query)"),
+
+  jm_recipe_retrieve: z.object({
+    material: z.string().optional().describe("Material code or family (e.g. 17-4PH, AL6061, INC718)"),
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO 513 material group"),
+    operation: z.enum([
+      "roughing", "finishing", "semi_finishing", "drilling", "threading",
+      "grooving", "parting", "facing", "boring", "tapping",
+    ]).optional().describe("Operation category"),
+    machine_type: z.enum(["lathe", "mill", "wire_edm", "sinker_edm", "grinder"]).optional().describe("Machine category"),
+    customer: z.string().optional().describe("Restrict to one JM Die customer's proven recipes"),
+    tool_type: z.string().optional().describe("Tool family or designation filter"),
+    tool_diameter_mm: z.number().positive().optional().describe("Filter by tool diameter (mm)"),
+    tolerance_mm: z.number().positive().optional().describe("Filter by tolerance class (mm)"),
+  }).describe("Retrieve speed/feed recipes from JM Die proven programs (JMDieRecipeRetrieverEngine.retrieve)"),
 };
 
 export const mlActionSchema = z.object({
