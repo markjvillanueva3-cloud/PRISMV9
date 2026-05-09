@@ -100,9 +100,12 @@ function readClaudeTranscriptSessionId() {
         }
       }
     }
-    // Only use if modified very recently — an active chat has its transcript
-    // being written AS we run. Older = stale / not this session.
-    if (best && (Date.now() - best.mtime) < TRANSCRIPT_ACTIVE_MS) {
+    // GAP2 fix (2026-05-09): with 6 concurrent chats actively writing their
+    // .jsonl transcripts, "most-recently-modified" rotates every few hundred
+    // ms across all 6 — every chat appears fresh, winner flips run-to-run.
+    // Default OFF; single-chat dev opts in via PRISM_ALLOW_TRANSCRIPT_FALLBACK=1.
+    if (best && (Date.now() - best.mtime) < TRANSCRIPT_ACTIVE_MS
+        && process.env.PRISM_ALLOW_TRANSCRIPT_FALLBACK === "1") {
       return best.id;
     }
   } catch { /* ignore */ }
@@ -136,11 +139,21 @@ function readPidPinnedSessionId() {
     for (const pid of ancestors) {
       if (fresh[String(pid)]) return fresh[String(pid)].session_id;
     }
-    // Degradation fallback: if exactly ONE unique session_id is fresh in
-    // the registry (single active chat, PID walk failed to hit it), use it.
-    // This covers WMIC failures or hooks running under a protected parent
-    // that PID lookups can't traverse.
-    const uniqueSids = [...new Set(Object.values(fresh).map(e => e.session_id))];
+    // GAP3 fix (2026-05-09): with 6 concurrent chats the "exactly one unique
+    // fresh sid" branch is unreachable (always 6). Disambiguate by cwd —
+    // each chat's worktree has a distinct cwd, so a fresh pin whose
+    // entry.cwd matches process.cwd() likely belongs to THIS chat.
+    const ourCwd = process.cwd();
+    const cwdMatches = Object.values(fresh).filter((e) => {
+      if (!e?.cwd) return false;
+      try { return path.resolve(e.cwd) === path.resolve(ourCwd); }
+      catch { return false; }
+    });
+    const cwdSids = [...new Set(cwdMatches.map((e) => e.session_id))];
+    if (cwdSids.length === 1) return cwdSids[0];
+    // Pre-existing fallback retained: single fresh sid in the whole registry.
+    // Still useful when only one chat is alive and its PID walk failed.
+    const uniqueSids = [...new Set(Object.values(fresh).map((e) => e.session_id))];
     if (uniqueSids.length === 1) return uniqueSids[0];
     return null;
   } catch { return null; }
@@ -233,10 +246,12 @@ function getStableIdentifier() {
     if (c && c.trim()) return `env-${c.trim().slice(0, 32)}`;
   }
 
-  // (5) Fallback: machine + 15-min time slot (degraded — rotates every 15 min)
-  const machine = os.hostname() || "unknown";
-  const timeSlot = Math.floor(Date.now() / (15 * 60 * 1000));
-  return `slot-${machine}-${timeSlot}`;
+  // (5) GAP1 fix (2026-05-09): time-slot fallback silently collided 6-chat IDs
+  //     in the same 15-min window, causing concurrent /compact storms to
+  //     overwrite each other's handoffs. Return null and let the caller
+  //     surface the failure (e.g. /precompact prompts user for explicit
+  //     --terminal). The previous fallback was an auditable lost-handoff bug.
+  return null;
 }
 
 function gcStaleEntries(cache) {
@@ -288,6 +303,20 @@ function main() {
   cache = gcStaleEntries(cache);
 
   const identifier = getStableIdentifier();
+
+  // GAP1 fix (2026-05-09): with the time-slot fallback removed,
+  // getStableIdentifier may legitimately return null when ALL 5 resolution
+  // methods fail (no stdin / no fresh PID pin / no recent transcript / no
+  // terminal env). Surface the failure on stderr and exit non-zero so the
+  // caller (per-agent-handoff, /precompact, /startup) prompts for explicit
+  // --terminal instead of silently picking the wrong chat.
+  if (!identifier) {
+    process.stderr.write(
+      "stable-session-id: unresolved — pass session_id via stdin JSON, "
+        + "set WT_SESSION, or run from a chat with a fresh PID pin.\n"
+    );
+    process.exit(2);
+  }
 
   // If the identifier is derived from Claude's own session_id (stdin, pin,
   // env, or transcript), emit `claude-<first8>` so this matches the filename
