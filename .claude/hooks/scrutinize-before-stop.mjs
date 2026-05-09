@@ -52,6 +52,28 @@ import {
 // ANY entry recorded within this window with both reviews as clearance.
 const RECENT_SCRUTINY_WINDOW_MS = 5 * 60 * 1000;
 const LEDGER_REL = "mcp-server/data/state/SCRUTINY_LEDGER.json";
+const OWNERSHIP_REL = "mcp-server/data/state/session-file-ownership.json";
+
+// Multi-chat ownership scoping: if THIS chat authored 0 of the meaningful
+// changed files (per session-file-ownership.json), skip the gate. Without
+// this, every chat in a 6-chat run gets blocked for cumulative peer-chat
+// noise it didn't author. Re-applied 2026-05-09 after a peer-chat revert.
+function deriveStableSessionId(payload) {
+  const sid = payload && typeof payload.session_id === "string" ? payload.session_id : null;
+  if (!sid || sid.length < 8) return null;
+  return `claude-${sid.slice(0, 8)}`;
+}
+
+function readOwnershipFiles(projectRoot) {
+  try {
+    const p = path.join(projectRoot, OWNERSHIP_REL);
+    if (!fs.existsSync(p)) return null;
+    const data = JSON.parse(fs.readFileSync(p, "utf-8"));
+    return data && typeof data === "object" ? data.files || {} : null;
+  } catch {
+    return null;
+  }
+}
 
 function hasRecentScrutiny(projectRoot) {
   try {
@@ -92,25 +114,30 @@ function findProjectRoot() {
   return process.cwd();
 }
 
-function hasUncommittedChanges(projectRoot) {
+function meaningfulChangedFiles(projectRoot) {
   try {
     const out = execSync("git status --porcelain", {
       cwd: projectRoot,
       stdio: ["ignore", "pipe", "ignore"],
       timeout: 4000,
     }).toString();
-    // Filter out always-noisy state files that aren't real "session work"
     const lines = out.split("\n").filter((l) => l.trim().length > 0);
-    const meaningful = lines.filter((l) => {
-      const file = l.slice(3).trim();
-      if (file.startsWith("state/shared/SVI-watch-status")) return false;
-      if (file.startsWith("PRISM-INVENTORY-LATEST.md")) return false;
-      if (file.startsWith("mcp-server/data/state/")) return false;
-      return true;
-    });
-    return meaningful.length > 0;
+    const files = [];
+    for (const l of lines) {
+      let file = l.slice(3).trim();
+      // Renames look like:  R  old/path -> new/path  — pick the new path.
+      const arrowIdx = file.indexOf(" -> ");
+      if (arrowIdx >= 0) file = file.slice(arrowIdx + 4).trim();
+      // Strip optional surrounding quotes from porcelain output.
+      if (file.startsWith("\"") && file.endsWith("\"")) file = file.slice(1, -1);
+      if (file.startsWith("state/shared/SVI-watch-status")) continue;
+      if (file.startsWith("PRISM-INVENTORY-LATEST.md")) continue;
+      if (file.startsWith("mcp-server/data/state/")) continue;
+      files.push(file);
+    }
+    return files;
   } catch {
-    return false;
+    return [];
   }
 }
 
@@ -162,9 +189,35 @@ async function main() {
   const root = findProjectRoot();
 
   // No changes ⇒ no review needed
-  if (!hasUncommittedChanges(root)) {
+  const changedFiles = meaningfulChangedFiles(root);
+  if (changedFiles.length === 0) {
     console.log(JSON.stringify({ continue: true }));
     return;
+  }
+
+  // Multi-chat ownership scoping: if THIS chat (per stable session id) authored
+  // ZERO of the meaningful changed files per session-file-ownership.json, the
+  // diff is peer-chat work and the gate must not block our Stop. Without this,
+  // every chat in a 6-chat run blocks on cumulative noise it didn't author.
+  const stableSid = deriveStableSessionId(payload);
+  const ownershipFiles = readOwnershipFiles(root);
+  if (stableSid && ownershipFiles) {
+    const ownedByThisChat = changedFiles.some((f) => {
+      const entry = ownershipFiles[f];
+      return entry && entry.owner === stableSid;
+    });
+    if (!ownedByThisChat) {
+      console.log(JSON.stringify({
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: "Stop",
+          additionalContext:
+            `🔬 scrutinize-before-stop: skipped — session ${stableSid} authored 0 of ` +
+            `${changedFiles.length} meaningful change(s); diff is peer-chat work.`,
+        },
+      }));
+      return;
+    }
   }
 
   // Already cleared ⇒ allow stop

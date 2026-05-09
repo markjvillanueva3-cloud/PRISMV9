@@ -389,15 +389,39 @@ function cmdWrite(identity, args) {
 function cmdRead(identity, args) {
   ensureDirs();
   const targetInstance = args.agent || identity.instance;
-  const filePath = handoffPath(targetInstance);
+  const targetTopic = args.topic || null;
 
+  // (0) Exact topic match — required for multi-chat partitioning so each chat
+  //     reads HANDOFF-<id>-<topic>.md, not the bare HANDOFF-<id>.md from a
+  //     different branch's session. Re-applied 2026-05-09 after peer revert.
+  if (targetTopic) {
+    const topicedPath = handoffPath(targetInstance, targetTopic);
+    if (fs.existsSync(topicedPath)) {
+      return { ok: true, content: fs.readFileSync(topicedPath, "utf-8"), file: topicedPath, matchedBy: "exact-topic" };
+    }
+  }
+
+  const filePath = handoffPath(targetInstance);
   if (fs.existsSync(filePath)) {
     return { ok: true, content: fs.readFileSync(filePath, "utf-8"), file: filePath, matchedBy: "exact" };
   }
 
-  // Fallback chain: (1) fuzzy name match, (2) most recent by family, (3) most recent overall
+  // (0.5) Same-instance-newest — any HANDOFF-<sameInstance>-*.md authored by
+  //       this chat under any topic, preferring the most recent. Prevents the
+  //       fuzzy/family fallbacks from grabbing a peer chat's handoff when our
+  //       branch happens to differ from the one the writer used.
+  const baseName = `HANDOFF-${sanitizeFilename(targetInstance)}-`;
   const files = fs.readdirSync(HANDOFFS_DIR)
     .filter((f) => f.startsWith("HANDOFF-") && f.endsWith(".md"));
+  const sameInstanceFiles = files
+    .filter((f) => f.startsWith(baseName))
+    .map((f) => { const fp = path.join(HANDOFFS_DIR, f); return { file: f, path: fp, mtime: fs.statSync(fp).mtimeMs }; })
+    .sort((a, b) => b.mtime - a.mtime);
+  if (sameInstanceFiles.length > 0) {
+    const pick = sameInstanceFiles[0];
+    const ageMin = Math.round((Date.now() - pick.mtime) / 60000);
+    return { ok: true, content: fs.readFileSync(pick.path, "utf-8"), file: pick.file, matchedBy: "same-instance-newest", age_minutes: ageMin };
+  }
 
   // (1) Fuzzy: instance substring match
   const fuzzyKey = targetInstance.toLowerCase().replace(/[@/]/g, "_");
