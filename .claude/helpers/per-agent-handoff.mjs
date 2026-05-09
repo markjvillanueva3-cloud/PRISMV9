@@ -303,7 +303,24 @@ function cmdWrite(identity, args) {
 
   const cleanState = sanitizeResume(args.state) || args.state || "No state provided.";
 
+  // PRISM-STAB-MS0/U-B5 (2026-05-09): Obsidian-friendly YAML frontmatter.
+  // The knowledge/handoffs/ NTFS junction maps to state/shared/handoffs/, so
+  // Obsidian sees these files natively. Frontmatter gives backlinks, search,
+  // and graph view by session/topic/status.
+  const frontmatter = [
+    "---",
+    `session: ${identity.instance}`,
+    `topic: ${effectiveTopic || ""}`,
+    `written_at: ${now()}`,
+    `machine: ${identity.machine}`,
+    `family: ${identity.family}`,
+    `session_key: ${identity.sessionKey}`,
+    `status: active`,
+    "---",
+    "",
+  ];
   const content = [
+    ...frontmatter,
     `# HANDOFF: ${identity.instance}`,
     `Updated: ${now()}`,
     `Family: ${identity.family} | Machine: ${identity.machine} | Session: ${identity.sessionKey}`,
