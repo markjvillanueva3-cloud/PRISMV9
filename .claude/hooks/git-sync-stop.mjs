@@ -26,10 +26,22 @@ import os from "node:os";
 import path from "node:path";
 
 const REPO = process.env.PRISM_GIT_REPO || "H:/prism";
-const PUSH_TIMEOUT_MS = 30000;
+const PUSH_TIMEOUT_MS = Number(process.env.PRISM_GIT_PUSH_TIMEOUT_MS || 30000);
+const KILL_GRACE_MS = 2000; // SIGTERM → SIGKILL grace
 const REMOTE_LOCK_FILE = process.env.PRISM_GIT_REMOTE_LOCK_FILE || "H:/prism/state/shared/GIT_LOCK_REMOTE.json";
 const REMOTE_LOCK_TTL_MS = Number(process.env.PRISM_GIT_REMOTE_LOCK_TTL_MS || 180000);
 const DRY_RUN = process.env.PRISM_GIT_SYNC_DRY_RUN === "1";
+// PRISM-STAB-MS0/U-A1: bounded supervised push replaces legacy detached unref'd push.
+// Set PRISM_GIT_SYNC_BOUNDED=0 to revert to legacy behaviour (rollback flag per spec).
+const BOUNDED = process.env.PRISM_GIT_SYNC_BOUNDED !== "0";
+const PUSH_LOG = "H:/prism/state/shared/git-sync-stop.log";
+
+function logPush(record) {
+  try {
+    fs.mkdirSync(path.dirname(PUSH_LOG), { recursive: true });
+    fs.appendFileSync(PUSH_LOG, JSON.stringify({ ts: new Date().toISOString(), ...record }) + "\n");
+  } catch { /* never fatal */ }
+}
 
 function git(args, opts = {}) {
   try {
@@ -142,16 +154,74 @@ function pushWithRemoteLock(args) {
 }
 
 /**
- * Detached push. Acquires the remote lock, spawns `git push` as a
- * detached child whose stdio is ignored, and returns immediately. The
- * lock is NOT explicitly released by this process — it relies on the
- * REMOTE_LOCK_TTL_MS expiration (default 180s, well above realistic
- * push time on any reasonable network).
+ * PRISM-STAB-MS0/U-A1 (2026-05-09): bounded supervised push.
  *
- * Why this exists: prior implementation used pushWithRemoteLock() which
- * blocks on git push for up to PUSH_TIMEOUT_MS (30s). Failure is
- * non-fatal anyway (process.exit(0) at end of file), so the synchronous
- * wait is pure user-perceived Stop-hook latency.
+ * Replaces the legacy detached+unref'd push that orphaned git.exe
+ * processes when the push hung. Spawns git push with parent-supervised
+ * stdio:"ignore", attaches an exit listener that releases the remote
+ * lock, and a hard timeout that escalates SIGTERM → SIGKILL on hang.
+ * Lock is ALWAYS released; child is ALWAYS reaped.
+ *
+ * Returns a Promise — caller (main) is async-aware.
+ */
+function supervisedPush(args) {
+  const lock = acquireRemoteLock();
+  if (!lock.ok) return Promise.resolve({ blocked: true, error: lock.message });
+  if (DRY_RUN) {
+    releaseRemoteLock(lock.holder);
+    return Promise.resolve({ dryRun: true, message: `dry-run: git ${args.join(" ")}` });
+  }
+
+  return new Promise((resolve) => {
+    const startedAt = Date.now();
+    const child = spawn("git", args, {
+      cwd: REPO,
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    let killed = false;
+    let settled = false;
+
+    const finish = (outcome) => {
+      if (settled) return;
+      settled = true;
+      releaseRemoteLock(lock.holder);
+      const durationMs = Date.now() - startedAt;
+      logPush({ event: "push_done", args, durationMs, killed, ...outcome });
+      resolve({ ...outcome, killed, durationMs });
+    };
+
+    const term = setTimeout(() => {
+      killed = true;
+      try { child.kill("SIGTERM"); } catch { /* nothing to kill */ }
+      // Escalate to SIGKILL after grace if still alive
+      setTimeout(() => {
+        try { child.kill("SIGKILL"); } catch {}
+      }, KILL_GRACE_MS);
+    }, PUSH_TIMEOUT_MS);
+
+    child.on("exit", (code, signal) => {
+      clearTimeout(term);
+      finish({ ok: code === 0, code, signal });
+    });
+    child.on("error", (err) => {
+      clearTimeout(term);
+      finish({ ok: false, error: err.message });
+    });
+  });
+}
+
+/**
+ * Legacy detached push (preserved for PRISM_GIT_SYNC_BOUNDED=0 rollback).
+ *
+ * Acquires the remote lock, spawns `git push` as a detached child whose
+ * stdio is ignored, and returns immediately. The lock is NOT explicitly
+ * released by this process — it relies on the REMOTE_LOCK_TTL_MS expiry.
+ *
+ * KNOWN BUG: on Windows the unref'd child can outlive the parent and
+ * accumulates orphan git.exe processes scanning a large working tree.
+ * Use supervisedPush() instead. This function exists only as a rollback
+ * escape hatch via env flag.
  */
 function detachedPush(args) {
   const lock = acquireRemoteLock();
@@ -179,12 +249,36 @@ function detachedPush(args) {
   // No release: child runs after we exit; the lock TTL covers cleanup.
 }
 
-function main() {
+function reportPushResult(label, branch, r) {
+  if (r.dryRun) {
+    process.stdout.write(`git-sync-stop: ${r.message}\n`);
+  } else if (r.detached) {
+    process.stdout.write(`git-sync-stop: ✓ queued push ${branch} (${label}, detached)\n`);
+  } else if (r.blocked) {
+    process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
+  } else if (r.killed) {
+    process.stdout.write(
+      `git-sync-stop: ⚠ push timed out after ${PUSH_TIMEOUT_MS}ms and was killed (${branch}, ${label}).\n` +
+      `  Working tree is intact; rerun manually if needed.\n`
+    );
+  } else if (r.ok) {
+    process.stdout.write(`git-sync-stop: ✓ pushed ${branch} (${label}, ${r.durationMs}ms)\n`);
+  } else {
+    process.stdout.write(
+      `git-sync-stop: push failed for ${branch} (${label}): code=${r.code ?? "?"} sig=${r.signal ?? "?"} ${r.error ?? ""}\n`
+    );
+  }
+}
+
+async function main() {
   const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
   if (!isOk(branch) || branch === "HEAD") {
     process.stdout.write("git-sync-stop: detached HEAD — skipping push\n");
     return;
   }
+
+  // Pick push strategy. Bounded supervised is default; detached is rollback.
+  const doPush = BOUNDED ? supervisedPush : (args) => Promise.resolve(detachedPush(args));
 
   // Detect upstream.
   const upstream = git(["rev-parse", "--abbrev-ref", `${branch}@{upstream}`]);
@@ -192,22 +286,9 @@ function main() {
 
   if (!hasUpstream) {
     // First-ever push for this branch — establish upstream.
-    // Detached: we don't wait for the network round-trip. Stop returns
-    // immediately; the push completes in the background.
-    process.stdout.write(`git-sync-stop: '${branch}' has no upstream — pushing with -u (detached)\n`);
-    const r = detachedPush(["push", "-u", "origin", branch]);
-    if (r.dryRun) {
-      process.stdout.write(`git-sync-stop: ${r.message}\n`);
-    } else if (r.detached) {
-      process.stdout.write(`git-sync-stop: ✓ queued push ${branch} → origin/${branch} (upstream set, detached)\n`);
-    } else if (r.blocked) {
-      process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
-    } else {
-      process.stdout.write(
-        `git-sync-stop: push spawn failed for ${branch}: ${r.error}\n` +
-        `  Other PC will not see this branch's commits until you push manually.\n`
-      );
-    }
+    process.stdout.write(`git-sync-stop: '${branch}' has no upstream — pushing with -u (${BOUNDED ? "supervised" : "detached"})\n`);
+    const r = await doPush(["push", "-u", "origin", branch]);
+    reportPushResult("upstream set", branch, r);
     return;
   }
 
@@ -234,25 +315,13 @@ function main() {
     return;
   }
 
-  // Pure ahead — safe to push. Detached: don't block Stop on the network.
-  process.stdout.write(`git-sync-stop: pushing ${ahead} commit(s) ${branch} → ${upstream} (detached)\n`);
-  const r = detachedPush(["push"]);
-  if (r.dryRun) {
-    process.stdout.write(`git-sync-stop: ${r.message}\n`);
-  } else if (r.detached) {
-    process.stdout.write(`git-sync-stop: ✓ queued push ${branch} (${ahead} commits, detached)\n`);
-  } else if (r.blocked) {
-    process.stdout.write(`git-sync-stop: ${r.error}. Try again after the active git operation finishes.\n`);
-  } else {
-    process.stdout.write(
-      `git-sync-stop: push spawn failed for ${branch}: ${r.error}\n`
-    );
-  }
+  // Pure ahead — safe to push.
+  process.stdout.write(`git-sync-stop: pushing ${ahead} commit(s) ${branch} → ${upstream} (${BOUNDED ? "supervised" : "detached"})\n`);
+  const r = await doPush(["push"]);
+  reportPushResult(`${ahead} commits`, branch, r);
 }
 
-try {
-  main();
-} catch (e) {
+main().catch((e) => {
   process.stderr.write(`git-sync-stop: non-fatal error: ${e.message}\n`);
   process.exit(0);
-}
+});
