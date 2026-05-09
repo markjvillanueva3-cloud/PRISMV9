@@ -186,7 +186,12 @@ export function extractPartNumberCandidates(fileName: string): string[] {
   cands.add(base.replace(OP_PREFIX_RE, ""));
   const digits = base.match(/\d+/g);
   if (digits) {
-    for (const d of digits) cands.add(d);
+    // Require digits-only candidates to be 3+ chars: a single "2" extracted
+    // from "D2" (material code) or a 2-digit fragment yields too much
+    // false-positive matching across the corpus.
+    for (const d of digits) {
+      if (d.length >= 3) cands.add(d);
+    }
   }
   const compound = base.match(/\d+-\d+/g);
   if (compound) {

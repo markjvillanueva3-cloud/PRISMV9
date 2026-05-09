@@ -106,17 +106,14 @@ describe("normalizePartNumber", () => {
 });
 
 describe("extractPartNumberCandidates", () => {
-  it("derives multiple candidates from a real lathe filename", () => {
-    const cands = extractPartNumberCandidates("L-2845-D2.MIN");
-    expect(cands).toContain("L-2845-D2");
-    expect(cands).toContain("2845-D2");
-    expect(cands).toContain("2845");
+  it("derives the exact candidate set from a real lathe filename", () => {
+    const cands = extractPartNumberCandidates("L-2845-D2.MIN").sort();
+    expect(cands).toEqual(["2845", "2845-D2", "L-2845-D2"]);
   });
 
-  it("strips file extensions case-insensitively", () => {
-    const cands = extractPartNumberCandidates("Part123.sldprt");
-    expect(cands).toContain("PART123");
-    expect(cands.every((c) => !c.toUpperCase().endsWith(".SLDPRT"))).toBe(true);
+  it("strips file extensions case-insensitively and yields exact set", () => {
+    const cands = extractPartNumberCandidates("Part123.sldprt").sort();
+    expect(cands).toEqual(["123", "PART123"]);
   });
 
   it("returns empty array on empty input", () => {
@@ -427,8 +424,14 @@ describe("joinBlueprintsToPrograms — customer variability", () => {
 
     expect(summary.programs_indexed).toBe(2);
     expect(joins).toHaveLength(1);
-    expect(joins[0].programs).toHaveLength(2);
-    expect(joins[0].programs.some((p) => p.format === ".step")).toBe(true);
-    expect(joins[0].programs.some((p) => p.filename === "L-2845-D2.MIN")).toBe(true);
+    const sortedPrograms = joins[0].programs
+      .slice()
+      .sort((a, b) => a.filename.localeCompare(b.filename));
+    expect(sortedPrograms.map((p) => p.filename)).toEqual([
+      "2845.step",
+      "L-2845-D2.MIN",
+    ]);
+    expect(sortedPrograms.map((p) => p.format ?? null)).toEqual([".step", null]);
+    expect(sortedPrograms.map((p) => p.customer)).toEqual(["ALCOA", "ALCOA"]);
   });
 });

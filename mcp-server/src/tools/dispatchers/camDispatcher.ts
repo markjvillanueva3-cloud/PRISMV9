@@ -2074,6 +2074,8 @@ export const ACTIONS = [
   "post_fanuc_legacy_profile",         // FanucLegacyControllerEngine.getProfile + listModels
   "post_okuma_legacy_detect",          // OkumaLegacyControllerEngine.detectController
   "post_siemens_legacy_profile",       // SiemensLegacyControllerEngine.getProfile
+  // OBSIDIAN-AUTOMATE-MS3/U-PRINT-PROGRAM-JOIN: blueprint <-> program lookup
+  "cam_print_program_lookup",          // BlueprintProgramJoinEngine.joinBlueprintsToPrograms
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -5095,6 +5097,44 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               maxRPM: params.max_rpm,
               feedPerTooth_mm: params.feed_per_tooth_mm,
             });
+            break;
+          }
+          case "cam_print_program_lookup": {
+            const { blueprintProgramJoinEngine } = await import("../../engines/BlueprintProgramJoinEngine.js");
+            const jsonlPath: string | undefined = params.jsonl_path;
+            if (!jsonlPath) {
+              result = { error: "jsonl_path is required (Phase 8 cleaned JSONL of blueprint pages)" };
+              break;
+            }
+            const opts: {
+              programLabelsPath?: string;
+              masterIndexPath?: string;
+              outPath?: string;
+              maxLineBytes?: number;
+            } = {};
+            if (typeof params.program_labels_path === "string") opts.programLabelsPath = params.program_labels_path;
+            if (typeof params.master_index_path === "string") opts.masterIndexPath = params.master_index_path;
+            if (typeof params.out_path === "string") opts.outPath = params.out_path;
+            if (typeof params.max_line_bytes === "number") opts.maxLineBytes = params.max_line_bytes;
+            const { summary, joins } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(jsonlPath, opts);
+            const topJoins = joins
+              .slice()
+              .sort((a, b) => b.programs.length - a.programs.length)
+              .slice(0, 20)
+              .map((j) => ({
+                part_number: j.part_number,
+                part_number_normalized: j.part_number_normalized,
+                blueprint_count: j.blueprints.length,
+                program_count: j.programs.length,
+                match_confidence: j.match_confidence,
+                programs: j.programs.slice(0, 5).map((p) => ({
+                  source_path: p.source_path,
+                  customer: p.customer,
+                  material: p.material,
+                  format: p.format,
+                })),
+              }));
+            result = { success: true, data: { summary, top_joins: topJoins } };
             break;
           }
           case "cross_cam_recommend": {
