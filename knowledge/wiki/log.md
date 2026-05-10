@@ -393,3 +393,18 @@
 - findings: 122 (suppressed 13, dedup 9.6%)
 - overlay: green=21 yellow=128757 red=138 blue=19
 - by:claude-99eca613
+
+## [2026-05-10T05:05:42.899Z] forge-audit-omniscient
+- findings: 410 (suppressed 34, dedup 7.7%)
+- overlay: green=4 yellow=128691 red=122 blue=118
+- by:claude-99eca613
+
+## [2026-05-10T06:53:25.258Z] forge-audit-omniscient
+- findings: 410 (suppressed 34, dedup 34.0%)
+- overlay: green=4 yellow=128691 red=122 blue=118
+- by:claude-99eca613
+
+## [2026-05-10T06:53:45.082Z] forge-audit-omniscient
+- findings: 101 (suppressed 34, dedup 34.0%)
+- overlay: green=21 yellow=128757 red=138 blue=19
+- by:claude-99eca613

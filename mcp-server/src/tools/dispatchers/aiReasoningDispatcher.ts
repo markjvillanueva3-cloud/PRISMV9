@@ -108,6 +108,14 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_reward_audit: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
   xproc_reward_default_weights: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
   xproc_reward_constants: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
+  xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
+  xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
+  xproc_outcome_publish_failure: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
+  xproc_outcome_publish_override: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
+  xproc_outcome_update: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
+  xproc_outcome_adapter_stats: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
+  xproc_outcome_adapter_reset: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_policy_step: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
   xproc_policy_commit: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
   xproc_policy_select_action: () => import("../../engines/CrossProcessPolicyGradientEngine.js").then(m => m.crossProcessPolicyGradient),
@@ -1717,6 +1725,14 @@ export async function executeAIReasoningAction(
       case "xproc_reward_audit":
       case "xproc_reward_default_weights":
       case "xproc_reward_constants":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
+      case "xproc_outcome_publish":
+      case "xproc_outcome_publish_with_actuals":
+      case "xproc_outcome_publish_failure":
+      case "xproc_outcome_publish_override":
+      case "xproc_outcome_update":
+      case "xproc_outcome_adapter_stats":
+      case "xproc_outcome_adapter_reset":
       case "xproc_policy_step":
       case "xproc_policy_commit":
       case "xproc_policy_select_action":

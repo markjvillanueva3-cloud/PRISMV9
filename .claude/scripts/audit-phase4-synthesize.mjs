@@ -44,11 +44,48 @@ const wikiIndexText = (() => {
   const p = join(ROOT, "knowledge/wiki/index.md");
   return existsSync(p) ? readFileSync(p, "utf8") : "";
 })();
-const wikiSlugs = new Set(
-  (wikiIndexText.match(/^- \[\[([^\]]+)\]\]/gm) || []).map((l) =>
-    l.replace(/^- \[\[/, "").replace(/\]\].*$/, "").toLowerCase(),
-  ),
-);
+
+// Build richer dedup corpus: slugs + engine class names + source paths +
+// memory basenames. The wiki/index format is:
+//   - [[Slug]] — XxxEngineName — Description ... | source:src/engines/X.ts
+// Earlier slug-only match missed the engine names which v3 findings cite
+// directly. Now we capture all three signals.
+function buildWikiCorpus() {
+  const slugs = new Set();
+  const engineNames = new Set(); // lowercased
+  const sourcePaths = new Set(); // lowercased posix
+  const wikiLines = wikiIndexText.split(/\r?\n/);
+  for (const line of wikiLines) {
+    const slugMatch = line.match(/^- \[\[([^\]]+)\]\]/);
+    if (slugMatch) slugs.add(slugMatch[1].toLowerCase());
+    // Engine name often appears right after slug: "[[Slug]] — EngineName —"
+    // Or later in the line. Match any CamelCase token ending in Engine/Service/Algorithm/Manager.
+    const tokens = line.match(/\b([A-Z][A-Za-z0-9]+(?:Engine|Service|Algorithm|Manager|Dispatcher|Coordinator|Pipeline|Orchestrator|Router))\b/g);
+    if (tokens) for (const t of tokens) engineNames.add(t.toLowerCase());
+    // Source path: "source:<path>"
+    const srcMatch = line.match(/source:([^\s|]+)/i);
+    if (srcMatch) sourcePaths.add(srcMatch[1].replace(/\\/g, "/").toLowerCase());
+  }
+  // Also walk knowledge/memories for basenames — adds ~195 more dedup keys
+  const memDirs = [join(ROOT, "knowledge/memories"), join(ROOT, "knowledge/wiki")];
+  function walk(dir) {
+    if (!existsSync(dir)) return;
+    let entries;
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.isFile() && e.name.endsWith(".md")) {
+        const base = e.name.replace(/\.md$/, "").toLowerCase();
+        slugs.add(base);
+      }
+    }
+  }
+  walk(memDirs[0]);
+  walk(memDirs[1]);
+  return { slugs, engineNames, sourcePaths };
+}
+const wikiCorpus = buildWikiCorpus();
 
 // ── per-domain v3 findings (phase 1 substitute) ─────────────────────────────
 function loadFindings() {
@@ -96,13 +133,34 @@ function resolveShortcode(path) {
 }
 
 // ── wiki precheck ───────────────────────────────────────────────────────────
-function isInWiki(text) {
-  if (!text || wikiSlugs.size === 0) return false;
-  const t = text.toLowerCase();
-  // Token match: any wiki slug whose tokens all appear in text
-  for (const slug of wikiSlugs) {
-    const tokens = slug.split(/[_\-\s]+/).filter((x) => x.length > 3);
-    if (tokens.length >= 2 && tokens.every((tok) => t.includes(tok))) return true;
+// Three-signal dedup: engine-name match → source-path match → slug-token overlap.
+// Accepts a finding object (richer match) or raw string (back-compat).
+function findingTexts(f) {
+  const buf = [];
+  if (f.what) buf.push(f.what);
+  if (f.label) buf.push(f.label);
+  if (Array.isArray(f.evidence)) buf.push(f.evidence.join(" "));
+  if (f.path) buf.push(f.path);
+  if (f.file) buf.push(f.file);
+  if (f.shortcode) buf.push(f.shortcode);
+  return buf.join(" ");
+}
+function isInWiki(input) {
+  const finding = typeof input === "string" ? { what: input } : input;
+  const text = findingTexts(finding).toLowerCase();
+  if (!text) return false;
+  for (const en of wikiCorpus.engineNames) {
+    if (text.includes(en)) return true;
+  }
+  const pathMatches = text.match(/(?:mcp-server\/)?src\/(?:engines|algorithms|dispatchers|hooks)\/[a-z0-9_\-.]+\.(?:ts|js|mjs)/gi) || [];
+  for (const p of pathMatches) {
+    const norm = p.toLowerCase().replace(/^mcp-server\//, "");
+    if (wikiCorpus.sourcePaths.has(norm)) return true;
+    if (wikiCorpus.sourcePaths.has("mcp-server/" + norm)) return true;
+  }
+  for (const slug of wikiCorpus.slugs) {
+    const tokens = slug.split(/[_\-\s]+/).filter((x) => x.length > 4);
+    if (tokens.length >= 2 && tokens.every((tok) => text.includes(tok))) return true;
   }
   return false;
 }
@@ -185,14 +243,19 @@ function computeOverlay(graph, deadCodeIds, bridgeNodeIds) {
 // ── synthesize findings list with dedup ─────────────────────────────────────
 function synthesizeFindings(findings, phase2) {
   const out = [];
-  let suppressed = 0;
-  let total = 0;
+  // Dedup metric is over SEMANTIC findings only (gaps + conflicts + opps) —
+  // the kinds where the wiki could plausibly hold prior art. Doctrine + dead-code
+  // are mechanical detections; including them in the denominator would dilute
+  // the signal the precheck is supposed to prove.
+  let semanticSuppressed = 0;
+  let semanticTotal = 0;
 
   for (const d of findings.perDomain) {
     for (const g of d.gaps) {
-      total++;
+      semanticTotal++;
       const desc = typeof g === "string" ? g : g.what || JSON.stringify(g);
-      if (isInWiki(desc)) { suppressed++; continue; }
+      const richG = typeof g === "string" ? desc : { what: desc, evidence: g.evidence || [] };
+      if (isInWiki(richG)) { semanticSuppressed++; continue; }
       out.push({
         kind: "gap",
         domain: d.domain,
@@ -203,16 +266,15 @@ function synthesizeFindings(findings, phase2) {
       });
     }
     for (const c of d.conflicts) {
-      total++;
+      semanticTotal++;
       const desc = c.summary || c.what || c.title || JSON.stringify(c).slice(0, 200);
-      if (isInWiki(desc)) { suppressed++; continue; }
+      if (isInWiki({ what: desc, evidence: c.between || c.files || [] })) { semanticSuppressed++; continue; }
       out.push({
         kind: "conflict", domain: d.domain, what: desc,
         between: c.between || c.files || [], rationale: c.rationale || null,
       });
     }
     for (const dc of d.dead_code) {
-      total++;
       out.push({
         kind: "dead_code", domain: d.domain,
         path: dc.path, reason: dc.reason,
@@ -221,9 +283,10 @@ function synthesizeFindings(findings, phase2) {
       });
     }
     for (const op of d.opportunities) {
-      total++;
+      semanticTotal++;
       const desc = typeof op === "string" ? op : op.what || op.title || JSON.stringify(op).slice(0, 200);
-      if (isInWiki(desc)) { suppressed++; continue; }
+      const richOp = typeof op === "string" ? desc : { what: desc, evidence: op.evidence || [] };
+      if (isInWiki(richOp)) { semanticSuppressed++; continue; }
       out.push({
         kind: "opportunity", domain: d.domain, what: desc,
         leverage: op.leverage || op.priority || null,
@@ -231,14 +294,20 @@ function synthesizeFindings(findings, phase2) {
     }
   }
   for (const v of phase2.doctrineViolations || []) {
-    total++;
     out.push({
       kind: "doctrine", file: v.file, line: v.line, ruleId: v.ruleId,
       label: v.label, severity: v.severity, fix: v.fix,
       shortcode: resolveShortcode(v.file),
     });
   }
-  return { findings: out, suppressed, total, dedupRate: total ? +(suppressed / total).toFixed(3) : 0 };
+  const dedupRate = semanticTotal ? +(semanticSuppressed / semanticTotal).toFixed(3) : 0;
+  return {
+    findings: out,
+    suppressed: semanticSuppressed,
+    total: semanticTotal,
+    dedupRate,
+    overallFindings: out.length + semanticSuppressed,
+  };
 }
 
 // ── markdown rendering ──────────────────────────────────────────────────────
