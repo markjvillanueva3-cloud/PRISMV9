@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-08T15:54:10.412Z
+> Generated: 2026-05-10T04:15:18.329Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,15 +19,15 @@ flagging a unit as missing.
 
 - Milestones loaded:        **613**
 - Units across all MS:      **2747**
-- Units shipped (in git):   **12**
-- Units pending:            **2735**
-- Drift cases:              **3** (envelope status disagrees with git reality)
+- Units shipped (in git):   **25**
+- Units pending:            **2722**
+- Drift cases:              **2** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| XPROC-NEURAL-OPTIMIZE-MS0 | INFRA | not_started | in_progress_real | 12/27 (44%) | 2026-05-08 |
+| XPROC-NEURAL-OPTIMIZE-MS0 | INFRA | in_progress | in_progress_real | 25/27 (93%) | 2026-05-09 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -35,7 +35,6 @@ flagging a unit as missing.
 |-----------|---------|------|-------|
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
-| XPROC-NEURAL-OPTIMIZE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 
 ## Top milestones with most pending units
 

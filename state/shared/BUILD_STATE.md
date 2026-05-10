@@ -1,29 +1,29 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-08T16:37:04.811Z
+> Generated: 2026-05-10T04:15:17.906Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2269** engines built and wired (of 3167)
-- **774** wiki entries indexed
-- **898** engines awaiting dispatcher wiring
-- **2735** units pending across 1 active milestones
+- **2302** engines built and wired (of 3177)
+- **776** wiki entries indexed
+- **875** engines awaiting dispatcher wiring
+- **2722** units pending across 1 active milestones
 - **2** codex frontend builds awaiting merge
-- **3** milestones with envelope-status drift
+- **2** milestones with envelope-status drift
 
 ## BUILT
 
-2269/3167 engines wired (72%); 774 wiki entries indexed.
+2302/3177 engines wired (72%); 776 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3167,
-  "unwired": 898,
-  "wiredDirect": 2105,
+  "totalEngines": 3177,
+  "unwired": 875,
+  "wiredDirect": 2139,
   "wireExempt": 81,
   "wiredViaHook": 10,
-  "wiredViaOrch": 57,
+  "wiredViaOrch": 56,
   "wiredViaRoute": 15,
   "wiredViaSingleton": 1
 }
@@ -31,12 +31,12 @@
 
 ## NEEDS_WIRING
 
-898 engines on disk with no dispatcher reference. Top domains by count:
+875 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
-| Other | 148 |
-| Lathe | 106 |
+| Other | 142 |
+| Lathe | 89 |
 | Machine | 17 |
 | Multi | 12 |
 | Turning | 11 |
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-2735 units across 613 milestones not yet in git.
+2722 units across 613 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -73,16 +73,13 @@
 |-----------|---------------|----------|-------|
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
-| XPROC-NEURAL-OPTIMIZE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | XPROC-NEURAL-OPTIMIZE-MS0 | P3-CLOSED-LOOP | U-NN-LOOP02 | Wire CrossProcessOutcomeStore to publish on FeedbackBus when records arrive |
-| XPROC-NEURAL-OPTIMIZE-MS0 | P3-CLOSED-LOOP | U-NN-LOOP04 | Wire MillPrintToProgramEngine to emit outcome events post-run |
-| XPROC-NEURAL-OPTIMIZE-MS0 | P3-CLOSED-LOOP | U-NN-LOOP05 | Wire WEDMPrintToProgramEngine to emit outcome events (Reviewer 5 Option A) |
-| XPROC-NEURAL-OPTIMIZE-MS0 | P4-REAL-DATA | U-NN-DATA01 | JM Die NC corpus parser — Mastercam-Okuma dialect (lathe priority) |
+| XPROC-NEURAL-OPTIMIZE-MS0 | P6-TIER-COMPOSE | U-NN-TIER05 | T12 HierarchicalNeuralOrchestrator routes queries through tier stack |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -100,12 +97,12 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 920 domain prefixes.
+Per-domain wired/unwired breakdown across 922 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 592 | 444 | 148 | 75% |
-| Lathe | 186 | 80 | 106 | 43% |
+| Other | 593 | 451 | 142 | 76% |
+| Lathe | 186 | 97 | 89 | 52% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 16 | 12 | 57% |
 | Turning | 24 | 13 | 11 | 54% |

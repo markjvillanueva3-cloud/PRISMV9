@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-08T16:37:04.811Z",
+  "generatedAt": "2026-05-10T04:15:17.906Z",
   "headline": {
-    "built_engines": 2269,
-    "built_with_wiki": 774,
-    "needs_wiring": 898,
-    "needs_building_active_units": 2735,
+    "built_engines": 2302,
+    "built_with_wiki": 776,
+    "needs_wiring": 875,
+    "needs_building_active_units": 2722,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 1,
-    "drift_milestones": 3,
+    "drift_milestones": 2,
     "stale_milestones": 210,
-    "domains_tracked": 920
+    "domains_tracked": 922
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -19,28 +19,28 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2269/3167 engines wired (72%); 774 wiki entries indexed.",
+    "summary": "2302/3177 engines wired (72%); 776 wiki entries indexed.",
     "breakdown": {
-      "totalEngines": 3167,
-      "unwired": 898,
-      "wiredDirect": 2105,
+      "totalEngines": 3177,
+      "unwired": 875,
+      "wiredDirect": 2139,
       "wireExempt": 81,
       "wiredViaHook": 10,
-      "wiredViaOrch": 57,
+      "wiredViaOrch": 56,
       "wiredViaRoute": 15,
       "wiredViaSingleton": 1
     }
   },
   "NEEDS_WIRING": {
-    "summary": "898 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "875 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
-        "count": 148
+        "count": 142
       },
       {
         "domain": "Lathe",
-        "count": 106
+        "count": 89
       },
       {
         "domain": "Machine",
@@ -315,14 +315,14 @@
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 920 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 922 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
-        "total": 592,
-        "wired": 444,
-        "unwired": 148,
-        "coverage_pct": 75,
+        "total": 593,
+        "wired": 451,
+        "unwired": 142,
+        "coverage_pct": 76,
         "sample_unwired": [
           "AIMLFormulasEngine",
           "AMSAAReliabilityGrowthEngine",
@@ -335,16 +335,16 @@
       {
         "domain": "Lathe",
         "total": 186,
-        "wired": 80,
-        "unwired": 106,
-        "coverage_pct": 43,
+        "wired": 97,
+        "unwired": 89,
+        "coverage_pct": 52,
         "sample_unwired": [
           "LatheAdvancedOperationsEngine",
           "LatheAIFeatureRegistration",
           "LatheAIUltraEngine",
-          "LatheAuxAxisTimingEngine",
           "LatheCAMIntelligenceEngine",
-          "LatheCuttingChemistryEngine"
+          "LatheCuttingChemistryEngine",
+          "LatheDeepAIHardeningEngine"
         ]
       },
       {
@@ -1020,6 +1020,17 @@
         ]
       },
       {
+        "domain": "Auto",
+        "total": 12,
+        "wired": 10,
+        "unwired": 2,
+        "coverage_pct": 83,
+        "sample_unwired": [
+          "AutoCADAddinPluginEngine",
+          "AutoCADDotNetBridgeEngine"
+        ]
+      },
+      {
         "domain": "Physics",
         "total": 12,
         "wired": 10,
@@ -1028,17 +1039,6 @@
         "sample_unwired": [
           "PhysicsAwareDataAugmentationEngine",
           "PhysicsPredictionEngine"
-        ]
-      },
-      {
-        "domain": "Auto",
-        "total": 11,
-        "wired": 9,
-        "unwired": 2,
-        "coverage_pct": 82,
-        "sample_unwired": [
-          "AutoCADAddinPluginEngine",
-          "AutoCADDotNetBridgeEngine"
         ]
       },
       {
@@ -1086,6 +1086,17 @@
         ]
       },
       {
+        "domain": "Ollama",
+        "total": 7,
+        "wired": 5,
+        "unwired": 2,
+        "coverage_pct": 71,
+        "sample_unwired": [
+          "OllamaContextFloorEngine",
+          "OllamaHookBridgeEngine"
+        ]
+      },
+      {
         "domain": "Stock",
         "total": 7,
         "wired": 5,
@@ -1105,17 +1116,6 @@
         "sample_unwired": [
           "BarFeedPitchOptimizerEngine",
           "BarRemnantManagementEngine"
-        ]
-      },
-      {
-        "domain": "Ollama",
-        "total": 6,
-        "wired": 4,
-        "unwired": 2,
-        "coverage_pct": 67,
-        "sample_unwired": [
-          "OllamaContextFloorEngine",
-          "OllamaHookBridgeEngine"
         ]
       },
       {
@@ -2402,6 +2402,16 @@
         "coverage_pct": 50,
         "sample_unwired": [
           "MetrologyUncertaintyEngine"
+        ]
+      },
+      {
+        "domain": "Performance",
+        "total": 2,
+        "wired": 1,
+        "unwired": 1,
+        "coverage_pct": 50,
+        "sample_unwired": [
+          "PerformanceBudgetEngine"
         ]
       },
       {
@@ -3885,16 +3895,6 @@
         ]
       },
       {
-        "domain": "Performance",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "PerformanceBudgetEngine"
-        ]
-      },
-      {
         "domain": "Peristaltic",
         "total": 1,
         "wired": 0,
@@ -4563,6 +4563,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Blueprint",
+        "total": 6,
+        "wired": 6,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Chip",
         "total": 6,
         "wired": 6,
@@ -4611,15 +4619,15 @@
         "sample_unwired": []
       },
       {
-        "domain": "Bayesian",
-        "total": 5,
-        "wired": 5,
+        "domain": "Wiki",
+        "total": 6,
+        "wired": 6,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
       },
       {
-        "domain": "Blueprint",
+        "domain": "Bayesian",
         "total": 5,
         "wired": 5,
         "unwired": 0,
@@ -4683,9 +4691,9 @@
         "sample_unwired": []
       },
       {
-        "domain": "Wiki",
-        "total": 5,
-        "wired": 5,
+        "domain": "Content",
+        "total": 4,
+        "wired": 4,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -5060,14 +5068,6 @@
       },
       {
         "domain": "Conformal",
-        "total": 2,
-        "wired": 2,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Content",
         "total": 2,
         "wired": 2,
         "unwired": 0,
@@ -5883,6 +5883,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Capture",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Carburizing",
         "total": 1,
         "wired": 1,
@@ -6116,6 +6124,14 @@
       },
       {
         "domain": "Connecting",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Connection",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -9060,7 +9076,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "2735 units across 613 milestones not yet in git.",
+    "summary": "2722 units across 613 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9073,12 +9089,6 @@
         "claimed": "completed",
         "real": "not_started_real",
         "drift": "claims_completed_but_units_pending"
-      },
-      {
-        "id": "XPROC-NEURAL-OPTIMIZE-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
       }
     ],
     "top_pending_units": [
@@ -9090,21 +9100,9 @@
       },
       {
         "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
-        "unit": "U-NN-LOOP04",
-        "title": "Wire MillPrintToProgramEngine to emit outcome events post-run",
-        "phase": "P3-CLOSED-LOOP"
-      },
-      {
-        "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
-        "unit": "U-NN-LOOP05",
-        "title": "Wire WEDMPrintToProgramEngine to emit outcome events (Reviewer 5 Option A)",
-        "phase": "P3-CLOSED-LOOP"
-      },
-      {
-        "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
-        "unit": "U-NN-DATA01",
-        "title": "JM Die NC corpus parser — Mastercam-Okuma dialect (lathe priority)",
-        "phase": "P4-REAL-DATA"
+        "unit": "U-NN-TIER05",
+        "title": "T12 HierarchicalNeuralOrchestrator routes queries through tier stack",
+        "phase": "P6-TIER-COMPOSE"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

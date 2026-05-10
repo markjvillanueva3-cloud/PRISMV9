@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-08T15:54:10.372Z",
+  "generatedAt": "2026-05-10T04:15:18.300Z",
   "window": "60.days",
   "totals": {
     "milestones": 613,
     "units": 2747,
-    "shipped": 12,
-    "pending": 2735,
-    "drift": 3
+    "shipped": 25,
+    "pending": 2722,
+    "drift": 2
   },
   "milestones": [
     {
@@ -23479,14 +23479,14 @@
       "id": "XPROC-NEURAL-OPTIMIZE-MS0",
       "title": "XPROC-NEURAL Network Optimization — Fix Bugs, Wire Closed-Loop, Ingest Real Data, Modernize Architecture",
       "track": "INFRA",
-      "claimedStatus": "not_started",
+      "claimedStatus": "in_progress",
       "total": 27,
-      "shipped": 12,
-      "pending": 15,
-      "ratio": 0.4444444444444444,
-      "lastShippedDate": "2026-05-08T09:01:15-05:00",
+      "shipped": 25,
+      "pending": 2,
+      "ratio": 0.9259259259259259,
+      "lastShippedDate": "2026-05-09T22:32:19-05:00",
       "derivedStatus": "in_progress_real",
-      "drift": "claims_not_started_but_has_shipped_units",
+      "drift": "consistent",
       "units": [
         {
           "id": "U-NN-FIX01",
@@ -23600,19 +23600,19 @@
           "id": "U-NN-LOOP04",
           "title": "Wire MillPrintToProgramEngine to emit outcome events post-run",
           "phase": "P3-CLOSED-LOOP",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "e4127eb35e56c8a88c022d6c56166f386f838068",
+          "date": "2026-05-08T13:16:46-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-LOOP05",
           "title": "Wire WEDMPrintToProgramEngine to emit outcome events (Reviewer 5 Option A)",
           "phase": "P3-CLOSED-LOOP",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "c0278d5e63a30684b039429ab0ad2c6ccfac9320",
+          "date": "2026-05-08T12:34:45-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-LOOP06",
@@ -23627,100 +23627,100 @@
           "id": "U-NN-DATA01",
           "title": "JM Die NC corpus parser — Mastercam-Okuma dialect (lathe priority)",
           "phase": "P4-REAL-DATA",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "a159f82db53c68dbf0b96e72a77b91207064c987",
+          "date": "2026-05-08T13:31:53-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-DATA02",
           "title": "Extend parser — Mastercam-Fanuc + hyperMILL dialects",
           "phase": "P4-REAL-DATA",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "fcce877915a15aab61b230b67ba2212c6834b796",
+          "date": "2026-05-08T14:44:10-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-DATA03",
           "title": "Bulk corpus → outcome events ingester",
           "phase": "P4-REAL-DATA",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "ca34fffb7ce82f26da122b42b028754e44367be6",
+          "date": "2026-05-08T15:12:20-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-ARCH01",
           "title": "Adam optimizer with bias correction (replace SGD-momentum)",
           "phase": "P5-ARCH-MODERN",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "0659bafe25b92cd1ef8151a3f0d4ef07333d32ca",
+          "date": "2026-05-08T17:40:01-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-ARCH02",
           "title": "L2 weight decay + early stopping + best-checkpoint",
           "phase": "P5-ARCH-MODERN",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "06114e3ed5437b2fb8e424e70c97d87c9795dabb",
+          "date": "2026-05-08T17:57:17-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-ARCH03",
           "title": "Class-weighted cross-entropy + label smoothing",
           "phase": "P5-ARCH-MODERN",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "d435a443489dd9ecd9bc6ee194cb696ca9abccbc",
+          "date": "2026-05-08T18:08:35-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-ARCH04",
           "title": "T5 ConformalPredictionEngine wired around T1-02 outputs",
           "phase": "P5-ARCH-MODERN",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "9562eef9d15ac43a66f485a341c4847179e27b16",
+          "date": "2026-05-08T18:15:49-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-TIER01",
           "title": "T2 EpisodicMemory + PrioritizedReplay wired to FeedbackBus",
           "phase": "P6-TIER-COMPOSE",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "22e76f55bee4ca04f53e7f1109cbc257f8c18a78",
+          "date": "2026-05-08T19:56:14-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-TIER02",
           "title": "T3 DriftDetector wired to nightly cron + Stop hook alerting",
           "phase": "P6-TIER-COMPOSE",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "d454eececca446366546888f787c91f174e46d4a",
+          "date": "2026-05-08T20:03:00-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-TIER03",
           "title": "T4 RewardShaper + PolicyGradient wired to outcome events",
           "phase": "P6-TIER-COMPOSE",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "f70f8b496d88e0b261bf6c0686cd03a767d09383",
+          "date": "2026-05-09T22:32:19-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-TIER04",
           "title": "T8 SymbolicConstraintEnforcer wraps T1-02 outputs (physics envelope hard-gate)",
           "phase": "P6-TIER-COMPOSE",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "e7f1705093e03883a78364467032c6e3e420f73a",
+          "date": "2026-05-08T18:47:09-05:00",
+          "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
         {
           "id": "U-NN-TIER05",
