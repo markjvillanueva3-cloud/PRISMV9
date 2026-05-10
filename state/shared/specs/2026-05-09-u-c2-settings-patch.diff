@@ -1,0 +1,66 @@
+# U-C2 settings.json patch (pre-staged)
+
+**Why pre-staged:** at the time U-C2 shipped (2026-05-10), peer chat
+DESKTOP--25664 had an active claim on `C:/Users/wompu/.claude/settings.json`.
+Per lane-discipline doctrine I did not edit settings.json directly. The hook
+file is committed and the bundle daemon is running; just needs this 5-line
+registration to wire in.
+
+## Apply when settings.json is no longer claimed
+
+In `C:/Users/wompu/.claude/settings.json`, find the **UserPromptSubmit**
+hooks block. Insert this entry as the FIRST hook (so the bundle injection
+arrives before any of the legacy 24 individual injectors):
+
+```diff
+     "UserPromptSubmit": [
+       {
+         "matcher": "",
+         "hooks": [
++          {
++            "type": "command",
++            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/prompt-context-inject.mjs",
++            "timeout": 1500
++          },
+           {
+             "type": "command",
+             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-auto-router.mjs",
+             "timeout": 5000
+           },
+```
+
+After the edit:
+1. Validate JSON: `node -e "JSON.parse(require('fs').readFileSync('C:/Users/wompu/.claude/settings.json'))"`
+2. Verify mirror sync (c-to-h-mirror PostToolUse hook should fire on the Edit; if not, manually `cp C:/Users/wompu/.claude/settings.json H:/.claude/settings.json`).
+3. Confirm the bundle daemon is alive: `node H:/prism/scripts/daemon-supervisor.mjs status context-bundle`. If not, restart it:
+   `node H:/prism/scripts/daemon-supervisor.mjs start context-bundle -- "H:/Tools/nodejs/node.exe" "H:/prism/.claude/helpers/prism-awareness-bundle.mjs" --daemon --tick=30`
+
+## What the hook does
+
+`H:/prism/.claude/hooks/prompt-context-inject.mjs`:
+
+- Fires on every UserPromptSubmit
+- Reads `state/shared/context-bundle.json` (single fs read, ~200ms typical)
+- Filters bundle body slice by prompt keywords (one regex pass)
+- Emits ONE compact `additionalContext` block (≤2KB) with:
+  - PRISM context header (bundle age, byte size)
+  - Top relevant section based on prompt keywords
+  - Pointer to full bundle files
+- Fail-open: missing/stale/unreadable bundle → silent `{continue:true}`, legacy 24 injectors carry on
+
+## Roll-out (per spec)
+
+This is **Phase 1**: hook is added ALONGSIDE the 24 legacy injectors. Both run.
+Once we confirm the bundle output covers their content, **Phase 2 (U-C4)** retires
+the 24 individuals. That's a separate spec unit.
+
+## Rollback
+
+`PRISM_PROMPT_CONTEXT_INJECT_OFF=1` in env disables the hook.
+
+## Provenance
+
+- Hook file commit: pending in this session
+- Bundle daemon: running (PID per supervisor); commit `3d687e2b4`
+- Spec: `state/shared/specs/2026-05-09-prism-stabilization-design.md` § C2
+- Roadmap: `state/shared/specs/2026-05-09-prism-stabilization-roadmap.md` § U-C2
