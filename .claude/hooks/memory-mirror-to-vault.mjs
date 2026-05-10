@@ -32,6 +32,14 @@ const MCP_URL = process.env.MCP_HTTP_URL ?? "http://127.0.0.1:3100/mcp";
 const EMBED_TIMEOUT_MS = 8_000;
 const MEMORY_DIR_PATTERN = /[\\/]\.claude[\\/]projects[\\/][^\\/]*[\\/]memory[\\/]/i;
 
+const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
+const OLLAMA_CLASSIFY_MODEL = process.env.OLLAMA_CLASSIFY_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_CLASSIFY_TIMEOUT_MS = 3_500;
+const VALID_CATEGORIES = new Set([
+  "feedback", "project", "reference", "user",
+  "lessons", "decisions", "mistakes", "patterns", "inbox",
+]);
+
 const CATEGORY_PREFIXES = {
   feedback_: "feedback",
   project_: "project",
@@ -100,6 +108,60 @@ async function embedRemote(kind, id, text, metadata) {
   }
 }
 
+async function categorizeViaOllama(content, filename) {
+  // Strip frontmatter + truncate so the prompt stays small (qwen2.5-coder:7b is fast on short inputs).
+  const body = content.replace(/^---\n[\s\S]*?\n---\n/, "").slice(0, 1_500);
+  const prompt =
+    `Classify this memory note into ONE category. Reply with ONLY the category word, nothing else.\n\n` +
+    `Categories:\n` +
+    `- feedback: rules/preferences user gave (e.g. "always use X", "never do Y")\n` +
+    `- project: ongoing work, milestones, who is doing what, deadlines\n` +
+    `- reference: pointers to where info lives (URLs, file paths, dashboards, system maps)\n` +
+    `- user: facts about who the user is, their role, expertise, goals\n` +
+    `- lessons: things learned the hard way; post-mortem insights\n` +
+    `- decisions: choices made between alternatives, with rationale\n` +
+    `- mistakes: errors to avoid repeating, with cause + fix\n` +
+    `- patterns: recurring shapes/structures seen across the system\n` +
+    `- inbox: ungrouped raw capture not yet processed\n\n` +
+    `Filename: ${filename}\n\n` +
+    `Body:\n${body}\n\n` +
+    `Category (one word):`;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), OLLAMA_CLASSIFY_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OLLAMA_CLASSIFY_MODEL,
+        prompt,
+        stream: false,
+        options: { temperature: 0.1, num_predict: 8 },
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return { cat: null, reason: `HTTP ${res.status}` };
+    const body = await res.json();
+    const raw = String(body?.response ?? "").trim().toLowerCase();
+    // Match the first valid category word in the response (defends against verbose models)
+    const match = raw.match(/\b(feedback|project|reference|user|lessons?|decisions?|mistakes?|patterns?|inbox)\b/);
+    if (!match) return { cat: null, reason: `unparseable: ${raw.slice(0, 40)}` };
+    let normalized = match[1];
+    // singular → plural where the vault dir uses plural
+    if (normalized === "lesson") normalized = "lessons";
+    if (normalized === "decision") normalized = "decisions";
+    if (normalized === "mistake") normalized = "mistakes";
+    if (normalized === "pattern") normalized = "patterns";
+    if (!VALID_CATEGORIES.has(normalized)) return { cat: null, reason: `invalid: ${normalized}` };
+    return { cat: normalized, reason: null };
+  } catch (e) {
+    clearTimeout(timer);
+    return { cat: null, reason: e?.name === "AbortError" ? "timeout" : (e?.message ?? String(e)) };
+  }
+}
+
 async function main() {
   const input = readStdin();
   if (!input) { console.log(JSON.stringify({ continue: true })); return; }
@@ -131,7 +193,21 @@ async function main() {
     return;
   }
 
-  const cat = categorize(filename);
+  let cat = categorize(filename);
+  let classifierNote = "";
+  // If filename prefix didn't match a category, ask Ollama to classify by content.
+  // This is what populates lessons/, decisions/, mistakes/, patterns/ when the
+  // user's auto-memory protocol only generates 4 prefix types.
+  if (cat === "uncategorized" && process.env.PRISM_MEMORY_CLASSIFIER !== "0") {
+    const result = await categorizeViaOllama(content, filename);
+    if (result.cat) {
+      cat = result.cat;
+      classifierNote = ` (ollama→${cat})`;
+    } else {
+      classifierNote = ` (ollama-skip:${result.reason})`;
+    }
+  }
+
   const targetDir = join(VAULT_TARGET, cat);
   const targetPath = join(targetDir, filename);
   ensureDir(targetDir);
@@ -147,7 +223,7 @@ async function main() {
     continue: true,
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
-      additionalContext: `memory-mirror: ${cat}/${filename} → vault, embed=${status}`,
+      additionalContext: `memory-mirror: ${cat}/${filename}${classifierNote} → vault, embed=${status}`,
     },
   }));
 }

@@ -18,6 +18,12 @@
 
 #Requires -RunAsAdministrator
 
+[CmdletBinding()]
+param(
+  [int]$InitialMB = 0,   # 0 = use default (64 GB)
+  [int]$MaxMB     = 0    # 0 = use default (256 GB)
+)
+
 $ErrorActionPreference = 'Stop'
 
 Write-Host "=== PRISM Pagefile Relocator ===" -ForegroundColor Cyan
@@ -73,15 +79,26 @@ if ($existingC) { Remove-CimInstance -InputObject $existingC }
 # eagerly during the same boot phase that mounts the drive, so by the time
 # any process needs commit headroom the H: pagefile is already there.
 #
-# 16384 / 65536 = 16 GB initial, 64 GB max. With 31 GB RAM that gives a
-# total commit ceiling of 31 + 64 + 4 = 99 GB on demand.
+# Sizing: 6 concurrent Claude chats + MCP servers + WSL push commit demand
+# regularly above 30 GB. We set an aggressive ceiling that covers worst-case
+# spikes without depleting H: free space (currently 2.8 TB free).
+#   65536  / 262144 =  64 GB initial / 256 GB max  → total commit 287 GB
+#  131072  / 524288 = 128 GB initial / 512 GB max  → total commit 543 GB
+#  262144  /1048576 = 256 GB initial /  1 TB max   → total commit ~1.04 TB
+# Default below = 256 GB max (covers all observed peaks with 5× headroom).
+# Override at run-time:  -InitialMB 131072 -MaxMB 524288
 $mmKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management'
 
-Write-Host "[3/4] Setting H:\pagefile.sys (16 GB initial / 64 GB max — fixed for eager allocation)..." -ForegroundColor Green
+if (-not $InitialMB) { $InitialMB = 65536 }
+if (-not $MaxMB) { $MaxMB = 262144 }
+$initGB = [math]::Round($InitialMB / 1024, 1)
+$maxGB = [math]::Round($MaxMB / 1024, 1)
+
+Write-Host "[3/4] Setting H:\pagefile.sys ($initGB GB initial / $maxGB GB max — fixed for eager allocation)..." -ForegroundColor Green
 Write-Host "[4/4] Keeping 4 GB crash-dump pagefile on C: via registry..." -ForegroundColor Green
 
 $pagingFiles = @(
-  'H:\pagefile.sys 16384 65536'
+  "H:\pagefile.sys $InitialMB $MaxMB"
   'C:\pagefile.sys 4096 4096'
 )
 Set-ItemProperty -Path $mmKey -Name 'PagingFiles' -Value $pagingFiles -Type MultiString

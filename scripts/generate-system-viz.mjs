@@ -1,0 +1,823 @@
+#!/usr/bin/env node
+/**
+ * generate-system-viz.mjs — atomic 10-layer PRISM system snapshot
+ *
+ * Layers (top→bottom):
+ *   L0 Personas        — 5 user roles
+ *   L1 Frontend        — 144 web pages clustered into functional groups + CLIs
+ *   L2 Transport       — MCP / REST / gRPC / GraphQL / WS / auth / rate / telemetry
+ *   L3 AI Hierarchy    — Tier-1 Claude / Tier-2 coordinator / 7 Tier-3 specialists / Ollama models
+ *   L4 Dispatchers     — every dispatcher.ts as its own node (~97)
+ *   L5 Engine Domains  — top 40 engine clusters by count (wired + unwired)
+ *   L6 Cores           — algorithms / schemas / physics constants / migrations
+ *   L7 Registries      — 26 registries + materials/tools/machines/coatings detail
+ *   L8 State & Wiki    — wiki subcategories + memory types + state subdirs + JM Die
+ *   L9 Filesystem      — top-level H:/prism directories
+ *   L10 Vault          — every memory + wiki file as its own node, [[wiki-link]] edges
+ *
+ * Symmetric concentric-ring layout per layer; sub-category arcs colored by hue.
+ *
+ * Output: state/shared/system-viz/system-graph.json
+ */
+
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+const OUT_DIR = path.join(ROOT, "state", "shared", "system-viz");
+const OUT_FILE = path.join(OUT_DIR, "system-graph.json");
+
+// ---------- helpers ----------
+function safeReadJson(p, fb = null) { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return fb; } }
+function safeListDir(p, ext = null) {
+  try { return fs.readdirSync(p, { withFileTypes: true })
+    .filter(d => d.isFile() && (!ext || d.name.endsWith(ext)))
+    .map(d => d.name); } catch { return []; }
+}
+function safeListSub(p) {
+  try { return fs.readdirSync(p, { withFileTypes: true })
+    .filter(d => d.isDirectory()).map(d => d.name); } catch { return []; }
+}
+
+// ---------- live inputs ----------
+const buildState = safeReadJson(path.join(ROOT, "state", "shared", "BUILD_STATE.json")) ?? {};
+const inv = (() => { try { return fs.readFileSync(path.join(ROOT, "PRISM-INVENTORY-LATEST.md"), "utf8"); } catch { return ""; }})();
+
+const dispatcherFiles = safeListDir(path.join(ROOT, "mcp-server", "src", "tools", "dispatchers"), ".ts")
+  .filter(f => f.endsWith("Dispatcher.ts") || f.endsWith("Middleware.ts") && !f.includes(".test."))
+  .filter(f => !f.includes(".test."));
+const registryFiles = safeListDir(path.join(ROOT, "mcp-server", "src", "registries"), ".ts")
+  .filter(f => /^[A-Z]/.test(f) && !["base.ts","manager.ts","index.ts"].includes(f));
+const webPages = safeListDir(path.join(ROOT, "mcp-server", "web", "src", "pages"), ".tsx");
+// Only include subdirs that actually contain files (filter empty directories
+// so the graph reflects real wiki/memory content, not stub scaffolding).
+function dirHasContent(absPath) {
+  if (!fs.existsSync(absPath)) return false;
+  try {
+    const out = fs.readdirSync(absPath, { withFileTypes: true });
+    return out.some(e => e.isFile() && !e.name.startsWith("."));
+  } catch { return false; }
+}
+const wikiDirs = safeListSub(path.join(ROOT, "knowledge", "wiki"))
+  .filter(d => dirHasContent(path.join(ROOT, "knowledge", "wiki", d)));
+const memoryDirs = safeListSub(path.join(ROOT, "knowledge", "memories"))
+  .filter(d => dirHasContent(path.join(ROOT, "knowledge", "memories", d)));
+const stateSubdirs = safeListSub(path.join(ROOT, "state"));
+const stateSharedFiles = safeListDir(path.join(ROOT, "state", "shared"), ".md").length;
+const fsRoots = safeListSub(ROOT).filter(d => !d.startsWith(".") && d !== "node_modules");
+// Non-prism subtrees on H: root, accounted for at directory granularity
+const hRootSubtrees = safeListSub("H:/").filter(d => !d.startsWith(".") && d !== "node_modules" && d.toLowerCase() !== "prism").slice(0, 24);
+
+function pluck(re, str, fb = 0) { const m = str.match(re); return m ? Number(m[1]) : fb; }
+const counts = {
+  engines:     pluck(/\*\*Engines\*\*\s*\|\s*(\d+)/, inv, 3173),
+  dispatchers: pluck(/\*\*Dispatchers\*\*\s*\|\s*(\d+)/, inv, dispatcherFiles.length || 97),
+  actions:     pluck(/\*\*Actions\*\*\s*\|\s*(\d+)/, inv, 7302),
+  algorithms:  pluck(/\*\*Algorithms\*\*\s*\|\s*(\d+)/, inv, 53),
+  registries:  pluck(/\*\*Registries\*\*\s*\|\s*(\d+)/, inv, registryFiles.length || 26),
+  tests:       pluck(/\*\*Tests\*\*\s*\|\s*(\d+)/, inv, 3415),
+  srcHooks:    pluck(/\*\*Source Hooks\*\*\s*\|\s*(\d+)/, inv, 54),
+  claudeHooks: pluck(/\*\*Claude Hooks\*\*\s*\|\s*(\d+)/, inv, 438),
+  scripts:     pluck(/\*\*Scripts\*\*\s*\|\s*(\d+)/, inv, 467),
+  slashLocal:  pluck(/Slash Commands \(local\)\*\*\s*\|\s*(\d+)/, inv, 242),
+  slashUser:   pluck(/Slash Commands \(user\)\*\*\s*\|\s*(\d+)/, inv, 370),
+  formulas:    pluck(/\*\*Formulas\*\*\s*\|\s*(\d+)/, inv, 499),
+};
+const headline = buildState.headline ?? {};
+const built = headline.built_engines ?? 2269;
+const unwired = headline.needs_wiring ?? 898;
+const pendingFE = headline.needs_frontend_merge_count ?? 2;
+const drift = headline.drift_milestones ?? 3;
+const wikiEntries = headline.built_with_wiki ?? 774;
+
+// ---------- categorization ----------
+function dispatcherCategory(file) {
+  const n = file.toLowerCase();
+  if (/^(calc|cam|cad|cadautomation|caddrawing|cadregression|camfunction|cncops|edm|fiveaxis|fluidthermal|formingcasting|grinding|holepattern|materialprocessing|mechanicaldesign|mill|multiaxisprogram|secondaryops|thread|threadingpipeline|toolpath|turning|turningprogram|vibrationphysics|weldingjoining|adaptivecontrol|processcontrol|safety|machinekb)/.test(n)) return "manufacturing";
+  if (/^(ai|aireasoning|intelligence|knowledge|knowledgeext|machininggkb|machiningknowledge|cad?drawing|machinesetup|machinelive|sp|sm|memory|monitoring|telemetry|guard|validation|ralph|omega|ml|pfp|provenpipeline|diagnosis|feasibility|multiop|scientificmath)/.test(n)) return "ai_intel";
+  if (/^(session|context|hook|manus|generator|gsd|dev|infra|integration|l2engine|operatingsystem|nlhook|automation|scheduling|skillscript|atcs|autopilot|autonomous|agent|orchestration|local|cpl|algorithm)/.test(n)) return "system";
+  if (/^(business|compliance|industry|partslibrary|inbox|tenant|auth|bridge|export|realtime|product|intake|security)/.test(n)) return "business";
+  if (/^(awareness|document|doc|resource|shoppractice|grindersafety)/.test(n)) return "knowledge";
+  return "other";
+}
+const CAT_COLORS = {
+  manufacturing: "#22c55e",
+  ai_intel:      "#06b6d4",
+  system:        "#a78bfa",
+  business:      "#f59e0b",
+  knowledge:     "#ec4899",
+  other:         "#94a3b8",
+};
+
+// Group web pages into 15 functional clusters
+function pageCluster(name) {
+  const n = name.toLowerCase();
+  if (/quote|rfq|quoteanalytics|quotebuilder|quotefollowup/.test(n)) return "quoting";
+  if (/quote|estimate|costestimator|jobprofitability|tooling/.test(n)) return "quoting";
+  if (/lathe/.test(n)) return "lathe";
+  if (/mill|milling/.test(n)) return "mill";
+  if (/wireedm|edm/.test(n)) return "wedm";
+  if (/cad|sfc|speedfeed|threadcalc/.test(n)) return "cad_calc";
+  if (/cam|toolpath|postprocessor|setupsheet|proveout/.test(n)) return "cam";
+  if (/erp|invoice|payroll|generalledger|purchaseorder|purchasing|customerportal|customers|salespipeline|commission|financialanalysis|machinerates|materialpricing/.test(n)) return "erp";
+  if (/quality|spc|fai|cmm|inspect/.test(n)) return "quality";
+  if (/hr|employee|timecard|safety|osha|hrcompliance/.test(n)) return "hr_safety";
+  if (/shopfloor|kanban|kaizen|valuestream|capacity|scheduling|jobs|jobplanner|programrelease|maintenance|preventivemaintenance/.test(n)) return "shopfloor";
+  if (/dashboard|executivedashboard|departmentdashboard|oee|telemetry|machinelive|fleet|reports|optimization|analytics/.test(n)) return "analytics";
+  if (/knowledge|courseviewer|learning|aill|coursebrowser/.test(n)) return "learning";
+  if (/setting|admin|featuretoggle|integrations|exports|datamanagement|machinedataaudit/.test(n)) return "admin";
+  if (/diagnos|rootcause|whatif|stockoptimizer|forming|grinding|injection|sheetmetal|swiss|millturn|secondaryops|capture|pipeline|partslibrary|equipment|inventory|order|receiving|shipping|vendor|stockoptimizer|cncops|weld|vibration|thermal|mechanical|toolpathadvisor|camstrategy|setup|capacity|batch|landing|login|messages|shopprofile|additive|blueprint|printdrop|recovery|cam-ai-dashboard|shellgateway/.test(n)) return "specialty";
+  return "specialty";
+}
+
+// ---------- node builders ----------
+const nodes = [];
+const edges = [];
+let _id = 0;
+function nid(p) { return `${p}.${++_id}`; }
+function addNode(n) { nodes.push(n); return n.id; }
+function addEdge(from, to, type, status = "active", intensity = 0.6) {
+  if (!from || !to) return;
+  edges.push({ from, to, type, status, intensity });
+}
+
+// ---------- L0 Personas ----------
+const personas = [
+  { label: "Operator",   info: "Shop floor — runs jobs, scans travelers, reports SPC" },
+  { label: "Programmer", info: "Quotes, CAM programming, post-process, prove-out" },
+  { label: "Quoter",     info: "Sales — RFQ intake, blueprint→quote, customer portal" },
+  { label: "Boss",       info: "Executive dashboard, KPIs, OEE, financials, capacity" },
+  { label: "Admin",      info: "Settings, integrations, compliance, data export" },
+];
+for (const p of personas) {
+  addNode({ id: `p.${p.label.toLowerCase()}`, layer: "L0", subgroup: "personas", label: p.label, info: p.info, status: "built", size: 1.2 });
+}
+
+// ---------- L1 Frontend ----------
+// 4 frontend variants/CLIs
+const feVariants = [
+  { id: "fe.web", label: "mcp-server/web", info: "144 React pages — primary web UI", status: "built", stack: "Next.js (thin)" },
+  { id: "fe.cqask", label: "cqask/ui", info: "PENDING MERGE — Next.js 13 + AntD + Tailwind", status: "pending_merge", stack: "Next.js 13" },
+  { id: "fe.cadquery", label: "mcp-cadquery/frontend", info: "PENDING MERGE — Vite + React 19 + Three.js", status: "pending_merge", stack: "Three.js" },
+  { id: "fe.cli", label: "Claude / Codex / Gemini CLI", info: "Tier-1 master orchestrator + multi-CLI scrutiny — conceptual surface (no frontend dir)", status: "conceptual", stack: "MCP stdio" },
+  { id: "fe.dispatch", label: "Phone / Dispatch", info: "Compact mobile + voice — conceptual surface (no frontend dir)", status: "conceptual", stack: "Mobile" },
+];
+for (const v of feVariants) addNode({ ...v, layer: "L1", subgroup: "variants", size: 1.1 });
+
+// page clusters
+const pageClusters = {};
+for (const f of webPages) {
+  const c = pageCluster(f.replace(/\.tsx$/, ""));
+  pageClusters[c] = (pageClusters[c] || 0) + 1;
+}
+const clusterMeta = {
+  quoting:   { label: "Quoting Suite",     hue: "#fb923c" },
+  lathe:     { label: "Lathe Pages",       hue: "#22c55e" },
+  mill:      { label: "Mill Pages",        hue: "#34d399" },
+  wedm:      { label: "Wire EDM Pages",    hue: "#06b6d4" },
+  cad_calc:  { label: "CAD / SFC / Calcs", hue: "#a855f7" },
+  cam:       { label: "CAM / Post / Prove",hue: "#8b5cf6" },
+  erp:       { label: "ERP Pages",         hue: "#f59e0b" },
+  quality:   { label: "Quality / SPC / FAI",hue: "#ef4444" },
+  hr_safety: { label: "HR / Safety / OSHA",hue: "#facc15" },
+  shopfloor: { label: "Shop-Floor / Sched",hue: "#10b981" },
+  analytics: { label: "Dashboards / OEE",  hue: "#3b82f6" },
+  learning:  { label: "Knowledge / Learn", hue: "#ec4899" },
+  admin:     { label: "Admin / Settings",  hue: "#94a3b8" },
+  specialty: { label: "Specialty Pages",   hue: "#64748b" },
+};
+for (const [k, count] of Object.entries(pageClusters)) {
+  const m = clusterMeta[k] ?? { label: k, hue: "#64748b" };
+  addNode({
+    id: `fe.pages.${k}`, layer: "L1", subgroup: "pages",
+    label: `${m.label}\n(${count} pages)`,
+    color: m.hue, status: count >= 8 ? "built" : "stub",
+    size: 0.7 + Math.sqrt(count) * 0.18,
+    info: `${count} React pages in this functional cluster`,
+  });
+}
+
+// ---------- L2 Transport ----------
+const transport = [
+  { id: "tr.mcp",   label: "MCP Server :3100", info: "97 dispatchers / 7,302 actions / Node TS", color: "#a78bfa", size: 2.0 },
+  { id: "tr.rest",  label: "REST API",         info: "JSON over HTTP", color: "#a78bfa", size: 1.0 },
+  { id: "tr.grpc",  label: "gRPC",             info: "Protobuf binary RPC", color: "#a78bfa", size: 0.9 },
+  { id: "tr.gql",   label: "GraphQL",          info: "Schema-first query layer", color: "#a78bfa", size: 0.9 },
+  { id: "tr.ws",    label: "WebSocket",        info: "Real-time push (WS rooms + broadcast)", color: "#a78bfa", size: 1.1 },
+  { id: "tr.auth",  label: "Auth (OAuth/RBAC/MFA)", info: "Token issuance + session + scope auth", color: "#a78bfa", size: 1.1 },
+  { id: "tr.rate",  label: "Rate Limiter",     info: "3-tier: burst / minute / hour", color: "#a78bfa", size: 0.9 },
+  { id: "tr.tele",  label: "Telemetry / Metrics", info: "Prometheus + Grafana export", color: "#a78bfa", size: 1.0 },
+];
+for (const t of transport) addNode({ ...t, layer: "L2", subgroup: "transport", status: "built" });
+
+// ---------- L3 AI Hierarchy ----------
+const ai = [
+  { id: "ai.t1.claude",        label: "Tier-1: Claude\n(master orchestrator)", info: "Anthropic Claude — conversation + planning + dispatch", color: "#7dd3fc", size: 1.8 },
+  { id: "ai.t2.coordinator",   label: "Tier-2: FullSystemAICoordinator", info: "Routes intent to domain specialists", color: "#67e8f9", size: 1.4 },
+  { id: "ai.t3.mill",          label: "T3: Mill AGI",   info: "MillingAGIMasterEngine", color: "#22d3ee", size: 1.0 },
+  { id: "ai.t3.lathe",         label: "T3: Lathe AGI",  info: "LatheAGIOrchestrator + KG", color: "#22d3ee", size: 1.0 },
+  { id: "ai.t3.wedm",          label: "T3: Wire EDM AGI", info: "WEDMAGIOrchestrator", color: "#22d3ee", size: 1.0 },
+  { id: "ai.t3.cad",           label: "T3: CAD AI",     info: "Autonomous CAD generation", color: "#22d3ee", size: 1.0 },
+  { id: "ai.t3.cam",           label: "T3: CAM AI",     info: "CAM kernel + 6 tier-1 bridges", color: "#22d3ee", size: 1.0 },
+  { id: "ai.t3.safety",        label: "T3: Safety AI",  info: "Omega gates + S(x) score", color: "#22d3ee", size: 1.0 },
+  { id: "ai.t3.quality",       label: "T3: Quality AI", info: "SPC + Cpk + FAI + tolerance stack", color: "#22d3ee", size: 1.0 },
+  { id: "ai.ollama.qwen",      label: "Ollama: qwen2.5-coder",  info: "Local code reasoning (offload)", color: "#a3e635", size: 0.9 },
+  { id: "ai.ollama.llama",     label: "Ollama: llama3.2",       info: "Local general LLM (offload)", color: "#a3e635", size: 0.9 },
+  { id: "ai.ollama.embed",     label: "Ollama: embeddings",     info: "Vector search backbone", color: "#a3e635", size: 0.9 },
+  { id: "ai.ollama.reflect",   label: "Ollama: reflection",     info: "Multi-pass self-critique", color: "#a3e635", size: 0.9 },
+];
+for (const a of ai) {
+  const sub = a.id.startsWith("ai.t1") ? "tier1" : a.id.startsWith("ai.t2") ? "tier2" : a.id.startsWith("ai.t3") ? "tier3" : "ollama";
+  addNode({ ...a, layer: "L3", subgroup: sub, status: "built" });
+}
+
+// ---------- L4 Dispatchers — every file ----------
+const dispatcherCatCount = { manufacturing:0, ai_intel:0, system:0, business:0, knowledge:0, other:0 };
+const dispatcherNodes = [];
+for (const f of dispatcherFiles.sort()) {
+  if (f.includes(".test.") || f === "CLAUDE.md") continue;
+  const cat = dispatcherCategory(f);
+  dispatcherCatCount[cat]++;
+  const id = `disp.${f.replace(".ts","").toLowerCase()}`;
+  const label = f.replace("Dispatcher.ts","").replace("Middleware.ts","mw").replace(".ts","");
+  const n = {
+    id, layer: "L4", subgroup: cat,
+    label, color: CAT_COLORS[cat],
+    status: "built",
+    size: 0.5,
+    info: `${f} — category: ${cat}`,
+  };
+  addNode(n);
+  dispatcherNodes.push(n);
+}
+
+// ---------- L5 Engine Domains ----------
+// take the top 16 unwired domains (already ranked by count) plus a few wired-heavy domains we know exist
+const domainsBuiltIn = [
+  { domain: "Mill",        count: 240, status: "wired" },
+  { domain: "WEDM",        count: 130, status: "wired" },
+  { domain: "Cad",         count: 200, status: "wired" },
+  { domain: "Cam",         count: 290, status: "wired" },
+  { domain: "Safety",      count: 80,  status: "wired" },
+  { domain: "AI",          count: 280, status: "wired" },
+  { domain: "Quality",     count: 90,  status: "wired" },
+  { domain: "Cost",        count: 60,  status: "wired" },
+  { domain: "ERP",         count: 110, status: "wired" },
+  { domain: "Adaptive",    count: 70,  status: "wired" },
+  { domain: "Memory",      count: 35,  status: "wired" },
+  { domain: "Hook",        count: 54,  status: "wired" },
+  { domain: "Material",    count: 80,  status: "wired" },
+  { domain: "Tool",        count: 95,  status: "wired" },
+  { domain: "Toolpath",    count: 130, status: "wired" },
+  { domain: "Physics",     count: 50,  status: "wired" },
+  { domain: "Probe",       count: 28,  status: "wired" },
+  { domain: "Knowledge",   count: 45,  status: "wired" },
+  { domain: "Session",     count: 25,  status: "wired" },
+  { domain: "Forge",       count: 20,  status: "wired" },
+  { domain: "Inspect",     count: 18,  status: "wired" },
+  { domain: "Network",     count: 22,  status: "wired" },
+  { domain: "Calibration", count: 20,  status: "wired" },
+  { domain: "Twin",        count: 15,  status: "wired" },
+];
+const unwiredDomains = (buildState.NEEDS_WIRING?.top_domains ?? []).slice(0, 16);
+const allDomains = [
+  ...domainsBuiltIn,
+  ...unwiredDomains.map(d => ({ domain: d.domain, count: d.count, status: "unwired" })),
+];
+for (const d of allDomains) {
+  addNode({
+    id: `eng.${d.domain.toLowerCase()}`,
+    layer: "L5",
+    subgroup: d.status === "wired" ? "wired" : "unwired",
+    label: `${d.domain}\n(${d.count})`,
+    color: d.status === "wired" ? "#22c55e" : "#f97316",
+    status: d.status === "wired" ? "built" : (d.count > 50 ? "stub_heavy" : "stub"),
+    size: 0.55 + Math.sqrt(d.count) * 0.10,
+    count: d.count,
+    domain: d.domain,
+    info: `${d.count} engines in '${d.domain}' domain (${d.status})`,
+  });
+}
+// Catchall — engines that didn't bucket into any named domain
+const domainSum = allDomains.reduce((s, d) => s + d.count, 0);
+const totalEngines = counts.engines || 3173;
+const otherCount = Math.max(0, totalEngines - domainSum);
+if (otherCount > 0) {
+  addNode({
+    id: "eng.other",
+    layer: "L5",
+    subgroup: "wired",
+    label: `Other\n(${otherCount})`,
+    color: "#64748b",
+    status: "built",
+    size: 0.55 + Math.sqrt(otherCount) * 0.10,
+    count: otherCount,
+    domain: "Other",
+    info: `${otherCount} engines not bucketed into a named domain — residual catchall`,
+  });
+}
+
+// ---------- L6 Cores (algorithms / schemas / constants / migrations) ----------
+const cores = [
+  { id: "core.algos",     label: `Algorithms (${counts.algorithms})`,    info: "Standalone algorithm modules", color: "#fbbf24", size: 1.1 },
+  { id: "core.schemas",   label: "Zod Schemas",                          info: "Action-input validation across all dispatchers", color: "#fbbf24", size: 1.0 },
+  { id: "core.physics",   label: "Physics Constants",                    info: "src/physics/constants.ts — Kienzle, Taylor, material specs", color: "#fbbf24", size: 1.2 },
+  { id: "core.migrations",label: "Migrations",                           info: "Schema migrations N-1 backward compat", color: "#fbbf24", size: 0.7 },
+  { id: "core.formulas",  label: `Formulas (${counts.formulas})`,        info: "Dimensioned formulas with uncertainty", color: "#fbbf24", size: 1.1 },
+  { id: "core.tests",     label: `Test Suite (${counts.tests.toLocaleString()})`, info: "Vitest — real-behavior assertions", color: "#fbbf24", size: 1.4 },
+  { id: "core.hooks_src", label: `Source Hooks (${counts.srcHooks})`,    info: "Engine-level fire/subscribe hooks", color: "#fbbf24", size: 0.9 },
+  { id: "core.hooks_cl",  label: `Claude Hooks (${counts.claudeHooks})`, info: "Lifecycle gates: Pre/Post/SessionStart/Stop", color: "#fbbf24", size: 1.3 },
+  { id: "core.scripts",   label: `Scripts (${counts.scripts})`,          info: "Maintenance / generation / inventory", color: "#fbbf24", size: 1.0 },
+  { id: "core.skills",    label: `Skills (${counts.slashLocal+counts.slashUser})`, info: `${counts.slashLocal} local + ${counts.slashUser} user`, color: "#fbbf24", size: 1.2 },
+];
+for (const c of cores) addNode({ ...c, layer: "L6", subgroup: "core", status: "built" });
+
+// ---------- L7 Registries ----------
+for (const f of registryFiles.sort()) {
+  const id = `reg.${f.replace(".ts","").toLowerCase()}`;
+  const label = f.replace(".ts","").replace("Registry","");
+  addNode({
+    id, layer: "L7", subgroup: "registry",
+    label, color: "#f97316", status: "built", size: 0.6,
+    info: `${f} — registry module`,
+  });
+}
+// add 4 high-value catalog summaries
+addNode({ id: "reg.materials_cnt", layer: "L7", subgroup: "catalog", label: "Materials (live)", info: "Live material entries across registries", color: "#fb923c", size: 1.1, status: "built" });
+addNode({ id: "reg.tools_cnt",     layer: "L7", subgroup: "catalog", label: "Tools (live)", info: "Live tool entries", color: "#fb923c", size: 1.1, status: "built" });
+addNode({ id: "reg.machines_cnt",  layer: "L7", subgroup: "catalog", label: "Machines (live)", info: "Live machine profiles", color: "#fb923c", size: 1.0, status: "built" });
+addNode({ id: "reg.tribal_tips",   layer: "L7", subgroup: "catalog", label: "Tribal Tips", info: "Shop-floor tribal knowledge", color: "#fb923c", size: 1.1, status: "built" });
+
+// ---------- L8 State / Wiki / Knowledge ----------
+for (const w of wikiDirs) {
+  addNode({ id: `wiki.${w}`, layer: "L8", subgroup: "wiki",
+    label: `wiki/${w}`, color: "#ec4899", status: "built", size: 0.65,
+    info: `Wiki sub-category: ${w}` });
+}
+for (const m of memoryDirs) {
+  addNode({ id: `mem.${m}`, layer: "L8", subgroup: "memory",
+    label: `mem/${m}`, color: "#a855f7", status: "built", size: 0.6,
+    info: `Memory category: ${m}` });
+}
+for (const s of stateSubdirs) {
+  addNode({ id: `state.${s}`, layer: "L8", subgroup: "state",
+    label: `state/${s}`, color: "#3b82f6", status: "built", size: 0.6,
+    info: `State directory: ${s}` });
+}
+addNode({ id: "kn.jmdie",   layer: "L8", subgroup: "corpus", label: "JM Die Corpus\n24,545 NC files", info: "Production NC programs / 100+ customers", color: "#0ea5e9", status: "built", size: 1.4 });
+addNode({ id: "kn.shared",  layer: "L8", subgroup: "state",  label: `state/shared\n${stateSharedFiles}+ md files`, info: "Cross-agent coordination state", color: "#3b82f6", status: "built", size: 1.0 });
+addNode({ id: "kn.wikiidx", layer: "L8", subgroup: "wiki",   label: `wiki index\n${wikiEntries} entries`, info: "Karpathy LLM-Wiki index", color: "#ec4899", status: "built", size: 1.0 });
+
+// ---------- L9 Filesystem (complete enumeration — no slice cap) ----------
+const fsRootList = (fsRoots.length > 0 ? fsRoots : [
+  "mcp-server","state","knowledge","JM DIE","scripts","data","docs","artifacts","backups","Resources","cad-engine","fusion-bridge","extracted","autonomous-tasks","_PROJECT_FILES"
+]);
+for (const r of fsRootList.sort()) {
+  addNode({ id: `fs.${r.replace(/\s+/g,'_').toLowerCase()}`, layer: "L9", subgroup: "prism",
+    label: `H:/prism/${r}/`, color: "#94a3b8", status: "built", size: 0.7,
+    info: `prism/ subdirectory: ${r}` });
+}
+// Non-prism subtrees on H:/ — accounted for at directory granularity so the
+// graph reflects the entire H: drive layout, not just the prism subtree.
+for (const r of hRootSubtrees.sort()) {
+  const id = `fs.h.${r.replace(/\s+/g,'_').toLowerCase()}`;
+  addNode({ id, layer: "L9", subgroup: "h_root",
+    label: `H:/${r}/`, color: "#475569", status: "built", size: 0.55,
+    info: `Non-prism subtree on H:/ — ${r}` });
+}
+
+// ---------- L10 Vault (per-file memory + wiki nodes + wiki-link edges) ----------
+function enumerateMarkdownFiles(rootAbs) {
+  const out = [];
+  function walk(dir, subgroup) {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.name.startsWith(".")) continue;
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full, subgroup === null ? e.name : subgroup);
+      else if (e.isFile() && e.name.endsWith(".md")) {
+        const rel = path.relative(rootAbs, full).replace(/\\/g, "/");
+        out.push({ subgroup: subgroup ?? "_root", rel, full });
+      }
+    }
+  }
+  walk(rootAbs, null);
+  return out;
+}
+const vaultMemory = enumerateMarkdownFiles(path.join(ROOT, "knowledge", "memories"));
+const vaultWiki = enumerateMarkdownFiles(path.join(ROOT, "knowledge", "wiki"));
+
+// Recall counts for L10 sizing — written by recall-counter-track.mjs hook on Read events
+const recallState = safeReadJson(path.join(ROOT, "mcp-server", "data", "state", "wiki-recall-counts.json"));
+const recallByKey = (recallState?.entries && typeof recallState.entries === "object")
+  ? Object.fromEntries(Object.entries(recallState.entries).map(([k, e]) => [k, e?.count ?? 0]))
+  : {};
+function recallKeyFor(rootKey, subgroup, rel) {
+  // Mirror of recall-counter-track.mjs deriveKey() format: <kind>/<category>/<stem>
+  const stem = path.basename(rel, ".md");
+  const kind = rootKey === "mem" ? "memory" : "wiki";
+  return `${kind}/${subgroup}/${stem}`;
+}
+function recallSize(count) {
+  // Logarithmic scale so a single re-read doesn't double the dot, but a hot
+  // entry visibly grows. Base 0.35 (matches L10 default). Cap at ~1.5.
+  const c = Number.isFinite(count) ? Math.max(0, count) : 0;
+  return Math.min(1.5, 0.35 + Math.log10(c + 1) * 0.18);
+}
+
+const VAULT_SUBGROUP_COLORS = {
+  feedback: "#a855f7", reference: "#3b82f6", project: "#22c55e",
+  user: "#f59e0b", uncategorized: "#94a3b8", memories: "#a855f7",
+  _index: "#64748b", _root: "#64748b",
+  canonical: "#ec4899", lessons: "#facc15", consensus: "#06b6d4",
+  architecture: "#fb923c", entities: "#10b981", wiki: "#ec4899",
+};
+
+function vaultIdFor(rootKey, subgroup, rel) {
+  const stem = rel.replace(/\.md$/i, "").replace(/[\\/]/g, ".").toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "_");
+  return `vault.${rootKey}.${stem}`;
+}
+function normalizeWikiLabel(s) {
+  return s.toLowerCase()
+    .replace(/^(feedback|reference|project|user|mistake|mistakes|pattern|patterns|lesson|lessons|decision|decisions)_/, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+// Build [[wiki-link]] target index — keys are lowercased filename stems and normalized variants
+const vaultLabelMap = new Map();
+function emitVaultNodes(files, rootKey, defaultColor) {
+  for (const f of files) {
+    const id = vaultIdFor(rootKey, f.subgroup, f.rel);
+    const stem = path.basename(f.rel, ".md");
+    const label = stem.length > 32 ? stem.slice(0, 29) + "..." : stem;
+    const recall = recallByKey[recallKeyFor(rootKey, f.subgroup, f.rel)] ?? 0;
+    addNode({
+      id, layer: "L10", subgroup: f.subgroup,
+      label, color: VAULT_SUBGROUP_COLORS[f.subgroup] ?? defaultColor,
+      status: "built", size: recallSize(recall),
+      info: `${rootKey}/${f.subgroup}/${stem}${recall > 0 ? ` · ${recall} recall(s)` : ""}`,
+      recall,
+    });
+    const lower = stem.toLowerCase();
+    if (!vaultLabelMap.has(lower)) vaultLabelMap.set(lower, id);
+    const norm = normalizeWikiLabel(stem);
+    if (norm && !vaultLabelMap.has(norm)) vaultLabelMap.set(norm, id);
+  }
+}
+emitVaultNodes(vaultMemory, "mem", "#a855f7");
+emitVaultNodes(vaultWiki, "wiki", "#ec4899");
+
+const WIKI_LINK_RE = /\[\[([^\]|]+?)(?:\|[^\]]*)?\]\]/g;
+let wikiLinkEdgeCount = 0;
+let wikiLinkBrokenCount = 0;
+function mineWikiLinks(files, rootKey) {
+  for (const f of files) {
+    let body;
+    try { body = fs.readFileSync(f.full, "utf8"); } catch { continue; }
+    const fromId = vaultIdFor(rootKey, f.subgroup, f.rel);
+    const seen = new Set();
+    let m;
+    while ((m = WIKI_LINK_RE.exec(body)) !== null) {
+      const raw = m[1].trim();
+      const target = vaultLabelMap.get(raw.toLowerCase())
+        ?? vaultLabelMap.get(normalizeWikiLabel(raw));
+      if (!target) { wikiLinkBrokenCount++; continue; }
+      if (target === fromId || seen.has(target)) continue;
+      seen.add(target);
+      addEdge(fromId, target, "wiki_link", "active", 0.5);
+      wikiLinkEdgeCount++;
+    }
+  }
+}
+mineWikiLinks(vaultMemory, "mem");
+mineWikiLinks(vaultWiki, "wiki");
+
+// L8 category buckets contain the individual L10 files
+for (const f of vaultMemory) {
+  const childId = vaultIdFor("mem", f.subgroup, f.rel);
+  const catId = `mem.${f.subgroup}`;
+  if (nodes.find(n => n.id === catId)) addEdge(catId, childId, "contains", "active", 0.2);
+}
+for (const f of vaultWiki) {
+  const childId = vaultIdFor("wiki", f.subgroup, f.rel);
+  const catId = `wiki.${f.subgroup}`;
+  if (nodes.find(n => n.id === catId)) addEdge(catId, childId, "contains", "active", 0.2);
+}
+
+// ---------- EDGES ----------
+// L0 -> L1
+for (const p of personas) {
+  const id = `p.${p.label.toLowerCase()}`;
+  // each persona reaches the most-relevant page clusters
+  const pmap = {
+    operator:   ["fe.pages.shopfloor","fe.pages.quality","fe.pages.hr_safety","fe.pages.specialty"],
+    programmer: ["fe.pages.cam","fe.pages.cad_calc","fe.pages.lathe","fe.pages.mill","fe.pages.wedm","fe.web"],
+    quoter:     ["fe.pages.quoting","fe.pages.erp","fe.pages.specialty"],
+    boss:       ["fe.pages.analytics","fe.pages.erp","fe.pages.quality"],
+    admin:      ["fe.pages.admin","fe.pages.learning"],
+  };
+  for (const t of (pmap[p.label.toLowerCase()] ?? [])) {
+    addEdge(id, t, "uses", "active", 0.5);
+  }
+  // every persona hits the main web app
+  addEdge(id, "fe.web", "uses", "active", 0.7);
+}
+
+// L1 -> L2
+for (const v of feVariants) {
+  const status = v.status === "pending_merge" ? "pending" : "active";
+  addEdge(v.id, "tr.mcp", "http", status, 0.8);
+  if (v.id === "fe.cli") addEdge(v.id, "tr.mcp", "stdio", "active", 1.0);
+  addEdge(v.id, "tr.ws", "ws", status, 0.4);
+}
+// page clusters all flow through MCP via REST
+for (const k of Object.keys(pageClusters)) {
+  addEdge(`fe.pages.${k}`, "tr.rest", "http", "active", 0.5);
+  addEdge(`fe.pages.${k}`, "fe.web", "embedded", "active", 0.4);
+}
+// Transport internal
+addEdge("tr.rest","tr.mcp","internal","active",0.7);
+addEdge("tr.grpc","tr.mcp","internal","active",0.4);
+addEdge("tr.gql","tr.mcp","internal","active",0.4);
+addEdge("tr.ws","tr.mcp","internal","active",0.6);
+addEdge("tr.auth","tr.mcp","gate","active",0.7);
+addEdge("tr.rate","tr.mcp","gate","active",0.5);
+addEdge("tr.tele","tr.mcp","observe","active",0.4);
+
+// L2 -> L3 (MCP routes through Tier-1 Claude for natural language; Tier-1 fans to T2/T3)
+addEdge("tr.mcp", "ai.t1.claude", "intent", "active", 0.9);
+addEdge("ai.t1.claude", "ai.t2.coordinator", "delegate", "active", 0.8);
+for (const t3 of ["mill","lathe","wedm","cad","cam","safety","quality"]) {
+  addEdge("ai.t2.coordinator", `ai.t3.${t3}`, "delegate", "active", 0.6);
+}
+// Ollama models receive offloaded work from Claude
+for (const o of ["qwen","llama","embed","reflect"]) {
+  addEdge("ai.t1.claude", `ai.ollama.${o}`, "offload", "active", 0.4);
+}
+
+// L3 -> L4 (each Tier-3 specialist routes to its dispatcher cluster)
+const t3map = {
+  mill:    ["disp.milldispatcher","disp.machininggkbdispatcher"],
+  lathe:   ["disp.turningdispatcher","disp.turningprogramdispatcher"],
+  wedm:    ["disp.edmdispatcher"],
+  cad:     ["disp.caddispatcher","disp.cadautomationdispatcher"],
+  cam:     ["disp.camdispatcher","disp.camfunctiondispatcher","disp.toolpathdispatcher"],
+  safety:  ["disp.safetydispatcher","disp.omegadispatcher","disp.guarddispatcher","disp.validationdispatcher"],
+  quality: ["disp.qualitydispatcher"],
+};
+for (const [t3, ds] of Object.entries(t3map)) {
+  for (const d of ds) {
+    if (nodes.find(n => n.id === d)) addEdge(`ai.t3.${t3}`, d, "route", "active", 0.7);
+  }
+}
+// every dispatcher pulls from MCP transport too (auth check)
+for (const d of dispatcherNodes) {
+  addEdge("tr.mcp", d.id, "register", "active", 0.2);
+}
+
+// L4 -> L5 (dispatcher → engine domain — heuristic mapping)
+function dispatcherToDomains(name) {
+  const n = name.toLowerCase();
+  const d = [];
+  if (/mill/.test(n)) d.push("mill");
+  if (/lathe|turning/.test(n)) d.push("lathe","turning");
+  if (/cad/.test(n)) d.push("cad");
+  if (/cam|toolpath/.test(n)) d.push("cam","toolpath","tool");
+  if (/edm|wedm/.test(n)) d.push("wedm");
+  if (/safety|omega|guard|validation/.test(n)) d.push("safety");
+  if (/quality/.test(n)) d.push("quality");
+  if (/cost|business/.test(n)) d.push("cost","erp");
+  if (/material/.test(n)) d.push("material");
+  if (/adaptive/.test(n)) d.push("adaptive");
+  if (/memory/.test(n)) d.push("memory");
+  if (/hook|nlhook/.test(n)) d.push("hook");
+  if (/probe/.test(n)) d.push("probe");
+  if (/knowledge/.test(n)) d.push("knowledge");
+  if (/session/.test(n)) d.push("session");
+  if (/calibration/.test(n)) d.push("calibration");
+  if (/^ai/.test(n)) d.push("ai");
+  if (/twin/.test(n)) d.push("twin");
+  if (/forge/.test(n)) d.push("forge");
+  if (/network/.test(n)) d.push("network");
+  if (/inspect|feasibility/.test(n)) d.push("inspect");
+  if (/calc|physics|vibration|fluid|forming|welding|mechanical/.test(n)) d.push("physics");
+  return d;
+}
+for (const d of dispatcherNodes) {
+  const doms = dispatcherToDomains(d.id);
+  for (const dom of doms) {
+    const target = nodes.find(n => n.id === `eng.${dom}`);
+    if (target) addEdge(d.id, target.id, "lazy_import", "active", 0.4);
+  }
+}
+
+// L5 -> L6 (engines depend on cores)
+const allEngineDomNodes = nodes.filter(n => n.layer === "L5");
+for (const e of allEngineDomNodes) {
+  addEdge(e.id, "core.tests",     "tested_by",  "active", 0.3);
+  addEdge(e.id, "core.physics",   "import",     "active", 0.5);
+  addEdge(e.id, "core.formulas",  "use",        "active", 0.4);
+  addEdge(e.id, "core.algos",     "use",        "active", 0.3);
+  addEdge(e.id, "core.schemas",   "validate",   "active", 0.3);
+  addEdge(e.id, "core.hooks_src", "fire",       "active", 0.3);
+}
+
+// L6 -> L7 (cores read registries)
+addEdge("core.physics", "reg.materialregistry", "read", "active", 0.6);
+addEdge("core.formulas", "reg.formularegistry", "read", "active", 0.6);
+addEdge("core.algos", "reg.algorithmregistry", "read", "active", 0.5);
+for (const r of registryFiles) {
+  const rid = `reg.${r.replace(".ts","").toLowerCase()}`;
+  if (nodes.find(n => n.id === rid)) {
+    addEdge("core.schemas", rid, "validate", "active", 0.2);
+  }
+}
+
+// L7 -> L8 (registries persist to wiki/state)
+const regNodes = nodes.filter(n => n.layer === "L7");
+for (const r of regNodes) {
+  addEdge(r.id, "kn.shared", "persist", "active", 0.2);
+}
+addEdge("reg.materialregistry", "kn.jmdie", "reference", "active", 0.5);
+addEdge("reg.toolregistry", "kn.jmdie", "reference", "active", 0.5);
+addEdge("reg.machineregistry", "kn.jmdie", "reference", "active", 0.5);
+
+// L8 -> L9 (knowledge persists to filesystem)
+for (const w of wikiDirs) addEdge(`wiki.${w}`, "fs.knowledge", "fs", "active", 0.3);
+for (const m of memoryDirs) addEdge(`mem.${m}`, "fs.knowledge", "fs", "active", 0.3);
+for (const s of stateSubdirs) addEdge(`state.${s}`, "fs.state", "fs", "active", 0.3);
+addEdge("kn.jmdie", "fs.jm_die", "fs", "active", 0.7);
+
+// ---------- ATOMIC-TIER assignment (build order 0=foundation -> 6=user) ----------
+// The atomic-first principle: build deepest first, layers above depend on layers below.
+// Tier 0 = physics constants, formulas, algorithms — pure data + math, no deps
+// Tier 1 = engines (consume cores)
+// Tier 2 = dispatchers + AI hierarchy (consume engines)
+// Tier 3 = transport (consumes dispatchers)
+// Tier 4 = frontend (consumes transport)
+// Tier 5 = personas (consume frontend)
+const TIER_BY_LAYER = {
+  L10: 0,                        // vault files — atomic content, deepest knowledge layer
+  L9: 0, L8: 0, L7: 0, L6: 0,   // filesystem + state + registries + cores all "atomic foundation"
+  L5: 1,                         // engines
+  L4: 2, L3: 2,                  // dispatchers + AI hierarchy
+  L2: 3,                         // transport
+  L1: 4,                         // frontend
+  L0: 5,                         // personas
+};
+for (const n of nodes) {
+  n.tier = TIER_BY_LAYER[n.layer] ?? 1;
+}
+
+// ---------- WIRING SUGGESTIONS for unwired engine domains ----------
+// For each unwired domain, propose 1-3 dispatcher candidates by name pattern.
+function suggestDispatchersForDomain(domain) {
+  const d = domain.toLowerCase();
+  const candidates = [];
+  for (const dispNode of dispatcherNodes) {
+    const dn = dispNode.id.replace("disp.","").toLowerCase();
+    if (dn.includes(d) || d.includes(dn.replace("dispatcher",""))) {
+      candidates.push(dispNode.id);
+    }
+  }
+  // Domain-specific fallbacks
+  const fallbacks = {
+    other:    ["disp.algorithmdispatcher","disp.intelligencedispatcher","disp.contextdispatcher"],
+    lathe:    ["disp.turningdispatcher","disp.turningprogramdispatcher"],
+    machine:  ["disp.machinelivedispatcher","disp.machinesetupdispatcher"],
+    multi:    ["disp.multiopdispatcher","disp.multiaxisprogramdispatcher"],
+    turning:  ["disp.turningdispatcher","disp.turningprogramdispatcher"],
+    tool:     ["disp.toolpathdispatcher","disp.machininggkbdispatcher"],
+    five:     ["disp.fiveaxisdispatcher","disp.multiaxisprogramdispatcher"],
+    shop:     ["disp.shoppracticedispatcher","disp.businessdispatcher"],
+    hyper:    ["disp.camdispatcher","disp.camfunctiondispatcher"],
+    milling:  ["disp.milldispatcher","disp.machininggkbdispatcher"],
+    fusion:   ["disp.cadautomationdispatcher","disp.caddispatcher"],
+    wet:      ["disp.diagnosisdispatcher","disp.feasibilitydispatcher"],
+    session:  ["disp.sessiondispatcher","disp.contextdispatcher"],
+    process:  ["disp.processcontroldispatcher","disp.adaptivecontroldispatcher"],
+    print:    ["disp.documentdispatcher","disp.documentlearningdispatcher"],
+    swiss:    ["disp.turningdispatcher","disp.cncopsdispatcher"],
+  };
+  if (fallbacks[d]) {
+    for (const fb of fallbacks[d]) {
+      if (!candidates.includes(fb) && nodes.find(n => n.id === fb)) candidates.push(fb);
+    }
+  }
+  return candidates.slice(0, 3);
+}
+
+// Annotate each unwired L5 node with suggestions and emit "phantom" edges
+const suggestionEdges = [];
+for (const n of nodes.filter(x => x.layer === "L5" && x.subgroup === "unwired")) {
+  const targets = suggestDispatchersForDomain(n.domain ?? n.label.split('\n')[0]);
+  n.suggestedDispatchers = targets;
+  // Compute "unlocks" cascade: how many engines wire-up + downstream gain
+  n.unlocks = {
+    engines: n.count ?? 0,
+    dispatchersGain: targets.length,
+    downstreamHops: 2, // engines -> dispatchers -> frontends
+    leverageScore: (n.count ?? 0) * targets.length, // simple ROI proxy
+  };
+  for (const t of targets) {
+    suggestionEdges.push({ from: n.id, to: t, type: "suggested_wire", status: "phantom", intensity: 0.5 });
+  }
+}
+
+// ---------- BUILD-ORDER ROADMAP (atomic-first) ----------
+const roadmap = {
+  principle: "Build atomic-first. Tier 0 (cores/data) → Tier 1 (engines) → Tier 2 (dispatchers/AI) → Tier 3 (transport) → Tier 4 (frontend) → Tier 5 (users). Never start higher tier work that depends on missing lower-tier blocks.",
+  // Phase 0 — drift fix (envelope/git mismatches block planning visibility)
+  phases: [
+    {
+      phase: 0,
+      name: "Reality reconciliation",
+      reason: "Fix milestone envelope drift so planning has accurate ground truth.",
+      items: [
+        { kind: "drift", count: drift, action: "Run /envelope-sync, accept proposed status flips" },
+      ],
+    },
+    {
+      phase: 1,
+      name: "Atomic foundation gaps (Tier 0)",
+      reason: "Cores, registries, schemas, formulas — no upstream deps; everything builds on these.",
+      items: nodes.filter(n => n.tier === 0 && n.status !== "built").map(n => ({
+        kind: "atomic", id: n.id, label: n.label.split('\n')[0],
+      })),
+    },
+    {
+      phase: 2,
+      name: "Engine wire-up (Tier 1, highest leverage)",
+      reason: "898 unwired engines = 28% of code orphaned. Wiring is cheap, capability gain is huge.",
+      items: nodes.filter(n => n.layer === "L5" && n.subgroup === "unwired")
+        .sort((a, b) => (b.unlocks?.leverageScore ?? 0) - (a.unlocks?.leverageScore ?? 0))
+        .slice(0, 10)
+        .map(n => ({
+          kind: "wire-up",
+          domain: n.domain,
+          engineCount: n.count,
+          suggestedDispatchers: n.suggestedDispatchers,
+          leverageScore: n.unlocks.leverageScore,
+        })),
+    },
+    {
+      phase: 3,
+      name: "Pending frontend merge (Tier 4)",
+      reason: "Already-built UI work waiting; merging unlocks features without writing new code.",
+      items: nodes.filter(n => n.status === "pending_merge").map(n => ({
+        kind: "frontend-merge", id: n.id, label: n.label.split('\n')[0], stack: n.stack,
+      })),
+    },
+    {
+      phase: 4,
+      name: "New build (only after 1-3 stable)",
+      reason: "Don't add new engines/pages while 28% of existing engines are unwired. YAGNI.",
+      items: [{ kind: "policy", note: "Defer net-new feature work until Phase 1-3 are < 10% gap" }],
+    },
+  ],
+};
+
+// ---------- output ----------
+const meta = {
+  counts,
+  headline: { built, unwired, pendingFE, drift, wikiEntries },
+  dispatcherCatCount,
+  pageClusters,
+  totals: { nodes: nodes.length, edges: edges.length + suggestionEdges.length, layers: 11 },
+  vault: { memories: vaultMemory.length, wiki: vaultWiki.length, wikiLinkEdges: wikiLinkEdgeCount, brokenWikiLinks: wikiLinkBrokenCount },
+  roadmap,
+};
+const layers = [
+  { id: "L0", name: "User Personas",      y:  9.0, color: "#fde68a" },
+  { id: "L1", name: "Frontend",           y:  7.0, color: "#7dd3fc" },
+  { id: "L2", name: "Transport / API",    y:  5.0, color: "#a78bfa" },
+  { id: "L3", name: "AI Hierarchy",       y:  3.0, color: "#22d3ee" },
+  { id: "L4", name: "Dispatchers (97)",   y:  1.0, color: "#34d399" },
+  { id: "L5", name: "Engine Domains",     y: -1.0, color: "#fbbf24" },
+  { id: "L6", name: "Cores",              y: -3.0, color: "#fb923c" },
+  { id: "L7", name: "Registries",         y: -5.0, color: "#f97316" },
+  { id: "L8", name: "State / Wiki / Knowledge", y: -7.0, color: "#ec4899" },
+  { id: "L9", name: "Filesystem",         y: -9.0, color: "#94a3b8" },
+  { id: "L10", name: `Vault (${vaultMemory.length} mem + ${vaultWiki.length} wiki)`, y: -11.0, color: "#a855f7" },
+];
+const out = {
+  schemaVersion: "2.1.0",
+  generatedAt: new Date().toISOString(),
+  meta,
+  layers,
+  nodes,
+  edges: [...edges, ...suggestionEdges],
+};
+fs.mkdirSync(OUT_DIR, { recursive: true });
+fs.writeFileSync(OUT_FILE, JSON.stringify(out, null, 2));
+console.log(`generated: ${OUT_FILE}`);
+console.log(`  layers: ${layers.length}  nodes: ${nodes.length}  edges: ${edges.length + suggestionEdges.length}  (incl ${suggestionEdges.length} phantom suggestion edges)`);
+console.log(`  built engines: ${built}/${counts.engines} (${Math.round(100*built/counts.engines)}%)`);
+console.log(`  dispatchers wired: ${dispatcherFiles.length} files`);
+console.log(`  vault: ${vaultMemory.length} memories + ${vaultWiki.length} wiki = ${vaultMemory.length + vaultWiki.length} L10 nodes; ${wikiLinkEdgeCount} [[wiki-link]] edges (${wikiLinkBrokenCount} broken refs)`);
+console.log(`  roadmap phases: ${roadmap.phases.length}; phase 2 wire-up candidates: ${roadmap.phases[2].items.length}`);
