@@ -49,6 +49,7 @@ const FAST = [
   "generate-algorithms-atomic.mjs",
   "generate-transport-expand.mjs",
   "generate-ai-tier-expand.mjs",
+  "generate-actions-atomic.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",

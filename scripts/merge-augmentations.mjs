@@ -98,6 +98,7 @@ const schemasAtomic  = loadOptional("schemas-atomic-augmentation.json");
 const algosAtomic    = loadOptional("algorithms-atomic-augmentation.json");
 const transportExp   = loadOptional("transport-expand-augmentation.json");
 const aiTierExp      = loadOptional("ai-tier-expand-augmentation.json");
+const actionsAtomic  = loadOptional("actions-atomic-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -137,6 +138,7 @@ if (schemasAtomic)   versions.schemasAtomic   = schemasAtomic.generatedAt   ?? "
 if (algosAtomic)     versions.algosAtomic     = algosAtomic.generatedAt     ?? "present";
 if (transportExp)    versions.transportExp    = transportExp.generatedAt    ?? "present";
 if (aiTierExp)       versions.aiTierExp       = aiTierExp.generatedAt       ?? "present";
+if (actionsAtomic)   versions.actionsAtomic   = actionsAtomic.generatedAt   ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -1138,6 +1140,32 @@ if (aiTierExp?.newNodes) {
   };
 }
 
+// Actions atomic: drill every dispatcher's switch-case action enum into atomic
+// L4a nodes parented under their dispatcher. ~9k action nodes — every callable
+// surface in the system now has its own node.
+let actionNodes = 0, actionEdges = 0;
+if (actionsAtomic?.newNodes) {
+  for (const node of actionsAtomic.newNodes) {
+    if (byId.has(node.id)) continue;
+    addNodeIndexed(node);
+    actionNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (actionsAtomic.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    actionEdges++;
+  }
+  G.meta.actionsAtomic = {
+    generatedAt: actionsAtomic.generatedAt,
+    stats: actionsAtomic.stats,
+  };
+}
+
 // Ghost summary — quick HUD signal of total ghost surface.
 {
   let ghostNodes = 0, ghostEdges = 0;
@@ -1147,10 +1175,10 @@ if (aiTierExp?.newNodes) {
 }
 
 G.meta.augmentationVersions = versions;
-G.schemaVersion = "2.22.0";
+G.schemaVersion = "2.23.0";
 
 fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
-console.log(`  schema bumped to 2.22.0`);
+console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+console.log(`  schema bumped to 2.23.0`);
