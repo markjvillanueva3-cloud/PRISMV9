@@ -108,6 +108,9 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_reward_audit: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
   xproc_reward_default_weights: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
   xproc_reward_constants: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN05 — KG semantic-search → NN feature projector
+  xproc_kg_project_features: () => import("../../engines/KnowledgeGraphFeatureProjectorEngine.js").then(m => m.knowledgeGraphFeatureProjectorDispatch),
+  xproc_kg_feature_layout: () => import("../../engines/KnowledgeGraphFeatureProjectorEngine.js").then(m => m.knowledgeGraphFeatureProjectorDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
   xproc_tribal_subscribe_outcomes: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
   xproc_tribal_unsubscribe_outcomes: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
@@ -1739,6 +1742,9 @@ export async function executeAIReasoningAction(
       case "xproc_reward_constants":
       // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer
       case "xproc_neural_consult_speedfeed":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN05 — KG semantic-search → NN feature projector
+      case "xproc_kg_project_features":
+      case "xproc_kg_feature_layout":
       // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
       case "xproc_tribal_subscribe_outcomes":
       case "xproc_tribal_unsubscribe_outcomes":

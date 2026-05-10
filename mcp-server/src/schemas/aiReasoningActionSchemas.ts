@@ -215,6 +215,9 @@ export const AI_REASONING_ACTIONS = [
   "xproc_reward_constants",
   // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer (gated emit)
   "xproc_neural_consult_speedfeed",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN05 — KG semantic-search → NN feature projector
+  "xproc_kg_project_features",
+  "xproc_kg_feature_layout",
   // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
   "xproc_tribal_subscribe_outcomes",
   "xproc_tribal_unsubscribe_outcomes",
@@ -1476,6 +1479,24 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     reviewThreshold: z.number().min(0).max(1).finite().optional().describe("Confidence at/above which the recommendation enters review band (default 0.4)"),
   }).passthrough().describe(
     "U-CN02: Consult NN before SF emit. Returns {ok, gateDecision: 'pass'|'review'|'block'|'unavailable', confidence, predictedClass, passThreshold, reviewThreshold, reason}. Calibrated confidence (post U-NN-OPT-A temperature scaling) is the operative signal.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN05 — KG semantic-search → NN feature projector
+  xproc_kg_project_features: z.object({
+    record: z.object({
+      process: z.string().optional(),
+      request_summary: z.record(z.string(), z.unknown()).optional(),
+    }).passthrough().describe("OutcomeRecord-shape input — process + request_summary text fields are joined into the search query"),
+    limit: z.number().int().min(1).max(100).optional().describe("Max KG search results to fold into features (default 10)"),
+    types: z.array(z.enum([
+      "knowledge_atom", "tribal_tip", "reasoning_chain", "graph_node",
+      "material", "tool", "machine", "strategy",
+    ])).optional().describe("Restrict search to these entity types"),
+    minSimilarity: z.number().min(0).max(1).optional().describe("Drop results below this similarity threshold"),
+  }).passthrough().describe(
+    "U-CN05: Project an OutcomeRecord into a fixed 8-dim feature vector via KG semantic search. Returns {ok, features:number[8], dimension:8, result_count, query, warnings}.",
+  ),
+  xproc_kg_feature_layout: z.object({}).passthrough().describe(
+    "U-CN05: Read the 8-slot feature layout schema (slot index, name, description). Useful for downstream consumers wiring this projector's output into their own feature pipelines.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
   xproc_tribal_subscribe_outcomes: z.object({}).passthrough().describe(
