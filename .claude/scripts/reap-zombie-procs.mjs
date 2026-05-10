@@ -50,8 +50,6 @@ const THRESHOLD_MIN = (() => {
 const REAP_PATTERNS = [
   { id: "context7-mcp",        re: /@upstash[/\\]context7-mcp/i,            reason: "MCP server orphaned by closed chat" },
   { id: "playwright-mcp",      re: /@playwright[/\\]mcp/i,                  reason: "MCP server orphaned by closed chat" },
-  { id: "mcp-http-bridge",     re: /mcp-http-bridge\.mjs/i,                  reason: "HTTP bridge for closed chat" },
-  { id: "observability-drain", re: /unified-observability-drain\.mjs.*--watch/i, reason: "Watcher for closed chat" },
   { id: "typingsInstaller",    re: /typingsInstaller\.js/i,                  reason: "Auto-respawned by tsserver — safe to kill" },
   { id: "ts-lang-server",      re: /typescript-language-server[/\\]lib[/\\]cli\.mjs/i, reason: "LSP for closed chat" },
 ];
@@ -61,6 +59,8 @@ const WHITELIST = [
   { id: "tsserver",            re: /tsserver\.js/i,                          reason: "TypeScript LSP — active editor backing" },
   { id: "dashboard-serve",     re: /dashboard-serve\.mjs/i,                  reason: "PRISM dashboard daemon" },
   { id: "system-viz-on-commit",re: /system-viz-on-commit\.mjs/i,             reason: "Active commit-chain (PID-guarded)" },
+  { id: "observability-drain", re: /unified-observability-drain\.mjs/i,      reason: "PRISM observability daemon (intentional long-lived)" },
+  { id: "mcp-http-bridge",     re: /mcp-http-bridge\.mjs/i,                  reason: "PRISM MCP HTTP bridge (long-lived service)" },
   { id: "self",                re: /reap-zombie-procs\.mjs/i,                reason: "Self" },
 ];
 
@@ -81,8 +81,11 @@ function powershellJson(script) {
   }
 }
 
+// Probe node.exe + bash.exe + powershell.exe in one WMI sweep. Each tool
+// call from a chat spawns shells that should die when the command finishes
+// but don't always. 6-chat × N tool calls = accumulating idle shells.
 const procs = powershellJson(
-  "Get-WmiObject Win32_Process -Filter \"Name='node.exe'\" | Select-Object ProcessId,ParentProcessId,CommandLine,@{N='Created';E={$_.ConvertToDateTime($_.CreationDate)}}",
+  "Get-WmiObject Win32_Process -Filter \"Name='node.exe' OR Name='bash.exe' OR Name='powershell.exe'\" | Select-Object Name,ProcessId,ParentProcessId,CommandLine,@{N='Created';E={$_.ConvertToDateTime($_.CreationDate)}}",
 );
 if (procs._error) {
   console.error(`reap-zombie-procs: ${procs._error}`);
@@ -100,15 +103,31 @@ function categorize(p) {
   const pid = parseInt(p.ProcessId, 10);
   const parentPid = parseInt(p.ParentProcessId, 10);
   const cmd = p.CommandLine || "";
+  const name = (p.Name || "").toLowerCase();
   const created = p.Created ? new Date(p.Created).getTime() : null;
   const ageMs = created ? now - created : null;
   const ageMin = ageMs != null ? Math.round(ageMs / 60000) : null;
   const parentAlive = livePids.has(parentPid);
 
+  function summary() {
+    return { name, pid, parentPid, ageMin, parentAlive, cmd: cmd.slice(0, 140) };
+  }
+
   for (const w of WHITELIST) if (w.re.test(cmd)) return { ...summary(), category: "protected", whitelist: w.id, reason: w.reason };
 
   if (parentAlive) return { ...summary(), category: "active", reason: `parent ${parentPid} alive` };
 
+  // For bash.exe and powershell.exe, parent-dead + any age > threshold is
+  // sufficient. These are tool-call shells that should always exit when
+  // their command completes; an orphan means the harness leaked it.
+  if (name === "bash.exe" || name === "powershell.exe") {
+    if (ageMin != null && ageMin < THRESHOLD_MIN) {
+      return { ...summary(), category: "young-orphan", patternId: name, reason: `orphan ${name} but only ${ageMin}m old (<${THRESHOLD_MIN})` };
+    }
+    return { ...summary(), category: "reapable", patternId: name, reason: `orphan ${name} (parent dead) — leaked tool-call shell` };
+  }
+
+  // node.exe — match against known leaky patterns
   for (const r of REAP_PATTERNS) {
     if (r.re.test(cmd)) {
       if (ageMin != null && ageMin < THRESHOLD_MIN) {
@@ -118,10 +137,6 @@ function categorize(p) {
     }
   }
   return { ...summary(), category: "unmatched-orphan", reason: "orphan but cmdline doesn't match any reap pattern" };
-
-  function summary() {
-    return { pid, parentPid, ageMin, parentAlive, cmd: cmd.slice(0, 140) };
-  }
 }
 
 const categorized = (procs || []).map(categorize);
