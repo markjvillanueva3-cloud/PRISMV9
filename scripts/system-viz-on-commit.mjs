@@ -12,9 +12,16 @@
  *   1. generate-system-viz.mjs           — base graph from live PRISM state
  *   2. merge-augmentations.mjs           — fold in obsidian + awareness + novelty + business + spotlight + newlyBuilt
  *   3. detect-newly-built.mjs            — diff vs prev snapshot, emit newly-built.json
- *   4. merge-augmentations.mjs (round 2) — fold the freshly-detected newly-built.json back into the live graph
+ *   4. merge-augmentations.mjs (round 2) — fold THIS commit's newly-built.json back into the graph
  *
- * Idempotent. Safe to run repeatedly. Total runtime: ~2-3 seconds.
+ * Total runtime: ~100s (measured 2026-05-10). Round 4 alone takes ~91s
+ * re-running all 12 augmentation passes when only newly-built had changed.
+ *
+ * Round-4 skip (added 2026-05-10): the next commit's round-2 (step 2) folds
+ * the prior commit's newly-built.json automatically. Highlighting in the viz
+ * lags by 1 commit, which is acceptable for a refresh that fires every commit
+ * across 6 concurrent chats (the alternative is 91s × 6 contention per push
+ * cluster). To force the full chain, set FOLD_NEWLY_BUILT=1 in the env.
  */
 
 import { spawnSync } from "node:child_process";
@@ -88,7 +95,16 @@ if (ok && fs.existsSync(path.join(ROOT, "state/shared/system-viz/agent-findings/
 }
 if (ok) ok = run("merge augmentations",   node, ["scripts/merge-augmentations.mjs"]);
 if (ok) ok = run("detect newly-built",    node, ["scripts/detect-newly-built.mjs"]);
-if (ok) ok = run("merge newly-built back",node, ["scripts/merge-augmentations.mjs"]);
+// Round-4 (re-merge after detect) skipped in commit context by default —
+// it adds ~91s for an annotation that the NEXT commit's round-2 folds in
+// automatically. The 1-commit highlight lag is acceptable; the 91s × 6-chat
+// contention storm wasn't. Set FOLD_NEWLY_BUILT=1 to opt back into the
+// in-this-commit fold (manual /system-viz invocations should set it).
+if (ok && process.env.FOLD_NEWLY_BUILT === "1") {
+  ok = run("merge newly-built back",node, ["scripts/merge-augmentations.mjs"]);
+} else if (ok) {
+  console.log("✓ skipped round-4 fold (newly-built will be folded by next commit's round-2 pass; set FOLD_NEWLY_BUILT=1 to force)");
+}
 
 if (!ok) {
   console.error("\n⚠ chain incomplete — viz may be stale until next run");
