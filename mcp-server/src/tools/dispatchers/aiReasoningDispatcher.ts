@@ -125,6 +125,15 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_drift_configure: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
   xproc_drift_stats: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
   xproc_drift_bridge_reset: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN07 — replay/sampler outcome bridge
+  xproc_replay_bridge_subscribe: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_unsubscribe: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_status: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_configure: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_stats: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_sample_stratified: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_sample_prioritized: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  xproc_replay_bridge_reset: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1768,6 +1777,18 @@ export async function executeAIReasoningAction(
       case "xproc_drift_configure":
       case "xproc_drift_stats":
       case "xproc_drift_bridge_reset":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN07 — replay/sampler outcome bridge
+      // (all bridge_* actions namespaced to avoid colliding with the pre-existing
+      // xproc_replay_{add,sample,update_priority,stats,balanced_batch,
+      // default_clusters} actions on the underlying engines.)
+      case "xproc_replay_bridge_subscribe":
+      case "xproc_replay_bridge_unsubscribe":
+      case "xproc_replay_bridge_status":
+      case "xproc_replay_bridge_configure":
+      case "xproc_replay_bridge_stats":
+      case "xproc_replay_bridge_sample_stratified":
+      case "xproc_replay_bridge_sample_prioritized":
+      case "xproc_replay_bridge_reset":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":

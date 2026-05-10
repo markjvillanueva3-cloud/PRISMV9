@@ -234,6 +234,18 @@ export const AI_REASONING_ACTIONS = [
   "xproc_drift_configure",
   "xproc_drift_stats",
   "xproc_drift_bridge_reset",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN07 — replay/sampler outcome bridge
+  // (all bridge_* actions namespaced to avoid colliding with the
+  // pre-existing xproc_replay_{add,sample,update_priority,stats,
+  // balanced_batch,default_clusters} actions on the underlying engines.)
+  "xproc_replay_bridge_subscribe",
+  "xproc_replay_bridge_unsubscribe",
+  "xproc_replay_bridge_status",
+  "xproc_replay_bridge_configure",
+  "xproc_replay_bridge_stats",
+  "xproc_replay_bridge_sample_stratified",
+  "xproc_replay_bridge_sample_prioritized",
+  "xproc_replay_bridge_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1551,6 +1563,43 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ),
   xproc_drift_bridge_reset: z.object({}).passthrough().describe(
     "U-CN06: Reset bridge state (test-only — does NOT touch downstream drift detector / calibration monitor / concept-shift handler state). Distinct from xproc_drift_reset which resets the underlying CrossProcessDriftDetectorEngine.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN07 — replay/sampler outcome bridge
+  xproc_replay_bridge_subscribe: z.object({}).passthrough().describe(
+    "U-CN07: Subscribe replay+sampler bridge to FeedbackBus 'outcome.completed'. Each terminal outcome is fanned out to CrossProcessPrioritizedReplayEngine (add with derived tdError) AND a module-private ring buffer the bridge maintains for CrossProcessExperienceReplaySamplerEngine.stratifiedBatch(). Idempotent.",
+  ),
+  xproc_replay_bridge_unsubscribe: z.object({}).passthrough().describe(
+    "U-CN07: Detach the replay bridge outcome subscription. Idempotent.",
+  ),
+  xproc_replay_bridge_status: z.object({}).passthrough().describe(
+    "U-CN07: Introspect — is the bridge subscription currently live?",
+  ),
+  xproc_replay_bridge_configure: z.object({
+    errorPolicy: z.enum(["failure_only", "failure_or_override"]).optional().describe("How to derive tdError from outcome.kind. Default failure_only treats only outcome.kind='failure' as a model mistake."),
+    ringCapacity: z.number().int().min(1).max(100_000).optional().describe("Maximum episodes held in the bridge's ring buffer (FIFO; oldest overwritten on overflow). Default 1000."),
+  }).passthrough().describe(
+    "U-CN07: Update replay bridge config. Returns the validated effective config. Shrinking ringCapacity truncates the buffer to the most-recent N episodes.",
+  ),
+  xproc_replay_bridge_stats: z.object({}).passthrough().describe(
+    "U-CN07: Read bridge telemetry — totals (events, prioritized adds, ring adds, skips), per-engine failure counts, ring buffer size, current config.",
+  ),
+  xproc_replay_bridge_sample_stratified: z.object({
+    n: z.number().int().nonnegative().max(100_000).describe("Batch size requested."),
+    processWeights: z.record(z.string(), z.number().nonnegative()).optional().describe("Optional per-process target weight override."),
+    outcomeWeights: z.record(z.string(), z.number().nonnegative()).optional().describe("Optional per-outcome target weight override."),
+    materialClusters: z.record(z.string(), z.array(z.string())).optional().describe("Optional material-cluster override; defaults to ISO P/M/K/N/S clustering."),
+    shuffleResult: z.boolean().optional().describe("Shuffle final batch order (default true)."),
+  }).passthrough().describe(
+    "U-CN07: Sample a stratified batch from the bridge's ring buffer via CrossProcessExperienceReplaySamplerEngine.stratifiedBatch.",
+  ),
+  xproc_replay_bridge_sample_prioritized: z.object({
+    n: z.number().int().min(1).max(100_000).describe("Batch size requested."),
+    beta: z.number().min(0).max(1).optional().describe("Importance-sampling correction exponent. Default 0.4."),
+  }).passthrough().describe(
+    "U-CN07: Sample a priority-weighted batch from the underlying CrossProcessPrioritizedReplayEngine.sample.",
+  ),
+  xproc_replay_bridge_reset: z.object({}).passthrough().describe(
+    "U-CN07: Reset bridge state (test-only — does NOT touch downstream prioritized replay / sampler state). Distinct from xproc_replay_* actions which target the underlying engines.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({
