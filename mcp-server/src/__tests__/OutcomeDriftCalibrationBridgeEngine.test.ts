@@ -298,11 +298,11 @@ describe("OutcomeDriftCalibrationBridgeEngine — U-CN06", () => {
       expect(r.stats.config.errorPolicy).toBe("failure_only");
     });
 
-    it("xproc_drift_reset clears state", () => {
+    it("xproc_drift_bridge_reset clears state (namespaced to avoid colliding with detector's xproc_drift_reset)", () => {
       OutcomeDriftCalibrationBridgeEngine.__testHandle(makeCompletedEnvelope("failure"));
       const before = OutcomeDriftCalibrationBridgeEngine.stats();
       expect(before.total_events_seen).toBe(1);
-      const r = outcomeDriftCalibrationBridgeDispatch("xproc_drift_reset", {}) as { ok: boolean };
+      const r = outcomeDriftCalibrationBridgeDispatch("xproc_drift_bridge_reset", {}) as { ok: boolean };
       expect(r.ok).toBe(true);
       const after = OutcomeDriftCalibrationBridgeEngine.stats();
       expect(after.total_events_seen).toBe(0);
@@ -311,6 +311,16 @@ describe("OutcomeDriftCalibrationBridgeEngine — U-CN06", () => {
     it("rejects unknown action via default branch throw", () => {
       expect(() =>
         outcomeDriftCalibrationBridgeDispatch("xproc_drift_BOGUS", {}),
+      ).toThrow(/unknown action/);
+    });
+
+    it("regression: bridge wrapper rejects xproc_drift_reset (detector's namespace)", () => {
+      // xproc_drift_reset belongs to CrossProcessDriftDetectorEngine. The
+      // bridge wrapper must NOT silently accept it — otherwise the action
+      // would be doubly-claimed at the dispatcher level and routing depends
+      // on Map insertion order, which is fragile.
+      expect(() =>
+        outcomeDriftCalibrationBridgeDispatch("xproc_drift_reset", {}),
       ).toThrow(/unknown action/);
     });
   });

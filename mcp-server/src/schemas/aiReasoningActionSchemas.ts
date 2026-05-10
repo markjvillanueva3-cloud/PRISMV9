@@ -226,12 +226,14 @@ export const AI_REASONING_ACTIONS = [
   "xproc_tribal_outcome_stats",
   "xproc_tribal_outcome_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN06 — drift/calibration/concept-shift outcome bridge
+  // (xproc_drift_bridge_reset is namespaced to avoid collision with the
+  // pre-existing CrossProcessDriftDetectorEngine xproc_drift_reset action.)
   "xproc_drift_subscribe",
   "xproc_drift_unsubscribe",
   "xproc_drift_status",
   "xproc_drift_configure",
   "xproc_drift_stats",
-  "xproc_drift_reset",
+  "xproc_drift_bridge_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1547,8 +1549,8 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_drift_stats: z.object({}).passthrough().describe(
     "U-CN06: Read bridge telemetry — totals (events, drift observes, calibration records, retrain decisions), per-engine failure counts, last drift report, last recovery decision, current config.",
   ),
-  xproc_drift_reset: z.object({}).passthrough().describe(
-    "U-CN06: Reset bridge state (test-only — does NOT touch downstream drift detector / calibration monitor / concept-shift handler state).",
+  xproc_drift_bridge_reset: z.object({}).passthrough().describe(
+    "U-CN06: Reset bridge state (test-only — does NOT touch downstream drift detector / calibration monitor / concept-shift handler state). Distinct from xproc_drift_reset which resets the underlying CrossProcessDriftDetectorEngine.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({

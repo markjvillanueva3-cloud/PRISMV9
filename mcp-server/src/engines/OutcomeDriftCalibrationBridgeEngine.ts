@@ -336,7 +336,11 @@ export class OutcomeDriftCalibrationBridgeEngine {
     // mapping defined by OUTCOME_LABEL_INDEX (success=0, failure=1, override=2).
     // Default predicted set = "model expected non-failure" = {success, override}.
     try {
-      const actualLabel = OUTCOME_LABEL_INDEX[kind] ?? OUTCOME_LABEL_INDEX.success;
+      // VALID_TERMINAL_KINDS.has(kind) was already enforced above so kind is
+      // guaranteed to be a terminal label here, but TS does not narrow through
+      // a Set membership test; cast and fall back if a future enum widens.
+      const terminalKind = kind as "success" | "failure" | "operator_override";
+      const actualLabel = OUTCOME_LABEL_INDEX[terminalKind] ?? OUTCOME_LABEL_INDEX.success;
       const r = ConformalCalibrationMonitorEngine.record({
         predictedSet: DEFAULT_PREDICTED_SET,
         actualLabel,
@@ -445,7 +449,7 @@ export function outcomeDriftCalibrationBridgeDispatch(
       return OutcomeDriftCalibrationBridgeEngine.configure(params);
     case "xproc_drift_stats":
       return { ok: true, stats: OutcomeDriftCalibrationBridgeEngine.stats() };
-    case "xproc_drift_reset":
+    case "xproc_drift_bridge_reset":
       OutcomeDriftCalibrationBridgeEngine.reset();
       return { ok: true };
     default:
