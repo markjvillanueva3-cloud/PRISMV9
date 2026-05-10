@@ -629,7 +629,10 @@
             "Emission adds > 10ms to program generation"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/MillingPrintToProgramEngine.ts",
-          "description": "Reviewer 2 finding: zero PrintToProgram engines emit outcome events. Wire the mill side first (most data volume)."
+          "description": "Reviewer 2 finding: zero PrintToProgram engines emit outcome events. Wire the mill side first (most data volume).",
+          "status": "completed",
+          "shipped_sha": "e4127eb35e56c8a88c022d6c56166f386f838068",
+          "shipped_date": "2026-05-08T13:16:46-05:00"
         },
         {
           "id": "U-NN-LOOP05",
@@ -657,7 +660,10 @@
             "WEDMPrintToProgramEngine doesn't exist on this branch (verify via Glob)"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/WEDMPrintToProgramEngine.ts",
-          "description": "Reviewer 5 explicitly recommended WEDM as the MVP closed-loop pilot — most mature, JM Die has the data."
+          "description": "Reviewer 5 explicitly recommended WEDM as the MVP closed-loop pilot — most mature, JM Die has the data.",
+          "status": "completed",
+          "shipped_sha": "c0278d5e63a30684b039429ab0ad2c6ccfac9320",
+          "shipped_date": "2026-05-08T12:34:45-05:00"
         },
         {
           "id": "U-NN-LOOP06",
@@ -795,7 +801,10 @@
             "< 80% of JM Die lathe corpus parses cleanly (need broader dialect support)"
           ],
           "rollback_procedure": "git rm mcp-server/src/engines/JMDieNCCorpusParserEngine.ts",
-          "description": "Reviewer 1 documented that JM Die programs have parseable Mastercam/Okuma headers (`STEEL INCH - 1030 - 200 BHN`, `T010101`, `G96 S200`, `F.005`). Build the parser."
+          "description": "Reviewer 1 documented that JM Die programs have parseable Mastercam/Okuma headers (`STEEL INCH - 1030 - 200 BHN`, `T010101`, `G96 S200`, `F.005`). Build the parser.",
+          "status": "completed",
+          "shipped_sha": "a159f82db53c68dbf0b96e72a77b91207064c987",
+          "shipped_date": "2026-05-08T13:31:53-05:00"
         },
         {
           "id": "U-NN-DATA02",
@@ -822,7 +831,10 @@
             "Coverage plateau below 90%"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/JMDieNCCorpusParserEngine.ts",
-          "description": "Multi-dialect support unlocks the full 24,545-file corpus."
+          "description": "Multi-dialect support unlocks the full 24,545-file corpus.",
+          "status": "completed",
+          "shipped_sha": "fcce877915a15aab61b230b67ba2212c6834b796",
+          "shipped_date": "2026-05-08T14:44:10-05:00"
         },
         {
           "id": "U-NN-DATA03",
@@ -853,7 +865,10 @@
             "Real-corpus train accuracy is WORSE than synthetic (model overfits to JM Die's idiosyncrasies)"
           ],
           "rollback_procedure": "Truncate OutcomeStore.jsonl back to pre-ingest checkpoint",
-          "description": "The headline data win. 24,545 real programs become the training set. T1-02 stops being trained on synthetic and starts being trained on production."
+          "description": "The headline data win. 24,545 real programs become the training set. T1-02 stops being trained on synthetic and starts being trained on production.",
+          "status": "completed",
+          "shipped_sha": "ca34fffb7ce82f26da122b42b028754e44367be6",
+          "shipped_date": "2026-05-08T15:12:20-05:00"
         }
       ],
       "exit_gate": {
@@ -950,7 +965,10 @@
             "Adam doesn't outperform SGD on the synthetic dataset (suggests bug in second-moment update)"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
-          "description": "Reviewer 3 + Reviewer 5 both flagged. Adam is industry-standard for 2026."
+          "description": "Reviewer 3 + Reviewer 5 both flagged. Adam is industry-standard for 2026.",
+          "status": "completed",
+          "shipped_sha": "0659bafe25b92cd1ef8151a3f0d4ef07333d32ca",
+          "shipped_date": "2026-05-08T17:40:01-05:00"
         },
         {
           "id": "U-NN-ARCH02",
@@ -978,7 +996,10 @@
             "Early stopping always triggers at epoch ≤2 (suggests broken val_loss tracking)"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
-          "description": "Reviewers 3+4+5 all flagged. Modern training discipline."
+          "description": "Reviewers 3+4+5 all flagged. Modern training discipline.",
+          "status": "completed",
+          "shipped_sha": "06114e3ed5437b2fb8e424e70c97d87c9795dabb",
+          "shipped_date": "2026-05-08T17:57:17-05:00"
         },
         {
           "id": "U-NN-ARCH03",
@@ -1005,7 +1026,10 @@
             "Class weighting destabilizes training on synthetic (balanced) dataset"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
-          "description": "Reviewer 3 finding: failures and overrides are rare in real data. Without class weighting, the model collapses onto 'predict success'. Critical for real-corpus deployment."
+          "description": "Reviewer 3 finding: failures and overrides are rare in real data. Without class weighting, the model collapses onto 'predict success'. Critical for real-corpus deployment.",
+          "status": "completed",
+          "shipped_sha": "d435a443489dd9ecd9bc6ee194cb696ca9abccbc",
+          "shipped_date": "2026-05-08T18:08:35-05:00"
         },
         {
           "id": "U-NN-ARCH04",
@@ -1034,7 +1058,10 @@
             "Conformal coverage < 90% (calibration broken)"
           ],
           "rollback_procedure": "git checkout HEAD -- mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts",
-          "description": "Reviewer 5 flagged: 'Falkonry now ships conformal prediction'. PRISM has the engine but doesn't wire it. Wire it."
+          "description": "Reviewer 5 flagged: 'Falkonry now ships conformal prediction'. PRISM has the engine but doesn't wire it. Wire it.",
+          "status": "completed",
+          "shipped_sha": "9562eef9d15ac43a66f485a341c4847179e27b16",
+          "shipped_date": "2026-05-08T18:15:49-05:00"
         }
       ],
       "exit_gate": {
@@ -1121,7 +1148,10 @@
             "PER complexity bug: priority distribution doesn't match Schaul et al.'s expected shape"
           ],
           "rollback_procedure": "git checkout HEAD -- relevant engine files",
-          "description": "Reviewer 2 finding: T2 has zero production callers despite being the FIRST tier built after Tier 1. Wire it now."
+          "description": "Reviewer 2 finding: T2 has zero production callers despite being the FIRST tier built after Tier 1. Wire it now.",
+          "status": "completed",
+          "shipped_sha": "22e76f55bee4ca04f53e7f1109cbc257f8c18a78",
+          "shipped_date": "2026-05-08T19:56:14-05:00"
         },
         {
           "id": "U-NN-TIER02",
@@ -1149,7 +1179,10 @@
             "Drift detector flaps (frequent false-positive alerts)"
           ],
           "rollback_procedure": "git checkout HEAD -- relevant files",
-          "description": "Reviewer 5 flagged: 'no drift detection wired to retraining'. Wire it."
+          "description": "Reviewer 5 flagged: 'no drift detection wired to retraining'. Wire it.",
+          "status": "completed",
+          "shipped_sha": "d454eececca446366546888f787c91f174e46d4a",
+          "shipped_date": "2026-05-08T20:03:00-05:00"
         },
         {
           "id": "U-NN-TIER03",
@@ -1179,7 +1212,10 @@
             "Reward hacking: policy converges to a metric loophole (e.g., always-recommend-the-most-conservative-feed)"
           ],
           "rollback_procedure": "git checkout HEAD -- relevant files",
-          "description": "Reviewer 1: memory feedback never reaches RL. Reviewer 2: T4 has zero production callers. Wire both."
+          "description": "Reviewer 1: memory feedback never reaches RL. Reviewer 2: T4 has zero production callers. Wire both.",
+          "status": "completed",
+          "shipped_sha": "f70f8b496d88e0b261bf6c0686cd03a767d09383",
+          "shipped_date": "2026-05-09T22:32:19-05:00"
         },
         {
           "id": "U-NN-TIER04",
@@ -1210,7 +1246,10 @@
             "Enforcer over-clamps legitimate predictions (false-positive rate > 10%)"
           ],
           "rollback_procedure": "git checkout HEAD -- relevant files",
-          "description": "Reviewer 5 flagged: neuro-symbolic safety verification is PRISM's INNOVATIVE moat. But it has zero production callers. Wire it."
+          "description": "Reviewer 5 flagged: neuro-symbolic safety verification is PRISM's INNOVATIVE moat. But it has zero production callers. Wire it.",
+          "status": "completed",
+          "shipped_sha": "e7f1705093e03883a78364467032c6e3e420f73a",
+          "shipped_date": "2026-05-08T18:47:09-05:00"
         },
         {
           "id": "U-NN-TIER05",
@@ -1263,6 +1302,98 @@
         "new_skills": [],
         "available_to": []
       }
+    },
+    {
+      "id": "P7-OPT",
+      "title": "P7-OPT — Modern training optimizations",
+      "rationale": "Post-MS0 extension. Adds 4 widely-cited training-time optimizations to the closed-loop neural learner: temperature scaling for calibration (Guo 2017), LR warmup + cosine decay for stable convergence (Loshchilov & Hutter 2017), snapshot ensembles via cyclic LR for free ensembling (Huang 2017), and mixup tabular augmentation for vicinal regularization (Zhang 2018). Each is a separate dispatcher action surface so callers can A/B-test independently.",
+      "knowledge_sources": [
+        "research papers — see commit messages for citations"
+      ],
+      "units": [
+        {
+          "id": "U-NN-OPT-A",
+          "title": "Temperature scaling calibration (Guo et al. 2017)",
+          "effort_min": 60,
+          "dependencies": [
+            "U-NN-FIX01",
+            "U-NN-FIX02"
+          ],
+          "files_modified": [
+            "mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"
+          ],
+          "exit_conditions": [
+            "post-hoc T fit via golden-section on log(T)",
+            "predict() uses calibrated T",
+            "13 tests pass"
+          ],
+          "status": "completed",
+          "shipped_sha": "f82776164a09a19fc547511bd1724327f17c81d0",
+          "shipped_date": "2026-05-08T23:35:23-05:00"
+        },
+        {
+          "id": "U-NN-OPT-B",
+          "title": "LR warmup + cosine decay schedule (Loshchilov & Hutter 2017)",
+          "effort_min": 90,
+          "dependencies": [
+            "U-NN-OPT-A"
+          ],
+          "files_modified": [
+            "mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"
+          ],
+          "exit_conditions": [
+            "linear warmup → cosine decay schedule on engine state or per-call",
+            "lrPerEpoch in TrainResult matches expected shape",
+            "33 tests pass"
+          ],
+          "status": "completed",
+          "shipped_sha": "6fdb77668952a42a25a1060c89d590678b744c57",
+          "shipped_date": "2026-05-09T14:58:12-05:00"
+        },
+        {
+          "id": "U-NN-OPT-C",
+          "title": "Snapshot ensembles via cyclic LR (Huang et al. 2017)",
+          "effort_min": 120,
+          "dependencies": [
+            "U-NN-OPT-B"
+          ],
+          "files_modified": [
+            "mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"
+          ],
+          "exit_conditions": [
+            "M cosine cycles, snapshot at each cycle minimum",
+            "predictEnsemble averages softmax across snapshots",
+            "overrides opts.lrSchedule + persistent lrSchedule",
+            "45 tests pass"
+          ],
+          "status": "completed",
+          "shipped_sha": "547af505b0430e06fb2c9c6e63ed27e77064b57f",
+          "shipped_date": "2026-05-09T20:23:07-05:00"
+        },
+        {
+          "id": "U-NN-OPT-D",
+          "title": "Mixup tabular augmentation (Zhang et al. 2018)",
+          "effort_min": 120,
+          "dependencies": [
+            "U-NN-OPT-A"
+          ],
+          "files_modified": [
+            "mcp-server/src/engines/CrossProcessNeuralLearningEngine.ts"
+          ],
+          "exit_conditions": [
+            "Beta(α, α) sampler via Marsaglia-Tsang Gamma trick",
+            "stepBatchMixup with soft targets",
+            "mixup OR ensemble (ensemble wins)",
+            "mixup actually changes training trajectory vs baseline",
+            "discovered + fixed lrOverride bug in stepBatch",
+            "25 tests pass"
+          ],
+          "status": "completed",
+          "shipped_sha": "a5f88f5322f709b3d958a715b335270b330f5d0e",
+          "shipped_date": "2026-05-09T20:50:40-05:00"
+        }
+      ],
+      "exit_gate": "all 4 OPT units shipped on work/xproc-neural-aci-ms0; 116 new tests added, 246 NN total, no regressions."
     }
   ],
   "acceptance": "Final state: T1-02 has correct backprop, no label leak, true minibatch SGD, statistically-validated convergence. Featurization includes physics + RAG features at 64+ input dim. FeedbackBus event flow connects ≥40/47 engines into a runtime graph. 24,545 JM Die programs ingested as training data. Adam + L2 + class-weighted CE + conformal prediction in production. T2/T3/T4/T8/T12 tiers all wired with subscribers. Reviewer 2's connected-engine count rises from 5/47 to ≥40/47.",
