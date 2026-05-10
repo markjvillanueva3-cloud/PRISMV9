@@ -40,6 +40,10 @@ const FAST = [
   "generate-hook-bridges.mjs",
   "generate-frontend-pages.mjs",
   "generate-combo-detector.mjs",
+  "generate-engine-saturate.mjs",
+  "generate-wiki-entries.mjs",
+  "generate-formulas-atomic.mjs",
+  "generate-personas-expand.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
@@ -56,7 +60,7 @@ let failed = 0;
 for (const s of scripts) {
   const abs = path.join(ROOT, "scripts", s);
   const start = Date.now();
-  const r = spawnSync(process.execPath, [abs], { stdio: "inherit", cwd: ROOT });
+  const r = spawnSync(process.execPath, ["--max-old-space-size=16384", abs], { stdio: "inherit", cwd: ROOT });
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
   if (r.status !== 0) {
     console.error(`[regen-viz] ✗ ${s} failed (exit ${r.status}, ${elapsed}s)`);
@@ -67,7 +71,7 @@ for (const s of scripts) {
 }
 
 console.log(`[regen-viz] merging…`);
-const m = spawnSync(process.execPath, [path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
+const m = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
   stdio: "inherit", cwd: ROOT,
 });
 if (m.status !== 0) {

@@ -38,6 +38,29 @@ if (!fs.existsSync(graphPath)) {
 }
 const G = JSON.parse(fs.readFileSync(graphPath, "utf8"));
 
+// Hoisted index of nodes by id — replaces every G.nodes.find()/filter() in
+// this script. The graph reached ~240K nodes and the linear scans started
+// quadratic-blowing the merge step (24GB heap OOM). Both maps are maintained
+// incrementally as new nodes get pushed into G.nodes by the merge blocks.
+//   byId       : id -> first node with that id (most lookups want a unique node)
+//   byIdMulti  : id -> array of all nodes with that id (some L5 ids legitimately
+//                appear twice — once under wired and once under unwired subgroup)
+//   addNodeIndexed(node) : push to G.nodes and maintain both maps. Use this
+//                whenever a merge block emits a new node.
+const byId = new Map();
+const byIdMulti = new Map();
+for (const n of G.nodes) {
+  if (!byId.has(n.id)) byId.set(n.id, n);
+  if (!byIdMulti.has(n.id)) byIdMulti.set(n.id, []);
+  byIdMulti.get(n.id).push(n);
+}
+function addNodeIndexed(n) {
+  G.nodes.push(n);
+  if (!byId.has(n.id)) byId.set(n.id, n);
+  if (!byIdMulti.has(n.id)) byIdMulti.set(n.id, []);
+  byIdMulti.get(n.id).push(n);
+}
+
 const obsidian   = loadOptional("obsidian-augmentation.json");
 const awareness  = loadOptional("awareness-augmentation.json");
 const novelty    = loadOptional("novelty-catalog.json");
@@ -66,6 +89,10 @@ const engineGraph    = loadOptional("engine-graph-augmentation.json");
 const hookBridges    = loadOptional("hook-bridges-augmentation.json");
 const frontendPages  = loadOptional("frontend-pages-augmentation.json");
 const comboDetector  = loadOptional("combo-detector-augmentation.json");
+const engineSat      = loadOptional("engine-saturate-augmentation.json");
+const wikiEntries    = loadOptional("wiki-entries-augmentation.json");
+const formulasAtomic = loadOptional("formulas-atomic-augmentation.json");
+const personasAug    = loadOptional("personas-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -96,6 +123,10 @@ if (engineGraph)     versions.engineGraph     = engineGraph.generatedAt     ?? "
 if (hookBridges)     versions.hookBridges     = hookBridges.generatedAt     ?? "present";
 if (frontendPages)   versions.frontendPages   = frontendPages.generatedAt   ?? "present";
 if (comboDetector)   versions.comboDetector   = comboDetector.generatedAt   ?? "present";
+if (engineSat)       versions.engineSat       = engineSat.generatedAt       ?? "present";
+if (wikiEntries)     versions.wikiEntries     = wikiEntries.generatedAt     ?? "present";
+if (formulasAtomic)  versions.formulasAtomic  = formulasAtomic.generatedAt  ?? "present";
+if (personasAug)     versions.personasAug     = personasAug.generatedAt     ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -132,7 +163,7 @@ if (spotlight?.spotlights) {
   for (const s of spotlight.spotlights) {
     G.meta.spotlight.byId[s.id] = s;
     for (const matchId of (s.matchNodes ?? [])) {
-      const node = G.nodes.find(n => n.id === matchId);
+      const node = byId.get(matchId);
       if (node) {
         (node.spotlights ??= []).push({
           id: s.id, name: s.name, category: s.category, rating: s.rating,
@@ -154,7 +185,7 @@ if (newlyBuilt?.entries) {
   };
   for (const e of newlyBuilt.entries) {
     if (!e.nodeId) continue;
-    const node = G.nodes.find(n => n.id === e.nodeId);
+    const node = byId.get(e.nodeId);
     if (!node) continue;
     if (e.kind === "added")        node.recentlyAdded = true;
     if (e.kind === "wired")        node.recentlyWired = true;
@@ -321,7 +352,7 @@ if (exhaustiveAudit?.rootSizes) {
       `fs.h.${normalized.toLowerCase()}`,
     ];
     for (const id of candidates) {
-      const node = G.nodes.find(n => n.id === id);
+      const node = byId.get(id);
       if (node) {
         node.exhaustiveSize = {
           bytes: r.bytes,
@@ -373,7 +404,7 @@ if (coreInventory?.newNodes && coreInventory?.newEdges) {
   // Update parent placeholder labels with real counts so the viz shows
   // "Algorithms (53 / 53 walked)" etc. instead of stale numbers.
   for (const [parentId, p] of Object.entries(coreInventory.byParent)) {
-    const parent = G.nodes.find(n => n.id === parentId);
+    const parent = byId.get(parentId);
     if (!parent) continue;
     const total = p.totalFiles ?? p.count;
     const labelBase = parent.label.replace(/\s*\(\d[^)]*\)\s*$/, "");
@@ -417,7 +448,7 @@ if (fsInventory?.newNodes && fsInventory?.newEdges) {
   }
   // Append child counts to parent labels so the viz shows the expansion at a glance
   for (const [parentId, p] of Object.entries(fsInventory.byParent)) {
-    const parent = G.nodes.find(n => n.id === parentId);
+    const parent = byId.get(parentId);
     if (!parent) continue;
     const labelBase = parent.label.replace(/\s*\[\d[^\]]*\]\s*$/, "");
     parent.label = `${labelBase} [${p.count}/${p.totalSubdirs}]`;
@@ -458,7 +489,7 @@ if (engineDomain?.newNodes && engineDomain?.newEdges) {
   // Append drill counts to L5 parent labels — note multiple parent nodes can
   // share an id (wired vs unwired duplicates) so update them all.
   for (const [parentId, p] of Object.entries(engineDomain.byParent)) {
-    for (const parent of G.nodes.filter(n => n.id === parentId)) {
+    for (const parent of (byIdMulti.get(parentId) || [])) {
       const labelBase = parent.label.replace(/\s*◇\s*\d[^◇]*$/, "");
       parent.label = `${labelBase} ◇ ${p.count}/${p.totalEngines} drilled`;
       parent.drilledCount = p.count;
@@ -498,7 +529,7 @@ if (knowledgeInv?.newNodes && knowledgeInv?.newEdges) {
   }
   // Append drill counts to L8 memory parent labels
   for (const [parentId, p] of Object.entries(knowledgeInv.byParent)) {
-    for (const parent of G.nodes.filter(n => n.id === parentId)) {
+    for (const parent of (byIdMulti.get(parentId) || [])) {
       const labelBase = parent.label.replace(/\s*◇\s*\d[^◇]*$/, "");
       parent.label = `${labelBase} ◇ ${p.count}/${p.totalFiles} drilled`;
       parent.drilledCount = p.count;
@@ -862,6 +893,114 @@ if (comboDetector?.newNodes && comboDetector?.newEdges) {
   };
 }
 
+// Engine saturate: drill ALL ~3180 engines as atomic L5 nodes (full coverage,
+// no per-domain cap). Adds containment edges from L5 rollup → atomic engine.
+let engSatNodes = 0, engSatEdges = 0;
+if (engineSat?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of engineSat.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    engSatNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (engineSat.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    engSatEdges++;
+  }
+  G.meta.engineSaturate = {
+    generatedAt: engineSat.generatedAt,
+    stats: engineSat.stats,
+  };
+}
+
+// Wiki entries: drill the full knowledge/wiki/**/*.md tree into per-entry
+// atomic L8 nodes plus kind rollups, with [[cross-ref]] edges.
+let wikiNodes = 0, wikiEdges = 0;
+if (wikiEntries?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of wikiEntries.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    wikiNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (wikiEntries.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    wikiEdges++;
+  }
+  G.meta.wikiEntries = {
+    generatedAt: wikiEntries.generatedAt,
+    stats: wikiEntries.stats,
+  };
+}
+
+// Formulas atomic: every exported physics constant / function as an L6 atomic
+// child of core.formulas, with `use` edges to core.physics.
+let formulaNodes = 0, formulaEdges = 0;
+if (formulasAtomic?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of formulasAtomic.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    formulaNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (formulasAtomic.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    formulaEdges++;
+  }
+  G.meta.formulasAtomic = {
+    generatedAt: formulasAtomic.generatedAt,
+    stats: formulasAtomic.stats,
+  };
+}
+
+// Personas expand: 8 additional L0 personas (maintenance, customer, vendor,
+// owner, oncall, csr, foreman, estimator) with `uses`/`demands` edges.
+let personaNodes = 0, personaEdges = 0;
+if (personasAug?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of personasAug.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    personaNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (personasAug.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    personaEdges++;
+  }
+  G.meta.personasExpand = {
+    generatedAt: personasAug.generatedAt,
+    stats: personasAug.stats,
+  };
+}
+
 // Ghost summary — quick HUD signal of total ghost surface.
 {
   let ghostNodes = 0, ghostEdges = 0;
@@ -871,10 +1010,10 @@ if (comboDetector?.newNodes && comboDetector?.newEdges) {
 }
 
 G.meta.augmentationVersions = versions;
-G.schemaVersion = "2.20.0";
+G.schemaVersion = "2.21.0";
 
-fs.writeFileSync(graphPath, JSON.stringify(G, null, 2));
+fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
-console.log(`  schema bumped to 2.20.0`);
+console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+console.log(`  schema bumped to 2.21.0`);
