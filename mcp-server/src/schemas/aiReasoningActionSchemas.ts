@@ -215,6 +215,13 @@ export const AI_REASONING_ACTIONS = [
   "xproc_reward_constants",
   // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer (gated emit)
   "xproc_neural_consult_speedfeed",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
+  "xproc_tribal_subscribe_outcomes",
+  "xproc_tribal_unsubscribe_outcomes",
+  "xproc_tribal_outcome_subscription_status",
+  "xproc_tribal_outcome_configure",
+  "xproc_tribal_outcome_stats",
+  "xproc_tribal_outcome_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1469,6 +1476,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     reviewThreshold: z.number().min(0).max(1).finite().optional().describe("Confidence at/above which the recommendation enters review band (default 0.4)"),
   }).passthrough().describe(
     "U-CN02: Consult NN before SF emit. Returns {ok, gateDecision: 'pass'|'review'|'block'|'unavailable', confidence, predictedClass, passThreshold, reviewThreshold, reason}. Calibrated confidence (post U-NN-OPT-A temperature scaling) is the operative signal.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
+  xproc_tribal_subscribe_outcomes: z.object({}).passthrough().describe(
+    "U-CN04: Subscribe TribalKnowledge bridge to FeedbackBus 'outcome.recorded'. Idempotent — alreadySubscribed=true on repeat. Successes accumulate per (process, material, operation) bucket and emit candidate tips when threshold crossed; failures signal contradictions.",
+  ),
+  xproc_tribal_unsubscribe_outcomes: z.object({}).passthrough().describe(
+    "U-CN04: Detach the TribalKnowledge outcome subscription. Idempotent.",
+  ),
+  xproc_tribal_outcome_subscription_status: z.object({}).passthrough().describe(
+    "U-CN04: Introspect — is the bridge subscription currently live?",
+  ),
+  xproc_tribal_outcome_configure: z.object({
+    successThreshold: z.number().int().min(1).optional().describe("Successes-per-bucket needed before emitting a candidate tip. Default 5."),
+    failureThreshold: z.number().int().min(1).optional().describe("Failures-per-bucket needed before signaling a contradiction. Default 3."),
+  }).passthrough().describe(
+    "U-CN04: Update bridge thresholds. Returns updated config.",
+  ),
+  xproc_tribal_outcome_stats: z.object({}).passthrough().describe(
+    "U-CN04: Read bridge telemetry — totals, per-bucket counts, emitted tip ids, contradiction timestamps, current config, subscription status.",
+  ),
+  xproc_tribal_outcome_reset: z.object({}).passthrough().describe(
+    "U-CN04: Reset bridge state (test-only — does NOT touch TribalKnowledgeEngine tips).",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({

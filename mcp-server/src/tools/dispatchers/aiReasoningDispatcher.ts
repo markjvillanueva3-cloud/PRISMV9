@@ -108,6 +108,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_reward_audit: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
   xproc_reward_default_weights: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
   xproc_reward_constants: () => import("../../engines/CrossProcessRewardShaperEngine.js").then(m => m.crossProcessRewardShaper),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
+  xproc_tribal_subscribe_outcomes: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
+  xproc_tribal_unsubscribe_outcomes: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
+  xproc_tribal_outcome_subscription_status: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
+  xproc_tribal_outcome_configure: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
+  xproc_tribal_outcome_stats: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
+  xproc_tribal_outcome_reset: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1732,6 +1739,13 @@ export async function executeAIReasoningAction(
       case "xproc_reward_constants":
       // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer
       case "xproc_neural_consult_speedfeed":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN04 — TribalKnowledge outcome subscriber bridge
+      case "xproc_tribal_subscribe_outcomes":
+      case "xproc_tribal_unsubscribe_outcomes":
+      case "xproc_tribal_outcome_subscription_status":
+      case "xproc_tribal_outcome_configure":
+      case "xproc_tribal_outcome_stats":
+      case "xproc_tribal_outcome_reset":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":
