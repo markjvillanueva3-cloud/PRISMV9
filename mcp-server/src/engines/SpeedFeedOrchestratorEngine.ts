@@ -20,6 +20,7 @@
  * @module engines/SpeedFeedOrchestratorEngine
  */
 
+import { z } from "zod";
 import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 import { monteCarloEngine } from "./MonteCarloEngine.js";
@@ -31,6 +32,8 @@ import { getTorqueCurve, torqueAtRpm } from "../data/machine-torque-curves.js";
 import { CANONICAL_TAYLOR, CANONICAL_TOOL_MODULUS, CANONICAL_MATERIAL_DB, CANONICAL_KIENZLE } from "../physics/constants.js";
 import type { ISOGroup } from "../physics/constants.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
+import { crossProcessNeuralLearningEngine } from "./CrossProcessNeuralLearningEngine.js";
+import type { OutcomeRecord } from "./CrossProcessOutcomeStore.js";
 
 function getMonteCarloEngine(): any {
   return monteCarloEngine as any;
@@ -3186,7 +3189,153 @@ export class SpeedFeedOrchestratorEngine {
       source: "SpeedFeedOrchestratorEngine.compute",
     };
   }
+
+  // ============================================================================
+  // U-CN02 — NN-confidence-gated emit path (XPROC-NEURAL-CONNECT-MS0)
+  // ============================================================================
+
+  /**
+   * U-CN02: Consult the cross-process neural predictor before emitting a
+   * speed/feed recommendation. Returns a gate decision the caller uses to
+   * decide whether to ship as-is, flag for operator review, or block:
+   *
+   *   confidence ≥ passThreshold     → "pass"        — ship the recommendation
+   *   reviewThreshold ≤ conf < pass  → "review"      — flag for operator review
+   *   confidence < reviewThreshold   → "block"       — refuse to emit
+   *   NN unavailable / wrong shape   → "unavailable" — degrade open (caller decides)
+   *
+   * The NN's calibrated confidence (post U-NN-OPT-A temperature scaling)
+   * is the operative signal. Pre-OPT-A this is the raw softmax max which
+   * is over-confident on out-of-distribution inputs; post-OPT-A it's a
+   * meaningful probability calibrated against held-out NLL.
+   *
+   * Default thresholds (passThreshold=0.7, reviewThreshold=0.4) are the
+   * "shop_floor tier" defaults from omega-thresholds.json — production
+   * G-code emit needs Ω≥0.95 / S(x)≥0.98 and a 0.7 NN-confidence gate
+   * keeps the bottom-30% out of the auto-emit lane.
+   *
+   * Pure (no state mutation, no I/O); safe to call from any pipeline
+   * stage. NN errors are caught and reported as "unavailable" — callers
+   * MUST decide whether unavailable means proceed (degrade open) or
+   * block (degrade closed). This engine returns the signal; the policy
+   * lives at the call site.
+   *
+   * @param input  OutcomeRecord-shape (the engine featurizes via predictFromRecord)
+   * @returns gate decision + numeric confidence + predictedClass + thresholds used
+   */
+  consultNeuralPredictor(input: unknown): {
+    ok: true;
+    gateDecision: "pass" | "review" | "block" | "unavailable";
+    confidence: number | null;
+    predictedClass: "success" | "failure" | "operator_override" | null;
+    passThreshold: number;
+    reviewThreshold: number;
+    reason: string;
+  } | {
+    ok: false;
+    error: "invalid_input";
+    message: string;
+  } {
+    const parsed = consultNeuralPredictorInputSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: "invalid_input",
+        message: parsed.error.issues
+          .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
+          .join("; "),
+      };
+    }
+    const { record, passThreshold, reviewThreshold } = parsed.data;
+    if (passThreshold < reviewThreshold) {
+      return {
+        ok: false,
+        error: "invalid_input",
+        message: `passThreshold (${passThreshold}) must be >= reviewThreshold (${reviewThreshold})`,
+      };
+    }
+    let prediction;
+    try {
+      prediction = crossProcessNeuralLearningEngine.predictFromRecord(record as OutcomeRecord);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return {
+        ok: true,
+        gateDecision: "unavailable",
+        confidence: null,
+        predictedClass: null,
+        passThreshold,
+        reviewThreshold,
+        reason: `NN unavailable: ${msg}`,
+      };
+    }
+    const conf = prediction.confidence;
+    let gateDecision: "pass" | "review" | "block";
+    let reason: string;
+    if (conf >= passThreshold) {
+      gateDecision = "pass";
+      reason = `confidence ${conf.toFixed(4)} ≥ pass threshold ${passThreshold}`;
+    } else if (conf >= reviewThreshold) {
+      gateDecision = "review";
+      reason = `confidence ${conf.toFixed(4)} in review band [${reviewThreshold}, ${passThreshold})`;
+    } else {
+      gateDecision = "block";
+      reason = `confidence ${conf.toFixed(4)} < block threshold ${reviewThreshold}`;
+    }
+    return {
+      ok: true,
+      gateDecision,
+      confidence: conf,
+      predictedClass: prediction.predictedClass,
+      passThreshold,
+      reviewThreshold,
+      reason,
+    };
+  }
 }
+
+// U-CN02: Default NN confidence thresholds (cite: state/shared/omega-thresholds.json
+// "shop_floor" tier). Production G-code emit needs Ω≥0.95 / S(x)≥0.98; the 0.7
+// pass threshold keeps the bottom-30% of NN-confidence calls out of the auto-emit
+// lane, and the 0.4 review threshold separates "needs operator review" from
+// "refuse to emit". Callers may override via input parameters.
+const DEFAULT_PASS_THRESHOLD = 0.7;
+const DEFAULT_REVIEW_THRESHOLD = 0.4;
+
+// U-CN02: Schema for consultNeuralPredictor input. Lives at module scope
+// because the method type signature references it; placing it inside the
+// class would require a static getter. The inner `record` is left
+// passthrough() because OutcomeRecord shape is owned by OutcomeStore
+// and we don't want to duplicate-validate it at this boundary.
+const consultNeuralPredictorInputSchema = z.object({
+  record: z
+    .object({
+      bridge: z.string().optional(),
+      process: z.string().optional(),
+      request_summary: z.record(z.string(), z.unknown()).optional(),
+      response_summary: z.record(z.string(), z.unknown()).optional(),
+      outcome: z
+        .object({ kind: z.string().optional() })
+        .passthrough()
+        .optional(),
+    })
+    .passthrough()
+    .describe("OutcomeRecord-shape input — featurized by the NN engine"),
+  passThreshold: z
+    .number()
+    .min(0)
+    .max(1)
+    .finite()
+    .default(DEFAULT_PASS_THRESHOLD)
+    .describe("Confidence at/above which the recommendation auto-passes"),
+  reviewThreshold: z
+    .number()
+    .min(0)
+    .max(1)
+    .finite()
+    .default(DEFAULT_REVIEW_THRESHOLD)
+    .describe("Confidence at/above which the recommendation enters review band; below = block"),
+});
 
 // ============================================================================
 // HRC → HB conversion (ASTM E140 approximation)

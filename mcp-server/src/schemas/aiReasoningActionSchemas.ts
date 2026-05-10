@@ -213,6 +213,8 @@ export const AI_REASONING_ACTIONS = [
   "xproc_reward_audit",
   "xproc_reward_default_weights",
   "xproc_reward_constants",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer (gated emit)
+  "xproc_neural_consult_speedfeed",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1460,6 +1462,14 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   xproc_reward_audit: z.object({}).passthrough(),
   xproc_reward_default_weights: z.object({}).passthrough(),
   xproc_reward_constants: z.object({}).passthrough(),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer (gated emit)
+  xproc_neural_consult_speedfeed: z.object({
+    record: z.record(z.string(), z.unknown()).describe("OutcomeRecord-shape input — featurized by the NN engine"),
+    passThreshold: z.number().min(0).max(1).finite().optional().describe("Confidence at/above which the recommendation auto-passes (default 0.7)"),
+    reviewThreshold: z.number().min(0).max(1).finite().optional().describe("Confidence at/above which the recommendation enters review band (default 0.4)"),
+  }).passthrough().describe(
+    "U-CN02: Consult NN before SF emit. Returns {ok, gateDecision: 'pass'|'review'|'block'|'unavailable', confidence, predictedClass, passThreshold, reviewThreshold, reason}. Calibrated confidence (post U-NN-OPT-A temperature scaling) is the operative signal.",
+  ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({
     bridge: z.enum(["sf", "post", "feature", "ai", "router"]).describe("XPROC bridge identifier"),

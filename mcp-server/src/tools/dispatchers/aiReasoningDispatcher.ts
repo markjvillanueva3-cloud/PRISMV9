@@ -318,6 +318,11 @@ const XPROC_TIER1_HANDLERS: Record<string, XprocTier1Handler> = {
     if (!record) throw new Error("xproc_neural_predict requires `record`");
     return crossProcessNeuralLearningEngine.predictFromRecord(record);
   },
+  // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer (gated emit)
+  xproc_neural_consult_speedfeed: async (params) => {
+    const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+    return speedFeedOrchestratorEngine.consultNeuralPredictor(params);
+  },
   xproc_neural_evaluate: async (params) => {
     const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
     const records = (params.records as Parameters<typeof crossProcessNeuralLearningEngine.evaluate>[0]) ?? [];
@@ -1725,6 +1730,8 @@ export async function executeAIReasoningAction(
       case "xproc_reward_audit":
       case "xproc_reward_default_weights":
       case "xproc_reward_constants":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN02 — SF-orchestrator NN consumer
+      case "xproc_neural_consult_speedfeed":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":
