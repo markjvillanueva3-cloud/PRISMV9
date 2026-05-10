@@ -1,0 +1,1047 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-10T04:49:43.368Z",
+  "sourceAwareness": "state/shared/system-viz/phase0_awareness.json",
+  "findings": [
+    {
+      "kind": "gap",
+      "domain": "ai-reasoning",
+      "confidence": 0.85,
+      "what": "16 of 19 Tier-3 specialists have feedback_loop_wired: false despite JSDoc claims. Mandate: every AGI/Ultra/Master orchestrator MUST subscribe to >=1 actuals signal (recordOutcome|onActuals|measuredOutcome) within 30 days or get demoted from production->beta.",
+      "evidence": [],
+      "impact": null
+    },
+    {
+      "kind": "gap",
+      "domain": "ai-reasoning",
+      "confidence": 0.85,
+      "what": "Ollama user-prompt offloader is 0% effective. ollama-task-offloader fires 23 times and offloads 0 — every conversational task is kept on Claude. The 54% offload rate is entirely from cache-hit on engine-api-extraction. Re-tune the classifier or this is dead infrastructure.",
+      "evidence": [],
+      "impact": null
+    },
+    {
+      "kind": "gap",
+      "domain": "ai-reasoning",
+      "confidence": 0.85,
+      "what": "PRISMCreativeReasoningEngine.explore() needs to be either (a) renamed to PRISMRuleBasedCombinatorEngine to match what it actually does, OR (b) routed through aiSystemRouterEngine.route('reasoning') to get a real LLM call. Current state ships a marketing-grade JSDoc over a 10-row lookup table.",
+      "evidence": [],
+      "impact": null
+    },
+    {
+      "kind": "gap",
+      "domain": "ai-reasoning",
+      "confidence": 0.85,
+      "what": "80 LatheLoRA* engines and 0 .safetensors weights. Either stand up real training (LatheLoRACadenceEngine should produce checkpoints under data/models/lathe-lora/<date>/) or delete the scaffolding. Current state hides 80 unused engines from /dedup audits.",
+      "evidence": [],
+      "impact": null
+    },
+    {
+      "kind": "gap",
+      "domain": "ai-reasoning",
+      "confidence": 0.85,
+      "what": "AI-HIERARCHY-INVENTORY.md is 530 honest lines but stale (generated 2026-05-02, today is 2026-05-09). Re-run on every Stop or weekly cron — drift on this file is the difference between 'we know what we have' and 'we hallucinate what we have'.",
+      "evidence": [],
+      "impact": null
+    },
+    {
+      "kind": "gap",
+      "domain": "ai-reasoning",
+      "confidence": 0.85,
+      "what": "AISystemRouterEngine has a telemetry ledger (knowledge/summaries/routing-decisions.jsonl) but no consumer. Add a weekly digest cron that reports route_class distribution + reachable=false rate; current state is write-only telemetry.",
+      "evidence": [],
+      "impact": null
+    },
+    {
+      "kind": "gap",
+      "domain": "cad-ingest",
+      "confidence": 0.78,
+      "what": "No unified CADIngestEngine — ingest is fragmented across CADCorpusIngesterEngine, CADCorpusIngestionEngine, CADFileIndexerEngine, UniversalCADIndexEngine, CADCorpusFeaturePrevalenceLearnerEngine with overlapping scan/classify duties.",
+      "evidence": [
+        "mcp-server/src/engines/CADCorpusIngesterEngine.ts (corpus → tokens for training)",
+        "mcp-server/src/engines/CADCorpusIngestionEngine.ts (corpus → OCR matching, WIRE-EXEMPT)",
+        "mcp-server/src/engines/UniversalCADIndexEngine.ts",
+        "mcp-server/src/engines/CADFileIndexerEngine.ts"
+      ],
+      "impact": "Schema drift, double-walked filesystems on JM Die's 24,545 files, duplicate classifier logic, harder to wire physics gate uniformly."
+    },
+    {
+      "kind": "gap",
+      "domain": "cad-ingest",
+      "confidence": 0.78,
+      "what": "Multi-page PDF extraction (Phase 8 / Docustrata 96% multi-print) lives only in Python scripts — no TS engine equivalent. Glob for phase8-tiered-blueprint-classifier*.py and docustrata* both returned ZERO results in scripts/, suggesting the validated 4.5%/page pipeline is either missing-from-repo or in a different location.",
+      "evidence": [
+        "Glob H:/prism/scripts/phase8-tiered-blueprint-classifier*.py → no files",
+        "Glob H:/prism/scripts/docustrata* → no files",
+        "knowledge/memories/reference/reference_docustrata_multi_print_pdfs.md cites this pipeline as recovering ~5,400 prints"
+      ],
+      "impact": "Tribal-memory references a high-yield extraction tool that may not be in the working tree; ~120K pages of multi-print PDFs cannot be reliably ingested without it."
+    },
+    {
+      "kind": "gap",
+      "domain": "cad-ingest",
+      "confidence": 0.78,
+      "what": "Sparse importer coverage: only 4 files contain importStep|parseDxf|importIges|importDwg|extractFromPdf across 100+ CAD engines (CadBridge, QuoteToShipOrchestratorEngine, StepImportEngine, WEDMPrintToProgramEngine).",
+      "evidence": [
+        "Grep across mcp-server/src/engines/ returned 7 occurrences in 4 files only"
+      ],
+      "impact": "Most CAD engines operate on already-tokenized/classified data; raw STEP/IGES/DXF parsing is bottlenecked through StepImportEngine alone with no IGES/DWG-specific importer."
+    },
+    {
+      "kind": "gap",
+      "domain": "cad-ingest",
+      "confidence": 0.78,
+      "what": "BlueprintProgramJoinEngine joins to a CAD master-index it explicitly calls 'currently sparse' / 'currently stub' — fallback path is real (program-labels.json) but CAD side is degenerate.",
+      "evidence": [
+        "BlueprintProgramJoinEngine.ts L8: 'master-index.json (CAD master index — currently sparse)'",
+        "L72: 'masterIndexPath?: Path to CAD master-index.json (currently stub)'"
+      ],
+      "impact": "Print-to-CAD joins miss the CAD half — only program/lathe matches succeed. CAD revisions (CADRevisionDetectorEngine) cannot feed the join."
+    },
+    {
+      "kind": "gap",
+      "domain": "cad-ingest",
+      "confidence": 0.78,
+      "what": "CADPhysicsConsistencyGateEngine is not wired into the ingest path — ingested geometry parameters are not validated until much later in CAM. Engine exists, validators are correct, but ingest engines never call it.",
+      "evidence": [
+        "CADPhysicsConsistencyGateEngine.ts header: 'Hard-blocks unmanufacturable outputs before they reach CAM'",
+        "No imports of CADPhysicsConsistencyGate from CADCorpusIngester/Ingestion engines"
+      ],
+      "impact": "Bad / impossible geometry enters the corpus → poisons tokenizer training; fixable cheaply by adding an opt-in gate hook in ingestOne()."
+    },
+    {
+      "kind": "gap",
+      "domain": "cad-ingest",
+      "confidence": 0.78,
+      "what": "Extension drift between two corpus engines: Ingester supports 8 extensions (.step .stp .iges .igs .sldprt .ipt .x_t .x_b), Ingestion supports 25+ (adds .slddrw .idw .iam .f3d .f3z .prt .asm .drw .catpart .catproduct .catdrawing .stl .dxf .dwg). Same archive, different filtering.",
+      "evidence": [
+        "CADCorpusIngesterEngine.ts L74-76 SUPPORTED_EXTENSIONS array (8)",
+        "CADCorpusIngestionEngine.ts L33-42 SUPPORTED_EXTENSIONS Set (25+)"
+      ],
+      "impact": "Same JM Die archive ingested twice with different file populations → training corpus and OCR-match corpus will not align by part number."
+    },
+    {
+      "kind": "conflict",
+      "domain": "cad-ingest",
+      "what": "Two ingest engines with near-identical names and overlapping intent",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "conflict",
+      "domain": "cad-ingest",
+      "what": "WIRE-EXEMPT tag on CADCorpusIngestionEngine claims dispatcher integration is deferred 'until BlueprintVisionOCREngine hook is restored after the peer-chat revert resolves'.",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "dead_code",
+      "domain": "cad-ingest",
+      "path": "mcp-server/src/engines/CADAutomationMockLayer.ts",
+      "reason": "name-only suspicion (mock layer) — verify it's still referenced by tests before delete",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "dead_code",
+      "domain": "cad-ingest",
+      "path": "mcp-server/src/engines/HyperCADSMockLayer.ts",
+      "reason": "name-only suspicion (mock layer paired with HyperCADSAutomationEngine) — verify before delete",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "dead_code",
+      "domain": "cad-ingest",
+      "path": "mcp-server/src/engines/PerAppInCADInferenceAdapter.ts",
+      "reason": "name-only suspicion (unusual 'InCAD' naming, possible typo of 'In-CAD' adapter) — verify scope",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cad-ingest",
+      "what": "Wire CADPhysicsConsistencyGateEngine.validate() as a post-parse hook in CADCorpusIngesterEngine.ingestOne() — rejects unmanufacturable geometry from training corpus with S(x) score recorded as provenance.",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cad-ingest",
+      "what": "Build a single CADIngestFacadeEngine that fans out to (a) Ingester for training, (b) Ingestion for retrieval, (c) BlueprintProgramJoinEngine for print↔program, (d) UniversalCADIndexEngine for search index — single filesystem walk feeds all four downstream consumers.",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cad-ingest",
+      "what": "Port phase8-tiered-blueprint-classifier into a TS MultiPagePDFExtractEngine so the 4.5%/page recovery rate cited in the Docustrata memory becomes a first-class engine and feeds BlueprintProgramJoinEngine directly instead of via JSONL hand-off.",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "Wire all 31 unwired CAM engines in single sweep (BUILD_STATE-driven)",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "PostProcessor consolidation — fold 53 engines into 1 MasterPostProcessor + 9 vendor strategies (Strategy pattern)",
+      "leverage": "very_high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "Carve camDispatcher.ts (17,936 lines) into per-vendor dispatchers",
+      "leverage": "medium"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "CATIA engine build-out — 0 engines, 24 actions, 2 skills",
+      "leverage": "medium"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "Esprit + Inventor HSM skill catalog parity",
+      "leverage": "low"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "Cross-CAM AI orchestration parity",
+      "leverage": "medium"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "Third-party CAM bridge consolidation (Cimatron, WorkNC, Tebis, BobCAD)",
+      "leverage": "low"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "cam-bridges",
+      "what": "Post-processor cross-cutting test harness",
+      "leverage": "high"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"Sinker EDM is structural scaffolding, not a working pillar\",\"evidence\":\"Only 7 SinkerEDM* engines (Calculator, PrintToProgram, ElectrodeGeometry, FlushingAdvisor, WearCompensation, LoRADatasetBuilder, LoRACadence) vs 100+ WEDM. Only 8 sinker dispatcher cases vs ~215 wedm. Only 2 sinker test files (numerical-sinker-engines, PPSinkerEDMPostEngine) vs 100+ WEDM. Zero sinker-prefixed skills found in C:/Users/wompu/.claude/commands/. No safety-gate stack, no controller dialect router, no AGI feedback loop, no JM Die tribal corpus.\",\"severity\":\"high\",\"confidence\":0.9}",
+      "evidence": "Only 7 SinkerEDM* engines (Calculator, PrintToProgram, ElectrodeGeometry, FlushingAdvisor, WearCompensation, LoRADatasetBuilder, LoRACadence) vs 100+ WEDM. Only 8 sinker dispatcher cases vs ~215 wedm. Only 2 sinker test files (numerical-sinker-engines, PPSinkerEDMPostEngine) vs 100+ WEDM. Zero sinker-prefixed skills found in C:/Users/wompu/.claude/commands/. No safety-gate stack, no controller dialect router, no AGI feedback loop, no JM Die tribal corpus.",
+      "impact": "high"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"Sinker EDM lacks a printed-electrode-to-program pipeline of WEDM's depth\",\"evidence\":\"SinkerEDMPrintToProgramEngine + SinkerEDMElectrodeGeometryEngine exist but are single engines, not a 12-stage pipeline like WEDM-P2P. No equivalent of EDMFeasibilityEngine, EDMStartHoleSetupEngine (sinker analog: pilot-hole / electrode-mount strategy), EDMQualityOrchestratorEngine for sinker. Electrode wear compensation (SinkerEDMWearCompensationEngine) is wired but no orbit-strategy engine, no dielectric-flush adequacy gate for deep cavities, no DC-arc detection.\",\"severity\":\"high\",\"confidence\":0.85}",
+      "evidence": "SinkerEDMPrintToProgramEngine + SinkerEDMElectrodeGeometryEngine exist but are single engines, not a 12-stage pipeline like WEDM-P2P. No equivalent of EDMFeasibilityEngine, EDMStartHoleSetupEngine (sinker analog: pilot-hole / electrode-mount strategy), EDMQualityOrchestratorEngine for sinker. Electrode wear compensation (SinkerEDMWearCompensationEngine) is wired but no orbit-strategy engine, no dielectric-flush adequacy gate for deep cavities, no DC-arc detection.",
+      "impact": "high"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"Tribal corpus is Mitsubishi/Mastercam-heavy, thin on other controllers\",\"evidence\":\"Of ~80 tribal tips, JM Die programs are exclusively Mitsubishi FA-10S (wedm-jmd-001 H175 pattern, M78 M78 tank fill, etc.) and Mastercam X8 (wedm-mcam-001..010). Sodick, Makino, Agie tips appear only in research-derived (academic) entries, not field-grounded. PRISM has post engines for all 5 controllers but operator wisdom for only 1.\",\"severity\":\"medium\",\"confidence\":0.85}",
+      "evidence": "Of ~80 tribal tips, JM Die programs are exclusively Mitsubishi FA-10S (wedm-jmd-001 H175 pattern, M78 M78 tank fill, etc.) and Mastercam X8 (wedm-mcam-001..010). Sodick, Makino, Agie tips appear only in research-derived (academic) entries, not field-grounded. PRISM has post engines for all 5 controllers but operator wisdom for only 1.",
+      "impact": "medium"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"AGI/ML engines lack online-deployment evidence\",\"evidence\":\"WEDMRLControllerEngine, WEDMOnlineLearningEngine, WEDMTransferLearningEngine, WEDMLoRAAdapterEngine all exist as code but the offline→online bridge is unclear. No engines with names like WEDMRLDeploymentBridge or WEDMModelServingEngine. Risk: ML investment may be training-only with shop deployment still manual. Worth checking model-update events in JOBOutcome telemetry.\",\"severity\":\"medium\",\"confidence\":0.7}",
+      "evidence": "WEDMRLControllerEngine, WEDMOnlineLearningEngine, WEDMTransferLearningEngine, WEDMLoRAAdapterEngine all exist as code but the offline→online bridge is unclear. No engines with names like WEDMRLDeploymentBridge or WEDMModelServingEngine. Risk: ML investment may be training-only with shop deployment still manual. Worth checking model-update events in JOBOutcome telemetry.",
+      "impact": "medium"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"Sinker physics constants asymmetry vs WEDM\",\"evidence\":\"src/physics/constants.ts has dedicated EDM_PHYSICS namespace with corner_lag.response_time_ms by material, wire_safety current density limits, taper spec — all WEDM-flavored. Sinker EDM constants live inline in SinkerEDMCalculatorEngine.ts (ELECTRODE_MATERIALS, WORKPIECE_MATERIALS, VDI_SCALE) violating the 'NEVER inline constants' safety rail. wedm-constants.ts exists; no sinker-constants.ts.\",\"severity\":\"high\",\"confidence\":0.85}",
+      "evidence": "src/physics/constants.ts has dedicated EDM_PHYSICS namespace with corner_lag.response_time_ms by material, wire_safety current density limits, taper spec — all WEDM-flavored. Sinker EDM constants live inline in SinkerEDMCalculatorEngine.ts (ELECTRODE_MATERIALS, WORKPIECE_MATERIALS, VDI_SCALE) violating the 'NEVER inline constants' safety rail. wedm-constants.ts exists; no sinker-constants.ts.",
+      "impact": "high"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"No micro-EDM AGI tier despite MicroEDMEngine existing\",\"evidence\":\"edmDispatcher.ts ships MicroEDMEngine (case 'micro') and edm_micro_program action, but no MicroEDM* AGI engines (no RL, no LoRA, no learning loop). Micro-EDM is a third subgenre that the brief does not cover but PRISM has scaffolded — should be either fleshed out or de-scoped.\",\"severity\":\"low\",\"confidence\":0.8}",
+      "evidence": "edmDispatcher.ts ships MicroEDMEngine (case 'micro') and edm_micro_program action, but no MicroEDM* AGI engines (no RL, no LoRA, no learning loop). Micro-EDM is a third subgenre that the brief does not cover but PRISM has scaffolded — should be either fleshed out or de-scoped.",
+      "impact": "low"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"WEDM tier6 / autonomy gates exist but cap-and-trade enforcement is undocumented\",\"evidence\":\"WEDMTier6GeomGateEngine, WEDMAutonomyAuditEngine, WEDMOverageApprovalEngine, WEDMCreditCostEngine — engines for tiered autonomy (operator-approve vs auto-emit) exist but the policy mapping (which Sx threshold triggers which tier, who approves overages) is not visible from engine reads. Risk: autonomy framework is built but not actually gating outputs in production.\",\"severity\":\"medium\",\"confidence\":0.7}",
+      "evidence": "WEDMTier6GeomGateEngine, WEDMAutonomyAuditEngine, WEDMOverageApprovalEngine, WEDMCreditCostEngine — engines for tiered autonomy (operator-approve vs auto-emit) exist but the policy mapping (which Sx threshold triggers which tier, who approves overages) is not visible from engine reads. Risk: autonomy framework is built but not actually gating outputs in production.",
+      "impact": "medium"
+    },
+    {
+      "kind": "gap",
+      "domain": "edm",
+      "confidence": 0,
+      "what": "{\"title\":\"Sinker dispatcher actions have schema-coverage uncertainty\",\"evidence\":\"edmDispatcher.ts merges 16 schema files into ALL_EDM_SCHEMAS but they are predominantly WEDM-named (WEDM_PIPELINE_ACTION_SCHEMAS, WEDM_ML_OPTIMIZER_SCHEMAS, etc.) with EDM_ACTION_SCHEMAS the only generic one. Sinker_calculate, sinker_recommend etc. likely fall under EDM_ACTION_SCHEMAS; whether their Zod definitions enforce the 18-material workpiece DB and 6-material electrode DB is not verified.\",\"severity\":\"low\",\"confidence\":0.65}",
+      "evidence": "edmDispatcher.ts merges 16 schema files into ALL_EDM_SCHEMAS but they are predominantly WEDM-named (WEDM_PIPELINE_ACTION_SCHEMAS, WEDM_ML_OPTIMIZER_SCHEMAS, etc.) with EDM_ACTION_SCHEMAS the only generic one. Sinker_calculate, sinker_recommend etc. likely fall under EDM_ACTION_SCHEMAS; whether their Zod definitions enforce the 18-material workpiece DB and 6-material electrode DB is not verified.",
+      "impact": "low"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Sinker EDM second-pillar buildout — 30% of WEDM depth",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Unify dispatcher routing — single source of truth for EDM action discovery",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Sodick/Makino/Agie tribal corpus harvest",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Online ML deployment bridge — close the train→serve gap",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "EDM real-time pulse telemetry consumer",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Cross-domain analogy: WEDM safety-gate template → other processes",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Move sinker physics constants into sinker-constants.ts",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Micro-EDM scope decision — flesh out or deprecate",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "WEDM-corpus → sinker-corpus knowledge transfer",
+      "leverage": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "edm",
+      "what": "Document the autonomy-tier policy mapping",
+      "leverage": null
+    },
+    {
+      "kind": "gap",
+      "domain": "knowledge-memory",
+      "confidence": 0.85,
+      "what": "{\"id\":\"G2\",\"severity\":\"HIGH\",\"claim\":\"4,245 tribal tips have NO customer field — grep for `customer:|customer_id|customer_name` in knowledge/tribal returns 0 matches. JM Die has 118 lathe customers in folder structure but tribal tips cannot be filtered by customer at retrieval time. Per-customer learning is impossible from this corpus.\",\"fix\":\"U-TRIBAL-CUSTOMER-FIELD: (1) extend tribal-tip frontmatter schema with customer_id/customer_name; (2) backfill from JM DIE folder paths via JMDieProgramHarvesterEngine — when a tip is extracted from a customer file, tag it; (3) update TribalKnowledgeEngine + TribalRAGEngine to support customer-scoped queries (`searchByCustomer(name, query)`).\"}",
+      "evidence": [],
+      "impact": "HIGH"
+    },
+    {
+      "kind": "gap",
+      "domain": "knowledge-memory",
+      "confidence": 0.85,
+      "what": "{\"id\":\"G4\",\"severity\":\"MED\",\"claim\":\"Wiki entries have low confidence (0.7) for ALL bootstrap-generated entries (570+ of 770). LLM-augmented entries with sources>1 + confidence>0.85 are the long-term goal but the corpus is currently 75% bootstrap-only.\",\"fix\":\"U-WIKI-LLM-AUGMENT: schedule Ollama batch run that walks bootstrap entries and adds synthesized cross-refs + confidence bumps; pause when source files older than 30 days (avoid drift).\"}",
+      "evidence": [],
+      "impact": "MED"
+    },
+    {
+      "kind": "gap",
+      "domain": "knowledge-memory",
+      "confidence": 0.85,
+      "what": "{\"id\":\"G6\",\"severity\":\"MED\",\"claim\":\"Memory injection hash dedup missing — same memory can be re-injected within a session (rule 5 of 2nd-brain protocol explicitly flags this). memory-rag-inject.mjs does not track per-session injected hashes.\",\"fix\":\"U-MEMORY-DEDUP-SESSION: add small JSON cache (.claude/cache/injected-this-session.json) keyed by (sessionId, memoryHash); skip injection on hit; clear at SessionStart.\"}",
+      "evidence": [],
+      "impact": "MED"
+    },
+    {
+      "kind": "gap",
+      "domain": "knowledge-memory",
+      "confidence": 0.85,
+      "what": "{\"id\":\"G9\",\"severity\":\"MED\",\"claim\":\"23 Tribal* engines + 57 Knowledge* engines + 80 Learning* engines = 160 overlapping engines in this domain — high duplication risk. e.g. CAMTribalKnowledgeEngine vs MillTribalKnowledgeEngine vs WEDMTribalRuntimeEngine vs TribalKnowledgeEngine (parent). No clear inheritance hierarchy visible.\",\"fix\":\"U-TRIBAL-CONSOLIDATION-AUDIT: run /dedup against Tribal* + Knowledge* + Learning* prefixes; build inheritance map; mark mergeable wrappers WIRE-EXEMPT or merge into base engines.\"}",
+      "evidence": [],
+      "impact": "MED"
+    },
+    {
+      "kind": "gap",
+      "domain": "knowledge-memory",
+      "confidence": 0.85,
+      "what": "{\"id\":\"G10\",\"severity\":\"LOW\",\"claim\":\"wiki/index.md last_verified is 2026-05-08 but engine source files keep landing daily — stale-by-construction. No cron re-runs the bootstrap.\",\"fix\":\"U-WIKI-CRON: cron entry that runs wiki-bootstrap.mjs nightly + on every commit that adds an *Engine.ts file (post-commit hook).\"}",
+      "evidence": [],
+      "impact": "LOW"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O1\",\"rank\":1,\"claim\":\"Docustrata phase-8 run is the single highest-leverage knowledge-acquisition pull: ~5,400 new prints from already-on-disk PDFs, zero new infra, vision-LLM tier already exis",
+      "leverage": "very-high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O2\",\"rank\":2,\"claim\":\"Customer-tagged tribal tips unlock per-customer recall — JM Die has 118 lathe customers + ITW/Alcoa/Optimas/SFS/Holo-Krome/FONTANA/ATF visible in CNC LATHE. A per-customer",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O3\",\"rank\":3,\"claim\":\"Wiki entries auto-published into RGS forge phases — every new engine commit → wiki entry → indexed → next forge run can /forge-triple against existing knowledge instead of",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O4\",\"rank\":4,\"claim\":\"OBSIDIAN_VAULT real-vault mount unblocks the human-touchable second brain (the user can read + edit memories in the actual Obsidian app). Currently the vault is read-only ",
+      "leverage": "med-high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O5\",\"rank\":5,\"claim\":\"Tribal-tip → wiki promotion path: when a tip is referenced N>=3 times, auto-promote to wiki/code-tribal/ as a versioned entry. Compounds shop-floor wisdom into permanent r",
+      "leverage": "med"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O6\",\"rank\":6,\"claim\":\"Vault wiki-link compounding (rule 4) — backfilling [[links]] across 191 memories via Ollama is a one-time batch that creates a free graph of inter-memory associations.\",\"l",
+      "leverage": "med"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O7\",\"rank\":7,\"claim\":\"Per-process tribal tip extraction from JM Die programs (24,545 files) — current 4,245 tips are mostly auto-ingested generic CAM hints. JM Die programs are ground truth for",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O9\",\"rank\":9,\"claim\":\"Memory injection dedup (rule 5 fix) saves measurable Claude tokens at zero functionality cost — straightforward hook patch with high session-level frequency.\",\"leverage\":\"",
+      "leverage": "low-med"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "knowledge-memory",
+      "what": "{\"id\":\"O10\",\"rank\":10,\"claim\":\"/wiki-morning daily cron: digest yesterday's commits + memories + tribal tips, summarize via Ollama, append to wiki/log.md — auto-curated audit trail.\",\"leverage\":\"low-m",
+      "leverage": "low-med"
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "MillingForceEngine is a 15-line stub but millDispatcher routes 'physics' bucket to it and 533-line test file pretends it implements Kienzle/deflection/chatter/power",
+      "evidence": [
+        "mcp-server/src/engines/MillingForceEngine.ts (lines 1-15)",
+        "mcp-server/src/__tests__/MillingForceEngine.test.ts (lines 1-565)",
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts (line 66 — case 'physics': MillingForceEngine import)"
+      ],
+      "impact": "Every mill_force_calculate / mill_physics_force / mill_chatter_predict path through the 'physics' bucket throws NOT_WIRED at runtime; tests must be running against a different binding (either skipped, or the build maps to a different module). High-priority correctness regression hidden behind WIRE-EXEMPT comment."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "MillScientificPipelineEngine is a 14-line stub wired as the millDispatcher 'scientific' bucket — mill_scientific_analyze / mill_scientific_optimize / mill_uncertainty_quantify all hit the stub",
+      "evidence": [
+        "mcp-server/src/engines/MillScientificPipelineEngine.ts (lines 1-14)",
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts (line 70 — case 'scientific')",
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts (lines 518-526 — three scientific actions)"
+      ],
+      "impact": "Three advertised dispatcher actions (scientific_analyze/optimize/uncertainty) silently return {ok:false,stub:true}. UX skill mill-studio cannot deliver scientific mode."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "ChatterPredictionEngine, ChatterStabilityLobeEngine, ChatterNeuralClassifierEngine all implement variants of Altintas-Budak SLD with no canonical routing — millDispatcher chatter actions point to MillingForceEngine.predictChatter (stub)",
+      "evidence": [
+        "mcp-server/src/engines/ChatterPredictionEngine.ts (lines 107-176, full SLD with directional factor)",
+        "mcp-server/src/engines/ChatterStabilityLobeEngine.ts (lines 1-80, machine-registry FRF + canonical Kienzle)",
+        "mcp-server/src/engines/ChatterNeuralClassifierEngine.ts (473 lines)",
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts (line 66 + line 400 'mill_chatter_predict' → physics bucket)"
+      ],
+      "impact": "User running mill_chatter_predict gets stub output while three real implementations exist. Conflicting physics constants (one uses CANONICAL_KIENZLE / MachineRegistry FRF, other inlines its own)."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "No standalone calc-dispatcher test asserting which mill physics action goes to which engine — hard to detect when stubs leak",
+      "evidence": [
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts (mill/chatter/deflection actions but no millDispatcher contract test)",
+        "Search: ChatterPredictionEngine has 10 consumers — calcDispatcher uses ChatterPredictionEngine, millDispatcher uses MillingForceEngine stub"
+      ],
+      "impact": "millDispatcher and calcDispatcher disagree on which engine answers chatter — UX skill chatter readings depend on which dispatcher is invoked."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "DeflectionOverlayEngine + SLDOverlayEngine are real-time visualization frames but no live websocket/streaming consumer in millDispatcher actions",
+      "evidence": [
+        "mcp-server/src/engines/SLDOverlayEngine.ts (lines 22-29 — feeds CAM plugin adapters)",
+        "mcp-server/src/engines/DeflectionOverlayEngine.ts (similar scope)",
+        "Grep shows only camDispatcher.ts + cam-plugins/full-pipeline.integration.test consume them — no millDispatcher action exposes them"
+      ],
+      "impact": "Mill UX studios can't surface live SLD/deflection overlays unless they reach into camDispatcher; loses the per-domain dispatcher value."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "ThermalSimEngine (286L), ThermalGrowthCompensationEngine (270L), ThermalCompensationModelEngine (214L) overlap with ThermalWearCouplingEngine — millDispatcher 'thermal' bucket only points to one (ThermalWearCoupling)",
+      "evidence": [
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts (line 68 — case 'thermal': ThermalWearCouplingEngine)",
+        "Engines listing: ThermalSimEngine, ThermalGrowthCompensationEngine, ThermalCompensationModelEngine, ThermalFieldToolpathEngine, ThermalNeuralPredictorEngine all exist"
+      ],
+      "impact": "Action 'mill_thermal_analyze' under-uses available physics; users seeking growth compensation must call calcDispatcher (thermal_growth, thermal_deflection, thermal_compensate) directly."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "MILL-MASTER v13 roadmap lives in mcp-server/data/milestones/MILL-MASTER.json (79 phases, 900 units) but no published index of phase->dispatcher-action ownership exists; chats cannot trace which units actually ship a backend surface",
+      "evidence": [
+        "knowledge/memories/project/project_mill_master_canonical.md (lines 7-13)",
+        "Memory says 'MILLING ONLY scope lock' but no claim/wiring matrix"
+      ],
+      "impact": "Hard to know which of 900 units are still unbuilt vs already shipped; risk of redundant work and missed gaps. BUILD_STATE table covers engines/dispatchers but not phases."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "MillingPhysicsKernelEngine is 1924 lines (largest in the mill family) but only referenced by 2 consumers (calcDispatcher mill_physics_force/tool_life and ChatterPredictionEngine reverse), no contract tests on its public surface",
+      "evidence": [
+        "mcp-server/src/engines/MillingPhysicsKernelEngine.ts (1924 lines)",
+        "Grep: MachiningIntelligenceOrchestratorEngine, KnowledgeGapAwarenessEngine, ChatterPredictionEngine reference it"
+      ],
+      "impact": "Risk-concentration: the canonical mill physics engine has minimal external assertions; refactor would be terrifying."
+    },
+    {
+      "kind": "gap",
+      "domain": "mill",
+      "confidence": 0.85,
+      "what": "MillingForceEngine.test.ts (565 lines) imports MillingForceEngine class + named types — class doesn't exist on stub; either tests are skipped or build aliases another file",
+      "evidence": [
+        "mcp-server/src/__tests__/MillingForceEngine.test.ts (line 9: 'import { MillingForceEngine, millingForceEngine, type ToolGeometry, type CuttingParams }')",
+        "mcp-server/src/engines/MillingForceEngine.ts (line 9: only exports `class MillingForceEngine` with one method `compute`)"
+      ],
+      "impact": "Either tests fail silently (false-green CI) or there's a hidden module-resolution layer we haven't located. Either way fake-test risk."
+    },
+    {
+      "kind": "conflict",
+      "domain": "mill",
+      "what": "Triple chatter implementation, no canonical entry",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "conflict",
+      "domain": "mill",
+      "what": "millDispatcher 'physics' bucket vs calcDispatcher mill_force_calculate",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "conflict",
+      "domain": "mill",
+      "what": "Thermal engines proliferation — 8 thermal* engines, only ThermalWearCouplingEngine routed",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "conflict",
+      "domain": "mill",
+      "what": "Mill skills bifurcated between project .claude and global ~/.claude — different sets, drifting",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "dead_code",
+      "domain": "mill",
+      "path": "mcp-server/src/engines/MillingForceEngine.ts",
+      "reason": "15-line stub, // WIRE-EXEMPT, returns {ok:false,stub:true}; the 'real engine never existed on any branch' per its own comment. Either implement or remove the dispatcher reference.",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "dead_code",
+      "domain": "mill",
+      "path": "mcp-server/src/engines/MillScientificPipelineEngine.ts",
+      "reason": "14-line stub, same pattern as above; satisfies dispatcher type only.",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "dead_code",
+      "domain": "mill",
+      "path": "mcp-server/src/engines/JMDieMillProgramHarvestEngine.ts",
+      "reason": "Likely duplicate of JMDieMillProgramHarvesterEngine (suffix-only differ); needs one to be removed. Pre-existing dup pattern caught by duplicationGuardEngine if it ever ran.",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "dead_code",
+      "domain": "mill",
+      "path": "mcp-server/src/engines/MillingForceEngine.test.ts (test file)",
+      "reason": "565 lines testing methods that don't exist on the stub. Either test file is skipped (false-green CI) or there's a hidden alias. Audit and either delete or restore the engine.",
+      "shortcode": "",
+      "deleteRequiresConsensus": true
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "Wire SLDOverlayEngine + DeflectionOverlayEngine as live mill_overlay_stream action — both engines exist, only need a websocket/SSE adapter",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "Replace MillingForceEngine + MillScientificPipelineEngine stubs with thin facades over MillingPhysicsKernelEngine (already 1924L of canonical physics)",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "Build mill_recipe_optimize action chaining mill_force → mill_chatter → mill_thermal → mill_deflection in a single dispatcher call (currently 4 round-trips)",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "JM Die mill program harvest already has 2 engines (JMDieMillProgramHarvestEngine, JMDieMillProgramHarvesterEngine — note the duplicate 'er' suffix) — wire to MillPatternMinerEngine for a learning loop",
+      "leverage": "med"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "MillTribalKnowledgeEngine + MillTribalIntegrationEngine wired separately — combine into one tribal endpoint with mill-specific filters",
+      "leverage": "med"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "MillNeuralNetworkEngine (747L) + MillStrategyNeuralEngine (270L) + MillComprehensiveNeuralEngine + ChatterNeuralClassifierEngine + MillingNeuralCognitiveEngine — 5 mill neural engines, candidate for unified MillNeuralRouterEngine",
+      "leverage": "med"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "MillDeepLearningEngine + MillingDeepReasoningEngine + MillingDeepIntegrationEngine + MillingDeepKnowledgeSynthesisEngine — 4 'Deep' engines, no shared interface",
+      "leverage": "low"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "mill",
+      "what": "MILL-MASTER v13 has 79 phases; build phase-to-dispatcher-action contract that the BUILD_STATE snapshot can verify per phase",
+      "leverage": "high"
+    },
+    {
+      "kind": "gap",
+      "domain": "physics-safety",
+      "confidence": 0.75,
+      "what": "No physics-literal lint hook prevents inline Kienzle/Taylor/material constant duplication",
+      "evidence": [
+        "mcp-server/src/engines/AdaptivePipelineGeneratorEngine.ts:189-194",
+        "mcp-server/src/engines/BatchCAMMaterialBridgeEngines.ts:483-630",
+        "mcp-server/src/engines/CADPhysicsConsistencyGateEngine.ts:51-55",
+        "mcp-server/src/engines/BenchmarkReportGeneratorEngine.ts:142-150",
+        "mcp-server/src/physics/constants.ts"
+      ],
+      "impact": "Drift already observed (ISO-S mc=0.25 inline vs 0.27 canonical). Future drift inevitable without lint. Safety-critical because Kienzle drives force/spindle/safety calcs."
+    },
+    {
+      "kind": "gap",
+      "domain": "physics-safety",
+      "confidence": 0.75,
+      "what": "No PreEmit gate on G-code dispatchers enforcing omega-thresholds.json tier",
+      "evidence": [
+        "state/shared/omega-thresholds.json",
+        "mcp-server/src/tools/dispatchers/postProcessorDispatcher.ts",
+        "mcp-server/src/tools/dispatchers/lathePostGenDispatcher.ts (or analog)",
+        "mcp-server/src/tools/dispatchers/millMasterPostDispatcher.ts",
+        "mcp-server/src/tools/dispatchers/hyperMILLNCDispatcher.ts"
+      ],
+      "impact": "Documented thresholds (shop-floor Ω≥0.95 / S(x)≥0.98 five-sigma) are aspirational — no code refuses below-tier G-code emit. Safety claim unenforced at the wire."
+    },
+    {
+      "kind": "gap",
+      "domain": "physics-safety",
+      "confidence": 0.75,
+      "what": "schemaVersion + migration path missing on omega-thresholds.json",
+      "evidence": [
+        "state/shared/omega-thresholds.json",
+        "mcp-server/src/migrations/"
+      ],
+      "impact": "When tier semantics shift (already evolving in CLAUDE.md doctrine), state files diverge silently. Backward-compat policy says N-1 supported."
+    },
+    {
+      "kind": "gap",
+      "domain": "physics-safety",
+      "confidence": 0.75,
+      "what": "No physics-consistency CI test asserting all engines reading kc1.1 / mc resolve to canonical values",
+      "evidence": [
+        "mcp-server/src/__tests__/",
+        "mcp-server/src/physics/constants.ts"
+      ],
+      "impact": "Test gap allows the same drift class as Finding-1 to survive build green."
+    },
+    {
+      "kind": "conflict",
+      "domain": "physics-safety",
+      "what": "Inline ISO-S Kienzle mc value drifts from canonical",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "conflict",
+      "domain": "physics-safety",
+      "what": "Nine Safety* engines with overlapping responsibilities",
+      "between": [],
+      "rationale": null
+    },
+    {
+      "kind": "opportunity",
+      "domain": "physics-safety",
+      "what": "Reuse duplication-hard-block.mjs pattern as physics-literal-lint hook",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "physics-safety",
+      "what": "OmegaGate as PreEmit on G-code dispatchers unlocks the documented five-sigma claim",
+      "leverage": "high"
+    },
+    {
+      "kind": "opportunity",
+      "domain": "physics-safety",
+      "what": "Wikify the canonical Kienzle table (already in constants.ts) into knowledge/wiki/concepts/kienzle-iso-groups.md so engines reference [[wiki-link]] rather than file path",
+      "leverage": "med"
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/ActualCostEngine.ts",
+      "line": 84,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AdaptiveControlEngine.ts",
+      "line": 526,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AdvancedCuttingPhysicsEngine.ts",
+      "line": 366,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AdvancedPostPhysicsEngine.ts",
+      "line": 154,
+      "ruleId": "no-inline-kienzle",
+      "label": "Inline Kienzle/Taylor/material constants forbidden",
+      "severity": "CRITICAL",
+      "fix": "import from src/physics/constants.ts",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AdvancedPostPhysicsEngine.ts",
+      "line": 828,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AgentAutoUpdateEngine.ts",
+      "line": 333,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AgentExecutor.ts",
+      "line": 400,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AgentWorkflowEngine.ts",
+      "line": 701,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AIGeneratedCodeApprovalGateEngine.ts",
+      "line": 399,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AIIntelligenceMaximizerEngine.ts",
+      "line": 226,
+      "ruleId": "no-inline-kienzle",
+      "label": "Inline Kienzle/Taylor/material constants forbidden",
+      "severity": "CRITICAL",
+      "fix": "import from src/physics/constants.ts",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AIMLEngine.ts",
+      "line": 381,
+      "ruleId": "no-inline-kienzle",
+      "label": "Inline Kienzle/Taylor/material constants forbidden",
+      "severity": "CRITICAL",
+      "fix": "import from src/physics/constants.ts",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AIMLFormulasEngine.ts",
+      "line": 722,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AlgorithmEngine.ts",
+      "line": 113,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AlgorithmGatewayEngine.ts",
+      "line": 1704,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AnomalyDetectionEngine.ts",
+      "line": 200,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/ApprovalWorkflowEngine.ts",
+      "line": 174,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AS9100TraceabilityEngine.ts",
+      "line": 432,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AuditManagerEngine.ts",
+      "line": 53,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutoForgeEngine.ts",
+      "line": 437,
+      "ruleId": "no-todo-fixme",
+      "label": "TODO/FIXME/HACK markers in production code",
+      "severity": "MAJOR",
+      "fix": "resolve or convert to roadmap unit",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutomatedResourceHarvestingPipeline.ts",
+      "line": 621,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutomationChainEngine.ts",
+      "line": 301,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutonomousAIOrchestrationEngine.ts",
+      "line": 1174,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutoPrintToProgramBridgeEngine.ts",
+      "line": 413,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutoProgramOrchestratorEngine.ts",
+      "line": 2271,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutoSpeedFeedEngine.ts",
+      "line": 263,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/AutoTestGeneratorEngine.ts",
+      "line": 392,
+      "ruleId": "no-todo-fixme",
+      "label": "TODO/FIXME/HACK markers in production code",
+      "severity": "MAJOR",
+      "fix": "resolve or convert to roadmap unit",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/BatchCAMAPIBridgeEngines.ts",
+      "line": 99,
+      "ruleId": "no-as-any",
+      "label": "Type-erasing cast (as any / as unknown as)",
+      "severity": "MAJOR",
+      "fix": "narrow types properly or extend interface",
+      "shortcode": ""
+    },
+    {
+      "kind": "doctrine",
+      "file": "mcp-server/src/engines/BayesianAdaptiveEngine.ts",
+      "line": 86,
+      "ruleId": "no-inline-kienzle",
+      "label": "Inline Kienzle/Taylor/material constants forbidden",
+      "severity": "CRITICAL",
+      "fix": "import from src/physics/constants.ts",
+      "shortcode": ""
+    }
+  ],
+  "suppression": {
+    "suppressed": 13,
+    "total": 135,
+    "dedupRate": 0.096
+  },
+  "totals": {
+    "domains": 10,
+    "gaps": 50,
+    "conflicts": 8,
+    "opportunities": 42,
+    "dead_code": 7,
+    "memory_proposals": 9,
+    "avgConfidence": 0.739
+  },
+  "phase2Stats": {
+    "bridges": 50,
+    "cycles": 0,
+    "doctrineViolations": 28,
+    "deadCodeCandidates": 100
+  },
+  "overlayStats": {
+    "green": 21,
+    "yellow": 128757,
+    "red": 138,
+    "blue": 19,
+    "uncolored": 370
+  },
+  "overlayPath": "state/shared/system-viz/audit-overlay.json"
+}

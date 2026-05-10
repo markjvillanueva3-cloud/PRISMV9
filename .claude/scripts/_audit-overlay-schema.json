@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://prism.local/schemas/audit-overlay.schema.json",
+  "title": "PRISM forge-audit overlay",
+  "description": "Per-node coloring instructions consumed by system-viz.html. Color encodes wired/orphan/bridge state derived from forge-audit-omniscient phase outputs.",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "sourceAudit", "nodeCount", "nodes"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceAudit": {
+      "type": "string",
+      "description": "Path of the AUDIT-LATEST.json this overlay was derived from."
+    },
+    "systemGraphSha": {
+      "type": "string",
+      "description": "SHA of the system-graph.json this overlay was computed against (8-char hex)."
+    },
+    "nodeCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "green": { "type": "integer" },
+        "yellow": { "type": "integer" },
+        "red": { "type": "integer" },
+        "blue": { "type": "integer" },
+        "uncolored": { "type": "integer" }
+      },
+      "required": ["green", "yellow", "red", "blue", "uncolored"]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["nodeId", "color", "reason"],
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "description": "Matches a node id in system-graph.json (typically the file path or DSL shortcode)."
+          },
+          "color": {
+            "type": "string",
+            "enum": ["green", "yellow", "red", "blue"],
+            "description": "green = wired+tested+documented · yellow = wired only (missing tests OR docs) · red = orphan (zero inbound, importance > 0) · blue = bridge-missing (1-hop pair in same domain that should be 0-hop)"
+          },
+          "reason": {
+            "type": "string",
+            "description": "One-line human reason — surfaced in viz tooltip."
+          },
+          "shortcode": {
+            "type": "string",
+            "description": "DSL shortcode (E####, D##, A##, T####) when resolvable. Empty string if no shortcode applies."
+          },
+          "suggested_unit": {
+            "type": "string",
+            "description": "Suggested U-* unit name to remediate this node, when applicable."
+          },
+          "importance": {
+            "type": "number",
+            "description": "PageRank-derived importance score (0-1)."
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain bucket from coverage-by-domain.json (mill, lathe, edm, physics-safety, ai-reasoning, cad-ingest, cam-bridges, knowledge-memory, quote-erp-biz, ux-studios, other)."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
