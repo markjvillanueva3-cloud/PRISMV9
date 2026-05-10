@@ -43,7 +43,7 @@ export interface BlueprintRef {
   drawing_score: number;
 }
 
-export type MatchConfidence = "exact" | "loose" | "miss";
+export type MatchConfidence = "exact" | "loose" | "ambiguous" | "miss";
 
 export interface JoinRecord {
   part_number: string;
@@ -60,6 +60,7 @@ export interface JoinSummary {
   unique_part_numbers: number;
   joins_exact: number;
   joins_loose: number;
+  joins_ambiguous: number;
   joins_miss: number;
   programs_indexed: number;
 }
@@ -73,6 +74,13 @@ export interface JoinOptions {
   outPath?: string;
   /** Hard cap on a single JSONL line (bytes); over-cap lines counted malformed. */
   maxLineBytes?: number;
+  /**
+   * Cardinality threshold above which a match is demoted to confidence
+   * "ambiguous". Real-world test: short numeric part numbers like "0001"
+   * collide with hundreds of programs and drown out useful joins.
+   * Default: 25. Set to 0 to disable.
+   */
+  maxProgramsPerMatch?: number;
 }
 
 // ============================================================================
@@ -379,6 +387,8 @@ async function joinBlueprintsToPrograms(
 
   const maxLineBytes = options.maxLineBytes ?? DEFAULT_MAX_LINE_BYTES;
 
+  const maxProgramsPerMatch = options.maxProgramsPerMatch ?? 25;
+
   const summary: JoinSummary = {
     blueprint_pages_total: 0,
     blueprint_pages_with_part_number: 0,
@@ -386,6 +396,7 @@ async function joinBlueprintsToPrograms(
     unique_part_numbers: 0,
     joins_exact: 0,
     joins_loose: 0,
+    joins_ambiguous: 0,
     joins_miss: 0,
     programs_indexed: labelsIndex.count + masterIndex.count,
   };
@@ -474,6 +485,12 @@ async function joinBlueprintsToPrograms(
     if (programs.length === 0) {
       confidence = "miss";
       summary.joins_miss++;
+    } else if (maxProgramsPerMatch > 0 && programs.length > maxProgramsPerMatch) {
+      // High-cardinality match: short numeric keys like "0001" collide
+      // with hundreds of unrelated programs across the corpus. Demote so
+      // training pipelines can filter ambiguous joins as untrustworthy.
+      confidence = "ambiguous";
+      summary.joins_ambiguous++;
     } else if (entry.matchedExact) {
       confidence = "exact";
       summary.joins_exact++;

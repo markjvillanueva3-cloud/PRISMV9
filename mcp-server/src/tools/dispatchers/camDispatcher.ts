@@ -5111,11 +5111,13 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               masterIndexPath?: string;
               outPath?: string;
               maxLineBytes?: number;
+              maxProgramsPerMatch?: number;
             } = {};
             if (typeof params.program_labels_path === "string") opts.programLabelsPath = params.program_labels_path;
             if (typeof params.master_index_path === "string") opts.masterIndexPath = params.master_index_path;
             if (typeof params.out_path === "string") opts.outPath = params.out_path;
             if (typeof params.max_line_bytes === "number") opts.maxLineBytes = params.max_line_bytes;
+            if (typeof params.max_programs_per_match === "number") opts.maxProgramsPerMatch = params.max_programs_per_match;
             const { summary, joins } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(jsonlPath, opts);
             const topJoins = joins
               .slice()

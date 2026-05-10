@@ -346,6 +346,93 @@ describe("joinBlueprintsToPrograms — adversarial inputs", () => {
   });
 });
 
+describe("joinBlueprintsToPrograms — ambiguous demotion (maxProgramsPerMatch)", () => {
+  // Build a labels file where many programs share the same digits-only
+  // key — mirrors the real-world failure mode where phase8 emits a part
+  // number like "0001" and dozens of unrelated programs encode "0001"
+  // somewhere in their filename.
+  function buildSharedKeyLabels(file: string, count: number) {
+    const labels: Array<{ filePath: string; fileName: string; customer: string }> = [];
+    for (let i = 0; i < count; i++) {
+      labels.push({
+        filePath: `X\\AMB\\PROG-${i}-2845.MIN`,
+        fileName: `PROG-${i}-2845.MIN`,
+        customer: `CUST_${i}`,
+      });
+    }
+    return writeLabels(file, labels);
+  }
+
+  it("demotes a match with > maxProgramsPerMatch programs to confidence='ambiguous'", async () => {
+    const labelsPath = buildSharedKeyLabels("labels-amb-30.json", 30);
+    const phase8Path = writeJSONL("phase8-amb-30.jsonl", [
+      phase8Row({ doc_id: "d1", part_numbers_clean: ["2845"] }),
+    ]);
+
+    const { summary, joins } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(
+      phase8Path,
+      { programLabelsPath: labelsPath, maxProgramsPerMatch: 25 },
+    );
+
+    expect(summary.joins_ambiguous).toBe(1);
+    expect(summary.joins_exact).toBe(0);
+    expect(summary.joins_miss).toBe(0);
+    expect(joins).toHaveLength(1);
+    expect(joins[0].match_confidence).toBe("ambiguous");
+    expect(joins[0].programs).toHaveLength(30);
+  });
+
+  it("keeps a match below the threshold as confidence='exact'", async () => {
+    const labelsPath = buildSharedKeyLabels("labels-amb-10.json", 10);
+    const phase8Path = writeJSONL("phase8-amb-10.jsonl", [
+      phase8Row({ doc_id: "d1", part_numbers_clean: ["2845"] }),
+    ]);
+
+    const { summary, joins } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(
+      phase8Path,
+      { programLabelsPath: labelsPath, maxProgramsPerMatch: 25 },
+    );
+
+    expect(summary.joins_exact).toBe(1);
+    expect(summary.joins_ambiguous).toBe(0);
+    expect(joins[0].match_confidence).toBe("exact");
+    expect(joins[0].programs).toHaveLength(10);
+  });
+
+  it("disables demotion when maxProgramsPerMatch=0 (all matches stay exact)", async () => {
+    const labelsPath = buildSharedKeyLabels("labels-amb-50.json", 50);
+    const phase8Path = writeJSONL("phase8-amb-50.jsonl", [
+      phase8Row({ doc_id: "d1", part_numbers_clean: ["2845"] }),
+    ]);
+
+    const { summary, joins } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(
+      phase8Path,
+      { programLabelsPath: labelsPath, maxProgramsPerMatch: 0 },
+    );
+
+    expect(summary.joins_exact).toBe(1);
+    expect(summary.joins_ambiguous).toBe(0);
+    expect(joins[0].match_confidence).toBe("exact");
+    expect(joins[0].programs).toHaveLength(50);
+  });
+
+  it("default threshold (25) trips on a 26-program collision", async () => {
+    const labelsPath = buildSharedKeyLabels("labels-amb-26.json", 26);
+    const phase8Path = writeJSONL("phase8-amb-26.jsonl", [
+      phase8Row({ doc_id: "d1", part_numbers_clean: ["2845"] }),
+    ]);
+
+    // Omit maxProgramsPerMatch to exercise the default path.
+    const { summary } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(
+      phase8Path,
+      { programLabelsPath: labelsPath },
+    );
+
+    expect(summary.joins_ambiguous).toBe(1);
+    expect(summary.joins_exact).toBe(0);
+  });
+});
+
 describe("joinBlueprintsToPrograms — customer variability", () => {
   it("indexes ALCOA, ACME, and ITW programs and joins each correctly", async () => {
     const labelsPath = writeLabels("labels-multi.json", [

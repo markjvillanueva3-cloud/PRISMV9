@@ -1127,11 +1127,13 @@ export function registerDevDispatcher(server: any): void {
               masterIndexPath?: string;
               outPath?: string;
               maxLineBytes?: number;
+              maxProgramsPerMatch?: number;
             } = {};
             if (typeof bp.program_labels_path === "string") opts.programLabelsPath = bp.program_labels_path;
             if (typeof bp.master_index_path === "string") opts.masterIndexPath = bp.master_index_path;
             if (typeof bp.out_path === "string") opts.outPath = bp.out_path;
             if (typeof bp.max_line_bytes === "number") opts.maxLineBytes = bp.max_line_bytes;
+            if (typeof bp.max_programs_per_match === "number") opts.maxProgramsPerMatch = bp.max_programs_per_match;
             const { summary, joins } = await blueprintProgramJoinEngine.joinBlueprintsToPrograms(jsonlPath, opts);
             // Trim joins payload to top-20 by program-match count to keep response bounded
             const topJoins = joins
