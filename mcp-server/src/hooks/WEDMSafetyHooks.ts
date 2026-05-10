@@ -1092,7 +1092,7 @@ const wedmProgramSafetyGate: HookDefinition = {
             s_of_x: r.s_of_x,
             threshold: r.audit?.threshold_used,
             hard_block: r.hard_block,
-            failing_components: r.mandatory_failures,
+            failing_components: r.mandatory_failures.length,
             failure_reasons: r.failure_reasons,
             summary: r.summary,
           };
