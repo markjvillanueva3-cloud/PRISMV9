@@ -225,6 +225,13 @@ export const AI_REASONING_ACTIONS = [
   "xproc_tribal_outcome_configure",
   "xproc_tribal_outcome_stats",
   "xproc_tribal_outcome_reset",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN06 — drift/calibration/concept-shift outcome bridge
+  "xproc_drift_subscribe",
+  "xproc_drift_unsubscribe",
+  "xproc_drift_status",
+  "xproc_drift_configure",
+  "xproc_drift_stats",
+  "xproc_drift_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1519,6 +1526,29 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ),
   xproc_tribal_outcome_reset: z.object({}).passthrough().describe(
     "U-CN04: Reset bridge state (test-only — does NOT touch TribalKnowledgeEngine tips).",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN06 — drift/calibration/concept-shift outcome bridge
+  xproc_drift_subscribe: z.object({}).passthrough().describe(
+    "U-CN06: Subscribe drift+calibration bridge to FeedbackBus 'outcome.completed'. Each terminal outcome is fanned out to CrossProcessDriftDetectorEngine (binary-error observe), ConformalCalibrationMonitorEngine (predicted-set vs actual coverage), and CrossProcessConceptShiftHandlerEngine (gated retrain decision). Idempotent.",
+  ),
+  xproc_drift_unsubscribe: z.object({}).passthrough().describe(
+    "U-CN06: Detach the drift/calibration outcome subscription. Idempotent.",
+  ),
+  xproc_drift_status: z.object({}).passthrough().describe(
+    "U-CN06: Introspect — is the bridge subscription currently live?",
+  ),
+  xproc_drift_configure: z.object({
+    errorPolicy: z.enum(["failure_only", "failure_or_override"]).optional().describe("How to derive binary error from outcome.kind. Default failure_only treats only outcome.kind='failure' as a model mistake."),
+    minDriftConfidenceForRetrain: z.number().min(0).max(1).optional().describe("Minimum drift confidence to gate the concept-shift handler call. Default 0.5."),
+    cooldownMs: z.number().int().nonnegative().optional().describe("Cooldown forwarded to the concept-shift handler to suppress retrain thrash. Default 60000."),
+  }).passthrough().describe(
+    "U-CN06: Update drift bridge config. Returns the validated effective config.",
+  ),
+  xproc_drift_stats: z.object({}).passthrough().describe(
+    "U-CN06: Read bridge telemetry — totals (events, drift observes, calibration records, retrain decisions), per-engine failure counts, last drift report, last recovery decision, current config.",
+  ),
+  xproc_drift_reset: z.object({}).passthrough().describe(
+    "U-CN06: Reset bridge state (test-only — does NOT touch downstream drift detector / calibration monitor / concept-shift handler state).",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({

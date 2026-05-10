@@ -118,6 +118,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_tribal_outcome_configure: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
   xproc_tribal_outcome_stats: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
   xproc_tribal_outcome_reset: () => import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js").then(m => m.tribalKnowledgeOutcomeBridgeDispatch),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN06 — drift/calibration/concept-shift outcome bridge
+  xproc_drift_subscribe: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
+  xproc_drift_unsubscribe: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
+  xproc_drift_status: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
+  xproc_drift_configure: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
+  xproc_drift_stats: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
+  xproc_drift_reset: () => import("../../engines/OutcomeDriftCalibrationBridgeEngine.js").then(m => m.outcomeDriftCalibrationBridgeDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1752,6 +1759,13 @@ export async function executeAIReasoningAction(
       case "xproc_tribal_outcome_configure":
       case "xproc_tribal_outcome_stats":
       case "xproc_tribal_outcome_reset":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN06 — drift/calibration/concept-shift outcome bridge
+      case "xproc_drift_subscribe":
+      case "xproc_drift_unsubscribe":
+      case "xproc_drift_status":
+      case "xproc_drift_configure":
+      case "xproc_drift_stats":
+      case "xproc_drift_reset":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":
