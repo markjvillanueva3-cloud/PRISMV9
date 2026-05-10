@@ -2819,6 +2819,12 @@ export class LatheThermodynamicsEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+// WIRE-EXEMPT: physics calculation library (calculateHeatGeneration, predictHeatPartition,
+// calculateCuttingTemperature, predictThermalDistortion, assessThermalDamage). Engine has
+// been singleton-exported for ~2 months without a dispatcher consumer; reads from canonical
+// COATING/SUBSTRATE/COOLANT/PHASE_TRANSFORMATION databases. Pending pipeline integration in
+// the lathe thermal track — companion test file (LatheThermodynamicsEngine.test.ts, 18
+// cases) exercises the deterministic public surface.
 export const latheThermodynamicsEngine = new LatheThermodynamicsEngine();
 
 // Default export
