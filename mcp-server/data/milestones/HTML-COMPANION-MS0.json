@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 4,
+  "id": "HTML-COMPANION-MS0",
+  "title": "HTML Companion Infrastructure for Strategic Spec Docs (Boris doctrine codification)",
+  "track": "HTML-COMPANION",
+  "priority": "P1",
+  "owner": "claude-85cedf09",
+  "created_at": "2026-05-10T16:00:00.000Z",
+  "updated_at": "2026-05-10T16:00:00.000Z",
+  "status": "not_started",
+  "total_units": 4,
+  "completed_units": 0,
+  "dependencies": [],
+  "rationale": "User asked whether all PRISM surfaces should migrate from MD to HTML. Answer: NO universal migration (memories, CLAUDE.md, skills, hooks, wiki, awareness files MUST stay MD). YES per-spec HTML companion (strategic specs benefit from polished surface with copy-buttons, severity tables, SVG). Codify role split + build auto-companion generator so future specs auto-get HTML.",
+  "knowledge_sources": {
+    "engines": [],
+    "tribal_knowledge": "state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md",
+    "formulas": [],
+    "reference": [
+      "state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.html (~480 lines reference)",
+      "state/shared/specs/HOOK-SYNERGY-V2-PLAN.html (~300 lines reference)"
+    ]
+  },
+  "phases": [
+    {
+      "id": "doctrine",
+      "title": "Codify the MD/HTML role split",
+      "units": [
+        {
+          "id": "U-HTML-CLAUDE-MD-EDIT",
+          "title": "Add role-split rule to H:/prism/CLAUDE.md (machine-consumed surfaces stay MD; strategic spec docs get BOTH MD + HTML companion)",
+          "status": "not_started",
+          "estimated_hours": 0.25,
+          "dependencies": []
+        },
+        {
+          "id": "U-HTML-DOCTRINE-UPDATE",
+          "title": "Update BORIS-LOOP-AGENT-DOCTRINE.md to define qualifying artifacts: spec docs >=150 lines, audit reports, roadmaps, operator setup sheets",
+          "status": "not_started",
+          "estimated_hours": 0.25,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "tooling",
+      "title": "Build the auto-generator + backfill",
+      "units": [
+        {
+          "id": "U-HTML-COMPANION-GENERATOR",
+          "title": "scripts/spec-html-companion-generator.mjs — reads any qualifying MD, generates HTML using shared template (dark theme, sticky nav, severity pills, copy-to-prompt buttons, SVG diagrams). Wire as PostToolUse Write hook on state/shared/specs/*.md.",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": ["U-HTML-DOCTRINE-UPDATE"]
+        },
+        {
+          "id": "U-HTML-BACKFILL",
+          "title": "Run generator across K2-CLOUD-INTEGRATION-PLAN.md, K2-ROUTER-INVENTORY.md, BORIS-LOOP-AGENT-DOCTRINE.md, plus any state/shared/specs/*.md >=150 lines without sibling .html",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": ["U-HTML-COMPANION-GENERATOR"]
+        }
+      ]
+    }
+  ],
+  "acceptance_criteria": [
+    "H:/prism/CLAUDE.md has explicit MD/HTML role split section",
+    "BORIS-LOOP-AGENT-DOCTRINE.md defines qualifying artifact types",
+    "Generator renders any qualifying MD into HTML matching reference pattern",
+    "PostToolUse hook fires generator on new spec MD within 5s",
+    "Every existing strategic spec >=150 lines has sibling .html"
+  ],
+  "compounding_artifact": "scripts/spec-html-companion-generator.mjs IS the dev-velocity artifact. Saves 400+ lines of manual HTML hand-write per future spec doc.",
+  "boris_loop_gate": "Generator unit ships peer reviewer subagent (isolation:worktree) reviewing template fidelity"
+}

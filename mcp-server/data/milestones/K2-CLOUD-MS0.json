@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 4,
+  "id": "K2-CLOUD-MS0",
+  "title": "Kimi K2.6:cloud Mid-Tier AI Integration (qwen → K2.6:cloud → Claude Opus ladder)",
+  "track": "K2-CLOUD",
+  "priority": "P0",
+  "owner": "claude-85cedf09",
+  "created_at": "2026-05-10T16:00:00.000Z",
+  "updated_at": "2026-05-10T16:00:00.000Z",
+  "status": "in_progress",
+  "total_units": 13,
+  "completed_units": 1,
+  "dependencies": ["HOOK-SYNERGY-MS0:U-HOOK-AUDIT", "HOOK-SYNERGY-MS0:U-HOOK-FAST-LANE"],
+  "rationale": "Add a paid-cloud Ollama tier (kimi-k2.6:cloud) between local qwen2.5-coder:7b and Claude Opus to recover the 62% of currently-Claude tasks that don't need Claude depth. User-locked decisions 2026-05-10: budget cap 100K tokens/session (~$10) with fail-closed at 90K; AGGRESSIVE escalation (any context>8K escalates qwen→K2.6:cloud, no confidence-signal gating); two-pass safety pattern (K2 generates → Claude scrutinizes against PRISM SAFETY RAILS, returns PASS|REVISE|FAIL); Wave 5.5 timing (between cyrilXBT B1-B6 and Company Brain D1-D5). HOOK-SYNERGY blocks K2-K12 because every Edit on AISystemRouterEngine.ts currently waits for full PreToolUse hook stack (50+ minute hangs).",
+  "knowledge_sources": {
+    "engines": [
+      "AISystemRouterEngine (target — extend AIBackend union with kimi-k2.6:cloud, add helpers)",
+      "OllamaHookBridgeEngine (target — extend or wrap with K2CloudOllamaEngine)",
+      "K2CloudOllamaEngine (NEW — adapter with auth + fallback to qwen)",
+      "K2ScrutinizeChainEngine (NEW — two-pass safety orchestrator for K4.5)"
+    ],
+    "tribal_knowledge": "knowledge/memories/feedback/feedback_ollama_token_routing.md",
+    "formulas": ["KIMI_K2_PRICING constants (input USD/1M, output USD/1M)"],
+    "reference": [
+      "state/shared/specs/K2-CLOUD-INTEGRATION-PLAN.md (12 atomic units + K4.5 = 13 total)",
+      "state/shared/specs/K2-ROUTER-INVENTORY.md (K1 deliverable — full router surface inventory)",
+      "mcp-server/src/engines/AISystemRouterEngine.ts (298 lines, 8 backends, 9 task classes, 5 dispatcher actions)",
+      "mcp-server/src/engines/OllamaHookBridgeEngine.ts (371 lines, 7 hook types, hardcoded localhost:11434)",
+      "mcp-server/data/state/ollama-offload-stats.json (schema 2.0.0 → needs 3.0.0 in K8)"
+    ]
+  },
+  "phases": [
+    {
+      "id": "inventory",
+      "title": "K1 — Inventory (already shipped)",
+      "units": [
+        {
+          "id": "U-K2-CONFIG-INVENTORY",
+          "title": "K1 — Document existing tier table in AISystemRouterEngine + OllamaHookBridgeEngine. K2-ROUTER-INVENTORY.md.",
+          "status": "completed",
+          "completed_date": "2026-05-10",
+          "completed_commit": "29d0d18ec",
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "engine-build",
+      "title": "K2-K4.5 — Engine + router + scrutiny chain",
+      "units": [
+        {
+          "id": "U-K2-TIER-REGISTER",
+          "title": "K2 — Register kimi-k2.6:cloud tier in AISystemRouterEngine (AIBackend union, KIMI_K2_PRICING constants, contextSize/isSafetyCritical/getCurrentSessionTokens helpers, probe with auth-marker check)",
+          "status": "in_progress",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-CONFIG-INVENTORY"]
+        },
+        {
+          "id": "U-K2-CLOUD-ENGINE",
+          "title": "K3 — K2CloudOllamaEngine.ts adapter (auth via marker file, fallback to qwen, 5 failure modes + 2 adversarial tests)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": ["U-K2-TIER-REGISTER"]
+        },
+        {
+          "id": "U-K2-ROUTER-DECISION",
+          "title": "K4 — Extend AISystemRouterEngine routing matrix (mid-band rules: contextSize>8K AND not safety-critical → K2.6 instead of Opus for engine_building/reasoning task classes)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-TIER-REGISTER"]
+        },
+        {
+          "id": "U-K2-CLAUDE-SCRUTINIZE-CHAIN",
+          "title": "K4.5 — K2ScrutinizeChainEngine.ts two-pass safety pattern (K2 generates → Claude scrutinizes against PRISM SAFETY RAILS, returns ScrutinyDecision{verdict:PASS|REVISE|FAIL, primary_response, scrutiny_notes, total_cost})",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": ["U-K2-CLOUD-ENGINE", "U-K2-ROUTER-DECISION", "U-K2-COST-GUARD"]
+        }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "title": "K5-K9 — Hook + skill + cost guard + telemetry + dashboard",
+      "units": [
+        {
+          "id": "U-K2-TIER-HOOK",
+          "title": "K5 — .claude/hooks/ollama-tier-router.mjs UserPromptSubmit hook (routes prompts >8K context to K2.6:cloud per AGGRESSIVE posture)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-ROUTER-DECISION"]
+        },
+        {
+          "id": "U-K2-SKILL",
+          "title": "K6 — /k2-ask skill (or extend /local-ask --tier=k2)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-CLOUD-ENGINE"]
+        },
+        {
+          "id": "U-K2-COST-GUARD",
+          "title": "K7 — Per-session budget cap (100K tokens) + fail-closed gate at 90% (90K tokens) using K2_SESSION_BUDGET_TOKENS + K2_BUDGET_FAIL_CLOSED_RATIO constants",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-TIER-REGISTER"]
+        },
+        {
+          "id": "U-K2-TELEMETRY",
+          "title": "K8 — ollama-offload-stats.json schema 2.0.0 → 3.0.0 with per-model breakdown (model_used, tier, cost_estimate, tokens_in, tokens_out per event) + migration",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": []
+        },
+        {
+          "id": "U-K2-DASHBOARD",
+          "title": "K9 — Extend scripts/ollama-offload-dashboard.mjs with cost projection (USD per session, monthly burn rate, budget cap utilization)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-TELEMETRY"]
+        }
+      ]
+    },
+    {
+      "id": "validation",
+      "title": "K10-K12 — Tests + auth + docs",
+      "units": [
+        {
+          "id": "U-K2-FALLBACK-TESTS",
+          "title": "K10 — Vitest covering 5 failure modes (auth fail, network timeout, malformed response, budget exhausted, K2.6 unavailable) + 2 adversarial (NaN context size, unicode in prompt) + K4.5 scrutiny paths (PASS/REVISE/FAIL)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": ["U-K2-CLAUDE-SCRUTINIZE-CHAIN", "U-K2-DASHBOARD"]
+        },
+        {
+          "id": "U-K2-AUTH-SETUP",
+          "title": "K11 — scripts/k2-cloud-auth-setup.mjs ollama signin wrapper + status doc + auth-marker file at mcp-server/data/state/k2-cloud-auth.json",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-K2-CLAUDE-MD-DOC",
+          "title": "K12 — H:/prism/CLAUDE.md doc update: 3-tier ladder (qwen → K2.6:cloud → Claude Opus) + Boris back-flow note + two-pass safety pattern reference",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": ["U-K2-CLAUDE-SCRUTINIZE-CHAIN", "U-K2-FALLBACK-TESTS"]
+        }
+      ]
+    }
+  ],
+  "acceptance_criteria": [
+    "AISystemRouterEngine.AIBackend union includes 'kimi-k2.6:cloud'",
+    "Routing decision: context>8K AND not safety-critical → K2.6 (verified by tests)",
+    "Safety-critical tasks route through K4.5 two-pass chain",
+    "Per-session budget cap 100K tokens enforced fail-closed at 90K",
+    "ollama-offload-stats.json schema 3.0.0 with per-model breakdown",
+    "Dashboard shows cost projection (USD/session, monthly, budget util)",
+    "K10 tests cover 5 failure modes + 2 adversarial + 3 scrutiny paths",
+    "CLAUDE.md documents the 3-tier ladder + two-pass pattern"
+  ],
+  "compounding_artifact": "K2ScrutinizeChainEngine — generic two-pass generator+critic pattern reusable for any safety-critical AI workload (not just K2.6)",
+  "boris_loop_gate": "K1+K2+K3 verification batch (peer reviewer subagent isolation:worktree) before K4 starts; K4.5+K10 batch before close"
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 4,
+  "id": "VIZ-COVERAGE-MS0",
+  "title": "System-Viz Coverage Discrepancy Fix (BUILD_STATE 72% vs viz 88%)",
+  "track": "VIZ-COVERAGE",
+  "priority": "P2",
+  "owner": "claude-85cedf09",
+  "created_at": "2026-05-10T16:00:00.000Z",
+  "updated_at": "2026-05-10T16:00:00.000Z",
+  "status": "not_started",
+  "total_units": 1,
+  "completed_units": 0,
+  "dependencies": [],
+  "rationale": "BUILD_STATE.json reports 2269 wired/3167 total (72%) but system-viz coverage-by-domain reports 2802 wired/3176 total (88%). Same metric, two answers (delta=533 in numerator). Root cause traced 2026-05-10: generate-system-viz.mjs lines 257-282 has a hardcoded domainsBuiltIn block summing to 2802, instead of reading buildState.COVERAGE_BY_DOMAIN.rows from build-state-snapshot.mjs (lines 191-228, single source of truth). Fix is one-source-replacement in viz, NOT extension to snapshot. CLAUDE.md regression entry already documents this discrepancy. Independent of HOOK-SYNERGY and K2-CLOUD.",
+  "knowledge_sources": {
+    "engines": [],
+    "tribal_knowledge": "H:/prism/CLAUDE.md ## Recent regressions block (entry dated 2026-05-09)",
+    "formulas": [],
+    "reference": [
+      "scripts/generate-system-viz.mjs (785+ lines, lines 257-282 = hardcoded block)",
+      "scripts/build-state-snapshot.mjs (591 lines, lines 191-228 = computeCoverageByDomain — single source of truth)",
+      "state/shared/BUILD_STATE.json (target reference)",
+      "state/shared/system-viz/system-graph.json (output reflects discrepancy)"
+    ]
+  },
+  "phases": [
+    {
+      "id": "fix",
+      "title": "Single-source-replacement",
+      "units": [
+        {
+          "id": "U-VIZ-COVERAGE-FIX",
+          "title": "Replace hardcoded domainsBuiltIn block in scripts/generate-system-viz.mjs lines 257-282 with read of buildState.COVERAGE_BY_DOMAIN.rows from BUILD_STATE.json. Verify regenerated viz matches BUILD_STATE numbers (2269 wired / 3167 total / 72%). Update CLAUDE.md regression entry to RESOLVED.",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        }
+      ]
+    }
+  ],
+  "acceptance_criteria": [
+    "scripts/generate-system-viz.mjs reads from buildState.COVERAGE_BY_DOMAIN.rows (no hardcoded block)",
+    "Regenerated viz reports same wired/total/% as BUILD_STATE.json",
+    "CLAUDE.md regression entry updated to RESOLVED with commit SHA",
+    "Test: generate-system-viz output asserts COVERAGE_BY_DOMAIN values match buildState"
+  ],
+  "compounding_artifact": "Adds an integration test enforcing single-source-of-truth between build-state-snapshot and generate-system-viz",
+  "boris_loop_gate": "Single-unit milestone — peer reviewer subagent verifies the fix actually closes the discrepancy (not just papers over it)"
+}
