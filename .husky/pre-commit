@@ -5,7 +5,19 @@
 # Add common node paths for Windows
 export PATH="$PATH:/c/Program Files/nodejs:/c/Users/$USER/AppData/Roaming/npm"
 
-npx lint-staged
+# U-HUSKY-PRECOMMIT-HARDEN (2026-05-10):
+# Only run lint-staged when it has a usable config. The repo previously called
+# `npx lint-staged` unconditionally — when no .lintstagedrc / package.json
+# config exists, lint-staged exits non-zero and silently kills the commit
+# with a "no changes added to commit" symptom that traps multi-chat sessions
+# (the staged index appears intact but the commit refuses). Skipping when
+# unconfigured restores the expected "no-op if not configured" semantics.
+if [ -f ".lintstagedrc" ] || [ -f ".lintstagedrc.json" ] || [ -f ".lintstagedrc.yaml" ] || \
+   [ -f ".lintstagedrc.yml" ] || [ -f ".lintstagedrc.mjs" ] || [ -f ".lintstagedrc.cjs" ] || \
+   [ -f ".lintstagedrc.js" ] || [ -f "lint-staged.config.mjs" ] || [ -f "lint-staged.config.cjs" ] || \
+   [ -f "lint-staged.config.js" ] || grep -q '"lint-staged"' package.json 2>/dev/null; then
+  npx lint-staged || exit 1
+fi
 
 # U-CAM-ENRICH-05: Phase-5 real-impl gate
 node mcp-server/scripts/hooks/cam-phase5-impl-gate.mjs || exit 1
