@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-05-10T00:02:16.303Z",
+  "durationMs": 143,
+  "inputs": {
+    "phase8": "H:/prism/Docustrata/.index/phase8-classified-pages.cleaned.jsonl",
+    "phase9": "H:/prism/Docustrata/.index/phase9-unified-pages.jsonl"
+  },
+  "pipelines": {
+    "phase8": {
+      "label": "phase8",
+      "path": "H:/prism/Docustrata/.index/phase8-classified-pages.cleaned.jsonl",
+      "file_bytes": 8993722,
+      "total_lines": 20612,
+      "malformed": 0,
+      "unique_docs": 2480,
+      "pages_with_tier2_ocr": 20612,
+      "pages_above_drawing_floor_0_3": 11459,
+      "pages_with_part_numbers": 4611,
+      "total_ocr_chars": 1901322,
+      "avg_ocr_chars_per_tier2_page": 92,
+      "unique_part_numbers": 5391
+    },
+    "phase9": {
+      "label": "phase9",
+      "path": "H:/prism/Docustrata/.index/phase9-unified-pages.jsonl",
+      "file_bytes": 3164987,
+      "total_lines": 7671,
+      "malformed": 0,
+      "unique_docs": 524,
+      "pages_with_tier2_ocr": 3987,
+      "pages_above_drawing_floor_0_3": 3990,
+      "pages_with_part_numbers": 1520,
+      "total_ocr_chars": 614626,
+      "avg_ocr_chars_per_tier2_page": 154,
+      "unique_part_numbers": 2352
+    }
+  },
+  "overlap": {
+    "keysOnlyInA": 12464,
+    "keysOnlyInB": 0,
+    "commonKeys": 7671,
+    "scorePairs": 7612,
+    "scoreMAE": 0,
+    "scoreRMSE": 0,
+    "bothAboveFloor": 3971,
+    "onlyAboveFloorInA": 13,
+    "onlyAboveFloorInB": 19,
+    "partNumberRecoveryWins": {
+      "a": 11,
+      "b": 123,
+      "tie": 1396
+    }
+  },
+  "recommendation": {
+    "winner": "phase8",
+    "reason": "phase8 leads on both coverage and recovery"
+  }
+}
