@@ -47,6 +47,35 @@ export interface OmegaSafetyResult {
   justification: string[];
   /** Recommendations if blocked */
   recommendations: string[];
+  /** U-CN03: NN-confidence input echoed back when supplied (else undefined) */
+  nn_confidence?: number;
+  /** U-CN03: NN weight used in the weighted geometric mean (else undefined) */
+  nn_weight?: number;
+}
+
+/**
+ * U-CN03: Optional NN-confidence input. When provided, treats the calibrated
+ * NN confidence as an additional soft-prior dimension in the geometric mean,
+ * weighted by `nnWeight`. Default behavior (omitted): identical to pre-CN03
+ * call shape, fully backward-compatible.
+ *
+ * Math: with N base dimensions of weight 1 each + NN with weight w_nn:
+ *   S(x) = (Π base_dim_scores × nnConf^w_nn)^(1/(N + w_nn))
+ * w_nn = 0 collapses to the base geometric mean (degenerate, no effect).
+ *
+ * The veto path still wins: when assessment.vetoed === true, S(x) = 0
+ * regardless of NN confidence — physics-derived hard blocks are NOT
+ * overridable by a learned signal.
+ */
+export interface OmegaScoreOptions {
+  /** NN-calibrated confidence ∈ [0, 1]. Pre-OPT-A this is raw softmax max. */
+  nnConfidence?: number;
+  /**
+   * Weight of NN dimension in the geometric mean. ≥ 0. Default 0 (no
+   * contribution). Common values: 0.5 (advisory), 1.0 (peer dimension),
+   * 2.0 (dominant — only when NN is heavily calibrated).
+   */
+  nnWeight?: number;
 }
 
 // ============================================================================
@@ -54,6 +83,15 @@ export interface OmegaSafetyResult {
 // ============================================================================
 
 const GATE_THRESHOLD = 0.70;
+
+// U-CN03: Minimum value substituted for zero in the log-product. Without this
+// floor, a single critical/veto dimension would force exp(-∞)=0 even when the
+// caller wants the score to reflect a graded blend. The legacy code used a
+// plain product where any zero collapsed it; we preserve that for vetoed
+// assessments via the explicit `assessment.vetoed` short-circuit. For
+// non-vetoed scoring, MIN_GEO_FLOOR = 1e-6 keeps the math defined while
+// keeping the geometric mean sharply low (critical=0.25 still dominates).
+const MIN_GEO_FLOOR = 1e-6;
 
 const RISK_SCORE: Record<RiskLevel, number> = {
   safe: 1.0,
@@ -73,22 +111,56 @@ export class OmegaSafetyScoreEngine {
 
   /**
    * Score a pre-computed SafetyAssessment.
+   *
+   * U-CN03: Optional `opts.nnConfidence` + `opts.nnWeight` lets callers fold
+   * the cross-process neural learner's calibrated confidence into the
+   * composite as a weighted 7th dimension. Pure backward-compat when omitted
+   * — the legacy 6-dimension geometric mean path is bit-equivalent.
    */
-  score(assessment: SafetyAssessment): OmegaSafetyResult {
+  score(assessment: SafetyAssessment, opts?: OmegaScoreOptions): OmegaSafetyResult {
     const perDim: Record<string, number> = {};
-    let product = 1;
-    let count = 0;
+    let logSum = 0; // weighted log-product (numerically stable)
+    let totalWeight = 0;
 
     for (const dimName of DIMENSION_NAMES) {
       const dim: RiskDimension = assessment.dimensions[dimName];
       const s = RISK_SCORE[dim.risk] ?? 0;
       perDim[dimName] = s;
-      product *= s;
-      count++;
+      // log(0) → -Infinity; geometric mean ⇒ 0 (any zero kills product).
+      // Floor at MIN_GEO_FLOOR so a single critical doesn't inadvertently
+      // collapse the product when not vetoed (preserves legacy behavior:
+      // critical=0.25 contributes geometrically, doesn't zero out).
+      const safeS = s > 0 ? s : MIN_GEO_FLOOR;
+      logSum += Math.log(safeS) * 1; // base dimension weight = 1
+      totalWeight += 1;
     }
 
-    // Geometric mean: (s1 × s2 × ... × sN)^(1/N)
-    const omega = assessment.vetoed ? 0 : Math.pow(product, 1 / count);
+    // U-CN03: include NN dimension when caller supplies confidence + weight.
+    // Defends against NaN/Infinity/out-of-range; invalid → silently skip
+    // (degrade open — the safety floor stays the physics-derived score).
+    let nnConfidenceUsed: number | undefined;
+    let nnWeightUsed: number | undefined;
+    const nnConf = opts?.nnConfidence;
+    const nnWeight = opts?.nnWeight ?? 0;
+    if (
+      typeof nnConf === "number" &&
+      Number.isFinite(nnConf) &&
+      nnConf >= 0 &&
+      nnConf <= 1 &&
+      Number.isFinite(nnWeight) &&
+      nnWeight > 0
+    ) {
+      const safeNn = nnConf > 0 ? nnConf : MIN_GEO_FLOOR;
+      logSum += Math.log(safeNn) * nnWeight;
+      totalWeight += nnWeight;
+      perDim["nn_confidence"] = nnConf;
+      nnConfidenceUsed = nnConf;
+      nnWeightUsed = nnWeight;
+    }
+
+    // Weighted geometric mean: exp((Σ w_i · ln(s_i)) / Σ w_i)
+    const omegaRaw = totalWeight > 0 ? Math.exp(logSum / totalWeight) : 0;
+    const omega = assessment.vetoed ? 0 : omegaRaw;
     const passed = omega >= GATE_THRESHOLD;
 
     const justification = [...assessment.justification];
@@ -109,6 +181,12 @@ export class OmegaSafetyScoreEngine {
       if (assessment.escalation_actions.length > 0) {
         recommendations.push(...assessment.escalation_actions);
       }
+      // U-CN03: if NN confidence pulled the score below gate, surface that.
+      if (nnConfidenceUsed !== undefined && nnConfidenceUsed < GATE_THRESHOLD) {
+        recommendations.push(
+          `NN confidence ${nnConfidenceUsed.toFixed(3)} (weight ${nnWeightUsed!.toFixed(2)}) lowered the composite — operator review or retraining recommended before override`,
+        );
+      }
     }
 
     return {
@@ -119,11 +197,15 @@ export class OmegaSafetyScoreEngine {
       vetoed: assessment.vetoed,
       justification,
       recommendations,
+      nn_confidence: nnConfidenceUsed,
+      nn_weight: nnWeightUsed,
     };
   }
 
   /**
    * Full evaluate: run PipelineSafetyOrchestrator assessment then score it.
+   *
+   * U-CN03: Optional `opts.nnConfidence` + `opts.nnWeight` forward to score().
    */
   evaluate(
     operation: OperationInput,
@@ -131,11 +213,12 @@ export class OmegaSafetyScoreEngine {
     machine: MachineInput,
     tool: ToolInput,
     workholding: WorkholdingInput,
+    opts?: OmegaScoreOptions,
   ): OmegaSafetyResult {
     const assessment = pipelineSafetyOrchestratorEngine.assess(
       operation, material, machine, tool, workholding,
     );
-    return this.score(assessment);
+    return this.score(assessment, opts);
   }
 }
 

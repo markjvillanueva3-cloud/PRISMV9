@@ -7714,17 +7714,35 @@ export function registerCalcDispatcher(server: any): void {
           // ── Omega Safety Gate ──
           case "omega_safety_score": {
             const { omegaSafetyScoreEngine } = await import("../../engines/OmegaSafetyScoreEngine.js");
-            result = omegaSafetyScoreEngine.score(params as any);
+            // U-CN03: optional nn_confidence + nn_weight pull from params and
+            // pass through as score() opts. When the assessment is the whole
+            // params object (legacy), we also accept a wrapper shape:
+            //   { assessment, nn_confidence, nn_weight }
+            const p = params as Record<string, unknown>;
+            const assessment = (p.assessment as Parameters<typeof omegaSafetyScoreEngine.score>[0]) ?? (p as Parameters<typeof omegaSafetyScoreEngine.score>[0]);
+            const nnConfidence = typeof p.nn_confidence === "number" ? p.nn_confidence : undefined;
+            const nnWeight = typeof p.nn_weight === "number" ? p.nn_weight : undefined;
+            const opts = (nnConfidence !== undefined || nnWeight !== undefined)
+              ? { nnConfidence, nnWeight }
+              : undefined;
+            result = omegaSafetyScoreEngine.score(assessment, opts);
             break;
           }
           case "omega_safety_evaluate": {
             const { omegaSafetyScoreEngine } = await import("../../engines/OmegaSafetyScoreEngine.js");
+            const p = params as Record<string, unknown>;
+            const nnConfidence = typeof p.nn_confidence === "number" ? p.nn_confidence : undefined;
+            const nnWeight = typeof p.nn_weight === "number" ? p.nn_weight : undefined;
+            const opts = (nnConfidence !== undefined || nnWeight !== undefined)
+              ? { nnConfidence, nnWeight }
+              : undefined;
             result = omegaSafetyScoreEngine.evaluate(
-              (params as any).operation,
-              (params as any).material,
-              (params as any).machine,
-              (params as any).tool,
-              (params as any).workholding,
+              p.operation as Parameters<typeof omegaSafetyScoreEngine.evaluate>[0],
+              p.material as Parameters<typeof omegaSafetyScoreEngine.evaluate>[1],
+              p.machine as Parameters<typeof omegaSafetyScoreEngine.evaluate>[2],
+              p.tool as Parameters<typeof omegaSafetyScoreEngine.evaluate>[3],
+              p.workholding as Parameters<typeof omegaSafetyScoreEngine.evaluate>[4],
+              opts,
             );
             break;
           }
