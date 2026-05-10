@@ -1,0 +1,426 @@
+{
+  "id": "MS-AUDIT-DERIVED-2026-05-10",
+  "version": "1.0.0",
+  "title": "Audit-derived units (2026-05-10) — 30 findings",
+  "brief": "Auto-generated milestone envelope from forge-audit-omniscient findings. Each unit corresponds to one high-leverage audit finding (gap, conflict, dead_code, opportunity, or doctrine violation). Consumed by /rgs6 generate as a standard milestone envelope. Regenerate via `node H:/prism/.claude/scripts/audit-to-units.mjs` after each forge-audit run.",
+  "created_at": "2026-05-10T15:57:40.955Z",
+  "created_by": "audit-to-units.mjs",
+  "track": "audit-derived",
+  "track_name": "Audit-derived roadmap units",
+  "status": "not_started",
+  "priority": "high",
+  "tier": "audit",
+  "omega_target": 0.95,
+  "depends_on": [],
+  "audit_origin": {
+    "source_audit": "state/shared/AUDIT-LATEST.json",
+    "source_audit_generated_at": "2026-05-10T06:53:58.651Z",
+    "source_audit_total_findings": 101,
+    "selected_findings": 30,
+    "top_n": 30,
+    "min_conf": 0.7,
+    "exclude_shipped": false,
+    "score_breakdown": {
+      "dead_code": 7,
+      "conflict": 2,
+      "gap": 17,
+      "opportunity": 4,
+      "doctrine": 0
+    },
+    "regenerator": "node H:/prism/.claude/scripts/audit-to-units.mjs"
+  },
+  "total_units": 30,
+  "completed_units": 0,
+  "units": [
+    {
+      "id": "U-AUDIT-01-2B4677",
+      "title": "[gap] MillingForceEngine is a 15-line stub but millDispatcher routes 'physics' bucket to it and 533-line test file pretends it implements Ki",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/MillingForceEngine.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 34,
+      "details": "**Finding:** MillingForceEngine is a 15-line stub but millDispatcher routes 'physics' bucket to it and 533-line test file pretends it implements Kienzle/deflection/chatter/power\n**Evidence:**\n- mcp-server/src/engines/MillingForceEngine.ts (lines 1-15)\n- mcp-server/src/__tests__/MillingForceEngine.test.ts (lines 1-565)\n- mcp-server/src/tools/dispatchers/millDispatcher.ts (line 66 — case 'physics': MillingForceEngine import)\n**Domain:** mill",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-02-B5F8AF",
+      "title": "[gap] MillScientificPipelineEngine is a 14-line stub wired as the millDispatcher 'scientific' bucket — mill_scientific_analyze / mill_scient",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/MillScientificPipelineEngine.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 34,
+      "details": "**Finding:** MillScientificPipelineEngine is a 14-line stub wired as the millDispatcher 'scientific' bucket — mill_scientific_analyze / mill_scientific_optimize / mill_uncertainty_quantify all hit the stub\n**Evidence:**\n- mcp-server/src/engines/MillScientificPipelineEngine.ts (lines 1-14)\n- mcp-server/src/tools/dispatchers/millDispatcher.ts (line 70 — case 'scientific')\n- mcp-server/src/tools/dispatchers/millDispatcher.ts (lines 518-526 — three scientific actions)\n**Domain:** mill",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-03-9AF630",
+      "title": "[gap] ChatterPredictionEngine, ChatterStabilityLobeEngine, ChatterNeuralClassifierEngine all implement variants of Altintas-Budak SLD with n",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/ChatterPredictionEngine.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 34,
+      "details": "**Finding:** ChatterPredictionEngine, ChatterStabilityLobeEngine, ChatterNeuralClassifierEngine all implement variants of Altintas-Budak SLD with no canonical routing — millDispatcher chatter actions point to MillingForceEngine.predictChatter (stub)\n**Evidence:**\n- mcp-server/src/engines/ChatterPredictionEngine.ts (lines 107-176, full SLD with directional factor)\n- mcp-server/src/engines/ChatterStabilityLobeEngine.ts (lines 1-80, machine-registry FRF + canonical Kienzle)\n- mcp-server/src/engines/ChatterNeuralClassifierEngine.ts (473 lines)\n- mcp-server/src/tools/dispatchers/millDispatcher.ts (line 66 + line 400 'mill_chatter_predict' → physics bucket)\n**Domain:** mill",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-04-A628A3",
+      "title": "[gap] No standalone calc-dispatcher test asserting which mill physics action goes to which engine — hard to detect when stubs leak",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/calcDispatcher.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 34,
+      "details": "**Finding:** No standalone calc-dispatcher test asserting which mill physics action goes to which engine — hard to detect when stubs leak\n**Evidence:**\n- mcp-server/src/tools/dispatchers/calcDispatcher.ts (mill/chatter/deflection actions but no millDispatcher contract test)\n- Search: ChatterPredictionEngine has 10 consumers — calcDispatcher uses ChatterPredictionEngine, millDispatcher uses MillingForceEngine stub\n**Domain:** mill",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-05-A57522",
+      "title": "[gap] ThermalSimEngine (286L), ThermalGrowthCompensationEngine (270L), ThermalCompensationModelEngine (214L) overlap with ThermalWearCouplin",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 34,
+      "details": "**Finding:** ThermalSimEngine (286L), ThermalGrowthCompensationEngine (270L), ThermalCompensationModelEngine (214L) overlap with ThermalWearCouplingEngine — millDispatcher 'thermal' bucket only points to one (ThermalWearCoupling)\n**Evidence:**\n- mcp-server/src/tools/dispatchers/millDispatcher.ts (line 68 — case 'thermal': ThermalWearCouplingEngine)\n- Engines listing: ThermalSimEngine, ThermalGrowthCompensationEngine, ThermalCompensationModelEngine, ThermalFieldToolpathEngine, ThermalNeuralPredictorEngine all exist\n**Domain:** mill",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-06-EB760E",
+      "title": "[gap] MillingForceEngine.test.ts (565 lines) imports MillingForceEngine class + named types — class doesn't exist on stub; either tests are ",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/__tests__/MillingForceEngine.test.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 34,
+      "details": "**Finding:** MillingForceEngine.test.ts (565 lines) imports MillingForceEngine class + named types — class doesn't exist on stub; either tests are skipped or build aliases another file\n**Evidence:**\n- mcp-server/src/__tests__/MillingForceEngine.test.ts (line 9: 'import { MillingForceEngine, millingForceEngine, type ToolGeometry, type CuttingParams }')\n- mcp-server/src/engines/MillingForceEngine.ts (line 9: only exports `class MillingForceEngine` with one method `compute`)\n**Domain:** mill",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-07-2D8697",
+      "title": "[gap] Sparse importer coverage: only 4 files contain importStep|parseDxf|importIges|importDwg|extractFromPdf across 100+ CAD engines (CadBri",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "cad-ingest",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 33,
+      "details": "**Finding:** Sparse importer coverage: only 4 files contain importStep|parseDxf|importIges|importDwg|extractFromPdf across 100+ CAD engines (CadBridge, QuoteToShipOrchestratorEngine, StepImportEngine, WEDMPrintToProgramEngine).\n**Evidence:**\n- Grep across mcp-server/src/engines/ returned 7 occurrences in 4 files only\n**Domain:** cad-ingest",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-08-3A0A8A",
+      "title": "[gap] BlueprintProgramJoinEngine joins to a CAD master-index it explicitly calls 'currently sparse' / 'currently stub' — fallback path is re",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "cad-ingest",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 33,
+      "details": "**Finding:** BlueprintProgramJoinEngine joins to a CAD master-index it explicitly calls 'currently sparse' / 'currently stub' — fallback path is real (program-labels.json) but CAD side is degenerate.\n**Evidence:**\n- BlueprintProgramJoinEngine.ts L8: 'master-index.json (CAD master index — currently sparse)'\n- L72: 'masterIndexPath?: Path to CAD master-index.json (currently stub)'\n**Domain:** cad-ingest",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-09-CD0508",
+      "title": "[gap] No PreEmit gate on G-code dispatchers enforcing omega-thresholds.json tier",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "physics-safety",
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/postProcessorDispatcher.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 33,
+      "details": "**Finding:** No PreEmit gate on G-code dispatchers enforcing omega-thresholds.json tier\n**Evidence:**\n- state/shared/omega-thresholds.json\n- mcp-server/src/tools/dispatchers/postProcessorDispatcher.ts\n- mcp-server/src/tools/dispatchers/lathePostGenDispatcher.ts (or analog)\n- mcp-server/src/tools/dispatchers/millMasterPostDispatcher.ts\n- mcp-server/src/tools/dispatchers/hyperMILLNCDispatcher.ts\n**Domain:** physics-safety",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-10-30D254",
+      "title": "[gap] schemaVersion + migration path missing on omega-thresholds.json",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "physics-safety",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 33,
+      "details": "**Finding:** schemaVersion + migration path missing on omega-thresholds.json\n**Evidence:**\n- state/shared/omega-thresholds.json\n- mcp-server/src/migrations/\n**Domain:** physics-safety",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-11-D6A9A2",
+      "title": "[gap] No physics-consistency CI test asserting all engines reading kc1.1 / mc resolve to canonical values",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "physics-safety",
+      "files_modified": [
+        "mcp-server/src/physics/constants.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 33,
+      "details": "**Finding:** No physics-consistency CI test asserting all engines reading kc1.1 / mc resolve to canonical values\n**Evidence:**\n- mcp-server/src/__tests__/\n- mcp-server/src/physics/constants.ts\n**Domain:** physics-safety",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-12-A695F5",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/CADAutomationMockLayer.ts",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "cad-ingest",
+      "files_modified": [
+        "mcp-server/src/engines/CADAutomationMockLayer.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** name-only suspicion (mock layer) — verify it's still referenced by tests before delete\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** cad-ingest",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-13-117623",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/HyperCADSMockLayer.ts",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "cad-ingest",
+      "files_modified": [
+        "mcp-server/src/engines/HyperCADSMockLayer.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** name-only suspicion (mock layer paired with HyperCADSAutomationEngine) — verify before delete\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** cad-ingest",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-14-67E607",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/PerAppInCADInferenceAdapter.ts",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "cad-ingest",
+      "files_modified": [
+        "mcp-server/src/engines/PerAppInCADInferenceAdapter.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** name-only suspicion (unusual 'InCAD' naming, possible typo of 'In-CAD' adapter) — verify scope\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** cad-ingest",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-15-8A7DB9",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/MillingForceEngine.ts",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/MillingForceEngine.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** 15-line stub, // WIRE-EXEMPT, returns {ok:false,stub:true}; the 'real engine never existed on any branch' per its own comment. Either implement or remove the dispatcher reference.\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** mill",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-16-DBEC78",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/MillScientificPipelineEngine.ts",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/MillScientificPipelineEngine.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** 14-line stub, same pattern as above; satisfies dispatcher type only.\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** mill",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-17-21FBC6",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/JMDieMillProgramHarvestEngine.ts",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/JMDieMillProgramHarvestEngine.ts"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** Likely duplicate of JMDieMillProgramHarvesterEngine (suffix-only differ); needs one to be removed. Pre-existing dup pattern caught by duplicationGuardEngine if it ever ran.\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** mill",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-18-56F99E",
+      "title": "Verify+remove dead-code: mcp-server/src/engines/MillingForceEngine.test.ts (test file)",
+      "status": "not_started",
+      "finding_kind": "dead_code",
+      "domain": "mill",
+      "files_modified": [
+        "mcp-server/src/engines/MillingForceEngine.test.ts (test file)"
+      ],
+      "shortcode": null,
+      "audit_score": 30,
+      "details": "**Reason:** 565 lines testing methods that don't exist on the stub. Either test file is skipped (false-green CI) or there's a hidden alias. Audit and either delete or restore the engine.\n\n⚠ **byzantine-coordinator 3-of-3 consensus required** before delete (irreversible action).\n**Domain:** mill",
+      "delete_requires_consensus": true
+    },
+    {
+      "id": "U-AUDIT-19-D8F06A",
+      "title": "[gap] 16 of 19 Tier-3 specialists have feedback_loop_wired: false despite JSDoc claims",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "ai-reasoning",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 29,
+      "details": "**Finding:** 16 of 19 Tier-3 specialists have feedback_loop_wired: false despite JSDoc claims. Mandate: every AGI/Ultra/Master orchestrator MUST subscribe to >=1 actuals signal (recordOutcome|onActuals|measuredOutcome) within 30 days or get demoted from production->beta.\n**Domain:** ai-reasoning",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-20-122461",
+      "title": "[gap] Ollama user-prompt offloader is 0% effective",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "ai-reasoning",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 29,
+      "details": "**Finding:** Ollama user-prompt offloader is 0% effective. ollama-task-offloader fires 23 times and offloads 0 — every conversational task is kept on Claude. The 54% offload rate is entirely from cache-hit on engine-api-extraction. Re-tune the classifier or this is dead infrastructure.\n**Domain:** ai-reasoning",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-21-92F43D",
+      "title": "[gap] AI-HIERARCHY-INVENTORY.md is 530 honest lines but stale (generated 2026-05-02, today is 2026-05-09)",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "ai-reasoning",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 29,
+      "details": "**Finding:** AI-HIERARCHY-INVENTORY.md is 530 honest lines but stale (generated 2026-05-02, today is 2026-05-09). Re-run on every Stop or weekly cron — drift on this file is the difference between 'we know what we have' and 'we hallucinate what we have'.\n**Domain:** ai-reasoning",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-22-DD3DE4",
+      "title": "[gap] {\"id\":\"G4\",\"severity\":\"MED\",\"claim\":\"Wiki entries have low confidence (0.7) for ALL bootstrap-generated entries (570+ of 770)",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "knowledge-memory",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 29,
+      "details": "**Finding:** {\"id\":\"G4\",\"severity\":\"MED\",\"claim\":\"Wiki entries have low confidence (0.7) for ALL bootstrap-generated entries (570+ of 770). LLM-augmented entries with sources>1 + confidence>0.85 are the long-term goal but the corpus is currently 75% bootstrap-only.\",\"fix\":\"U-WIKI-LLM-AUGMENT: schedule Ollama batch run that walks bootstrap entries and adds synthesized cross-refs + confidence bumps; pause when source files older than 30 days (avoid drift).\"}\n**Domain:** knowledge-memory",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-23-F91EDA",
+      "title": "[gap] {\"id\":\"G6\",\"severity\":\"MED\",\"claim\":\"Memory injection hash dedup missing — same memory can be re-injected within a session (rule 5 of ",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "knowledge-memory",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 29,
+      "details": "**Finding:** {\"id\":\"G6\",\"severity\":\"MED\",\"claim\":\"Memory injection hash dedup missing — same memory can be re-injected within a session (rule 5 of 2nd-brain protocol explicitly flags this). memory-rag-inject.mjs does not track per-session injected hashes.\",\"fix\":\"U-MEMORY-DEDUP-SESSION: add small JSON cache (.claude/cache/injected-this-session.json) keyed by (sessionId, memoryHash); skip injection on hit; clear at SessionStart.\"}\n**Domain:** knowledge-memory",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-24-1A28C8",
+      "title": "[gap] {\"id\":\"G10\",\"severity\":\"LOW\",\"claim\":\"wiki/index.md last_verified is 2026-05-08 but engine source files keep landing daily — stale-by-",
+      "status": "not_started",
+      "finding_kind": "gap",
+      "domain": "knowledge-memory",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 29,
+      "details": "**Finding:** {\"id\":\"G10\",\"severity\":\"LOW\",\"claim\":\"wiki/index.md last_verified is 2026-05-08 but engine source files keep landing daily — stale-by-construction. No cron re-runs the bootstrap.\",\"fix\":\"U-WIKI-CRON: cron entry that runs wiki-bootstrap.mjs nightly + on every commit that adds an *Engine.ts file (post-commit hook).\"}\n**Domain:** knowledge-memory",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-25-DD7350",
+      "title": "[conflict] Two ingest engines with near-identical names and overlapping intent",
+      "status": "not_started",
+      "finding_kind": "conflict",
+      "domain": "cad-ingest",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 25,
+      "details": "**Finding:** Two ingest engines with near-identical names and overlapping intent\n**Domain:** cad-ingest",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-26-AB34DF",
+      "title": "[conflict] WIRE-EXEMPT tag on CADCorpusIngestionEngine claims dispatcher integration is deferred 'until BlueprintVisionOCREngine hook is res",
+      "status": "not_started",
+      "finding_kind": "conflict",
+      "domain": "cad-ingest",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 25,
+      "details": "**Finding:** WIRE-EXEMPT tag on CADCorpusIngestionEngine claims dispatcher integration is deferred 'until BlueprintVisionOCREngine hook is restored after the peer-chat revert resolves'.\n**Domain:** cad-ingest",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-27-384B93",
+      "title": "[opportunity] Wire all 31 unwired CAM engines in single sweep (BUILD_STATE-driven)",
+      "status": "not_started",
+      "finding_kind": "opportunity",
+      "domain": "cam-bridges",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 25,
+      "details": "**Finding:** Wire all 31 unwired CAM engines in single sweep (BUILD_STATE-driven)\n**Domain:** cam-bridges",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-28-620526",
+      "title": "[opportunity] Post-processor cross-cutting test harness",
+      "status": "not_started",
+      "finding_kind": "opportunity",
+      "domain": "cam-bridges",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 25,
+      "details": "**Finding:** Post-processor cross-cutting test harness\n**Domain:** cam-bridges",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-29-C24BB5",
+      "title": "[opportunity] {\"id\":\"O2\",\"rank\":2,\"claim\":\"Customer-tagged tribal tips unlock per-customer recall — JM Die has 118 lathe customers + ITW/Alc",
+      "status": "not_started",
+      "finding_kind": "opportunity",
+      "domain": "knowledge-memory",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 25,
+      "details": "**Finding:** {\"id\":\"O2\",\"rank\":2,\"claim\":\"Customer-tagged tribal tips unlock per-customer recall — JM Die has 118 lathe customers + ITW/Alcoa/Optimas/SFS/Holo-Krome/FONTANA/ATF visible in CNC LATHE. A per-customer\n**Domain:** knowledge-memory",
+      "delete_requires_consensus": false
+    },
+    {
+      "id": "U-AUDIT-30-822706",
+      "title": "[opportunity] {\"id\":\"O3\",\"rank\":3,\"claim\":\"Wiki entries auto-published into RGS forge phases — every new engine commit → wiki entry → indexe",
+      "status": "not_started",
+      "finding_kind": "opportunity",
+      "domain": "knowledge-memory",
+      "files_modified": [],
+      "shortcode": null,
+      "audit_score": 25,
+      "details": "**Finding:** {\"id\":\"O3\",\"rank\":3,\"claim\":\"Wiki entries auto-published into RGS forge phases — every new engine commit → wiki entry → indexed → next forge run can /forge-triple against existing knowledge instead of\n**Domain:** knowledge-memory",
+      "delete_requires_consensus": false
+    }
+  ]
+}
