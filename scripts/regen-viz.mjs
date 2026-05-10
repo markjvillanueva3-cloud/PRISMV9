@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+/**
+ * regen-viz.mjs — single-shot regenerate the entire system-viz graph.
+ *
+ * Use cases:
+ *   - After pdf-learn / video-learn / shop-knowledge / tribal-ingest writes
+ *     new tips: knowledge-galaxy picks them up and emits new L8 nodes.
+ *   - After any audit script that writes a new state/shared/UNWIRED-*.json:
+ *     wiring-overlay emits fresh phantom edges.
+ *   - After commits to engines/dispatchers/registries: galaxy-constituents
+ *     enumerates new files as molecules.
+ *
+ * Skip generators that only emit when their source data has changed
+ * (filesystem dir-index, since that takes minutes to walk H:\).
+ *
+ * Usage:
+ *   node scripts/regen-viz.mjs            # default — fast augmentations + merge
+ *   node scripts/regen-viz.mjs --full     # also regen the heavy fs-deep + L11
+ *
+ * The viz polls system-graph.json every 30s and auto-reloads on mtime change,
+ * so once this completes the open browser tab updates without manual refresh.
+ */
+import { spawnSync } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+
+const FAST = [
+  "generate-engine-domain-inventory.mjs",
+  "generate-knowledge-inventory.mjs",
+  "generate-staleness-overlay.mjs",
+  "generate-wiring-overlay.mjs",
+  "generate-galaxy-constituents.mjs",
+  "generate-knowledge-galaxy.mjs",
+  "generate-layer-bridges.mjs",
+  "generate-stagnant-features.mjs",
+  "generate-engine-graph.mjs",
+  "generate-hook-bridges.mjs",
+  "generate-frontend-pages.mjs",
+  "generate-combo-detector.mjs",
+];
+const HEAVY = [
+  "generate-fs-deep-inventory.mjs",
+  "generate-l11-file-leaves.mjs",
+];
+
+const args = process.argv.slice(2);
+const wantFull = args.includes("--full");
+const scripts = wantFull ? [...FAST, ...HEAVY] : FAST;
+
+console.log(`[regen-viz] running ${scripts.length} generator(s)${wantFull ? " (FULL)" : " (fast)"}…`);
+const t0 = Date.now();
+let failed = 0;
+for (const s of scripts) {
+  const abs = path.join(ROOT, "scripts", s);
+  const start = Date.now();
+  const r = spawnSync(process.execPath, [abs], { stdio: "inherit", cwd: ROOT });
+  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+  if (r.status !== 0) {
+    console.error(`[regen-viz] ✗ ${s} failed (exit ${r.status}, ${elapsed}s)`);
+    failed++;
+  } else {
+    console.log(`[regen-viz] ✓ ${s}  (${elapsed}s)`);
+  }
+}
+
+console.log(`[regen-viz] merging…`);
+const m = spawnSync(process.execPath, [path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (m.status !== 0) {
+  console.error(`[regen-viz] ✗ merge failed`);
+  failed++;
+}
+
+const totalSec = ((Date.now() - t0) / 1000).toFixed(1);
+console.log(`[regen-viz] done in ${totalSec}s · failed=${failed}`);
+process.exit(failed > 0 ? 1 : 0);
