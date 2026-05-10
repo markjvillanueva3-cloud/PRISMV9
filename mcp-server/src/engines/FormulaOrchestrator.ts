@@ -19,7 +19,7 @@ import { log } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { FormulaRegistry, Formula } from "../registries/FormulaRegistry.js";
+import { FormulaRegistry, formulaRegistry, Formula } from "../registries/FormulaRegistry.js";
 
 // ============================================================================
 // TYPES (per AI-AWARE-HARDEN.json typeScriptInterfaces)
@@ -136,7 +136,7 @@ const PHYSICS_GATES = {
 
 export class FormulaOrchestrator {
   private static instance: FormulaOrchestrator;
-  private formulaRegistry: typeof FormulaRegistry;
+  private formulaRegistry: FormulaRegistry;
   private engineMappings: Map<string, FormulaEngineMapping> = new Map();
   private initialized: boolean = false;
   private stateFile: string;
@@ -144,7 +144,7 @@ export class FormulaOrchestrator {
   private constructor() {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     this.stateFile = path.join(__dirname, "../data/state/FORMULA_ORCHESTRATOR_STATE.json");
-    this.formulaRegistry = FormulaRegistry;
+    this.formulaRegistry = formulaRegistry;
   }
 
   static getInstance(): FormulaOrchestrator {
@@ -183,7 +183,7 @@ export class FormulaOrchestrator {
 
     try {
       // Get all formulas from registry
-      const allFormulas = await this.formulaRegistry.list();
+      const allFormulas = (await this.formulaRegistry.list()).formulas;
       log.info(`[FormulaOrchestrator] Scanning ${allFormulas.length} registered formulas`);
 
       // Get list of engine files
@@ -354,7 +354,7 @@ export class FormulaOrchestrator {
     if (testValues) {
       // Force gate
       if (testValues.force !== undefined || testValues.Fc !== undefined) {
-        const forceValue = testValues.force || testValues.Fc || 0;
+        const forceValue = Number(testValues.force ?? testValues.Fc ?? 0);
         result.physicsGates.force = PHYSICS_GATES.force.validate(forceValue);
         if (!result.physicsGates.force) {
           result.errors.push(`Force value ${forceValue} failed positive gate`);
@@ -364,7 +364,7 @@ export class FormulaOrchestrator {
 
       // Thermal gate
       if (testValues.temperature !== undefined || testValues.T !== undefined) {
-        const tempValue = testValues.temperature || testValues.T || 0;
+        const tempValue = Number(testValues.temperature ?? testValues.T ?? 0);
         result.physicsGates.thermal = PHYSICS_GATES.thermal.validate(tempValue);
         if (!result.physicsGates.thermal) {
           result.errors.push(`Temperature ${tempValue}°C outside bounds [20, 1500]`);
@@ -374,7 +374,7 @@ export class FormulaOrchestrator {
 
       // Deflection gate
       if (testValues.deflection !== undefined || testValues.delta !== undefined) {
-        const deflValue = testValues.deflection || testValues.delta || 0;
+        const deflValue = Number(testValues.deflection ?? testValues.delta ?? 0);
         const isRoughing = testValues.operation === "roughing" || !testValues.operation;
         const deflLimit = isRoughing ? 0.2 : 0.05;
         const passed = deflValue < deflLimit;
