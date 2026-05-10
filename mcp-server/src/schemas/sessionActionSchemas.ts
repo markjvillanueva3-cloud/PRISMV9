@@ -93,6 +93,22 @@ const handoff_prepare = z.object({
   next_actions: z.array(z.string()).optional(),
 }).passthrough();
 
+/** handoff_write — Write a per-session handoff with atomic rename + in-memory mutex (PRISM-STAB-MS0/U-B1) */
+const handoff_write = z.object({
+  session_id: z.string().min(8).describe("Authoritative chat session id (e.g. claude-7b9d1810)"),
+  topic: optStr.describe("Optional topic slug (e.g. cad-fusion-live-ms0)"),
+  body: z.string().min(1).describe("Markdown body to persist"),
+  machine: optStr.describe("Machine hostname; defaults to process hostname"),
+  family: optStr.describe("Agent family (Claude|Codex|Gemini); default Claude"),
+  parent_session_id: optStr.describe("Parent session for /compact lineage"),
+}).passthrough();
+
+/** handoff_read — Read a per-session handoff. NO topic-glob fallback (U-B4 doctrine) */
+const handoff_read = z.object({
+  session_id: z.string().min(8).describe("Exact session id to read"),
+  topic: optStr.describe("Optional topic suffix; if provided, must match exactly"),
+}).passthrough();
+
 // ============================================================================
 // MEMORY (2 actions)
 // ============================================================================
@@ -393,6 +409,8 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   quick_resume,
   resume_session,
   handoff_prepare,
+  handoff_write,
+  handoff_read,
 
   // Memory
   memory_save,

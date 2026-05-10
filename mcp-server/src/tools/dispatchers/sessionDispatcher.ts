@@ -29,6 +29,39 @@ import type { SnapshotDepth } from "../../engines/SystemSnapshotEngine.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
 import * as TaskClaimService from "../../services/TaskClaimService.js";
 
+// PRISM-STAB-MS0/U-B1 (2026-05-09): per-session handoff write/read with in-memory mutex.
+// Map keyed by session_id; ensures single-writer-per-session under concurrent
+// dispatcher invocations within this MCP server process.
+const HANDOFFS_DIR = "H:/prism/state/shared/handoffs";
+const handoffWriteLocks = new Map<string, Promise<unknown>>();
+
+function sanitizeForFilename(s: string): string {
+  return String(s).replace(/[^a-zA-Z0-9._@-]/g, "_").replace(/_+/g, "_");
+}
+
+function handoffPathFor(sessionId: string, topic?: string | null): string {
+  const base = sanitizeForFilename(sessionId);
+  const topicSuffix = topic ? `-${String(topic).replace(/[^a-zA-Z0-9-]/g, "-").replace(/-+/g, "-").slice(0, 20)}` : "";
+  return path.join(HANDOFFS_DIR, `HANDOFF-${base}${topicSuffix}.md`).replace(/\\/g, "/");
+}
+
+async function withHandoffLock<T>(sessionId: string, fn: () => Promise<T>): Promise<T> {
+  const prior = handoffWriteLocks.get(sessionId) || Promise.resolve();
+  let release!: () => void;
+  const next = new Promise<void>((r) => (release = r));
+  const ourEntry = prior.then(() => next);
+  handoffWriteLocks.set(sessionId, ourEntry);
+  try {
+    await prior;
+    return await fn();
+  } finally {
+    release();
+    if (handoffWriteLocks.get(sessionId) === ourEntry) {
+      handoffWriteLocks.delete(sessionId);
+    }
+  }
+}
+
 // Fire lifecycle hooks (non-blocking, errors logged but don't break session ops)
 async function fireLifecycleHook(phase: string, metadata: Record<string, any>): Promise<void> {
   try {
@@ -49,6 +82,8 @@ const ACTIONS = [
   "state_checkpoint",
   "state_diff",
   "handoff_prepare",
+  "handoff_write",
+  "handoff_read",
   "resume_session",
   "memory_save",
   "memory_recall",
@@ -397,7 +432,64 @@ export function registerSessionDispatcher(server: any): void {
             saveJsonFile(CURRENT_STATE_FILE, state);
             return ok({ success: true, status: params.status, quickResume: state.quickResume, nextActions });
           }
-          
+
+          case "handoff_write": {
+            // PRISM-STAB-MS0/U-B1: serialized atomic write per session_id.
+            const sid = String(params.session_id);
+            const topic = params.topic ? String(params.topic) : null;
+            const body = String(params.body);
+            const machine = params.machine ? String(params.machine) : (process.env.COMPUTERNAME || "unknown");
+            const family = params.family ? String(params.family) : "Claude";
+            const parentSid = params.parent_session_id ? String(params.parent_session_id) : null;
+
+            const result = await withHandoffLock(sid, async () => {
+              fs.mkdirSync(HANDOFFS_DIR, { recursive: true });
+              const filePath = handoffPathFor(sid, topic);
+              const writtenAt = new Date().toISOString();
+              const frontmatter = [
+                "---",
+                `session: ${sid}`,
+                `topic: ${topic || ""}`,
+                `written_at: ${writtenAt}`,
+                `machine: ${machine}`,
+                `family: ${family}`,
+                ...(parentSid ? [`parent_session: ${parentSid}`] : []),
+                `status: active`,
+                `writer: prism_session.handoff_write`,
+                "---",
+                "",
+              ].join("\n");
+              const finalBody = body.startsWith("---\n") ? body : frontmatter + body;
+              atomicWrite(filePath, finalBody);
+              return { file: filePath, writtenAt, bytes: Buffer.byteLength(finalBody, "utf-8") };
+            });
+
+            return ok({ success: true, ...result, session_id: sid, topic });
+          }
+
+          case "handoff_read": {
+            // PRISM-STAB-MS0/U-B1: exact-match read (no topic-glob fallback per U-B4 doctrine).
+            const sid = String(params.session_id);
+            const topic = params.topic ? String(params.topic) : null;
+            const filePath = handoffPathFor(sid, topic);
+            if (!fs.existsSync(filePath)) {
+              return ok({ success: false, error: "not_found", session_id: sid, topic, expected: filePath });
+            }
+            const stat = fs.statSync(filePath);
+            const content = fs.readFileSync(filePath, "utf-8");
+            const ageMinutes = Math.round((Date.now() - stat.mtimeMs) / 60000);
+            return ok({
+              success: true,
+              session_id: sid,
+              topic,
+              file: filePath,
+              content,
+              age_minutes: ageMinutes,
+              bytes: stat.size,
+              modified: new Date(stat.mtimeMs).toISOString(),
+            });
+          }
+
           case "resume_session": {
             const state = await loadCurrentState();
             const progress = state.currentSession?.progress || {};
