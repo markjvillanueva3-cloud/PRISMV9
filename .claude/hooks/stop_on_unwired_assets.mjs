@@ -322,13 +322,30 @@ function checkDispatcherActionHandlers(dispatcherRelPath) {
 }
 
 function checkNewHookRegistered(hookRelPath) {
-  const settingsFull = path.join(REPO_ROOT, SETTINGS_FILE);
-  if (!fs.existsSync(settingsFull)) return { registered: true, reason: "no settings.json" };
-  const body = fs.readFileSync(settingsFull, "utf8");
+  // Hooks may be wired in EITHER the project-level settings (this repo) OR the
+  // user-level settings (C:/Users/<user>/.claude/settings.json, mirrored to
+  // H:/.claude/settings.json). Read all that exist and consider the hook
+  // registered if it appears in any one — single-source-of-truth was a false
+  // assumption; in practice both surfaces are load-bearing.
+  const projectSettings = path.join(REPO_ROOT, SETTINGS_FILE);
+  const userHomeC = process.env.USERPROFILE || process.env.HOME || "C:/Users/wompu";
+  const userSettingsC = path.join(userHomeC, ".claude", "settings.json").replace(/\\/g, "/");
+  const userSettingsH = "H:/.claude/settings.json";
+  const candidates = [projectSettings, userSettingsC, userSettingsH];
+
   const base = path.basename(hookRelPath);
+  let foundIn = null;
+  for (const f of candidates) {
+    if (!fs.existsSync(f)) continue;
+    const body = fs.readFileSync(f, "utf8");
+    if (body.includes(base)) {
+      foundIn = f;
+      break;
+    }
+  }
   return {
-    registered: body.includes(base),
-    reason: body.includes(base) ? "found in settings.json" : "not referenced in settings.json",
+    registered: foundIn !== null,
+    reason: foundIn ? `found in ${path.basename(path.dirname(foundIn)) === ".claude" ? path.basename(foundIn) : foundIn}` : "not referenced in any settings.json (project or user)",
   };
 }
 
