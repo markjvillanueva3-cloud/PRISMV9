@@ -44,6 +44,11 @@ const FAST = [
   "generate-wiki-entries.mjs",
   "generate-formulas-atomic.mjs",
   "generate-personas-expand.mjs",
+  "generate-skills-atomic.mjs",
+  "generate-schemas-atomic.mjs",
+  "generate-algorithms-atomic.mjs",
+  "generate-transport-expand.mjs",
+  "generate-ai-tier-expand.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
