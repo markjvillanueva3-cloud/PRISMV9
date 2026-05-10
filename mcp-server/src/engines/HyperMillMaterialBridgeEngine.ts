@@ -518,4 +518,7 @@ function levenshtein(a: string, b: string): number {
   return curr[b.length];
 }
 
+/** Singleton instance — codebase convention is `<Engine>` class + `<engine>` instance. */
+export const hyperMillMaterialBridgeEngine = new HyperMillMaterialBridgeEngine();
+
 export default HyperMillMaterialBridgeEngine;
