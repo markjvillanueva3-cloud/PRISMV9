@@ -80,6 +80,7 @@ const OBSIDIAN_ACTIONS = [
   "obsidian_plugin_register", "obsidian_plugin_query",
   "obsidian_plugin_subscribe", "obsidian_plugin_unsubscribe",
   "obsidian_plugin_status",
+  "obsidian_viz_regenerate", "obsidian_viz_status", "obsidian_viz_recall_top",
   "tribal_export_single", "tribal_export_bulk",
   "tribal_export_config", "tribal_export_status",
 ] as const;
@@ -352,6 +353,58 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "obsidian_plugin_status": {
             const { obsidianPluginBridgeEngine } = await import("../../engines/ObsidianPluginBridgeEngine.js");
             result = obsidianPluginBridgeEngine.status(params.api_key);
+            break;
+          }
+          // -- OBSIDIAN-VIZ-MS0/U-VIZ-DISPATCHER: live system map ──────
+          case "obsidian_viz_regenerate": {
+            // Detached spawn so the dispatcher returns fast; the generator
+            // takes 1–3s and writes state/shared/system-viz/system-graph.json.
+            const { spawn } = await import("node:child_process");
+            const child = spawn(process.execPath, ["H:/prism/scripts/generate-system-viz.mjs"], {
+              detached: true, stdio: "ignore", windowsHide: true,
+            });
+            child.unref();
+            result = {
+              spawned: true,
+              pid: child.pid ?? null,
+              output_path: "H:/prism/state/shared/system-viz/system-graph.json",
+              note: "Regenerating in background; reload http://127.0.0.1:8765/ in ~3s.",
+            };
+            break;
+          }
+          case "obsidian_viz_status": {
+            const { wikiRecallCounterEngine } = await import("../../engines/WikiRecallCounterEngine.js");
+            const fs = await import("node:fs");
+            const graphPath = "H:/prism/state/shared/system-viz/system-graph.json";
+            let graphMeta: { exists: boolean; mtime?: string; nodes?: number; edges?: number; layers?: number } = { exists: false };
+            try {
+              const stat = fs.statSync(graphPath);
+              const graph = JSON.parse(fs.readFileSync(graphPath, "utf8"));
+              graphMeta = {
+                exists: true,
+                mtime: stat.mtime.toISOString(),
+                nodes: graph?.nodes?.length ?? 0,
+                edges: graph?.edges?.length ?? 0,
+                layers: graph?.layers?.length ?? 0,
+              };
+            } catch { /* graph not generated yet */ }
+            const recall = wikiRecallCounterEngine.getStateSnapshot();
+            result = {
+              graph: graphMeta,
+              recall: {
+                schemaVersion: recall.schemaVersion,
+                totalRecalls: recall.totalRecalls,
+                entryCount: recall.entryCount,
+                updatedAtIso: recall.updatedAtIso,
+              },
+            };
+            break;
+          }
+          case "obsidian_viz_recall_top": {
+            const { wikiRecallCounterEngine } = await import("../../engines/WikiRecallCounterEngine.js");
+            const limit = Number.isFinite(params?.limit) ? Number(params.limit) : 20;
+            const kind = params?.kind === "memory" || params?.kind === "wiki" ? params.kind : undefined;
+            result = { top: wikiRecallCounterEngine.getTopRecalled(limit, kind) };
             break;
           }
           // -- Tribal Tip Export ------------------------------
