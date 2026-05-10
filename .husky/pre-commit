@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+# Husky v9: dropped `. "$(dirname -- "$0")/_/husky.sh"` (deprecated; emits 4-line warning).
+# v10 will require this form. Shebang retained — git needs it to spawn the hook.
 
 # Add common node paths for Windows
 export PATH="$PATH:/c/Program Files/nodejs:/c/Users/$USER/AppData/Roaming/npm"
