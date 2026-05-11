@@ -87,17 +87,62 @@ export function runHook(hookPath, stdinPayload, timeoutMs = 3000) {
   });
 }
 
+// Cap how many sub-hooks of a bundle can run concurrently. The previous
+// implementation used Promise.all which fanned out ALL sub-hooks at once:
+// edit-bundle has 25+ entries, so a single Edit tool call spawned ~26
+// Windows processes at the same instant. Across 6 concurrent Claude chats
+// that's >150 simultaneous bash → node.exe forks and the OS process table
+// saturates with errno 11 / 0xC0000142 (STATUS_DLL_INIT_FAILED).
+//
+// Bounded pool keeps semantics identical (results array still preserves
+// hookSpecs order; Aggregation logic in runBundle works either way) but
+// limits peak fork pressure. Default 6 is empirically a sweet spot for
+// Windows under multi-chat load. Set PRISM_HOOK_BUNDLE_CONCURRENCY=0 to
+// revert to unbounded Promise.all for benchmarking.
+const DEFAULT_BUNDLE_CONCURRENCY = 6;
+
+function getBundleConcurrency() {
+  const raw = process.env.PRISM_HOOK_BUNDLE_CONCURRENCY;
+  if (raw == null || raw === "") return DEFAULT_BUNDLE_CONCURRENCY;
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 0) return DEFAULT_BUNDLE_CONCURRENCY;
+  return n; // 0 = unbounded (fan out all at once like old Promise.all)
+}
+
+/** Run sub-hooks via a bounded async pool. Output order matches hookSpecs
+ * order regardless of completion order so downstream aggregation is
+ * deterministic. */
+async function runPool(hookSpecs, stdinPayload, concurrency) {
+  if (concurrency === 0) {
+    return Promise.all(
+      hookSpecs.map((s) => runHook(s.path, stdinPayload, s.timeout || 3000))
+    );
+  }
+  const results = new Array(hookSpecs.length);
+  let nextIdx = 0;
+  async function worker() {
+    while (true) {
+      const my = nextIdx++;
+      if (my >= hookSpecs.length) return;
+      const s = hookSpecs[my];
+      results[my] = await runHook(s.path, stdinPayload, s.timeout || 3000);
+    }
+  }
+  const workerCount = Math.min(concurrency, hookSpecs.length);
+  await Promise.all(Array.from({ length: workerCount }, worker));
+  return results;
+}
+
 /**
- * Run a list of hooks in parallel and aggregate results per Claude Code hook contract.
+ * Run a list of hooks via a bounded concurrent pool and aggregate results
+ * per Claude Code hook contract.
  * @param {Array<{path: string, timeout?: number}>} hookSpecs
  * @param {string} stdinPayload
  * @returns {Promise<AggregatedResult>}
  */
 export async function runBundle(hookSpecs, stdinPayload) {
   const start = Date.now();
-  const results = await Promise.all(
-    hookSpecs.map((s) => runHook(s.path, stdinPayload, s.timeout || 3000))
-  );
+  const results = await runPool(hookSpecs, stdinPayload, getBundleConcurrency());
 
   // Aggregation
   let blocked = false;
