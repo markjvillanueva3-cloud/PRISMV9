@@ -491,6 +491,13 @@ for (const ms of M) {
     created_by: "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
     track: "revenue",
     track_name: "REVENUE-ROADMAP v7.6",
+    // roadmap_priority: lower sorts FIRST. devtools/everything-else = 0 (default
+    // when absent); revenue = 1 — so backend-dev work leads. The emit's sort key
+    // should be (tier, roadmap_priority, aiPriority, leverage) [option a — revenue
+    // tier-0 still beats devtools tier-1] OR (roadmap_priority, tier, ...) [option b
+    // — entire devtools roadmap before any revenue]; that placement is the emit's
+    // call (peer-lane). The field is here so it's ready the moment that lands.
+    roadmap_priority: 1,
     tier: ms.tier,
     status: ms.status || "not_started",
     source: ms.notes,
@@ -513,7 +520,7 @@ for (const ms of M) {
   written++;
   indexAdds.push({
     id: ms.id, title: ms.title, track: "revenue", status: envelope.status,
-    tier: ms.tier, total_units: units.length, completed_units: 0,
+    tier: ms.tier, roadmap_priority: 1, total_units: units.length, completed_units: 0,
     dependencies: ms.dep, blocks: ms.blk,
     envelope_path: `milestones/${ms.id}.json`,
     priority: ms.tier === 0 ? "CRITICAL" : ms.tier === 1 ? "HIGH" : "MEDIUM",
