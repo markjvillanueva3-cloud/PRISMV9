@@ -35,7 +35,13 @@ const DEFAULT_MAX_PER_DRAIN = 3;
 
 const args = process.argv.slice(2);
 const maxArg = args.find((a) => a.startsWith("--max="));
-const maxPerDrain = maxArg ? Number(maxArg.split("=")[1]) : (args.includes("--once") ? 1 : DEFAULT_MAX_PER_DRAIN);
+// Validate --max: a non-numeric / <1 value would otherwise make the drain loop
+// condition (drained < maxPerDrain) false from the start → silently drains zero
+// items with no error. Fall back to the default (or 1 for --once) on bad input.
+const maxParsed = maxArg ? Number(maxArg.split("=")[1]) : NaN;
+const maxPerDrain = (Number.isFinite(maxParsed) && maxParsed >= 1)
+  ? Math.floor(maxParsed)
+  : (args.includes("--once") ? 1 : DEFAULT_MAX_PER_DRAIN);
 const verbose = args.includes("--verbose");
 
 function log(msg) {

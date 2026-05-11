@@ -349,6 +349,28 @@ describe("auto-consensus-userprompt — bounded queue (HARNESS-AUDIT/U-TIER3f)",
     const lines = queueLines();
     expect(JSON.parse(lines[lines.length - 1]).session_id).toBe("loop-4");
   });
+
+  it("tolerates malformed/corrupt rows when rewriting an over-full queue", () => {
+    // The rewrite path keeps lines verbatim (no JSON.parse), so corrupt rows must
+    // not crash it — they just get carried through (or evicted by the cap).
+    const good: string[] = [];
+    for (let i = 0; i < MAX_QUEUE - 2; i++) {
+      good.push(JSON.stringify({ ts: new Date().toISOString(), session_id: `good-${i}`, prompt: `p${i}`, prompt_hash: `h${i}`, task_type: "auto-userprompt" }));
+    }
+    // 200 total = 198 good + 2 garbage rows interleaved near the end
+    const rows = [...good, "{ this is not json", "  binary junk �"];
+    fs.writeFileSync(queuePath, rows.join("\n") + "\n", "utf-8");
+    const r = runMainHook({ prompt: "Should we refactor the parser to improve build performance?", session_id: "live-x" });
+    expect(r.status).toBe(0);
+    expect(r.parsed?.hookSpecificOutput?.additionalContext).toContain("Consensus queued");
+    const lines = queueLines();
+    expect(lines).toHaveLength(MAX_QUEUE);
+    // last row is the new well-formed entry; it must still parse
+    const last = JSON.parse(lines[lines.length - 1]);
+    expect(last.session_id).toBe("live-x");
+    // one garbage row survived the cap (kept newest 199 of 200 → drops good-0 only)
+    expect(lines.some((l) => l.includes("binary junk"))).toBe(true);
+  });
 });
 
 describe("auto-consensus hooks — failure-mode robustness", () => {
