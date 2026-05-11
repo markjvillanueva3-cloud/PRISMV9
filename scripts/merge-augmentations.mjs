@@ -1292,7 +1292,7 @@ if (actionEngEdges?.newEdges) {
 }
 
 G.meta.augmentationVersions = versions;
-G.schemaVersion = "2.28.0";
+G.schemaVersion = "2.29.0";
 fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
@@ -1301,4 +1301,4 @@ console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=
 console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
 console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
 console.log(`  Phase 3:       extractedDataAtomic=${xtractNodes}n/${xtractEdges}e  dataCatalogsAtomic=${datacatNodes}n/${datacatEdges}e`);
-console.log(`  schema bumped to 2.28.0`);
+console.log(`  schema bumped to 2.29.0`);

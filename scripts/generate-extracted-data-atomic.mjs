@@ -40,7 +40,11 @@ const SOURCES = [
 ];
 
 const MAX_RECORDS_PER_FILE = 600;   // generous cap — biggest known file is ~434
+const SECONDARY_ARRAY_MIN = 5;      // emit a section sub-node for every other array >= this size
 const MAX_DEPTH = 4;
+// Standalone monolith catalogs (not directory trees) handled after the SOURCES loop.
+const PPG_CATALOG_REL = "mcp-server/data/ppg-asset-catalog.json";
+const PPG_SECTION_CAP = { nc_programs: 800, cps_posts: 600, step_models: 200, prism_posts: 50 };
 const SLUG_NONALNUM = /[^a-z0-9._-]/g;
 // Property names that, when array-valued, are treated as the record list.
 // Ranked: a file may have several arrays; we prefer these names, then fall
@@ -228,9 +232,105 @@ function generate() {
         const fn = newNodes.find(n => n.id === fileNodeId);
         if (fn) fn.recordCount = recPick.arr.length, fn.truncated = MAX_RECORDS_PER_FILE;
       }
+
+      // Secondary arrays — every other array-valued property >= SECONDARY_ARRAY_MIN
+      // gets its own section sub-node, with its records under it. This recovers the
+      // ~600 records the "biggest array only" pass dropped (e.g. hyperMILL
+      // knowledge-graph edges, hyperMILL-API tool/feature properties, Mastercam
+      // parameter_guidance/procedures/high_speed_machining).
+      if (json && typeof json === "object" && !Array.isArray(json)) {
+        for (const [arrKey, arrVal] of Object.entries(json)) {
+          if (!Array.isArray(arrVal) || arrVal.length < SECONDARY_ARRAY_MIN) continue;
+          if (recPick && arrKey === recPick.key) continue;
+          const secId = `${fileNodeId}.${slug(arrKey)}`;
+          if (addNode({
+            id: secId, layer: "L8", subgroup: `${src.hubPrefix}_section`,
+            parent: fileNodeId, label: arrKey, status: "built",
+            color: src.color, size: 0.22, tier: 2,
+            recordKind: arrKey, recordCount: arrVal.length,
+          })) stats.fileNodes++;
+          pushEdge(fileNodeId, secId, "contains", 0.15);
+          const sa = arrVal.slice(0, MAX_RECORDS_PER_FILE);
+          const scSlugs = new Map();
+          for (let i = 0; i < sa.length; i++) {
+            const r = sa[i];
+            let rs = recordSlug(r, i);
+            if (scSlugs.has(rs)) { const c = scSlugs.get(rs) + 1; scSlugs.set(rs, c); rs = `${rs}_${c}`; }
+            else scSlugs.set(rs, 1);
+            const recId = `${secId}.${rs}`.slice(0, 200);
+            if (addNode({
+              id: recId, layer: "L9", subgroup: `${src.hubPrefix}_record`,
+              parent: secId, label: recordLabel(r, i).slice(0, 70), status: "built",
+              color: src.color, size: 0.13, tier: 3,
+              recordKind: arrKey, hint: recordHint(r) || undefined, vendor: vendorSlug,
+            })) { stats.recordNodes++; perSrc.records++; }
+            pushEdge(secId, recId, "contains", 0.1);
+          }
+          if (arrVal.length > MAX_RECORDS_PER_FILE) {
+            const sn = newNodes.find(n => n.id === secId);
+            if (sn) sn.truncated = MAX_RECORDS_PER_FILE;
+          }
+        }
+      }
     }
     perSrc.vendors = perSrc.vendors.size;
     stats.perSource[src.hubPrefix] = perSrc;
+  }
+
+  // PPG asset catalog — a standalone monolith inventorying every deliverable
+  // post-processor asset: CPS posts, NC programs, STEP models, PRISM posts.
+  // None of these surfaced in the viz before. Each asset class becomes an L8
+  // section under one L7 hub; each asset becomes an L9 record.
+  {
+    const ppgAbs = path.join(ROOT, PPG_CATALOG_REL);
+    if (fs.existsSync(ppgAbs)) {
+      let ppg = null;
+      try { ppg = JSON.parse(fs.readFileSync(ppgAbs, "utf8")); } catch { ppg = null; }
+      if (ppg && typeof ppg === "object" && !Array.isArray(ppg)) {
+        const hubId = "ppg.assets";
+        if (addNode({
+          id: hubId, layer: "L7", subgroup: "ppg_assets_hub",
+          label: "PPG Asset Catalog", status: "built",
+          color: "#0ea5e9", size: 0.6, tier: 1, synthetic: true,
+          file: PPG_CATALOG_REL,
+        })) stats.hubNodes++;
+        const ppgStat = { sections: 0, records: 0 };
+        for (const [secKey, arr] of Object.entries(ppg)) {
+          if (!Array.isArray(arr) || arr.length === 0) continue;
+          const secId = `ppg.assets.${slug(secKey)}`;
+          if (addNode({
+            id: secId, layer: "L8", subgroup: "ppg_assets_section",
+            parent: hubId, label: secKey, status: "built",
+            color: "#0ea5e9", size: 0.30 + Math.min(0.20, Math.log10(1 + arr.length) * 0.06),
+            tier: 2, recordKind: secKey, recordCount: arr.length,
+          })) { stats.fileNodes++; ppgStat.sections++; }
+          pushEdge(hubId, secId, "contains", 0.2);
+          const cap = PPG_SECTION_CAP[secKey] || MAX_RECORDS_PER_FILE;
+          const sl = arr.slice(0, cap);
+          const sc = new Map();
+          for (let i = 0; i < sl.length; i++) {
+            const r = sl[i];
+            let rs = recordSlug(r, i);
+            if (sc.has(rs)) { const c = sc.get(rs) + 1; sc.set(rs, c); rs = `${rs}_${c}`; }
+            else sc.set(rs, 1);
+            const recId = `${secId}.${rs}`.slice(0, 200);
+            if (addNode({
+              id: recId, layer: "L9", subgroup: "ppg_asset_record",
+              parent: secId, label: recordLabel(r, i).slice(0, 70), status: "built",
+              color: "#0ea5e9", size: 0.12, tier: 3,
+              recordKind: secKey,
+              hint: (r && (r.vendor || r.controller || r.machine_hint)) || undefined,
+            })) { stats.recordNodes++; ppgStat.records++; }
+            pushEdge(secId, recId, "contains", 0.1);
+          }
+          if (arr.length > cap) {
+            const sn = newNodes.find(n => n.id === secId);
+            if (sn) sn.truncated = cap;
+          }
+        }
+        stats.perSource.ppgAssets = ppgStat;
+      }
+    }
   }
 
   stats.perFileTop.sort((a, b) => b.records - a.records);
