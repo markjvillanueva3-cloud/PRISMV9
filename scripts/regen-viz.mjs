@@ -56,6 +56,12 @@ const FAST = [
   "generate-memories-atomic.mjs",
   "generate-registry-entries.mjs",
   "generate-action-engine-edges.mjs",
+  "generate-engine-reclassify.mjs",
+  "generate-cam-vendor-catalog.mjs",
+  "generate-ts-registry-entries.mjs",
+  "generate-engine-import-edges.mjs",
+  "generate-test-coverage-edges.mjs",
+  "generate-physics-atomic.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
@@ -88,6 +94,29 @@ const m = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(R
 });
 if (m.status !== 0) {
   console.error(`[regen-viz] ✗ merge failed`);
+  failed++;
+}
+
+// Post-merge graph repair: reclassify eng.other.X engines using dispatcher
+// invocation signal + keyword tokens. Without this, every regen leaks engines
+// back into eng.other because engine-graph.mjs has no domain awareness.
+console.log(`[regen-viz] post-merge repair: engine classification…`);
+const r = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(ROOT, "scripts", "repair-graph-engine-classification.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (r.status !== 0) {
+  console.error(`[regen-viz] ✗ repair failed`);
+  failed++;
+}
+
+// Post-repair dedup: remove duplicate-id nodes left by repair-vs-engine-graph
+// id collisions. Idempotent (no-op if already deduped).
+console.log(`[regen-viz] post-merge dedup…`);
+const d = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(ROOT, "scripts", "dedup-graph-nodes.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (d.status !== 0) {
+  console.error(`[regen-viz] ✗ dedup failed`);
   failed++;
 }
 
