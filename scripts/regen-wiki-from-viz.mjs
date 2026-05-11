@@ -52,6 +52,9 @@ const GENERATORS = [
   "export-graph-cypher.mjs",
   // crosslink injector runs after all content generators so it sees every leaf entry
   "inject-wiki-crosslinks.mjs",
+  // leaf-index built after crosslinks so it captures the latest content;
+  // feeds wiki-precheck-inject.mjs so the ~13.7K leaf entries are recall-searchable
+  "build-wiki-leaf-index.mjs",
   // lint runs LAST so it measures the post-crosslink orphan rate
   "lint-wiki-orphans.mjs",
 ];
