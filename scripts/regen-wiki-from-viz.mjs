@@ -82,6 +82,7 @@ const GENERATORS = [
   "generate-courses-wiki.mjs",            // PRISM Academy courses + 5 MIT OCW courses + 220-course KB index
   "generate-tribal-index.mjs",
   "generate-tribal-wiki.mjs",             // per-category tribal index pages (~73); tips themselves are indexed by build-wiki-leaf-index
+  "generate-test-wiki.mjs",               // per-test entries (~3.4K); incremental (mtime sidecar) so steady-state runs are fast
   "generate-domain-mermaid.mjs",
   "generate-layer-stack-overview.mjs",
   "system-viz-obsidian-bridge-v2.mjs",
