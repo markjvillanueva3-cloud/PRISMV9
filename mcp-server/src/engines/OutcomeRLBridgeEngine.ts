@@ -90,7 +90,17 @@ import { crossProcessOutcomeStore } from "./CrossProcessOutcomeStore.js";
 // Constants
 // ============================================================================
 
-/** Reward axis #2: "did the job succeed" — summed with the param-quality reward. */
+/**
+ * Reward axis #2: "did the job succeed" — summed with the param-quality reward.
+ *
+ * NOTE: there is a deliberate, modest overlap with the reward-shaper's own
+ * `operatorOverrideCount` / `safetyVetoCount` penalty terms — an `operator_override`
+ * outcome is penalised both by the shaper's override term and by this `-0.5` prior;
+ * a safety-related `failure` similarly by the shaper's veto term and this `-1.0` prior.
+ * That is intentional (a stronger signal for bad outcomes), magnitudes are small, and
+ * the prior is toggleable via `applyKindPrior`. If retuning the reward, account for
+ * this double-count rather than assuming the two axes are orthogonal.
+ */
 const KIND_PRIOR: Readonly<Record<string, number>> = {
   success: 0.5,
   operator_override: -0.5,
