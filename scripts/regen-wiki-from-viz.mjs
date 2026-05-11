@@ -41,10 +41,15 @@ const GENERATORS = [
   "generate-registry-wiki.mjs",
   "generate-frontend-wiki.mjs",
   "generate-milestone-wiki.mjs",
+  "generate-skill-wiki.mjs",
+  "generate-hook-wiki.mjs",
   "generate-tribal-index.mjs",
   "generate-domain-mermaid.mjs",
   "generate-layer-stack-overview.mjs",
   "system-viz-obsidian-bridge-v2.mjs",
+  "export-graph-cypher.mjs",
+  // lint-wiki-orphans.mjs runs AFTER everything to see fresh content
+  "lint-wiki-orphans.mjs",
 ];
 
 function log(line) {

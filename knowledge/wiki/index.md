@@ -1149,6 +1149,24 @@ Top scopes by milestone count:
 - `MF`: 6 milestones
 <!-- ARCH-MILESTONES-END -->
 
+### Skills
+
+<!-- ARCH-SKILLS-START -->
+_Total: 638 skill entries_
+
+- project: 248 skills
+- user: 390 skills
+<!-- ARCH-SKILLS-END -->
+
+### Hooks
+
+<!-- ARCH-HOOKS-START -->
+_Total: 483 hook entries_
+
+- runtime: 429 hooks
+- engine: 54 hooks
+<!-- ARCH-HOOKS-END -->
+
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
 - [[distributed_locking]] — **File:** `mcp-server/src/utils/atomicWrite.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/distributed_locking.md
 - [[plugin_architecture]] — **File:** `mcp-server/src/engines/PhysicsPluginRegistry.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/plugin_architecture.md
