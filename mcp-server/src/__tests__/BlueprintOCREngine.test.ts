@@ -217,3 +217,229 @@ describe("BlueprintOCREngine — analyzer surface", () => {
     expect(blueprintOCREngine.detectUnit("0.5000 INCHES BORE")).toBe("in");
   });
 });
+
+// ============================================================================
+// PHASE 15 INGEST TESTS — deep-rescan aggregator (U-INGEST-PHASE15)
+// ============================================================================
+
+const samplePhase15Drawing = {
+  doc_id: "p15-doc-1",
+  filename: "BATCH-2024.pdf",
+  disk_path: "H:\\Docustrata\\BATCH-2024.pdf",
+  page_index: 5,
+  fields: {
+    part_numbers: ["DC-12345", "PF-998"],
+    garbage_partnums: [],
+    drawing_number: "DC-12345-A",
+    revision: "B",
+    material: "4140 PRE-HARD",
+    customer: "ITW SHAKEPROOF",
+    strong_indicators: 3,
+    is_drawing_likely: true,
+    ocr_chars: 1240,
+  },
+};
+
+const samplePhase15NonDrawing = {
+  doc_id: "p15-doc-2",
+  filename: "BATCH-2024.pdf",
+  disk_path: "H:\\Docustrata\\BATCH-2024.pdf",
+  page_index: 0,
+  fields: {
+    part_numbers: [],
+    garbage_partnums: [],
+    drawing_number: null,
+    revision: null,
+    material: null,
+    customer: null,
+    strong_indicators: 0,
+    is_drawing_likely: false,
+    ocr_chars: 80,
+  },
+};
+
+const samplePhase15ErrorRow = {
+  doc_id: "p15-doc-3",
+  page_index: 12,
+  error: "page: FzErrorSystem: code=2: malloc (36049464 bytes) failed",
+};
+
+const samplePhase15NoPN = {
+  doc_id: "p15-doc-4",
+  filename: "MISC.pdf",
+  disk_path: "H:\\Docustrata\\MISC.pdf",
+  page_index: 3,
+  fields: {
+    part_numbers: [],
+    garbage_partnums: ["19", "20"],
+    drawing_number: null,
+    revision: "A",
+    material: null,
+    customer: "VALLEY FASTENER GROUP",
+    strong_indicators: 2,
+    is_drawing_likely: true,
+    ocr_chars: 480,
+  },
+};
+
+describe("BlueprintOCREngine.ingestPhase15JSONL — happy path", () => {
+  it("admits a drawing-likely row with part numbers and indexes by PN + customer", async () => {
+    const file = writeJSONL("p15-happy.jsonl", [samplePhase15Drawing]);
+    const { summary, byPartNumber, byCustomer } =
+      await blueprintOCREngine.ingestPhase15JSONL(file);
+
+    expect(summary.total_lines).toBe(1);
+    expect(summary.parsed).toBe(1);
+    expect(summary.drawing_pages).toBe(1);
+    expect(summary.pages_with_pns).toBe(1);
+    expect(summary.pages_with_customer).toBe(1);
+    expect(summary.pages_with_drawing_number).toBe(1);
+    expect(summary.pages_with_revision).toBe(1);
+    expect(summary.pages_with_material).toBe(1);
+    expect(summary.unique_part_numbers).toBe(2);
+    expect(summary.unique_customers).toBe(1);
+    expect(summary.unique_docs).toBe(1);
+    expect(byPartNumber["DC-12345"]).toHaveLength(1);
+    expect(byPartNumber["PF-998"]).toHaveLength(1);
+    expect(byPartNumber["DC-12345"][0].drawing_number).toBe("DC-12345-A");
+    expect(byPartNumber["DC-12345"][0].revision).toBe("B");
+    expect(byPartNumber["DC-12345"][0].material).toBe("4140 PRE-HARD");
+    expect(byCustomer["ITW SHAKEPROOF"]).toHaveLength(1);
+  });
+
+  it("indexes drawing-likely pages WITHOUT part numbers under __unknown__", async () => {
+    const file = writeJSONL("p15-no-pn.jsonl", [samplePhase15NoPN]);
+    const { summary, byPartNumber, byCustomer } =
+      await blueprintOCREngine.ingestPhase15JSONL(file);
+
+    expect(summary.drawing_pages).toBe(1);
+    expect(summary.pages_with_pns).toBe(0);
+    expect(summary.unique_part_numbers).toBe(0);
+    expect(byPartNumber["__unknown__"]).toHaveLength(1);
+    expect(byPartNumber["__unknown__"][0].revision).toBe("A");
+    expect(byCustomer["VALLEY FASTENER GROUP"]).toHaveLength(1);
+  });
+
+  it("writes one IngestedPhase15Page JSONL line per admitted page when outPath set", async () => {
+    const file = writeJSONL("p15-out.jsonl", [samplePhase15Drawing, samplePhase15NonDrawing]);
+    const outFile = fixturePath("p15-out-ingested.jsonl");
+    await blueprintOCREngine.ingestPhase15JSONL(file, { outPath: outFile });
+    const lines = fs.readFileSync(outFile, "utf-8").trim().split("\n");
+    expect(lines).toHaveLength(1); // only the drawing row admitted
+    const row = JSON.parse(lines[0]);
+    expect(row.doc_id).toBe("p15-doc-1");
+    expect(row.part_numbers).toEqual(["DC-12345", "PF-998"]);
+    expect(row.customer).toBe("ITW SHAKEPROOF");
+  });
+
+  it("aggregates the same part_number across multiple pages from different docs", async () => {
+    const second = { ...samplePhase15Drawing, doc_id: "p15-doc-1b", page_index: 7 };
+    const file = writeJSONL("p15-multipage.jsonl", [samplePhase15Drawing, second]);
+    const { byPartNumber, summary } = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(byPartNumber["DC-12345"]).toHaveLength(2);
+    expect(byPartNumber["DC-12345"][0].page_index).toBe(5);
+    expect(byPartNumber["DC-12345"][1].page_index).toBe(7);
+    expect(summary.unique_docs).toBe(2);
+  });
+});
+
+describe("BlueprintOCREngine.ingestPhase15JSONL — failure modes", () => {
+  it("throws when JSONL file does not exist", async () => {
+    await expect(
+      blueprintOCREngine.ingestPhase15JSONL(fixturePath("p15-missing.jsonl")),
+    ).rejects.toThrow(/Phase 15 JSONL not found/);
+  });
+
+  it("counts malformed JSON lines and continues parsing the rest", async () => {
+    const file = writeJSONL("p15-malformed.jsonl", [
+      "this is not json",
+      samplePhase15Drawing,
+      "{unclosed",
+    ]);
+    const { summary } = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(summary.total_lines).toBe(3);
+    expect(summary.malformed).toBe(2);
+    expect(summary.parsed).toBe(1);
+    expect(summary.drawing_pages).toBe(1);
+  });
+
+  it("filters out error rows (worker render_failed_oom, FzError) from the index", async () => {
+    const file = writeJSONL("p15-errors.jsonl", [
+      samplePhase15Drawing,
+      samplePhase15ErrorRow,
+      samplePhase15ErrorRow,
+    ]);
+    const { summary, byPartNumber } = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(summary.parsed).toBe(3);
+    expect(summary.error_rows).toBe(2);
+    expect(summary.drawing_pages).toBe(1);
+    // Error rows must NOT pollute the index — only the 1 drawing row's PNs appear
+    const allKeys = Object.keys(byPartNumber);
+    expect(allKeys.sort()).toEqual(["DC-12345", "PF-998"]);
+  });
+
+  it("skips non-drawing rows when drawingOnly default (true)", async () => {
+    const file = writeJSONL("p15-nondraw.jsonl", [samplePhase15NonDrawing]);
+    const { summary, byPartNumber } = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(summary.parsed).toBe(1);
+    expect(summary.drawing_pages).toBe(0);
+    expect(Object.keys(byPartNumber)).toHaveLength(0);
+  });
+
+  it("admits non-drawing rows when drawingOnly=false", async () => {
+    const file = writeJSONL("p15-nondraw-permissive.jsonl", [samplePhase15NonDrawing]);
+    const { summary } = await blueprintOCREngine.ingestPhase15JSONL(file, { drawingOnly: false });
+    expect(summary.drawing_pages).toBe(1);
+  });
+});
+
+describe("BlueprintOCREngine.ingestPhase15JSONL — adversarial + filter inputs", () => {
+  it("treats lines exceeding maxLineBytes as malformed (no JSON parse attempt)", async () => {
+    const huge = "x".repeat(2000);
+    const file = writeJSONL("p15-huge.jsonl", [huge, samplePhase15Drawing]);
+    const { summary } = await blueprintOCREngine.ingestPhase15JSONL(file, { maxLineBytes: 1024 });
+    expect(summary.malformed).toBe(1);
+    expect(summary.drawing_pages).toBe(1);
+  });
+
+  it("rejects rows lacking required structural fields (doc_id / page_index)", async () => {
+    const file = writeJSONL("p15-bad-struct.jsonl", [
+      { page_index: 1 }, // missing doc_id
+      { doc_id: "x", page_index: "not-a-number" }, // bad page_index type
+      { doc_id: "y" }, // missing page_index
+      samplePhase15Drawing,
+    ]);
+    const { summary } = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(summary.malformed).toBe(3);
+    expect(summary.parsed).toBe(1);
+  });
+
+  it("minStrongIndicators raises the admit threshold above is_drawing_likely default", async () => {
+    const weak = {
+      ...samplePhase15Drawing,
+      doc_id: "p15-weak",
+      fields: { ...samplePhase15Drawing.fields, strong_indicators: 1 },
+    };
+    const file = writeJSONL("p15-strong.jsonl", [weak, samplePhase15Drawing]);
+    // Default (minStrong=0) admits both
+    const r1 = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(r1.summary.drawing_pages).toBe(2);
+    // minStrong=2 excludes the weak row
+    const r2 = await blueprintOCREngine.ingestPhase15JSONL(file, { minStrongIndicators: 2 });
+    expect(r2.summary.drawing_pages).toBe(1);
+  });
+
+  it("handles empty file gracefully (zero counts, empty maps)", async () => {
+    // Write a truly empty file (zero bytes) — writeJSONL appends a trailing
+    // newline which counts as a line, so write directly here to test the
+    // pure no-content case.
+    const file = fixturePath("p15-empty.jsonl");
+    fs.writeFileSync(file, "", "utf-8");
+    const { summary, byPartNumber, byCustomer } = await blueprintOCREngine.ingestPhase15JSONL(file);
+    expect(summary.total_lines).toBe(0);
+    expect(summary.parsed).toBe(0);
+    expect(summary.drawing_pages).toBe(0);
+    expect(Object.keys(byPartNumber)).toHaveLength(0);
+    expect(Object.keys(byCustomer)).toHaveLength(0);
+  });
+});

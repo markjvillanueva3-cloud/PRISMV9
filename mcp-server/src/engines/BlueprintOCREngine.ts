@@ -840,6 +840,257 @@ async function ingestPhase8JSONL(
 }
 
 // ============================================================================
+// PHASE 15 INGEST — Deep-Rescan Drawing Page Aggregator
+// ============================================================================
+//
+// Phase 15 (phase15-deep-rescan-parallel*.py) is the deep-OCR pass over the
+// 24K multi-page Docustrata PDFs that Phase 3 page-1-only extraction missed.
+// Output shape differs from Phase 8: Phase 15 emits pre-extracted fields
+// (no raw OCR text), so this ingest aggregates rather than re-analyzes.
+//
+// Phase 15 row shape (one per PDF page, not per doc):
+//   {
+//     doc_id, filename, disk_path, page_index,
+//     fields: { part_numbers[], drawing_number, revision, material,
+//               customer, strong_indicators, is_drawing_likely, ocr_chars,
+//               garbage_partnums[] }
+//   }
+// or error row: { doc_id, page_index, error: "..." }
+//
+// Output: byPartNumber index + per-customer aggregation + drawing-only summary.
+// Used downstream by LathePrintIngestPipelineEngine + corpus seeders.
+
+export interface Phase15RowFields {
+  part_numbers: string[];
+  garbage_partnums?: string[];
+  drawing_number: string | null;
+  revision: string | null;
+  material: string | null;
+  customer: string | null;
+  strong_indicators: number;
+  is_drawing_likely: boolean;
+  ocr_chars: number;
+}
+
+export interface Phase15Row {
+  doc_id: string;
+  filename?: string;
+  disk_path?: string;
+  page_index: number;
+  fields?: Phase15RowFields;
+  error?: string;
+}
+
+export interface IngestedPhase15Page {
+  doc_id: string;
+  filename: string;
+  disk_path: string;
+  page_index: number;
+  part_numbers: string[];
+  drawing_number: string | null;
+  revision: string | null;
+  material: string | null;
+  customer: string | null;
+  strong_indicators: number;
+  ocr_chars: number;
+}
+
+export interface IngestPhase15Summary {
+  total_lines: number;
+  parsed: number;
+  malformed: number;
+  error_rows: number;
+  drawing_pages: number;
+  pages_with_pns: number;
+  pages_with_customer: number;
+  pages_with_drawing_number: number;
+  pages_with_revision: number;
+  pages_with_material: number;
+  unique_part_numbers: number;
+  unique_customers: number;
+  unique_docs: number;
+}
+
+export interface IngestPhase15Options {
+  /**
+   * If true, include only rows where fields.is_drawing_likely === true.
+   * Default true (the whole point of Phase 15 is the drawing subset).
+   */
+  drawingOnly?: boolean;
+  /**
+   * Minimum strong_indicators count to admit a page. Default 0 (accept all
+   * is_drawing_likely=true pages — the Python pre-gate already filters).
+   * Raise to 2 for stricter title-block-confirmed admissions.
+   */
+  minStrongIndicators?: number;
+  /** Optional progress callback fired every N parsed lines (default 1000). */
+  onProgress?: (linesRead: number, parsed: number) => void;
+  progressInterval?: number;
+  /** If set, write IngestedPhase15Page JSONL to this path. */
+  outPath?: string;
+  /** Max bytes per JSONL line (default 1 MiB). */
+  maxLineBytes?: number;
+}
+
+async function ingestPhase15JSONL(
+  jsonlPath: string,
+  options: IngestPhase15Options = {},
+): Promise<{
+  summary: IngestPhase15Summary;
+  byPartNumber: Record<string, IngestedPhase15Page[]>;
+  byCustomer: Record<string, IngestedPhase15Page[]>;
+}> {
+  const drawingOnly = options.drawingOnly ?? true;
+  const minStrong = options.minStrongIndicators ?? 0;
+  const progressInterval = options.progressInterval ?? 1000;
+  const maxLineBytes = options.maxLineBytes ?? 1024 * 1024;
+
+  if (!fs.existsSync(jsonlPath)) {
+    throw new Error(`Phase 15 JSONL not found: ${jsonlPath}`);
+  }
+
+  const summary: IngestPhase15Summary = {
+    total_lines: 0,
+    parsed: 0,
+    malformed: 0,
+    error_rows: 0,
+    drawing_pages: 0,
+    pages_with_pns: 0,
+    pages_with_customer: 0,
+    pages_with_drawing_number: 0,
+    pages_with_revision: 0,
+    pages_with_material: 0,
+    unique_part_numbers: 0,
+    unique_customers: 0,
+    unique_docs: 0,
+  };
+
+  const byPartNumber: Record<string, IngestedPhase15Page[]> = {};
+  const byCustomer: Record<string, IngestedPhase15Page[]> = {};
+  const docIds = new Set<string>();
+
+  let outStream: fs.WriteStream | null = null;
+  if (options.outPath) {
+    outStream = fs.createWriteStream(options.outPath, { flags: "w", encoding: "utf-8" });
+  }
+
+  const stream = fs.createReadStream(jsonlPath, { encoding: "utf-8" });
+  const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+
+  try {
+    for await (const rawLine of rl) {
+      summary.total_lines++;
+      const line = rawLine.trim();
+      if (line.length === 0) continue;
+      if (line.length > maxLineBytes) {
+        summary.malformed++;
+        continue;
+      }
+
+      let row: Phase15Row;
+      try {
+        row = JSON.parse(line) as Phase15Row;
+      } catch {
+        summary.malformed++;
+        continue;
+      }
+
+      // Structural guard
+      if (
+        typeof row.doc_id !== "string" ||
+        typeof row.page_index !== "number" ||
+        !Number.isFinite(row.page_index)
+      ) {
+        summary.malformed++;
+        continue;
+      }
+      summary.parsed++;
+
+      // Error rows (worker logged render_failed_oom, FzError, etc.) count
+      // toward telemetry but never feed the index.
+      if (row.error || !row.fields) {
+        summary.error_rows++;
+        if (summary.parsed % progressInterval === 0) {
+          options.onProgress?.(summary.total_lines, summary.parsed);
+        }
+        continue;
+      }
+
+      const f = row.fields;
+
+      // Drawing-only gate
+      if (drawingOnly && !f.is_drawing_likely) {
+        if (summary.parsed % progressInterval === 0) {
+          options.onProgress?.(summary.total_lines, summary.parsed);
+        }
+        continue;
+      }
+      if (f.strong_indicators < minStrong) {
+        if (summary.parsed % progressInterval === 0) {
+          options.onProgress?.(summary.total_lines, summary.parsed);
+        }
+        continue;
+      }
+
+      // Admit page
+      summary.drawing_pages++;
+      const partNumbers = Array.isArray(f.part_numbers) ? f.part_numbers : [];
+      if (partNumbers.length > 0) summary.pages_with_pns++;
+      if (f.customer) summary.pages_with_customer++;
+      if (f.drawing_number) summary.pages_with_drawing_number++;
+      if (f.revision) summary.pages_with_revision++;
+      if (f.material) summary.pages_with_material++;
+      docIds.add(row.doc_id);
+
+      const ingested: IngestedPhase15Page = {
+        doc_id: row.doc_id,
+        filename: row.filename ?? "",
+        disk_path: row.disk_path ?? "",
+        page_index: row.page_index,
+        part_numbers: partNumbers,
+        drawing_number: f.drawing_number ?? null,
+        revision: f.revision ?? null,
+        material: f.material ?? null,
+        customer: f.customer ?? null,
+        strong_indicators: f.strong_indicators,
+        ocr_chars: f.ocr_chars,
+      };
+
+      // Index pages without part numbers under "__unknown__" so they aren't lost
+      const pnKeys = partNumbers.length > 0 ? partNumbers : ["__unknown__"];
+      for (const key of pnKeys) {
+        if (!byPartNumber[key]) byPartNumber[key] = [];
+        byPartNumber[key].push(ingested);
+      }
+      if (f.customer) {
+        if (!byCustomer[f.customer]) byCustomer[f.customer] = [];
+        byCustomer[f.customer].push(ingested);
+      }
+
+      outStream?.write(JSON.stringify(ingested) + "\n");
+
+      if (summary.parsed % progressInterval === 0) {
+        options.onProgress?.(summary.total_lines, summary.parsed);
+      }
+    }
+  } finally {
+    rl.close();
+    stream.close();
+    if (outStream) {
+      await new Promise<void>((resolve) => outStream!.end(resolve));
+    }
+  }
+
+  summary.unique_part_numbers = Object.keys(byPartNumber).filter(
+    (k) => k !== "__unknown__",
+  ).length;
+  summary.unique_customers = Object.keys(byCustomer).length;
+  summary.unique_docs = docIds.size;
+
+  return { summary, byPartNumber, byCustomer };
+}
+
+// ============================================================================
 // SINGLETON + EXPORTS
 // ============================================================================
 
@@ -851,4 +1102,5 @@ export const blueprintOCREngine = {
   analyzeBlueprint,
   detectUnit,
   ingestPhase8JSONL,
+  ingestPhase15JSONL,
 };
