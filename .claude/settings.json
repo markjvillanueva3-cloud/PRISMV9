@@ -89,6 +89,11 @@
           },
           {
             "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-daemon-autostart.mjs",
+            "timeout": 8000
+          },
+          {
+            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/.claude/hooks/plugin-path-fixer.mjs",
             "timeout": 3000
           },
@@ -632,8 +637,8 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-posttool-tracker.mjs",
-            "timeout": 2000
+            "command": "\"H:/.claude/bin/portable-node\" -e \"/* TIER3e 2026-05-10: mcp-posttool-tracker moved from (none) matcher to mcp__prism__.* matcher. Source preserved at H:/prism/.claude/helpers/mcp-posttool-tracker.mjs. The (none) copy fired on EVERY tool call but the hook only does work for MCP calls. To revert: restore command path here. */ process.exit(0)\"",
+            "timeout": 1000
           },
           {
             "type": "command",
@@ -873,6 +878,11 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-recommendation-capture.mjs",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-posttool-tracker.mjs",
+            "timeout": 2000
           }
         ]
       }
