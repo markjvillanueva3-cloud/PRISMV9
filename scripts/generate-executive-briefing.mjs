@@ -234,6 +234,7 @@ if (Object.keys(GRAPH.layers).length) {
   const layerNote = {
     L0: "user personas", L1: "frontend surfaces/pages", L2: "transport (MCP/HTTP)", L3: "AI tiers (1/2/3)",
     L4: "MCP dispatchers", L4a: "dispatcher actions", L5: "calculation engines", L6: "schemas/hooks/tests/scripts",
+    Lgit: "git commit DAG (branches + recent commits + parent edges)",
     L7: "registries + manufacturer hubs", L8: "wiki + extracted-knowledge files + data-catalog files",
     L9: "atomic records (extracted knowledge, tool catalogs, JM-Die programs by machine type)",
     L10: "sub-records / sections", L11: "raw file leaves",

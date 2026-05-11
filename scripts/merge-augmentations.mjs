@@ -118,6 +118,7 @@ const frontendDeep   = loadOptional("frontend-deep-augmentation.json");
 const wikiCrossRefs  = loadOptional("wiki-cross-refs-augmentation.json");
 const extractDataAtm = loadOptional("extracted-data-atomic-augmentation.json");
 const dataCatAtm     = loadOptional("data-catalogs-atomic-augmentation.json");
+const gitTree        = loadOptional("git-tree-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -177,6 +178,7 @@ if (frontendDeep)    versions.frontendDeep    = frontendDeep.generatedAt    ?? "
 if (wikiCrossRefs)   versions.wikiCrossRefs   = wikiCrossRefs.generatedAt   ?? "present";
 if (extractDataAtm)  versions.extractedDataAtomic = extractDataAtm.generatedAt ?? "present";
 if (dataCatAtm)      versions.dataCatalogsAtomic = dataCatAtm.generatedAt ?? "present";
+if (gitTree)         versions.gitTree         = gitTree.generatedAt         ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -1261,6 +1263,7 @@ const [frontDNodes,  frontDEdges]  = mergeIndexedAugmentation(frontendDeep,   "f
 const [wikiXNodes,   wikiXEdges]   = mergeIndexedAugmentation(wikiCrossRefs,  "wikiCrossRefs");
 const [xtractNodes,  xtractEdges]  = mergeIndexedAugmentation(extractDataAtm, "extractedDataAtomic");
 const [datacatNodes, datacatEdges] = mergeIndexedAugmentation(dataCatAtm,     "dataCatalogsAtomic");
+const [gitTreeNodes, gitTreeEdges] = mergeIndexedAugmentation(gitTree,        "gitTree");
 const schemaEdgeCount = mergeEdgesOnly(schemaEngEdges,  "schemaEngineEdges");
 const physEdgeCount   = mergeEdgesOnly(enginePhyEdges,  "enginePhysicsEdges");
 
@@ -1300,5 +1303,5 @@ console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryCh
 console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
 console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
 console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
-console.log(`  Phase 3:       extractedDataAtomic=${xtractNodes}n/${xtractEdges}e  dataCatalogsAtomic=${datacatNodes}n/${datacatEdges}e`);
+console.log(`  Phase 3:       extractedDataAtomic=${xtractNodes}n/${xtractEdges}e  dataCatalogsAtomic=${datacatNodes}n/${datacatEdges}e  gitTree=${gitTreeNodes}n/${gitTreeEdges}e`);
 console.log(`  schema bumped to 2.29.0`);

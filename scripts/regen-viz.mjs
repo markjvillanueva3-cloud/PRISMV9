@@ -69,6 +69,7 @@ const FAST = [
   "generate-wiki-cross-refs.mjs",
   "generate-extracted-data-atomic.mjs",
   "generate-data-catalogs-atomic.mjs",
+  "generate-git-tree.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
