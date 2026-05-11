@@ -18,29 +18,31 @@ Why this matters: it makes the SVI/Ω story concrete (read "what fraction of the
 
 ---
 
-## 🅰 Tier A — cheap, high leverage — do next
+## 🅰 Tier A — ✅ SHIPPED (commit `[CAD-FUSION-LIVE-MS0]/U-VIZ-OVERLAYS-A`)
 
-### A1. Blast-radius / impact overlay (in-viewer)
-Click a node → BFS the edge graph (downstream deps + upstream consumers) and highlight the reachable subtree, dim the rest; a count badge ("touching this changes 4 engines / 1 dispatcher / 6 pages"). `scripts/system-viz-query.mjs blast-radius <id>` already computes it on the CLI — this is just wiring that into the viewer (reverse-edge index + a recursive color pass; the `childrenOf` map already exists, add a `consumersOf`). **Value:** every refactor needs this; it's the #1 reason the directive lists "refactor planning" as a use case. **Cost:** ~40 lines. **Queue:** ship in the next system-viz unit.
+### A1. ✅ Blast-radius / impact overlay (in-viewer)
+Click a node → an info-panel **💥 blast radius** button (or `B` key) → BFS the edge graph both directions: downstream deps (cyan) + upstream consumers (magenta), root yellow, everything else dimmed to 7%. Toast: "💥 blast radius "X": N consumers (↑ L5:12 L4:3 …) + M deps (↓)". Built an `outAdj`/`inAdj` edge-adjacency index at load; `BLAST_DEPTH=6`, `BLAST_MAX=6000`. Esc clears. *This is the in-viewer twin of `system-viz-query.mjs blast-radius <id>`.*
 
-### A2. Knowledge-debt → wiki-ingest worklist (`generate-wiki-debt-worklist.mjs`)
-The docs-coverage overlay (shipped) shows *where* the debt is; this turns it into a *queue*: read the graph, find L4/L5 nodes (dispatchers + engines) with no `node.knowledge.wikiEntries`, rank by `node.unlocks.leverageScore`, emit `state/shared/system-viz/WIKI-DEBT-WORKLIST.md` (top-N "run `/wiki-ingest <engine>`"). Wire into regen-viz. **Value:** closes the loop the overlay opens — a chat with idle budget picks the top item. Feeds the `/curiosity-queue` skill. **Cost:** ~60 lines (one generator). **Queue:** next.
+### A2. ✅ Knowledge-debt → wiki-ingest worklist (`generate-wiki-debt-worklist.mjs`)
+Scans the graph for L4 (dispatchers) + L5 (engines) nodes that are 🔴 wholly undocumented (no `node.knowledge.wikiEntries`) or 🟡 weakly covered (fuzzy refs exist but none looks like *its* dedicated page — name doesn't appear in any referenced wiki path), ranks both by `leverageScore×1000 + edge-degree`, emits `state/shared/system-viz/WIKI-DEBT-WORKLIST.md` (top-80 per tier, `/wiki-ingest <name>` actions). Wired into `regen-viz.mjs` (post-merge, after the briefing). **First run: 135 undocumented + 1,405 weakly-covered of 1,650 L4+L5 nodes — only 110 have a real dedicated page** (a much starker number than BUILD_STATE's "776 with wiki", which counts fuzzy matches). Feeds `/curiosity-queue`. #1 priority right now: the `cam` dispatcher (degree 97), then `data`/`cad`/`edm`, then the CAD-router/adapter/indexer engines.
 
-### A3. Stagnant / rot overlay (`S` key)
-`generate-stagnant-features.mjs` already puts `stagnant: 2,573 nodes` into the graph (last-touch age, no recent commits). Surface a color-by-staleness mode (fresh→green, rotting→red). **Value:** finds code that compiles but no one's looked at in months — candidates for the cleanup/curiosity queue. **Cost:** ~25 lines (data's already on the node). **Queue:** next, bundle with A1.
+### A3. ✅ Stagnant / rot overlay (`S` key / legend row)
+Colours every node by file age — `n.staleness.tier` (fresh/warm/stale/ancient → green→amber→red) or `mtimeDays` thresholds (7/30/90/180 days) when there's no tier; nodes with no staleness data dim to 10%. 727 nodes carry the data (from `generate-staleness-overlay.mjs`). Toast summarises the bucket counts. `S` toggles; mutually exclusive with the 📚 docs overlay; Esc clears. **Finds code that compiles but no one's touched in months → cleanup/curiosity candidates.**
+
+*(All three landed in `system-viz-brain.html` + `generate-wiki-debt-worklist.mjs` + a `regen-viz.mjs` wiring line. The overlay rows in the legend are now mutually exclusive and a single `restoreBaseColors()` resets everything.)*
 
 ---
 
-## 🅱 Tier B — medium cost, high value — schedule (`/loop` or `/schedule`)
+## 🅱 Tier B — ✅ SHIPPED (commit `[CAD-FUSION-LIVE-MS0]/U-VIZ-TIERB`)
 
-### B1. Lgit → structure cross-links (the Lgit v2)
-The `Lgit` layer (just shipped) plots commits + branches + the parent DAG, but commits are an island — no edges into the code structure. v2: for the most-recent ~150 commits, parse `git log --name-only`, map touched paths → graph node ids (`mcp-server/src/engines/FooEngine.ts` → the `eng.<domain>.fooengine` molecule, `src/tools/dispatchers/XDispatcher.ts` → `disp.x`, `.claude/hooks/*.mjs` → hook nodes, `scripts/*.mjs` → script nodes), emit `commit --touched--> <node>` edges. Then "what did milestone XPROC-NEURAL-CONNECT change?" is one click. **Cost:** the path→node-id map is the work (needs the 119 MB graph parsed for the valid-id set; do it in regen-viz where the heap flag is already passed). **Queue:** `/loop` it as a system-viz unit.
+### B1. ✅ Lgit → structure cross-links (the Lgit v2)
+`generate-git-tree.mjs` now parses `git log --all --name-only -n250`, builds a slug→node-id table from the current graph's code-structure prefixes (eng./disp./reg./schema./alg./script./test./core./frontend./skill./formula./ai./wiki./mem — 9,579 entries), and emits `git.commit.<sha> --touched--> <node>` edges (≤30/commit, ≤4000 total). First run: **376 commit→code edges**. Commits also carry `n.scope` (the `[SCOPE-MS#]` subject prefix) for a future colour-by-milestone mode. So "what did milestone X change?" is now traceable in the graph. Runs in regen-viz where the heap flag is passed.
 
-### B2. system-graph → Obsidian Canvas (the other sync direction)
-`generate-vault-graph.mjs`: emit `knowledge/PRISM-System-Map.canvas` (JSON Canvas format) of the arch layers (L0–L7 + Lgit) so the code map renders *inside* Obsidian's canvas view — browse the system from your notes. Optionally also emit `obsidian-vault-augmentation.json` adding the ~12 wiki folders + top tags as L8 hub nodes (so the vault's own topology shows in the 3D map). Wire into `obsidian_viz_regenerate` (the dispatcher action already exists) + regen-viz + merge-augmentations. **Value:** "two brains, one source" — the payoff the OBSIDIAN-INTELLIGENCE-MS3 plan names. **Cost:** ~120 lines + merge wiring. **Queue:** schedule after B1.
+### B2. ✅ system-graph → Obsidian Canvas (the other sync direction)
+`generate-vault-graph.mjs` (new) emits **`knowledge/PRISM-System-Map.canvas`** — a navigable JSON-Canvas summary (353 nodes / 880 edges: per-layer top-N by degree across L0/L1/L2/L3/L4/Lgit/L5/L7/L8, vertical layer columns, colour-coded to the brain palette, wiki-backed nodes as `file`-type cards that open the note) so the code map renders **inside Obsidian's canvas view**. Also emits `obsidian-vault-augmentation.json` — the wiki folder hierarchy (`vault.root` → 14 `vault.wiki.<folder>` / `vault.memories` L8 hubs, 785 `contains` edges to existing wiki/mem nodes) so the vault's own topology shows in the 3D map. Wired into regen-viz (FAST list) + merge-augmentations. *(Follow-up: have the `obsidian_viz_regenerate` dispatcher action shell out to this generator — currently it's regen-viz-only.)*
 
-### B3. Multi-chat coordination overlay (`C` key)
-Fuse the existing `/file-claims` ledger + the Lgit "last commit per branch" data + the decision log (`knowledge/decisions/`) → click a node, the info panel shows "📌 claimed by `claude-XXXX` 3 min ago · last commit `abc1234` (`U-FOO-01`) · decision: <link>". The file-claim overlay already exists in the legacy viewer (`4` key); this brings it to the brain viewer and enriches it. **Value:** ~6 concurrent chats — a chat about to edit `SafetyEngine` sees who else has it, *visually*, before grabbing it. **Cost:** map `/file-claims` paths → node ids (similar to B1's path→id map) + an info-panel section. **Queue:** schedule after B2.
+### B3. ✅ Multi-chat coordination overlay (`C` key)
+The brain viewer now fetches `/file-claims` on load. **Info panel:** if a node's source file is claimed right now, shows "📌 file claimed by `claude-XXXX` · 3m ago — another chat is editing `<file>` right now". **`C` overlay / legend row:** highlights amber every node whose file is in the live claim ledger, dims the rest; toast summarises which chats hold claims and the total. The three colour overlays (📚 docs / 🕰 staleness / 📌 claims) are mutually exclusive and route through a single `toggleOverlay()` / `__clearAllOverlays()`; Esc clears all + any blast highlight. **A chat about to edit `SafetyEngine` now sees who else owns it, visually, before grabbing it.** *(Follow-up: enrich the info-panel claim line with the Lgit last-commit + the relevant decision-log entry.)*
 
 ---
 

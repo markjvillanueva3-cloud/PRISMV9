@@ -15,14 +15,16 @@
  *     git.branch.<b>  --tip-->     git.commit.<sha7>     (the ref points here)
  *     git.commit.<c>  --parent-->  git.commit.<p>        (the DAG; multiple for merges)
  *     git.branch.<b>  --contains-->git.commit.<c>        (commits reachable & in-window for that branch's first-parent walk)
+ *     git.commit.<c>  --touched--> eng.<domain>.<name> | disp.<name> | reg.<name> | schema.<name> | …
+ *                                                       (v2: code-structure cross-links — see below)
  *
- * This is the v1 "start plotting the git tree" increment. FOLLOW-UPS (not yet
- * done — would need to JSON.parse the 119 MB system-graph.json to know which
- * node ids exist):
- *   - link recent commits to the engine / dispatcher / hook / script nodes they
- *     touched (`git.commit.<c> --touched--> eng.<domain>.<name>` etc.) so the
- *     history dimension cross-links into the structure dimension.
- *   - colour commits by milestone scope ([SCOPE-MS#] prefix in the subject).
+ * v2 cross-links (the "what did this commit/milestone change?" view): for the most-recent
+ * TOUCHED_COMMITS, `git log --name-only` is parsed and each touched path is mapped to a
+ * graph node id via a slug→id table built from the current graph's code-structure prefixes
+ * (eng./disp./reg./schema./alg./script./test./core./frontend./skill./formula./ai./wiki./mem).
+ * Best-effort: skipped if system-graph.json isn't readable. Each commit gets ≤TOUCHED_PER_COMMIT
+ * edges, ≤TOUCHED_TOTAL_CAP overall. Commits also carry `n.scope` (the [SCOPE-MS#] subject prefix)
+ * so a future viewer mode can colour them by milestone.
  *
  * Output: state/shared/system-viz/git-tree-augmentation.json (delta — idempotent;
  * merge-augmentations.mjs dedups by node id / edge key).
@@ -39,12 +41,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
 const OUT = path.join(VIZ_DIR, "git-tree-augmentation.json");
+const GRAPH = path.join(VIZ_DIR, "system-graph.json");
 
 // ── config (overridable via CLI) ─────────────────────────────────────────
 const argv = process.argv.slice(2);
 const argNum = (flag, dflt) => { const i = argv.indexOf(flag); return i >= 0 && argv[i + 1] ? parseInt(argv[i + 1], 10) || dflt : dflt; };
 const MAX_COMMITS = argNum("--commits", 600);   // most-recent N commits across ALL refs
 const MAX_BRANCHES = argNum("--branches", 120); // branch refs to plot (local + remote)
+const TOUCHED_COMMITS = argNum("--touched-commits", 250);  // recent commits to cross-link into the code structure
+const TOUCHED_PER_COMMIT = 30, TOUCHED_TOTAL_CAP = 4000;
 const US = "\x1f";                              // unit-separator delimiter (never in commit text)
 
 function git(args) {
@@ -165,7 +170,60 @@ for (const b of branches) {
   }
 }
 
-// dedup edges within the fragment (branch may walk into a commit twice; merge-augmentations also dedups)
+// ── Lgit v2: cross-link recent commits to the code-structure nodes they touched ──
+//   For the most-recent TOUCHED_COMMITS, parse `git log --name-only`, map each touched
+//   path to a graph node id (eng.<domain>.<name>, disp.<name>, reg.<name>, schema.<name>,
+//   alg.<name>, script.<name>, test.<name>, …) and emit `git.commit.<sha> --touched--> <id>`.
+//   Path→id needs the current graph's id set + the domain prefixes, so we load it (the
+//   previous regen's graph in the regen-viz pipeline) — best-effort, skipped if unavailable.
+let touchedEdges = 0, touchedCommits = 0, slugMapSize = 0;
+try {
+  // build slug → node-id map from the "code structure" prefixes (skip fs./datacat./vault./ghost.)
+  const STRUCT_PREFIXES = ["eng", "disp", "reg", "schema", "alg", "script", "test", "core", "frontend", "fe", "skill", "formula", "ai", "wiki", "memory_feedback", "memory_uncategorized", "mem"];
+  const PREF_PRIORITY = { eng: 9, disp: 9, reg: 7, schema: 6, alg: 6, script: 5, core: 5, frontend: 4, fe: 4, skill: 3, formula: 3, ai: 3, test: 2, wiki: 1, mem: 1, memory_feedback: 1, memory_uncategorized: 1 };
+  const slugMap = new Map();   // slug → { id, prio }
+  if (fs.existsSync(GRAPH)) {
+    const G = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+    for (const n of G.nodes) {
+      const dot = (n.id || "").indexOf(".");
+      if (dot < 0) continue;
+      const pref = n.id.slice(0, dot);
+      if (!STRUCT_PREFIXES.includes(pref)) continue;
+      const slug = n.id.slice(n.id.lastIndexOf(".") + 1).toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (slug.length < 4) continue;
+      const prio = PREF_PRIORITY[pref] || 1;
+      const cur = slugMap.get(slug);
+      if (!cur || prio > cur.prio) slugMap.set(slug, { id: n.id, prio });
+    }
+  }
+  slugMapSize = slugMap.size;
+  if (slugMap.size) {
+    const pathToId = (p) => {
+      const base = String(p).replace(/\\/g, "/").split("/").pop() || "";
+      if (!base) return null;
+      // strip known extensions (handle .test.ts before .ts)
+      const slug = base.replace(/\.(test|d)\.(ts|tsx|mjs|js)$/i, "").replace(/\.(ts|tsx|mjs|js|md|json|cjs|cts|mts)$/i, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (slug.length < 4) return null;
+      return (slugMap.get(slug) || {}).id || null;
+    };
+    // git log --name-only for the recent window
+    let raw = "";
+    try { raw = git(["log", "--all", "--name-only", `--pretty=format:C${US}%h`, `-n${TOUCHED_COMMITS}`]); } catch { raw = ""; }
+    let curSha = null, perCommit = 0;
+    for (const line of raw.split("\n")) {
+      if (line.startsWith(`C${US}`)) { curSha = line.slice(2).trim(); perCommit = 0; if (commitShaSet.has(curSha)) touchedCommits++; continue; }
+      const f = line.trim();
+      if (!f || !curSha || !commitShaSet.has(curSha) || perCommit >= TOUCHED_PER_COMMIT || touchedEdges >= TOUCHED_TOTAL_CAP) continue;
+      const nid = pathToId(f);
+      if (!nid) continue;
+      pushEdge(`git.commit.${curSha}`, nid, "touched", { intensity: 0.18, path: f });
+      perCommit++; touchedEdges++;
+    }
+  }
+} catch (e) { /* non-fatal — skip the v2 cross-links */ }
+
+// dedup edges within the fragment (branch may walk into a commit twice; a commit may touch
+// two files mapping to the same node; merge-augmentations also dedups against the live graph)
 {
   const seen = new Set();
   for (let i = newEdges.length - 1; i >= 0; i--) {
@@ -181,7 +239,7 @@ const stats = {
   commits: commits.length,
   merges: commits.filter((c) => c.parents.length > 1).length,
   tips: branches.filter((b) => commitShaSet.has(b.tip)).length,
-  parentEdges, containsEdges,
+  parentEdges, containsEdges, touchedEdges, touchedCommits, slugMapSize,
   scopesSeen: [...new Set(commits.map((c) => scopeOf(c.subject)).filter(Boolean))].slice(0, 30),
   currentBranch: CURRENT_BRANCH,
   windowDateRange: commits.length ? { newest: commits[0].date, oldest: commits[commits.length - 1].date } : null,
@@ -198,5 +256,5 @@ const out = {
 
 fs.mkdirSync(VIZ_DIR, { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(out, null, 0) + "\n", "utf8");
-console.log(`[git-tree] wrote git-tree-augmentation.json — ${newNodes.length} nodes (${branches.length} branches + ${commits.length} commits + 1 hub) · ${newEdges.length} edges (${parentEdges} parent, ${containsEdges} contains, ${stats.tips} tip)`);
+console.log(`[git-tree] wrote git-tree-augmentation.json — ${newNodes.length} nodes (${branches.length} branches + ${commits.length} commits + 1 hub) · ${newEdges.length} edges (${parentEdges} parent, ${containsEdges} contains, ${stats.tips} tip, ${touchedEdges} touched→code over ${touchedCommits} commits; slugMap=${slugMapSize})`);
 console.log(`[git-tree]   window: ${stats.windowDateRange ? stats.windowDateRange.oldest + " → " + stats.windowDateRange.newest : "(empty)"} · merges=${stats.merges} · current=${CURRENT_BRANCH || "(detached)"}`);
