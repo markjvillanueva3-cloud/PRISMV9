@@ -24,7 +24,7 @@
  * cluster). To force the full chain, set FOLD_NEWLY_BUILT=1 in the env.
  */
 
-import { spawnSync } from "node:child_process";
+import { spawnSync, spawn } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -112,21 +112,23 @@ if (!ok) {
 }
 console.log("\n✓ system-viz fully refreshed; viewer auto-poll will pick up within 30s");
 
-// U-VIZ-AUTO-REGEN-WIKI: regenerate Obsidian wiki layer/domain/dispatcher entries
-// from the freshly-built graph. Soft-fail: wiki staleness must NOT block the
-// graph refresh chain. Skip if PRISM_SKIP_WIKI_REGEN=1.
+// U-VIZ-AUTO-REGEN-WIKI: regenerate the Obsidian wiki from the freshly-built graph.
+// DETACHED + async: the 19-stage orchestrator now runs ~8min on the 150K-node graph.
+// Running it synchronously here would hold the post-commit hook (and thus block
+// concurrent `git` operations across the 6-chat fleet) for the whole duration —
+// that caused .git/index.lock contention. Fire-and-forget instead; the next
+// commit's chain (or the hourly cron) catches anything this run missed.
+// Skip entirely with PRISM_SKIP_WIKI_REGEN=1.
 if (process.env.PRISM_SKIP_WIKI_REGEN !== "1") {
-  const wikiStart = Date.now();
-  const r = spawnSync(node, ["scripts/regen-wiki-from-viz.mjs", "--quiet"], {
-    cwd: ROOT,
-    stdio: "pipe",
-    encoding: "utf8",
-  });
-  const wikiMs = Date.now() - wikiStart;
-  if (r.status === 0) {
-    console.log(`✓ wiki regen (${wikiMs}ms) — layer + domain + dispatcher + overview refreshed`);
-  } else {
-    console.error(`✗ wiki regen (${wikiMs}ms) FAILED — exit ${r.status} (graph itself is fresh)`);
-    if (r.stderr) console.error(r.stderr.split("\n").slice(-4).join("\n"));
+  try {
+    const child = spawn(node, ["scripts/regen-wiki-from-viz.mjs", "--quiet"], {
+      cwd: ROOT,
+      stdio: "ignore",
+      detached: true,
+    });
+    child.unref();
+    console.log("✓ wiki regen launched in background (detached) — completes in ~8min, does not block git");
+  } catch (e) {
+    console.error(`✗ wiki regen launch failed: ${e.message} (graph itself is fresh)`);
   }
 }
