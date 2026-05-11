@@ -134,6 +134,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_replay_bridge_sample_stratified: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
   xproc_replay_bridge_sample_prioritized: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
   xproc_replay_bridge_reset: () => import("../../engines/OutcomeReplayBufferBridgeEngine.js").then(m => m.outcomeReplayBufferBridgeDispatch),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN08 — episodic memory outcome bridge
+  xproc_episodic_bridge_subscribe: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
+  xproc_episodic_bridge_unsubscribe: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
+  xproc_episodic_bridge_status: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
+  xproc_episodic_bridge_configure: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
+  xproc_episodic_bridge_stats: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
+  xproc_episodic_bridge_reset: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1789,6 +1796,16 @@ export async function executeAIReasoningAction(
       case "xproc_replay_bridge_sample_stratified":
       case "xproc_replay_bridge_sample_prioritized":
       case "xproc_replay_bridge_reset":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN08 — episodic memory outcome bridge
+      // (all bridge_* actions namespaced to avoid colliding with the pre-existing
+      // xproc_episodic_{store,recall,stats,semantic_join} actions on
+      // CrossProcessEpisodicMemoryEngine.)
+      case "xproc_episodic_bridge_subscribe":
+      case "xproc_episodic_bridge_unsubscribe":
+      case "xproc_episodic_bridge_status":
+      case "xproc_episodic_bridge_configure":
+      case "xproc_episodic_bridge_stats":
+      case "xproc_episodic_bridge_reset":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":

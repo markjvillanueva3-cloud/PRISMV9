@@ -246,6 +246,16 @@ export const AI_REASONING_ACTIONS = [
   "xproc_replay_bridge_sample_stratified",
   "xproc_replay_bridge_sample_prioritized",
   "xproc_replay_bridge_reset",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN08 — episodic memory outcome bridge
+  // (all bridge_* actions namespaced to avoid colliding with the
+  // pre-existing xproc_episodic_{store,recall,stats,semantic_join}
+  // actions on CrossProcessEpisodicMemoryEngine.)
+  "xproc_episodic_bridge_subscribe",
+  "xproc_episodic_bridge_unsubscribe",
+  "xproc_episodic_bridge_status",
+  "xproc_episodic_bridge_configure",
+  "xproc_episodic_bridge_stats",
+  "xproc_episodic_bridge_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1600,6 +1610,28 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ),
   xproc_replay_bridge_reset: z.object({}).passthrough().describe(
     "U-CN07: Reset bridge state (test-only — does NOT touch downstream prioritized replay / sampler state). Distinct from xproc_replay_* actions which target the underlying engines.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN08 — episodic memory outcome bridge
+  xproc_episodic_bridge_subscribe: z.object({}).passthrough().describe(
+    "U-CN08: Subscribe episodic memory bridge to FeedbackBus 'outcome.completed'. Each terminal outcome is stored as an episode in CrossProcessEpisodicMemoryEngine with derived {key, features, outcome}. Idempotent.",
+  ),
+  xproc_episodic_bridge_unsubscribe: z.object({}).passthrough().describe(
+    "U-CN08: Detach the episodic memory bridge outcome subscription. Idempotent.",
+  ),
+  xproc_episodic_bridge_status: z.object({}).passthrough().describe(
+    "U-CN08: Introspect — is the bridge subscription currently live?",
+  ),
+  xproc_episodic_bridge_configure: z.object({
+    defaultDecision: z.enum(["approved", "vetoed", "override", "pending"]).optional().describe("Decision label to use when request_summary lacks an explicit decision. Default 'approved'."),
+    maxFeatureCount: z.number().int().min(1).max(1000).optional().describe("Cap on numeric features extracted per event. Default 64."),
+  }).passthrough().describe(
+    "U-CN08: Update episodic memory bridge config. Returns the validated effective config.",
+  ),
+  xproc_episodic_bridge_stats: z.object({}).passthrough().describe(
+    "U-CN08: Read bridge telemetry — totals (events, stored, skips), per-engine failure counts, current config.",
+  ),
+  xproc_episodic_bridge_reset: z.object({}).passthrough().describe(
+    "U-CN08: Reset bridge state (test-only — does NOT touch downstream CrossProcessEpisodicMemoryEngine state). Distinct from xproc_episodic_* actions which target the underlying engine.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({
