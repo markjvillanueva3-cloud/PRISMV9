@@ -62,6 +62,11 @@ const FAST = [
   "generate-engine-import-edges.mjs",
   "generate-test-coverage-edges.mjs",
   "generate-physics-atomic.mjs",
+  "generate-jm-die-customers.mjs",
+  "generate-schema-engine-edges.mjs",
+  "generate-engine-physics-edges.mjs",
+  "generate-frontend-deep.mjs",
+  "generate-wiki-cross-refs.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
@@ -72,13 +77,19 @@ const args = process.argv.slice(2);
 const wantFull = args.includes("--full");
 const scripts = wantFull ? [...FAST, ...HEAVY] : FAST;
 
+// --stack-size=8192 (8 MB JS stack) is required: the merged system-graph.json
+// is >90 MB and V8's JSON.stringify recursion blows the default ~1 MB Windows
+// thread stack ("StackOverflowException", exit -1073741571) when serializing it.
+// Applied to every child so generators that round-trip the graph survive too.
+const NODE_ARGS = ["--max-old-space-size=16384", "--stack-size=8192"];
+
 console.log(`[regen-viz] running ${scripts.length} generator(s)${wantFull ? " (FULL)" : " (fast)"}…`);
 const t0 = Date.now();
 let failed = 0;
 for (const s of scripts) {
   const abs = path.join(ROOT, "scripts", s);
   const start = Date.now();
-  const r = spawnSync(process.execPath, ["--max-old-space-size=16384", abs], { stdio: "inherit", cwd: ROOT });
+  const r = spawnSync(process.execPath, [...NODE_ARGS, abs], { stdio: "inherit", cwd: ROOT });
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
   if (r.status !== 0) {
     console.error(`[regen-viz] ✗ ${s} failed (exit ${r.status}, ${elapsed}s)`);
@@ -89,7 +100,7 @@ for (const s of scripts) {
 }
 
 console.log(`[regen-viz] merging…`);
-const m = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
+const m = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
   stdio: "inherit", cwd: ROOT,
 });
 if (m.status !== 0) {
@@ -101,7 +112,7 @@ if (m.status !== 0) {
 // invocation signal + keyword tokens. Without this, every regen leaks engines
 // back into eng.other because engine-graph.mjs has no domain awareness.
 console.log(`[regen-viz] post-merge repair: engine classification…`);
-const r = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(ROOT, "scripts", "repair-graph-engine-classification.mjs")], {
+const r = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "repair-graph-engine-classification.mjs")], {
   stdio: "inherit", cwd: ROOT,
 });
 if (r.status !== 0) {
@@ -112,7 +123,7 @@ if (r.status !== 0) {
 // Post-repair dedup: remove duplicate-id nodes left by repair-vs-engine-graph
 // id collisions. Idempotent (no-op if already deduped).
 console.log(`[regen-viz] post-merge dedup…`);
-const d = spawnSync(process.execPath, ["--max-old-space-size=16384", path.join(ROOT, "scripts", "dedup-graph-nodes.mjs")], {
+const d = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "dedup-graph-nodes.mjs")], {
   stdio: "inherit", cwd: ROOT,
 });
 if (d.status !== 0) {

@@ -111,6 +111,11 @@ const engineImpEdges = loadOptional("engine-import-edges-augmentation.json");
 const testCovEdges   = loadOptional("test-coverage-edges-augmentation.json");
 const physicsAtomic  = loadOptional("physics-atomic-augmentation.json");
 const engineReclass  = loadOptional("engine-reclassify-augmentation.json");
+const jmDieCust      = loadOptional("jm-die-customers-augmentation.json");
+const schemaEngEdges = loadOptional("schema-engine-edges-augmentation.json");
+const enginePhyEdges = loadOptional("engine-physics-edges-augmentation.json");
+const frontendDeep   = loadOptional("frontend-deep-augmentation.json");
+const wikiCrossRefs  = loadOptional("wiki-cross-refs-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -163,6 +168,11 @@ if (engineImpEdges)  versions.engineImpEdges  = engineImpEdges.generatedAt  ?? "
 if (testCovEdges)    versions.testCovEdges    = testCovEdges.generatedAt    ?? "present";
 if (physicsAtomic)   versions.physicsAtomic   = physicsAtomic.generatedAt   ?? "present";
 if (engineReclass)   versions.engineReclass   = engineReclass.generatedAt   ?? "present";
+if (jmDieCust)       versions.jmDieCustomers  = jmDieCust.generatedAt       ?? "present";
+if (schemaEngEdges)  versions.schemaEngineEdges = schemaEngEdges.generatedAt ?? "present";
+if (enginePhyEdges)  versions.enginePhysicsEdges = enginePhyEdges.generatedAt ?? "present";
+if (frontendDeep)    versions.frontendDeep    = frontendDeep.generatedAt    ?? "present";
+if (wikiCrossRefs)   versions.wikiCrossRefs   = wikiCrossRefs.generatedAt   ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -1242,6 +1252,11 @@ function mergeEdgesOnly(aug, name) {
 }
 const engineImpEdgeCount = mergeEdgesOnly(engineImpEdges, "engineImportEdges");
 const testCovEdgeCount   = mergeEdgesOnly(testCovEdges,   "testCoverageEdges");
+const [jmDieNodes,   jmDieEdges]   = mergeIndexedAugmentation(jmDieCust,      "jmDieCustomers");
+const [frontDNodes,  frontDEdges]  = mergeIndexedAugmentation(frontendDeep,   "frontendDeep");
+const [wikiXNodes,   wikiXEdges]   = mergeIndexedAugmentation(wikiCrossRefs,  "wikiCrossRefs");
+const schemaEdgeCount = mergeEdgesOnly(schemaEngEdges,  "schemaEngineEdges");
+const physEdgeCount   = mergeEdgesOnly(enginePhyEdges,  "enginePhysicsEdges");
 
 // Action-engine edges (edges only — no new nodes)
 let actEngEdges = 0;
@@ -1271,12 +1286,12 @@ if (actionEngEdges?.newEdges) {
 }
 
 G.meta.augmentationVersions = versions;
-G.schemaVersion = "2.25.0";
-
+G.schemaVersion = "2.26.0";
 fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
 console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
 console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
 console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
-console.log(`  schema bumped to 2.25.0`);
+console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
+console.log(`  schema bumped to 2.26.0`);
