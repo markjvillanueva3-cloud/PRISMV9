@@ -1,0 +1,94 @@
+#!/usr/bin/env node
+/**
+ * regen-wiki-from-viz.mjs
+ *
+ * Orchestrator: runs every viz→wiki generator in sequence after the
+ * system-viz graph regenerates. Wire into SessionStart, the system-viz-
+ * on-commit hook, or invoke via slash command after `/system-viz`.
+ *
+ * Generators (run in dependency order):
+ *   1. generate-layer-wiki.mjs       — 13 per-layer entries
+ *   2. generate-domain-wiki.mjs      — 38 per-engine-domain entries
+ *   3. generate-dispatcher-wiki.mjs  — 97 per-dispatcher entries
+ *   4. generate-layer-stack-overview.mjs — single overview entry w/ Mermaid
+ *
+ * Each generator is idempotent and updates wiki/index.md in-place between
+ * marker comments. Total runtime ~200ms on the current 126K-node graph.
+ *
+ * Flags:
+ *   --dry-run   pass through to all generators (don't write)
+ *   --quiet     suppress per-step success lines (errors still print)
+ */
+import { spawnSync } from "node:child_process";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { existsSync, statSync } from "node:fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const PRISM_ROOT = resolve(__dirname, "..");
+const GRAPH_PATH = resolve(PRISM_ROOT, "state/shared/system-viz/system-graph.json");
+
+const args = new Set(process.argv.slice(2));
+const FLAGS = { dryRun: args.has("--dry-run"), quiet: args.has("--quiet") };
+
+const GENERATORS = [
+  "generate-layer-wiki.mjs",
+  "generate-domain-wiki.mjs",
+  "generate-dispatcher-wiki.mjs",
+  "generate-layer-stack-overview.mjs",
+];
+
+function log(line) {
+  if (!FLAGS.quiet) process.stdout.write(line);
+}
+
+function err(line) {
+  process.stderr.write(line);
+}
+
+function runGenerator(name) {
+  const script = resolve(__dirname, name);
+  if (!existsSync(script)) {
+    err(`[regen-wiki] missing: ${name}\n`);
+    return { ok: false, name, error: "missing" };
+  }
+  const cmd = process.execPath;
+  const cliArgs = [script];
+  if (FLAGS.dryRun) cliArgs.push("--dry-run");
+  const t0 = Date.now();
+  const res = spawnSync(cmd, cliArgs, { encoding: "utf8" });
+  const elapsed = Date.now() - t0;
+  if (res.status !== 0) {
+    err(`[regen-wiki] FAIL ${name} (exit ${res.status}, ${elapsed}ms)\n`);
+    if (res.stderr) err(res.stderr);
+    return { ok: false, name, error: res.stderr || `exit ${res.status}` };
+  }
+  const summary = (res.stdout || "").trim().split("\n").pop() || "ok";
+  log(`[regen-wiki] OK   ${name.padEnd(40)} ${elapsed}ms  ${summary}\n`);
+  return { ok: true, name, elapsed, summary };
+}
+
+function main() {
+  if (!existsSync(GRAPH_PATH)) {
+    err(`[regen-wiki] graph missing at ${GRAPH_PATH}\n`);
+    err(`[regen-wiki] run \`/system-viz\` or \`node scripts/generate-system-viz.mjs\` first\n`);
+    process.exit(2);
+  }
+  const ageMs = Date.now() - statSync(GRAPH_PATH).mtimeMs;
+  const ageMin = Math.round(ageMs / 60000);
+  log(`[regen-wiki] graph age: ${ageMin}min · ${FLAGS.dryRun ? "DRY-RUN" : "writing"}\n`);
+
+  const t0 = Date.now();
+  const results = [];
+  for (const g of GENERATORS) results.push(runGenerator(g));
+  const total = Date.now() - t0;
+
+  const okCount = results.filter((r) => r.ok).length;
+  const failCount = results.length - okCount;
+  log(`[regen-wiki] done: ${okCount}/${results.length} OK · ${failCount} fail · total ${total}ms\n`);
+
+  if (failCount > 0) process.exit(1);
+}
+
+main();
