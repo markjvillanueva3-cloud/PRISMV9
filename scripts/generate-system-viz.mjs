@@ -90,7 +90,32 @@ const built = headline.built_engines ?? 2269;
 const unwired = headline.needs_wiring ?? 898;
 const pendingFE = headline.needs_frontend_merge_count ?? 2;
 const drift = headline.drift_milestones ?? 3;
-const wikiEntries = headline.built_with_wiki ?? 774;
+// wikiEntries = the REAL size of the auto-generated architecture wiki tree
+// (~23K: engines/actions/dispatchers/registries/skills/hooks/formulas/algorithms/
+// milestones/monolith-modules/courses/tribal/tests/…). The old value (built_with_wiki
+// from BUILD_STATE, ~774) only counted index.md lines — 30x understated. Authoritative
+// count: knowledge/wiki/architecture/_stats.md's `total_entries`, falling back to a
+// direct walk if the stats file is missing.
+function countArchitectureWikiEntries() {
+  const ARCH = path.join(ROOT, "knowledge", "wiki", "architecture");
+  const STATS = path.join(ARCH, "_stats.md");
+  try {
+    const m = fs.readFileSync(STATS, "utf8").match(/^total_entries:\s*(\d+)/m);
+    if (m) return Number(m[1]);
+  } catch { /* fall through to walk */ }
+  let n = 0;
+  (function walk(d) {
+    let entries;
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const full = path.join(d, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.isFile() && e.name.endsWith(".md")) n++;
+    }
+  })(ARCH);
+  return n || (headline.built_with_wiki ?? 774);
+}
+const wikiEntries = countArchitectureWikiEntries();
 
 // ---------- categorization ----------
 function dispatcherCategory(file) {

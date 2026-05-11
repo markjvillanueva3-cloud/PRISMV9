@@ -122,7 +122,7 @@ function render(m, gen) {
   const bucket = rel.startsWith("extracted_modules/") ? "extracted_modules" : "extracted";
   return `---
 title: Monolith module — ${name}
-type: architecture
+type: monolith-module
 kind: monolith-module
 module_path: ${rel}
 bucket: ${bucket}

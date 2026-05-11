@@ -62,7 +62,7 @@ function renderAcademy(c, gen) {
   const rel = `mcp-server/src/data/academy/${basename(c.file)}`;
   return `---
 title: Academy course — ${c.title}
-type: architecture
+type: course
 kind: course
 course_kind: prism-academy
 course_id: ${c.courseId}
@@ -143,7 +143,7 @@ const MIT_COURSES = [
 function renderMIT(c, gen) {
   return `---
 title: MIT course — ${c.code} ${c.name}
-type: architecture
+type: course
 kind: course
 course_kind: mit-ocw
 course_code: "${c.code}"
@@ -193,7 +193,7 @@ ${AUTO_END}
 function render220(gen) {
   return `---
 title: 220-course knowledge base (extracted)
-type: architecture
+type: course
 kind: course
 course_kind: knowledge-base-220
 generated_by: scripts/generate-courses-wiki.mjs

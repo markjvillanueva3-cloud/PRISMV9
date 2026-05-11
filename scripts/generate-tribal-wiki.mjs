@@ -97,7 +97,7 @@ function renderCategory(cat, files, gen) {
   const topCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([c]) => `\`${c}\``).join(", ") || "—";
   return `---
 title: Tribal tips — ${meta.label}
-type: architecture
+type: tribal-category
 kind: tribal-category
 tribal_category: ${cat}
 tip_count: ${files.length}${meta.system ? `\ncam_system: ${meta.system}` : ""}

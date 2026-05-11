@@ -41,7 +41,7 @@ const AUTO_END = "<!-- AUTO-END -->";
 const DOCBLOCK_LINES = 20;
 const TITLE_SAMPLE = 6;          // describe()/it() titles to surface
 const DESC_MAX = 200;
-const RENDER_VERSION = 1;        // bump to force a full re-render after a render-logic change
+const RENDER_VERSION = 2;        // v2: type:test (was architecture)        // bump to force a full re-render after a render-logic change
 const MTIME_SIDECAR = resolve(PRISM_ROOT, "state/shared/system-viz/.test-wiki-mtimes.json");
 // sidecar shape: { v, files: { relPath: { mtime, name, group, it, expect, target, outPath } } }
 // unchanged files skip the (slow) content read + render but still feed the index from the sidecar.
@@ -137,7 +137,7 @@ function render(file, gen) {
   const group = groupOf(file);
   return `---
 title: Test — ${name}.test.ts
-type: architecture
+type: test
 kind: test
 test_path: ${rel}
 group: ${group}${target ? `\ntarget: ${target}` : ""}${milestone ? `\nmilestone: ${milestone.trim()}` : ""}
