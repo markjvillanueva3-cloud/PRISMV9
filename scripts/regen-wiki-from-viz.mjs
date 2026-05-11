@@ -95,8 +95,11 @@ const GENERATORS = [
   // embeddings built from the fresh leaf-index — int8 vectors for the recall
   // hook's semantic fallback. No-ops gracefully if Ollama is unreachable.
   "build-wiki-embeddings.mjs",
-  // lint runs LAST so it measures the post-crosslink orphan rate
+  // lint runs near-last so it measures the post-crosslink orphan rate
   "lint-wiki-orphans.mjs",
+  // coverage audit runs LAST — cross-references the graph vs the leaf-index vs the
+  // generator list → WIKI-COVERAGE-AUDIT.md (the "is the wiki brain complete?" oracle)
+  "audit-wiki-coverage.mjs",
 ];
 
 function log(line) {

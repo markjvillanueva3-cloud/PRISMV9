@@ -17,17 +17,19 @@
  *   ~/.claude/commands/<name>.md               → <name slug>  (skill entry, user)
  *   scripts/<name>.mjs / .js                   → <name slug>  (best-effort)
  *
- * Resolution uses knowledge/wiki/architecture/_leaf-index.jsonl (built by
- * build-wiki-leaf-index.mjs). Cached by mtime in /tmp.
+ * Lookup: a *single targeted scan* of knowledge/wiki/architecture/_leaf-index.jsonl
+ * for the one matching line — NOT a full parse. This hook fires on EVERY Read; the
+ * previous version JSON.parsed the entire ~5.5MB leaf index (or a ~5.5MB cache of
+ * it) into a name→entry map on every Read of any engine/dispatcher/hook source
+ * file, then looked up one key — ~50-150ms of parse+allocate thrown away each time.
+ * readFileSync + indexOf the one line is ~10-20ms and allocates nothing extra.
  *
  * Fail-safe: never blocks, never errors out. Disable: PRISM_WIKI_RECALL_READ=0
  */
-import { readFileSync, writeFileSync, statSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, basename } from "node:path";
+import { readFileSync, appendFileSync } from "node:fs";
+import { basename } from "node:path";
 
 const LEAF_INDEX = "H:/prism/knowledge/wiki/architecture/_leaf-index.jsonl";
-const CACHE = join(tmpdir(), "prism-wiki-cache", "wiki-leaf-byname.json");
 const TELEMETRY = "H:/prism/mcp-server/data/state/hook-fire-counts.jsonl";
 
 function tele(decision, extra) {
@@ -66,33 +68,56 @@ function pathToWikiName(p) {
   // skills (.claude/commands/<name>.md  OR  ~/.claude/commands/<name>.md)
   m = norm.match(/\.claude\/commands\/([A-Za-z0-9_.-]+)\.md$/);
   if (m) return slug(m[1].replace(/\.md$/, ""));
+  // test files (mcp-server/src/__tests__/<X>.test.ts) → the per-test wiki entry
+  // (architecture/tests/<group>/<slug(X)>.md). Best-effort: a rare same-named action
+  // entry wins the leaf-index name collision — acceptable for a recall hint.
+  m = norm.match(/__tests__\/(?:.*\/)?([A-Za-z0-9_.-]+)\.test\.ts$/);
+  if (m) return slug(m[1]);
+  // monolith modules (extracted/<cat>/<X>.{js,ts,json}  OR  extracted_modules/<bucket>/<X>...)
+  m = norm.match(/(?:^|\/)extracted(?:_modules)?\/[^/]+\/(?:[^/]+\/)?([A-Za-z0-9_.-]+)\.(?:js|ts|mjs|cjs|json)$/);
+  if (m) return slug(m[1].replace(/\.[a-z]+$/i, ""));
+  // tribal tips (knowledge/tribal/<X>.md) → tip-<id>; the entry name uses the
+  // frontmatter id, which we can't read here — fall back to slug(basename), which
+  // won't usually match (entry name is `tip-<id>`). Skip unless the file IS named tip-<id>.
+  // (Reading a tribal tip means you're already looking at it — recall is low-value here.)
   // scripts
   m = norm.match(/\/scripts\/([A-Za-z0-9_.-]+)\.(mjs|js|ts)$/);
   if (m) return slug(m[1].replace(/\.(mjs|js|ts)$/, ""));
+  // academy course data files (mcp-server/src/data/academy/course-<X>.ts) — the wiki
+  // entry name is `academy-<courseId>-<titleSlug>` (can't derive from filename alone);
+  // try `academy-<filebase>` and let the leaf-index resolve a prefix match if it 404s.
+  m = norm.match(/\/data\/academy\/(course-[A-Za-z0-9_-]+)\.ts$/);
+  if (m) return `academy-${slug(m[1])}`;
   return null;
 }
 
-function loadByName() {
-  let st;
-  try { st = statSync(LEAF_INDEX); } catch { return null; }
-  if (existsSync(CACHE)) {
+/**
+ * Find the single _leaf-index.jsonl line whose "name" field equals `name`,
+ * without parsing the whole file. Reads the file once (~10ms for 5.5MB),
+ * locates the literal token `"name":"<name>"` via String.indexOf (fast), then
+ * parses ONLY that line and confirms `parsed.name === name` (guards the
+ * vanishingly-rare case where the token also appears inside another line's
+ * desc/path). Returns null if the index is missing or has no such entry.
+ */
+function lookupLeafEntry(name) {
+  let text;
+  try { text = readFileSync(LEAF_INDEX, "utf8"); } catch { return null; }
+  // slug() guarantees `name` is [a-z0-9-]+, so this needle is JSON-safe and
+  // never contains regex/quote metacharacters.
+  const needle = `"name":"${name}"`;
+  let i = text.indexOf(needle);
+  while (i !== -1) {
+    const start = text.lastIndexOf("\n", i) + 1; // 0 if at file start
+    let end = text.indexOf("\n", i);
+    if (end === -1) end = text.length;
+    const line = text.slice(start, end);
     try {
-      const c = JSON.parse(readFileSync(CACHE, "utf8"));
-      if (c && c.mtime === st.mtimeMs && c.byName) return c.byName;
-    } catch { /* rebuild */ }
+      const r = JSON.parse(line);
+      if (r && r.name === name) return { title: r.title, type: r.type, desc: r.desc, path: r.path };
+    } catch { /* token landed inside a malformed/wrapped line — keep scanning */ }
+    i = text.indexOf(needle, end);
   }
-  try {
-    const text = readFileSync(LEAF_INDEX, "utf8");
-    const byName = Object.create(null);
-    for (const line of text.split(/\r?\n/)) {
-      if (!line.trim()) continue;
-      let r;
-      try { r = JSON.parse(line); } catch { continue; }
-      if (r && r.name && !byName[r.name]) byName[r.name] = { title: r.title, type: r.type, desc: r.desc, path: r.path };
-    }
-    try { mkdirSync(join(tmpdir(), "prism-wiki-cache"), { recursive: true }); writeFileSync(CACHE, JSON.stringify({ mtime: st.mtimeMs, byName }), "utf8"); } catch {}
-    return byName;
-  } catch { return null; }
+  return null;
 }
 
 function main() {
@@ -104,9 +129,7 @@ function main() {
   if (!filePath) { tele("skip_no_path"); return out({}); }
   const wikiName = pathToWikiName(filePath);
   if (!wikiName) { tele("skip_no_mapping"); return out({}); }
-  const byName = loadByName();
-  if (!byName) { tele("error_no_index"); return out({}); }
-  const entry = byName[wikiName];
+  const entry = lookupLeafEntry(wikiName);
   if (!entry) { tele("noop_not_in_wiki", { name: wikiName }); return out({}); }
   tele("matched", { name: wikiName, type: entry.type });
   const ctx = [
