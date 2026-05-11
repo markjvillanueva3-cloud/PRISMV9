@@ -178,6 +178,7 @@ function loadCandidates() {
         leverage_score: inferLeverage(env, null),
         domain: inferDomain(env, null),
         track: env.track || null,
+        roadmap_priority: typeof env.roadmap_priority === "number" ? env.roadmap_priority : 0,
       });
       continue;
     }
@@ -194,6 +195,8 @@ function loadCandidates() {
         leverage_score: inferLeverage(env, u),
         domain: inferDomain(env, u),
         track: env.track || null,
+        roadmap_priority: typeof u.roadmap_priority === "number" ? u.roadmap_priority
+          : (typeof env.roadmap_priority === "number" ? env.roadmap_priority : 0),
       });
     }
   }
@@ -304,8 +307,13 @@ function enrichWithEvidence(candidates) {
 }
 
 function sortRoadmap(candidates) {
-  // tier ASC, (aiPriorityScore + evidenceScore) DESC, leverage DESC, alpha
+  // roadmap_priority ASC (devtools/everything = 0 first, revenue = 1 last), then
+  // tier ASC, (aiPriorityScore + evidenceScore) DESC, leverage DESC, alpha.
+  // [Operator-chosen option (b): the entire roadmap_priority-0 work — including
+  //  the BACKEND-DEVTOOLS-RGS6 roadmap — before any roadmap_priority-1 (revenue) work.]
   return [...candidates].sort((a, b) => {
+    const ra = a.roadmap_priority ?? 0, rb = b.roadmap_priority ?? 0;
+    if (ra !== rb) return ra - rb;
     if (a.tier !== b.tier) return a.tier - b.tier;
     const sa = a.aiPriorityScore + (a.evidenceScore || 0);
     const sb = b.aiPriorityScore + (b.evidenceScore || 0);
@@ -321,14 +329,21 @@ function splitLanes(roadmap, n) {
   // Domain-affinity assignment: round-robin within tier groups, biased so
   // each chat owns ≥1 ai-category unit if possible.
   const lanes = Array.from({ length: n }, () => []);
-  // group by tier so all lanes start tier 0 together
-  const byTier = new Map();
+  // group by (roadmap_priority, tier) so the priority-0 roadmap (devtools/etc.)
+  // fills all lanes across all its tiers before the priority-1 roadmap (revenue)
+  // gets any units — matches the operator's option-(b) sort.
+  const byGroup = new Map();
   for (const r of roadmap) {
-    if (!byTier.has(r.tier)) byTier.set(r.tier, []);
-    byTier.get(r.tier).push(r);
+    const k = `${r.roadmap_priority ?? 0}::${r.tier}`;
+    if (!byGroup.has(k)) byGroup.set(k, []);
+    byGroup.get(k).push(r);
   }
-  // domain-aware deal
-  for (const [tier, items] of [...byTier.entries()].sort((a, b) => a[0] - b[0])) {
+  // domain-aware deal — iterate groups in (roadmap_priority, tier) order
+  for (const [k, items] of [...byGroup.entries()].sort((x, y) => {
+    const [rx, tx] = x[0].split("::").map(Number);
+    const [ry, ty] = y[0].split("::").map(Number);
+    return rx !== ry ? rx - ry : tx - ty;
+  })) {
     let i = 0;
     // sort items so high-AI floats first within tier
     items.sort((a, b) => b.aiPriorityScore - a.aiPriorityScore);
