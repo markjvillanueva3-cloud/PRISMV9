@@ -147,16 +147,7 @@ function main() {
     if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
   }
 
-  // --- layer-l8 → milestones ---
-  {
-    const links = G.nodes
-      .filter((n) => n.layer === "L8" && (n.kind || n.subgroup) === "milestone")
-      .map((n) => `milestone-${slug(n.id)}`)
-      .filter((l) => fileExists(join(ARCH_DIR, "milestones", `${l}.md`)))
-      .sort();
-    const r = applyToEntry(join(ARCH_DIR, "layer-l8.md"), "Milestones", links);
-    if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
-  }
+  // --- layer-l8 milestones + ensemble formulas handled together below (single XLINK region) ---
 
   // --- layer-l1 → frontend pages ---
   {
@@ -176,6 +167,59 @@ function main() {
       .filter((l) => fileExists(join(ARCH_DIR, `${l}.md`)));
     const r = applyToEntry(join(ARCH_DIR, "layer-stack-overview.md"), "All layers", links);
     if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
+  }
+
+  // --- layer-l6 → skills + hooks + algorithms + L6 formulas (the "core" leaf entries) ---
+  {
+    const links = [];
+    for (const sub of ["skills/project", "skills/user", "hooks/runtime", "hooks/engine", "algorithms"]) {
+      const dir = join(ARCH_DIR, sub);
+      if (!existsSync(dir)) continue;
+      for (const f of readdirSync(dir)) {
+        if (f.endsWith(".md")) links.push(f.replace(/\.md$/, ""));
+      }
+    }
+    // L6 formulas (constants/types)
+    for (const n of G.nodes) {
+      if (n.layer !== "L6") continue;
+      if (!(n.id || "").startsWith("formula.")) continue;
+      const fl = `formula-${slug(n.id)}`;
+      if (fileExists(join(ARCH_DIR, "formulas", `${fl}.md`))) links.push(fl);
+    }
+    const r = applyToEntry(join(ARCH_DIR, "layer-l6.md"), "Core leaf entries (skills, hooks, algorithms, formulas)", [...new Set(links)].sort());
+    if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
+  }
+
+  // --- layer-l8 → L8 novel_formula entries (ensemble formulas live in the knowledge layer) ---
+  {
+    const links = G.nodes
+      .filter((n) => n.layer === "L8" && (n.id || "").startsWith("formula."))
+      .map((n) => `formula-${slug(n.id)}`)
+      .filter((l) => fileExists(join(ARCH_DIR, "formulas", `${l}.md`)))
+      .sort();
+    // layer-l8 already has a Milestones block via applyToEntry above; setXlinkBlock
+    // replaces the WHOLE XLINK region, so merge milestones + formulas here.
+    const msLinks = G.nodes
+      .filter((n) => n.layer === "L8" && (n.kind || n.subgroup) === "milestone")
+      .map((n) => `milestone-${slug(n.id)}`)
+      .filter((l) => fileExists(join(ARCH_DIR, "milestones", `${l}.md`)))
+      .sort();
+    const parentPath = join(ARCH_DIR, "layer-l8.md");
+    if (fileExists(parentPath)) {
+      const content = readFileSync(parentPath, "utf8");
+      const body = [
+        `## Milestones (${msLinks.length})`, "",
+        ...msLinks.map((l) => `- [[${l}]]`),
+        "",
+        `## Ensemble formulas (${links.length})`, "",
+        ...links.map((l) => `- [[${l}]]`),
+      ].join("\n");
+      const next = setXlinkBlock(content, body);
+      if (next !== content) {
+        if (!FLAGS.dryRun) writeFileSync(parentPath, next, "utf8");
+        entriesTouched++; linksInjected += msLinks.length + links.length;
+      }
+    }
   }
 
   // --- domain-<d> → engine entries in domain ---
