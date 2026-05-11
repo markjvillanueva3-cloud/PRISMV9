@@ -99,6 +99,12 @@ const algosAtomic    = loadOptional("algorithms-atomic-augmentation.json");
 const transportExp   = loadOptional("transport-expand-augmentation.json");
 const aiTierExp      = loadOptional("ai-tier-expand-augmentation.json");
 const actionsAtomic  = loadOptional("actions-atomic-augmentation.json");
+const hooksAtomic    = loadOptional("hooks-atomic-augmentation.json");
+const testsAtomic    = loadOptional("tests-atomic-augmentation.json");
+const scriptsAtomic  = loadOptional("scripts-atomic-augmentation.json");
+const memoriesAtomic = loadOptional("memories-atomic-augmentation.json");
+const registryEnts   = loadOptional("registry-entries-augmentation.json");
+const actionEngEdges = loadOptional("action-engine-edges-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -139,6 +145,12 @@ if (algosAtomic)     versions.algosAtomic     = algosAtomic.generatedAt     ?? "
 if (transportExp)    versions.transportExp    = transportExp.generatedAt    ?? "present";
 if (aiTierExp)       versions.aiTierExp       = aiTierExp.generatedAt       ?? "present";
 if (actionsAtomic)   versions.actionsAtomic   = actionsAtomic.generatedAt   ?? "present";
+if (hooksAtomic)     versions.hooksAtomic     = hooksAtomic.generatedAt     ?? "present";
+if (testsAtomic)     versions.testsAtomic     = testsAtomic.generatedAt     ?? "present";
+if (scriptsAtomic)   versions.scriptsAtomic   = scriptsAtomic.generatedAt   ?? "present";
+if (memoriesAtomic)  versions.memoriesAtomic  = memoriesAtomic.generatedAt  ?? "present";
+if (registryEnts)    versions.registryEnts    = registryEnts.generatedAt    ?? "present";
+if (actionEngEdges)  versions.actionEngEdges  = actionEngEdges.generatedAt  ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -1166,6 +1178,55 @@ if (actionsAtomic?.newNodes) {
   };
 }
 
+// Generic indexed-merge helper for the 4th-wave generators. All emit
+// {newNodes, newEdges} so the merge logic is identical.
+function mergeIndexedAugmentation(aug, name) {
+  if (!aug?.newNodes) return [0, 0];
+  let nodeCount = 0, edgeCount = 0;
+  for (const node of aug.newNodes) {
+    if (byId.has(node.id)) continue;
+    addNodeIndexed(node);
+    nodeCount++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (aug.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    edgeCount++;
+  }
+  G.meta[name] = { generatedAt: aug.generatedAt, stats: aug.stats };
+  return [nodeCount, edgeCount];
+}
+
+const [hookNodes,    hookEdges]    = mergeIndexedAugmentation(hooksAtomic,    "hooksAtomic");
+const [testNodes,    testEdges]    = mergeIndexedAugmentation(testsAtomic,    "testsAtomic");
+const [scriptNodesA, scriptEdgesA] = mergeIndexedAugmentation(scriptsAtomic,  "scriptsAtomic");
+const [memoryNodes,  memoryEdges]  = mergeIndexedAugmentation(memoriesAtomic, "memoriesAtomic");
+const [regEntNodes,  regEntEdges]  = mergeIndexedAugmentation(registryEnts,   "registryEntries");
+
+// Action-engine edges (edges only — no new nodes)
+let actEngEdges = 0;
+if (actionEngEdges?.newEdges) {
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of actionEngEdges.newEdges) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    actEngEdges++;
+  }
+  G.meta.actionEngineEdges = {
+    generatedAt: actionEngEdges.generatedAt,
+    stats: actionEngEdges.stats,
+  };
+}
+
 // Ghost summary — quick HUD signal of total ghost surface.
 {
   let ghostNodes = 0, ghostEdges = 0;
@@ -1175,10 +1236,10 @@ if (actionsAtomic?.newNodes) {
 }
 
 G.meta.augmentationVersions = versions;
-G.schemaVersion = "2.23.0";
+G.schemaVersion = "2.24.0";
 
 fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
-console.log(`  schema bumped to 2.23.0`);
+console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+console.log(`  schema bumped to 2.24.0`);
