@@ -1,10 +1,10 @@
 # PRISM SVI Auto-Watch
 **Status**: active
-**Owner**: pid:37024
-**Started**: 2026-05-11T14:06:22.070Z
-**Last Check**: 2026-05-11T14:18:55.905Z
-**Last Refresh**: 2026-05-11T14:13:27.879Z
-**Last Trigger**: poll
+**Owner**: pid:36772
+**Started**: 2026-05-11T13:24:08.041Z
+**Last Check**: 2026-05-11T14:22:21.678Z
+**Last Refresh**: 2026-05-11T14:13:27.870Z
+**Last Trigger**: fs-watch
 **Watch Targets**: 12
 **Changed Areas**: none
 **Coverage Alerts**: none

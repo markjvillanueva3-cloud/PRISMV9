@@ -436,8 +436,9 @@ async function registerTools(): Promise<void> {
         `[XPROC-AUTOFIRE] closed-loop learning ${r.ok ? "active" : "active (with errors)"} — ` +
         `enabled=[${enabled.join(", ")}]${r.errors > 0 ? `, errors=${r.errors}` : ""}`,
       );
-    } catch (autofireErr: any) {
-      log.warn(`[XPROC-AUTOFIRE] activation failed (non-fatal): ${autofireErr?.message ?? autofireErr}`);
+    } catch (autofireErr: unknown) {
+      const msg = autofireErr instanceof Error ? autofireErr.message : String(autofireErr);
+      log.warn(`[XPROC-AUTOFIRE] activation failed (non-fatal): ${msg}`);
     }
   } else {
     log.info("[XPROC-AUTOFIRE] disabled via PRISM_XPROC_AUTOFIRE=0 — closed-loop learning dormant");
