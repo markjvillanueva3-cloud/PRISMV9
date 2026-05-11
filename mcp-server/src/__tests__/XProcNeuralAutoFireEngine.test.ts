@@ -29,7 +29,8 @@ import { TribalKnowledgeOutcomeBridgeEngine } from "../engines/TribalKnowledgeOu
 import { OutcomeDriftCalibrationBridgeEngine } from "../engines/OutcomeDriftCalibrationBridgeEngine.js";
 import { OutcomeReplayBufferBridgeEngine } from "../engines/OutcomeReplayBufferBridgeEngine.js";
 import { OutcomeEpisodicMemoryBridgeEngine } from "../engines/OutcomeEpisodicMemoryBridgeEngine.js";
-import { feedbackBusEngine } from "../engines/FeedbackBusEngine.js";
+import { feedbackBusEngine, type FeedbackEvent } from "../engines/FeedbackBusEngine.js";
+import { crossProcessOutcomeStore } from "../engines/CrossProcessOutcomeStore.js";
 
 // Drain N microtask cycles — the bus delivers via queueMicrotask.
 const flush = async () => {
@@ -64,6 +65,7 @@ function hardResetAll(): void {
   OutcomeReplayBufferBridgeEngine.reset();
   OutcomeEpisodicMemoryBridgeEngine.reset();
   XProcNeuralAutoFireEngine.reset();
+  crossProcessOutcomeStore.clear();
   feedbackBusEngine.reset();
 }
 
@@ -360,6 +362,78 @@ describe("XProcNeuralAutoFireEngine — end-to-end wire is live", () => {
     feedbackBusEngine.publish("outcome.recorded", { record: makeRecord("pending") });
     await flush();
     expect(crossProcessNeuralLearningEngine.autoTrainStatus().bufferedSamples).toBe(0);
+  });
+});
+
+describe("XProcNeuralAutoFireEngine — replay-mixing config (U-CN10)", () => {
+  const flush = async () => {
+    for (let i = 0; i < 4; i++) await Promise.resolve();
+  };
+  function seedStore(n: number, process: "mill" | "lathe" | "wedm" = "mill"): void {
+    for (let i = 0; i < n; i++) {
+      crossProcessOutcomeStore.record({ bridge: "sf", process, request_summary: { material: "4140" }, outcome: { kind: "success" } });
+    }
+  }
+  function busRecord() {
+    return {
+      schemaVersion: "1.0",
+      id: `bus-${Math.random().toString(36).slice(2, 10)}`,
+      ts: new Date().toISOString(),
+      bridge: "sf" as const,
+      process: "mill" as const,
+      request_summary: { material: "4140", tool_diameter_mm: 12 },
+      response_summary: {},
+      outcome: { kind: "success" as const },
+    };
+  }
+
+  it("defaults the auto-train replay mix ratio to 0.5", () => {
+    XProcNeuralAutoFireEngine.activate();
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().replayMixRatio).toBeCloseTo(0.5, 6);
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().replayMaxRecords).toBe(256);
+    const s = XProcNeuralAutoFireEngine.status();
+    expect(s.autoTrainReplayMixRatio).toBeCloseTo(0.5, 6);
+    expect(s.autoTrainReplayMaxRecords).toBe(256);
+  });
+
+  it("forwards autoTrainReplayMixRatio / autoTrainReplayMaxRecords to enableAutoTrain", () => {
+    XProcNeuralAutoFireEngine.activate({ autoTrainReplayMixRatio: 0.25, autoTrainReplayMaxRecords: 100 });
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().replayMixRatio).toBeCloseTo(0.25, 6);
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().replayMaxRecords).toBe(100);
+    const s = XProcNeuralAutoFireEngine.status();
+    expect(s.autoTrainReplayMixRatio).toBeCloseTo(0.25, 6);
+    expect(s.autoTrainReplayMaxRecords).toBe(100);
+  });
+
+  it("status() reports null replay config before activate() and after reset()", () => {
+    expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).toBeNull();
+    XProcNeuralAutoFireEngine.activate({ autoTrainReplayMixRatio: 0.5 });
+    expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).not.toBeNull();
+    XProcNeuralAutoFireEngine.reset();
+    expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).toBeNull();
+    expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMaxRecords).toBeNull();
+  });
+
+  it("end-to-end: after activate(), a retrain mixes in historical store records", async () => {
+    seedStore(8, "lathe"); // 8 historical records BEFORE activation (so they land only in the store, not the buffer)
+    const ticks: FeedbackEvent[] = [];
+    // autoTrainTotalTicks is singleton-cumulative across the file → assert a +1 delta.
+    const ticksBefore = crossProcessNeuralLearningEngine.autoTrainStatus().totalTicks;
+    XProcNeuralAutoFireEngine.activate({ autoTrainThreshold: 3, autoTrainReplayMixRatio: 1.0 });
+    feedbackBusEngine.subscribe("neural.train.tick", (e) => ticks.push(e));
+    for (let i = 0; i < 3; i++) feedbackBusEngine.publish("outcome.recorded", { record: busRecord() });
+    await flush();
+    expect(ticks).toHaveLength(1);
+    const tick = ticks[0].payload as { samplesUsed: number; replayMixed: number };
+    expect(tick.replayMixed).toBeGreaterThan(0);
+    expect(tick.samplesUsed).toBe(3 + tick.replayMixed);
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().totalTicks).toBe(ticksBefore + 1);
+  });
+
+  it("dispatch wrapper forwards the replay config", () => {
+    xProcNeuralAutoFireDispatch("xproc_autofire_activate", { autoTrainReplayMixRatio: 0.75, autoTrainReplayMaxRecords: 50 });
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().replayMixRatio).toBeCloseTo(0.75, 6);
+    expect(crossProcessNeuralLearningEngine.autoTrainStatus().replayMaxRecords).toBe(50);
   });
 });
 

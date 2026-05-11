@@ -106,6 +106,10 @@ export interface AutoFireStatus {
   activated: boolean;
   activatedAt: string | null;
   autoTrainThreshold: number | null;
+  /** U-CN10: experience-replay mix ratio passed to enableAutoTrain (0 = off, null = never activated). */
+  autoTrainReplayMixRatio: number | null;
+  /** U-CN10: hard cap on historical records pulled per retrain (null = never activated). */
+  autoTrainReplayMaxRecords: number | null;
   components: AutoFireComponentStatus[];
 }
 
@@ -123,6 +127,16 @@ const ActivateInputSchema = z
     autoTrainBatchSize: z.number().int().min(1).max(100_000).optional(),
     /** Shuffle the training set each epoch. Forwarded to TrainOpts. Default true. */
     autoTrainShuffle: z.boolean().optional(),
+    /**
+     * U-CN10: experience-replay mix ratio — for each retrain, also pull up to
+     * ceil(buffer * ratio) historical terminal records from CrossProcessOutcomeStore
+     * (stratified by process) and concat into the batch. 0 disables. Default 0.5
+     * (the boot path opts into replay mixing so a process burst doesn't wipe what
+     * the model learned about other processes/materials).
+     */
+    autoTrainReplayMixRatio: z.number().min(0).max(100).optional(),
+    /** U-CN10: hard cap on historical records pulled per retrain. Default 256. */
+    autoTrainReplayMaxRecords: z.number().int().min(0).max(100_000).optional(),
   })
   .strict()
   .optional();
@@ -134,6 +148,8 @@ export type AutoFireActivateOptions = NonNullable<z.infer<typeof ActivateInputSc
 // ============================================================================
 
 const DEFAULT_AUTO_TRAIN_THRESHOLD = 16;
+const DEFAULT_REPLAY_MIX_RATIO = 0.5;
+const DEFAULT_REPLAY_MAX_RECORDS = 256;
 
 const ALL_COMPONENTS: readonly AutoFireComponentKey[] = [
   "neural_auto_train",
@@ -158,6 +174,8 @@ export class XProcNeuralAutoFireEngine {
   /** Components this engine turned on (so deactivate() only undoes its own work). */
   private static owned: Set<AutoFireComponentKey> = new Set();
   private static autoTrainThreshold: number | null = null;
+  private static autoTrainReplayMixRatio: number | null = null;
+  private static autoTrainReplayMaxRecords: number | null = null;
 
   // ──────────────────────────────────────────────────────────────────────────
   // Public API
@@ -193,6 +211,8 @@ export class XProcNeuralAutoFireEngine {
     }
 
     const threshold = opts.autoTrainThreshold ?? DEFAULT_AUTO_TRAIN_THRESHOLD;
+    const replayMixRatio = opts.autoTrainReplayMixRatio ?? DEFAULT_REPLAY_MIX_RATIO;
+    const replayMaxRecords = opts.autoTrainReplayMaxRecords ?? DEFAULT_REPLAY_MAX_RECORDS;
     const trainOpts =
       opts.autoTrainEpochs !== undefined || opts.autoTrainBatchSize !== undefined || opts.autoTrainShuffle !== undefined
         ? {
@@ -205,7 +225,7 @@ export class XProcNeuralAutoFireEngine {
     const components: AutoFireComponentResult[] = [];
 
     // 1. NN auto-train. enableAutoTrain() THROWS if already active, so probe first.
-    components.push(this.enableNeuralAutoTrain(threshold, trainOpts));
+    components.push(this.enableNeuralAutoTrain(threshold, trainOpts, replayMixRatio, replayMaxRecords));
 
     // 2–5. Fan-out bridges (uniform subscribeToOutcomes() contract).
     components.push(
@@ -228,6 +248,8 @@ export class XProcNeuralAutoFireEngine {
     const errors = components.filter((c) => c.action === "error").length;
     this.activatedAt = new Date().toISOString();
     this.autoTrainThreshold = threshold;
+    this.autoTrainReplayMixRatio = replayMixRatio;
+    this.autoTrainReplayMaxRecords = replayMaxRecords;
     return {
       ok: errors === 0,
       alreadyActivated: false,
@@ -320,6 +342,8 @@ export class XProcNeuralAutoFireEngine {
       activated: this.activatedAt !== null,
       activatedAt: this.activatedAt,
       autoTrainThreshold: this.autoTrainThreshold,
+      autoTrainReplayMixRatio: this.autoTrainReplayMixRatio,
+      autoTrainReplayMaxRecords: this.autoTrainReplayMaxRecords,
       components: ALL_COMPONENTS.map((key) => ({
         key,
         active: liveActive[key],
@@ -333,6 +357,8 @@ export class XProcNeuralAutoFireEngine {
     this.activatedAt = null;
     this.owned = new Set();
     this.autoTrainThreshold = null;
+    this.autoTrainReplayMixRatio = null;
+    this.autoTrainReplayMaxRecords = null;
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -342,6 +368,8 @@ export class XProcNeuralAutoFireEngine {
   private static enableNeuralAutoTrain(
     threshold: number,
     trainOpts: { epochs?: number; batchSize?: number; shuffle?: boolean } | undefined,
+    replayMixRatio: number,
+    replayMaxRecords: number,
   ): AutoFireComponentResult {
     let alreadyActive = false;
     try {
@@ -354,7 +382,12 @@ export class XProcNeuralAutoFireEngine {
       return { key: "neural_auto_train", action: "already_active", ownedByAutoFire: false };
     }
     try {
-      crossProcessNeuralLearningEngine.enableAutoTrain({ threshold, ...(trainOpts ? { trainOpts } : {}) });
+      crossProcessNeuralLearningEngine.enableAutoTrain({
+        threshold,
+        replayMixRatio,
+        replayMaxRecords,
+        ...(trainOpts ? { trainOpts } : {}),
+      });
       this.owned.add("neural_auto_train");
       return { key: "neural_auto_train", action: "enabled", ownedByAutoFire: true };
     } catch (e) {

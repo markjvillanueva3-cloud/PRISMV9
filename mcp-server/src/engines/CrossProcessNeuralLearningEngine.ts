@@ -67,6 +67,9 @@ import type {
   OutcomeBridge,
   OutcomeProcess,
 } from "./CrossProcessOutcomeStore.js";
+// U-CN10: experience-replay mixing pulls historical records from the store.
+// (Value import — the store is lower-layer; no import cycle.)
+import { crossProcessOutcomeStore } from "./CrossProcessOutcomeStore.js";
 import {
   PhysicsFeatureExtractorEngine,
   PHYSICS_FEATURE_DIM,
@@ -297,6 +300,13 @@ export class CrossProcessNeuralLearningEngine {
   private autoTrainBuffer: OutcomeRecord[] = [];
   private autoTrainThreshold = 16;
   private autoTrainTotalTicks = 0;
+  // U-CN10: experience-replay mixing — fraction of the FIFO buffer size to also
+  // pull from CrossProcessOutcomeStore (stratified by process) and concat into
+  // each retrain batch, so a process burst doesn't catastrophically wipe what the
+  // model learned about other processes/materials. 0 disables (default for direct
+  // enableAutoTrain callers); the XProcNeuralAutoFireEngine boot path opts into 0.5.
+  private autoTrainReplayMixRatio = 0;
+  private autoTrainReplayMaxRecords = 256;
 
   constructor(config: Partial<NeuralConfig> = {}) {
     this.config = {
@@ -1101,6 +1111,16 @@ export function hashStringMod(s: string | undefined, modulus: number): number {
 export interface AutoTrainOptions {
   threshold?: number;
   trainOpts?: TrainOpts;
+  /**
+   * U-CN10: experience-replay mixing. For each retrain, also pull up to
+   * `ceil(buffer.length * replayMixRatio)` historical terminal records from
+   * CrossProcessOutcomeStore (stratified by process, deduped against the
+   * current buffer) and concat them into the training batch. 0 disables
+   * (default). Clamped to [0, 100].
+   */
+  replayMixRatio?: number;
+  /** U-CN10: hard cap on historical records pulled per retrain. Default 256. Clamped to [0, 100000]. */
+  replayMaxRecords?: number;
 }
 
 export interface AutoTrainStatus {
@@ -1111,6 +1131,10 @@ export interface AutoTrainStatus {
   totalSamplesSeen: number;
   lastLoss: number;
   lastAccuracy: number;
+  /** U-CN10: effective experience-replay mix ratio (0 = off). */
+  replayMixRatio: number;
+  /** U-CN10: effective hard cap on historical records pulled per retrain. */
+  replayMaxRecords: number;
 }
 
 declare module "./CrossProcessNeuralLearningEngine.js" {
@@ -1120,6 +1144,65 @@ declare module "./CrossProcessNeuralLearningEngine.js" {
     autoTrainStatus(): AutoTrainStatus;
     flushAutoTrainBuffer(): TrainResult | null;
   }
+}
+
+// U-CN10 — replay-mixing helper. Given the FIFO auto-train buffer, return it
+// plus a stratified-by-process sample of historical terminal records from the
+// outcome store (deduped against the buffer). Pure aside from the store read;
+// returns the buffer unchanged when mixing is off, the buffer is empty, or the
+// store has nothing new to offer.
+const REPLAY_PROCESSES: readonly OutcomeProcess[] = ["mill", "lathe", "wedm"];
+
+function buildReplayMixedBatch(
+  buffer: readonly OutcomeRecord[],
+  mixRatio: number,
+  maxRecords: number,
+): { batch: OutcomeRecord[]; replayMixed: number } {
+  if (mixRatio <= 0 || buffer.length === 0) {
+    return { batch: buffer.slice(), replayMixed: 0 };
+  }
+  const want = Math.min(Math.max(0, Math.floor(maxRecords)), Math.ceil(buffer.length * mixRatio));
+  if (want <= 0) {
+    return { batch: buffer.slice(), replayMixed: 0 };
+  }
+  const seen = new Set<string>(buffer.map((r) => r.id));
+  const sampled: OutcomeRecord[] = [];
+  const isUsableTerminal = (r: OutcomeRecord): boolean =>
+    !!r.outcome?.kind && r.outcome.kind !== "pending" && typeof r.id === "string" && !seen.has(r.id);
+  const takeFrom = (recs: readonly OutcomeRecord[], cap: number): void => {
+    for (const r of recs) {
+      if (sampled.length >= cap) break;
+      if (!isUsableTerminal(r)) continue;
+      sampled.push(r);
+      seen.add(r.id);
+    }
+  };
+  // Stratified pass: pull a recency-windowed slice per process, round-robin.
+  const perProc = Math.max(1, Math.ceil(want / REPLAY_PROCESSES.length));
+  for (const p of REPLAY_PROCESSES) {
+    if (sampled.length >= want) break;
+    let recs: OutcomeRecord[];
+    try {
+      recs = crossProcessOutcomeStore.query({ process: p, limit: perProc * 5 });
+    } catch {
+      recs = [];
+    }
+    takeFrom(recs, Math.min(want, sampled.length + perProc));
+  }
+  // Top-up pass: if some processes were empty, fill the remainder from a global window.
+  if (sampled.length < want) {
+    let more: OutcomeRecord[];
+    try {
+      more = crossProcessOutcomeStore.query({ limit: want * 5 });
+    } catch {
+      more = [];
+    }
+    takeFrom(more, want);
+  }
+  if (sampled.length === 0) {
+    return { batch: buffer.slice(), replayMixed: 0 };
+  }
+  return { batch: [...buffer, ...sampled], replayMixed: sampled.length };
 }
 
 CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
@@ -1135,6 +1218,11 @@ CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
   this.autoTrainThreshold = threshold;
   // @ts-expect-error private
   this.autoTrainBuffer = [];
+  // U-CN10: clamp + persist the replay-mixing config (0 disables; default off).
+  // @ts-expect-error private
+  this.autoTrainReplayMixRatio = clamp(Number.isFinite(opts.replayMixRatio) ? (opts.replayMixRatio as number) : 0, 0, 100);
+  // @ts-expect-error private
+  this.autoTrainReplayMaxRecords = Math.floor(clamp(Number.isFinite(opts.replayMaxRecords) ? (opts.replayMaxRecords as number) : 256, 0, 100_000));
   const trainOpts = opts.trainOpts;
   const handle = feedbackBusEngine.subscribe("outcome.recorded", (event: FeedbackEvent) => {
     const payload = event.payload as { record?: OutcomeRecord } | undefined;
@@ -1146,9 +1234,11 @@ CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
     // @ts-expect-error private
     if (this.autoTrainBuffer.length >= this.autoTrainThreshold) {
       // @ts-expect-error private
-      const batch = this.autoTrainBuffer;
+      const fifoBatch: OutcomeRecord[] = this.autoTrainBuffer;
       // @ts-expect-error private
       this.autoTrainBuffer = [];
+      // @ts-expect-error private
+      const { batch, replayMixed } = buildReplayMixedBatch(fifoBatch, this.autoTrainReplayMixRatio, this.autoTrainReplayMaxRecords);
       const result = this.train(batch, trainOpts);
       // @ts-expect-error private
       this.autoTrainTotalTicks += 1;
@@ -1157,8 +1247,10 @@ CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
         tick: this.autoTrainTotalTicks,
         samplesUsed: result.samplesUsed,
         samplesSkipped: result.samplesSkipped,
+        replayMixed,
         finalLoss: result.finalLoss,
         trainAccuracy: result.trainAccuracy,
+        // @ts-expect-error private
         totalSamplesSeen: this.totalSamplesSeen,
       });
     }
@@ -1200,6 +1292,10 @@ CrossProcessNeuralLearningEngine.prototype.autoTrainStatus = function (
     lastLoss: this.lastLoss,
     // @ts-expect-error private
     lastAccuracy: this.lastAccuracy,
+    // @ts-expect-error private
+    replayMixRatio: this.autoTrainReplayMixRatio,
+    // @ts-expect-error private
+    replayMaxRecords: this.autoTrainReplayMaxRecords,
   };
 };
 
@@ -1207,11 +1303,13 @@ CrossProcessNeuralLearningEngine.prototype.flushAutoTrainBuffer = function (
   this: CrossProcessNeuralLearningEngine,
 ): TrainResult | null {
   // @ts-expect-error private
-  const buf = this.autoTrainBuffer;
+  const buf: OutcomeRecord[] = this.autoTrainBuffer;
   if (buf.length === 0) return null;
   // @ts-expect-error private
   this.autoTrainBuffer = [];
-  const result = this.train(buf);
+  // @ts-expect-error private
+  const { batch, replayMixed } = buildReplayMixedBatch(buf, this.autoTrainReplayMixRatio, this.autoTrainReplayMaxRecords);
+  const result = this.train(batch);
   // @ts-expect-error private
   this.autoTrainTotalTicks += 1;
   feedbackBusEngine.publish("neural.train.tick", {
@@ -1219,8 +1317,10 @@ CrossProcessNeuralLearningEngine.prototype.flushAutoTrainBuffer = function (
     tick: this.autoTrainTotalTicks,
     samplesUsed: result.samplesUsed,
     samplesSkipped: result.samplesSkipped,
+    replayMixed,
     finalLoss: result.finalLoss,
     trainAccuracy: result.trainAccuracy,
+    // @ts-expect-error private
     totalSamplesSeen: this.totalSamplesSeen,
     forced: true,
   });

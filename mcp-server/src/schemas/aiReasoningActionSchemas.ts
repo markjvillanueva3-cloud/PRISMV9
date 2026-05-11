@@ -1643,8 +1643,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     autoTrainEpochs: z.number().int().min(1).max(1000).optional().describe("Epochs per retrain pass. Forwarded to TrainOpts.epochs."),
     autoTrainBatchSize: z.number().int().min(1).max(100_000).optional().describe("Mini-batch size per epoch. Forwarded to TrainOpts.batchSize."),
     autoTrainShuffle: z.boolean().optional().describe("Shuffle the training set each epoch. Forwarded to TrainOpts.shuffle. Default true."),
+    autoTrainReplayMixRatio: z.number().min(0).max(100).optional().describe("U-CN10: experience-replay mix ratio — each retrain also pulls up to ceil(buffer*ratio) historical terminal OutcomeRecords from CrossProcessOutcomeStore (stratified by process) and concats them into the batch, so a process burst doesn't catastrophically wipe what the model learned about other processes/materials. 0 disables. Default 0.5."),
+    autoTrainReplayMaxRecords: z.number().int().min(0).max(100_000).optional().describe("U-CN10: hard cap on historical records pulled per retrain. Default 256."),
   }).strict().describe(
-    "U-CN09: Ignite the closed-loop learning system — turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain) plus all four fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay/sampler, CN08 episodic). Idempotent. Each component is activated independently; one failure never blocks the rest. Returns a per-component breakdown. Also fired at MCP-server boot behind PRISM_XPROC_AUTOFIRE.",
+    "U-CN09/CN10: Ignite the closed-loop learning system — turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain, with experience-replay mixing) plus all four fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay/sampler, CN08 episodic). Idempotent. Each component is activated independently; one failure never blocks the rest. Returns a per-component breakdown. Also fired at MCP-server boot behind PRISM_XPROC_AUTOFIRE.",
   ),
   xproc_autofire_deactivate: z.object({}).passthrough().describe(
     "U-CN09: Reverse only the switches this engine turned on (auto-train via disableAutoTrain; bridges via unsubscribeFromOutcomes). Components active before activate() are left untouched. Idempotent.",
