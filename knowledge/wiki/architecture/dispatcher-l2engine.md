@@ -44,7 +44,7 @@ _…and 61 more. See full enum in dispatcher source._
 - `eng.ai` — ai (115 engines)
 - `eng.cad` — cad (182 engines)
 - `eng.cam` — cam (319 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 
 ## Doctrine
 

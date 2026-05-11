@@ -778,16 +778,16 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 
 <!-- ARCH-LAYERS-START -->
 - [[layer-l0]] — L0 — Personas (13 nodes, tier 5)
-- [[layer-l1]] — L1 — Frontends (165 nodes, tier 4)
+- [[layer-l1]] — L1 — Frontends (832 nodes, tier 4)
 - [[layer-l2]] — L2 — Transport (20 nodes, tier 3)
 - [[layer-l3]] — L3 — AI Hierarchy (33 nodes, tier 2)
 - [[layer-l4]] — L4 — Dispatchers (97 nodes, tier 2)
 - [[layer-l4a]] — L4a — Dispatcher Actions (9242 nodes, tier 2)
 - [[layer-l5]] — L5 — Engines (3309 nodes, tier 1)
-- [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (7124 nodes, tier 0)
-- [[layer-l7]] — L7 — Registries (64 nodes, tier 0)
-- [[layer-l8]] — L8 — Wiki / Memory / Milestones (1737 nodes, tier 0)
-- [[layer-l9]] — L9 — Filesystem (root tree) (2695 nodes, tier 0)
+- [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (7125 nodes, tier 0)
+- [[layer-l7]] — L7 — Registries (97 nodes, tier 0)
+- [[layer-l8]] — L8 — Wiki / Memory / Milestones (2149 nodes, tier 0)
+- [[layer-l9]] — L9 — Filesystem (root tree) (26043 nodes, tier 0)
 - [[layer-l10]] — L10 — Memory Vault Categories (391 nodes, tier 0)
 - [[layer-l11]] — L11 — Deep Filesystem (102666 nodes, tier 0)
 <!-- ARCH-LAYERS-END -->
@@ -1150,6 +1150,41 @@ Top dispatchers by action count:
 - [[registry-reg-toolpathstrategyregistry]] — `ToolpathStrategy`
 - [[registry-reg-toolpathstrategyregistry-part1]] — `ToolpathStrategy_Part1`
 
+**datacat_hub** (18):
+- [[registry-datacat-tool-catalog]] — `tool catalog`
+- [[registry-datacat-extracted]] — `extracted`
+- [[registry-datacat-benchmark]] — `benchmark`
+- [[registry-datacat-holder-catalog]] — `holder catalog`
+- [[registry-datacat-cam-tips]] — `cam tips`
+- [[registry-datacat-other]] — `other`
+- [[registry-datacat-infra]] — `infra`
+- [[registry-datacat-tribal-tips]] — `tribal tips`
+- [[registry-datacat-materials]] — `materials`
+- [[registry-datacat-dimensions]] — `dimensions`
+- [[registry-datacat-speed-feed-data]] — `speed feed data`
+- [[registry-datacat-controller-knowledge]] — `controller knowledge`
+- [[registry-datacat-cam-knowledge]] — `cam knowledge`
+- [[registry-datacat-jm-die]] — `jm die`
+- [[registry-datacat-wedm-data]] — `wedm data`
+- [[registry-datacat-machine-catalog]] — `machine catalog`
+- [[registry-datacat-thread-data]] — `thread data`
+- [[registry-datacat-cutting-data]] — `cutting data`
+
+**extract_vendor** (13):
+- [[registry-extract-misc]] — `misc`
+- [[registry-extract-catalogs]] — `catalogs`
+- [[registry-extract-freecad]] — `freecad`
+- [[registry-extract-fusion360]] — `fusion360`
+- [[registry-extract-fusion360-cam]] — `fusion360-cam`
+- [[registry-extract-hypercad]] — `hypercad`
+- [[registry-extract-hypermill]] — `hypermill`
+- [[registry-extract-hypermill-api]] — `hypermill-api`
+- [[registry-extract-hypermill-workflows]] — `hypermill-workflows`
+- [[registry-extract-inventor]] — `inventor`
+- [[registry-extract-mastercam]] — `mastercam`
+- [[registry-extract-solidworks]] — `solidworks`
+- [[registry-extract-training]] — `training`
+
 **catalog** (4):
 - [[registry-reg-materials-cnt]] — `Materials (live)`
 - [[registry-reg-tools-cnt]] — `Tools (live)`
@@ -1161,16 +1196,26 @@ Top dispatchers by action count:
 - [[registry-reg-cadfunctioncatalog]] — `cadfunction catalog`
 - [[registry-reg-camuicatalog]] — `camui catalog`
 
+**jmdie_root** (1):
+- [[registry-reg-jmdiecustomers]] — `jmdiecustomers
+(212)`
+
+**boxextract_vendor** (1):
+- [[registry-boxextract-misc]] — `misc`
+
 <!-- ARCH-REGISTRIES-END -->
 
 ### Frontend pages
 
 <!-- ARCH-FRONTENDS-START -->
-_Total: 165 frontend entries_ · 0 flagged as dead-pixel risk
+_Total: 832 frontend entries_ · 0 flagged as dead-pixel risk
 
+- **frontend_file**: 622 entries — see `knowledge/wiki/architecture/frontends/frontend_file/`
 - **page**: 146 entries — see `knowledge/wiki/architecture/frontends/page/`
+- **frontend_dir**: 42 entries — see `knowledge/wiki/architecture/frontends/frontend_dir/`
 - **pages**: 14 entries — see `knowledge/wiki/architecture/frontends/pages/`
 - **variants**: 5 entries — see `knowledge/wiki/architecture/frontends/variants/`
+- **frontend_app**: 3 entries — see `knowledge/wiki/architecture/frontends/frontend_app/`
 <!-- ARCH-FRONTENDS-END -->
 
 ### Milestones (per-scope counts)
@@ -1199,10 +1244,10 @@ Top scopes by milestone count:
 ### Skills
 
 <!-- ARCH-SKILLS-START -->
-_Total: 638 skill entries_
+_Total: 248 skill entries_
 
 - project: 248 skills
-- user: 390 skills
+- user: 0 skills
 <!-- ARCH-SKILLS-END -->
 
 ### Hooks
@@ -1219,6 +1264,12 @@ _Total: 483 hook entries_
 <!-- ARCH-FORMULAS-START -->
 _80 formula entries (knowledge/wiki/architecture/formulas/) · 53 algorithm entries (knowledge/wiki/architecture/algorithms/)_
 <!-- ARCH-FORMULAS-END -->
+
+### Monolith extraction
+
+<!-- ARCH-MONOLITH-START -->
+_PRISM v8.89 monolith extraction: [[index]] overview + 23 category entries + 12 module-folder entries + [[missing]] — see knowledge/wiki/architecture/monolith-extraction/_
+<!-- ARCH-MONOLITH-END -->
 
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
 - [[distributed_locking]] — **File:** `mcp-server/src/utils/atomicWrite.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/distributed_locking.md

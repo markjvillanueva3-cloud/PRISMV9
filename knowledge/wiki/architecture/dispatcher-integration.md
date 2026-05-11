@@ -43,7 +43,7 @@ _…and 50 more. See full enum in dispatcher source._
 
 - `eng.hook` — hook (9 engines)
 - `eng.cam` — cam (319 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.erp` — erp (14 engines)
 - `eng.multi` — multi (32 engines)
 

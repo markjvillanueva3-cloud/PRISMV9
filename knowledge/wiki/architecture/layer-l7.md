@@ -22,9 +22,9 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 64
+- **Nodes in this layer:** 97
 - **Edges into layer:** 60
-- **Edges out of layer:** 935
+- **Edges out of layer:** 1166
 - **Tier:** 0 (atomic foundation)
 
 ## Kind distribution
@@ -33,14 +33,18 @@ related:
 |------|-------|
 | catalog_vendor | 34 |
 | registry | 23 |
+| datacat_hub | 18 |
+| extract_vendor | 13 |
 | catalog | 4 |
 | catalog_root | 3 |
+| jmdie_root | 1 |
+| boxextract_vendor | 1 |
 
 ## Status distribution
 
 | Status | Count |
 |--------|-------|
-| built | 64 |
+| built | 97 |
 
 ## Top nodes (by leverage / count)
 
@@ -73,8 +77,40 @@ _(leaf)_
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Registries & catalogs (64)
+## Registries & catalogs (97)
 
+- [[registry-boxextract-misc]]
+- [[registry-datacat-benchmark]]
+- [[registry-datacat-cam-knowledge]]
+- [[registry-datacat-cam-tips]]
+- [[registry-datacat-controller-knowledge]]
+- [[registry-datacat-cutting-data]]
+- [[registry-datacat-dimensions]]
+- [[registry-datacat-extracted]]
+- [[registry-datacat-holder-catalog]]
+- [[registry-datacat-infra]]
+- [[registry-datacat-jm-die]]
+- [[registry-datacat-machine-catalog]]
+- [[registry-datacat-materials]]
+- [[registry-datacat-other]]
+- [[registry-datacat-speed-feed-data]]
+- [[registry-datacat-thread-data]]
+- [[registry-datacat-tool-catalog]]
+- [[registry-datacat-tribal-tips]]
+- [[registry-datacat-wedm-data]]
+- [[registry-extract-catalogs]]
+- [[registry-extract-freecad]]
+- [[registry-extract-fusion360]]
+- [[registry-extract-fusion360-cam]]
+- [[registry-extract-hypercad]]
+- [[registry-extract-hypermill]]
+- [[registry-extract-hypermill-api]]
+- [[registry-extract-hypermill-workflows]]
+- [[registry-extract-inventor]]
+- [[registry-extract-mastercam]]
+- [[registry-extract-misc]]
+- [[registry-extract-solidworks]]
+- [[registry-extract-training]]
 - [[registry-reg-agentregistry]]
 - [[registry-reg-aisubsystemregistry]]
 - [[registry-reg-alarmregistry]]
@@ -123,6 +159,7 @@ _(leaf)_
 - [[registry-reg-databaseregistry]]
 - [[registry-reg-formularegistry]]
 - [[registry-reg-hookregistry]]
+- [[registry-reg-jmdiecustomers]]
 - [[registry-reg-knowledgebaseregistry]]
 - [[registry-reg-machineregistry]]
 - [[registry-reg-machines-cnt]]

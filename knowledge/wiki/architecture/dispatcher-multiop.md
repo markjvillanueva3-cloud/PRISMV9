@@ -42,7 +42,7 @@ related:
 ## Engine consumers (L5 edges)
 
 - `eng.hook` — hook (9 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.adaptive` — adaptive (36 engines)
 - `eng.multi` — multi (32 engines)
 

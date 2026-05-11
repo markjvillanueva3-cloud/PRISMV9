@@ -41,10 +41,10 @@ _…and 55 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.session` — Session (25) ◇ 9/12 drilled
+- `eng.session` — session (36 engines)
 - `eng.hook` — hook (9 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
-- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.other` — other (510 engines)
+- `eng.tool` — tool (83 engines)
 
 ## Doctrine
 

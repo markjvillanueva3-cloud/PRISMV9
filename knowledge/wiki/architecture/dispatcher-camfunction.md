@@ -39,7 +39,7 @@ related:
 
 - `eng.cam` — cam (319 engines)
 - `eng.toolpath` — toolpath (13 engines)
-- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.tool` — tool (83 engines)
 
 ## Doctrine
 

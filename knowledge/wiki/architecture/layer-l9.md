@@ -22,8 +22,8 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 2695
-- **Edges into layer:** 438
+- **Nodes in this layer:** 26043
+- **Edges into layer:** 23786
 - **Edges out of layer:** 345
 - **Tier:** 0 (atomic foundation)
 
@@ -31,10 +31,13 @@ related:
 
 | Kind | Count |
 |------|-------|
+| datacat_record | 21790 |
 | planned-unit | 2256 |
+| extract_record | 1504 |
 | prism_2 | 238 |
 | h_root_2 | 100 |
 | prism | 62 |
+| boxextract_record | 54 |
 | h_root | 24 |
 | deep_subtree | 15 |
 
@@ -42,8 +45,8 @@ related:
 
 | Status | Count |
 |--------|-------|
+| built | 23787 |
 | ghost | 2256 |
-| built | 439 |
 
 ## Top nodes (by leverage / count)
 
@@ -73,3 +76,47 @@ _(leaf)_
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Directive: `state/shared/PRISM-SYSTEM-VIZ-DIRECTIVE.md`
 - Viewer: `/system-viz` slash command
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Monolith extraction corpus (PRISM v8.89) (37)
+
+- [[category-algorithms]]
+- [[category-business]]
+- [[category-catalogs]]
+- [[category-constants]]
+- [[category-controllers]]
+- [[category-core]]
+- [[category-engines]]
+- [[category-formulas]]
+- [[category-infrastructure]]
+- [[category-integration]]
+- [[category-knowledge-bases]]
+- [[category-learning]]
+- [[category-machines]]
+- [[category-materials]]
+- [[category-materials-complete]]
+- [[category-materials-enhanced]]
+- [[category-materials-v9-complete]]
+- [[category-mit]]
+- [[category-systems]]
+- [[category-tools]]
+- [[category-units]]
+- [[category-verification-reports]]
+- [[category-workholding]]
+- [[index]]
+- [[missing]]
+- [[modules-ai-ml-engines]]
+- [[modules-complete]]
+- [[modules-complete-extraction]]
+- [[modules-databases]]
+- [[modules-final]]
+- [[modules-geometry-engines]]
+- [[modules-giant]]
+- [[modules-mega]]
+- [[modules-physics-engines]]
+- [[modules-priority-extraction]]
+- [[modules-stubs]]
+- [[modules-ultra]]
+
+<!-- XLINK-END -->

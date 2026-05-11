@@ -22,24 +22,27 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 165
-- **Edges into layer:** 354
-- **Edges out of layer:** 504
+- **Nodes in this layer:** 832
+- **Edges into layer:** 1018
+- **Edges out of layer:** 1168
 - **Tier:** 4 (tier-4)
 
 ## Kind distribution
 
 | Kind | Count |
 |------|-------|
+| frontend_file | 622 |
 | page | 146 |
+| frontend_dir | 42 |
 | pages | 14 |
 | variants | 5 |
+| frontend_app | 3 |
 
 ## Status distribution
 
 | Status | Count |
 |--------|-------|
-| built | 154 |
+| built | 821 |
 | stub | 7 |
 | pending_merge | 2 |
 | conceptual | 2 |

@@ -22,9 +22,9 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 1737
-- **Edges into layer:** 1567
-- **Edges out of layer:** 1027
+- **Nodes in this layer:** 2149
+- **Edges into layer:** 2205
+- **Edges out of layer:** 24383
 - **Tier:** 0 (atomic foundation)
 
 ## Kind distribution
@@ -35,8 +35,12 @@ related:
 | milestone | 306 |
 | wiki_entry | 190 |
 | memory_entry | 189 |
+| wiki_knowledge | 181 |
 | catalog_function | 177 |
+| datacat_file | 141 |
 | state | 74 |
+| jmdie_customer | 60 |
+| extract_file | 26 |
 | combo | 22 |
 | design-spec | 10 |
 | memory_feedback | 9 |
@@ -48,6 +52,7 @@ related:
 | memory_user | 6 |
 | memory_kind | 6 |
 | novel_formula | 3 |
+| boxextract_file | 3 |
 | corpus | 1 |
 | memory__index | 1 |
 | tribal-knowledge-root | 1 |
@@ -60,12 +65,13 @@ related:
 | session-learning-root | 1 |
 | ghost-roost | 1 |
 | wiki_kind | 1 |
+| jmdie_customer_aggregate | 1 |
 
 ## Status distribution
 
 | Status | Count |
 |--------|-------|
-| built | 1302 |
+| built | 1714 |
 | ghost | 342 |
 | stub | 93 |
 

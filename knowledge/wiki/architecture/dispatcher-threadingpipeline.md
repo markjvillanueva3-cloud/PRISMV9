@@ -30,7 +30,7 @@ _(no actions wired)_
 
 ## Engine consumers (L5 edges)
 
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 
 ## Doctrine
 

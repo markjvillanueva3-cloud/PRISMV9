@@ -44,9 +44,9 @@ _…and 107 more. See full enum in dispatcher source._
 - `eng.mill` — mill (42 engines)
 - `eng.hook` — hook (9 engines)
 - `eng.milling` — milling (40 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.toolpath` — toolpath (13 engines)
-- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.tool` — tool (83 engines)
 - `eng.adaptive` — adaptive (36 engines)
 - `eng.five` — five (19 engines)
 

@@ -42,8 +42,8 @@ _…and 64 more. See full enum in dispatcher source._
 ## Engine consumers (L5 edges)
 
 - `eng.hook` — hook (9 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
-- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.other` — other (510 engines)
+- `eng.tool` — tool (83 engines)
 - `eng.probe` — probe (4 engines)
 - `eng.ai` — ai (115 engines)
 

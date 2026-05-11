@@ -43,7 +43,7 @@ _…and 46 more. See full enum in dispatcher source._
 
 - `eng.safety` — safety (17 engines)
 - `eng.hook` — hook (9 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.machine` — machine (82 engines)
 
 ## Doctrine

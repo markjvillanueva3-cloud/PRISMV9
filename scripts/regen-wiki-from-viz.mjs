@@ -44,6 +44,7 @@ const GENERATORS = [
   "generate-skill-wiki.mjs",
   "generate-hook-wiki.mjs",
   "generate-formula-algo-wiki.mjs",
+  "generate-monolith-wiki.mjs",
   "generate-tribal-index.mjs",
   "generate-domain-mermaid.mjs",
   "generate-layer-stack-overview.mjs",

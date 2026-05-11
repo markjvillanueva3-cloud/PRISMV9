@@ -142,6 +142,21 @@ function main() {
 
   // --- layer-l8 milestones + ensemble formulas handled together below (single XLINK region) ---
 
+  // --- layer-l9 → monolith-extraction entries (the v8.89 extraction corpus) ---
+  {
+    const monoDir = join(ARCH_DIR, "monolith-extraction");
+    if (existsSync(monoDir)) {
+      const links = [];
+      for (const f of readdirSync(monoDir)) {
+        if (f.endsWith(".md")) links.push(f.replace(/\.md$/, ""));
+      }
+      if (links.length) {
+        const r = applyToEntry(join(ARCH_DIR, "layer-l9.md"), "Monolith extraction corpus (PRISM v8.89)", links.sort());
+        if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
+      }
+    }
+  }
+
   // --- layer-l1 → frontend pages ---
   {
     const links = G.nodes

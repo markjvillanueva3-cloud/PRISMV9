@@ -44,7 +44,7 @@ _…and 2 more. See full enum in dispatcher source._
 - `eng.lathe` — lathe (190 engines)
 - `eng.turning` — turning (49 engines)
 - `eng.material` — material (26 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 
 ## Doctrine
 

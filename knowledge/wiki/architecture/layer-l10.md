@@ -23,7 +23,7 @@ related:
 ## Counts
 
 - **Nodes in this layer:** 391
-- **Edges into layer:** 261
+- **Edges into layer:** 263
 - **Edges out of layer:** 128
 - **Tier:** 0 (atomic foundation)
 

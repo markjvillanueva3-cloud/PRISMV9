@@ -22,9 +22,9 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 7124
-- **Edges into layer:** 9479
-- **Edges out of layer:** 12318
+- **Nodes in this layer:** 7125
+- **Edges into layer:** 11707
+- **Edges out of layer:** 12499
 - **Tier:** 0 (atomic foundation)
 
 ## Kind distribution
@@ -63,12 +63,13 @@ related:
 | core_physics | 3 |
 | core_migrations | 1 |
 | hook_subagentstop | 1 |
+| wiki_root | 1 |
 
 ## Status distribution
 
 | Status | Count |
 |--------|-------|
-| built | 7058 |
+| built | 7059 |
 | stub | 66 |
 
 ## Top nodes (by leverage / count)

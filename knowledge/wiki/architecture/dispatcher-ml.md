@@ -41,7 +41,7 @@ _…and 117 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.lathe` — lathe (190 engines)
 - `eng.safety` — safety (17 engines)
 - `eng.cad` — cad (182 engines)

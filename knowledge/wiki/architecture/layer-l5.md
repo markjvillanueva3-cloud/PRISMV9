@@ -23,8 +23,8 @@ related:
 ## Counts
 
 - **Nodes in this layer:** 3309
-- **Edges into layer:** 20008
-- **Edges out of layer:** 13449
+- **Edges into layer:** 28897
+- **Edges out of layer:** 22131
 - **Tier:** 1 (tier-1)
 
 ## Kind distribution
@@ -83,8 +83,8 @@ related:
 
 ## Top nodes (by leverage / count)
 
-- `eng.other` — Other
-(142) ◇ 9/2178 drilled *(stub_heavy)*
+- `eng.other` — other
+(510 engines) *(stub_heavy)*
 - `eng.cam` — cam
 (319 engines) *(built)*
 - `eng.ai` — ai
@@ -101,8 +101,8 @@ related:
 (13 engines) *(built)*
 - `eng.erp` — erp
 (14 engines) *(built)*
-- `eng.tool` — Tool
-(95) ◇ 9/57 drilled *(built)*
+- `eng.tool` — tool
+(83 engines) *(built)*
 
 ## Siblings
 

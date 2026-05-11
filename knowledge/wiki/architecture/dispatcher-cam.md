@@ -43,9 +43,9 @@ _…and 2177 more. See full enum in dispatcher source._
 
 - `eng.cam` — cam (319 engines)
 - `eng.toolpath` — toolpath (13 engines)
-- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.tool` — tool (83 engines)
 - `eng.hook` — hook (9 engines)
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.hyper` — hyper (69 engines)
 - `eng.lathe` — lathe (190 engines)
 - `eng.fusion` — fusion (43 engines)

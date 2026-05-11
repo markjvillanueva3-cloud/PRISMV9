@@ -41,12 +41,12 @@ _…and 300 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.other` — other (510 engines)
 - `eng.quality` — quality (17 engines)
 - `eng.machine` — machine (82 engines)
 - `eng.cost` — cost (4 engines)
-- `eng.session` — Session (25) ◇ 9/12 drilled
-- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.session` — session (36 engines)
+- `eng.tool` — tool (83 engines)
 - `eng.memory` — memory (26 engines)
 - `eng.knowledge` — knowledge (79 engines)
 
