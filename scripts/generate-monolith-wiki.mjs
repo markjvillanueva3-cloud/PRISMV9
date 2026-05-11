@@ -243,33 +243,91 @@ ${AUTO_END}
 `;
 }
 
+/** Search both extraction trees (recursively) for a module by basename stem.
+ *  Returns array of relative paths found. The FINAL_EXTRACTION_SUMMARY.json
+ *  "missing" list is dated 2026-01-30 and is stale — many listed modules were
+ *  extracted afterward — so we filesystem-verify before flagging anything. */
+function findModuleFiles(stem) {
+  const found = [];
+  const roots = [EXTRACTED_DIR, MODULES_DIR];
+  const stemUpper = stem.toUpperCase();
+  for (const root of roots) {
+    if (!existsSync(root)) continue;
+    const stack = [root];
+    while (stack.length) {
+      const dir = stack.pop();
+      let entries;
+      try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+      for (const e of entries) {
+        const full = join(dir, e.name);
+        if (e.isDirectory()) { stack.push(full); continue; }
+        if (!e.isFile() || !/\.(js|ts)$/i.test(e.name)) continue;
+        if (e.name.toUpperCase().includes(stemUpper)) {
+          found.push(full.replace(PRISM_ROOT + "\\", "").replace(PRISM_ROOT + "/", "").replace(/\\/g, "/"));
+        }
+      }
+    }
+  }
+  return found;
+}
+
 function renderMissing(finalSummary, generatedAt) {
-  const missing = finalSummary?.missing || [];
-  const rows = missing.map((m) => `- \`${m}\` — not yet extracted from the v8.89 source`).join("\n") || "_(none — 100% extracted)_";
+  const claimedMissing = finalSummary?.missing || [];
+  const verified = claimedMissing.map((m) => {
+    // Try exact stem, and the de-prefixed stem (PRISM_FOO → FOO)
+    const hits = findModuleFiles(m);
+    const altHits = m.startsWith("PRISM_") ? findModuleFiles(m.slice(6)) : [];
+    const all = [...new Set([...hits, ...altHits])];
+    return { name: m, found: all };
+  });
+  const trulyMissing = verified.filter((v) => v.found.length === 0);
+  const falsePositives = verified.filter((v) => v.found.length > 0);
+  const missRows = trulyMissing.length
+    ? trulyMissing.map((v) => `- \`${v.name}\` — not found in either extraction tree`).join("\n")
+    : "_(none — every module the stale summary flagged is actually present on disk)_";
+  const fpRows = falsePositives.length
+    ? falsePositives.map((v) => `- \`${v.name}\` → found at ${v.found.slice(0, 3).map((p) => `\`${p}\``).join(", ")}${v.found.length > 3 ? ` (+${v.found.length - 3} more)` : ""}`).join("\n")
+    : "_(none)_";
   return `---
 title: Monolith Extraction — missing modules
 type: architecture
 generated_by: scripts/generate-monolith-wiki.mjs
 last_verified: ${generatedAt}
+truly_missing: ${trulyMissing.length}
+stale_false_positives: ${falsePositives.length}
 tags: [architecture, monolith, extraction, gap]
 related:
   - knowledge/wiki/architecture/monolith-extraction/index.md
 ---
 
-# Monolith Extraction — still-missing modules
+# Monolith Extraction — module-presence audit
 
-> Modules present in the v8.89 monolith inventory but not yet pulled into either extraction tree.
+> \`extracted_modules/FINAL_EXTRACTION_SUMMARY.json\` lists ${claimedMissing.length} modules as
+> "missing" — but that file is dated 2026-01-30 and was never updated as extraction
+> continued. This entry filesystem-verifies each one. **${trulyMissing.length} truly missing · ${falsePositives.length} stale false-positives.**
 
 ${AUTO_START}
 
-${rows}
+## Truly missing (need extraction from v8.89 source)
+
+${missRows}
+
+## Stale false-positives (the summary is wrong — these are already extracted)
+
+${fpRows}
 
 ${AUTO_END}
+
+## Action
+
+${trulyMissing.length === 0
+  ? "Nothing to extract — the \"missing\" list is entirely stale. Consider regenerating `FINAL_EXTRACTION_SUMMARY.json` to clear the false alarm."
+  : `Extract the ${trulyMissing.length} truly-missing module(s) from the v8.89 monolith source (\`C:\\PRISM\\_BUILD\\...PRISM_v8_89_002_TRUE_100_PERCENT.html\` — on C:, not synced) before flagging the corpus complete.`}
 
 ## See also
 
 - Extraction index: [[index]]
-- Source inventory: \`extracted_modules/FINAL_EXTRACTION_SUMMARY.json\`
+- Source inventory: \`extracted_modules/FINAL_EXTRACTION_SUMMARY.json\` (stale — regenerate)
 `;
 }
 
