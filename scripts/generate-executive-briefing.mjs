@@ -415,6 +415,12 @@ w(`- \`state/shared/BUILD_STATE.md\` (built/needs-wiring/needs-building/needs-fr
 w("");
 w(`### 7.6 — See the whole thing at once`);
 w(`- Open the \`/system-viz\` 3D map (\`http://127.0.0.1:8765/\` — the brain viewer; \`/2d\` is the always-works fallback). It renders all **${n(GRAPH.nodes)} nodes / ${n(GRAPH.edges)} edges**. The large nodes on the L0 (personas) and L4 (dispatchers) layers are the shippable products — click one to drop into a "galaxy" view of everything that composes it. This *is* the codebase, atomised.`);
+w(`- **Deep links** (the map reads query params, so these land you on the right view):`);
+w(`  - [knowledge-debt overlay → \`http://127.0.0.1:8765/?overlay=docs\`](http://127.0.0.1:8765/?overlay=docs) — every node without a wiki page is dimmed; the lime ones are documented.`);
+w(`  - [staleness overlay → \`http://127.0.0.1:8765/?overlay=staleness\`](http://127.0.0.1:8765/?overlay=staleness) — colours code by file age (green=fresh → red=ancient).`);
+w(`  - [multi-chat-claims overlay → \`http://127.0.0.1:8765/?overlay=claims\`](http://127.0.0.1:8765/?overlay=claims) — highlights files being edited by other Claude sessions right now.`);
+w(`  - search/highlight a domain: \`http://127.0.0.1:8765/?highlight=lathe\` (or \`hypermill\`, \`mastercam\`, \`wedm\`, …). Inspect one node: \`?node=disp.camdispatcher\`. Blast-radius from one: \`?blast=eng.calibration.calibrationengine\`.`);
+w(`  - \`http://127.0.0.1:8765/wiki/<path>\` serves any wiki page; \`http://127.0.0.1:8765/vault/<path>\` any vault file; \`/2d\` is the zero-dependency fallback viewer.`);
 w("");
 w(`### 7.7 — Honest verdict template`);
 w(`When you've done 7.1–7.6, your verdict should distinguish two axes:`);

@@ -97,8 +97,20 @@ function scopeOf(subject) {
 // ── 3. build the graph fragment ──────────────────────────────────────────
 const COL_HUB = "#84cc16";      // lime — the git layer colour
 const COL_BRANCH = "#a3e635";
-const COL_COMMIT = "#65a30d";
-const COL_TIP = "#bef264";
+const COL_COMMIT = "#65a30d";   // default (no scope tag)
+const COL_TIP = "#bef264";      // branch tips — bright lime-yellow, always distinct
+// C1: scope-coloured commits — a deterministic hash of the [SCOPE-MS#] prefix → a hue,
+// so a glance at the Lgit layer shows which milestones are hot. Tips keep COL_TIP.
+function scopeColor(scope) {
+  if (!scope) return COL_COMMIT;
+  let h = 0; for (let i = 0; i < scope.length; i++) h = (h * 31 + scope.charCodeAt(i)) >>> 0;
+  const hue = h % 360, sat = 62, light = 52;
+  // HSL→hex
+  const c = (1 - Math.abs(2 * light / 100 - 1)) * (sat / 100), x = c * (1 - Math.abs((hue / 60) % 2 - 1)), m = light / 100 - c / 2;
+  const [r, g, b] = hue < 60 ? [c, x, 0] : hue < 120 ? [x, c, 0] : hue < 180 ? [0, c, x] : hue < 240 ? [0, x, c] : hue < 300 ? [x, 0, c] : [c, 0, x];
+  const hx = (v) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+  return `#${hx(r)}${hx(g)}${hx(b)}`;
+}
 
 const newNodes = [];
 const newEdges = [];
@@ -139,7 +151,7 @@ for (const c of commits) {
   pushNode({
     id, layer: "Lgit", subgroup: isTip ? "git_tip" : "git_commit", parent: parentId,
     label: `${c.sha} ${c.subject.slice(0, 72)}`,
-    status: "built", color: isTip ? COL_TIP : COL_COMMIT, size: isTip ? 0.22 : 0.12,
+    status: "built", color: isTip ? COL_TIP : scopeColor(scope), size: isTip ? 0.22 : 0.12,
     tier: 3, synthetic: true,
     sha: c.sha, author: c.author, date: c.date, subject: c.subject,
     parentShas: c.parents, isMerge: c.parents.length > 1, isTip, scope: scope || undefined,

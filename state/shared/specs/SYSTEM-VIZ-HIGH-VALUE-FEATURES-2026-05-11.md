@@ -46,15 +46,15 @@ The brain viewer now fetches `/file-claims` on load. **Info panel:** if a node's
 
 ---
 
-## 🅲 Tier C — cheap, lower value — nice-to-haves (bundle opportunistically)
+## 🅲 Tier C — nice-to-haves (C1 + C5 ✅ shipped in `[CAD-FUSION-LIVE-MS0]/U-VIZ-POLISH-C`; C2/C3/C4 remain)
 
-| # | Feature | Cost | Note |
+| # | Feature | Status | Note |
 |---|---|---|---|
-| C1 | **Scope-colored commits** — color `Lgit` commit nodes by their `[SCOPE-MS#]` prefix (already extracted as `n.scope`). | ~15 lines | a color-by-field mode; shows which milestones are hot. |
-| C2 | **Action-surface overlay** — trace `disp.X → action → engine` using the ~3,800 `actEng` edges; "show the real call graph." | ~30 lines | the edges are already in the graph; just a filter+highlight. |
-| C3 | **Closed-loop overlay** — color engines by whether they have a wired feedback loop (per BUILD-VISION today only the SFC AI does). | ~20 lines | makes the closed-loop gap visible; needs a small lookup. |
-| C4 | **Drift flash** — pulse the milestone-envelope-drift nodes (`meta.headline.drift`). | ~10 lines | only 2 drift cases now; revisit when the count grows. |
-| C5 | **Briefing ↔ graph anchors** — `/briefing` doc gains "→ open these in the map" links (e.g. `?highlight=domain:Lathe&overlay=wiring`); brain viewer reads query params and pre-applies overlay/search. | ~25 lines | ties the boss-audit doc to the live map both ways. |
+| C1 | **Scope-colored commits** — `Lgit` `git_commit` nodes are now coloured by a hash of their `[SCOPE-MS#]` tag (deterministic HSL, done generator-side in `generate-git-tree.mjs` *and* client-side in `system-viz-brain.html` so it shows even when the merged graph carries the older flat-lime colour — `mergeIndexedAugmentation` doesn't recolour existing nodes). Tips keep the bright lime-yellow. | ✅ | a glance at the Lgit layer shows which milestones are hot. |
+| C5 | **Briefing ↔ graph deep links** — the brain viewer reads `?highlight=<term>`, `?overlay=docs\|staleness\|claims`, `?node=<id>`, `?blast=<id>` and pre-applies them on load; `/briefing` §7.6 gained a "Deep links" block (`http://127.0.0.1:8765/?overlay=docs`, `?highlight=lathe`, `?node=disp.camdispatcher`, `?blast=eng.calibration.calibrationengine`, plus the `/wiki/<p>` · `/vault/<p>` · `/2d` routes). | ✅ | a reviewing Claude (or the boss) clicks a link in the audit doc → lands on the right view. Ties the doc to the map both ways. |
+| C2 | **Action-surface overlay** — trace `disp.X → action → engine` using the ~3,800 `actEng` edges; "show the real call graph." | ⏳ | the edges are already in the graph; just a filter+highlight (~30 lines). The viewer already has 4 overlays (📚/🕰/📌/💥) — add only if it earns the clutter. |
+| C3 | **Closed-loop overlay** — colour engines by whether they have a wired feedback loop (per BUILD-VISION today only the SFC AI does). | ⏳ | needs a lookup table that doesn't exist yet — not actually "cheap"; defer. |
+| C4 | **Drift flash** — pulse the milestone-envelope-drift nodes (`meta.headline.drift`). | ⏳ | only 2 drift cases now; genuinely low value — revisit when the count grows. |
 
 ---
 
