@@ -21,7 +21,7 @@ export interface LLMConfig {
 }
 
 export interface ContextChunk {
-  type: "material" | "machine" | "tool" | "formula" | "safety" | "job" | "custom";
+  type: "material" | "machine" | "tool" | "formula" | "safety" | "job" | "custom" | "tribal";
   title: string;
   content: string;
   relevance: number;  // 0-1
@@ -259,16 +259,34 @@ Provide specific parameters, alternatives, and safety considerations.`;
 
     const response = await this.query({
       prompt,
-      context_types: ["material", "tool", "formula", "safety"],
+      context_types: ["material", "tool", "formula", "safety", "tribal"],
       max_tokens: 1500,
     });
+
+    // TK-AI Hardening: pull Master Machinist tips for this context. Lazy-load
+    // the TribalKnowledgeEngine to avoid the LLMEngine <-> TribalKnowledgeEngine
+    // circular import that would form via a top-level import.
+    const tribalKnowledge: string[] = [];
+    try {
+      const { tribalKnowledgeEngine } = await import("./TribalKnowledgeEngine.js");
+      const masterMachinist = tribalKnowledgeEngine.masterMachinistRecommend({
+        material: input.material,
+        operation: input.operation,
+        machine: input.machine,
+      });
+      for (const rec of masterMachinist.recommendations) {
+        tribalKnowledge.push(rec.message);
+      }
+    } catch {
+      // Tribal knowledge engine unavailable — proceed without tribal context.
+    }
 
     return {
       recommendation: response.answer,
       parameters: {},
       alternatives: [],
       safety_notes: [],
-      tribal_knowledge: [],
+      tribal_knowledge: tribalKnowledge,
     };
   }
 
@@ -343,3 +361,34 @@ Provide specific parameters, alternatives, and safety considerations.`;
 }
 
 export const llmEngine = new LLMEngine();
+
+/**
+ * TK-AI Hardening: Register tribal knowledge as a context provider (restored from b7e0b298f L643).
+ * Lazy-loads TribalKnowledgeEngine to avoid circular dependency, then registers a
+ * provider that yields the top 10 tribal tips (filtered to confidence >= 70) as
+ * ContextChunk[] with type="tribal".
+ *
+ * Idempotent at the call-site level (each call appends one more provider),
+ * but the module-load auto-registration below ensures default wiring.
+ */
+export async function registerTribalContextProvider(): Promise<void> {
+  try {
+    const { tribalKnowledgeEngine } = await import("./TribalKnowledgeEngine.js");
+
+    llmEngine.registerContextProvider(() => {
+      const tips = tribalKnowledgeEngine.search({ limit: 20, min_confidence: 70 });
+
+      return tips.slice(0, 10).map(tip => ({
+        type: "tribal" as const,
+        title: `[Shop Floor] ${tip.title}`,
+        content: `${tip.body?.slice(0, 300) || ""} (Confidence: ${tip.confidence}%, Source: ${tip.source || "shop_floor"})`,
+        relevance: (tip.confidence || 70) / 100,
+      }));
+    });
+  } catch {
+    // Tribal knowledge engine not available — skip registration silently.
+  }
+}
+
+// Auto-register tribal provider on module load (non-blocking, fire-and-forget).
+registerTribalContextProvider().catch(() => {});
