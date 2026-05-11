@@ -177,12 +177,14 @@ export class XProcNeuralAutoFireEngine {
 
     if (this.activatedAt !== null) {
       // Already activated — report current state without re-poking anything.
+      // (action is "already_active" regardless of ownership; ownedByAutoFire is
+      // the meaningful distinguisher in this branch.)
       return {
         ok: true,
         alreadyActivated: true,
         components: ALL_COMPONENTS.map((key) => ({
           key,
-          action: this.owned.has(key) ? ("already_active" as const) : ("already_active" as const),
+          action: "already_active" as const,
           ownedByAutoFire: this.owned.has(key),
         })),
         activatedAt: this.activatedAt,
