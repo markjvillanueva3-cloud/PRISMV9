@@ -55,3 +55,20 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/exportDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (10)
+
+- [[export]]
+- [[report]]
+- [[render-pdf]]
+- [[render-csv]]
+- [[render-excel]]
+- [[render-dxf]]
+- [[render-step]]
+- [[render-gcode]]
+- [[render-setup-sheet]]
+- [[batch-export]]
+
+<!-- XLINK-END -->

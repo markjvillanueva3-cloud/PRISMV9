@@ -58,3 +58,36 @@ _…and 14 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/provenPipelineDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (26)
+
+- [[recipe]]
+- [[similarity]]
+- [[adaptive]]
+- [[orchestrator]]
+- [[proven-recipe-create]]
+- [[proven-recipe-get]]
+- [[proven-recipe-update]]
+- [[proven-recipe-delete]]
+- [[proven-recipe-list]]
+- [[proven-recipe-search]]
+- [[proven-recipe-tag]]
+- [[proven-recipe-export]]
+- [[proven-recipe-import]]
+- [[similarity-compare]]
+- [[similarity-find-nearest]]
+- [[similarity-batch]]
+- [[similarity-set-weights]]
+- [[pipeline-adapt]]
+- [[pipeline-adapt-step]]
+- [[pipeline-preview]]
+- [[proven-prove-out]]
+- [[proven-find-similar]]
+- [[proven-generate-pipeline]]
+- [[proven-compare]]
+- [[proven-record-outcome]]
+- [[proven-dashboard]]
+
+<!-- XLINK-END -->

@@ -57,3 +57,22 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/atcsDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (12)
+
+- [[task-init]]
+- [[task-resume]]
+- [[task-status]]
+- [[queue-next]]
+- [[unit-complete]]
+- [[batch-validate]]
+- [[checkpoint]]
+- [[replan]]
+- [[assemble]]
+- [[stub-scan]]
+- [[delegate-to-manus]]
+- [[poll-delegated]]
+
+<!-- XLINK-END -->

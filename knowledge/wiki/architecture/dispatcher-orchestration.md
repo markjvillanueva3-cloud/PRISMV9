@@ -60,3 +60,51 @@ _…and 29 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/orchestrationDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (41)
+
+- [[agent-execute]]
+- [[agent-parallel]]
+- [[agent-pipeline]]
+- [[plan-create]]
+- [[plan-execute]]
+- [[plan-status]]
+- [[queue-stats]]
+- [[session-list]]
+- [[swarm-execute]]
+- [[swarm-parallel]]
+- [[swarm-consensus]]
+- [[swarm-pipeline]]
+- [[swarm-status]]
+- [[swarm-patterns]]
+- [[swarm-quick]]
+- [[roadmap-plan]]
+- [[roadmap-next-batch]]
+- [[roadmap-advance]]
+- [[roadmap-gate]]
+- [[roadmap-list]]
+- [[roadmap-load]]
+- [[roadmap-claim]]
+- [[roadmap-release]]
+- [[roadmap-heartbeat]]
+- [[roadmap-discover]]
+- [[roadmap-populate-context]]
+- [[roadmap-register]]
+- [[cognitive-tot-create-tree]]
+- [[cognitive-mfg-reason]]
+- [[cognitive-multi-asset-reason]]
+- [[ollama-ensure-connected]]
+- [[ollama-ping]]
+- [[ollama-discover-models]]
+- [[cognitive-neural-synthesize]]
+- [[cognitive-neural-list-weights]]
+- [[cognitive-meta-orchestrate]]
+- [[cognitive-neural-comprehensive-predict]]
+- [[cognitive-learning-get-track-record]]
+- [[cognitive-learning-loop-stats]]
+- [[cognitive-learning-incremental-list-jobs]]
+- [[local-model-route]]
+
+<!-- XLINK-END -->

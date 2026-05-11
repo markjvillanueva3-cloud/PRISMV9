@@ -53,3 +53,18 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/resourceHarvestingDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (8)
+
+- [[harvest-scan]]
+- [[harvest-start]]
+- [[harvest-progress]]
+- [[harvest-status]]
+- [[harvest-jobs]]
+- [[harvest-results]]
+- [[harvest-dry-run]]
+- [[harvest-filter]]
+
+<!-- XLINK-END -->

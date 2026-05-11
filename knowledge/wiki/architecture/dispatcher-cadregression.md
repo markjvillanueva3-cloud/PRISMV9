@@ -57,3 +57,35 @@ _…and 13 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/cadRegressionDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (25)
+
+- [[cad-index-run]]
+- [[cad-index-diff]]
+- [[cad-index-load]]
+- [[cad-classify-run]]
+- [[cad-classify-one]]
+- [[cad-regression-run]]
+- [[cad-regression-load]]
+- [[cad-checkpoint-save]]
+- [[cad-checkpoint-load]]
+- [[cad-checkpoint-resume-diff]]
+- [[cad-failure-triage-one]]
+- [[cad-failure-triage-group]]
+- [[cad-artifact-write]]
+- [[cad-artifact-list]]
+- [[cad-artifact-prune]]
+- [[cad-regression-dashboard-snapshot]]
+- [[cad-regression-dashboard-list]]
+- [[cad-regression-analyzer-diff]]
+- [[cad-regression-analyzer-trend]]
+- [[cad-regression-analyzer-hotspots]]
+- [[cad-regression-report-snapshot]]
+- [[cad-regression-report-diff]]
+- [[cad-regression-report-trend]]
+- [[cad-regression-report-hotspots]]
+- [[cad-regression-report-summary]]
+
+<!-- XLINK-END -->

@@ -57,3 +57,34 @@ _…and 12 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/resourceHarvesterDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (24)
+
+- [[scanner]]
+- [[harvester]]
+- [[jmharvest]]
+- [[jmharvester]]
+- [[jminventory]]
+- [[scan-folder]]
+- [[classify-file]]
+- [[get-index]]
+- [[start-harvest]]
+- [[harvest-status]]
+- [[harvest-resume]]
+- [[jm-mill-harvest]]
+- [[jm-mill-harvest-customer-recs]]
+- [[jm-mill-harvest-predict-tool]]
+- [[jm-mill-get-tool-rec]]
+- [[jm-mill-get-op-sequence]]
+- [[jm-mill-get-speeds-feeds]]
+- [[jm-mill-get-tribal-tips]]
+- [[jm-mill-get-customers]]
+- [[jm-program-inventory-scan]]
+- [[jm-program-inventory-stats]]
+- [[jm-program-find-by-customer]]
+- [[jm-program-find-by-controller]]
+- [[jm-program-find-by-type]]
+
+<!-- XLINK-END -->

@@ -64,3 +64,49 @@ related:
 - Dispatchers layer: [[layer-l4]]
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Query: `node scripts/system-viz-query.mjs coverage-by-domain`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engines in this domain (39)
+
+- [[cycletimeaccuracyengine]]
+- [[endtoendpipelineengine]]
+- [[gcodeverificationengine]]
+- [[holderoperationmatchengine]]
+- [[laserwaterjetpostextension]]
+- [[novelpostprocessorbridgeengine]]
+- [[programstructureengine]]
+- [[runouteffectengine]]
+- [[segmentinterpolatorengine]]
+- [[toolassemblyengine]]
+- [[toolassemblymodelengine]]
+- [[toolaxisoptimizationengine]]
+- [[toolbalancingengine]]
+- [[toolbreakagepredictionengine]]
+- [[toolcallbatchengine]]
+- [[toolcallbatchoptimizerengine]]
+- [[toolcalldeduplicatorengine]]
+- [[toolcallhistogramengine]]
+- [[toolcallparallelizationengine]]
+- [[toolcallpipelineengine]]
+- [[toolcallthrottleengine]]
+- [[toolcoatingselectionengine]]
+- [[toolcostperpartengine]]
+- [[toolcostpredictorengine]]
+- [[toolcribengine]]
+- [[tooldatabasebridgeengine]]
+- [[toolgeometryselectionengine]]
+- [[toolholderregistryengine]]
+- [[toollifegnnengine]]
+- [[toolmagazineoptimizationengine]]
+- [[tooloutputfingerprinterengine]]
+- [[tooloutputsummarizerengine]]
+- [[tooloverhangengine]]
+- [[toolpresettingengine]]
+- [[toolredirectengine]]
+- [[toolselectionadvisorengine]]
+- [[toolselectionrecommenderengine]]
+- [[toolsubstitutionengine]]
+- [[toolsubstitutionriskengine]]
+
+<!-- XLINK-END -->

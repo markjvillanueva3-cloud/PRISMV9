@@ -58,3 +58,31 @@ _…and 9 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/threadDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (21)
+
+- [[calculate-tap-drill]]
+- [[calculate-thread-mill-params]]
+- [[calculate-thread-depth]]
+- [[calculate-engagement-percent]]
+- [[get-thread-specifications]]
+- [[get-go-nogo-gauges]]
+- [[calculate-pitch-diameter]]
+- [[calculate-minor-major-diameter]]
+- [[select-thread-insert]]
+- [[calculate-thread-cutting-params]]
+- [[validate-thread-fit-class]]
+- [[generate-thread-gcode]]
+- [[calculate-thread-stripping]]
+- [[thread-mill-helical-kinematics]]
+- [[thread-mill-cutting-forces]]
+- [[thread-mill-quality-predict]]
+- [[thread-mill-multipass-strategy]]
+- [[thread-mill-cycle-time]]
+- [[thread-mill-recommend-tool]]
+- [[thread-mill-lookup-standard]]
+- [[thread-mill-chip-thinning]]
+
+<!-- XLINK-END -->

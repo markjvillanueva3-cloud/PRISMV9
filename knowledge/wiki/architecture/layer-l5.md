@@ -119,3 +119,48 @@ related:
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Directive: `state/shared/PRISM-SYSTEM-VIZ-DIRECTIVE.md`
 - Viewer: `/system-viz` slash command
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engine domains (38)
+
+- [[domain-adaptive]]
+- [[domain-ai]]
+- [[domain-cad]]
+- [[domain-calibration]]
+- [[domain-cam]]
+- [[domain-cost]]
+- [[domain-erp]]
+- [[domain-five]]
+- [[domain-forge]]
+- [[domain-fusion]]
+- [[domain-hook]]
+- [[domain-hyper]]
+- [[domain-inspect]]
+- [[domain-knowledge]]
+- [[domain-lathe]]
+- [[domain-machine]]
+- [[domain-material]]
+- [[domain-memory]]
+- [[domain-mill]]
+- [[domain-milling]]
+- [[domain-multi]]
+- [[domain-network]]
+- [[domain-other]]
+- [[domain-physics]]
+- [[domain-print]]
+- [[domain-probe]]
+- [[domain-process]]
+- [[domain-quality]]
+- [[domain-safety]]
+- [[domain-session]]
+- [[domain-shop]]
+- [[domain-swiss]]
+- [[domain-tool]]
+- [[domain-toolpath]]
+- [[domain-turning]]
+- [[domain-twin]]
+- [[domain-wedm]]
+- [[domain-wet]]
+
+<!-- XLINK-END -->

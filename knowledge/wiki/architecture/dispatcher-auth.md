@@ -55,3 +55,20 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/authDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (10)
+
+- [[auth]]
+- [[tenant]]
+- [[login]]
+- [[register]]
+- [[refresh-token]]
+- [[change-password]]
+- [[role-assign]]
+- [[permission-check]]
+- [[session-manage]]
+- [[mfa-setup]]
+
+<!-- XLINK-END -->

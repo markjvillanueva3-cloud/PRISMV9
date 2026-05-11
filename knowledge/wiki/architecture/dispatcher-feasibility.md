@@ -59,3 +59,47 @@ _…and 25 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/feasibilityDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (37)
+
+- [[wse]]
+- [[access]]
+- [[workhold]]
+- [[rigid]]
+- [[matdb]]
+- [[seqfeas]]
+- [[setup]]
+- [[orch]]
+- [[feasanalysis]]
+- [[feasibility-init]]
+- [[feasibility-apply-op]]
+- [[feasibility-simulate]]
+- [[feasibility-walls]]
+- [[feasibility-surfaces]]
+- [[feasibility-datums]]
+- [[accessibility-check]]
+- [[accessibility-find-tools]]
+- [[accessibility-report]]
+- [[workholding-check]]
+- [[workholding-track]]
+- [[workholding-suggest]]
+- [[rigidity-check]]
+- [[rigidity-critical]]
+- [[rigidity-support]]
+- [[material-stiffness-lookup]]
+- [[sequence-simulate]]
+- [[sequence-dead-ends]]
+- [[sequence-reorder]]
+- [[sequence-risk-score]]
+- [[sequence-what-if]]
+- [[setup-transition-analyze]]
+- [[setup-tolerance-stack]]
+- [[orchestrator-full]]
+- [[orchestrator-quick]]
+- [[orchestrator-what-if]]
+- [[predictive-failure]]
+- [[critical-path]]
+
+<!-- XLINK-END -->

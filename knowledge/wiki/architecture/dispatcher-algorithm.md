@@ -57,3 +57,50 @@ _…and 28 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/algorithmDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (40)
+
+- [[signal-fft]]
+- [[signal-spectral]]
+- [[signal-filter]]
+- [[signal-chatter-predict]]
+- [[control-pid]]
+- [[control-pid-tune]]
+- [[control-kalman]]
+- [[control-transfer]]
+- [[opt-gradient-descent]]
+- [[opt-conjugate-gradient]]
+- [[opt-bfgs]]
+- [[opt-local-search]]
+- [[opt-aco-sequence]]
+- [[opt-lp-solve]]
+- [[num-linalg-solve]]
+- [[num-ode-solve]]
+- [[num-jacobian]]
+- [[num-eigenvalue]]
+- [[num-monte-carlo]]
+- [[graph-dijkstra]]
+- [[graph-topological]]
+- [[graph-mst]]
+- [[graph-bfs-dfs]]
+- [[search-astar]]
+- [[search-beam]]
+- [[search-ida-star]]
+- [[search-rbfs]]
+- [[interp-nurbs]]
+- [[interp-bezier]]
+- [[interp-spline]]
+- [[toolpath-morph-spiral]]
+- [[toolpath-trochoidal]]
+- [[toolpath-adaptive]]
+- [[toolpath-rest]]
+- [[surface-curvature]]
+- [[surface-mesh-refine]]
+- [[spatial-kdtree]]
+- [[spatial-octree]]
+- [[ml-policy-gradient]]
+- [[ml-rl-optimize]]
+
+<!-- XLINK-END -->

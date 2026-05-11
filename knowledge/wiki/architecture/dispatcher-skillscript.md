@@ -57,3 +57,37 @@ _…and 15 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/skillScriptDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (27)
+
+- [[skill-list]]
+- [[skill-get]]
+- [[skill-search]]
+- [[skill-find-for-task]]
+- [[skill-content]]
+- [[skill-stats]]
+- [[script-list]]
+- [[script-get]]
+- [[script-search]]
+- [[script-command]]
+- [[script-execute]]
+- [[script-stats]]
+- [[skill-load]]
+- [[skill-recommend]]
+- [[skill-analyze]]
+- [[skill-chain]]
+- [[skill-search-v2]]
+- [[skill-stats-v2]]
+- [[script-execute-v2]]
+- [[script-queue]]
+- [[script-recommend]]
+- [[script-search-v2]]
+- [[script-history]]
+- [[bundle-list]]
+- [[bundle-get]]
+- [[bundle-for-action]]
+- [[bundle-for-domain]]
+
+<!-- XLINK-END -->

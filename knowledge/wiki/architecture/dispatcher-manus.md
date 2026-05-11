@@ -56,3 +56,21 @@ _(no L5 engine edges in graph — may indicate scaffold-only dispatcher)_
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/manusDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (11)
+
+- [[create-task]]
+- [[task-status]]
+- [[task-result]]
+- [[cancel-task]]
+- [[list-tasks]]
+- [[knowledge-lookup]]
+- [[code-reasoning]]
+- [[hook-trigger]]
+- [[hook-list]]
+- [[hook-chain]]
+- [[hook-stats]]
+
+<!-- XLINK-END -->

@@ -57,3 +57,25 @@ _…and 3 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/tenantDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (15)
+
+- [[create]]
+- [[get]]
+- [[list]]
+- [[suspend]]
+- [[reactivate]]
+- [[delete]]
+- [[get-context]]
+- [[check-limit]]
+- [[publish-pattern]]
+- [[consume-patterns]]
+- [[promote-pattern]]
+- [[quarantine-pattern]]
+- [[slb-stats]]
+- [[stats]]
+- [[config]]
+
+<!-- XLINK-END -->

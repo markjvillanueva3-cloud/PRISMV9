@@ -51,3 +51,16 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/realtimeDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (6)
+
+- [[ws-broadcast]]
+- [[ws-room-send]]
+- [[ws-unicast]]
+- [[ws-stats]]
+- [[rt-bridge-stats]]
+- [[rt-bridge-emit]]
+
+<!-- XLINK-END -->

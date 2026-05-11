@@ -59,3 +59,32 @@ _…and 10 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/formingCastingDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (22)
+
+- [[blowmold]]
+- [[castingdefect]]
+- [[extrusion]]
+- [[filamentwind]]
+- [[powdercompact]]
+- [[pressbrake]]
+- [[pultrusion]]
+- [[resintransfer]]
+- [[rollingmill]]
+- [[sheetnesting]]
+- [[stampingdie]]
+- [[thermoform]]
+- [[tubeform]]
+- [[wiredraw]]
+- [[flatpattern]]
+- [[calender]]
+- [[compressionmold]]
+- [[rotationalmold]]
+- [[vacuumcast]]
+- [[centrifugalcast]]
+- [[casting-defect-analyze]]
+- [[sheet-metal-nesting-optimize]]
+
+<!-- XLINK-END -->

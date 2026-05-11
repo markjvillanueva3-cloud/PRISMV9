@@ -57,3 +57,27 @@ _…and 5 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/partsLibraryDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (17)
+
+- [[file-upload]]
+- [[file-download]]
+- [[file-get-versions]]
+- [[file-attach]]
+- [[file-get-attachments]]
+- [[file-find-by-hash]]
+- [[file-delete]]
+- [[file-list]]
+- [[file-stats]]
+- [[part-create]]
+- [[part-search]]
+- [[part-get]]
+- [[part-add-revision]]
+- [[part-list-revisions]]
+- [[part-find-similar]]
+- [[part-deduplicate]]
+- [[part-stats]]
+
+<!-- XLINK-END -->

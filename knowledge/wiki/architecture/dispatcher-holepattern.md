@@ -48,3 +48,13 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/holePatternDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (3)
+
+- [[hole-pattern-program]]
+- [[hole-pattern-detect]]
+- [[hole-pattern-optimize]]
+
+<!-- XLINK-END -->

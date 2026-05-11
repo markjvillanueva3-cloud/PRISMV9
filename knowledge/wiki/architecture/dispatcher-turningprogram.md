@@ -60,3 +60,24 @@ _…and 2 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/turningProgramDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (14)
+
+- [[turning-print-to-program]]
+- [[turning-process-plan]]
+- [[turning-blueprint-intake]]
+- [[turning-parse-material]]
+- [[turning-parse-tolerance]]
+- [[turning-cad-import]]
+- [[turning-stock-select]]
+- [[turning-resolve-ambiguity]]
+- [[turning-rev-profile]]
+- [[turning-feature-taxonomy]]
+- [[turning-parse-fit]]
+- [[turning-apply-iso2768]]
+- [[lathe-ui-submit]]
+- [[lathe-orchestrate]]
+
+<!-- XLINK-END -->

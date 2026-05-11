@@ -64,3 +64,32 @@ _(no L4 dispatcher match — may need wiring)_
 - Dispatchers layer: [[layer-l4]]
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Query: `node scripts/system-viz-query.mjs coverage-by-domain`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engines in this domain (22)
+
+- [[micromillingengine]]
+- [[micromillingsizeeffectengine]]
+- [[millingagiorchestrationengine]]
+- [[millingaiunificationengine]]
+- [[millingcriticalthinkingengine]]
+- [[millingdeepintegrationengine]]
+- [[millingdeepknowledgesynthesisengine]]
+- [[millingdeepreasoningengine]]
+- [[millingdigitaltwinengine]]
+- [[millingendtoendorchestrationengine]]
+- [[millingforceengine]]
+- [[millingheadintelligenceengine]]
+- [[millinghybridstrategysynthesizer]]
+- [[millingknowledgeorchestratorengine]]
+- [[millingmetalearningengine]]
+- [[millingneuralcognitiveengine]]
+- [[millingonlinelearningtrackerengine]]
+- [[millingproductionknowledgeharvesterengine]]
+- [[millingprogrampatternengine]]
+- [[millingreinforcementlearningengine]]
+- [[millingunifiedscienceorchestrationengine]]
+- [[nxcammillingfunctionindexengine]]
+
+<!-- XLINK-END -->

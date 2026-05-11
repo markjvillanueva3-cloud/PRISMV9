@@ -48,3 +48,12 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/multiAxisProgramDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (2)
+
+- [[multiaxis-print-to-program]]
+- [[multiaxis-process-plan]]
+
+<!-- XLINK-END -->

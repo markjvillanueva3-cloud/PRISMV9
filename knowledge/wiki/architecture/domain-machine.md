@@ -65,3 +65,47 @@ related:
 - Dispatchers layer: [[layer-l4]]
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Query: `node scripts/system-viz-query.mjs coverage-by-domain`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engines in this domain (37)
+
+- [[balancingmachineengine]]
+- [[batchcamcontrollerengines]]
+- [[cobotmachiningengine]]
+- [[criticalspeedengine]]
+- [[dynamicbalanceengine]]
+- [[gaugingengine]]
+- [[hobbycncprofileengine]]
+- [[machinecapabilityindexengine]]
+- [[machineconfigdatabaseengine]]
+- [[machinedataauditengine]]
+- [[machineforcelimitvalidationengine]]
+- [[machinegeometricaccuracyengine]]
+- [[machinekinematicsengine]]
+- [[machinelayermerger]]
+- [[machinelevelingengine]]
+- [[machinelogharvesterengine]]
+- [[machinematcherengine]]
+- [[machinemodelacquisitionengine]]
+- [[machinemodeldownloaderengine]]
+- [[machinemodelindexengine]]
+- [[machineratedatabaseengine]]
+- [[machineselectionengine]]
+- [[machinetoolerrorbudgetengine]]
+- [[machinewarmupengine]]
+- [[magneticbearingengine]]
+- [[okumagosigertranscriptminerengine]]
+- [[okumamacroconverterbridgeengine]]
+- [[okumamanualtipextractorengine]]
+- [[parallelismengine]]
+- [[pressfitengine]]
+- [[radialengagementcontrollerengine]]
+- [[shrinkfitengine]]
+- [[statisticalprocessengine]]
+- [[stepoveroptimizationengine]]
+- [[threadgageengine]]
+- [[tolerancestackupengine]]
+- [[workenvelopeengine]]
+
+<!-- XLINK-END -->

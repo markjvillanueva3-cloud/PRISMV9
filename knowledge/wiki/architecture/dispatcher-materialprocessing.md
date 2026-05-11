@@ -59,3 +59,26 @@ _…and 4 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/materialProcessingDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (16)
+
+- [[anodizing]]
+- [[carburizing]]
+- [[coatingthickness]]
+- [[heattreat]]
+- [[induction]]
+- [[nitriding]]
+- [[quenching]]
+- [[sintering]]
+- [[surftreat]]
+- [[autoclave]]
+- [[electrochem]]
+- [[cryotreat]]
+- [[heattreatresp]]
+- [[shotpeen]]
+- [[electroplating]]
+- [[passivation]]
+
+<!-- XLINK-END -->

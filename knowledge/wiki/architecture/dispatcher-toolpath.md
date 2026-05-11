@@ -63,3 +63,44 @@ _…and 22 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/toolpathDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (34)
+
+- [[strategy-select]]
+- [[params-calculate]]
+- [[strategy-search]]
+- [[strategy-list]]
+- [[strategy-info]]
+- [[stats]]
+- [[material-strategies]]
+- [[prism-novel]]
+- [[novel-compute]]
+- [[novel-list]]
+- [[extended-compute]]
+- [[extended-list]]
+- [[crosscam-compute]]
+- [[crosscam-list]]
+- [[generate]]
+- [[algorithm-select]]
+- [[tool-axis-optimize]]
+- [[feature-to-zone]]
+- [[segment-interpolate]]
+- [[novel-post-process]]
+- [[program-assemble]]
+- [[gcode-verify]]
+- [[novel-generate-program]]
+- [[simulate]]
+- [[stock-simulate]]
+- [[collision-check]]
+- [[surface-finish-predict]]
+- [[cycle-time-estimate]]
+- [[rest-machining]]
+- [[operation-sequence]]
+- [[transition-path]]
+- [[adaptive-refine]]
+- [[multi-setup-plan]]
+- [[toolpath-smooth]]
+
+<!-- XLINK-END -->

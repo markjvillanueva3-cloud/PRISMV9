@@ -53,3 +53,18 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/inboxDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (8)
+
+- [[inbox-ingest]]
+- [[inbox-list]]
+- [[inbox-get]]
+- [[inbox-match-part]]
+- [[inbox-batch-ingest]]
+- [[inbox-search]]
+- [[inbox-stats]]
+- [[inbox-update-status]]
+
+<!-- XLINK-END -->

@@ -56,3 +56,20 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/scientificMathDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (10)
+
+- [[stoch]]
+- [[info]]
+- [[ctrl]]
+- [[graph]]
+- [[fuzzy]]
+- [[stochastic-simulate]]
+- [[information-entropy]]
+- [[optimal-control]]
+- [[graph-solve]]
+- [[fuzzy-neural]]
+
+<!-- XLINK-END -->

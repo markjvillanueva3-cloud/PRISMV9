@@ -52,3 +52,17 @@ _(no L5 engine edges in graph — may indicate scaffold-only dispatcher)_
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/autoPilotDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (7)
+
+- [[autopilot]]
+- [[autopilot-quick]]
+- [[brainstorm-lenses]]
+- [[formula-optimize]]
+- [[autopilot-v2]]
+- [[registry-status]]
+- [[working-tools]]
+
+<!-- XLINK-END -->

@@ -54,3 +54,18 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/nlHookDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (8)
+
+- [[create]]
+- [[parse]]
+- [[approve]]
+- [[remove]]
+- [[list]]
+- [[get]]
+- [[stats]]
+- [[config]]
+
+<!-- XLINK-END -->

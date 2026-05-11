@@ -60,3 +60,44 @@ _…and 22 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/adaptiveControlDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (34)
+
+- [[afc]]
+- [[asc]]
+- [[bay]]
+- [[tla]]
+- [[dts]]
+- [[acal]]
+- [[adachat]]
+- [[adachip]]
+- [[adaover]]
+- [[adatherm]]
+- [[adawear]]
+- [[adaptive-feed]]
+- [[adaptive-feed-tune]]
+- [[adaptive-spindle]]
+- [[adaptive-spindle-stability]]
+- [[adaptive-spindle-chatter]]
+- [[bayesian-calibrate]]
+- [[bayesian-predict-force]]
+- [[tool-life-predict]]
+- [[tool-life-weibull]]
+- [[tool-life-replacement]]
+- [[digital-twin-sync]]
+- [[digital-twin-query]]
+- [[calibration-kienzle]]
+- [[calibration-taylor]]
+- [[calibration-surface-bias]]
+- [[calibration-drift]]
+- [[calibration-thermal]]
+- [[calibration-model-select]]
+- [[adaptive-chatter-analyze]]
+- [[adaptive-chipload-analyze]]
+- [[adaptive-override-calc]]
+- [[adaptive-thermal-analyze]]
+- [[adaptive-wear-analyze]]
+
+<!-- XLINK-END -->

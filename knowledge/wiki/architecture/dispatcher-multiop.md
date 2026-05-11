@@ -60,3 +60,22 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/multiOpDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (12)
+
+- [[rest]]
+- [[seq]]
+- [[trans]]
+- [[refine]]
+- [[setup]]
+- [[rest-analyze]]
+- [[rest-quick-check]]
+- [[operation-sequence]]
+- [[transition-plan]]
+- [[transition-batch]]
+- [[adaptive-refine]]
+- [[multi-setup-plan]]
+
+<!-- XLINK-END -->

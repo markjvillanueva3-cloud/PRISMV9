@@ -62,3 +62,20 @@ related:
 - Dispatchers layer: [[layer-l4]]
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Query: `node scripts/system-viz-query.mjs coverage-by-domain`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engines in this domain (10)
+
+- [[autoclaveprocessengine]]
+- [[batchcammaterialbridgeengines]]
+- [[electrochemicalengine]]
+- [[inductionheatingengine]]
+- [[materialdatabasebridgeengine]]
+- [[materialhardnessstateclassifierengine]]
+- [[nitridingprocessengine]]
+- [[quenchingprocessengine]]
+- [[sinteringprocessengine]]
+- [[superalloymachiningengine]]
+
+<!-- XLINK-END -->

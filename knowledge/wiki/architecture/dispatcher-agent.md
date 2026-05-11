@@ -57,3 +57,31 @@ _…and 9 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/agentDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (21)
+
+- [[chat]]
+- [[context-create]]
+- [[context-add]]
+- [[context-compact]]
+- [[memory]]
+- [[remember-fact]]
+- [[remember-preference]]
+- [[remember-correction]]
+- [[query]]
+- [[search]]
+- [[reinforce]]
+- [[forget]]
+- [[stats]]
+- [[context-injection]]
+- [[capabilities]]
+- [[by-tool]]
+- [[by-category]]
+- [[engine-by-name]]
+- [[engine-deps]]
+- [[engine-dependents]]
+- [[self-awareness]]
+
+<!-- XLINK-END -->

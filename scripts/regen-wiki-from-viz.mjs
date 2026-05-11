@@ -43,12 +43,15 @@ const GENERATORS = [
   "generate-milestone-wiki.mjs",
   "generate-skill-wiki.mjs",
   "generate-hook-wiki.mjs",
+  "generate-formula-algo-wiki.mjs",
   "generate-tribal-index.mjs",
   "generate-domain-mermaid.mjs",
   "generate-layer-stack-overview.mjs",
   "system-viz-obsidian-bridge-v2.mjs",
   "export-graph-cypher.mjs",
-  // lint-wiki-orphans.mjs runs AFTER everything to see fresh content
+  // crosslink injector runs after all content generators so it sees every leaf entry
+  "inject-wiki-crosslinks.mjs",
+  // lint runs LAST so it measures the post-crosslink orphan rate
   "lint-wiki-orphans.mjs",
 ];
 

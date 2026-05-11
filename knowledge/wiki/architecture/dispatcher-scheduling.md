@@ -56,3 +56,21 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/schedulingDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (11)
+
+- [[scheduling]]
+- [[bottleneck]]
+- [[oee]]
+- [[job-schedule]]
+- [[machine-assign]]
+- [[capacity-plan]]
+- [[priority-queue]]
+- [[bottleneck-find]]
+- [[lead-time-estimate]]
+- [[due-date-track]]
+- [[resource-balance]]
+
+<!-- XLINK-END -->

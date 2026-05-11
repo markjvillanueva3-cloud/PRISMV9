@@ -56,3 +56,20 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/grindingDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (10)
+
+- [[wheel-select]]
+- [[dress-params]]
+- [[burn-threshold]]
+- [[surface-integrity]]
+- [[grinding-force]]
+- [[surface-finish-predict]]
+- [[wheel-life-predict]]
+- [[dressing-interval-optimize]]
+- [[dressing-tool-select]]
+- [[creep-feed-setup]]
+
+<!-- XLINK-END -->

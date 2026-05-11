@@ -57,3 +57,35 @@ _…and 13 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/infraDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (25)
+
+- [[db-health]]
+- [[persistence-health]]
+- [[migration-status]]
+- [[registry-sync-status]]
+- [[seed-registries]]
+- [[infra-summary]]
+- [[search-semantic]]
+- [[search-stats]]
+- [[job-enqueue]]
+- [[job-status]]
+- [[job-stats]]
+- [[event-publish]]
+- [[event-recent]]
+- [[event-stats]]
+- [[model-register]]
+- [[model-list]]
+- [[model-stats]]
+- [[plugin-register]]
+- [[plugin-validate]]
+- [[plugin-activate]]
+- [[plugin-list]]
+- [[auth-health]]
+- [[usage-stats]]
+- [[calibration-status]]
+- [[calibration-overrides-preview]]
+
+<!-- XLINK-END -->

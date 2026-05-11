@@ -51,3 +51,16 @@ _(no L5 engine edges in graph — may indicate scaffold-only dispatcher)_
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/gsdDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (6)
+
+- [[core]]
+- [[quick]]
+- [[get]]
+- [[dev-protocol]]
+- [[resources-summary]]
+- [[quick-resume]]
+
+<!-- XLINK-END -->

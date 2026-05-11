@@ -57,3 +57,45 @@ _…and 23 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/complianceDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (35)
+
+- [[apply-template]]
+- [[remove-template]]
+- [[list-templates]]
+- [[audit-status]]
+- [[check-compliance]]
+- [[gap-analysis]]
+- [[resolve-conflicts]]
+- [[config]]
+- [[nda-manage]]
+- [[create]]
+- [[list]]
+- [[get]]
+- [[terminate]]
+- [[check-expirations]]
+- [[export-control]]
+- [[classify]]
+- [[screen]]
+- [[document-retention]]
+- [[list-policies]]
+- [[assign]]
+- [[legal-hold]]
+- [[pending-destructions]]
+- [[audit-trail]]
+- [[query]]
+- [[summary]]
+- [[evidence-package]]
+- [[safety-incident]]
+- [[record]]
+- [[update]]
+- [[safety-inspection]]
+- [[osha-300-log]]
+- [[cert-manage]]
+- [[add]]
+- [[record-audit]]
+- [[legal-dashboard]]
+
+<!-- XLINK-END -->

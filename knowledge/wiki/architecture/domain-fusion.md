@@ -64,3 +64,27 @@ _(no L4 dispatcher match — may need wiring)_
 - Dispatchers layer: [[layer-l4]]
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Query: `node scripts/system-viz-query.mjs coverage-by-domain`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engines in this domain (17)
+
+- [[crossprocessaudiotabularfusionengine]]
+- [[crossprocesstimeseriestabularfusionengine]]
+- [[crossprocessvisiontabularfusionengine]]
+- [[fusion360aiorchestrationengine]]
+- [[fusion360controllercatalogengine]]
+- [[fusion360functionindexengine]]
+- [[fusion360materialbridgeengine]]
+- [[fusion360millturnbridgeengine]]
+- [[fusion360multiaxisengine]]
+- [[fusion360probingbridgeengine]]
+- [[fusion360safetyhooksengine]]
+- [[fusion360toolexportengine]]
+- [[fusioncpsparserengine]]
+- [[fusionlathepostdeltaregistryengine]]
+- [[fusionpostsyncengine]]
+- [[fusiontoollibraryengine]]
+- [[sensorfusionengine]]
+
+<!-- XLINK-END -->

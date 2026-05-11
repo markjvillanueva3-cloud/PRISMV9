@@ -55,3 +55,20 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/monitoringDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (10)
+
+- [[grafanabridge]]
+- [[grafana-push-metrics]]
+- [[grafana-query]]
+- [[grafana-query-range]]
+- [[grafana-create-dashboard]]
+- [[grafana-manufacturing-dashboard]]
+- [[grafana-export-simulation]]
+- [[grafana-export-spc]]
+- [[grafana-export-tool-life]]
+- [[grafana-configure-alerts]]
+
+<!-- XLINK-END -->

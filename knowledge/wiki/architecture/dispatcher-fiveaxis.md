@@ -56,3 +56,20 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/fiveAxisDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (10)
+
+- [[rtcp]]
+- [[sing]]
+- [[tilt]]
+- [[envelope]]
+- [[ik]]
+- [[rtcp-calc]]
+- [[singularity-check]]
+- [[tilt-optimize]]
+- [[work-envelope]]
+- [[inverse-kin]]
+
+<!-- XLINK-END -->

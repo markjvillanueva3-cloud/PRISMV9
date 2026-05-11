@@ -57,3 +57,37 @@ _…and 15 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/localDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (27)
+
+- [[localvalidation]]
+- [[offloader]]
+- [[locallearning]]
+- [[hookaggregator]]
+- [[awarenessrouter]]
+- [[commitmessage]]
+- [[deepseek]]
+- [[backendrouter]]
+- [[validate-code]]
+- [[local-health]]
+- [[offload-classify]]
+- [[learn-pattern]]
+- [[search-patterns]]
+- [[trajectory-start]]
+- [[trajectory-step]]
+- [[trajectory-end]]
+- [[learning-stats]]
+- [[enforce-rules]]
+- [[aggregate-hooks]]
+- [[awareness-route]]
+- [[suggest-commit]]
+- [[execute-deepseek]]
+- [[deepseek-health]]
+- [[backend-route]]
+- [[backend-config]]
+- [[routing-stats]]
+- [[update]]
+
+<!-- XLINK-END -->

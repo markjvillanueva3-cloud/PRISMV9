@@ -58,3 +58,31 @@ _…and 9 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/resourceExtractionDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (21)
+
+- [[archive]]
+- [[dark]]
+- [[ocr]]
+- [[drawing]]
+- [[office]]
+- [[log]]
+- [[coord]]
+- [[archive-discover]]
+- [[archive-analyze]]
+- [[classify-dark]]
+- [[dark-report]]
+- [[ocr-process]]
+- [[ocr-stats]]
+- [[drawing-extract]]
+- [[drawing-summary]]
+- [[office-process]]
+- [[office-search]]
+- [[log-harvest]]
+- [[log-alarms]]
+- [[coordinate-register]]
+- [[coordinate-claim]]
+
+<!-- XLINK-END -->

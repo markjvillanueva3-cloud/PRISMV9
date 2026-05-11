@@ -59,3 +59,33 @@ _…and 11 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/qualityDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (23)
+
+- [[quality]]
+- [[tolerance]]
+- [[dimensional]]
+- [[blueprint]]
+- [[printreading]]
+- [[fai]]
+- [[spc-calculate]]
+- [[cpk-predict]]
+- [[cmm-plan]]
+- [[measurement-analyze]]
+- [[tolerance-stack]]
+- [[gdt-validate]]
+- [[bias-correct]]
+- [[gauge-rr]]
+- [[blueprint-extract]]
+- [[blueprint-setup-sheet]]
+- [[blueprint-inspection-plan]]
+- [[blueprint-compare-revisions]]
+- [[blueprint-dxf-dimensions]]
+- [[fai-run]]
+- [[fai-generate-forms]]
+- [[fai-evaluate-characteristic]]
+- [[fai-disposition]]
+
+<!-- XLINK-END -->

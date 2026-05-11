@@ -52,3 +52,17 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/telemetryDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (7)
+
+- [[get-dashboard]]
+- [[get-detail]]
+- [[get-anomalies]]
+- [[get-optimization]]
+- [[acknowledge]]
+- [[freeze-weights]]
+- [[unfreeze-weights]]
+
+<!-- XLINK-END -->

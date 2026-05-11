@@ -52,3 +52,17 @@ related:
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/documentDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (7)
+
+- [[list]]
+- [[read]]
+- [[write]]
+- [[append]]
+- [[roadmap-status]]
+- [[action-tracker]]
+- [[migrate]]
+
+<!-- XLINK-END -->

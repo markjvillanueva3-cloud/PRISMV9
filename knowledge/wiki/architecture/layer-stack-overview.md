@@ -121,3 +121,23 @@ Sorted by action count in `knowledge/wiki/index.md` → ### Dispatchers section.
   - `scripts/generate-domain-wiki.mjs` — 38 per-domain entries
   - `scripts/generate-dispatcher-wiki.mjs` — 97 per-dispatcher entries
   - `scripts/generate-layer-stack-overview.mjs` — this entry
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## All layers (13)
+
+- [[layer-l0]]
+- [[layer-l1]]
+- [[layer-l2]]
+- [[layer-l3]]
+- [[layer-l4]]
+- [[layer-l4a]]
+- [[layer-l5]]
+- [[layer-l6]]
+- [[layer-l7]]
+- [[layer-l8]]
+- [[layer-l9]]
+- [[layer-l10]]
+- [[layer-l11]]
+
+<!-- XLINK-END -->

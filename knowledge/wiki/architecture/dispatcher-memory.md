@@ -58,3 +58,45 @@ _…and 23 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/memoryDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (35)
+
+- [[get-health]]
+- [[trace-decision]]
+- [[find-similar]]
+- [[get-session]]
+- [[get-node]]
+- [[run-integrity]]
+- [[consolidate]]
+- [[consolidation-stats]]
+- [[consolidation-patterns]]
+- [[record-session-end]]
+- [[semantic-search]]
+- [[remember]]
+- [[agent-memory-remember]]
+- [[fact]]
+- [[preference]]
+- [[correction]]
+- [[context]]
+- [[tribal]]
+- [[agent-memory-query]]
+- [[agent-memory-reinforce]]
+- [[agent-memory-forget]]
+- [[agent-memory-stats]]
+- [[emerging-thesis]]
+- [[daily-brief-get]]
+- [[contradiction-check]]
+- [[capture-sharpen]]
+- [[voice-validate]]
+- [[content-brief-create]]
+- [[connections-materialize]]
+- [[performance-report]]
+- [[postmortem-create]]
+- [[embed-text]]
+- [[inbox-prune-now]]
+- [[inbox-promote-now]]
+- [[embed-pairwise-cosine]]
+
+<!-- XLINK-END -->

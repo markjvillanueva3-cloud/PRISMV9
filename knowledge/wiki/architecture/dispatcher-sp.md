@@ -57,3 +57,29 @@ _…and 7 more. See full enum in dispatcher source._
 - Actions layer: [[layer-l4a]]
 - Dispatcher source: `mcp-server/src/tools/dispatchers/spDispatcher.ts`
 - Live graph: `state/shared/system-viz/system-graph.json`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Actions (19)
+
+- [[brainstorm]]
+- [[plan]]
+- [[execute]]
+- [[review-spec]]
+- [[review-quality]]
+- [[debug]]
+- [[cognitive-init]]
+- [[cognitive-check]]
+- [[cognitive-bayes]]
+- [[cognitive-rl]]
+- [[combination-ilp]]
+- [[context-kv-optimize]]
+- [[context-attention-anchor]]
+- [[context-error-preserve]]
+- [[session-start-full]]
+- [[session-end-full]]
+- [[evidence-level]]
+- [[validate-gates-full]]
+- [[validate-mathplan]]
+
+<!-- XLINK-END -->

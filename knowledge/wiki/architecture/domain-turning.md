@@ -65,3 +65,22 @@ related:
 - Dispatchers layer: [[layer-l4]]
 - Live graph: `state/shared/system-viz/system-graph.json`
 - Query: `node scripts/system-viz-query.mjs coverage-by-domain`
+
+<!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
+
+## Engines in this domain (12)
+
+- [[barpullertimingengine]]
+- [[barstockcutplanengine]]
+- [[diamondturningengine]]
+- [[livetoolingengine]]
+- [[nxcamturningfunctionindexengine]]
+- [[softjawboringgcodeengine]]
+- [[solidcamturningfunctionindexengine]]
+- [[steadyrestplacementengine]]
+- [[tailstockforceengine]]
+- [[turningcpksurrogateengine]]
+- [[turninginspectionplanengine]]
+- [[vendorturningcatalogextractorengine]]
+
+<!-- XLINK-END -->
