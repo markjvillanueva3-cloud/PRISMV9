@@ -70,6 +70,7 @@ const FAST = [
   "generate-extracted-data-atomic.mjs",
   "generate-data-catalogs-atomic.mjs",
   "generate-git-tree.mjs",
+  "generate-vault-graph.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
@@ -145,6 +146,20 @@ if (rc.status !== 0) {
   failed++;
 }
 
+// Parent → child "contains" edges: the atomic generators attach leaf-record nodes
+// (planned-unit / extract_record / datacat_record / git_commit / combo / …) via a
+// `parent` field but no edge, leaving ~2.7k degree-0 nodes. This adds the missing
+// edges so traversal / Cypher export / recall hooks can reach the leaves. Runs after
+// reparent (which may re-set `parent` fields). Idempotent.
+console.log(`[regen-viz] add parent→child contains edges (de-orphan leaf records)…`);
+const pe = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "add-parent-contains-edges.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (pe.status !== 0) {
+  console.error(`[regen-viz] ✗ add-parent-contains-edges failed`);
+  failed++;
+}
+
 // Obsidian 2nd-brain bridge — re-scan the merged graph + the H:/prism/knowledge vault
 // and refresh obsidian-augmentation.json (per-node wiki/memory backlinks). MUST run
 // after the merge (it needs the full node set), so its output lands on the NEXT
@@ -169,6 +184,15 @@ if (eb.status !== 0) {
   console.error(`[regen-viz] ✗ executive-briefing failed`);
   failed++;
 }
+
+// Wiki-debt worklist — rank the L4/L5 nodes with no (dedicated) wiki page by
+// leverage×degree → WIKI-DEBT-WORKLIST.md (companion to the brain viewer's
+// 📚 docs-coverage overlay; feeds /curiosity-queue + /wiki-ingest).
+console.log(`[regen-viz] regenerate wiki-debt worklist…`);
+const wd = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "generate-wiki-debt-worklist.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (wd.status !== 0) { console.error(`[regen-viz] ✗ wiki-debt worklist failed (non-fatal)`); }
 
 const totalSec = ((Date.now() - t0) / 1000).toFixed(1);
 console.log(`[regen-viz] done in ${totalSec}s · failed=${failed}`);
