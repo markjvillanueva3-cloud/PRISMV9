@@ -144,6 +144,17 @@ if (rc.status !== 0) {
   failed++;
 }
 
+// Executive briefing — regenerate the boss-audit landing doc from the fresh
+// graph + BUILD_STATE + SVI + revenue/milestone artifacts. Served at /briefing.
+console.log(`[regen-viz] regenerate executive briefing…`);
+const eb = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "generate-executive-briefing.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (eb.status !== 0) {
+  console.error(`[regen-viz] ✗ executive-briefing failed`);
+  failed++;
+}
+
 const totalSec = ((Date.now() - t0) / 1000).toFixed(1);
 console.log(`[regen-viz] done in ${totalSec}s · failed=${failed}`);
 process.exit(failed > 0 ? 1 : 0);
