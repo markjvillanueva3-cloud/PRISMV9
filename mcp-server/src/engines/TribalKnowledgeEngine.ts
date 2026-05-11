@@ -81,6 +81,8 @@ export interface KnowledgeTip {
   source: string;                    // "operator:John", "incident:2024-03-15", etc.
   created_at: string;
   usage_count: number;
+  /** TK-MS6: validated-application count used by Master Machinist ranking */
+  evidence_count?: number;
   auto_categorized?: boolean;        // true if enriched by auto-categorizer
   auto_tags?: string[];              // tags added by ContentAutoTaggerEngine
 }
@@ -1037,6 +1039,115 @@ function autoCategorize(tip: KnowledgeTip): KnowledgeTip {
 }
 
 // ============================================================================
+// TK-MS6 U-TK30: Master Machinist Types (restored from b7e0b298f)
+// ============================================================================
+
+/** Provenance chain for a Master Machinist tip. */
+export interface MasterMachinistProvenance {
+  captured_by: string;
+  captured_at: string;
+  times_applied: number;
+  success_rate?: number;
+}
+
+/** A single Master Machinist recommendation. */
+export interface MasterMachinistTip {
+  message: string;
+  validation_count: number;
+  confidence_pct: number;
+  provenance: MasterMachinistProvenance;
+  tip_id: string;
+  tip_title: string;
+  relevance_score: number;
+}
+
+/** Full Master Machinist recommendation response. */
+export interface MasterMachinistRecommendation {
+  context: {
+    material: string;
+    machine: string;
+    operation: string;
+    tolerance: string;
+  };
+  recommendations: MasterMachinistTip[];
+  total_candidates: number;
+  master_machinist_says: string;
+}
+
+// ============================================================================
+// TK-MS7-U34: LLM LEARNING LOOP TYPES (restored from b7e0b298f)
+// ============================================================================
+
+/** LLM reasoning trace for knowledge extraction. */
+export interface LLMReasoningTrace {
+  session_id: string;
+  timestamp: string;
+  decisions: Array<{
+    type: "parameter_override" | "tool_selection" | "strategy_change" | "other";
+    parameter?: string;
+    original_value?: string | number;
+    new_value?: string | number;
+    action: string;
+    reason: string;
+    context: Partial<{
+      material: string;
+      machine: string;
+      operation: string;
+      controller: string;
+    }>;
+    outcome: "success" | "failure" | "partial";
+    outcome_detail?: string;
+  }>;
+  issues_identified?: Array<{
+    category: string;
+    summary: string;
+    description: string;
+    resolution?: string;
+    resolution_outcome?: "resolved" | "partial" | "unresolved";
+    prevention_advice?: string;
+    confidence: number;
+    context: Partial<{
+      material: string;
+      machine: string;
+      operation: string;
+    }>;
+  }>;
+  workarounds?: Array<{
+    problem: string;
+    solution: string;
+    reason: string;
+    caveats?: string;
+    outcome: "success" | "failure" | "partial";
+    context: Partial<{
+      material: string;
+      machine: string;
+      operation: string;
+    }>;
+  }>;
+}
+
+/** Capture candidate from LLM reasoning. */
+export interface CaptureCandidate {
+  title: string;
+  body: string;
+  category: string;
+  domain: string;
+  knowledge_type: string;
+  tags: string[];
+  confidence: number;
+  source: string;
+  context: Partial<{
+    material: string;
+    machine: string;
+    operation: string;
+    controller: string;
+  }>;
+  capture_type: "parameter_override" | "issue_identification" | "workaround";
+  requires_validation: boolean;
+  suggested_id: string;
+}
+
+// ============================================================================
 // TK-MS7: NATURAL LANGUAGE QUERY TYPES FOR LLM/PUOA INTEGRATION
 // ============================================================================
 
@@ -1762,6 +1873,237 @@ export class TribalKnowledgeEngine {
     if (!parsed.machine) suggestions.push("Specify the machine or controller (e.g., 'Okuma', 'Haas', 'Fanuc')");
     if (!parsed.category) suggestions.push("Specify the category (e.g., 'speeds/feeds', 'tooling', 'fixturing')");
     return suggestions;
+  }
+
+  // =========================================================================
+  // TK-MS6 U-TK30: Master Machinist Recommendation (restored from b7e0b298f L1682)
+  // Ranked top-3 tips with provenance, formatted in "Senior machinists say..." voice.
+  // =========================================================================
+
+  /**
+   * Get top 3 tribal tips for the given context, formatted as Master Machinist advice.
+   * Ranks by: confidence (50%) + usage_count (30%) + evidence_count (20%).
+   * @param context - material/machine/operation/tolerance hints (all optional)
+   */
+  masterMachinistRecommend(context: {
+    material?: string;
+    machine?: string;
+    operation?: string;
+    tolerance?: string;
+  }): MasterMachinistRecommendation {
+    const searchInput: KnowledgeSearchInput = {
+      material_iso_group: context.material,
+      operation_type: context.operation,
+      limit: 100,
+    };
+
+    let candidates = this.search(searchInput);
+
+    if (context.machine) {
+      const machineLower = context.machine.toLowerCase();
+      candidates = candidates.filter(t =>
+        (t.machine_ids || []).some(m => m.toLowerCase().includes(machineLower)) ||
+        (t.tags || []).some(tag => tag.toLowerCase().includes(machineLower))
+      );
+    }
+
+    const scored = candidates.map(tip => {
+      const confidenceScore = (tip.confidence || 70) / 100 * 0.5;
+      const usageScore = Math.min((tip.usage_count || 0) / 100, 1) * 0.3;
+      const evidenceScore = Math.min((tip.evidence_count || 0) / 50, 1) * 0.2;
+      return { tip, score: confidenceScore + usageScore + evidenceScore };
+    }).sort((a, b) => b.score - a.score);
+
+    const top3 = scored.slice(0, 3);
+
+    const recommendations: MasterMachinistTip[] = top3.map(({ tip, score }) => ({
+      message: `Senior machinists say: "${tip.title}". ${tip.body?.slice(0, 200) || ""}`,
+      validation_count: tip.usage_count || 0,
+      confidence_pct: Math.round(tip.confidence || 70),
+      provenance: {
+        captured_by: tip.source || "shop_floor",
+        captured_at: tip.created_at || "unknown",
+        times_applied: tip.usage_count || 0,
+        success_rate: tip.evidence_count
+          ? Math.round((tip.evidence_count / Math.max(tip.usage_count || 1, 1)) * 100)
+          : undefined,
+      },
+      tip_id: tip.id,
+      tip_title: tip.title,
+      relevance_score: Math.round(score * 100),
+    }));
+
+    return {
+      context: {
+        material: context.material || "any",
+        machine: context.machine || "any",
+        operation: context.operation || "any",
+        tolerance: context.tolerance || "any",
+      },
+      recommendations,
+      total_candidates: candidates.length,
+      master_machinist_says: recommendations[0]?.message || "No relevant tips found for this context.",
+    };
+  }
+
+  // =========================================================================
+  // TK-MS7-U34: LLM Interaction Learning Loop (restored from b7e0b298f L2155)
+  // =========================================================================
+
+  /**
+   * Capture new tribal knowledge from LLM reasoning interactions.
+   * Detects: (a) successful parameter overrides, (b) resolved issue identifications,
+   * (c) successful workarounds. Auto-categorizes each candidate via the
+   * inferCategoryFromLLMContent / inferDomainFromLLMContent / inferKnowledgeTypeFromLLMContent
+   * helpers and stamps with source="llm_reasoning".
+   * @param reasoning - LLM reasoning trace with decisions, issues_identified, workarounds
+   */
+  captureFromLLMReasoning(reasoning: LLMReasoningTrace): CaptureCandidate[] {
+    const candidates: CaptureCandidate[] = [];
+
+    for (const decision of reasoning.decisions) {
+      if (decision.type === "parameter_override" && decision.outcome === "success") {
+        candidates.push(this.createCaptureCandidate({
+          type: "parameter_override",
+          title: `${decision.parameter} adjustment for ${decision.context.material || "material"}`,
+          body: `LLM reasoning suggested ${decision.action}: ${decision.reason}. Original value: ${decision.original_value}, adjusted to: ${decision.new_value}. Outcome: ${decision.outcome_detail || "successful"}`,
+          context: decision.context,
+          confidence: this.calculateLLMCaptureConfidence(decision),
+        }));
+      }
+    }
+
+    for (const issue of reasoning.issues_identified || []) {
+      if (issue.resolution && issue.resolution_outcome === "resolved") {
+        candidates.push(this.createCaptureCandidate({
+          type: "issue_identification",
+          title: `${issue.category}: ${issue.summary}`,
+          body: `LLM identified issue: ${issue.description}. Resolution: ${issue.resolution}. ${issue.prevention_advice || ""}`,
+          context: issue.context,
+          confidence: this.calculateLLMCaptureConfidence({ outcome: "success", reasoning_quality: issue.confidence }),
+        }));
+      }
+    }
+
+    for (const workaround of reasoning.workarounds || []) {
+      if (workaround.outcome === "success") {
+        candidates.push(this.createCaptureCandidate({
+          type: "workaround",
+          title: `Workaround: ${workaround.problem}`,
+          body: `When ${workaround.problem}, try: ${workaround.solution}. Reason: ${workaround.reason}. ${workaround.caveats || ""}`,
+          context: workaround.context,
+          confidence: this.calculateLLMCaptureConfidence(workaround),
+        }));
+      }
+    }
+
+    return candidates;
+  }
+
+  /** Create a capture candidate with auto-categorization. */
+  private createCaptureCandidate(input: {
+    type: "parameter_override" | "issue_identification" | "workaround";
+    title: string;
+    body: string;
+    context: Partial<{
+      material: string;
+      machine: string;
+      operation: string;
+      controller: string;
+    }>;
+    confidence: number;
+  }): CaptureCandidate {
+    const category = this.inferCategoryFromLLMContent(input);
+    const domain = this.inferDomainFromLLMContent(input);
+    const knowledgeType = this.inferKnowledgeTypeFromLLMContent(input);
+
+    const tags: string[] = ["llm-learned", input.type.replace("_", "-")];
+    if (input.context.material) tags.push(input.context.material.toLowerCase());
+    if (input.context.machine) tags.push(input.context.machine.toLowerCase());
+    if (input.context.operation) tags.push(input.context.operation.toLowerCase());
+
+    return {
+      title: input.title,
+      body: input.body,
+      category,
+      domain,
+      knowledge_type: knowledgeType,
+      tags,
+      confidence: input.confidence,
+      source: "llm_reasoning",
+      context: input.context,
+      capture_type: input.type,
+      requires_validation: input.confidence < 80,
+      suggested_id: `tk-llm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    };
+  }
+
+  /**
+   * Calculate confidence score for an LLM-sourced capture.
+   * Base 50, +20 on success outcome, up to +15 from reasoning_quality, up to +15 from evidence_count.
+   * Capped at 90 (LLM-sourced never reaches expert-validated 100).
+   */
+  private calculateLLMCaptureConfidence(data: {
+    outcome?: string;
+    reasoning_quality?: number;
+    evidence_count?: number;
+  }): number {
+    let confidence = 50;
+    if (data.outcome === "success") confidence += 20;
+    if (data.reasoning_quality !== undefined) {
+      confidence += Math.min(data.reasoning_quality * 0.2, 15);
+    }
+    if (data.evidence_count !== undefined) {
+      confidence += Math.min(data.evidence_count * 3, 15);
+    }
+    return Math.min(confidence, 90);
+  }
+
+  /** Infer category from LLM capture content (keyword-driven). */
+  private inferCategoryFromLLMContent(input: {
+    type: string;
+    title: string;
+    body: string;
+    context: Partial<{ operation: string }>;
+  }): string {
+    const text = `${input.title} ${input.body}`.toLowerCase();
+    if (text.includes("speed") || text.includes("feed") || text.includes("rpm")) return "speeds_feeds";
+    if (text.includes("tool") || text.includes("insert") || text.includes("cutter")) return "tooling";
+    if (text.includes("fixture") || text.includes("clamp") || text.includes("vise")) return "fixturing";
+    if (text.includes("safety") || text.includes("danger") || text.includes("warning")) return "safety";
+    if (text.includes("quality") || text.includes("tolerance") || text.includes("inspection")) return "quality";
+    if (text.includes("troubleshoot") || text.includes("problem") || text.includes("fix")) return "troubleshooting";
+    if (input.context.operation) return "process_engineering";
+    return "general";
+  }
+
+  /** Infer domain from LLM capture content (keyword-driven). */
+  private inferDomainFromLLMContent(input: {
+    type: string;
+    title: string;
+    body: string;
+    context: Partial<{ machine: string; controller: string }>;
+  }): string {
+    const text = `${input.title} ${input.body}`.toLowerCase();
+    if (input.context.machine || input.context.controller) return "controller_specific";
+    if (text.includes("cam") || text.includes("toolpath") || text.includes("mastercam") || text.includes("fusion")) return "cam_software";
+    if (text.includes("safety") || text.includes("danger")) return "safety";
+    if (text.includes("quality") || text.includes("inspection")) return "quality_inspection";
+    return "shop_floor";
+  }
+
+  /** Infer knowledge_type from LLM capture content. */
+  private inferKnowledgeTypeFromLLMContent(input: {
+    type: string;
+    title: string;
+    body: string;
+  }): string {
+    const text = `${input.title} ${input.body}`.toLowerCase();
+    if (input.type === "workaround") return "workaround";
+    if (text.includes("never") || text.includes("don't") || text.includes("danger")) return "danger_zone";
+    if (text.includes("always") || text.includes("must") || text.includes("required")) return "mandatory_practice";
+    if (input.type === "issue_identification") return "gotcha";
+    return "best_practice";
   }
 }
 
