@@ -67,6 +67,7 @@ const FAST = [
   "generate-engine-physics-edges.mjs",
   "generate-frontend-deep.mjs",
   "generate-wiki-cross-refs.mjs",
+  "generate-extracted-data-atomic.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",

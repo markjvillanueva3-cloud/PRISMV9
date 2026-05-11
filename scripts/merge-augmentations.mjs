@@ -116,6 +116,7 @@ const schemaEngEdges = loadOptional("schema-engine-edges-augmentation.json");
 const enginePhyEdges = loadOptional("engine-physics-edges-augmentation.json");
 const frontendDeep   = loadOptional("frontend-deep-augmentation.json");
 const wikiCrossRefs  = loadOptional("wiki-cross-refs-augmentation.json");
+const extractDataAtm = loadOptional("extracted-data-atomic-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -173,6 +174,7 @@ if (schemaEngEdges)  versions.schemaEngineEdges = schemaEngEdges.generatedAt ?? 
 if (enginePhyEdges)  versions.enginePhysicsEdges = enginePhyEdges.generatedAt ?? "present";
 if (frontendDeep)    versions.frontendDeep    = frontendDeep.generatedAt    ?? "present";
 if (wikiCrossRefs)   versions.wikiCrossRefs   = wikiCrossRefs.generatedAt   ?? "present";
+if (extractDataAtm)  versions.extractedDataAtomic = extractDataAtm.generatedAt ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -1255,6 +1257,7 @@ const testCovEdgeCount   = mergeEdgesOnly(testCovEdges,   "testCoverageEdges");
 const [jmDieNodes,   jmDieEdges]   = mergeIndexedAugmentation(jmDieCust,      "jmDieCustomers");
 const [frontDNodes,  frontDEdges]  = mergeIndexedAugmentation(frontendDeep,   "frontendDeep");
 const [wikiXNodes,   wikiXEdges]   = mergeIndexedAugmentation(wikiCrossRefs,  "wikiCrossRefs");
+const [xtractNodes,  xtractEdges]  = mergeIndexedAugmentation(extractDataAtm, "extractedDataAtomic");
 const schemaEdgeCount = mergeEdgesOnly(schemaEngEdges,  "schemaEngineEdges");
 const physEdgeCount   = mergeEdgesOnly(enginePhyEdges,  "enginePhysicsEdges");
 
@@ -1286,7 +1289,7 @@ if (actionEngEdges?.newEdges) {
 }
 
 G.meta.augmentationVersions = versions;
-G.schemaVersion = "2.26.0";
+G.schemaVersion = "2.27.0";
 fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
@@ -1294,4 +1297,5 @@ console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryCh
 console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
 console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
 console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
-console.log(`  schema bumped to 2.26.0`);
+console.log(`  Phase 3:       extractedDataAtomic=${xtractNodes}n/${xtractEdges}e`);
+console.log(`  schema bumped to 2.27.0`);
