@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `rgs2` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/rgs2.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/rgs2.md` |
 | Model | default |
 | Tags | _(none)_ |
 

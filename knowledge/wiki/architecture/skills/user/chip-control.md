@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `chip-control` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/chip-control.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/chip-control.md` |
 | Model | default |
 | Tags | _(none)_ |
 

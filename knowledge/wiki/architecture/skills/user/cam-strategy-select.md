@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-strategy-select` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-strategy-select.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-strategy-select.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `navigate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/navigate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/navigate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

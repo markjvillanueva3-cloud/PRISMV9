@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `context` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/context.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/context.md` |
 | Model | default |
 | Tags | _(none)_ |
 

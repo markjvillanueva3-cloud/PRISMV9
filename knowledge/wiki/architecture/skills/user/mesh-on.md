@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mesh-on` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mesh-on.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mesh-on.md` |
 | Model | default |
 | Tags | _(none)_ |
 

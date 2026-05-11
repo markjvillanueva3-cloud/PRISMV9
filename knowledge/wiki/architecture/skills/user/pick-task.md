@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `pick-task` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/pick-task.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/pick-task.md` |
 | Model | default |
 | Tags | _(none)_ |
 

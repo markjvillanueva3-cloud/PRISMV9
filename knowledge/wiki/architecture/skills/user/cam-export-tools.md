@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-export-tools` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-export-tools.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-export-tools.md` |
 | Model | default |
 | Tags | _(none)_ |
 

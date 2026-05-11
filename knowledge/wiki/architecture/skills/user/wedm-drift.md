@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-drift` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-drift.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-drift.md` |
 | Model | default |
 | Tags | _(none)_ |
 

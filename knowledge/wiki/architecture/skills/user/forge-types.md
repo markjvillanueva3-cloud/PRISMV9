@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-types` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-types.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-types.md` |
 | Model | default |
 | Tags | _(none)_ |
 

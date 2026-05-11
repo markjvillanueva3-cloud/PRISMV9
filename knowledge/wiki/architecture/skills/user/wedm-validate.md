@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-validate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-validate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

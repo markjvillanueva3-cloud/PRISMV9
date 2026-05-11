@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-tokenize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-tokenize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-tokenize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-extract` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-extract.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-extract.md` |
 | Model | default |
 | Tags | _(none)_ |
 

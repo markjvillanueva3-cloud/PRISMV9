@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `feasibility-check` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/feasibility-check.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/feasibility-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

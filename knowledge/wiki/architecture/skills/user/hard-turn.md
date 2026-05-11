@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hard-turn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hard-turn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hard-turn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

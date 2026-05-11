@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sync` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sync.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sync.md` |
 | Model | default |
 | Tags | _(none)_ |
 

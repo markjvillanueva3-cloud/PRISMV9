@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-feature-recognize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-feature-recognize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-feature-recognize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

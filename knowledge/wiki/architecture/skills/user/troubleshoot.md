@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `troubleshoot` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/troubleshoot.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/troubleshoot.md` |
 | Model | default |
 | Tags | _(none)_ |
 

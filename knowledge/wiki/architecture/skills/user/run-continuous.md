@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `run-continuous` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/run-continuous.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/run-continuous.md` |
 | Model | default |
 | Tags | _(none)_ |
 

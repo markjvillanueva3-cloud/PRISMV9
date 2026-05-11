@@ -133,6 +133,17 @@ if (d.status !== 0) {
   failed++;
 }
 
+// Post-dedup restructure: re-parent catalog file nodes under manufacturer hubs,
+// and build the JM-Die file-type → machine-type hierarchy. Idempotent.
+console.log(`[regen-viz] post-merge restructure: categories by manufacturer / file-type…`);
+const rc = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "reparent-viz-categories.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (rc.status !== 0) {
+  console.error(`[regen-viz] ✗ reparent failed`);
+  failed++;
+}
+
 const totalSec = ((Date.now() - t0) / 1000).toFixed(1);
 console.log(`[regen-viz] done in ${totalSec}s · failed=${failed}`);
 process.exit(failed > 0 ? 1 : 0);

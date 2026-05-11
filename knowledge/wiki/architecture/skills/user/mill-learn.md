@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge3` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge3.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge3.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `program-validate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/program-validate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/program-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

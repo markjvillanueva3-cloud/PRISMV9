@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-metrics` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-metrics.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-metrics.md` |
 | Model | default |
 | Tags | _(none)_ |
 

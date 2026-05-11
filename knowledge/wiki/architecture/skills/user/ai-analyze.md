@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ai-analyze` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ai-analyze.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ai-analyze.md` |
 | Model | default |
 | Tags | _(none)_ |
 

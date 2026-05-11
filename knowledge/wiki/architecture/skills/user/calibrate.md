@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `calibrate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/calibrate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/calibrate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

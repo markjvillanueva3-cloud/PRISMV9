@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `shop-quote` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/shop-quote.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-quote.md` |
 | Model | default |
 | Tags | _(none)_ |
 

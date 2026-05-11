@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `chat` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/chat.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/chat.md` |
 | Model | default |
 | Tags | _(none)_ |
 

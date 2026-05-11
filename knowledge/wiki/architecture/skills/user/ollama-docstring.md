@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-docstring` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-docstring.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-docstring.md` |
 | Model | default |
 | Tags | _(none)_ |
 

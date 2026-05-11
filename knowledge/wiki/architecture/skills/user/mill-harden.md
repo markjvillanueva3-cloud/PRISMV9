@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

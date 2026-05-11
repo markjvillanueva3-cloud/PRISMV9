@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `scripts` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/scripts.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/scripts.md` |
 | Model | default |
 | Tags | _(none)_ |
 

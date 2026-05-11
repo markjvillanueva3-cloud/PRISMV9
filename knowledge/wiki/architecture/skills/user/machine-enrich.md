@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `machine-enrich` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/machine-enrich.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/machine-enrich.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-report` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-report.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-report.md` |
 | Model | default |
 | Tags | _(none)_ |
 

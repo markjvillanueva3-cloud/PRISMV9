@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `learn-everything` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/learn-everything.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/learn-everything.md` |
 | Model | default |
 | Tags | _(none)_ |
 

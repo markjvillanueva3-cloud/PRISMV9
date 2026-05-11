@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hook-profile` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hook-profile.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-profile.md` |
 | Model | default |
 | Tags | _(none)_ |
 

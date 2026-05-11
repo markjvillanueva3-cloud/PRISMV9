@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `efficiency-pulse` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/core/efficiency-pulse.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/core/efficiency-pulse.md` |
 | Model | default |
 | Tags | _(none)_ |
 

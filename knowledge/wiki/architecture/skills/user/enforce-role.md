@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `enforce-role` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/enforce-role.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/enforce-role.md` |
 | Model | default |
 | Tags | _(none)_ |
 

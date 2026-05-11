@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `video-replay` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/video-replay.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/video-replay.md` |
 | Model | default |
 | Tags | _(none)_ |
 

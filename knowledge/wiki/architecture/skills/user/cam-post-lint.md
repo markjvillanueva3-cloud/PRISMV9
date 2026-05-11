@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-post-lint` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-post-lint.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-post-lint.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wet-run` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wet-run.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wet-run.md` |
 | Model | default |
 | Tags | _(none)_ |
 

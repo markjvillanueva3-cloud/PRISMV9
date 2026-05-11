@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `tool-enrich` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/tool-enrich.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-enrich.md` |
 | Model | default |
 | Tags | _(none)_ |
 

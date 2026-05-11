@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `audit-duplicates` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/audit-duplicates.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/audit-duplicates.md` |
 | Model | default |
 | Tags | _(none)_ |
 

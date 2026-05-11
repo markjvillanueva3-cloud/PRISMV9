@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `awareness-check` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/awareness-check.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/awareness-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

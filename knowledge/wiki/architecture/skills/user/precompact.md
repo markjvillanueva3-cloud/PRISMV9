@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `precompact` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/precompact.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/precompact.md` |
 | Model | default |
 | Tags | _(none)_ |
 

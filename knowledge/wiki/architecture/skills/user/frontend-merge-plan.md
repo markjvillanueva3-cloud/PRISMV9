@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `frontend-merge-plan` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/frontend-merge-plan.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/frontend-merge-plan.md` |
 | Model | default |
 | Tags | _(none)_ |
 

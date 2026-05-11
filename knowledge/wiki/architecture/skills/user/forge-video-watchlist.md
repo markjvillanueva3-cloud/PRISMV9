@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-video-watchlist` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-video-watchlist.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-video-watchlist.md` |
 | Model | default |
 | Tags | _(none)_ |
 

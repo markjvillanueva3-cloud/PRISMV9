@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

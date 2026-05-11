@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sinker-studio` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sinker-studio.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sinker-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 

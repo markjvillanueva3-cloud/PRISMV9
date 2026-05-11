@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-review` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-review.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-review.md` |
 | Model | default |
 | Tags | _(none)_ |
 

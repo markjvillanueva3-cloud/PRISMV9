@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `audit-task` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/audit-task.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/audit-task.md` |
 | Model | default |
 | Tags | _(none)_ |
 

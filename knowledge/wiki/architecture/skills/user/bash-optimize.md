@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `bash-optimize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/bash-optimize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/bash-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

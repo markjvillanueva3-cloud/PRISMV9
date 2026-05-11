@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `session-state` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/core/session-state.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/core/session-state.md` |
 | Model | default |
 | Tags | _(none)_ |
 

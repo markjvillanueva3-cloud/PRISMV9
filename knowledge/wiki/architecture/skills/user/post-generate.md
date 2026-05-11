@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `post-generate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/post-generate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/post-generate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

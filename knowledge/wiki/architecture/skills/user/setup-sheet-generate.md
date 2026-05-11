@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `setup-sheet-generate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/setup-sheet-generate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/setup-sheet-generate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

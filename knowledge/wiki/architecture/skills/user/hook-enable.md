@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hook-enable` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hook-enable.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-enable.md` |
 | Model | default |
 | Tags | _(none)_ |
 

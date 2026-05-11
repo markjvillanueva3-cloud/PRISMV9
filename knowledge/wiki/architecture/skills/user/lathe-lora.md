@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-lora` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-lora.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-lora.md` |
 | Model | default |
 | Tags | _(none)_ |
 

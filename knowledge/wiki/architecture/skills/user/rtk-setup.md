@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `rtk-setup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/rtk-setup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/rtk-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

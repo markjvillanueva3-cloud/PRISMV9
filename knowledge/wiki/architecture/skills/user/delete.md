@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `delete` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/delete.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/delete.md` |
 | Model | default |
 | Tags | _(none)_ |
 

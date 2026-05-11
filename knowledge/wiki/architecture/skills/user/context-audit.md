@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `context-audit` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/context-audit.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/context-audit.md` |
 | Model | haiku |
 | Tags | _(none)_ |
 

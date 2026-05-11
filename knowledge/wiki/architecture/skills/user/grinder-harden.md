@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `grinder-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/grinder-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/grinder-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

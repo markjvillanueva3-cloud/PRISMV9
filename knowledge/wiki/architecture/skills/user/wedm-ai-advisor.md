@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-ai-advisor` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-ai-advisor.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-ai-advisor.md` |
 | Model | default |
 | Tags | _(none)_ |
 

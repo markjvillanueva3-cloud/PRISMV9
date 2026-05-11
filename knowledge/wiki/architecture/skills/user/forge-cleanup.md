@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-cleanup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-cleanup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-cleanup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

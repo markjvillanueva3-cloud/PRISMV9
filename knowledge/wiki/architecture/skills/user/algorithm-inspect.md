@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `algorithm-inspect` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/algorithm-inspect.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/algorithm-inspect.md` |
 | Model | default |
 | Tags | _(none)_ |
 

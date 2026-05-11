@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `health` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/health.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/health.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `token-usage` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/analysis/token-usage.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/analysis/token-usage.md` |
 | Model | default |
 | Tags | _(none)_ |
 

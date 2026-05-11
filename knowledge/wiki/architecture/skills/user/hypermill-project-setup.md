@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hypermill-project-setup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hypermill-project-setup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hypermill-project-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

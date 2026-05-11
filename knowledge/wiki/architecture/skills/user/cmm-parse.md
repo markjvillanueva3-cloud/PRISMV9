@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cmm-parse` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cmm-parse.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cmm-parse.md` |
 | Model | default |
 | Tags | _(none)_ |
 

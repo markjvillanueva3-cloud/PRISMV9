@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `post-validate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/post-validate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/post-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-classify` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-classify.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-classify.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-print-to-program` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-print-to-program.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-print-to-program.md` |
 | Model | default |
 | Tags | _(none)_ |
 

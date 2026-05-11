@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-bridge` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-bridge.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-bridge.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `spindle-optimize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/spindle-optimize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/spindle-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

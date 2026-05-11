@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ai-optimize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ai-optimize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ai-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quality-check` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/quality-check.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/quality-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `shop-setup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/shop-setup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

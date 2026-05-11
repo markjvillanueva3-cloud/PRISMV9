@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-postgen` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-postgen.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-postgen.md` |
 | Model | default |
 | Tags | _(none)_ |
 

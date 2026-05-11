@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-tolerance-check` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-tolerance-check.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-tolerance-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

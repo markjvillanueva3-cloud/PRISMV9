@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `digest-all` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/digest-all.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/digest-all.md` |
 | Model | default |
 | Tags | _(none)_ |
 

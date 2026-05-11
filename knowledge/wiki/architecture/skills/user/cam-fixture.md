@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-fixture` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-fixture.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-fixture.md` |
 | Model | default |
 | Tags | _(none)_ |
 

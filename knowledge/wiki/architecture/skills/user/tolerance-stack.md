@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `tolerance-stack` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/tolerance-stack.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/tolerance-stack.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ship-lathe` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ship-lathe.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ship-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 

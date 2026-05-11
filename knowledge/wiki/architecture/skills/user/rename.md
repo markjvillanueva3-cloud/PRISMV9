@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `rename` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/rename.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/rename.md` |
 | Model | default |
 | Tags | _(none)_ |
 

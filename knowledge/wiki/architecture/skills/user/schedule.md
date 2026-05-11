@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `schedule` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/schedule.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/schedule.md` |
 | Model | default |
 | Tags | _(none)_ |
 

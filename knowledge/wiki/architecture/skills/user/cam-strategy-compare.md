@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-strategy-compare` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-strategy-compare.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-strategy-compare.md` |
 | Model | default |
 | Tags | _(none)_ |
 

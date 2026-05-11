@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-materials` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-materials.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-materials.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `material-price` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/material-price.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/material-price.md` |
 | Model | default |
 | Tags | _(none)_ |
 

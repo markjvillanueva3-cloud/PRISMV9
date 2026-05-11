@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `autopilot-full` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/autopilot-full.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/autopilot-full.md` |
 | Model | default |
 | Tags | _(none)_ |
 

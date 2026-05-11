@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quote-to-ship` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/quote-to-ship.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/quote-to-ship.md` |
 | Model | default |
 | Tags | _(none)_ |
 

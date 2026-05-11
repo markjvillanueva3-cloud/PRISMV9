@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-jm-die` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-jm-die.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-jm-die.md` |
 | Model | default |
 | Tags | _(none)_ |
 

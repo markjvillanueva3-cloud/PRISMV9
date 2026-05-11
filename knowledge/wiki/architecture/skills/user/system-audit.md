@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `system-audit` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/system-audit.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/system-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 

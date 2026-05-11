@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-compare` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-compare.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-compare.md` |
 | Model | default |
 | Tags | _(none)_ |
 

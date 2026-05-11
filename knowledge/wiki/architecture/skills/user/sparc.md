@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sparc` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sparc.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sparc.md` |
 | Model | default |
 | Tags | _(none)_ |
 

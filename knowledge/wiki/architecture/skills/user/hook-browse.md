@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hook-browse` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hook-browse.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiring-batch` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiring-batch.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiring-batch.md` |
 | Model | default |
 | Tags | _(none)_ |
 

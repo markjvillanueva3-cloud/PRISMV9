@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `powermill-strategy-guide` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/powermill-strategy-guide.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/powermill-strategy-guide.md` |
 | Model | default |
 | Tags | _(none)_ |
 

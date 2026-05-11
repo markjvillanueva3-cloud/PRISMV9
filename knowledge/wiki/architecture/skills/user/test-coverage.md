@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `test-coverage` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/test-coverage.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/test-coverage.md` |
 | Model | default |
 | Tags | _(none)_ |
 

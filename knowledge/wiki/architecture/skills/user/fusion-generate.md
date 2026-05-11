@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `fusion-generate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/fusion-generate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/fusion-generate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

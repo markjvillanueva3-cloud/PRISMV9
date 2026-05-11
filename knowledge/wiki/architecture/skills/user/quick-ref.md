@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quick-ref` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/quick-ref.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/quick-ref.md` |
 | Model | default |
 | Tags | _(none)_ |
 

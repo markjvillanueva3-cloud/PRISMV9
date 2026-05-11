@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `coverage-by-domain` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/coverage-by-domain.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/coverage-by-domain.md` |
 | Model | default |
 | Tags | _(none)_ |
 

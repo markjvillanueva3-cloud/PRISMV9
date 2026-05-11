@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-morning` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-morning.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-morning.md` |
 | Model | default |
 | Tags | _(none)_ |
 

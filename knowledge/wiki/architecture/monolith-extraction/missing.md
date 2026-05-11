@@ -24,16 +24,7 @@ _(none — every module the stale summary flagged is actually present on disk)_
 
 ## Stale false-positives (the summary is wrong — these are already extracted)
 
-- `PRISM_NUMERICAL_ENGINE` → found at `extracted/engines/core/PRISM_NUMERICAL_ENGINE.js`, `extracted_modules/complete_extraction/PRISM_NUMERICAL_ENGINE.js`
-- `PRISM_PHASE1_OPTIMIZERS` → found at `extracted/engines/optimization/PRISM_PHASE1_OPTIMIZERS.js`, `extracted_modules/complete_extraction/PRISM_PHASE1_OPTIMIZERS.js`
-- `PRISM_MANUFACTURING_SEARCH_ENGINE` → found at `extracted/algorithms/PRISM_MANUFACTURING_SEARCH_ENGINE.js`, `extracted_modules/complete_extraction/PRISM_MANUFACTURING_SEARCH_ENGINE.js`
-- `PRISM_COLLISION_ALGORITHMS` → found at `extracted/engines/simulation/PRISM_COLLISION_ALGORITHMS.js`, `extracted_modules/complete_extraction/PRISM_COLLISION_ALGORITHMS.js`
-- `PRISM_GRAPH_ALGORITHMS` → found at `extracted/engines/ai_ml/PRISM_GRAPH_ALGORITHMS_ENGINE.js`, `extracted/algorithms/PRISM_GRAPH_ALGORITHMS.js`, `extracted_modules/complete_extraction/PRISM_GRAPH_ALGORITHMS.js` (+1 more)
-- `PRISM_MULTI_OBJECTIVE_OPTIMIZER` → found at `extracted/engines/optimization/PRISM_MULTI_OBJECTIVE_OPTIMIZER.js`, `extracted_modules/complete_extraction/PRISM_MULTI_OBJECTIVE_OPTIMIZER.js`
-- `PRISM_ENHANCEMENTS` → found at `extracted/core/PRISM_ENHANCEMENTS.js`, `extracted_modules/complete_extraction/PRISM_ENHANCEMENTS.js`, `extracted_modules/complete_extraction/PRISM_MAJOR_ENHANCEMENTS.js` (+5 more)
-- `PRISM_MACHINE_CAD_CONSTRAINT_LEARNER` → found at `extracted_modules/complete_extraction/PRISM_MACHINE_CAD_CONSTRAINT_LEARNER.js`
-- `PRISM_PHASE3_ADVANCED_SIGNAL` → found at `extracted/engines/PRISM_PHASE3_ADVANCED_SIGNAL.js`, `extracted_modules/complete_extraction/PRISM_PHASE3_ADVANCED_SIGNAL.js`
-- `PRISM_RIGID_BODY_DYNAMICS_ENGINE` → found at `extracted/engines/PRISM_RIGID_BODY_DYNAMICS_ENGINE.js`, `extracted_modules/complete_extraction/PRISM_RIGID_BODY_DYNAMICS_ENGINE.js`
+_(none)_
 
 <!-- AUTO-END -->
 

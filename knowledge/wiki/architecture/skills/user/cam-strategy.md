@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cam-strategy` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cam-strategy.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cam-strategy.md` |
 | Model | default |
 | Tags | _(none)_ |
 

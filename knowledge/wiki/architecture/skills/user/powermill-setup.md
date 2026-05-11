@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `powermill-setup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/powermill-setup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/powermill-setup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

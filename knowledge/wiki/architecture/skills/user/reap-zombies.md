@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `reap-zombies` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/reap-zombies.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/reap-zombies.md` |
 | Model | default |
 | Tags | _(none)_ |
 

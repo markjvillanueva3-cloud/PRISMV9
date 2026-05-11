@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `nx-strategy-guide` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/nx-strategy-guide.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/nx-strategy-guide.md` |
 | Model | default |
 | Tags | _(none)_ |
 

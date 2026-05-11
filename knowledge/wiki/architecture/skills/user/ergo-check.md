@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ergo-check` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ergo-check.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ergo-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

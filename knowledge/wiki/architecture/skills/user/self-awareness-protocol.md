@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `_self-awareness-protocol` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/_self-awareness-protocol.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/_self-awareness-protocol.md` |
 | Model | default |
 | Tags | _(none)_ |
 

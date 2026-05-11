@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `six-chat-bootstrap` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/six-chat-bootstrap.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/six-chat-bootstrap.md` |
 | Model | default |
 | Tags | _(none)_ |
 

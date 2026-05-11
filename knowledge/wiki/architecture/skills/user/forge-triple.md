@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-triple` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-triple.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-triple.md` |
 | Model | default |
 | Tags | _(none)_ |
 

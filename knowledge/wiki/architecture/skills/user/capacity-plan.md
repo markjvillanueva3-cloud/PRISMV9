@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `capacity-plan` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/capacity-plan.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/capacity-plan.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `stale-milestones` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/stale-milestones.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/stale-milestones.md` |
 | Model | default |
 | Tags | _(none)_ |
 

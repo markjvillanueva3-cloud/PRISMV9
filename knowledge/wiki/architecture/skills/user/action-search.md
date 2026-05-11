@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `action-search` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/action-search.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/action-search.md` |
 | Model | default |
 | Tags | _(none)_ |
 

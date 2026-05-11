@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `secondary-ops` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/secondary-ops.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/secondary-ops.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `curiosity-queue` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/curiosity-queue.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/curiosity-queue.md` |
 | Model | default |
 | Tags | _(none)_ |
 

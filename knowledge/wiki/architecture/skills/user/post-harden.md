@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `post-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/post-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/post-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

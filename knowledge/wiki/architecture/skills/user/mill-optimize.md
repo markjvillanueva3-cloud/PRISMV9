@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-optimize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-optimize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

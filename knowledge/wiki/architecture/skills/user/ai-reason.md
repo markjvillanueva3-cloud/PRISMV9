@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ai-reason` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ai-reason.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ai-reason.md` |
 | Model | default |
 | Tags | _(none)_ |
 

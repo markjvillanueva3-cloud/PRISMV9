@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `six-chat-ready` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/six-chat-ready.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/six-chat-ready.md` |
 | Model | default |
 | Tags | _(none)_ |
 

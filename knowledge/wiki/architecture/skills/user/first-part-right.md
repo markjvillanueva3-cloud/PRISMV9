@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `first-part-right` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/first-part-right.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/first-part-right.md` |
 | Model | default |
 | Tags | _(none)_ |
 

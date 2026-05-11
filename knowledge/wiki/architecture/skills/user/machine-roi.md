@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `machine-roi` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/machine-roi.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/machine-roi.md` |
 | Model | default |
 | Tags | _(none)_ |
 

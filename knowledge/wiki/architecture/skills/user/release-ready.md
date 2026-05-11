@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `release-ready` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/release-ready.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/release-ready.md` |
 | Model | default |
 | Tags | _(none)_ |
 

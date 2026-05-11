@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-agi-explain` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-agi-explain.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-agi-explain.md` |
 | Model | default |
 | Tags | _(none)_ |
 

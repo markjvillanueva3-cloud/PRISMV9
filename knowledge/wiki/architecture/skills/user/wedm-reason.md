@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-reason` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-reason.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-reason.md` |
 | Model | default |
 | Tags | _(none)_ |
 

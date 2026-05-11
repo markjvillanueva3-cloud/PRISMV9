@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `registry-browse` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/registry-browse.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/registry-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 

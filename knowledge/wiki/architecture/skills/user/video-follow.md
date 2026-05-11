@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `video-follow` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/video-follow.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/video-follow.md` |
 | Model | default |
 | Tags | _(none)_ |
 

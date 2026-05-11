@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-tier6` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-tier6.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-tier6.md` |
 | Model | default |
 | Tags | _(none)_ |
 

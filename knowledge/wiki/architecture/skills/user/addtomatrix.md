@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `addtomatrix` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/addtomatrix.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/addtomatrix.md` |
 | Model | default |
 | Tags | _(none)_ |
 

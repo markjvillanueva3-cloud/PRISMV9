@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `grinder-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/grinder-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/grinder-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

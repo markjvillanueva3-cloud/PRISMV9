@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `material-lookup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/material-lookup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/material-lookup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

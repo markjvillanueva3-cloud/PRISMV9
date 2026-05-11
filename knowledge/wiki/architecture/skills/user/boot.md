@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `boot` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/boot.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/boot.md` |
 | Model | default |
 | Tags | _(none)_ |
 

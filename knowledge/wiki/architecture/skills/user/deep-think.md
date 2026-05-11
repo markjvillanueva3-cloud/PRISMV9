@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `deep-think` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/deep-think.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/deep-think.md` |
 | Model | default |
 | Tags | _(none)_ |
 

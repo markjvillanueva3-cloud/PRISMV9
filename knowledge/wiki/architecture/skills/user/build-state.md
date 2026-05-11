@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `build-state` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/build-state.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/build-state.md` |
 | Model | default |
 | Tags | _(none)_ |
 

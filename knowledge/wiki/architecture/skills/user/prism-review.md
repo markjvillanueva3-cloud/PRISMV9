@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `prism-review` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/prism-review.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/prism-review.md` |
 | Model | default |
 | Tags | _(none)_ |
 

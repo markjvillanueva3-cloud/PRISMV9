@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `welder-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/welder-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

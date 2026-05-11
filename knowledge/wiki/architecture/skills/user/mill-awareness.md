@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-awareness` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-awareness.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-awareness.md` |
 | Model | default |
 | Tags | _(none)_ |
 

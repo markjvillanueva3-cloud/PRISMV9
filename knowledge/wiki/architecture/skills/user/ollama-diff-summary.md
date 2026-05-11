@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-diff-summary` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-diff-summary.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-diff-summary.md` |
 | Model | default |
 | Tags | _(none)_ |
 

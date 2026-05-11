@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `remember` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/remember.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/remember.md` |
 | Model | default |
 | Tags | _(none)_ |
 

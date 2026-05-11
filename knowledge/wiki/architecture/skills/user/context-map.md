@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `context-map` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/context-map.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/context-map.md` |
 | Model | default |
 | Tags | _(none)_ |
 

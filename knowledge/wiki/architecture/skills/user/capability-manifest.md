@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `capability-manifest` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/capability-manifest.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/capability-manifest.md` |
 | Model | default |
 | Tags | _(none)_ |
 

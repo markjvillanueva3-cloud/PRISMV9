@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `read-plan` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/read-plan.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/read-plan.md` |
 | Model | default |
 | Tags | _(none)_ |
 

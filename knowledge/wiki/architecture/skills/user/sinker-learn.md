@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sinker-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sinker-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sinker-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

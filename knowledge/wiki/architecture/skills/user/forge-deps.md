@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-deps` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-deps.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-deps.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-query` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-query.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-query.md` |
 | Model | default |
 | Tags | _(none)_ |
 

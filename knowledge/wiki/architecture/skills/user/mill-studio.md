@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-studio` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-studio.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 

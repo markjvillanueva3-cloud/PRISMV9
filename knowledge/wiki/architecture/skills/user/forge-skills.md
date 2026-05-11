@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-skills` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-skills.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-skills.md` |
 | Model | default |
 | Tags | _(none)_ |
 

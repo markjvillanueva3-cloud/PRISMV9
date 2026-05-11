@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-postflight` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-postflight.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-postflight.md` |
 | Model | default |
 | Tags | _(none)_ |
 

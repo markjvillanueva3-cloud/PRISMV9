@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `pr-swarm` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/pr-swarm.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/pr-swarm.md` |
 | Model | default |
 | Tags | _(none)_ |
 

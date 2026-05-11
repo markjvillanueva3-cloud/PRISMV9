@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `predict` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/predict.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/predict.md` |
 | Model | default |
 | Tags | _(none)_ |
 

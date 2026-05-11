@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `grinder-validate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/grinder-validate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/grinder-validate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

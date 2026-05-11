@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hypermill-3d-strategy-guide` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hypermill-3d-strategy-guide.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hypermill-3d-strategy-guide.md` |
 | Model | default |
 | Tags | _(none)_ |
 

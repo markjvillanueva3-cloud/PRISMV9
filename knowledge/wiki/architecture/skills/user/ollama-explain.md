@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-explain` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-explain.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-explain.md` |
 | Model | default |
 | Tags | _(none)_ |
 

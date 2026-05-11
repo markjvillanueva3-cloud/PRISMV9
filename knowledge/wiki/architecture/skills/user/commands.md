@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `commands` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/commands.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/commands.md` |
 | Model | default |
 | Tags | _(none)_ |
 

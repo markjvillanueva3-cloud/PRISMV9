@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `roadmap-quality-check` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/roadmap-quality-check.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/roadmap-quality-check.md` |
 | Model | default |
 | Tags | _(none)_ |
 

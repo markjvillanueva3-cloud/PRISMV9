@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `propose-goal` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/propose-goal.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/propose-goal.md` |
 | Model | default |
 | Tags | _(none)_ |
 

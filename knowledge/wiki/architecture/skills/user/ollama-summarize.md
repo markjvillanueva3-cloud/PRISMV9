@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-summarize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-summarize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-summarize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

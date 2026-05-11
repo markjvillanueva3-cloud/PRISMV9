@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cycle-time-crush` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cycle-time-crush.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cycle-time-crush.md` |
 | Model | default |
 | Tags | _(none)_ |
 

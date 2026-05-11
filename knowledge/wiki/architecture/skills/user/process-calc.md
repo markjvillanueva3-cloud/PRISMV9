@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `process-calc` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/process-calc.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/process-calc.md` |
 | Model | default |
 | Tags | _(none)_ |
 

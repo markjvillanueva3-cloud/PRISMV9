@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `broadcast` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/broadcast.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/broadcast.md` |
 | Model | default |
 | Tags | _(none)_ |
 

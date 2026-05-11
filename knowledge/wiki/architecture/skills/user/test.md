@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `test` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/test.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/test.md` |
 | Model | default |
 | Tags | _(none)_ |
 

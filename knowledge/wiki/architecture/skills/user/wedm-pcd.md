@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-pcd` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-pcd.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-pcd.md` |
 | Model | default |
 | Tags | _(none)_ |
 

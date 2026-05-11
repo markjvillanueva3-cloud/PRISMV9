@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `program-simulate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/program-simulate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/program-simulate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

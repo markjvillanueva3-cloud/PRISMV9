@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `findings` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/findings.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/findings.md` |
 | Model | default |
 | Tags | _(none)_ |
 

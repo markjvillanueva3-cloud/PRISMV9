@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-page` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-page.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-page.md` |
 | Model | default |
 | Tags | _(none)_ |
 

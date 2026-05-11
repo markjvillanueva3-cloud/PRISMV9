@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `autopilot-camk` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/autopilot-camk.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/autopilot-camk.md` |
 | Model | default |
 | Tags | _(none)_ |
 

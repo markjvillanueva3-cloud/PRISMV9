@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `tool-life-max` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/tool-life-max.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-life-max.md` |
 | Model | default |
 | Tags | _(none)_ |
 

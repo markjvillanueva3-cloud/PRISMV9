@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `solidcam-imachining-guide` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/solidcam-imachining-guide.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/solidcam-imachining-guide.md` |
 | Model | default |
 | Tags | _(none)_ |
 

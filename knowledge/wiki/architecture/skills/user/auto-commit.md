@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `auto-commit` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/auto-commit.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/auto-commit.md` |
 | Model | default |
 | Tags | _(none)_ |
 

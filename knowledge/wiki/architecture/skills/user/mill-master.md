@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-master` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-master.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-master.md` |
 | Model | default |
 | Tags | _(none)_ |
 

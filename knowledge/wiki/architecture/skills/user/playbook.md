@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `playbook` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/playbook.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/playbook.md` |
 | Model | default |
 | Tags | _(none)_ |
 

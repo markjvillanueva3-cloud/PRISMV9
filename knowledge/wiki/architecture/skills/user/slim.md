@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `slim` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/slim.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/slim.md` |
 | Model | default |
 | Tags | _(none)_ |
 

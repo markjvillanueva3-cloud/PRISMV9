@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ship-confirm` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ship-confirm.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ship-confirm.md` |
 | Model | default |
 | Tags | _(none)_ |
 

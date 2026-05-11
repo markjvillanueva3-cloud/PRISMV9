@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `mill-agi` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/mill-agi.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/mill-agi.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `switch-profile` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/switch-profile.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/switch-profile.md` |
 | Model | default |
 | Tags | _(none)_ |
 

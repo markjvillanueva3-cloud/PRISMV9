@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `hook-status` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/hook-status.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/hook-status.md` |
 | Model | default |
 | Tags | _(none)_ |
 

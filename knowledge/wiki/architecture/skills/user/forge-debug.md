@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-debug` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-debug.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-debug.md` |
 | Model | default |
 | Tags | _(none)_ |
 

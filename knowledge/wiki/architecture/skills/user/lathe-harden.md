@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `pdf-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/pdf-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/pdf-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-wizard-test` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-wizard-test.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-wizard-test.md` |
 | Model | default |
 | Tags | _(none)_ |
 

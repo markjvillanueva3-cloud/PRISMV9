@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `shop-doctor` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/shop-doctor.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-doctor.md` |
 | Model | default |
 | Tags | _(none)_ |
 

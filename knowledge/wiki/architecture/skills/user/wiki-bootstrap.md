@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-bootstrap` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-bootstrap.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-bootstrap.md` |
 | Model | default |
 | Tags | _(none)_ |
 

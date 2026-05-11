@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `unwired-review` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/unwired-review.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/unwired-review.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `safety-audit` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/safety-audit.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/safety-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 

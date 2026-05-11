@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `prism-paths` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/prism-paths.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/prism-paths.md` |
 | Model | default |
 | Tags | _(none)_ |
 

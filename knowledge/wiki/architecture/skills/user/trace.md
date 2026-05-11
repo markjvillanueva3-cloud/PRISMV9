@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `trace` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/trace.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/trace.md` |
 | Model | default |
 | Tags | _(none)_ |
 

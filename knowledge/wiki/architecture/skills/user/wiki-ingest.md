@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-ingest` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-ingest.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-ingest.md` |
 | Model | default |
 | Tags | _(none)_ |
 

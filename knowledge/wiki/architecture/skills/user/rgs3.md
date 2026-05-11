@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `rgs3` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/rgs3.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/rgs3.md` |
 | Model | default |
 | Tags | _(none)_ |
 

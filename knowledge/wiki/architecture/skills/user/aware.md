@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `aware` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/aware.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/aware.md` |
 | Model | default |
 | Tags | _(none)_ |
 

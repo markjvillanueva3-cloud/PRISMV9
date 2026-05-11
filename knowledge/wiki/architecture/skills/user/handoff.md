@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `handoff` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/handoff.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/handoff.md` |
 | Model | default |
 | Tags | _(none)_ |
 

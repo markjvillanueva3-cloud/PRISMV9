@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `commands-audit` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/commands-audit.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/commands-audit.md` |
 | Model | default |
 | Tags | _(none)_ |
 

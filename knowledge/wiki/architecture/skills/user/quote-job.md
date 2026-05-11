@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quote-job` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/quote-job.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/quote-job.md` |
 | Model | default |
 | Tags | _(none)_ |
 

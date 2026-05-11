@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `simulate-change` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/simulate-change.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/simulate-change.md` |
 | Model | default |
 | Tags | _(none)_ |
 

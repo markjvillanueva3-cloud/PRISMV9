@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `plan-build` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/plan-build.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/plan-build.md` |
 | Model | default |
 | Tags | _(none)_ |
 

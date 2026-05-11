@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-error-triage` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-error-triage.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-error-triage.md` |
 | Model | default |
 | Tags | _(none)_ |
 

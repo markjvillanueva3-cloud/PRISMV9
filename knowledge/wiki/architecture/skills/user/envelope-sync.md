@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `envelope-sync` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/envelope-sync.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/envelope-sync.md` |
 | Model | default |
 | Tags | _(none)_ |
 

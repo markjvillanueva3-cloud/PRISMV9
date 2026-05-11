@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `acquire-models` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/acquire-models.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/acquire-models.md` |
 | Model | default |
 | Tags | _(none)_ |
 

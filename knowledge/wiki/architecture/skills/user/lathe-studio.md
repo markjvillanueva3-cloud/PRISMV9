@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-studio` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-studio.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 

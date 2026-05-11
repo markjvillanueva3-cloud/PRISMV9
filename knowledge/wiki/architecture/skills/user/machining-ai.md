@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `machining-ai` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/machining-ai.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/machining-ai.md` |
 | Model | default |
 | Tags | _(none)_ |
 

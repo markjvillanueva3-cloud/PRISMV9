@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `auto-speed-feed-lathe` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/auto-speed-feed-lathe.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/auto-speed-feed-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 

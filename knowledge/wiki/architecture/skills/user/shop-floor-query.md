@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `shop-floor-query` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/shop-floor-query.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/shop-floor-query.md` |
 | Model | default |
 | Tags | _(none)_ |
 

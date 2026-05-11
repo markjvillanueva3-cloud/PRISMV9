@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `drill-calc` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/drill-calc.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/drill-calc.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-lint` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-lint.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-lint.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `spc` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/spc.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/spc.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `de-sloppify` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/de-sloppify.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/de-sloppify.md` |
 | Model | haiku |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-erp` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-erp.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-erp.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `welder-studio` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/welder-studio.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sinker-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sinker-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sinker-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

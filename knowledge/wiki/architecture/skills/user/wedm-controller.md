@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-controller` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-controller.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-controller.md` |
 | Model | default |
 | Tags | _(none)_ |
 

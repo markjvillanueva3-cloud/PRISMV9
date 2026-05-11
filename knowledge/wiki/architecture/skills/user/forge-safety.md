@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-safety` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-safety.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-safety.md` |
 | Model | default |
 | Tags | _(none)_ |
 

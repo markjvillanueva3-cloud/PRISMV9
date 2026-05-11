@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wiki-harvest` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wiki-harvest.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wiki-harvest.md` |
 | Model | default |
 | Tags | _(none)_ |
 

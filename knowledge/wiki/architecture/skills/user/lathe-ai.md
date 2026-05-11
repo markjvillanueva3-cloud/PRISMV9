@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `lathe-ai` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/lathe-ai.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/lathe-ai.md` |
 | Model | default |
 | Tags | _(none)_ |
 

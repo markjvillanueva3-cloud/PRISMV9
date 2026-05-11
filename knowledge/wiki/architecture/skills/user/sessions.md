@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sessions` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sessions.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sessions.md` |
 | Model | default |
 | Tags | _(none)_ |
 

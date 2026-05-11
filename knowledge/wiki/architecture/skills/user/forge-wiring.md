@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-wiring` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-wiring.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-wiring.md` |
 | Model | default |
 | Tags | _(none)_ |
 

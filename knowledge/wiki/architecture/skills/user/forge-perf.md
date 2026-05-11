@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-perf` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-perf.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-perf.md` |
 | Model | default |
 | Tags | _(none)_ |
 

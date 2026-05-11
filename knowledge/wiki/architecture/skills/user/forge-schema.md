@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-schema` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-schema.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-schema.md` |
 | Model | default |
 | Tags | _(none)_ |
 

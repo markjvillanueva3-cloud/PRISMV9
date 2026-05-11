@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `weekly-synthesis` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/weekly-synthesis.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/weekly-synthesis.md` |
 | Model | default |
 | Tags | _(none)_ |
 

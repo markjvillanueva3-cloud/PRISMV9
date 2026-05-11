@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-audit-v2` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-audit-v2.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-audit-v2.md` |
 | Model | default |
 | Tags | _(none)_ |
 

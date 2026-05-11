@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `doc-sync` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/doc-sync.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/doc-sync.md` |
 | Model | default |
 | Tags | _(none)_ |
 

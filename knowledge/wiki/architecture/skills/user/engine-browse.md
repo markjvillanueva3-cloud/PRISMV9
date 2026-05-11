@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `engine-browse` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/engine-browse.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/engine-browse.md` |
 | Model | default |
 | Tags | _(none)_ |
 

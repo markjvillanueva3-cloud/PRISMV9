@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `pipeline-optimize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/pipeline-optimize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/pipeline-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `status` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/status.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/status.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-studio` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-studio.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-studio.md` |
 | Model | default |
 | Tags | _(none)_ |
 

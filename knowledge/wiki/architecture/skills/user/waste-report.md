@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `waste-report` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/waste-report.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/waste-report.md` |
 | Model | default |
 | Tags | _(none)_ |
 

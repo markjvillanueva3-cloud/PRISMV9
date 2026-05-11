@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `milestone` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/milestone.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/milestone.md` |
 | Model | default |
 | Tags | _(none)_ |
 

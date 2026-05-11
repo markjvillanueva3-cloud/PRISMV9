@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-from-scout` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-from-scout.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-from-scout.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `workboard` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/workboard.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/workboard.md` |
 | Model | default |
 | Tags | _(none)_ |
 

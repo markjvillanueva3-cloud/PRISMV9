@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `extract-dark-content` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/extract-dark-content.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/extract-dark-content.md` |
 | Model | default |
 | Tags | _(none)_ |
 

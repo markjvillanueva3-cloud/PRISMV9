@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `reflect` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/reflect.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/reflect.md` |
 | Model | default |
 | Tags | _(none)_ |
 

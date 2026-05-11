@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `smart` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/smart.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/smart.md` |
 | Model | default |
 | Tags | _(none)_ |
 

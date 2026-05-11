@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `welder-harden` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/welder-harden.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/welder-harden.md` |
 | Model | default |
 | Tags | _(none)_ |
 

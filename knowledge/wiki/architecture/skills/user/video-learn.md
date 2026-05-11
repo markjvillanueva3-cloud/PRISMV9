@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `video-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/video-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/video-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

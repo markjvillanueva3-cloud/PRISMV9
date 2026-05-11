@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `system-health` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/system-health.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/system-health.md` |
 | Model | default |
 | Tags | _(none)_ |
 

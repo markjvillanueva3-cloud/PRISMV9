@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `full-job` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/full-job.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/full-job.md` |
 | Model | default |
 | Tags | _(none)_ |
 

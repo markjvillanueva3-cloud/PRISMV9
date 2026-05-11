@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-extract` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-extract.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-extract.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `tool-catalog` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/tool-catalog.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/tool-catalog.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `approvals` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/approvals.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/approvals.md` |
 | Model | default |
 | Tags | _(none)_ |
 

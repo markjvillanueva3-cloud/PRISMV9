@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ship` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ship.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ship.md` |
 | Model | default |
 | Tags | _(none)_ |
 

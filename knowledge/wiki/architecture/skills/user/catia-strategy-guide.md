@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `catia-strategy-guide` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/catia-strategy-guide.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/catia-strategy-guide.md` |
 | Model | default |
 | Tags | _(none)_ |
 

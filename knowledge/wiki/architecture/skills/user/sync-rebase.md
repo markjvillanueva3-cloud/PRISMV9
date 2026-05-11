@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `sync-rebase` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/sync-rebase.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/sync-rebase.md` |
 | Model | default |
 | Tags | _(none)_ |
 

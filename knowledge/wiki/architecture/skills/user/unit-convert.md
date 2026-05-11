@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `unit-convert` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/unit-convert.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/unit-convert.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `replay` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/replay.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/replay.md` |
 | Model | default |
 | Tags | _(none)_ |
 

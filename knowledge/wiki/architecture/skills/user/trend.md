@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `trend` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/trend.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/trend.md` |
 | Model | default |
 | Tags | _(none)_ |
 

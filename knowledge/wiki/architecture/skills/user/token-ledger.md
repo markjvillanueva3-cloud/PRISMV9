@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `token-ledger` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/token-ledger.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/token-ledger.md` |
 | Model | default |
 | Tags | _(none)_ |
 

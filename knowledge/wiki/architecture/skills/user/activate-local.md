@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `activate-local` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/activate-local.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/activate-local.md` |
 | Model | default |
 | Tags | _(none)_ |
 

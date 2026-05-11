@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-dfm` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-dfm.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-dfm.md` |
 | Model | default |
 | Tags | _(none)_ |
 

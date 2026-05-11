@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `bash-shortcuts` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/bash-shortcuts.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/bash-shortcuts.md` |
 | Model | default |
 | Tags | _(none)_ |
 

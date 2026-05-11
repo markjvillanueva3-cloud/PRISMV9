@@ -1244,10 +1244,10 @@ Top scopes by milestone count:
 ### Skills
 
 <!-- ARCH-SKILLS-START -->
-_Total: 248 skill entries_
+_Total: 639 skill entries_
 
 - project: 248 skills
-- user: 0 skills
+- user: 391 skills
 <!-- ARCH-SKILLS-END -->
 
 ### Hooks

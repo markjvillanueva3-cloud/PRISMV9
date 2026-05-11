@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `synthesize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/synthesize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/synthesize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `bid-to-win` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/bid-to-win.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/bid-to-win.md` |
 | Model | default |
 | Tags | _(none)_ |
 

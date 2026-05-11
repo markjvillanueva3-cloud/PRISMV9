@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `machine-optimize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/machine-optimize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/machine-optimize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

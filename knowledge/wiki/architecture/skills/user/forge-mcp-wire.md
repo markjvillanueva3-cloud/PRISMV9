@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-mcp-wire` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-mcp-wire.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-mcp-wire.md` |
 | Model | default |
 | Tags | _(none)_ |
 

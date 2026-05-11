@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `template` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/template.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/template.md` |
 | Model | default |
 | Tags | _(none)_ |
 

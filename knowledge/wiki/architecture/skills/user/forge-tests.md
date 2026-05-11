@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-tests` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-tests.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-tests.md` |
 | Model | default |
 | Tags | _(none)_ |
 

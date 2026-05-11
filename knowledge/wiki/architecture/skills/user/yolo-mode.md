@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `yolo-mode` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/yolo-mode.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/yolo-mode.md` |
 | Model | default |
 | Tags | _(none)_ |
 

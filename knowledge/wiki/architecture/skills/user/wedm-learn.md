@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

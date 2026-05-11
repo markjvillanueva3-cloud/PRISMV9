@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-drift` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-drift.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-drift.md` |
 | Model | default |
 | Tags | _(none)_ |
 

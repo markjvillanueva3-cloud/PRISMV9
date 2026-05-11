@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-feasibility` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-feasibility.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-feasibility.md` |
 | Model | default |
 | Tags | _(none)_ |
 

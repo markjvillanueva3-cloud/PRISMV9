@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quality-gate-lathe` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/quality-gate-lathe.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/quality-gate-lathe.md` |
 | Model | default |
 | Tags | _(none)_ |
 

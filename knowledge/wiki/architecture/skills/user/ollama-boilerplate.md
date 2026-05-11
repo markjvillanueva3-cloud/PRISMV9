@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `ollama-boilerplate` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/ollama-boilerplate.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/ollama-boilerplate.md` |
 | Model | default |
 | Tags | _(none)_ |
 

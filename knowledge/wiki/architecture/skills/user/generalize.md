@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `generalize` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/generalize.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/generalize.md` |
 | Model | default |
 | Tags | _(none)_ |
 

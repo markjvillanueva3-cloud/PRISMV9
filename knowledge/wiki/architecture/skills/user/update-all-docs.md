@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `update-all-docs` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/update-all-docs.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/update-all-docs.md` |
 | Model | default |
 | Tags | _(none)_ |
 

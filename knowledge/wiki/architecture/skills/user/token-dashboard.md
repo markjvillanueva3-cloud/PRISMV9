@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `token-dashboard` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/token-dashboard.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/token-dashboard.md` |
 | Model | default |
 | Tags | _(none)_ |
 

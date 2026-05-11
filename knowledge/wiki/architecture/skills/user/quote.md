@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `quote` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/quote.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/quote.md` |
 | Model | default |
 | Tags | _(none)_ |
 

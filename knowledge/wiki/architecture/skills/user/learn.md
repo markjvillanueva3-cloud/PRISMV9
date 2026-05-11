@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `learn` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/learn.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/learn.md` |
 | Model | default |
 | Tags | _(none)_ |
 

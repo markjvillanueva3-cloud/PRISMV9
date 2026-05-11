@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `dedup` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/dedup.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/dedup.md` |
 | Model | default |
 | Tags | _(none)_ |
 

@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `pre-flight` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/core/pre-flight.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/core/pre-flight.md` |
 | Model | default |
 | Tags | _(none)_ |
 

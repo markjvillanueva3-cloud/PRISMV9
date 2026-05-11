@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `digest` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/digest.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/digest.md` |
 | Model | default |
 | Tags | _(none)_ |
 

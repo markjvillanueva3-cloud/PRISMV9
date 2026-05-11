@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `wedm-feedback` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/wedm-feedback.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/wedm-feedback.md` |
 | Model | default |
 | Tags | _(none)_ |
 

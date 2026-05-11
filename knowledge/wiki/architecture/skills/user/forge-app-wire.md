@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `forge-app-wire` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/forge-app-wire.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/forge-app-wire.md` |
 | Model | default |
 | Tags | _(none)_ |
 

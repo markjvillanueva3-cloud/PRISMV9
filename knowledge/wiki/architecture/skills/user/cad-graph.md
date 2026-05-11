@@ -23,7 +23,7 @@ related:
 |-------|-------|
 | Name | `cad-graph` |
 | Scope | user |
-| Source | `C:/Users/wompu/.claude/commands/cad-graph.md` |
+| Source | `C:/Users/Mark Villanueva/.claude/commands/cad-graph.md` |
 | Model | default |
 | Tags | _(none)_ |
 
