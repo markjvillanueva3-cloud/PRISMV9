@@ -223,10 +223,10 @@ describe("CrossProcessNeuralLearningEngine — auto-train replay mixing (U-CN10)
     expect(ticks).toHaveLength(0); // below threshold
     const result = engine.flushAutoTrainBuffer();
     await flush();
-    expect(result).not.toBeNull();
+    // want = ceil(3 * 1.0) = 3; store has 5 lathe → mix 3 → batch = 3 fresh + 3 replayed
+    expect((result as { samplesUsed: number } | null)?.samplesUsed).toBe(6); // also asserts result !== null
     expect(ticks).toHaveLength(1);
     expect(lastTick().forced).toBe(true);
-    // want = ceil(3 * 1.0) = 3; store has 5 lathe → mix 3
     expect(lastTick().replayMixed).toBe(3);
     expect(lastTick().samplesUsed).toBe(6);
   });

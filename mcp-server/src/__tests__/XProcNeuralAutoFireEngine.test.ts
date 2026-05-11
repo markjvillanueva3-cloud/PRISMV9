@@ -405,17 +405,17 @@ describe("XProcNeuralAutoFireEngine — replay-mixing config (U-CN10)", () => {
     expect(s.autoTrainReplayMaxRecords).toBe(100);
   });
 
-  it("status() reports null replay config before activate() and after reset()", () => {
+  it("status() reports null replay config before activate(), 0.5 after activate, null after reset()", () => {
     expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).toBeNull();
     XProcNeuralAutoFireEngine.activate({ autoTrainReplayMixRatio: 0.5 });
-    expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).not.toBeNull();
+    expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).toBeCloseTo(0.5, 6);
     XProcNeuralAutoFireEngine.reset();
     expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMixRatio).toBeNull();
     expect(XProcNeuralAutoFireEngine.status().autoTrainReplayMaxRecords).toBeNull();
   });
 
   it("end-to-end: after activate(), a retrain mixes in historical store records", async () => {
-    seedStore(8, "lathe"); // 8 historical records BEFORE activation (so they land only in the store, not the buffer)
+    seedStore(8, "lathe"); // 8 historical lathe records BEFORE activation (land only in the store, not the buffer)
     const ticks: FeedbackEvent[] = [];
     // autoTrainTotalTicks is singleton-cumulative across the file → assert a +1 delta.
     const ticksBefore = crossProcessNeuralLearningEngine.autoTrainStatus().totalTicks;
@@ -425,8 +425,9 @@ describe("XProcNeuralAutoFireEngine — replay-mixing config (U-CN10)", () => {
     await flush();
     expect(ticks).toHaveLength(1);
     const tick = ticks[0].payload as { samplesUsed: number; replayMixed: number };
-    expect(tick.replayMixed).toBeGreaterThan(0);
-    expect(tick.samplesUsed).toBe(3 + tick.replayMixed);
+    // want = ceil(3 * 1.0) = 3; the store has 8 lathe records (none in the buffer) → mix exactly 3
+    expect(tick.replayMixed).toBe(3);
+    expect(tick.samplesUsed).toBe(6); // 3 fresh + 3 replayed
     expect(crossProcessNeuralLearningEngine.autoTrainStatus().totalTicks).toBe(ticksBefore + 1);
   });
 
