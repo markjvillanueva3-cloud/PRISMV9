@@ -3,7 +3,7 @@ title: Wiki Stats — architecture tree
 type: architecture
 generated_by: scripts/build-wiki-leaf-index.mjs
 last_verified: 2026-05-11
-total_entries: 13682
+total_entries: 13949
 tags: [architecture, wiki, stats, self-awareness]
 ---
 
@@ -14,18 +14,18 @@ tags: [architecture, wiki, stats, self-awareness]
 > `index.md` lines — it does **not** see this tree. This file is the real
 > number. (If you maintain `generate-system-viz.mjs`, count `architecture/**/*.md`.)
 
-**Total entries:** 13682
-**Leaf index:** `_leaf-index.jsonl` (3.19 MB) — consumed by `wiki-precheck-inject.mjs` for keyword recall
+**Total entries:** 13949
+**Leaf index:** `_leaf-index.jsonl` (3.27 MB) — consumed by `wiki-precheck-inject.mjs` for keyword recall
 **Orphan rate:** 285 orphans / 13133 files (2.2%)
-**Last regen:** 2026-05-11T13:59:46.621Z
+**Last regen:** 2026-05-11T14:40:55.693Z
 
 ## Breakdown by entry type
 
 | Type | Count |
 |------|-------|
 | action | 9242 |
+| architecture | 1751 |
 | engine | 1701 |
-| architecture | 1484 |
 | skill | 639 |
 | hook | 483 |
 | formula | 80 |

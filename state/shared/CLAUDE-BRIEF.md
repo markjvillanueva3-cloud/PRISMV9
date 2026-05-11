@@ -1,6 +1,6 @@
 # CLAUDE-BRIEF — PRISM Continuous Awareness
 
-**Auto-generated:** 2026-05-11T14:23:42.751Z  ·  Regenerated each SessionStart by `generate-claude-brief.mjs`.
+**Auto-generated:** 2026-05-11T14:41:38.916Z  ·  Regenerated each SessionStart by `generate-claude-brief.mjs`.
 If timestamp >24h old, run: `node H:/prism/mcp-server/scripts/generate-claude-brief.mjs`
 
 ---
@@ -41,10 +41,10 @@ Manufacturing-intelligence platform Mark is building. Speed/Feed Calculator (SFC
 
 ## Wiki brain (live · auto-generated from the system-viz graph)
 
-**13682 architecture wiki entries** under `knowledge/wiki/architecture/` — one per engine, action, dispatcher, registry, layer, domain, skill, hook, formula, algorithm, milestone, monolith category, frontend, JM-Die customer, combo, design-spec. (The graph's `meta.headline.wikiEntries` ≈776 only counts `index.md` lines — **13682** is the real number; source of truth: `knowledge/wiki/architecture/_stats.md`.)
+**13949 architecture wiki entries** under `knowledge/wiki/architecture/` — one per engine, action, dispatcher, registry, layer, domain, skill, hook, formula, algorithm, milestone, monolith category, frontend, JM-Die customer, combo, design-spec. (The graph's `meta.headline.wikiEntries` ≈776 only counts `index.md` lines — **13949** is the real number; source of truth: `knowledge/wiki/architecture/_stats.md`.)
 
-**Breakdown:** action:9242 · engine:1701 · architecture:1484 · skill:639 · hook:483 · formula:80 · algorithm:53
-**Orphan rate:** 285 orphans / 13133 files (2.2%)  ·  **Last regen:** 2026-05-11T13:59:46.621Z
+**Breakdown:** action:9242 · architecture:1751 · engine:1701 · skill:639 · hook:483 · formula:80 · algorithm:53
+**Orphan rate:** 285 orphans / 13133 files (2.2%)  ·  **Last regen:** 2026-05-11T14:40:55.693Z
 **Semantic index:** not built (run `node scripts/build-wiki-embeddings.mjs` — needs Ollama up).
 
 **Stays fresh via** `scripts/regen-wiki-from-viz.mjs` (21-stage orchestrator) on every post-commit + hourly cron, with a fingerprint gate so commits that don't touch the graph/inputs skip the ~8min chain. Recall hooks: `wiki-precheck-inject.mjs` (UserPromptSubmit — BM25 over index.md + `_leaf-index.jsonl`, cosine fallback over `_embeddings.jsonl`) and `wiki-recall-on-read.mjs` (PostToolUse:Read — injects the wiki summary when you open a documented source file). Single entry: `/wiki-query <name>`. Neo4j export: `state/shared/system-viz/graph.cypher` + `graph-queries.cypher`.
@@ -244,4 +244,4 @@ S(x) ≥ 0.70 hard block · Ω ≥ 0.70 release-ready · Evidence ≥ L3 · vali
 
 ---
 
-**Generation:** 2026-05-11T14:23:42.751Z  ·  Last regenerated 12.5h ago.
+**Generation:** 2026-05-11T14:41:38.916Z  ·  Last regenerated 0.3h ago.
