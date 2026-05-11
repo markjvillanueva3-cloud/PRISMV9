@@ -1126,6 +1126,29 @@ _Total: 165 frontend entries_ · 0 flagged as dead-pixel risk
 - **variants**: 5 entries — see `knowledge/wiki/architecture/frontends/variants/`
 <!-- ARCH-FRONTENDS-END -->
 
+### Milestones (per-scope counts)
+
+<!-- ARCH-MILESTONES-START -->
+_Total: 306 milestone entries across 101 scopes._
+
+Top scopes by milestone count:
+- `CAMX`: 26 milestones
+- `CCM`: 18 milestones
+- `UNKNOWN`: 17 milestones
+- `QA`: 15 milestones
+- `CC`: 12 milestones
+- `EIGC`: 12 milestones
+- `HBK`: 12 milestones
+- `MXU`: 12 milestones
+- `ACP`: 10 milestones
+- `PP`: 9 milestones
+- `SCIMATH`: 8 milestones
+- `CC-EXT`: 7 milestones
+- `BIZ`: 7 milestones
+- `QS`: 7 milestones
+- `MF`: 6 milestones
+<!-- ARCH-MILESTONES-END -->
+
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
 - [[distributed_locking]] — **File:** `mcp-server/src/utils/atomicWrite.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/distributed_locking.md
 - [[plugin_architecture]] — **File:** `mcp-server/src/engines/PhysicsPluginRegistry.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/plugin_architecture.md

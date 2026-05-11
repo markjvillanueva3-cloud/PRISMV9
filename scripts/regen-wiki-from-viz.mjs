@@ -40,6 +40,9 @@ const GENERATORS = [
   "generate-action-wiki.mjs",
   "generate-registry-wiki.mjs",
   "generate-frontend-wiki.mjs",
+  "generate-milestone-wiki.mjs",
+  "generate-tribal-index.mjs",
+  "generate-domain-mermaid.mjs",
   "generate-layer-stack-overview.mjs",
   "system-viz-obsidian-bridge-v2.mjs",
 ];
@@ -59,7 +62,10 @@ function runGenerator(name) {
     return { ok: false, name, error: "missing" };
   }
   const cmd = process.execPath;
-  const cliArgs = [script];
+  // Child generators read the full 95MB graph; default 1.5GB heap is too small
+  // when several large-graph workflows run in sequence on Windows (heap-corruption
+  // at STATUS_HEAP_CORRUPTION 0xC0000374). Lift to 8 GB.
+  const cliArgs = ["--max-old-space-size=8192", script];
   if (FLAGS.dryRun) cliArgs.push("--dry-run");
   const t0 = Date.now();
   const res = spawnSync(cmd, cliArgs, { encoding: "utf8" });
