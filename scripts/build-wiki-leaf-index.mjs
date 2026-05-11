@@ -29,6 +29,8 @@ const __dirname = dirname(__filename);
 const PRISM_ROOT = resolve(__dirname, "..");
 const ARCH_DIR = resolve(PRISM_ROOT, "knowledge/wiki/architecture");
 const OUT_PATH = join(ARCH_DIR, "_leaf-index.jsonl");
+const STATS_PATH = join(ARCH_DIR, "_stats.md");
+const ORPHANS_PATH = resolve(PRISM_ROOT, "state/shared/wiki-orphans.json");
 
 const DESC_MAX = 200;
 
@@ -91,8 +93,69 @@ function main() {
     const path = relative(PRISM_ROOT, f).replace(/\\/g, "/");
     lines.push(JSON.stringify({ name, title, type, desc, path }));
   }
-  writeFileSync(OUT_PATH, lines.join("\n") + "\n", "utf8");
-  process.stdout.write(`leaf-index: ${lines.length} entries written to _leaf-index.jsonl (${(Buffer.byteLength(lines.join("\n")) / 1048576).toFixed(2)} MB, ${Date.now() - t0}ms, skipped ${skipped})\n`);
+  const jsonl = lines.join("\n") + "\n";
+  writeFileSync(OUT_PATH, jsonl, "utf8");
+
+  // Also emit _stats.md — the authoritative wiki-size source of truth. The
+  // system-viz graph's meta.headline.wikiEntries only counts index.md lines
+  // (~776) and is 18x understated vs the architecture tree; this file is what
+  // anyone asking "how big is the wiki" should read.
+  const byType = {};
+  for (const ln of lines) { try { const r = JSON.parse(ln); byType[r.type] = (byType[r.type] || 0) + 1; } catch {} }
+  let orphanLine = "_(run lint-wiki-orphans.mjs for orphan stats)_";
+  try {
+    const o = JSON.parse(readFileSync(ORPHANS_PATH, "utf8"));
+    orphanLine = `${o.totals?.orphans ?? "?"} orphans / ${o.totals?.files ?? "?"} files (${o.totals?.orphanRatio != null ? (o.totals.orphanRatio * 100).toFixed(1) + "%" : "?"})`;
+  } catch {}
+  const typeRows = Object.entries(byType).sort((a, b) => b[1] - a[1]).map(([t, c]) => `| ${t} | ${c} |`).join("\n");
+  const stats = `---
+title: Wiki Stats — architecture tree
+type: architecture
+generated_by: scripts/build-wiki-leaf-index.mjs
+last_verified: ${new Date().toISOString().split("T")[0]}
+total_entries: ${lines.length}
+tags: [architecture, wiki, stats, self-awareness]
+---
+
+# Wiki Stats — \`knowledge/wiki/architecture/\`
+
+> Authoritative count of the auto-generated architecture wiki tree. The
+> system-viz graph's \`meta.headline.wikiEntries\` (~776) only counts
+> \`index.md\` lines — it does **not** see this tree. This file is the real
+> number. (If you maintain \`generate-system-viz.mjs\`, count \`architecture/**/*.md\`.)
+
+**Total entries:** ${lines.length}
+**Leaf index:** \`_leaf-index.jsonl\` (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) — consumed by \`wiki-precheck-inject.mjs\` for keyword recall
+**Orphan rate:** ${orphanLine}
+**Last regen:** ${new Date().toISOString()}
+
+## Breakdown by entry type
+
+| Type | Count |
+|------|-------|
+${typeRows}
+
+## How the tree stays fresh
+
+\`scripts/regen-wiki-from-viz.mjs\` (20-stage orchestrator) regenerates everything
+on every post-commit (and the hourly cron). Generators: \`generate-layer-wiki\`,
+\`generate-domain-wiki\`, \`generate-dispatcher-wiki\`, \`generate-engine-wiki\`,
+\`generate-action-wiki\`, \`generate-registry-wiki\`, \`generate-frontend-wiki\`,
+\`generate-milestone-wiki\`, \`generate-skill-wiki\`, \`generate-hook-wiki\`,
+\`generate-formula-algo-wiki\`, \`generate-monolith-wiki\`, \`generate-tribal-index\`,
+\`generate-domain-mermaid\`, \`generate-layer-stack-overview\`, then
+\`system-viz-obsidian-bridge-v2\`, \`export-graph-cypher\`, \`inject-wiki-crosslinks\`,
+\`build-wiki-leaf-index\` (this), \`lint-wiki-orphans\`.
+
+## See also
+
+- Stack overview: [[layer-stack-overview]]
+- Recall hook: \`.claude/hooks/wiki-precheck-inject.mjs\`
+- Cypher export: \`state/shared/system-viz/graph.cypher\` + [[neo4j-import]]
+`;
+  writeFileSync(STATS_PATH, stats, "utf8");
+
+  process.stdout.write(`leaf-index: ${lines.length} entries -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${Date.now() - t0}ms, skipped ${skipped}\n`);
 }
 
 main();
