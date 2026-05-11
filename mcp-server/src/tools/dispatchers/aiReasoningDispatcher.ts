@@ -143,11 +143,20 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_episodic_bridge_reset: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN09 — closed-loop ignition: one idempotent call
   // turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain)
-  // + all four fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay, CN08 episodic).
+  // + all five fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay, CN08 episodic, CN12 RL).
   // Also invoked at MCP-server boot (index.ts) behind PRISM_XPROC_AUTOFIRE.
   xproc_autofire_activate: () => import("../../engines/XProcNeuralAutoFireEngine.js").then(m => m.xProcNeuralAutoFireDispatch),
   xproc_autofire_deactivate: () => import("../../engines/XProcNeuralAutoFireEngine.js").then(m => m.xProcNeuralAutoFireDispatch),
   xproc_autofire_status: () => import("../../engines/XProcNeuralAutoFireEngine.js").then(m => m.xProcNeuralAutoFireDispatch),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN12 — RL fan-out bridge: outcome.completed → (state, action,
+  // reward via CrossProcessRewardShaperEngine) → QLearningTabular + PolicyGradient + MultiArmedBandit.
+  xproc_rl_bridge_subscribe: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  xproc_rl_bridge_unsubscribe: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  xproc_rl_bridge_status: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  xproc_rl_bridge_configure: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  xproc_rl_bridge_stats: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  xproc_rl_bridge_replay: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  xproc_rl_bridge_reset: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1817,6 +1826,14 @@ export async function executeAIReasoningAction(
       case "xproc_autofire_activate":
       case "xproc_autofire_deactivate":
       case "xproc_autofire_status":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN12 — RL fan-out bridge (Q-learning + policy-gradient + bandit)
+      case "xproc_rl_bridge_subscribe":
+      case "xproc_rl_bridge_unsubscribe":
+      case "xproc_rl_bridge_status":
+      case "xproc_rl_bridge_configure":
+      case "xproc_rl_bridge_stats":
+      case "xproc_rl_bridge_replay":
+      case "xproc_rl_bridge_reset":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":

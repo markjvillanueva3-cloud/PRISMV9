@@ -3,7 +3,7 @@
  *
  * Ignition for the cross-process closed-loop learning system.
  *
- * CN02–CN08 built the loop:
+ * CN02–CN12 built the loop:
  *   - CN02/03/05  the NN predictor (`CrossProcessNeuralLearningEngine`) with a
  *                 *dormant* `enableAutoTrain()` (U-NN-LOOP03) and consumers
  *                 (SpeedFeedOrchestrator gate, Omega 7th dim, KG feature projector)
@@ -11,8 +11,9 @@
  *   - CN06        OutcomeDriftCalibrationBridgeEngine       ← `outcome.completed`
  *   - CN07        OutcomeReplayBufferBridgeEngine           ← `outcome.completed`
  *   - CN08        OutcomeEpisodicMemoryBridgeEngine         ← `outcome.completed`
+ *   - CN12        OutcomeRLBridgeEngine                     ← `outcome.completed`
  *
- * …but nothing turned any of it on. The auto-train subscription and all four
+ * …but nothing turned any of it on. The auto-train subscription and all five
  * fan-out bridges were reachable only via explicit dispatcher actions, so on a
  * fresh MCP server the loop is INERT — `CrossProcessOutcomeStore.record()`
  * publishes `outcome.recorded` / `outcome.completed` to a bus with zero
@@ -25,6 +26,7 @@
  *   3. `OutcomeDriftCalibrationBridgeEngine.subscribeToOutcomes()`
  *   4. `OutcomeReplayBufferBridgeEngine.subscribeToOutcomes()`
  *   5. `OutcomeEpisodicMemoryBridgeEngine.subscribeToOutcomes()`
+ *   6. `OutcomeRLBridgeEngine.subscribeToOutcomes()`
  *
  * Failure isolation: every step is independently try/catch'd; a failure on one
  * never blocks the others and is reported per-component. The engine records
@@ -37,16 +39,17 @@
  *   - `prism_ai` (aiReasoningDispatcher) via
  *     `xproc_autofire_activate | xproc_autofire_deactivate | xproc_autofire_status`.
  *
- * This is the keystone of the CONNECT milestone: it makes everything CN02–CN08
+ * This is the keystone of the CONNECT milestone: it makes everything CN02–CN12
  * built actually *run*.
  *
  * @engine XProcNeuralAutoFireEngine
- * @milestone XPROC-NEURAL-CONNECT-MS0 / U-CN09
+ * @milestone XPROC-NEURAL-CONNECT-MS0 / U-CN09 (extended by U-CN12)
  * @see CrossProcessNeuralLearningEngine
  * @see TribalKnowledgeOutcomeBridgeEngine
  * @see OutcomeDriftCalibrationBridgeEngine
  * @see OutcomeReplayBufferBridgeEngine
  * @see OutcomeEpisodicMemoryBridgeEngine
+ * @see OutcomeRLBridgeEngine
  */
 
 import { z } from "zod";
@@ -55,6 +58,7 @@ import { TribalKnowledgeOutcomeBridgeEngine } from "./TribalKnowledgeOutcomeBrid
 import { OutcomeDriftCalibrationBridgeEngine } from "./OutcomeDriftCalibrationBridgeEngine.js";
 import { OutcomeReplayBufferBridgeEngine } from "./OutcomeReplayBufferBridgeEngine.js";
 import { OutcomeEpisodicMemoryBridgeEngine } from "./OutcomeEpisodicMemoryBridgeEngine.js";
+import { OutcomeRLBridgeEngine } from "./OutcomeRLBridgeEngine.js";
 
 // ============================================================================
 // Public types
@@ -65,7 +69,8 @@ export type AutoFireComponentKey =
   | "tribal_bridge"
   | "drift_calibration_bridge"
   | "replay_buffer_bridge"
-  | "episodic_memory_bridge";
+  | "episodic_memory_bridge"
+  | "rl_bridge";
 
 export type AutoFireComponentAction = "enabled" | "already_active" | "error" | "disabled" | "not_owned" | "not_active";
 
@@ -157,6 +162,7 @@ const ALL_COMPONENTS: readonly AutoFireComponentKey[] = [
   "drift_calibration_bridge",
   "replay_buffer_bridge",
   "episodic_memory_bridge",
+  "rl_bridge",
 ];
 
 // ============================================================================
@@ -244,6 +250,9 @@ export class XProcNeuralAutoFireEngine {
         OutcomeEpisodicMemoryBridgeEngine.subscribeToOutcomes(),
       ),
     );
+    components.push(
+      this.subscribeBridge("rl_bridge", () => OutcomeRLBridgeEngine.subscribeToOutcomes()),
+    );
 
     const errors = components.filter((c) => c.action === "error").length;
     this.activatedAt = new Date().toISOString();
@@ -298,6 +307,7 @@ export class XProcNeuralAutoFireEngine {
       ["drift_calibration_bridge", () => OutcomeDriftCalibrationBridgeEngine.unsubscribeFromOutcomes()],
       ["replay_buffer_bridge", () => OutcomeReplayBufferBridgeEngine.unsubscribeFromOutcomes()],
       ["episodic_memory_bridge", () => OutcomeEpisodicMemoryBridgeEngine.unsubscribeFromOutcomes()],
+      ["rl_bridge", () => OutcomeRLBridgeEngine.unsubscribeFromOutcomes()],
     ];
     for (const [key, fn] of bridgeUnsubscribers) {
       if (!this.owned.has(key)) {
@@ -337,6 +347,7 @@ export class XProcNeuralAutoFireEngine {
       drift_calibration_bridge: this.safeBool(() => OutcomeDriftCalibrationBridgeEngine.isSubscribedToOutcomes()),
       replay_buffer_bridge: this.safeBool(() => OutcomeReplayBufferBridgeEngine.isSubscribedToOutcomes()),
       episodic_memory_bridge: this.safeBool(() => OutcomeEpisodicMemoryBridgeEngine.isSubscribedToOutcomes()),
+      rl_bridge: this.safeBool(() => OutcomeRLBridgeEngine.isSubscribedToOutcomes()),
     };
     return {
       activated: this.activatedAt !== null,

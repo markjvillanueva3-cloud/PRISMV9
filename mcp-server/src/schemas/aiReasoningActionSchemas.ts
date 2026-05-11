@@ -260,6 +260,14 @@ export const AI_REASONING_ACTIONS = [
   "xproc_autofire_activate",
   "xproc_autofire_deactivate",
   "xproc_autofire_status",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN12 — RL fan-out bridge (Q-learning + policy-gradient + bandit)
+  "xproc_rl_bridge_subscribe",
+  "xproc_rl_bridge_unsubscribe",
+  "xproc_rl_bridge_status",
+  "xproc_rl_bridge_configure",
+  "xproc_rl_bridge_stats",
+  "xproc_rl_bridge_replay",
+  "xproc_rl_bridge_reset",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1646,13 +1654,40 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     autoTrainReplayMixRatio: z.number().min(0).max(100).optional().describe("U-CN10: experience-replay mix ratio — each retrain also pulls up to ceil(buffer*ratio) historical terminal OutcomeRecords from CrossProcessOutcomeStore (stratified by process) and concats them into the batch, so a process burst doesn't catastrophically wipe what the model learned about other processes/materials. 0 disables. Default 0.5."),
     autoTrainReplayMaxRecords: z.number().int().min(0).max(100_000).optional().describe("U-CN10: hard cap on historical records pulled per retrain. Default 256."),
   }).strict().describe(
-    "U-CN09/CN10: Ignite the closed-loop learning system — turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain, with experience-replay mixing) plus all four fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay/sampler, CN08 episodic). Idempotent. Each component is activated independently; one failure never blocks the rest. Returns a per-component breakdown. Also fired at MCP-server boot behind PRISM_XPROC_AUTOFIRE.",
+    "U-CN09/CN10/CN12: Ignite the closed-loop learning system — turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain, with experience-replay mixing) plus all five fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay/sampler, CN08 episodic, CN12 RL). Idempotent. Each component is activated independently; one failure never blocks the rest. Returns a per-component breakdown. Also fired at MCP-server boot behind PRISM_XPROC_AUTOFIRE.",
   ),
   xproc_autofire_deactivate: z.object({}).passthrough().describe(
     "U-CN09: Reverse only the switches this engine turned on (auto-train via disableAutoTrain; bridges via unsubscribeFromOutcomes). Components active before activate() are left untouched. Idempotent.",
   ),
   xproc_autofire_status: z.object({}).passthrough().describe(
-    "U-CN09: Per-component live status {active, ownedByAutoFire} for the NN auto-train + four bridges, plus the activated-at timestamp and effective auto-train threshold.",
+    "U-CN09/CN12: Per-component live status {active, ownedByAutoFire} for the NN auto-train + five bridges, plus the activated-at timestamp and effective auto-train threshold.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN12 — RL fan-out bridge: outcome.completed → (state, action, reward) → 3 RL kernels
+  xproc_rl_bridge_subscribe: z.object({}).passthrough().describe(
+    "U-CN12: Subscribe the RL bridge to feedback-bus `outcome.completed`. Each terminal outcome is turned into a (discretised state, speed×feed action index, reward) tuple and fanned to CrossProcessQLearningTabularEngine.update, CrossProcessPolicyGradientEngine.step+commit, and CrossProcessMultiArmedBanditEngine.update. Idempotent.",
+  ),
+  xproc_rl_bridge_unsubscribe: z.object({}).passthrough().describe(
+    "U-CN12: Detach the RL bridge's `outcome.completed` subscription. Idempotent.",
+  ),
+  xproc_rl_bridge_status: z.object({}).passthrough().describe(
+    "U-CN12: Whether the RL bridge currently holds a live `outcome.completed` subscription.",
+  ),
+  xproc_rl_bridge_configure: z.object({
+    applyKindPrior: z.boolean().optional().describe("Add KIND_PRIOR[kind] (success +0.5 / operator_override -0.5 / failure -1.0) on top of the CrossProcessRewardShaperEngine param-quality reward. Default true."),
+  }).strict().describe(
+    "U-CN12: Update RL-bridge config. Returns the validated effective config or an invalid_input error object.",
+  ),
+  xproc_rl_bridge_stats: z.object({}).passthrough().describe(
+    "U-CN12: Read RL-bridge telemetry — totals (events, processed, skips), per-engine fan-out counts, per-engine failure counts, last extracted (state, action, armId, reward, shaperReward, kindPrior, kind) tuple, and current config.",
+  ),
+  xproc_rl_bridge_replay: z.object({
+    limit: z.number().int().min(1).max(100_000).optional().describe("Most-recent terminal outcomes to re-process from CrossProcessOutcomeStore. Default 200, max 100000."),
+    process: z.enum(["mill", "lathe", "wedm"]).optional().describe("Restrict the replay to one process."),
+  }).strict().describe(
+    "U-CN12: Warm-start the RL kernels by re-running the most recent historical terminal outcomes from CrossProcessOutcomeStore through the same extraction + fan-out path as the live subscription. Returns {scanned, replayed, skipped, fanned}.",
+  ),
+  xproc_rl_bridge_reset: z.object({}).passthrough().describe(
+    "U-CN12: Reset RL-bridge state (counters, last tuple, config) and detach the subscription. Does NOT touch the downstream RL engines' state.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({
