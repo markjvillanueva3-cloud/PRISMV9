@@ -256,6 +256,10 @@ export const AI_REASONING_ACTIONS = [
   "xproc_episodic_bridge_configure",
   "xproc_episodic_bridge_stats",
   "xproc_episodic_bridge_reset",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN09 — closed-loop ignition (auto-train + all fan-out bridges)
+  "xproc_autofire_activate",
+  "xproc_autofire_deactivate",
+  "xproc_autofire_status",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1632,6 +1636,21 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ),
   xproc_episodic_bridge_reset: z.object({}).passthrough().describe(
     "U-CN08: Reset bridge state (test-only — does NOT touch downstream CrossProcessEpisodicMemoryEngine state). Distinct from xproc_episodic_* actions which target the underlying engine.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN09 — closed-loop ignition (auto-train + all four fan-out bridges)
+  xproc_autofire_activate: z.object({
+    autoTrainThreshold: z.number().int().min(1).max(100_000).optional().describe("OutcomeRecords buffered before each NN retrain pass. Forwarded to CrossProcessNeuralLearningEngine.enableAutoTrain. Default 16."),
+    autoTrainEpochs: z.number().int().min(1).max(1000).optional().describe("Epochs per retrain pass. Forwarded to TrainOpts.epochs."),
+    autoTrainBatchSize: z.number().int().min(1).max(100_000).optional().describe("Mini-batch size per epoch. Forwarded to TrainOpts.batchSize."),
+    autoTrainShuffle: z.boolean().optional().describe("Shuffle the training set each epoch. Forwarded to TrainOpts.shuffle. Default true."),
+  }).strict().describe(
+    "U-CN09: Ignite the closed-loop learning system — turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain) plus all four fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay/sampler, CN08 episodic). Idempotent. Each component is activated independently; one failure never blocks the rest. Returns a per-component breakdown. Also fired at MCP-server boot behind PRISM_XPROC_AUTOFIRE.",
+  ),
+  xproc_autofire_deactivate: z.object({}).passthrough().describe(
+    "U-CN09: Reverse only the switches this engine turned on (auto-train via disableAutoTrain; bridges via unsubscribeFromOutcomes). Components active before activate() are left untouched. Idempotent.",
+  ),
+  xproc_autofire_status: z.object({}).passthrough().describe(
+    "U-CN09: Per-component live status {active, ownedByAutoFire} for the NN auto-train + four bridges, plus the activated-at timestamp and effective auto-train threshold.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({

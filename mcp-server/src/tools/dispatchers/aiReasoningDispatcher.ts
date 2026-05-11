@@ -141,6 +141,13 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_episodic_bridge_configure: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
   xproc_episodic_bridge_stats: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
   xproc_episodic_bridge_reset: () => import("../../engines/OutcomeEpisodicMemoryBridgeEngine.js").then(m => m.outcomeEpisodicMemoryBridgeDispatch),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN09 — closed-loop ignition: one idempotent call
+  // turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain)
+  // + all four fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay, CN08 episodic).
+  // Also invoked at MCP-server boot (index.ts) behind PRISM_XPROC_AUTOFIRE.
+  xproc_autofire_activate: () => import("../../engines/XProcNeuralAutoFireEngine.js").then(m => m.xProcNeuralAutoFireDispatch),
+  xproc_autofire_deactivate: () => import("../../engines/XProcNeuralAutoFireEngine.js").then(m => m.xProcNeuralAutoFireDispatch),
+  xproc_autofire_status: () => import("../../engines/XProcNeuralAutoFireEngine.js").then(m => m.xProcNeuralAutoFireDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1806,6 +1813,10 @@ export async function executeAIReasoningAction(
       case "xproc_episodic_bridge_configure":
       case "xproc_episodic_bridge_stats":
       case "xproc_episodic_bridge_reset":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN09 — closed-loop ignition (auto-train + all fan-out bridges)
+      case "xproc_autofire_activate":
+      case "xproc_autofire_deactivate":
+      case "xproc_autofire_status":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":

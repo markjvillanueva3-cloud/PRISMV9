@@ -422,6 +422,27 @@ async function registerTools(): Promise<void> {
     log.warn(`[BOOTSTRAP] Registry bootstrap failed (non-fatal): ${bootstrapErr.message}`);
   }
 
+  // XPROC-NEURAL-CONNECT-MS0/U-CN09: ignite the closed-loop learning system.
+  // CN02–CN08 built the loop (NN auto-train + 4 fan-out bridges) but left it
+  // inert — every switch was reachable only via an explicit dispatcher action.
+  // This turns them all on at boot so the model learns from shop-floor outcomes
+  // by default. Set PRISM_XPROC_AUTOFIRE=0 to leave the loop dormant.
+  if (process.env.PRISM_XPROC_AUTOFIRE !== "0") {
+    try {
+      const { XProcNeuralAutoFireEngine } = await import("./engines/XProcNeuralAutoFireEngine.js");
+      const r = XProcNeuralAutoFireEngine.activate();
+      const enabled = r.components.filter((c) => c.action === "enabled").map((c) => c.key);
+      log.info(
+        `[XPROC-AUTOFIRE] closed-loop learning ${r.ok ? "active" : "active (with errors)"} — ` +
+        `enabled=[${enabled.join(", ")}]${r.errors > 0 ? `, errors=${r.errors}` : ""}`,
+      );
+    } catch (autofireErr: any) {
+      log.warn(`[XPROC-AUTOFIRE] activation failed (non-fatal): ${autofireErr?.message ?? autofireErr}`);
+    }
+  } else {
+    log.info("[XPROC-AUTOFIRE] disabled via PRISM_XPROC_AUTOFIRE=0 — closed-loop learning dormant");
+  }
+
   // INFRA-1-2: Database initialization (graceful — server always starts without DB)
   try {
     const { db } = await import("./db/connection.js");
