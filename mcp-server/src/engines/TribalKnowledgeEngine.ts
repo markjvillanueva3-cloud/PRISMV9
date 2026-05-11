@@ -1037,6 +1037,68 @@ function autoCategorize(tip: KnowledgeTip): KnowledgeTip {
 }
 
 // ============================================================================
+// TK-MS7: NATURAL LANGUAGE QUERY TYPES FOR LLM/PUOA INTEGRATION
+// ============================================================================
+
+/** Parsed intent from natural language query. */
+export interface ParsedTribalIntent {
+  material?: string;
+  material_iso?: string;
+  operation?: string;
+  machine?: string;
+  controller?: string;
+  category?: string;
+  keywords: string[];
+  ambiguous: boolean;
+  original_intent: string;
+}
+
+/** Modifier extracted from tribal tips for calculation adjustments. */
+export interface TribalModifier {
+  parameter: string;
+  adjustment: number;
+  adjustment_type?: "relative" | "absolute_max" | "absolute_min";
+  reason: string;
+  source_tip_id: string;
+  confidence: number;
+}
+
+/** Constraint extracted from tribal tips. */
+export interface TribalConstraint {
+  type: "prohibition" | "requirement" | "warning";
+  description: string;
+  reason: string;
+  source_tip_id: string;
+  severity: "low" | "medium" | "high" | "critical";
+}
+
+/** Result from natural language tribal knowledge query. */
+export interface TribalNLQueryResult {
+  query: string;
+  parsed_intent: ParsedTribalIntent;
+  tips: Array<{
+    id: string;
+    title: string;
+    body: string;
+    category: string;
+    domain?: string;
+    confidence: number;
+    relevance_score: number;
+    provenance: {
+      source: string;
+      captured_by: string;
+      times_applied: number;
+    };
+  }>;
+  modifiers: TribalModifier[];
+  constraints: TribalConstraint[];
+  warnings: string[];
+  summary: string;
+  clarifications: string[];
+  total_matches: number;
+}
+
+// ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
@@ -1363,6 +1425,353 @@ export class TribalKnowledgeEngine {
       auto_categorized_count: autoCategorizedCount,
     };
   }
+
+  // =========================================================================
+  // TK-MS7: NATURAL LANGUAGE QUERY (restored from b7e0b298f L1761)
+  // Used by PRISMUnifiedOrchestratorEngine.{queryTribalKnowledge,synthesizeTribalForTask}
+  // =========================================================================
+
+  /**
+   * Query tribal knowledge using natural language intent.
+   * Parses material, operation, machine, controller, category from free text,
+   * retrieves relevance-scored tips, and extracts modifiers/constraints/warnings.
+   * @param intent - Free-form natural language query (e.g., "tips for roughing D2 steel on Okuma")
+   * @returns Structured query result for LLM/PUOA consumption
+   */
+  queryTribalNaturalLanguage(intent: string): TribalNLQueryResult {
+    const parsed = this.parseNaturalLanguageIntent(intent);
+    const tips = this.searchByParsedIntent(parsed);
+    const modifiers = this.extractModifiersFromTips(tips);
+    const constraints = this.extractConstraintsFromTips(tips);
+    const warnings = this.extractWarningsFromTips(tips);
+    const summary = this.formatTribalSummaryForLLM(tips, parsed);
+    const clarifications = parsed.ambiguous ? this.generateClarifications(parsed) : [];
+
+    return {
+      query: intent,
+      parsed_intent: parsed,
+      tips: tips.slice(0, 10).map(t => ({
+        id: t.id,
+        title: t.title,
+        body: t.body,
+        category: t.category,
+        domain: t.domain,
+        confidence: t.confidence,
+        relevance_score: t.relevance_score || 0,
+        provenance: {
+          source: t.source || "unknown",
+          captured_by: deriveCapturedBy(t.source),
+          times_applied: t.usage_count,
+        },
+      })),
+      modifiers,
+      constraints,
+      warnings,
+      summary,
+      clarifications,
+      total_matches: tips.length,
+    };
+  }
+
+  /**
+   * Parse natural language intent into structured query parameters.
+   * Extracts materials (16 patterns), operations (12), machines/controllers (9), categories (9).
+   */
+  private parseNaturalLanguageIntent(intent: string): ParsedTribalIntent {
+    const text = intent.toLowerCase();
+    const words = text.split(/\s+/);
+
+    const materialPatterns: Array<{ pattern: RegExp; material: string; iso: string }> = [
+      { pattern: /\b(d2|d-2)\b/i, material: "D2", iso: "K" },
+      { pattern: /\b(m2|m-2|hss)\b/i, material: "M2", iso: "S" },
+      { pattern: /\b(s7|s-7)\b/i, material: "S7", iso: "K" },
+      { pattern: /\b(a2|a-2)\b/i, material: "A2", iso: "K" },
+      { pattern: /\b(h13|h-13)\b/i, material: "H13", iso: "H" },
+      { pattern: /\b(4140|41l40)\b/i, material: "4140", iso: "P" },
+      { pattern: /\b(6061|6061-t6)\b/i, material: "6061-T6", iso: "N" },
+      { pattern: /\b(304|304ss|stainless)\b/i, material: "304SS", iso: "M" },
+      { pattern: /\b(inconel|718)\b/i, material: "Inconel 718", iso: "S" },
+      { pattern: /\b(titanium|ti-6al-4v|ti64)\b/i, material: "Ti-6Al-4V", iso: "S" },
+      { pattern: /\b(carbide|tungsten carbide)\b/i, material: "Tungsten Carbide", iso: "H" },
+      { pattern: /\b(graphite)\b/i, material: "Graphite", iso: "N" },
+      { pattern: /\b(copper|brass|bronze)\b/i, material: "Copper", iso: "N" },
+      { pattern: /\b(aluminum|aluminium)\b/i, material: "Aluminum", iso: "N" },
+      { pattern: /\b(steel|carbon steel)\b/i, material: "Steel", iso: "P" },
+      { pattern: /\b(hardened|hard|hrc)\b/i, material: "Hardened Steel", iso: "H" },
+    ];
+
+    let material: string | undefined;
+    let materialIso: string | undefined;
+    for (const { pattern, material: mat, iso } of materialPatterns) {
+      if (pattern.test(text)) { material = mat; materialIso = iso; break; }
+    }
+
+    const operationPatterns: Array<{ pattern: RegExp; operation: string }> = [
+      { pattern: /\b(rough|roughing)\b/i, operation: "roughing" },
+      { pattern: /\b(finish|finishing)\b/i, operation: "finishing" },
+      { pattern: /\b(drill|drilling|hole)\b/i, operation: "drilling" },
+      { pattern: /\b(tap|tapping|thread)\b/i, operation: "threading" },
+      { pattern: /\b(pocket|pocketing)\b/i, operation: "pocketing" },
+      { pattern: /\b(contour|profile|profiling)\b/i, operation: "profiling" },
+      { pattern: /\b(face|facing)\b/i, operation: "facing" },
+      { pattern: /\b(bore|boring)\b/i, operation: "boring" },
+      { pattern: /\b(slot|slotting)\b/i, operation: "slotting" },
+      { pattern: /\b(turn|turning|lathe)\b/i, operation: "turning" },
+      { pattern: /\b(edm|sinker|wire)\b/i, operation: "edm" },
+      { pattern: /\b(grind|grinding)\b/i, operation: "grinding" },
+    ];
+
+    let operation: string | undefined;
+    for (const { pattern, operation: op } of operationPatterns) {
+      if (pattern.test(text)) { operation = op; break; }
+    }
+
+    const machinePatterns: Array<{ pattern: RegExp; machine: string; controller: string }> = [
+      { pattern: /\b(okuma|osp)\b/i, machine: "Okuma", controller: "OSP" },
+      { pattern: /\b(fanuc|fanuc\s*\d+)\b/i, machine: "Fanuc", controller: "Fanuc" },
+      { pattern: /\b(haas)\b/i, machine: "Haas", controller: "Haas" },
+      { pattern: /\b(mazak|mazatrol)\b/i, machine: "Mazak", controller: "Mazatrol" },
+      { pattern: /\b(hurco)\b/i, machine: "Hurco", controller: "WinMax" },
+      { pattern: /\b(mitsubishi)\b/i, machine: "Mitsubishi", controller: "Mitsubishi" },
+      { pattern: /\b(siemens|sinumerik)\b/i, machine: "Siemens", controller: "Sinumerik" },
+      { pattern: /\b(heidenhain)\b/i, machine: "Heidenhain", controller: "Heidenhain" },
+      { pattern: /\b(roku-roku|rokuroku)\b/i, machine: "Roku-Roku", controller: "Fanuc" },
+    ];
+
+    let machine: string | undefined;
+    let controller: string | undefined;
+    for (const { pattern, machine: mach, controller: ctrl } of machinePatterns) {
+      if (pattern.test(text)) { machine = mach; controller = ctrl; break; }
+    }
+
+    const categoryPatterns: Array<{ pattern: RegExp; category: string }> = [
+      { pattern: /\b(speed|feed|s\/?f|rpm|ipm|mmpm)\b/i, category: "speeds_feeds" },
+      { pattern: /\b(tool|tooling|cutter|insert)\b/i, category: "tooling" },
+      { pattern: /\b(fixture|clamp|vise|workholding|setup)\b/i, category: "fixturing" },
+      { pattern: /\b(safety|danger|warning|caution)\b/i, category: "safety" },
+      { pattern: /\b(quality|tolerance|gdt|inspection)\b/i, category: "quality" },
+      { pattern: /\b(post|g-?code|m-?code|nc)\b/i, category: "post_processor" },
+      { pattern: /\b(cam|toolpath|strategy)\b/i, category: "cam_strategy" },
+      { pattern: /\b(maintenance|wear|life)\b/i, category: "maintenance" },
+      { pattern: /\b(troubleshoot|problem|issue|fix)\b/i, category: "troubleshooting" },
+    ];
+
+    let category: string | undefined;
+    for (const { pattern, category: cat } of categoryPatterns) {
+      if (pattern.test(text)) { category = cat; break; }
+    }
+
+    const ambiguous = !material && !operation && !machine && !category;
+
+    const stopWords = new Set([
+      "the","a","an","for","to","in","on","with","and","or","of",
+      "tips","advice","help","how","what","when","why","best","good","any",
+    ]);
+    const keywords = words.filter(w => w.length > 2 && !stopWords.has(w));
+
+    return {
+      material,
+      material_iso: materialIso,
+      operation,
+      machine,
+      controller,
+      category,
+      keywords,
+      ambiguous,
+      original_intent: intent,
+    };
+  }
+
+  /**
+   * Search tips using parsed intent parameters with weighted relevance scoring.
+   * Weights: material 30, material_iso 20, operation 25, machine 20, controller 15,
+   * category 20, keywords 5 each. Boosts: confidence×0.1, min(usage×2, 20).
+   */
+  private searchByParsedIntent(parsed: ParsedTribalIntent): (KnowledgeTip & { relevance_score: number })[] {
+    const results: (KnowledgeTip & { relevance_score: number })[] = [];
+
+    for (const tip of this.tips) {
+      let score = 0;
+      const tipText = `${tip.title} ${tip.body} ${tip.tags?.join(" ") || ""}`.toLowerCase();
+
+      if (parsed.material && tipText.includes(parsed.material.toLowerCase())) score += 30;
+      if (parsed.material_iso && tip.material_groups?.includes(parsed.material_iso)) score += 20;
+      if (parsed.operation && tipText.includes(parsed.operation)) score += 25;
+      if (parsed.machine && tipText.includes(parsed.machine.toLowerCase())) score += 20;
+      if (parsed.controller && tipText.includes(parsed.controller.toLowerCase())) score += 15;
+      if (parsed.category && tip.category === parsed.category) score += 20;
+
+      for (const kw of parsed.keywords) {
+        if (tipText.includes(kw)) score += 5;
+      }
+
+      score += tip.confidence * 0.1;
+      score += Math.min(tip.usage_count * 2, 20);
+
+      if (score > 0) results.push({ ...tip, relevance_score: score });
+    }
+
+    results.sort((a, b) => b.relevance_score - a.relevance_score);
+    return results;
+  }
+
+  /**
+   * Extract modifier suggestions from top 5 tips for calculation adjustments.
+   * Detects: "reduce speed by X%", "reduce feed by X%", "reduce/limit doc to X mm".
+   */
+  private extractModifiersFromTips(tips: KnowledgeTip[]): TribalModifier[] {
+    const modifiers: TribalModifier[] = [];
+
+    for (const tip of tips.slice(0, 5)) {
+      const text = `${tip.title} ${tip.body}`.toLowerCase();
+
+      const speedMatch = text.match(/reduce\s+speed\s+(?:by\s+)?(\d+)%/i);
+      if (speedMatch) {
+        modifiers.push({
+          parameter: "cutting_speed",
+          adjustment: -parseInt(speedMatch[1], 10) / 100,
+          adjustment_type: "relative",
+          reason: tip.title,
+          source_tip_id: tip.id,
+          confidence: tip.confidence,
+        });
+      }
+
+      const feedMatch = text.match(/reduce\s+feed\s+(?:by\s+)?(\d+)%/i);
+      if (feedMatch) {
+        modifiers.push({
+          parameter: "feed_rate",
+          adjustment: -parseInt(feedMatch[1], 10) / 100,
+          adjustment_type: "relative",
+          reason: tip.title,
+          source_tip_id: tip.id,
+          confidence: tip.confidence,
+        });
+      }
+
+      const docMatch = text.match(/(?:reduce|limit)\s+(?:doc|depth)\s+(?:to\s+)?(\d+(?:\.\d+)?)\s*mm/i);
+      if (docMatch) {
+        modifiers.push({
+          parameter: "depth_of_cut",
+          adjustment: parseFloat(docMatch[1]),
+          adjustment_type: "absolute_max",
+          reason: tip.title,
+          source_tip_id: tip.id,
+          confidence: tip.confidence,
+        });
+      }
+    }
+
+    return modifiers;
+  }
+
+  /**
+   * Extract constraint warnings (prohibitions + requirements) from top 5 tips.
+   * Detects: "never|don't|avoid|do not X" → prohibition; "must|always|required X" → requirement.
+   */
+  private extractConstraintsFromTips(tips: KnowledgeTip[]): TribalConstraint[] {
+    const constraints: TribalConstraint[] = [];
+
+    for (const tip of tips.slice(0, 5)) {
+      const text = `${tip.title} ${tip.body}`.toLowerCase();
+
+      if (/\b(never|don'?t|avoid|do not)\b/.test(text)) {
+        const actionMatch = text.match(/(?:never|don'?t|avoid|do not)\s+([^.!]+)/i);
+        if (actionMatch) {
+          constraints.push({
+            type: "prohibition",
+            description: actionMatch[1].trim(),
+            reason: tip.title,
+            source_tip_id: tip.id,
+            severity: "high",
+          });
+        }
+      }
+
+      if (/\b(must|always|required)\b/.test(text)) {
+        const actionMatch = text.match(/(?:must|always|required)\s+([^.!]+)/i);
+        if (actionMatch) {
+          constraints.push({
+            type: "requirement",
+            description: actionMatch[1].trim(),
+            reason: tip.title,
+            source_tip_id: tip.id,
+            severity: "medium",
+          });
+        }
+      }
+    }
+
+    return constraints;
+  }
+
+  /**
+   * Extract warning messages from top 5 tips.
+   * Flags safety-category tips and anti_pattern/failure_mode knowledge_types.
+   * (Schema-adapted from original which used "danger_zone"/"gotcha" — those types
+   *  aren't in the current KnowledgeType union.)
+   */
+  private extractWarningsFromTips(tips: KnowledgeTip[]): string[] {
+    const warnings: string[] = [];
+
+    for (const tip of tips.slice(0, 5)) {
+      if (tip.category === "safety") {
+        warnings.push(`[SAFETY] ${tip.title}`);
+      } else if (tip.knowledge_type === "anti_pattern" || tip.knowledge_type === "failure_mode") {
+        warnings.push(`[GOTCHA] ${tip.title}`);
+      }
+    }
+
+    return warnings;
+  }
+
+  /**
+   * Format tribal knowledge summary for LLM consumption.
+   * Returns top-3 tips with title, category, confidence, and 200-char body excerpt.
+   */
+  private formatTribalSummaryForLLM(tips: KnowledgeTip[], parsed: ParsedTribalIntent): string {
+    if (tips.length === 0) {
+      return `No tribal knowledge found for query: "${parsed.original_intent}". Consider searching with different keywords or browsing by category.`;
+    }
+
+    const topTips = tips.slice(0, 3);
+    const context: string[] = [];
+    if (parsed.material) context.push(`material: ${parsed.material}`);
+    if (parsed.operation) context.push(`operation: ${parsed.operation}`);
+    if (parsed.machine) context.push(`machine: ${parsed.machine}`);
+
+    const contextStr = context.length > 0 ? ` for ${context.join(", ")}` : "";
+
+    let summary = `Found ${tips.length} tribal knowledge tips${contextStr}. Top recommendations:\n\n`;
+    for (let i = 0; i < topTips.length; i++) {
+      const tip = topTips[i];
+      summary += `${i + 1}. **${tip.title}** (${tip.category}, confidence: ${tip.confidence}%)\n`;
+      summary += `   ${tip.body.slice(0, 200)}${tip.body.length > 200 ? "..." : ""}\n\n`;
+    }
+
+    return summary;
+  }
+
+  /**
+   * Generate clarification suggestions for ambiguous queries (missing all 4 dimensions).
+   */
+  private generateClarifications(parsed: ParsedTribalIntent): string[] {
+    const suggestions: string[] = [];
+    if (!parsed.material) suggestions.push("Specify the material (e.g., 'D2 steel', '6061 aluminum', 'Inconel')");
+    if (!parsed.operation) suggestions.push("Specify the operation (e.g., 'roughing', 'finishing', 'drilling')");
+    if (!parsed.machine) suggestions.push("Specify the machine or controller (e.g., 'Okuma', 'Haas', 'Fanuc')");
+    if (!parsed.category) suggestions.push("Specify the category (e.g., 'speeds/feeds', 'tooling', 'fixturing')");
+    return suggestions;
+  }
+}
+
+/** Derive captured_by attribution from a tip's source string.
+ * "operator:John" → "John", "incident:2024-03-15" → "system", others → "system".
+ */
+function deriveCapturedBy(source: string | undefined): string {
+  if (!source) return "system";
+  if (source.startsWith("operator:")) return source.slice("operator:".length) || "system";
+  return "system";
 }
 
 /** Tribal Knowledge Engine constant.
