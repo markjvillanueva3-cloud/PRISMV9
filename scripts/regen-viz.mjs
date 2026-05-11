@@ -145,6 +145,20 @@ if (rc.status !== 0) {
   failed++;
 }
 
+// Obsidian 2nd-brain bridge — re-scan the merged graph + the H:/prism/knowledge vault
+// and refresh obsidian-augmentation.json (per-node wiki/memory backlinks). MUST run
+// after the merge (it needs the full node set), so its output lands on the NEXT
+// regen's merge — the bridge ALSO patches system-graph.json's node.knowledge fields
+// directly so the link isn't a regen behind. Heavy-ish (scans ~13.8k wiki files):
+// only --full runs it; the FAST path keeps yesterday's backlinks (still useful).
+if (wantFull) {
+  console.log(`[regen-viz] obsidian bridge: refresh vault backlinks…`);
+  const ob = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "system-viz-obsidian-bridge-v2.mjs")], {
+    stdio: "inherit", cwd: ROOT,
+  });
+  if (ob.status !== 0) { console.error(`[regen-viz] ✗ obsidian-bridge failed (non-fatal)`); }
+}
+
 // Executive briefing — regenerate the boss-audit landing doc from the fresh
 // graph + BUILD_STATE + SVI + revenue/milestone artifacts. Served at /briefing.
 console.log(`[regen-viz] regenerate executive briefing…`);
