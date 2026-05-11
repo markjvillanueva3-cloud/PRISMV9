@@ -39,6 +39,10 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
+- EDMPostProcessorExtension
+- MastercamEDMBridge
+- OneClickWEDMGeneratorEngine
+- PPGProvenanceWireEngine
 - WEDMAdaptivePassEngine
 - WEDMAutonomyAuditEngine
 - WEDMBenchmarkToleranceEngine
@@ -47,14 +51,10 @@ _(no L4 dispatcher match — may need wiring)_
 - WEDMControllerDialectVerifierEngine
 - WEDMCornerPhysicsEngine
 - WEDMCreditCostEngine
-- WEDMCurrentDensityGuardEngine
-- WEDMDeviationToTipEngine
-- WEDMDielectricCorrectionEngine
-- WEDMDielectricFlushAdjustEngine
 
 ## Rollup labels
 
-- `WEDM | (130) ◇ 9/143 drilled`
+- `wedm | (189 engines)`
 
 <!-- AUTO-END -->
 

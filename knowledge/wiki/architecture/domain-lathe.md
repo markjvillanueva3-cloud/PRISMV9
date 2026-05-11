@@ -39,6 +39,7 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
+- BarFeedPitchOptimizerEngine
 - LatheActiveLearningEngine
 - LatheActualFeedbackTuningEngine
 - LatheAdvancedOperationsEngine
@@ -50,11 +51,10 @@ _(no L4 dispatcher match — may need wiring)_
 - LatheAttentionMechanismEngine
 - LatheAuxAxisTimingEngine
 - LatheBirdNestPredictorEngine
-- LatheBlockEngagementSimulatorEngine
 
 ## Rollup labels
 
-- `Lathe | (89) ◇ 9/186 drilled`
+- `lathe | (190 engines)`
 
 <!-- AUTO-END -->
 

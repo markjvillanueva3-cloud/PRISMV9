@@ -39,11 +39,14 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
+- Drawing2DExtractionEngine
+- DrawingTemplateIndexEngine
+- NXOpenAssemblyDrawingEngine
 - PrintMatchStallDetectorEngine
 
 ## Rollup labels
 
-- `Print | (6) ◇ 9/21 drilled`
+- `print | (27 engines)`
 
 <!-- AUTO-END -->
 

@@ -39,13 +39,16 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- ChanceConstrainedOptimizationEngine
+- CrossProcessModalityDropoutRobustifierEngine
 - PhysicsAwareSimulationEngine
 - PhysicsFusionOrchestrator.types
 - PhysicsSidecarBuilderEngine
+- ThreadStrengthFatigueEngine
 
 ## Rollup labels
 
-- `Physics | (50) ◇ 9/12 drilled`
+- `physics | (35 engines)`
 
 <!-- AUTO-END -->
 

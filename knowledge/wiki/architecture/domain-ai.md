@@ -39,6 +39,7 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- ActiveLearningStrategyEngine
 - AIAutoUtilizationEngine
 - AICapabilityMaximizerEngine
 - AirCompressorEngine
@@ -46,10 +47,14 @@ related:
 - AirDuctEngine
 - AISystemRouterEngine
 - AISystemSynchronizerEngine
+- BeliefStateReasoningEngine
+- CognitiveBudgetAllocatorEngine
+- CounterfactualReasoningEngine
+- CrossProcessFormulaNeuralEnsembleEngine
 
 ## Rollup labels
 
-- `AI | (280) ◇ 9/17 drilled`
+- `ai | (115 engines)`
 
 <!-- AUTO-END -->
 

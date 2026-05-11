@@ -43,7 +43,7 @@ _(no atomic engines indexed)_
 
 ## Rollup labels
 
-- `Calibration | (20) ◇ 1/1 drilled`
+- `calibration | (1 engines)`
 
 <!-- AUTO-END -->
 

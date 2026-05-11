@@ -37,18 +37,18 @@ related:
 - `sfc_drift_canary_check`
 - `ppg_drift_canary_check`
 
-_…and 318 more. See full enum in dispatcher source._
+_…and 332 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.mill` — Mill (240) ◇ 9/21 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.knowledge` — Knowledge (45) ◇ 9/10 drilled
-- `eng.physics` — Physics (50) ◇ 9/12 drilled
-- `eng.ai` — AI (280) ◇ 9/17 drilled
-- `eng.milling` — Milling (7) ◇ 9/34 drilled
-- `eng.lathe` — Lathe (89) ◇ 9/186 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
+- `eng.mill` — mill (42 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.knowledge` — knowledge (79 engines)
+- `eng.physics` — physics (35 engines)
+- `eng.ai` — ai (115 engines)
+- `eng.milling` — milling (40 engines)
+- `eng.lathe` — lathe (190 engines)
+- `eng.hook` — hook (9 engines)
 
 ## Doctrine
 

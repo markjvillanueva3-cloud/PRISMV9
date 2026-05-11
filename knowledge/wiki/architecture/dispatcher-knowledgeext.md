@@ -41,9 +41,9 @@ _…and 32 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.knowledge` — Knowledge (45) ◇ 9/10 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.knowledge` — knowledge (79 engines)
+- `eng.hook` — hook (9 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

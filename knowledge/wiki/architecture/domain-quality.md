@@ -39,11 +39,16 @@ related:
 
 ## Drilled atomic engines (sample)
 
-_(no atomic engines indexed)_
+- CMMHistoryEngine
+- CMMImportEngine
+- ConcentrationInequalityEngine
+- DimensionalAnalysisEngine
+- MetrologyUncertaintyEngine
+- SPCChartingEngine
 
 ## Rollup labels
 
-- `Quality | (90) ◇ 5/5 drilled`
+- `quality | (17 engines)`
 
 <!-- AUTO-END -->
 

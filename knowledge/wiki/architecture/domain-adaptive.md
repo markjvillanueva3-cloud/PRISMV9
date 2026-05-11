@@ -49,10 +49,12 @@ related:
 - AdaptiveThermalEngine
 - AdaptiveThresholdEngine
 - AdaptiveWearEngine
+- BayesianAdaptiveEngine
+- CrossProcessBayesianDOEPlannerEngine
 
 ## Rollup labels
 
-- `Adaptive | (70) ◇ 9/21 drilled`
+- `adaptive | (36 engines)`
 
 <!-- AUTO-END -->
 

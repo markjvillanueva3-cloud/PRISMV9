@@ -43,7 +43,7 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Rollup labels
 
-- `Wet | (7) ◇ 9/15 drilled`
+- `wet | (16 engines)`
 
 <!-- AUTO-END -->
 

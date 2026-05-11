@@ -31,8 +31,8 @@ related:
 
 ## Engine consumers (L5 edges)
 
-- `eng.multi` — Multi (12) ◇ 9/31 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.multi` — multi (32 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

@@ -43,7 +43,7 @@ _(no atomic engines indexed)_
 
 ## Rollup labels
 
-- `Forge | (20) ◇ 1/1 drilled`
+- `forge | (1 engines)`
 
 <!-- AUTO-END -->
 

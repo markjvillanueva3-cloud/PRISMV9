@@ -15,7 +15,7 @@ related:
 > Visual one-page index of the 13-layer architecture rendered from `system-graph.json`.
 > This is the entry point for any chat/agent exploring PRISM structure.
 
-**Total graph:** 126,441 nodes · 136,106 edges
+**Total graph:** 127,556 nodes · 148,891 edges
 **Headline:** 2302 engines wired · 875 unwired · 2 drift · 2 frontend merges pending · 776 wiki entries
 
 ## Layer diagram
@@ -27,11 +27,11 @@ flowchart TD
     L2["L2 · Transport<br/><b>20</b> nodes · tier 3"]
     L3["L3 · AI Hierarchy<br/><b>33</b> nodes · tier 2"]
     L4["L4 · Dispatchers<br/><b>97</b> nodes · tier 2"]
-    L4a["L4a · Dispatcher Actions<br/><b>9,228</b> nodes · tier 2"]
-    L5["L5 · Engines<br/><b>3,243</b> nodes · tier 1"]
-    L6["L6 · Core (algos / schemas / skills)<br/><b>6,994</b> nodes · tier 0"]
-    L7["L7 · Registries<br/><b>27</b> nodes · tier 0"]
-    L8["L8 · Wiki / Memory / Milestones<br/><b>869</b> nodes · tier 0"]
+    L4a["L4a · Dispatcher Actions<br/><b>9,242</b> nodes · tier 2"]
+    L5["L5 · Engines<br/><b>3,309</b> nodes · tier 1"]
+    L6["L6 · Core (algos / schemas / skills)<br/><b>7,124</b> nodes · tier 0"]
+    L7["L7 · Registries<br/><b>64</b> nodes · tier 0"]
+    L8["L8 · Wiki / Memory / Milestones<br/><b>1,737</b> nodes · tier 0"]
     L9["L9 · Filesystem (root)<br/><b>2,695</b> nodes · tier 0"]
     L10["L10 · Memory Vault Categories<br/><b>391</b> nodes · tier 0"]
     L11["L11 · Deep Filesystem<br/><b>102,666</b> nodes · tier 0"]
@@ -72,11 +72,11 @@ flowchart TD
 | [[layer-l2]] | L2 | Transport | 3 | 20 |
 | [[layer-l3]] | L3 | AI Hierarchy | 2 | 33 |
 | [[layer-l4]] | L4 | Dispatchers | 2 | 97 |
-| [[layer-l4a]] | L4a | Dispatcher Actions | 2 | 9,228 |
-| [[layer-l5]] | L5 | Engines | 1 | 3,243 |
-| [[layer-l6]] | L6 | Core (algos / schemas / skills) | 0 | 6,994 |
-| [[layer-l7]] | L7 | Registries | 0 | 27 |
-| [[layer-l8]] | L8 | Wiki / Memory / Milestones | 0 | 869 |
+| [[layer-l4a]] | L4a | Dispatcher Actions | 2 | 9,242 |
+| [[layer-l5]] | L5 | Engines | 1 | 3,309 |
+| [[layer-l6]] | L6 | Core (algos / schemas / skills) | 0 | 7,124 |
+| [[layer-l7]] | L7 | Registries | 0 | 64 |
+| [[layer-l8]] | L8 | Wiki / Memory / Milestones | 0 | 1,737 |
 | [[layer-l9]] | L9 | Filesystem (root) | 0 | 2,695 |
 | [[layer-l10]] | L10 | Memory Vault Categories | 0 | 391 |
 | [[layer-l11]] | L11 | Deep Filesystem | 0 | 102,666 |

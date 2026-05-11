@@ -41,8 +41,8 @@ _…and 23 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.memory` — Memory (35) ◇ 4/4 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.memory` — memory (26 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

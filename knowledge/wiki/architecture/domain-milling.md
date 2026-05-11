@@ -39,6 +39,8 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
+- MicroMillingEngine
+- MicroMillingSizeEffectEngine
 - MillingAGIOrchestrationEngine
 - MillingAIUnificationEngine
 - MillingCriticalThinkingEngine
@@ -49,12 +51,10 @@ _(no L4 dispatcher match — may need wiring)_
 - MillingEndToEndOrchestrationEngine
 - MillingForceEngine
 - MillingHeadIntelligenceEngine
-- MillingHybridStrategySynthesizer
-- MillingKnowledgeOrchestratorEngine
 
 ## Rollup labels
 
-- `Milling | (7) ◇ 9/34 drilled`
+- `milling | (40 engines)`
 
 <!-- AUTO-END -->
 

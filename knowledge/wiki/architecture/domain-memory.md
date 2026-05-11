@@ -39,11 +39,20 @@ related:
 
 ## Drilled atomic engines (sample)
 
-_(no atomic engines indexed)_
+- AutoPostmortemEngine
+- CaptureSharpenEngine
+- ContentBriefEngine
+- ContentWriterEngine
+- ContradictionDetectorEngine
+- ConversationalMemoryEngine
+- EmergingThesisEngine
+- OllamaEmbedderEngine
+- PerformanceLoopEngine
+- QdrantCapacityPlannerEngine
 
 ## Rollup labels
 
-- `Memory | (35) ◇ 4/4 drilled`
+- `memory | (26 engines)`
 
 <!-- AUTO-END -->
 

@@ -43,7 +43,7 @@ _(no atomic engines indexed)_
 
 ## Rollup labels
 
-- `Probe | (28) ◇ 4/4 drilled`
+- `probe | (4 engines)`
 
 <!-- AUTO-END -->
 

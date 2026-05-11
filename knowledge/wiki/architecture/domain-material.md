@@ -39,12 +39,20 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- AutoclaveProcessEngine
+- BatchCAMMaterialBridgeEngines
+- ElectrochemicalEngine
+- InductionHeatingEngine
 - MaterialDatabaseBridgeEngine
 - MaterialHardnessStateClassifierEngine
+- NitridingProcessEngine
+- QuenchingProcessEngine
+- SinteringProcessEngine
+- SuperalloyMachiningEngine
 
 ## Rollup labels
 
-- `Material | (80) ◇ 9/13 drilled`
+- `material | (26 engines)`
 
 <!-- AUTO-END -->
 

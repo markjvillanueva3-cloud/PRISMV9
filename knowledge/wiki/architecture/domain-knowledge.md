@@ -42,11 +42,22 @@ related:
 
 ## Drilled atomic engines (sample)
 
-_(no atomic engines indexed)_
+- ApprenticeEngine
+- CourseBuilderEngine
+- ExtractedKnowledgeWiringEngine
+- FleetDeploymentLearningEngine
+- MITCourseDeepLearningEngine
+- MITCourseExpansionEngine
+- MITCourseFullIntegrationEngine
+- MitCourseIndexEngine
+- MITCourseIntegrationEngine
+- MITCourseKnowledgeEngine
+- TribalEvolutionEngine
+- TribalExplanationEngine
 
 ## Rollup labels
 
-- `Knowledge | (45) ◇ 9/10 drilled`
+- `knowledge | (79 engines)`
 
 <!-- AUTO-END -->
 

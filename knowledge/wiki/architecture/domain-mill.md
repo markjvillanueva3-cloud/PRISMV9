@@ -39,15 +39,21 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- BallMillEngine
+- CounterfactualMillEngine
+- MastercamMillTurnBridge
 - MillPrintToProgramEngine
 - MillProgramAnalyzerEngine
 - MillResourceAwarenessEngine
 - MillScientificPipelineEngine
 - MillStrategyNeuralEngine
+- PeckDrillingOptimizationEngine
+- SolidCAMMillTurnFunctionIndexEngine
+- TappingTorqueEngine
 
 ## Rollup labels
 
-- `Mill | (240) ◇ 9/21 drilled`
+- `mill | (42 engines)`
 
 <!-- AUTO-END -->
 

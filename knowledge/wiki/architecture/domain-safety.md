@@ -39,11 +39,13 @@ related:
 
 ## Drilled atomic engines (sample)
 
-_(no atomic engines indexed)_
+- AGISafetyContainmentEngine
+- BatchCAMSafetyEngines
+- CollisionHazardDetectorEngine
 
 ## Rollup labels
 
-- `Safety | (80) ◇ 8/8 drilled`
+- `safety | (17 engines)`
 
 <!-- AUTO-END -->
 

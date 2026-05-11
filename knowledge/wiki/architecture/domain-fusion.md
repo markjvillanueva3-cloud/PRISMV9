@@ -39,6 +39,9 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
+- CrossProcessAudioTabularFusionEngine
+- CrossProcessTimeSeriesTabularFusionEngine
+- CrossProcessVisionTabularFusionEngine
 - Fusion360AIOrchestrationEngine
 - Fusion360ControllerCatalogEngine
 - Fusion360FunctionIndexEngine
@@ -48,13 +51,10 @@ _(no L4 dispatcher match — may need wiring)_
 - Fusion360ProbingBridgeEngine
 - Fusion360SafetyHooksEngine
 - Fusion360ToolExportEngine
-- FusionCPSParserEngine
-- FusionLathePostDeltaRegistryEngine
-- FusionPostSyncEngine
 
 ## Rollup labels
 
-- `Fusion | (7) ◇ 9/36 drilled`
+- `fusion | (43 engines)`
 
 <!-- AUTO-END -->
 

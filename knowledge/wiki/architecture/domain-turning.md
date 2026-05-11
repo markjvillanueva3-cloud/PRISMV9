@@ -40,12 +40,22 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- BarPullerTimingEngine
+- BarStockCutPlanEngine
+- DiamondTurningEngine
+- LiveToolingEngine
+- NXCAMTurningFunctionIndexEngine
+- SoftJawBoringGCodeEngine
+- SolidCAMTurningFunctionIndexEngine
+- SteadyRestPlacementEngine
+- TailstockForceEngine
 - TurningCpkSurrogateEngine
 - TurningInspectionPlanEngine
+- VendorTurningCatalogExtractorEngine
 
 ## Rollup labels
 
-- `Turning | (11) ◇ 9/24 drilled`
+- `turning | (49 engines)`
 
 <!-- AUTO-END -->
 

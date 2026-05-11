@@ -35,8 +35,8 @@ related:
 
 ## Engine consumers (L5 edges)
 
-- `eng.safety` — Safety (80) ◇ 8/8 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.safety` — safety (17 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

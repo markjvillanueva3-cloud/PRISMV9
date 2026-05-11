@@ -25,14 +25,12 @@ related:
 
 | Status | Engines |
 |--------|---------|
-| built | 643 |
 | stub_heavy | 142 |
 
 ## Wiring state
 
 | Subgroup | Engines |
 |----------|---------|
-| wired | 643 |
 | unwired | 142 |
 
 ## Connected dispatchers (L4 matches)
@@ -41,23 +39,22 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
-- AbrasiveJetMachiningEngine
 - AbsorptionChillerEngine
 - AbstractionHierarchyEngine
 - AccessControlListEngine
-- AccountingHardeningEngine
 - AccumulatorEngine
-- AcoSequencerEngine
-- AcousticEmissionMonitoringEngine
 - ActionableErrorTemplateEngine
 - ActionSchemaCacheEngine
-- ActiveLearningStrategyEngine
-- AdaLoRARankAllocatorEngine
+- AdditiveManufacturingPhysicsEngine
+- AgentAutoUpdateEngine
+- AlarmEscalationEngine
+- AlgorithmOrchestratorEngine
+- AlphacamFunctionIndexEngine
+- AMSAAReliabilityGrowthEngine
 
 ## Rollup labels
 
 - `Other | (142) ◇ 9/2178 drilled`
-- `Other | (643) ◇ 9/2178 drilled`
 
 <!-- AUTO-END -->
 

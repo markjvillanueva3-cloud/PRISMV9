@@ -782,11 +782,11 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[layer-l2]] — L2 — Transport (20 nodes, tier 3)
 - [[layer-l3]] — L3 — AI Hierarchy (33 nodes, tier 2)
 - [[layer-l4]] — L4 — Dispatchers (97 nodes, tier 2)
-- [[layer-l4a]] — L4a — Dispatcher Actions (9228 nodes, tier 2)
-- [[layer-l5]] — L5 — Engines (3307 nodes, tier 1)
-- [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (6994 nodes, tier 0)
-- [[layer-l7]] — L7 — Registries (27 nodes, tier 0)
-- [[layer-l8]] — L8 — Wiki / Memory / Milestones (869 nodes, tier 0)
+- [[layer-l4a]] — L4a — Dispatcher Actions (9242 nodes, tier 2)
+- [[layer-l5]] — L5 — Engines (3309 nodes, tier 1)
+- [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (7124 nodes, tier 0)
+- [[layer-l7]] — L7 — Registries (64 nodes, tier 0)
+- [[layer-l8]] — L8 — Wiki / Memory / Milestones (1737 nodes, tier 0)
 - [[layer-l9]] — L9 — Filesystem (root tree) (2695 nodes, tier 0)
 - [[layer-l10]] — L10 — Memory Vault Categories (391 nodes, tier 0)
 - [[layer-l11]] — L11 — Deep Filesystem (102666 nodes, tier 0)
@@ -795,15 +795,15 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 ### Engine domains
 
 <!-- ARCH-DOMAINS-START -->
-- [[domain-other]] — engine domain `other` (785 engines)
 - [[domain-cam]] — engine domain `cam` (290 engines)
 - [[domain-ai]] — engine domain `ai` (280 engines)
 - [[domain-mill]] — engine domain `mill` (240 engines)
 - [[domain-cad]] — engine domain `cad` (200 engines)
+- [[domain-other]] — engine domain `other` (142 engines)
 - [[domain-wedm]] — engine domain `wedm` (130 engines)
 - [[domain-toolpath]] — engine domain `toolpath` (130 engines)
 - [[domain-erp]] — engine domain `erp` (110 engines)
-- [[domain-tool]] — engine domain `tool` (105 engines)
+- [[domain-tool]] — engine domain `tool` (95 engines)
 - [[domain-quality]] — engine domain `quality` (90 engines)
 - [[domain-lathe]] — engine domain `lathe` (89 engines)
 - [[domain-safety]] — engine domain `safety` (80 engines)
@@ -814,8 +814,8 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[domain-physics]] — engine domain `physics` (50 engines)
 - [[domain-knowledge]] — engine domain `knowledge` (45 engines)
 - [[domain-memory]] — engine domain `memory` (35 engines)
-- [[domain-session]] — engine domain `session` (31 engines)
 - [[domain-probe]] — engine domain `probe` (28 engines)
+- [[domain-session]] — engine domain `session` (25 engines)
 - [[domain-network]] — engine domain `network` (22 engines)
 - [[domain-forge]] — engine domain `forge` (20 engines)
 - [[domain-calibration]] — engine domain `calibration` (20 engines)
@@ -844,7 +844,7 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[dispatcher-business]] — `business` (441 actions, business)
 - [[dispatcher-cadautomation]] — `cadAutomation` (367 actions, manufacturing)
 - [[dispatcher-cad]] — `cad` (357 actions, manufacturing)
-- [[dispatcher-aireasoning]] — `aiReasoning` (330 actions, ai_intel)
+- [[dispatcher-aireasoning]] — `aiReasoning` (344 actions, ai_intel)
 - [[dispatcher-dev]] — `dev` (312 actions, system)
 - [[dispatcher-edm]] — `edm` (286 actions, manufacturing)
 - [[dispatcher-security]] — `security` (238 actions, business)
@@ -952,7 +952,7 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - engines under `tool`: 39 entries — see `knowledge/wiki/architecture/engines/tool/`
 - engines under `machine`: 37 entries — see `knowledge/wiki/architecture/engines/machine/`
 - engines under `business`: 35 entries — see `knowledge/wiki/architecture/engines/business/`
-- engines under `xproc`: 23 entries — see `knowledge/wiki/architecture/engines/xproc/`
+- engines under `xproc`: 28 entries — see `knowledge/wiki/architecture/engines/xproc/`
 - engines under `milling`: 22 entries — see `knowledge/wiki/architecture/engines/milling/`
 - engines under `cnc`: 19 entries — see `knowledge/wiki/architecture/engines/cnc/`
 - engines under `session`: 19 entries — see `knowledge/wiki/architecture/engines/session/`
@@ -1022,7 +1022,7 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 ### Actions (per-dispatcher counts)
 
 <!-- ARCH-ACTIONS-START -->
-_Total: 9228 action entries across 88 dispatchers — see `knowledge/wiki/architecture/actions/<dispatcher>/`._
+_Total: 9242 action entries across 88 dispatchers — see `knowledge/wiki/architecture/actions/<dispatcher>/`._
 
 Top dispatchers by action count:
 - `cam`: 2189 actions
@@ -1031,13 +1031,100 @@ Top dispatchers by action count:
 - `business`: 441 actions
 - `cadAutomation`: 367 actions
 - `cad`: 357 actions
-- `aiReasoning`: 330 actions
+- `aiReasoning`: 344 actions
 - `dev`: 312 actions
 - `edm`: 286 actions
 - `security`: 238 actions
 - `data`: 215 actions
 - `intelligence`: 153 actions
 <!-- ARCH-ACTIONS-END -->
+
+### Registries & catalogs
+
+<!-- ARCH-REGISTRIES-START -->
+**catalog_vendor** (34):
+- [[registry-reg-camfunctioncatalog-alphacam]] — `alphacam`
+- [[registry-reg-camfunctioncatalog-bobcad]] — `bobcad`
+- [[registry-reg-camfunctioncatalog-camworks]] — `camworks`
+- [[registry-reg-camfunctioncatalog-catia]] — `catia`
+- [[registry-reg-camfunctioncatalog-cimatron]] — `cimatron`
+- [[registry-reg-camfunctioncatalog-creo]] — `creo`
+- [[registry-reg-camfunctioncatalog-edgecam]] — `edgecam`
+- [[registry-reg-camfunctioncatalog-esprit]] — `esprit`
+- [[registry-reg-camfunctioncatalog-featurecam]] — `featurecam`
+- [[registry-reg-camfunctioncatalog-fusion360]] — `fusion360`
+- [[registry-reg-camfunctioncatalog-gibbscam]] — `gibbscam`
+- [[registry-reg-camfunctioncatalog-hypermill]] — `hypermill`
+- [[registry-reg-camfunctioncatalog-inventor-hsm]] — `inventor-hsm`
+- [[registry-reg-camfunctioncatalog-mastercam]] — `mastercam`
+- [[registry-reg-camfunctioncatalog-nxcam]] — `nxcam`
+- [[registry-reg-camfunctioncatalog-partmaker]] — `partmaker`
+- [[registry-reg-camfunctioncatalog-powermill]] — `powermill`
+- [[registry-reg-camfunctioncatalog-solidcam]] — `solidcam`
+- [[registry-reg-camfunctioncatalog-sprutcam]] — `sprutcam`
+- [[registry-reg-camfunctioncatalog-surfcam]] — `surfcam`
+- [[registry-reg-camfunctioncatalog-tebis]] — `tebis`
+- [[registry-reg-camfunctioncatalog-topsolid]] — `topsolid`
+- [[registry-reg-camfunctioncatalog-vericut]] — `vericut`
+- [[registry-reg-camfunctioncatalog-visi]] — `visi`
+- [[registry-reg-camfunctioncatalog-worknc]] — `worknc`
+- [[registry-reg-cadfunctioncatalog-fusion360]] — `fusion360`
+- [[registry-reg-cadfunctioncatalog-hypercad]] — `hypercad`
+- [[registry-reg-cadfunctioncatalog-inventor]] — `inventor`
+- [[registry-reg-cadfunctioncatalog-mastercam]] — `mastercam`
+- [[registry-reg-cadfunctioncatalog-solidworks]] — `solidworks`
+- [[registry-reg-camuicatalog-fusion360]] — `fusion360`
+- [[registry-reg-camuicatalog-hypermill]] — `hypermill`
+- [[registry-reg-camuicatalog-inventor-hsm]] — `inventor-hsm`
+- [[registry-reg-camuicatalog-mastercam]] — `mastercam`
+
+**registry** (23):
+- [[registry-reg-aisubsystemregistry]] — `AISubsystem`
+- [[registry-reg-agentregistry]] — `Agent`
+- [[registry-reg-alarmregistry]] — `Alarm`
+- [[registry-reg-algorithmregistry]] — `Algorithm`
+- [[registry-reg-baseregistry]] — `Base`
+- [[registry-reg-camsystemregistry]] — `CAMSystem`
+- [[registry-reg-coatingregistry]] — `Coating`
+- [[registry-reg-coolantregistry]] — `Coolant`
+- [[registry-reg-databaseregistry]] — `Database`
+- [[registry-reg-formularegistry]] — `Formula`
+- [[registry-reg-hookregistry]] — `Hook`
+- [[registry-reg-knowledgebaseregistry]] — `KnowledgeBase`
+- [[registry-reg-machineregistry]] — `Machine`
+- [[registry-reg-machinespindledefaults]] — `MachineSpindleDefaults`
+- [[registry-reg-materialregistry]] — `Material`
+- [[registry-reg-physicsmappingregistry]] — `PhysicsMapping`
+- [[registry-reg-postprocessorregistry]] — `PostProcessor`
+- [[registry-reg-scriptregistry]] — `Script`
+- [[registry-reg-skillregistry]] — `Skill`
+- [[registry-reg-toolgeometrydefaults]] — `ToolGeometryDefaults`
+- [[registry-reg-toolregistry]] — `Tool`
+- [[registry-reg-toolpathstrategyregistry]] — `ToolpathStrategy`
+- [[registry-reg-toolpathstrategyregistry-part1]] — `ToolpathStrategy_Part1`
+
+**catalog** (4):
+- [[registry-reg-materials-cnt]] — `Materials (live)`
+- [[registry-reg-tools-cnt]] — `Tools (live)`
+- [[registry-reg-machines-cnt]] — `Machines (live)`
+- [[registry-reg-tribal-tips]] — `Tribal Tips`
+
+**catalog_root** (3):
+- [[registry-reg-camfunctioncatalog]] — `camfunction catalog`
+- [[registry-reg-cadfunctioncatalog]] — `cadfunction catalog`
+- [[registry-reg-camuicatalog]] — `camui catalog`
+
+<!-- ARCH-REGISTRIES-END -->
+
+### Frontend pages
+
+<!-- ARCH-FRONTENDS-START -->
+_Total: 165 frontend entries_ · 0 flagged as dead-pixel risk
+
+- **page**: 146 entries — see `knowledge/wiki/architecture/frontends/page/`
+- **pages**: 14 entries — see `knowledge/wiki/architecture/frontends/pages/`
+- **variants**: 5 entries — see `knowledge/wiki/architecture/frontends/variants/`
+<!-- ARCH-FRONTENDS-END -->
 
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
 - [[distributed_locking]] — **File:** `mcp-server/src/utils/atomicWrite.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/distributed_locking.md

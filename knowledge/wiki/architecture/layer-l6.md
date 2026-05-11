@@ -22,9 +22,9 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 6994
-- **Edges into layer:** 8701
-- **Edges out of layer:** 7647
+- **Nodes in this layer:** 7124
+- **Edges into layer:** 9479
+- **Edges out of layer:** 12318
 - **Tier:** 0 (atomic foundation)
 
 ## Kind distribution
@@ -39,6 +39,7 @@ related:
 | schema_constant | 337 |
 | schema_file | 268 |
 | core_tests | 121 |
+| physics_value | 111 |
 | hook_pretooluse | 109 |
 | hook_posttooluse | 89 |
 | hook_stop | 73 |
@@ -50,6 +51,7 @@ related:
 | constant | 47 |
 | core_hooks_cl | 26 |
 | function | 19 |
+| physics_constant | 19 |
 | core_scripts | 14 |
 | core_skills | 14 |
 | hook_other | 14 |
@@ -66,7 +68,7 @@ related:
 
 | Status | Count |
 |--------|-------|
-| built | 6928 |
+| built | 7058 |
 | stub | 66 |
 
 ## Top nodes (by leverage / count)

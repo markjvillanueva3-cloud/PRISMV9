@@ -41,14 +41,14 @@ _…and 107 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.mill` — Mill (240) ◇ 9/21 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.milling` — Milling (7) ◇ 9/34 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.toolpath` — Toolpath (130) ◇ 9/12 drilled
-- `eng.tool` — Tool (10) ◇ 9/57 drilled
-- `eng.adaptive` — Adaptive (70) ◇ 9/21 drilled
-- `eng.five` — Five (9) ◇ 9/12 drilled
+- `eng.mill` — mill (42 engines)
+- `eng.hook` — hook (9 engines)
+- `eng.milling` — milling (40 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.toolpath` — toolpath (13 engines)
+- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.adaptive` — adaptive (36 engines)
+- `eng.five` — five (19 engines)
 
 ## Doctrine
 

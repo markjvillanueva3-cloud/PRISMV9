@@ -26,14 +26,12 @@ related:
 | Status | Engines |
 |--------|---------|
 | built | 95 |
-| stub | 10 |
 
 ## Wiring state
 
 | Subgroup | Engines |
 |----------|---------|
 | wired | 95 |
-| unwired | 10 |
 
 ## Connected dispatchers (L4 matches)
 
@@ -41,23 +39,22 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- CycleTimeAccuracyEngine
+- EndToEndPipelineEngine
+- GCodeVerificationEngine
+- HolderOperationMatchEngine
+- LaserWaterjetPostExtension
+- NovelPostProcessorBridgeEngine
+- ProgramStructureEngine
+- RunoutEffectEngine
+- SegmentInterpolatorEngine
 - ToolAssemblyEngine
 - ToolAssemblyModelEngine
 - ToolAxisOptimizationEngine
-- ToolBalancingEngine
-- ToolBreakagePredictionEngine
-- ToolCallBatchEngine
-- ToolCallBatchOptimizerEngine
-- ToolCallDeduplicatorEngine
-- ToolCallHistogramEngine
-- ToolCallParallelizationEngine
-- ToolCallPipelineEngine
-- ToolCallThrottleEngine
 
 ## Rollup labels
 
 - `Tool | (95) ◇ 9/57 drilled`
-- `Tool | (10) ◇ 9/57 drilled`
 
 <!-- AUTO-END -->
 

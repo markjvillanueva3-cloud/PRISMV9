@@ -26,14 +26,12 @@ related:
 | Status | Engines |
 |--------|---------|
 | built | 25 |
-| stub | 6 |
 
 ## Wiring state
 
 | Subgroup | Engines |
 |----------|---------|
 | wired | 25 |
-| unwired | 6 |
 
 ## Connected dispatchers (L4 matches)
 
@@ -41,15 +39,22 @@ related:
 
 ## Drilled atomic engines (sample)
 
-- SessionBudgetAdvisorEngine
-- SessionEventLogEngine
-- SessionInsightsLedgerEngine
-- SessionTokenLedgerEngine
+- CompactFormatterEngine
+- CompactionStrategyEngine
+- CompactPlannerEngine
+- ContextBudgetEngine
+- ContextCheckpointEngine
+- ContextCompressionEngine
+- ContextPreloaderEngine
+- ContextWindowPressureEngine
+- CoordinationLedgerEngine
+- DispatcherMapEngine
+- PostCompactRestorationEngine
+- SchemaCompactEngine
 
 ## Rollup labels
 
 - `Session | (25) ◇ 9/12 drilled`
-- `Session | (6) ◇ 9/12 drilled`
 
 <!-- AUTO-END -->
 

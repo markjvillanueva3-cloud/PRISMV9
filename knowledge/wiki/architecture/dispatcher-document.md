@@ -36,7 +36,7 @@ related:
 
 ## Engine consumers (L5 edges)
 
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
+- `eng.hook` — hook (9 engines)
 
 ## Doctrine
 

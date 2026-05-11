@@ -41,9 +41,9 @@ _…and 4 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.material` — Material (80) ◇ 9/13 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.material` — material (26 engines)
+- `eng.hook` — hook (9 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

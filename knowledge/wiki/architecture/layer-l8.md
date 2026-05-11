@@ -22,18 +22,20 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 869
-- **Edges into layer:** 656
-- **Edges out of layer:** 1025
+- **Nodes in this layer:** 1737
+- **Edges into layer:** 1567
+- **Edges out of layer:** 1027
 - **Tier:** 0 (atomic foundation)
 
 ## Kind distribution
 
 | Kind | Count |
 |------|-------|
+| registry_entry | 694 |
 | milestone | 306 |
 | wiki_entry | 190 |
 | memory_entry | 189 |
+| catalog_function | 177 |
 | state | 74 |
 | combo | 22 |
 | design-spec | 10 |
@@ -46,7 +48,6 @@ related:
 | memory_user | 6 |
 | memory_kind | 6 |
 | novel_formula | 3 |
-| registry_entry | 3 |
 | corpus | 1 |
 | memory__index | 1 |
 | tribal-knowledge-root | 1 |
@@ -64,7 +65,7 @@ related:
 
 | Status | Count |
 |--------|-------|
-| built | 434 |
+| built | 1302 |
 | ghost | 342 |
 | stub | 93 |
 

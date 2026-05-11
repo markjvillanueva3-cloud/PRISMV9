@@ -54,7 +54,7 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Rollup labels
 
-- `Hyper | (7) ◇ 9/68 drilled`
+- `hyper | (69 engines)`
 
 <!-- AUTO-END -->
 

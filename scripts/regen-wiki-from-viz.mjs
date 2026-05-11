@@ -38,6 +38,8 @@ const GENERATORS = [
   "generate-dispatcher-wiki.mjs",
   "generate-engine-wiki.mjs",
   "generate-action-wiki.mjs",
+  "generate-registry-wiki.mjs",
+  "generate-frontend-wiki.mjs",
   "generate-layer-stack-overview.mjs",
   "system-viz-obsidian-bridge-v2.mjs",
 ];

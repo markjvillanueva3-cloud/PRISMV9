@@ -43,7 +43,7 @@ _(no atomic engines indexed)_
 
 ## Rollup labels
 
-- `Swiss | (6) ◇ 6/6 drilled`
+- `swiss | (6 engines)`
 
 <!-- AUTO-END -->
 

@@ -22,23 +22,25 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 27
-- **Edges into layer:** 26
-- **Edges out of layer:** 33
+- **Nodes in this layer:** 64
+- **Edges into layer:** 60
+- **Edges out of layer:** 935
 - **Tier:** 0 (atomic foundation)
 
 ## Kind distribution
 
 | Kind | Count |
 |------|-------|
+| catalog_vendor | 34 |
 | registry | 23 |
 | catalog | 4 |
+| catalog_root | 3 |
 
 ## Status distribution
 
 | Status | Count |
 |--------|-------|
-| built | 27 |
+| built | 64 |
 
 ## Top nodes (by leverage / count)
 

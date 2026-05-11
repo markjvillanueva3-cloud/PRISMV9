@@ -55,7 +55,7 @@ related:
 
 ## Rollup labels
 
-- `Multi | (12) ◇ 9/31 drilled`
+- `multi | (32 engines)`
 
 <!-- AUTO-END -->
 

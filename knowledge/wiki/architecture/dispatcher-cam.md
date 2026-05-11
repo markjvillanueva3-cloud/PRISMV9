@@ -41,14 +41,14 @@ _…and 2177 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.cam` — Cam (290) ◇ 9/68 drilled
-- `eng.toolpath` — Toolpath (130) ◇ 9/12 drilled
-- `eng.tool` — Tool (10) ◇ 9/57 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.hyper` — Hyper (7) ◇ 9/68 drilled
-- `eng.lathe` — Lathe (89) ◇ 9/186 drilled
-- `eng.fusion` — Fusion (7) ◇ 9/36 drilled
+- `eng.cam` — cam (319 engines)
+- `eng.toolpath` — toolpath (13 engines)
+- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.hook` — hook (9 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.hyper` — hyper (69 engines)
+- `eng.lathe` — lathe (190 engines)
+- `eng.fusion` — fusion (43 engines)
 
 ## Doctrine
 

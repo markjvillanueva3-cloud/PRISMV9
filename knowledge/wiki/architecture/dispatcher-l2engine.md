@@ -41,10 +41,10 @@ _…and 61 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.ai` — AI (280) ◇ 9/17 drilled
-- `eng.cad` — Cad (200) ◇ 9/70 drilled
-- `eng.cam` — Cam (290) ◇ 9/68 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.ai` — ai (115 engines)
+- `eng.cad` — cad (182 engines)
+- `eng.cam` — cam (319 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

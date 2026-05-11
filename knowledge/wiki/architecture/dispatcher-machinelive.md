@@ -41,10 +41,10 @@ _…and 41 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.machine` — Machine (17) ◇ 9/45 drilled
-- `eng.adaptive` — Adaptive (70) ◇ 9/21 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.hook` — hook (9 engines)
+- `eng.machine` — machine (82 engines)
+- `eng.adaptive` — adaptive (36 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

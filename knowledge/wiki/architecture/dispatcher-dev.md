@@ -41,14 +41,14 @@ _…and 300 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.quality` — Quality (90) ◇ 5/5 drilled
-- `eng.machine` — Machine (17) ◇ 9/45 drilled
-- `eng.cost` — Cost (60) ◇ 4/4 drilled
-- `eng.session` — Session (6) ◇ 9/12 drilled
-- `eng.tool` — Tool (10) ◇ 9/57 drilled
-- `eng.memory` — Memory (35) ◇ 4/4 drilled
-- `eng.knowledge` — Knowledge (45) ◇ 9/10 drilled
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.quality` — quality (17 engines)
+- `eng.machine` — machine (82 engines)
+- `eng.cost` — cost (4 engines)
+- `eng.session` — Session (25) ◇ 9/12 drilled
+- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.memory` — memory (26 engines)
+- `eng.knowledge` — knowledge (79 engines)
 
 ## Doctrine
 

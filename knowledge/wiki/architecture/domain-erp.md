@@ -39,11 +39,14 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Drilled atomic engines (sample)
 
-_(no atomic engines indexed)_
+- MasterPostFineTuningEngine
+- TPEHyperparameterSearchEngine
+- VendorCatalogManifestEngine
+- VendorEngine
 
 ## Rollup labels
 
-- `ERP | (110) ◇ 6/6 drilled`
+- `erp | (14 engines)`
 
 <!-- AUTO-END -->
 

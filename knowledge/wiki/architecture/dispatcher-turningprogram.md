@@ -41,10 +41,10 @@ _…and 2 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.lathe` — Lathe (89) ◇ 9/186 drilled
-- `eng.turning` — Turning (11) ◇ 9/24 drilled
-- `eng.material` — Material (80) ◇ 9/13 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.lathe` — lathe (190 engines)
+- `eng.turning` — turning (49 engines)
+- `eng.material` — material (26 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

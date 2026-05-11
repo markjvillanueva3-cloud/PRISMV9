@@ -41,7 +41,7 @@ _…and 3 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.multi` — Multi (12) ◇ 9/31 drilled
+- `eng.multi` — multi (32 engines)
 
 ## Doctrine
 

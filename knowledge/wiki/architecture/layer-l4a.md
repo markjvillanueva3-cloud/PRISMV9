@@ -22,22 +22,22 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 9228
-- **Edges into layer:** 9228
-- **Edges out of layer:** 3803
+- **Nodes in this layer:** 9242
+- **Edges into layer:** 9242
+- **Edges out of layer:** 6351
 - **Tier:** 2 (tier-2)
 
 ## Kind distribution
 
 | Kind | Count |
 |------|-------|
-| action | 9228 |
+| action | 9242 |
 
 ## Status distribution
 
 | Status | Count |
 |--------|-------|
-| built | 9228 |
+| built | 9242 |
 
 ## Top nodes (by leverage / count)
 

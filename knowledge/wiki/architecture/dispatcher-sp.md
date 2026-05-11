@@ -41,7 +41,7 @@ _…and 7 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.knowledge` — Knowledge (45) ◇ 9/10 drilled
+- `eng.knowledge` — knowledge (79 engines)
 
 ## Doctrine
 

@@ -41,14 +41,14 @@ _…and 429 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.cost` — Cost (60) ◇ 4/4 drilled
-- `eng.erp` — ERP (110) ◇ 6/6 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.shop` — Shop (9) ◇ 9/16 drilled
-- `eng.tool` — Tool (10) ◇ 9/57 drilled
-- `eng.quality` — Quality (90) ◇ 5/5 drilled
-- `eng.machine` — Machine (17) ◇ 9/45 drilled
-- `eng.multi` — Multi (12) ◇ 9/31 drilled
+- `eng.cost` — cost (4 engines)
+- `eng.erp` — erp (14 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.shop` — shop (23 engines)
+- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.quality` — quality (17 engines)
+- `eng.machine` — machine (82 engines)
+- `eng.multi` — multi (32 engines)
 
 ## Doctrine
 

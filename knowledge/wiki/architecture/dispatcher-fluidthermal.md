@@ -30,8 +30,8 @@ _(no actions wired)_
 
 ## Engine consumers (L5 edges)
 
-- `eng.physics` — Physics (50) ◇ 9/12 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
+- `eng.physics` — physics (35 engines)
+- `eng.hook` — hook (9 engines)
 
 ## Doctrine
 

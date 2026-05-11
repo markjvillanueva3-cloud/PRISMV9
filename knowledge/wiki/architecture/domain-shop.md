@@ -39,6 +39,8 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- JobShopSchedulingEngine
+- OperatorPreferencesEngine
 - ShopFloorCostEngine
 - ShopFloorDashboardEngine
 - ShopFloorJobEngine
@@ -47,7 +49,7 @@ related:
 
 ## Rollup labels
 
-- `Shop | (9) ◇ 9/16 drilled`
+- `shop | (23 engines)`
 
 <!-- AUTO-END -->
 

@@ -43,7 +43,7 @@ _(no atomic engines indexed)_
 
 ## Rollup labels
 
-- `Cost | (60) ◇ 4/4 drilled`
+- `cost | (4 engines)`
 
 <!-- AUTO-END -->
 

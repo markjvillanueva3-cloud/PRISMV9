@@ -22,19 +22,20 @@ related:
 
 ## Counts
 
-- **Nodes in this layer:** 3243
-- **Edges into layer:** 10626
-- **Edges out of layer:** 9137
+- **Nodes in this layer:** 3309
+- **Edges into layer:** 20008
+- **Edges out of layer:** 13449
 - **Tier:** 1 (tier-1)
 
 ## Kind distribution
 
 | Kind | Count |
 |------|-------|
-| atomic_engine | 1696 |
+| atomic_engine | 1701 |
 | engine | 1234 |
-| wired | 25 |
-| unwired | 16 |
+| rollup | 64 |
+| wired | 24 |
+| unwired | 14 |
 | knowledge_engines | 9 |
 | adaptive_engines | 9 |
 | material_engines | 9 |
@@ -76,32 +77,32 @@ related:
 
 | Status | Count |
 |--------|-------|
-| built | 1982 |
-| stub | 25 |
+| built | 2050 |
+| stub | 23 |
 | stub_heavy | 2 |
 
 ## Top nodes (by leverage / count)
 
 - `eng.other` — Other
-(643) ◇ 9/2178 drilled *(built)*
-- `eng.other` — Other
 (142) ◇ 9/2178 drilled *(stub_heavy)*
-- `eng.cam` — Cam
-(290) ◇ 9/68 drilled *(built)*
-- `eng.ai` — AI
-(280) ◇ 9/17 drilled *(built)*
-- `eng.mill` — Mill
-(240) ◇ 9/21 drilled *(built)*
-- `eng.cad` — Cad
-(200) ◇ 9/70 drilled *(built)*
-- `eng.lathe` — Lathe
-(89) ◇ 9/186 drilled *(stub_heavy)*
-- `eng.wedm` — WEDM
-(130) ◇ 9/143 drilled *(built)*
-- `eng.toolpath` — Toolpath
-(130) ◇ 9/12 drilled *(built)*
-- `eng.erp` — ERP
-(110) ◇ 6/6 drilled *(built)*
+- `eng.cam` — cam
+(319 engines) *(built)*
+- `eng.ai` — ai
+(115 engines) *(built)*
+- `eng.mill` — mill
+(42 engines) *(built)*
+- `eng.cad` — cad
+(182 engines) *(built)*
+- `eng.lathe` — lathe
+(190 engines) *(stub_heavy)*
+- `eng.wedm` — wedm
+(189 engines) *(built)*
+- `eng.toolpath` — toolpath
+(13 engines) *(built)*
+- `eng.erp` — erp
+(14 engines) *(built)*
+- `eng.tool` — Tool
+(95) ◇ 9/57 drilled *(built)*
 
 ## Siblings
 

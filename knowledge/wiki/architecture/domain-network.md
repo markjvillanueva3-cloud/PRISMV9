@@ -43,7 +43,7 @@ _(no atomic engines indexed)_
 
 ## Rollup labels
 
-- `Network | (22) ◇ 1/1 drilled`
+- `network | (1 engines)`
 
 <!-- AUTO-END -->
 

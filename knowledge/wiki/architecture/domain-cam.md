@@ -40,6 +40,11 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- AdvancedPostPhysicsEngine
+- AnomalyDetectionEngine
+- BatchCAMEngine
+- BatchSizeStrategyEngine
+- BlueprintProgramJoinEngine
 - CAMAnalyzeEngine
 - CAMCatalogSplitterEngine
 - CamDesignEngine
@@ -47,15 +52,10 @@ related:
 - CAMGeometryExchangeEngine
 - CAMInputExhaustionPlannerEngine
 - CAMIntegrationEngine
-- CAMPluginRegistryEngine
-- CAMPluginSDKEngine
-- CAMPostSelectorUIEngine
-- CamProfileEngine
-- CAMRecommendEngine
 
 ## Rollup labels
 
-- `Cam | (290) ◇ 9/68 drilled`
+- `cam | (319 engines)`
 
 <!-- AUTO-END -->
 

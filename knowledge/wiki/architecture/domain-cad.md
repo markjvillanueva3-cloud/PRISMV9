@@ -42,6 +42,8 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- AssemblyEngine
+- BoilerTubeEngine
 - CADAccessControlRBACABACEngine
 - CADAIStateMachineEngine
 - CADAssemblyGraphEngine
@@ -52,12 +54,10 @@ related:
 - CADDrawingNumberNormalizerEngine
 - CADFeatureMemoryEngine
 - CADFeatureRecognitionEngine
-- CadFileIndexEngine
-- CADFilesystemReconciliationEngine
 
 ## Rollup labels
 
-- `Cad | (200) ◇ 9/70 drilled`
+- `cad | (182 engines)`
 
 <!-- AUTO-END -->
 

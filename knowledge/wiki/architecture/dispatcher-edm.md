@@ -41,9 +41,9 @@ _…and 274 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.wedm` — WEDM (130) ◇ 9/143 drilled
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
+- `eng.wedm` — wedm (189 engines)
+- `eng.hook` — hook (9 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
 
 ## Doctrine
 

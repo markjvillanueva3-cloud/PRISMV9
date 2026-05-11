@@ -41,8 +41,8 @@ _…and 36 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.shop` — Shop (9) ◇ 9/16 drilled
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.shop` — shop (23 engines)
 
 ## Doctrine
 

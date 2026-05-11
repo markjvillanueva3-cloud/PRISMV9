@@ -30,8 +30,8 @@ _(no actions wired)_
 
 ## Engine consumers (L5 edges)
 
-- `eng.cad` — Cad (200) ◇ 9/70 drilled
-- `eng.knowledge` — Knowledge (45) ◇ 9/10 drilled
+- `eng.cad` — cad (182 engines)
+- `eng.knowledge` — knowledge (79 engines)
 
 ## Doctrine
 

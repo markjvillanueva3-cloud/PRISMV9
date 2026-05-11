@@ -39,11 +39,14 @@ related:
 
 ## Drilled atomic engines (sample)
 
-_(no atomic engines indexed)_
+- InverseKinematicsSolverEngine
+- SolidCAM5AxisFunctionIndexEngine
+- TiltAngleOptimizationEngine
+- WorkEnvelopeValidatorEngine
 
 ## Rollup labels
 
-- `Five | (9) ◇ 9/12 drilled`
+- `five | (19 engines)`
 
 <!-- AUTO-END -->
 

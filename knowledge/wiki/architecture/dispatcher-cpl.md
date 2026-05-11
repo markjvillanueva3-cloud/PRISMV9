@@ -41,10 +41,10 @@ _…and 42 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.multi` — Multi (12) ◇ 9/31 drilled
-- `eng.toolpath` — Toolpath (130) ◇ 9/12 drilled
-- `eng.cam` — Cam (290) ◇ 9/68 drilled
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.multi` — multi (32 engines)
+- `eng.toolpath` — toolpath (13 engines)
+- `eng.cam` — cam (319 engines)
 
 ## Doctrine
 

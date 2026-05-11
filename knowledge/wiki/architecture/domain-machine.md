@@ -40,22 +40,22 @@ related:
 
 ## Drilled atomic engines (sample)
 
+- BalancingMachineEngine
+- BatchCAMControllerEngines
+- CobotMachiningEngine
+- CriticalSpeedEngine
+- DynamicBalanceEngine
+- GaugingEngine
+- HobbyCNCProfileEngine
 - MachineCapabilityIndexEngine
 - MachineConfigDatabaseEngine
 - MachineDataAuditEngine
 - MachineForceLimitValidationEngine
 - MachineGeometricAccuracyEngine
-- MachineKinematicsEngine
-- MachineLayerMerger
-- MachineLevelingEngine
-- MachineLogHarvesterEngine
-- MachineMatcherEngine
-- MachineModelAcquisitionEngine
-- MachineModelDownloaderEngine
 
 ## Rollup labels
 
-- `Machine | (17) ◇ 9/45 drilled`
+- `machine | (82 engines)`
 
 <!-- AUTO-END -->
 

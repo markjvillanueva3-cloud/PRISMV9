@@ -37,9 +37,9 @@ related:
 
 ## Engine consumers (L5 edges)
 
-- `eng.cam` — Cam (290) ◇ 9/68 drilled
-- `eng.toolpath` — Toolpath (130) ◇ 9/12 drilled
-- `eng.tool` — Tool (10) ◇ 9/57 drilled
+- `eng.cam` — cam (319 engines)
+- `eng.toolpath` — toolpath (13 engines)
+- `eng.tool` — Tool (95) ◇ 9/57 drilled
 
 ## Doctrine
 

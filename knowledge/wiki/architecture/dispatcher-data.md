@@ -41,14 +41,14 @@ _…and 203 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.tool` — Tool (10) ◇ 9/57 drilled
-- `eng.machine` — Machine (17) ◇ 9/45 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.shop` — Shop (9) ◇ 9/16 drilled
-- `eng.cad` — Cad (200) ◇ 9/70 drilled
-- `eng.safety` — Safety (80) ◇ 8/8 drilled
-- `eng.fusion` — Fusion (7) ◇ 9/36 drilled
+- `eng.hook` — hook (9 engines)
+- `eng.tool` — Tool (95) ◇ 9/57 drilled
+- `eng.machine` — machine (82 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.shop` — shop (23 engines)
+- `eng.cad` — cad (182 engines)
+- `eng.safety` — safety (17 engines)
+- `eng.fusion` — fusion (43 engines)
 
 ## Doctrine
 

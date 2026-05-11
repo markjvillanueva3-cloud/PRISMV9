@@ -41,14 +41,14 @@ _…and 141 more. See full enum in dispatcher source._
 
 ## Engine consumers (L5 edges)
 
-- `eng.hook` — Hook (54) ◇ 8/9 drilled
-- `eng.other` — Other (643) ◇ 9/2178 drilled
-- `eng.shop` — Shop (9) ◇ 9/16 drilled
-- `eng.ai` — AI (280) ◇ 9/17 drilled
-- `eng.adaptive` — Adaptive (70) ◇ 9/21 drilled
-- `eng.machine` — Machine (17) ◇ 9/45 drilled
-- `eng.cam` — Cam (290) ◇ 9/68 drilled
-- `eng.erp` — ERP (110) ◇ 6/6 drilled
+- `eng.hook` — hook (9 engines)
+- `eng.other` — Other (142) ◇ 9/2178 drilled
+- `eng.shop` — shop (23 engines)
+- `eng.ai` — ai (115 engines)
+- `eng.adaptive` — adaptive (36 engines)
+- `eng.machine` — machine (82 engines)
+- `eng.cam` — cam (319 engines)
+- `eng.erp` — erp (14 engines)
 
 ## Doctrine
 

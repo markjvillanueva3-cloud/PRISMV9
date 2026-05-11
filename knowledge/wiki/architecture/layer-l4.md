@@ -24,7 +24,7 @@ related:
 
 - **Nodes in this layer:** 97
 - **Edges into layer:** 918
-- **Edges out of layer:** 9755
+- **Edges out of layer:** 9769
 - **Tier:** 2 (tier-2)
 
 ## Kind distribution

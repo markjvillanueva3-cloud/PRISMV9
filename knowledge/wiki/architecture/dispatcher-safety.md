@@ -30,7 +30,7 @@ _(no actions wired)_
 
 ## Engine consumers (L5 edges)
 
-- `eng.safety` — Safety (80) ◇ 8/8 drilled
+- `eng.safety` — safety (17 engines)
 
 ## Doctrine
 

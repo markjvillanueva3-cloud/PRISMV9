@@ -44,7 +44,7 @@ related:
 
 ## Rollup labels
 
-- `Hook | (54) ◇ 8/9 drilled`
+- `hook | (9 engines)`
 
 <!-- AUTO-END -->
 
