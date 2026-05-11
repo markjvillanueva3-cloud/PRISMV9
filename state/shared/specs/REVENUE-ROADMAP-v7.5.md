@@ -1,15 +1,10 @@
-# PRISM Revenue Roadmap — v7.5
+# PRISM REVENUE ROADMAP — v7.5
 
-**Generated:** 2026-05-11T14:28:31.664Z
-**Source:** v7.1 + R5 (consensus) + R6 (monolith-harvest) + R7 (launch-closure + desktop final phase) + R8 (wire-everything + deep-training + SFC-calibration + doc-backflow + roadmap-to-system-viz binding) + R9 (MS-CAM-MASTERY: PRISM becomes an expert operator of Fusion / hyperMILL / Mastercam / Inventor / SolidWorks / Esprit in that order; all other CAD/CAM systems idle until ship).
-**Verdict:** CONDITIONAL-GO. 1 hard BLOCKER unchanged (U-LEGAL-13). Revenue Day 1 ~ Week 6-8 (SFC-led). Desktop GA ~ Week 12-18.
-**Owner:** claude-99eca613 (revenue lane; MS-VIZ-ROADMAP-BIND shared with the system-viz peer chat).
+_Generated 2026-05-11T14:50:05.185Z. Lineage: v7.1 (round-4 milestone merge) + §R5 (round-5 10-agent consensus) + §R6 (monolith-harvest) + §R7 (round-6 launch-closure + MS-DESKTOP) + §R8 (round-7 wire-everything / deep-training / SFC-calibration / doc-backflow / viz-binding) + §R9 (MS-CAM-MASTERY — PRISM as expert CAD/CAM operator + bridge add-ins; includes §R9.8 system-viz node-coverage confirmation). The §R-layers below are the most recent / most-scrutinized; the v7.1 base spec follows after the last separator._
 
-## Provenance
-
-v7.5 = R9 + R8 + R7 + R5 + R6 prepended to the full v7.1 spec. Evidence: state/shared/audit-findings/revenue-roadmap/round{2,3,3-5,4,5,6,7,8}/*.
 
 ---
+
 # REVENUE-ROADMAP v7.5 — §R9: MS-CAM-MASTERY (PRISM becomes an expert operator of the priority CAD/CAM systems + the bridge add-ins)
 
 **Generated:** 2026-05-11 (user directive: properly train CAD/CAM drawing AND programming for Fusion 360 → hyperCAD/hyperMILL → Mastercam → Inventor → SolidWorks → Esprit, IN THAT ORDER — all other CAD/CAM systems sit idle until after we ship the product. Training scope: tribal knowledge, deep learning, deep reasoning, algorithms, formulas, SFC, mechanical engineering, "how to CAD" per software, "how to use CAM" per software, neural networking, AI systems, Claude orchestration of all nodes, knowledge+memory utilization, how to use each tool/toolpath/button/function/input of the CAD/CAM systems, how the PRISM bridge add-in works for each software so the user can use the full system — SFC calcs + automatic programming + utilization of the bought/subscription post-processors we're building.)
@@ -111,7 +106,41 @@ The Master Post product line (MS-MASTERPOST, §08-masterpost / §R7) builds the 
 
 ---
 
+## §R9.8 — system-viz node-coverage confirmation (the "did we account for every node?" pass)
+
+**Method:** walked `state/shared/system-viz/system-graph.json` (schema 2.29.0 — 154,145 nodes / 190,963 edges / 11 layers) layer by layer, mapped each node *class* to the v7.5 milestone that owns it, and flagged the residue.
+
+**Node-class → owning-milestone map (every class is covered):**
+
+| Viz layer | Node class (count) | Owned by |
+|---|---|---|
+| L0 | personas — operator/programmer/quoter/boss/owner/maintenance/customer/vendor/oncall/csr/foreman/estimator (13) | MS-WIRE-FRONTEND (each persona's pages render real data) + MS-GTM (acquisition funnel). *No standalone "persona E2E flow" milestone — intentional: the Day-1 product is the SFC/Master-Post subscriber persona; the ERP/shop-floor personas are MS3/MS4 + the ERP-pages long tail, not Day-1 scope.* |
+| L1 | frontends (5) + page-groups + individual pages (~146 `fe.page.*`, 832 L1 nodes incl. groups) | MS-WIRE-FRONTEND P0 (~20 u, the revenue/SFC/Master-Post/CAD-viewer/billing pages) → P1 (~45 u, thin-page enrichment batched) → **P2 (~25 u, the "every remaining page gets ≥1 real backend call + render assertion" clause = the catch-all that covers the long tail of 146)** + MS-FRONTEND P0 (the 5 missing pages: MasterPostUpload/Pricing/BillingPortal/Account/Signup + 4 more) |
+| L2 | transports — MCP/REST/gRPC/GraphQL/WS/Auth/RateLimiter/Telemetry/Gateway/Queue/PubSub/Embedding/Vector/Cache/CDN/ObjectStore/DNC/MTConnect/OPC-UA/MQTT (20) | Auth/RateLimiter/Telemetry → MS-INFRA P0 (licensing backend + AuthEngine→Postgres). Gateway(`prism_bridge`)/Queue(`prism_infra:job_enqueue`)/PubSub(`prism_infra:event_publish`)/WS(`prism_realtime`)/Embedding+Vector(Ollama nomic-embed + tribal-embed-index) → already real engines. MTConnect/OPC-UA/MQTT → `prism_machine_live` (already wired) + MS-PILOT (commissioning). DNC → `prism_integration:dnc_*` + MS-PILOT. **Cache(Redis)/CDN/ObjectStore(S3) → aspirational v8.89-cloud-scale nodes; the desktop build + small hosted licensing backend need NONE of them at launch — see the §R9.8 clarification below.** |
+| L3 | AI hierarchy — Tier-1 Claude / Tier-2 FullSystemAICoordinator / 8 Tier-3 specialists + 3 Tier-2 flows + Ollama (33) | The Tier-3 specialists (`prism_mill`/`prism_turning`/`prism_cad`/`prism_cam`/...) are wired engines. Tier-1 Claude orchestration of all nodes = **§R9 pillar E** (the orchestration glue) + the AWARENESS BACKBONE (CLAUDE-BRIEF/PRISM-BUILD-CONTEXT/PRISM-BUILD-VISION). Tier-2 coordination = existing architecture (`FullSystemAICoordinatorEngine`). |
+| L4 | dispatchers (97) | existing; MS-WIRE-BACKEND surfaces new actions onto them per the 28-category rule matrix |
+| L4a | dispatcher actions (~9,242 graph nodes; ~7,341 live) | MS-WIRE-BACKEND (~756 new wirings → ~1,550-1,800 new action surfaces) + MS-CRITWIRE (3 SFC actions + de-stub 6 mill actions + `post_process` callOrThrow) + the domain milestones |
+| L5 | engines (~3,309 graph nodes; 3,202 live, 875 unwired) | MS-WIRE-BACKEND (the bulk — real list = `UNWIRED-ENGINE-AUDIT-2026-05-07.json`, NOT BUILD_STATE's 25-sample) + MS-CRITWIRE (the 8 SFC engines) + MS3 (the 89 lathe engines, Lathe-first) + MS-MONOLITH-HARVEST (~1,350 orphaned `.js` modules — a SEPARATE pool, port backlog) + the domain milestones. **The "~756" in §R8.1 ≤ 875 because some are WIRE-EXEMPT (singleton-wrapped) and some count is the monolith `.js` pool; the audit JSON is authoritative — MS-WIRE-BACKEND's `check-engine-wired.mjs --ci` gate is what actually drives it to zero.** |
+| L6 | core inventory — formulas(499)/algos(17)/schemas/physics/migrations/tests(3,430)/hooks/scripts/skills, exploded per-file (~7,125) | `U-MONO-ALGO-SURFACE` (surface the 20 monolith algos) + `U-DOCFLOW` (the cross-cutting "update everything as you build" rule covers skills/docs/GSD) + `U-REV-CI-00`'s `audit-test-assertion-density.mjs` (the 16-false-green tests) + each milestone touches its own slice. *These are source files, not standalone work-items — "covered" means the milestones that operate on them exist.* |
+| L7 | registries (163) incl. `materials_cnt`/`tools_cnt`/`machines_cnt`/`tribal_tips` + `camfunctioncatalog.*` (20 CAM systems) | `U-MONO-MAT-REPOINT` (the 1-line `PATHS.MATERIALS_DB` fix → 1,047 materials) + `U-MONO-CATALOG-WIRE` (`CatalogRegistryBridgeEngine.enrichAll()`). **`camfunctioncatalog` has 20 CAM systems but §R9 trains only the 6 tier-1 (Fusion>hyperCAD/hyperMILL>Mastercam>Inventor>SolidWorks>Esprit) "in that order; ~14 idle until ship" — this is the user's explicit directive, NOT a gap; the other 14 stay registered+wired but un-trained until post-ship.** |
+| L8 | wiki entries (776 live; 190 in graph) + milestone nodes (306) + ghost-milestone roots (`ghost.ms.*`) + index roots | `U-DOCFLOW` (wiki maintenance, Ollama-owned) + `MS-VIZ-ROADMAP-BIND` (the binding) + `WikiIndexMaintainerEngine`. *The viz already carries `ghost.ms.camk-ms0..3` (a CAM-mastery skeleton) + a `ghost.ms.camx-*` series + 2,256 `planned-unit` ghost nodes — so the roadmap→viz binding mechanism exists and is partially populated.* |
+| L9 | filesystem inventory (28,028) incl. 2,256 `planned-unit` ghost nodes | the `planned-unit` nodes ARE the roadmap (bound via `MS-VIZ-ROADMAP-BIND`); the rest is fs inventory, not work-items |
+| L10/L11 | filesystem files (391 + 102,666) | not work-items — this is the codebase the milestones operate on; "covered" = trivially true |
+
+**Verdict: every node CLASS in the system-viz maps to an owning v7.5 milestone.** No subsystem layer is orphaned. But the pass surfaced **3 clarifications to lock** (one-liners, not new milestones — additive to existing milestones so nobody "re-discovers" them later):
+
+1. **MS-INFRA scaling-floor decision (lock):** for v1 (the Electron desktop build + the small hosted licensing/funnel backend on Fly/Render), the job queue and event bus are **in-process** (`prism_infra:job_enqueue` / `event_publish` / `prism_realtime` WS — no external broker), and **Redis (`tr.cache`) / CDN (`tr.cdn`) / Object-Store (`tr.s3`) are deferred indefinitely** — they are aspirational v8.89-cloud-scale nodes; they must NOT masquerade as launch scope or appear on any GA critical path. DNC transfer (`tr.dnc`) is covered by `prism_integration:dnc_*` + MS-PILOT machine connectivity, not new infra. *Revisit only if/when PRISM goes multi-tenant SaaS at scale — out of scope for the desktop+subscription model.*
+
+2. **MS-WIRE-FRONTEND P2 must MATERIALIZE the page enumeration (lock):** the "every remaining page gets ≥1 real backend call" clause is a *claim* until `roadmap-to-viz-nodes.mjs` (§R8.2) actually emits one viz node per `fe.page.*` (~146) with a `wired:bool` flag, and `audit-page-wiring.mjs` asserts the set is complete. Until that enumeration is materialized, "every page covered" is unverified — so `U-WF-CI-00` (the page-wiring audit) is hard-gated on producing the explicit ~146-row `FRONTEND_WIRING_MATRIX.json`, not just the AST check.
+
+3. **The roadmap↔viz binding format is still being stabilized — converge with the peer (lock):** the peer's `audit-roadmap-viz-bindings.mjs` (committed `21a128ccb`) currently fails **103 binding checks on the BACKEND-DEVTOOLS-RGS6 roadmap** (its units invent viz namespaces — `core.engine.*`, `core.hooks.*` — that don't exist in the graph). That's their roadmap, not this one, BUT it means the `viz_node_id` schema isn't stable yet. `MS-VIZ-ROADMAP-BIND` (§R8.6, shared lane) must co-design ONE canonical `viz_node_id` resolver (real graph namespaces only — `eng.<domain>.<name>`, `fe.page.<name>`, `D.<dispatcher>.<action>`, `ghost.ms.<milestone>.<unit>`) that BOTH roadmaps' units use, before either roadmap's units get bound. Coordination posted to the chat bus 2026-05-11. **This is the one genuinely-incomplete piece — and it's correctly scoped as a shared milestone, not a v7.5 gap.**
+
+**Bottom line:** confidence is high *at the milestone level* — every node class is owned. The residual risk is not "a missing milestone," it's "two coverage claims (every page, every engine) that are clauses rather than materialized checklists" — both already have a gate-script assigned (`audit-page-wiring.mjs`, `check-engine-wired.mjs --ci`); they just have to be run and made green. And the viz↔roadmap binding (the "constant up-to-date visual on roadmap completeness" the user wants) is partially wired and being stabilized by the peer chat — tracked in `MS-VIZ-ROADMAP-BIND`.
+
+---
+
 _End of v7.5 §R9. Merge target: `state/shared/specs/REVENUE-ROADMAP-v7.5.md` (= v7.1 + §R5 + §R6 + §R7 + §R8 + this §R9)._
+
 
 ---
 
@@ -233,6 +262,7 @@ Three training fronts the user named, decomposed concretely. **What exists:** Pr
 ---
 
 _End of v7.4 §R8. Merge target: `state/shared/specs/REVENUE-ROADMAP-v7.4.md` (= v7.1 + §R5 + §R6 + §R7 + this §R8)._
+
 
 ---
 
@@ -387,6 +417,7 @@ Background MS3.5 (415 engines) + MS-ML-PLUMBING (289) + MS-MONOLITH-HARVEST P2 (
 ---
 
 _End of v7.3 closure layer. Merge target: `state/shared/specs/REVENUE-ROADMAP-v7.3.md` (= v7.1 + §R5 + §R6 + this §R7)._
+
 
 ---
 
@@ -604,9 +635,8 @@ P2 (continuous background lane, never on the GA critical path — like MS3.5):
 
 _End of v7.2 resolution layer. Merge target: `state/shared/specs/REVENUE-ROADMAP-v7.2.md` (= v7.1 + this layer prepended as §R5+§R6)._
 
----
 
-# v7.1 SPEC (FULL — see R5/R6/R7/R8/R9 for the deltas)
+---
 
 # PRISM Revenue Roadmap — v7.1
 
