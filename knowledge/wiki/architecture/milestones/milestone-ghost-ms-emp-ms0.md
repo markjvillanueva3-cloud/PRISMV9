@@ -29,12 +29,23 @@ related:
 | Scope | EMP |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.emp-ms0.u-sec1` — U-SEC1
+- `ghost.ms.emp-ms0.u-sec2` — U-SEC2
+- `ghost.ms.emp-ms0.u-per1` — U-PER1
+- `ghost.ms.emp-ms0.u-mod1` — U-MOD1
+- `ghost.ms.emp-ms0.u-mod2` — U-MOD2
+- `ghost.ms.emp-ms0.u-san1` — U-SAN1
+- `ghost.ms.emp-ms0.u-auth1` — U-AUTH1
+- `ghost.ms.emp-ms0.u-auth2` — U-AUTH2
+- `ghost.ms.emp-ms0.u-auth3` — U-AUTH3
+- `ghost.ms.emp-ms0.u-auth4` — U-AUTH4
+- `ghost.ms.emp-ms0.u-emp1` — U-EMP1
+- `ghost.ms.emp-ms0.u-emp2` — U-EMP2
 
 ## Doctrine
 

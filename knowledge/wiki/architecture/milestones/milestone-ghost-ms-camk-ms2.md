@@ -29,12 +29,16 @@ related:
 | Scope | CAMK |
 | Number | MS2 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 5 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.camk-ms2.u01` — U01
+- `ghost.ms.camk-ms2.u02` — U02
+- `ghost.ms.camk-ms2.u03` — U03
+- `ghost.ms.camk-ms2.u04` — U04
+- `ghost.ms.camk-ms2.u05` — U05
 
 ## Doctrine
 

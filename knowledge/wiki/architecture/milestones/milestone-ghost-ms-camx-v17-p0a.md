@@ -29,12 +29,17 @@ related:
 | Scope | UNKNOWN |
 | Number | MS? |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 6 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.camx-v17-p0a.u01` — U01
+- `ghost.ms.camx-v17-p0a.u02` — U02
+- `ghost.ms.camx-v17-p0a.u03` — U03
+- `ghost.ms.camx-v17-p0a.u04` — U04
+- `ghost.ms.camx-v17-p0a.u05` — U05
+- `ghost.ms.camx-v17-p0a.u06` — U06
 
 ## Doctrine
 

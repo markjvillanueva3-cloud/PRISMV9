@@ -29,12 +29,23 @@ related:
 | Scope | CAMX |
 | Number | MS19 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.camx-ms19.u01` — U01
+- `ghost.ms.camx-ms19.u02` — U02
+- `ghost.ms.camx-ms19.u03` — U03
+- `ghost.ms.camx-ms19.u04` — U04
+- `ghost.ms.camx-ms19.u05` — U05
+- `ghost.ms.camx-ms19.u06` — U06
+- `ghost.ms.camx-ms19.u07` — U07
+- `ghost.ms.camx-ms19.u08` — U08
+- `ghost.ms.camx-ms19.u09` — U09
+- `ghost.ms.camx-ms19.u10` — U10
+- `ghost.ms.camx-ms19.u11` — U11
+- `ghost.ms.camx-ms19.u12` — U12
 
 ## Doctrine
 

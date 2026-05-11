@@ -29,12 +29,23 @@ related:
 | Scope | LATHE-LORA |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.lathe-lora-ms0.u-llr01` — U-LLR01
+- `ghost.ms.lathe-lora-ms0.u-llr02` — U-LLR02
+- `ghost.ms.lathe-lora-ms0.u-llr03` — U-LLR03
+- `ghost.ms.lathe-lora-ms0.u-llr04` — U-LLR04
+- `ghost.ms.lathe-lora-ms0.u-lllo05` — U-LLLO05
+- `ghost.ms.lathe-lora-ms0.u-lllo06` — U-LLLO06
+- `ghost.ms.lathe-lora-ms0.u-lllo07` — U-LLLO07
+- `ghost.ms.lathe-lora-ms0.u-llr05` — U-LLR05
+- `ghost.ms.lathe-lora-ms0.u-llr06` — U-LLR06
+- `ghost.ms.lathe-lora-ms0.u-llr07` — U-LLR07
+- `ghost.ms.lathe-lora-ms0.u-llr08` — U-LLR08
+- `ghost.ms.lathe-lora-ms0.u-llr09` — U-LLR09
 
 ## Doctrine
 

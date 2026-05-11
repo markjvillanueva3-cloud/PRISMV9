@@ -29,12 +29,21 @@ related:
 | Scope | F360-AP |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 10 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.f360-ap-ms0.p0-u01` — P0-U01
+- `ghost.ms.f360-ap-ms0.p0-u02` — P0-U02
+- `ghost.ms.f360-ap-ms0.p0-u03` — P0-U03
+- `ghost.ms.f360-ap-ms0.p0-u04` — P0-U04
+- `ghost.ms.f360-ap-ms0.p1-u05` — P1-U05
+- `ghost.ms.f360-ap-ms0.p1-u06` — P1-U06
+- `ghost.ms.f360-ap-ms0.p2-u07` — P2-U07
+- `ghost.ms.f360-ap-ms0.p2-u08` — P2-U08
+- `ghost.ms.f360-ap-ms0.p3-u09` — P3-U09
+- `ghost.ms.f360-ap-ms0.p3-u10` — P3-U10
 
 ## Doctrine
 

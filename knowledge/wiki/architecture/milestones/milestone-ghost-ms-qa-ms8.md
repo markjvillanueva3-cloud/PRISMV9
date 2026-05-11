@@ -29,12 +29,16 @@ related:
 | Scope | QA |
 | Number | MS8 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 5 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.qa-ms8.p0-u00` — P0-U00
+- `ghost.ms.qa-ms8.p0-u01` — P0-U01
+- `ghost.ms.qa-ms8.p0-u02` — P0-U02
+- `ghost.ms.qa-ms8.p0-u03` — P0-U03
+- `ghost.ms.qa-ms8.p0-u04` — P0-U04
 
 ## Doctrine
 

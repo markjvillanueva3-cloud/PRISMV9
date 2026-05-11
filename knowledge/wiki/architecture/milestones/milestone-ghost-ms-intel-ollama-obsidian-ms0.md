@@ -29,12 +29,23 @@ related:
 | Scope | INTEL-OLLAMA-OBSIDIAN |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.intel-ollama-obsidian-ms0.p0-u01` — P0-U01
+- `ghost.ms.intel-ollama-obsidian-ms0.p0-u02` — P0-U02
+- `ghost.ms.intel-ollama-obsidian-ms0.p0-u03` — P0-U03
+- `ghost.ms.intel-ollama-obsidian-ms0.p0-u04` — P0-U04
+- `ghost.ms.intel-ollama-obsidian-ms0.p1-u01` — P1-U01
+- `ghost.ms.intel-ollama-obsidian-ms0.p1-u02` — P1-U02
+- `ghost.ms.intel-ollama-obsidian-ms0.p1-u03` — P1-U03
+- `ghost.ms.intel-ollama-obsidian-ms0.p1-u04` — P1-U04
+- `ghost.ms.intel-ollama-obsidian-ms0.p1-u05` — P1-U05
+- `ghost.ms.intel-ollama-obsidian-ms0.p2-u01` — P2-U01
+- `ghost.ms.intel-ollama-obsidian-ms0.p2-u02` — P2-U02
+- `ghost.ms.intel-ollama-obsidian-ms0.p2-u03` — P2-U03
 
 ## Doctrine
 

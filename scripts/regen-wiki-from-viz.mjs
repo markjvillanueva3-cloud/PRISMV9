@@ -78,7 +78,10 @@ const GENERATORS = [
   "generate-hook-wiki.mjs",
   "generate-formula-algo-wiki.mjs",
   "generate-monolith-wiki.mjs",
+  "generate-extracted-modules-wiki.mjs",  // per-module entries for the v8.89 decomposition (~1.7K)
+  "generate-courses-wiki.mjs",            // PRISM Academy courses + 5 MIT OCW courses + 220-course KB index
   "generate-tribal-index.mjs",
+  "generate-tribal-wiki.mjs",             // per-category tribal index pages (~73); tips themselves are indexed by build-wiki-leaf-index
   "generate-domain-mermaid.mjs",
   "generate-layer-stack-overview.mjs",
   "system-viz-obsidian-bridge-v2.mjs",

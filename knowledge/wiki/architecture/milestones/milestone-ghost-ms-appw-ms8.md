@@ -29,12 +29,22 @@ related:
 | Scope | APPW |
 | Number | MS8 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 11 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.appw-ms8.u-appw39` — U-APPW39
+- `ghost.ms.appw-ms8.u-appw40` — U-APPW40
+- `ghost.ms.appw-ms8.u-appw41` — U-APPW41
+- `ghost.ms.appw-ms8.u-appw41a` — U-APPW41A
+- `ghost.ms.appw-ms8.u-appw41b` — U-APPW41B
+- `ghost.ms.appw-ms8.u-appw42` — U-APPW42
+- `ghost.ms.appw-ms8.u-appw42a` — U-APPW42A
+- `ghost.ms.appw-ms8.u-appw43` — U-APPW43
+- `ghost.ms.appw-ms8.u-appw43a` — U-APPW43A
+- `ghost.ms.appw-ms8.u-appw43b` — U-APPW43B
+- `ghost.ms.appw-ms8.u-appw44` — U-APPW44
 
 ## Doctrine
 

@@ -29,12 +29,23 @@ related:
 | Scope | CAM-ML-CLOSEDLOOP |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl01` — U-CMCCL01
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl02` — U-CMCCL02
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl03` — U-CMCCL03
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl04` — U-CMCCL04
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl05` — U-CMCCL05
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl06` — U-CMCCL06
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl07` — U-CMCCL07
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl08` — U-CMCCL08
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl09` — U-CMCCL09
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl10` — U-CMCCL10
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl11` — U-CMCCL11
+- `ghost.ms.cam-ml-closedloop-ms0.u-cmccl12` — U-CMCCL12
 
 ## Doctrine
 

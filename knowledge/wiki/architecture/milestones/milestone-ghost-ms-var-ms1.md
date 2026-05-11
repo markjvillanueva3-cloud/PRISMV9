@@ -29,12 +29,23 @@ related:
 | Scope | VAR |
 | Number | MS1 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.var-ms1.p1-u01` — P1-U01
+- `ghost.ms.var-ms1.p1-u02` — P1-U02
+- `ghost.ms.var-ms1.p1-u03` — P1-U03
+- `ghost.ms.var-ms1.p2-u01` — P2-U01
+- `ghost.ms.var-ms1.p2-u02` — P2-U02
+- `ghost.ms.var-ms1.p2-u03` — P2-U03
+- `ghost.ms.var-ms1.p3-u01` — P3-U01
+- `ghost.ms.var-ms1.p3-u02` — P3-U02
+- `ghost.ms.var-ms1.p3-u03` — P3-U03
+- `ghost.ms.var-ms1.p4-u01` — P4-U01
+- `ghost.ms.var-ms1.p4-u02` — P4-U02
+- `ghost.ms.var-ms1.p5-u01` — P5-U01
 
 ## Doctrine
 

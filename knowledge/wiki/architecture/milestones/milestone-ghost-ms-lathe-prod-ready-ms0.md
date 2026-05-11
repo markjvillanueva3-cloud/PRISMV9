@@ -29,12 +29,23 @@ related:
 | Scope | LATHE-PROD-READY |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre01` — U-LPRRE01
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre02` — U-LPRRE02
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre03` — U-LPRRE03
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre04` — U-LPRRE04
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre05` — U-LPRRE05
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre06` — U-LPRRE06
+- `ghost.ms.lathe-prod-ready-ms0.u-lpr01` — U-LPR01
+- `ghost.ms.lathe-prod-ready-ms0.u-lpr02` — U-LPR02
+- `ghost.ms.lathe-prod-ready-ms0.u-lpr03` — U-LPR03
+- `ghost.ms.lathe-prod-ready-ms0.u-lpr04` — U-LPR04
+- `ghost.ms.lathe-prod-ready-ms0.u-lpr05` — U-LPR05
+- `ghost.ms.lathe-prod-ready-ms0.u-lprre07` — U-LPRRE07
 
 ## Doctrine
 

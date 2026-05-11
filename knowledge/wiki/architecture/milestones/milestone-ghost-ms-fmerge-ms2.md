@@ -29,12 +29,13 @@ related:
 | Scope | FMERGE |
 | Number | MS2 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 2 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.fmerge-ms2.u-fmerge09` — U-FMERGE09
+- `ghost.ms.fmerge-ms2.u-fmerge10` — U-FMERGE10
 
 ## Doctrine
 

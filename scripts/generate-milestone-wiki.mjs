@@ -60,13 +60,34 @@ function indexEdges(G) {
   return outByFrom;
 }
 
-function findUnits(G, msId, outByFrom) {
-  const downstream = outByFrom.get(msId) || [];
+function indexByParent(G) {
+  // parentId → [node, …] — for L9 leaf records attached via `parent` not edges
+  const m = new Map();
+  for (const n of G.nodes) {
+    if (!n.parent) continue;
+    const arr = m.get(n.parent) || [];
+    arr.push(n);
+    m.set(n.parent, arr);
+  }
+  return m;
+}
+
+function findUnits(G, msId, outByFrom, byParent) {
+  // L9 planned-units are attached either by an explicit edge OR (more commonly,
+  // since generate-system-viz emits them with a `parent` field and no edge) by
+  // `parent === msId`. Union both so the milestone entry surfaces its units even
+  // when the graph has zero edges into them (the ~2,256 degree-0 planned-unit case).
   const nodeById = new Map(G.nodes.map((n) => [n.id, n]));
-  return downstream
-    .map((id) => nodeById.get(id))
-    .filter((n) => n && n.layer === "L9")
-    .slice(0, 10);
+  const seen = new Set();
+  const out = [];
+  for (const id of outByFrom.get(msId) || []) {
+    const n = nodeById.get(id);
+    if (n && n.layer === "L9" && !seen.has(n.id)) { seen.add(n.id); out.push(n); }
+  }
+  for (const n of byParent.get(msId) || []) {
+    if (n && n.layer === "L9" && !seen.has(n.id)) { seen.add(n.id); out.push(n); }
+  }
+  return out.slice(0, 12);
 }
 
 function render(node, parsed, units, generatedAt) {
@@ -167,6 +188,7 @@ function main() {
   if (!existsSync(GRAPH_PATH)) { console.error("graph missing"); process.exit(2); }
   const G = readJson(GRAPH_PATH);
   const outByFrom = indexEdges(G);
+  const byParent = indexByParent(G);
   const generatedAt = new Date().toISOString().split("T")[0];
   ensureDir(MS_DIR);
 
@@ -179,7 +201,7 @@ function main() {
     const tag = node.kind || node.subgroup || "";
     if (tag !== "milestone") continue;
     const parsed = parseMilestone(node);
-    const units = findUnits(G, node.id, outByFrom);
+    const units = findUnits(G, node.id, outByFrom, byParent);
     const outPath = join(MS_DIR, `milestone-${slug(node.id)}.md`);
     const full = render(node, parsed, units, generatedAt);
     const existing = existsSync(outPath) ? readFileSync(outPath, "utf8") : null;

@@ -29,12 +29,17 @@ related:
 | Scope | PB |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 6 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.pb-ms0.pb-ms0-p1-u01` — PB-MS0-P1-U01
+- `ghost.ms.pb-ms0.pb-ms0-p2-u01` — PB-MS0-P2-U01
+- `ghost.ms.pb-ms0.pb-ms0-p3-u01` — PB-MS0-P3-U01
+- `ghost.ms.pb-ms0.pb-ms0-p4-u01` — PB-MS0-P4-U01
+- `ghost.ms.pb-ms0.pb-ms0-p5-u01` — PB-MS0-P5-U01
+- `ghost.ms.pb-ms0.pb-ms0-p6-u01` — PB-MS0-P6-U01
 
 ## Doctrine
 

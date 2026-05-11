@@ -29,12 +29,17 @@ related:
 | Scope | ACP |
 | Number | MS5 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 6 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.acp-ms5.p0-u01` — P0-U01
+- `ghost.ms.acp-ms5.p0-u02` — P0-U02
+- `ghost.ms.acp-ms5.p0-u03` — P0-U03
+- `ghost.ms.acp-ms5.p1-u01` — P1-U01
+- `ghost.ms.acp-ms5.p1-u02` — P1-U02
+- `ghost.ms.acp-ms5.p1-u03` — P1-U03
 
 ## Doctrine
 

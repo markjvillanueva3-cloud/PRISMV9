@@ -29,12 +29,23 @@ related:
 | Scope | CAD-COMPLETE |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.cad-complete-ms0.u-cadc01` — U-CADC01
+- `ghost.ms.cad-complete-ms0.u-cadc02` — U-CADC02
+- `ghost.ms.cad-complete-ms0.u-cadc03` — U-CADC03
+- `ghost.ms.cad-complete-ms0.u-cadc04` — U-CADC04
+- `ghost.ms.cad-complete-ms0.u-cadc00` — U-CADC00
+- `ghost.ms.cad-complete-ms0.u-cadc27` — U-CADC27
+- `ghost.ms.cad-complete-ms0.u-cadc05` — U-CADC05
+- `ghost.ms.cad-complete-ms0.u-cadc06` — U-CADC06
+- `ghost.ms.cad-complete-ms0.u-cadc07` — U-CADC07
+- `ghost.ms.cad-complete-ms0.u-cadc08` — U-CADC08
+- `ghost.ms.cad-complete-ms0.u-cadc09` — U-CADC09
+- `ghost.ms.cad-complete-ms0.u-cadc10` — U-CADC10
 
 ## Doctrine
 

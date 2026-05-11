@@ -29,12 +29,22 @@ related:
 | Scope | WEDM-GAPFILL |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 11 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.wedm-gapfill-ms0.u-wgap01` — U-WGAP01
+- `ghost.ms.wedm-gapfill-ms0.u-wgap02` — U-WGAP02
+- `ghost.ms.wedm-gapfill-ms0.u-wgap03` — U-WGAP03
+- `ghost.ms.wedm-gapfill-ms0.u-wgap04` — U-WGAP04
+- `ghost.ms.wedm-gapfill-ms0.u-wgap05` — U-WGAP05
+- `ghost.ms.wedm-gapfill-ms0.u-wgap06` — U-WGAP06
+- `ghost.ms.wedm-gapfill-ms0.u-wgap07` — U-WGAP07
+- `ghost.ms.wedm-gapfill-ms0.u-wgap08` — U-WGAP08
+- `ghost.ms.wedm-gapfill-ms0.u-wgap09` — U-WGAP09
+- `ghost.ms.wedm-gapfill-ms0.u-wgap10` — U-WGAP10
+- `ghost.ms.wedm-gapfill-ms0.u-wgap11` — U-WGAP11
 
 ## Doctrine
 

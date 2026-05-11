@@ -29,12 +29,14 @@ related:
 | Scope | F360 |
 | Number | MS5 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 3 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.f360-ms5.u-f360-22` — U-F360-22
+- `ghost.ms.f360-ms5.u-f360-23` — U-F360-23
+- `ghost.ms.f360-ms5.u-f360-24` — U-F360-24
 
 ## Doctrine
 

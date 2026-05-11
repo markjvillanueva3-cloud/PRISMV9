@@ -29,12 +29,21 @@ related:
 | Scope | BIZ |
 | Number | MS5 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 10 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.biz-ms5.u-biz36` — U-BIZ36
+- `ghost.ms.biz-ms5.u-biz37` — U-BIZ37
+- `ghost.ms.biz-ms5.u-biz38` — U-BIZ38
+- `ghost.ms.biz-ms5.u-biz39` — U-BIZ39
+- `ghost.ms.biz-ms5.u-biz40` — U-BIZ40
+- `ghost.ms.biz-ms5.u-biz41` — U-BIZ41
+- `ghost.ms.biz-ms5.u-biz42` — U-BIZ42
+- `ghost.ms.biz-ms5.u-biz43` — U-BIZ43
+- `ghost.ms.biz-ms5.u-biz44` — U-BIZ44
+- `ghost.ms.biz-ms5.u-biz45` — U-BIZ45
 
 ## Doctrine
 

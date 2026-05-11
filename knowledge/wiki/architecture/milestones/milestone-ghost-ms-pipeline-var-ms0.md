@@ -29,12 +29,23 @@ related:
 | Scope | PIPELINE-VAR |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.pipeline-var-ms0.u-pv01` — U-PV01
+- `ghost.ms.pipeline-var-ms0.u-pv02` — U-PV02
+- `ghost.ms.pipeline-var-ms0.u-pv03a` — U-PV03a
+- `ghost.ms.pipeline-var-ms0.u-pv03b` — U-PV03b
+- `ghost.ms.pipeline-var-ms0.u-pv04` — U-PV04
+- `ghost.ms.pipeline-var-ms0.u-pv05` — U-PV05
+- `ghost.ms.pipeline-var-ms0.u-pv06` — U-PV06
+- `ghost.ms.pipeline-var-ms0.u-pv07` — U-PV07
+- `ghost.ms.pipeline-var-ms0.u-pv08` — U-PV08
+- `ghost.ms.pipeline-var-ms0.u-pv09` — U-PV09
+- `ghost.ms.pipeline-var-ms0.u-pv10a` — U-PV10a
+- `ghost.ms.pipeline-var-ms0.u-pv10b` — U-PV10b
 
 ## Doctrine
 

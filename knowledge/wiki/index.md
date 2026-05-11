@@ -1258,6 +1258,28 @@ _Total: 266 misc-L8 entries (JM Die customers, combos, design specs, data catalo
 Dirs: `architecture/jmdie/`, `architecture/combos/`, `architecture/specs/`, `architecture/datacat/`, `architecture/extracts/`, `architecture/novel-formulas/`.
 <!-- ARCH-MISC-L8-END -->
 
+### Courses (Academy + MIT OCW)
+
+<!-- ARCH-COURSES-START -->
+_Total: 16 course entries — 9 PRISM Academy + 5 MIT OCW + 1 (220-course KB) + index. See [[courses-index]]._
+
+Dir: `architecture/courses/`. Served by CurriculumEngine / CourseBuilderEngine / the MITCourse* engine family.
+<!-- ARCH-COURSES-END -->
+
+### Tribal corpus (per-category)
+
+<!-- ARCH-TRIBAL-CORPUS-START -->
+_Total: 4245 tribal tips across 73 categories — per-category index entries under `architecture/tribal/`; master catalog [[tribal-corpus-index]]. Every tip is in `_leaf-index.jsonl` for recall._
+<!-- ARCH-TRIBAL-CORPUS-END -->
+
+### Monolith modules (per-module, v8.89 decomposition)
+
+<!-- ARCH-MONOLITH-MODULES-START -->
+_Total: 1679 per-module wiki entries across 60 categories — see [[monolith-modules-index]]._
+
+Dir: `architecture/monolith-modules/<category>/`. These are the decomposed v8.89 monolith source files (source material for SFC / Master-Post / MS1 / CADCAM-AI / LEARN).
+<!-- ARCH-MONOLITH-MODULES-END -->
+
 ### Skills
 
 <!-- ARCH-SKILLS-START -->

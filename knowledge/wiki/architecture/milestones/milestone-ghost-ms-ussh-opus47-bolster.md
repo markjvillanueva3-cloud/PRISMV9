@@ -29,12 +29,23 @@ related:
 | Scope | UNKNOWN |
 | Number | MS? |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.ussh-opus47-bolster.u-act01` — U-ACT01
+- `ghost.ms.ussh-opus47-bolster.u-act02` — U-ACT02
+- `ghost.ms.ussh-opus47-bolster.u-act03` — U-ACT03
+- `ghost.ms.ussh-opus47-bolster.u-act04` — U-ACT04
+- `ghost.ms.ussh-opus47-bolster.u-act05` — U-ACT05
+- `ghost.ms.ussh-opus47-bolster.u-act06` — U-ACT06
+- `ghost.ms.ussh-opus47-bolster.u-ctx01` — U-CTX01
+- `ghost.ms.ussh-opus47-bolster.u-ctx02` — U-CTX02
+- `ghost.ms.ussh-opus47-bolster.u-ctx03` — U-CTX03
+- `ghost.ms.ussh-opus47-bolster.u-ctx04` — U-CTX04
+- `ghost.ms.ussh-opus47-bolster.u-ctx05` — U-CTX05
+- `ghost.ms.ussh-opus47-bolster.u-ctx06` — U-CTX06
 
 ## Doctrine
 

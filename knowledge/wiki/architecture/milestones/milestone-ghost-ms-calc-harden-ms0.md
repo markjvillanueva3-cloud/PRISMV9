@@ -29,12 +29,23 @@ related:
 | Scope | CALC-HARDEN |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.calc-harden-ms0.u-ch01` — U-CH01
+- `ghost.ms.calc-harden-ms0.u-ch02` — U-CH02
+- `ghost.ms.calc-harden-ms0.u-ch03` — U-CH03
+- `ghost.ms.calc-harden-ms0.u-ch04` — U-CH04
+- `ghost.ms.calc-harden-ms0.u-ch05` — U-CH05
+- `ghost.ms.calc-harden-ms0.u-ch06` — U-CH06
+- `ghost.ms.calc-harden-ms0.u-ch07` — U-CH07
+- `ghost.ms.calc-harden-ms0.u-ch08` — U-CH08
+- `ghost.ms.calc-harden-ms0.u-ch09` — U-CH09
+- `ghost.ms.calc-harden-ms0.u-ch10` — U-CH10
+- `ghost.ms.calc-harden-ms0.u-ch11` — U-CH11
+- `ghost.ms.calc-harden-ms0.u-ch12` — U-CH12
 
 ## Doctrine
 

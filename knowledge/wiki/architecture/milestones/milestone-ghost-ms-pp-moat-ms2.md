@@ -29,12 +29,15 @@ related:
 | Scope | PP-MOAT |
 | Number | MS2 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 4 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.pp-moat-ms2.u-pmmo01` — U-PMMO01
+- `ghost.ms.pp-moat-ms2.u-pmmo02` — U-PMMO02
+- `ghost.ms.pp-moat-ms2.u-pmmo03` — U-PMMO03
+- `ghost.ms.pp-moat-ms2.u-pmmo04` — U-PMMO04
 
 ## Doctrine
 

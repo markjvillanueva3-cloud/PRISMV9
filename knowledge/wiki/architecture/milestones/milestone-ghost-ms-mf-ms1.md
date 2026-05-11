@@ -29,12 +29,15 @@ related:
 | Scope | MF |
 | Number | MS1 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 4 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.mf-ms1.u-mf01` — U-MF01
+- `ghost.ms.mf-ms1.u-mf02` — U-MF02
+- `ghost.ms.mf-ms1.u-mf03` — U-MF03
+- `ghost.ms.mf-ms1.u-mf04` — U-MF04
 
 ## Doctrine
 

@@ -29,12 +29,23 @@ related:
 | Scope | UNKNOWN |
 | Number | MS? |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.lathe-master.u-lth01` — U-LTH01
+- `ghost.ms.lathe-master.u-lth02` — U-LTH02
+- `ghost.ms.lathe-master.u-lth03` — U-LTH03
+- `ghost.ms.lathe-master.u-lth04` — U-LTH04
+- `ghost.ms.lathe-master.u-lth04b` — U-LTH04b
+- `ghost.ms.lathe-master.u-lth05` — U-LTH05
+- `ghost.ms.lathe-master.u-lth06` — U-LTH06
+- `ghost.ms.lathe-master.u-lth63` — U-LTH63
+- `ghost.ms.lathe-master.u-lth64` — U-LTH64
+- `ghost.ms.lathe-master.u-lth65` — U-LTH65
+- `ghost.ms.lathe-master.u-lth66` — U-LTH66
+- `ghost.ms.lathe-master.u-lth67` — U-LTH67
 
 ## Doctrine
 

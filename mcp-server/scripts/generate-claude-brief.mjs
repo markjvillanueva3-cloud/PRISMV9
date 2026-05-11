@@ -139,11 +139,11 @@ function extractWikiBrain() {
   let total = "?", byType = "", orphan = "?", lastRegen = "?";
   const statsText = readSafe(STATS);
   if (statsText) {
-    total = (statsText.match(/\*\*Total entries:\*\*\s*([\d,]+)/) || [, "?"])[1];
+    total = (statsText.match(/\*\*Total[^:]*entries:\*\*\s*([\d,]+)/i) || statsText.match(/^total_entries:\s*([\d,]+)/mi) || [, "?"])[1];
     orphan = (statsText.match(/\*\*Orphan rate:\*\*\s*([^\n]+)/) || [, "?"])[1].trim();
     lastRegen = (statsText.match(/\*\*Last regen:\*\*\s*([^\n]+)/) || [, "?"])[1].trim();
-    const rows = [...statsText.matchAll(/^\|\s*([a-z_-]+)\s*\|\s*(\d+)\s*\|/gmi)].map((m) => `${m[1]}:${m[2]}`);
-    byType = rows.slice(0, 8).join(" · ");
+    const rows = [...statsText.matchAll(/^\|\s*`?([a-z_-]+)`?\s*\|\s*(\d+)\s*\|/gmi)].map((m) => `${m[1]}:${m[2]}`);
+    byType = rows.slice(0, 9).join(" · ");
   } else if (existsSync(LEAF)) {
     try { total = String(readFileSync(LEAF, "utf8").split("\n").filter((l) => l.trim()).length); } catch {}
   }

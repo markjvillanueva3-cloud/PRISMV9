@@ -29,12 +29,23 @@ related:
 | Scope | BP |
 | Number | MS0 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 12 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.bp-ms0.u-routefix1` — U-ROUTEFIX1
+- `ghost.ms.bp-ms0.u-routefix2` — U-ROUTEFIX2
+- `ghost.ms.bp-ms0.u-routefix3` — U-ROUTEFIX3
+- `ghost.ms.bp-ms0.u-blob1` — U-BLOB1
+- `ghost.ms.bp-ms0.u-blob2` — U-BLOB2
+- `ghost.ms.bp-ms0.u-blob3` — U-BLOB3
+- `ghost.ms.bp-ms0.u-iquote1` — U-IQUOTE1
+- `ghost.ms.bp-ms0.u-iquote2` — U-IQUOTE2
+- `ghost.ms.bp-ms0.u-iquote3` — U-IQUOTE3
+- `ghost.ms.bp-ms0.u-dfm1` — U-DFM1
+- `ghost.ms.bp-ms0.u-dfm2` — U-DFM2
+- `ghost.ms.bp-ms0.u-qbo1` — U-QBO1
 
 ## Doctrine
 

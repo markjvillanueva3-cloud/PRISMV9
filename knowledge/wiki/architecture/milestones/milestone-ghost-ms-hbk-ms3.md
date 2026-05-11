@@ -29,12 +29,14 @@ related:
 | Scope | HBK |
 | Number | MS3 |
 | Status | ghost |
-| Planned units (L9 children) | 0 |
+| Planned units (L9 children) | 3 |
 | Parent layer | [[layer-l8]] |
 
 ## Planned units (sample of 10)
 
-_(no planned-unit children in graph — milestone may be high-level only)_
+- `ghost.ms.hbk-ms3.p0-u01` — P0-U01
+- `ghost.ms.hbk-ms3.p0-u02` — P0-U02
+- `ghost.ms.hbk-ms3.p0-u03` — P0-U03
 
 ## Doctrine
 
