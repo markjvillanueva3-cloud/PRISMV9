@@ -115,6 +115,8 @@ export interface AutoFireStatus {
   autoTrainReplayMixRatio: number | null;
   /** U-CN10: hard cap on historical records pulled per retrain (null = never activated). */
   autoTrainReplayMaxRecords: number | null;
+  /** U-CN11: EWC penalty strength λ passed to enableAutoTrain (0 = off, null = never activated). */
+  autoTrainEwcLambda: number | null;
   components: AutoFireComponentStatus[];
 }
 
@@ -142,6 +144,17 @@ const ActivateInputSchema = z
     autoTrainReplayMixRatio: z.number().min(0).max(100).optional(),
     /** U-CN10: hard cap on historical records pulled per retrain. Default 256. */
     autoTrainReplayMaxRecords: z.number().int().min(0).max(100_000).optional(),
+    /**
+     * U-CN11: EWC penalty strength λ for the retrain. When > 0, each retrain also
+     * consolidates the just-trained samples as an EWC task (diagonal Fisher → running
+     * Fisher → new anchor) and subsequent updates carry the penalty λ·F_i·(θ_i−θ*_i).
+     * Default 0 (EWC stays dormant on the boot path — it is the riskiest forgetting
+     * mitigation and wants operator tuning; enable explicitly via this option or
+     * xproc_neural_ewc_consolidate). Clamped [0, 1e6].
+     */
+    autoTrainEwcLambda: z.number().min(0).max(1_000_000).optional(),
+    /** U-CN11: Schwarz-EMA decay for the running Fisher. Default 0.9. Clamped [0,1]. */
+    autoTrainEwcDecay: z.number().min(0).max(1).optional(),
   })
   .strict()
   .optional();
@@ -155,6 +168,10 @@ export type AutoFireActivateOptions = NonNullable<z.infer<typeof ActivateInputSc
 const DEFAULT_AUTO_TRAIN_THRESHOLD = 16;
 const DEFAULT_REPLAY_MIX_RATIO = 0.5;
 const DEFAULT_REPLAY_MAX_RECORDS = 256;
+// U-CN11: EWC stays OFF on the boot path (λ=0). Replay mixing (CN10) already mitigates
+// catastrophic forgetting; EWC's λ needs operator tuning, so opt in explicitly.
+const DEFAULT_AUTOFIRE_EWC_LAMBDA = 0;
+const DEFAULT_AUTOFIRE_EWC_DECAY = 0.9;
 
 const ALL_COMPONENTS: readonly AutoFireComponentKey[] = [
   "neural_auto_train",
@@ -182,6 +199,7 @@ export class XProcNeuralAutoFireEngine {
   private static autoTrainThreshold: number | null = null;
   private static autoTrainReplayMixRatio: number | null = null;
   private static autoTrainReplayMaxRecords: number | null = null;
+  private static autoTrainEwcLambda: number | null = null;
 
   // ──────────────────────────────────────────────────────────────────────────
   // Public API
@@ -219,6 +237,8 @@ export class XProcNeuralAutoFireEngine {
     const threshold = opts.autoTrainThreshold ?? DEFAULT_AUTO_TRAIN_THRESHOLD;
     const replayMixRatio = opts.autoTrainReplayMixRatio ?? DEFAULT_REPLAY_MIX_RATIO;
     const replayMaxRecords = opts.autoTrainReplayMaxRecords ?? DEFAULT_REPLAY_MAX_RECORDS;
+    const ewcLambda = opts.autoTrainEwcLambda ?? DEFAULT_AUTOFIRE_EWC_LAMBDA;
+    const ewcDecay = opts.autoTrainEwcDecay ?? DEFAULT_AUTOFIRE_EWC_DECAY;
     const trainOpts =
       opts.autoTrainEpochs !== undefined || opts.autoTrainBatchSize !== undefined || opts.autoTrainShuffle !== undefined
         ? {
@@ -231,7 +251,7 @@ export class XProcNeuralAutoFireEngine {
     const components: AutoFireComponentResult[] = [];
 
     // 1. NN auto-train. enableAutoTrain() THROWS if already active, so probe first.
-    components.push(this.enableNeuralAutoTrain(threshold, trainOpts, replayMixRatio, replayMaxRecords));
+    components.push(this.enableNeuralAutoTrain(threshold, trainOpts, replayMixRatio, replayMaxRecords, ewcLambda, ewcDecay));
 
     // 2–5. Fan-out bridges (uniform subscribeToOutcomes() contract).
     components.push(
@@ -259,6 +279,7 @@ export class XProcNeuralAutoFireEngine {
     this.autoTrainThreshold = threshold;
     this.autoTrainReplayMixRatio = replayMixRatio;
     this.autoTrainReplayMaxRecords = replayMaxRecords;
+    this.autoTrainEwcLambda = ewcLambda;
     return {
       ok: errors === 0,
       alreadyActivated: false,
@@ -355,6 +376,7 @@ export class XProcNeuralAutoFireEngine {
       autoTrainThreshold: this.autoTrainThreshold,
       autoTrainReplayMixRatio: this.autoTrainReplayMixRatio,
       autoTrainReplayMaxRecords: this.autoTrainReplayMaxRecords,
+      autoTrainEwcLambda: this.autoTrainEwcLambda,
       components: ALL_COMPONENTS.map((key) => ({
         key,
         active: liveActive[key],
@@ -370,6 +392,7 @@ export class XProcNeuralAutoFireEngine {
     this.autoTrainThreshold = null;
     this.autoTrainReplayMixRatio = null;
     this.autoTrainReplayMaxRecords = null;
+    this.autoTrainEwcLambda = null;
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -381,6 +404,8 @@ export class XProcNeuralAutoFireEngine {
     trainOpts: { epochs?: number; batchSize?: number; shuffle?: boolean } | undefined,
     replayMixRatio: number,
     replayMaxRecords: number,
+    ewcLambda: number,
+    ewcDecay: number,
   ): AutoFireComponentResult {
     let alreadyActive = false;
     try {
@@ -397,6 +422,8 @@ export class XProcNeuralAutoFireEngine {
         threshold,
         replayMixRatio,
         replayMaxRecords,
+        ewcLambda,
+        ewcDecay,
         ...(trainOpts ? { trainOpts } : {}),
       });
       this.owned.add("neural_auto_train");

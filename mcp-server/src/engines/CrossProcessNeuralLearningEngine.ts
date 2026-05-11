@@ -78,6 +78,13 @@ import {
   WikiRAGFeatureEngine,
   RAG_FEATURE_DIM,
 } from "./WikiRAGFeatureEngine.js";
+// U-CN11: EWC (Elastic Weight Consolidation, Kirkpatrick et al. 2017) — anchors
+// old-task weights via a diagonal-Fisher penalty in the retrain. The math (Fisher
+// from squared per-sample grads · Schwarz-EMA running-Fisher · λ/2·F·(θ−θ*)² penalty)
+// lives in CrossProcessEWCMemoryPreservationEngine; this engine supplies the
+// per-sample gradients + the flat-parameter view and applies the penalty gradient.
+// (Value import — the EWC engine depends only on zod; no import cycle.)
+import { CrossProcessEWCMemoryPreservationEngine } from "./CrossProcessEWCMemoryPreservationEngine.js";
 
 // ============================================================================
 // CONSTANTS
@@ -126,6 +133,17 @@ export const INPUT_DIM =
   RAG_DIM; // 7+5+3+64+16+16+16+4+5+8 = 144
 export const HIDDEN_DIM = 16;
 export const OUTPUT_DIM = 3;
+
+// U-CN11: flat-parameter vector dimension — the EWC layer sees the network as one
+// vector laid out [W2, b2, W1, b1] (output layer first). getFlatWeights() and
+// flattenGrads() MUST use this exact order so an EWC gradient index maps to the
+// right parameter. = 3·16 + 3 + 16·144 + 16 = 2371.
+export const FLAT_PARAM_DIM =
+  OUTPUT_DIM * HIDDEN_DIM + OUTPUT_DIM + HIDDEN_DIM * INPUT_DIM + HIDDEN_DIM;
+/** U-CN11: default EWC penalty strength λ when consolidate is requested without one. */
+const DEFAULT_EWC_LAMBDA = 1.0;
+/** U-CN11: default Schwarz-EMA decay for the running Fisher (F_run ← decay·F_run + (1−decay)·F_task). */
+const DEFAULT_EWC_DECAY = 0.9;
 
 export const CLASS_SUCCESS = 0;
 export const CLASS_FAILURE = 1;
@@ -194,6 +212,17 @@ export interface TrainOpts {
   batchSize?: number;
   /** If true, shuffle the training set each epoch. Default true. */
   shuffle?: boolean;
+  /**
+   * U-CN11: if set, after the epoch loop consolidate the *just-trained* samples as
+   * an EWC task — compute the diagonal Fisher, merge it into the running Fisher
+   * (Schwarz EMA), snapshot the converged weights as the new anchor, and arm the
+   * EWC penalty for subsequent training with strength `lambda` (clamped [0, 1e6];
+   * 0 = consolidate-and-disarm). `decay` (clamped [0,1], default 0.9) is the EMA
+   * weight on the prior running Fisher. When the EWC penalty is already armed, the
+   * penalty gradient computed during *this* call's updates uses the previous anchor/
+   * Fisher (the new ones take effect on the next train()).
+   */
+  ewc?: { lambda?: number; decay?: number };
 }
 
 export interface TrainResult {
@@ -206,6 +235,8 @@ export interface TrainResult {
   trainAccuracy: number;
   /** Loss at the start (before any updates this call). */
   initialLoss: number;
+  /** U-CN11: present iff `opts.ewc` was given and consolidation succeeded. */
+  ewcConsolidated?: { numSamples: number; meanFisher: number; reliable: boolean; lambda: number };
 }
 
 export interface ClassProbs {
@@ -307,6 +338,22 @@ export class CrossProcessNeuralLearningEngine {
   // enableAutoTrain callers); the XProcNeuralAutoFireEngine boot path opts into 0.5.
   private autoTrainReplayMixRatio = 0;
   private autoTrainReplayMaxRecords = 256;
+  // U-CN11: EWC config forwarded into the auto-train retrain (lambda 0 = off, the
+  // default — and the default for the boot path). Reported by autoTrainStatus(); both
+  // reset by disableAutoTrain(). The EWC *state* below (anchor/fisher/lambda) persists
+  // across disable/enable — only clearEWC() forgets it.
+  private autoTrainEwcLambda = 0;
+  private autoTrainEwcDecay = DEFAULT_EWC_DECAY;
+
+  // U-CN11: EWC (Elastic Weight Consolidation) state. `ewcEnabled` gates the penalty
+  // term in stepBatch; `ewcAnchor` = θ* snapshot (flat, [W2,b2,W1,b1] layout, length
+  // FLAT_PARAM_DIM); `ewcFisher` = the Schwarz-EMA running diagonal Fisher (same layout/
+  // length). All null until consolidateCurrentTask() / a train({ewc}) pass arms it.
+  private ewcEnabled = false;
+  private ewcLambda = 0;
+  private ewcDecay = DEFAULT_EWC_DECAY;
+  private ewcAnchor: number[] | null = null;
+  private ewcFisher: number[] | null = null;
 
   constructor(config: Partial<NeuralConfig> = {}) {
     this.config = {
@@ -573,6 +620,18 @@ export class CrossProcessNeuralLearningEngine {
     this.lastLoss = finalLoss;
     this.lastAccuracy = trainAccuracy;
 
+    // U-CN11: optional EWC consolidation of the just-trained samples (Fisher diagonal
+    // computed at these converged weights → merged into the running Fisher → new anchor →
+    // penalty armed for subsequent training). lambda/decay clamped; failures are
+    // swallowed (no ewcConsolidated field, training result otherwise unchanged).
+    let ewcConsolidated: TrainResult["ewcConsolidated"];
+    if (opts.ewc) {
+      const lambda = clamp(Number.isFinite(opts.ewc.lambda) ? (opts.ewc.lambda as number) : DEFAULT_EWC_LAMBDA, 0, 1_000_000);
+      const decay = clamp(Number.isFinite(opts.ewc.decay) ? (opts.ewc.decay as number) : DEFAULT_EWC_DECAY, 0, 1);
+      const r = this.consolidateFromSamples(samples, lambda, decay);
+      if (r) ewcConsolidated = r;
+    }
+
     return {
       epochsRun: epochs,
       samplesUsed: samples.length,
@@ -580,6 +639,7 @@ export class CrossProcessNeuralLearningEngine {
       finalLoss,
       trainAccuracy,
       initialLoss,
+      ...(ewcConsolidated ? { ewcConsolidated } : {}),
     };
   }
 
@@ -941,28 +1001,26 @@ export class CrossProcessNeuralLearningEngine {
   }
 
   /**
-   * U-NN-FIX04: TRUE minibatch SGD step. Forward + accumulate gradients across
-   * the entire batch, then apply ONE update with the averaged gradient. Uses
-   * the standard chain rule with W2 snapshot (U-NN-FIX01).
+   * U-CN11 (refactor of U-NN-FIX04): forward + backward over the batch, accumulating
+   * the SUMMED (not yet averaged) gradients. No state mutation — reads the current
+   * weights, returns fresh accumulator arrays. Extracted so EWC consolidation can
+   * compute per-sample gradients (the Fisher diagonal) without applying any update.
    *
-   * For batch_size=1 this is mathematically equivalent to stepOne (online SGD).
-   * For batch_size=N>1 this is true minibatch SGD with gradient averaging,
-   * which has lower gradient variance and typically more stable convergence.
+   * Layout: gW2 [OUTPUT_DIM·HIDDEN_DIM], gb2 [OUTPUT_DIM], gW1 [HIDDEN_DIM·INPUT_DIM],
+   * gb1 [HIDDEN_DIM] — same shapes as the weight arrays. Standard chain rule with a
+   * W2 snapshot (U-NN-FIX01) so the hidden-layer gradient reads the forward-pass weights.
    */
-  private stepBatch(batch: Array<{ x: Float64Array; y: number }>): void {
-    const B = batch.length;
-    if (B === 0) return;
-
-    // Snapshot W2 ONCE per batch (constant during gradient accumulation).
+  private accumulateGradients(
+    batch: Array<{ x: Float64Array; y: number }>,
+  ): { gW1: Float64Array; gb1: Float64Array; gW2: Float64Array; gb2: Float64Array } {
+    // Snapshot W2 ONCE (constant during accumulation — no updates happen here).
     const W2Snapshot = new Float64Array(this.W2);
-
-    // Gradient accumulators.
     const gW2 = new Float64Array(OUTPUT_DIM * HIDDEN_DIM);
     const gb2 = new Float64Array(OUTPUT_DIM);
     const gW1 = new Float64Array(HIDDEN_DIM * INPUT_DIM);
     const gb1 = new Float64Array(HIDDEN_DIM);
 
-    for (let s = 0; s < B; s++) {
+    for (let s = 0; s < batch.length; s++) {
       const { x, y } = batch[s];
       const { hidden, probs } = this.forward(x);
 
@@ -981,7 +1039,7 @@ export class CrossProcessNeuralLearningEngine {
         gb2[o] += dLogits[o];
       }
 
-      // Hidden-layer gradients (using W2 snapshot, not the accumulator).
+      // Hidden-layer gradients (using the W2 snapshot, not the accumulator).
       const dHiddenPre = new Float64Array(HIDDEN_DIM);
       for (let h = 0; h < HIDDEN_DIM; h++) {
         let sum = 0;
@@ -1000,33 +1058,177 @@ export class CrossProcessNeuralLearningEngine {
         gb1[h] += dHiddenPre[h];
       }
     }
+    return { gW1, gb1, gW2, gb2 };
+  }
 
-    // Apply ONE update with the AVERAGED gradient.
+  /**
+   * U-NN-FIX04 / U-CN11: TRUE minibatch SGD step. Accumulate gradients across the
+   * batch (accumulateGradients), then apply ONE momentum update with the AVERAGED
+   * data gradient — plus, when EWC is armed (consolidateCurrentTask() / a train({ewc})
+   * pass / enableAutoTrain({ewcLambda})), the diagonal EWC penalty gradient
+   * λ·max(F_i,0)·(θ_i−θ*_i) (Kirkpatrick et al. 2017). For batch_size=1 with EWC off
+   * this is mathematically equivalent to stepOne (online SGD); the apply order over
+   * parameters changed (W2 block, then b2, then W1, then b1 — matching getFlatWeights)
+   * but parameter updates are independent so the result is unchanged.
+   */
+  private stepBatch(batch: Array<{ x: Float64Array; y: number }>): void {
+    const B = batch.length;
+    if (B === 0) return;
+
+    const { gW1, gb1, gW2, gb2 } = this.accumulateGradients(batch);
+
     const lr = this.config.learningRate;
     const mom = this.config.momentum;
     const invB = 1 / B;
 
+    // U-CN11: EWC penalty gradient over the flat parameter vector ([W2, b2, W1, b1]),
+    // computed once per batch against the CURRENT weights. regLoss returns
+    // gradient[i] = λ·max(F_i,0)·(θ_i−θ*_i). On any failure (shape/non-finite/!ok) we
+    // skip the penalty for this step rather than corrupt the update.
+    let ewcGrad: number[] | null = null;
+    if (this.ewcEnabled && this.ewcLambda > 0 && this.ewcAnchor !== null && this.ewcFisher !== null) {
+      const r = CrossProcessEWCMemoryPreservationEngine.regLoss({
+        newWeights: this.getFlatWeights(),
+        oldWeights: this.ewcAnchor,
+        fisher: this.ewcFisher,
+        lambda: this.ewcLambda,
+      });
+      if (r.ok && r.result.gradient.length === FLAT_PARAM_DIM) ewcGrad = r.result.gradient;
+    }
+    // Flat-index cursor — MUST walk [W2, b2, W1, b1] in the same order as getFlatWeights().
+    let fi = 0;
+
     for (let o = 0; o < OUTPUT_DIM; o++) {
       const rowOff = o * HIDDEN_DIM;
-      for (let h = 0; h < HIDDEN_DIM; h++) {
-        const grad = gW2[rowOff + h] * invB;
+      for (let h = 0; h < HIDDEN_DIM; h++, fi++) {
+        let grad = gW2[rowOff + h] * invB;
+        if (ewcGrad) grad += ewcGrad[fi];
         this.vW2[rowOff + h] = mom * this.vW2[rowOff + h] - lr * grad;
         this.W2[rowOff + h] += this.vW2[rowOff + h];
       }
-      this.vb2[o] = mom * this.vb2[o] - lr * gb2[o] * invB;
+    }
+    for (let o = 0; o < OUTPUT_DIM; o++, fi++) {
+      let grad = gb2[o] * invB;
+      if (ewcGrad) grad += ewcGrad[fi];
+      this.vb2[o] = mom * this.vb2[o] - lr * grad;
       this.b2[o] += this.vb2[o];
     }
-
     for (let h = 0; h < HIDDEN_DIM; h++) {
       const rowOff = h * INPUT_DIM;
-      for (let i = 0; i < INPUT_DIM; i++) {
-        const grad = gW1[rowOff + i] * invB;
+      for (let i = 0; i < INPUT_DIM; i++, fi++) {
+        let grad = gW1[rowOff + i] * invB;
+        if (ewcGrad) grad += ewcGrad[fi];
         this.vW1[rowOff + i] = mom * this.vW1[rowOff + i] - lr * grad;
         this.W1[rowOff + i] += this.vW1[rowOff + i];
       }
-      this.vb1[h] = mom * this.vb1[h] - lr * gb1[h] * invB;
+    }
+    for (let h = 0; h < HIDDEN_DIM; h++, fi++) {
+      let grad = gb1[h] * invB;
+      if (ewcGrad) grad += ewcGrad[fi];
+      this.vb1[h] = mom * this.vb1[h] - lr * grad;
       this.b1[h] += this.vb1[h];
     }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // U-CN11: EWC (Elastic Weight Consolidation) — flat-parameter views + helpers
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /** Flatten the weights into one vector, layout [W2, b2, W1, b1] (length FLAT_PARAM_DIM). */
+  private getFlatWeights(): number[] {
+    const out = new Array<number>(FLAT_PARAM_DIM);
+    let k = 0;
+    for (let i = 0; i < this.W2.length; i++) out[k++] = this.W2[i];
+    for (let i = 0; i < this.b2.length; i++) out[k++] = this.b2[i];
+    for (let i = 0; i < this.W1.length; i++) out[k++] = this.W1[i];
+    for (let i = 0; i < this.b1.length; i++) out[k++] = this.b1[i];
+    return out;
+  }
+
+  /** Flatten an accumulateGradients() result into one vector, same [W2, b2, W1, b1] layout. */
+  private flattenGrads(g: { gW1: Float64Array; gb1: Float64Array; gW2: Float64Array; gb2: Float64Array }): number[] {
+    const out = new Array<number>(FLAT_PARAM_DIM);
+    let k = 0;
+    for (let i = 0; i < g.gW2.length; i++) out[k++] = g.gW2[i];
+    for (let i = 0; i < g.gb2.length; i++) out[k++] = g.gb2[i];
+    for (let i = 0; i < g.gW1.length; i++) out[k++] = g.gW1[i];
+    for (let i = 0; i < g.gb1.length; i++) out[k++] = g.gb1[i];
+    return out;
+  }
+
+  /**
+   * Consolidate already-featurized samples as an EWC task: per-sample flat gradients →
+   * diagonal Fisher (CrossProcessEWCMemoryPreservationEngine.computeFisher) → merge into
+   * the running Fisher (Schwarz EMA, `decay`) → snapshot the converged weights as the new
+   * anchor → arm/disarm the penalty (`lambda` ≤ 0 ⇒ disarm but keep anchor/Fisher).
+   * Returns null if there are no samples or the EWC math rejects the input.
+   */
+  private consolidateFromSamples(
+    samples: Array<{ x: Float64Array; y: number }>,
+    lambda: number,
+    decay: number,
+  ): { numSamples: number; meanFisher: number; reliable: boolean; lambda: number } | null {
+    if (samples.length === 0) return null;
+    const gradientSamples: number[][] = samples.map((s) => this.flattenGrads(this.accumulateGradients([s])));
+    const fisherR = CrossProcessEWCMemoryPreservationEngine.computeFisher({ gradientSamples });
+    if (!fisherR.ok) return null;
+    const consolidated = CrossProcessEWCMemoryPreservationEngine.consolidate({ newFisher: fisherR.result.fisher, decay });
+    if (!consolidated.ok) return null;
+    this.ewcFisher = consolidated.fisher;
+    this.ewcAnchor = this.getFlatWeights();
+    this.ewcLambda = lambda;
+    this.ewcDecay = decay;
+    this.ewcEnabled = lambda > 0;
+    return { numSamples: fisherR.result.numSamples, meanFisher: fisherR.result.meanFisher, reliable: fisherR.result.reliable, lambda };
+  }
+
+  /**
+   * Public EWC consolidation from raw OutcomeRecords (for manual / dispatcher use).
+   * Featurizes each labelable record with the CURRENT z-score statistics (does NOT update
+   * Welford — call train() first if you want the model fitted to these records), then
+   * delegates to consolidateFromSamples. `lambda` clamped to [0, 1e6] (default 1.0);
+   * `decay` clamped to [0, 1] (default 0.9). Returns `{ok:false}` with a reason on failure.
+   */
+  consolidateCurrentTask(
+    records: readonly OutcomeRecord[],
+    opts: { lambda?: number; decay?: number } = {},
+  ):
+    | { ok: true; numSamples: number; meanFisher: number; reliable: boolean; lambda: number }
+    | { ok: false; reason: string } {
+    const lambda = clamp(Number.isFinite(opts.lambda) ? (opts.lambda as number) : DEFAULT_EWC_LAMBDA, 0, 1_000_000);
+    const decay = clamp(Number.isFinite(opts.decay) ? (opts.decay as number) : DEFAULT_EWC_DECAY, 0, 1);
+    const samples: Array<{ x: Float64Array; y: number }> = [];
+    for (const r of records) {
+      const y = this.recordToLabel(r);
+      if (y === null) continue;
+      samples.push({ x: this.featurize(r), y });
+    }
+    if (samples.length === 0) return { ok: false, reason: "no_labelable_samples" };
+    const res = this.consolidateFromSamples(samples, lambda, decay);
+    if (!res) return { ok: false, reason: "ewc_math_rejected_input" };
+    return { ok: true, ...res };
+  }
+
+  /** Disarm EWC and forget the anchor/Fisher (also resets the shared running-Fisher state). */
+  clearEWC(): void {
+    this.ewcEnabled = false;
+    this.ewcLambda = 0;
+    this.ewcDecay = DEFAULT_EWC_DECAY;
+    this.ewcAnchor = null;
+    this.ewcFisher = null;
+    CrossProcessEWCMemoryPreservationEngine.reset();
+  }
+
+  /** Snapshot of the EWC state. `fisherDim` 0 / `anchored` false ⇒ never consolidated. */
+  ewcStatus(): { enabled: boolean; lambda: number; decay: number; anchored: boolean; fisherDim: number; autoTrainLambda: number } {
+    return {
+      enabled: this.ewcEnabled,
+      lambda: this.ewcLambda,
+      decay: this.ewcDecay,
+      anchored: this.ewcAnchor !== null,
+      fisherDim: this.ewcFisher?.length ?? 0,
+      autoTrainLambda: this.autoTrainEwcLambda,
+    };
   }
 
   private computeMeanLoss(samples: Array<{ x: Float64Array; y: number }>): number {
@@ -1121,6 +1323,16 @@ export interface AutoTrainOptions {
   replayMixRatio?: number;
   /** U-CN10: hard cap on historical records pulled per retrain. Default 256. Clamped to [0, 100000]. */
   replayMaxRecords?: number;
+  /**
+   * U-CN11: EWC penalty strength λ for the retrain. When > 0, each retrain also
+   * consolidates the just-trained samples as an EWC task (Fisher diagonal → running
+   * Fisher → new anchor) and the next retrain's updates carry the diagonal penalty
+   * λ·F_i·(θ_i−θ*_i). 0 disables (default for direct callers and the boot path — EWC
+   * is the riskiest forgetting mitigation and wants operator tuning). Clamped [0, 1e6].
+   */
+  ewcLambda?: number;
+  /** U-CN11: Schwarz-EMA decay for the running Fisher (F_run ← decay·F_run + (1−decay)·F_task). Default 0.9. Clamped [0,1]. */
+  ewcDecay?: number;
 }
 
 export interface AutoTrainStatus {
@@ -1135,6 +1347,8 @@ export interface AutoTrainStatus {
   replayMixRatio: number;
   /** U-CN10: effective hard cap on historical records pulled per retrain. */
   replayMaxRecords: number;
+  /** U-CN11: effective EWC penalty strength λ forwarded into the retrain (0 = off). */
+  ewcLambda: number;
 }
 
 declare module "./CrossProcessNeuralLearningEngine.js" {
@@ -1223,6 +1437,11 @@ CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
   this.autoTrainReplayMixRatio = clamp(Number.isFinite(opts.replayMixRatio) ? (opts.replayMixRatio as number) : 0, 0, 100);
   // @ts-expect-error private
   this.autoTrainReplayMaxRecords = Math.floor(clamp(Number.isFinite(opts.replayMaxRecords) ? (opts.replayMaxRecords as number) : 256, 0, 100_000));
+  // U-CN11: clamp + persist the EWC config (lambda 0 disables; default off).
+  // @ts-expect-error private
+  this.autoTrainEwcLambda = clamp(Number.isFinite(opts.ewcLambda) ? (opts.ewcLambda as number) : 0, 0, 1_000_000);
+  // @ts-expect-error private
+  this.autoTrainEwcDecay = clamp(Number.isFinite(opts.ewcDecay) ? (opts.ewcDecay as number) : DEFAULT_EWC_DECAY, 0, 1);
   const trainOpts = opts.trainOpts;
   const handle = feedbackBusEngine.subscribe("outcome.recorded", (event: FeedbackEvent) => {
     const payload = event.payload as { record?: OutcomeRecord } | undefined;
@@ -1239,7 +1458,12 @@ CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
       this.autoTrainBuffer = [];
       // @ts-expect-error private
       const { batch, replayMixed } = buildReplayMixedBatch(fifoBatch, this.autoTrainReplayMixRatio, this.autoTrainReplayMaxRecords);
-      const result = this.train(batch, trainOpts);
+      // @ts-expect-error private
+      const ewcL = this.autoTrainEwcLambda as number;
+      // @ts-expect-error private
+      const ewcD = this.autoTrainEwcDecay as number;
+      const effOpts: TrainOpts = { ...(trainOpts ?? {}), ...(ewcL > 0 ? { ewc: { lambda: ewcL, decay: ewcD } } : {}) };
+      const result = this.train(batch, effOpts);
       // @ts-expect-error private
       this.autoTrainTotalTicks += 1;
       feedbackBusEngine.publish("neural.train.tick", {
@@ -1248,6 +1472,7 @@ CrossProcessNeuralLearningEngine.prototype.enableAutoTrain = function (
         samplesUsed: result.samplesUsed,
         samplesSkipped: result.samplesSkipped,
         replayMixed,
+        ewcConsolidated: result.ewcConsolidated ?? null,
         finalLoss: result.finalLoss,
         trainAccuracy: result.trainAccuracy,
         // @ts-expect-error private
@@ -1271,6 +1496,12 @@ CrossProcessNeuralLearningEngine.prototype.disableAutoTrain = function (
   this.autoTrainHandle = null;
   // @ts-expect-error private
   this.autoTrainBuffer = [];
+  // U-CN11: the auto-train EWC *config* is per-session; the EWC *state* (anchor/Fisher)
+  // persists across disable/enable — only clearEWC() forgets that.
+  // @ts-expect-error private
+  this.autoTrainEwcLambda = 0;
+  // @ts-expect-error private
+  this.autoTrainEwcDecay = DEFAULT_EWC_DECAY;
   return true;
 };
 
@@ -1296,6 +1527,8 @@ CrossProcessNeuralLearningEngine.prototype.autoTrainStatus = function (
     replayMixRatio: this.autoTrainReplayMixRatio,
     // @ts-expect-error private
     replayMaxRecords: this.autoTrainReplayMaxRecords,
+    // @ts-expect-error private
+    ewcLambda: this.autoTrainEwcLambda,
   };
 };
 
@@ -1309,7 +1542,11 @@ CrossProcessNeuralLearningEngine.prototype.flushAutoTrainBuffer = function (
   this.autoTrainBuffer = [];
   // @ts-expect-error private
   const { batch, replayMixed } = buildReplayMixedBatch(buf, this.autoTrainReplayMixRatio, this.autoTrainReplayMaxRecords);
-  const result = this.train(batch);
+  // @ts-expect-error private
+  const ewcL = this.autoTrainEwcLambda as number;
+  // @ts-expect-error private
+  const ewcD = this.autoTrainEwcDecay as number;
+  const result = this.train(batch, ewcL > 0 ? { ewc: { lambda: ewcL, decay: ewcD } } : undefined);
   // @ts-expect-error private
   this.autoTrainTotalTicks += 1;
   feedbackBusEngine.publish("neural.train.tick", {
@@ -1318,6 +1555,7 @@ CrossProcessNeuralLearningEngine.prototype.flushAutoTrainBuffer = function (
     samplesUsed: result.samplesUsed,
     samplesSkipped: result.samplesSkipped,
     replayMixed,
+    ewcConsolidated: result.ewcConsolidated ?? null,
     finalLoss: result.finalLoss,
     trainAccuracy: result.trainAccuracy,
     // @ts-expect-error private
@@ -1339,3 +1577,51 @@ function setHashOneHot(
 }
 
 export const crossProcessNeuralLearningEngine = new CrossProcessNeuralLearningEngine();
+
+// ============================================================================
+// U-CN11 — dispatcher convenience wrapper for the EWC controls on the singleton
+// (route surface for prism_ai; the auto-train EWC λ itself is set via
+// xproc_autofire_activate({autoTrainEwcLambda}). consolidate pulls recent terminal
+// outcomes from CrossProcessOutcomeStore, mirroring xproc_rl_bridge_replay.)
+// ============================================================================
+
+const DEFAULT_EWC_CONSOLIDATE_LIMIT = 200;
+const MAX_EWC_CONSOLIDATE_LIMIT = 100_000;
+
+export function crossProcessNeuralEwcDispatch(action: string, params: Record<string, unknown>): unknown {
+  switch (action) {
+    case "xproc_neural_ewc_status":
+      return {
+        ok: true,
+        ewc: crossProcessNeuralLearningEngine.ewcStatus(),
+        autoTrain: crossProcessNeuralLearningEngine.autoTrainStatus(),
+      };
+    case "xproc_neural_ewc_clear":
+      crossProcessNeuralLearningEngine.clearEWC();
+      return { ok: true };
+    case "xproc_neural_ewc_consolidate": {
+      const limitRaw = (params as { limit?: unknown }).limit;
+      const limit = typeof limitRaw === "number" && Number.isFinite(limitRaw) && limitRaw >= 1
+        ? Math.min(Math.floor(limitRaw), MAX_EWC_CONSOLIDATE_LIMIT)
+        : DEFAULT_EWC_CONSOLIDATE_LIMIT;
+      const processRaw = (params as { process?: unknown }).process;
+      const process = processRaw === "mill" || processRaw === "lathe" || processRaw === "wedm" ? processRaw : undefined;
+      const lambdaRaw = (params as { lambda?: unknown }).lambda;
+      const decayRaw = (params as { decay?: unknown }).decay;
+      let records: OutcomeRecord[] = [];
+      try {
+        records = crossProcessOutcomeStore.query({ limit, ...(process ? { process } : {}) });
+      } catch {
+        records = [];
+      }
+      const terminal = records.filter((r) => !!r.outcome?.kind && r.outcome.kind !== "pending");
+      const res = crossProcessNeuralLearningEngine.consolidateCurrentTask(terminal, {
+        ...(typeof lambdaRaw === "number" ? { lambda: lambdaRaw } : {}),
+        ...(typeof decayRaw === "number" ? { decay: decayRaw } : {}),
+      });
+      return { ok: res.ok, scanned: records.length, usable: terminal.length, result: res };
+    }
+    default:
+      throw new Error(`crossProcessNeuralEwcDispatch: unknown action '${action}'`);
+  }
+}

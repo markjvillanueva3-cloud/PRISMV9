@@ -157,6 +157,12 @@ const XPROC_ROUTES: Record<string, XprocEngineLoader> = {
   xproc_rl_bridge_stats: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
   xproc_rl_bridge_replay: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
   xproc_rl_bridge_reset: () => import("../../engines/OutcomeRLBridgeEngine.js").then(m => m.outcomeRLBridgeDispatch),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN11 — EWC consolidation controls on the NN learner
+  // (the auto-train EWC λ is set via xproc_autofire_activate({autoTrainEwcLambda}); these are
+  // the manual status / clear / consolidate-from-store controls).
+  xproc_neural_ewc_status: () => import("../../engines/CrossProcessNeuralLearningEngine.js").then(m => m.crossProcessNeuralEwcDispatch),
+  xproc_neural_ewc_clear: () => import("../../engines/CrossProcessNeuralLearningEngine.js").then(m => m.crossProcessNeuralEwcDispatch),
+  xproc_neural_ewc_consolidate: () => import("../../engines/CrossProcessNeuralLearningEngine.js").then(m => m.crossProcessNeuralEwcDispatch),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   xproc_outcome_publish: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
   xproc_outcome_publish_with_actuals: () => import("../../engines/OutcomePublishAdapterEngine.js").then(m => m.outcomePublishAdapterDispatch),
@@ -1834,6 +1840,10 @@ export async function executeAIReasoningAction(
       case "xproc_rl_bridge_stats":
       case "xproc_rl_bridge_replay":
       case "xproc_rl_bridge_reset":
+      // XPROC-NEURAL-CONNECT-MS0/U-CN11 — EWC consolidation controls
+      case "xproc_neural_ewc_status":
+      case "xproc_neural_ewc_clear":
+      case "xproc_neural_ewc_consolidate":
       // XPROC-NEURAL-CONNECT-MS0/U-CN01 — outcome publish adapter
       case "xproc_outcome_publish":
       case "xproc_outcome_publish_with_actuals":

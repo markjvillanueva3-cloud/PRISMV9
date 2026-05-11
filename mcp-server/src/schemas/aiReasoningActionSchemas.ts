@@ -268,6 +268,10 @@ export const AI_REASONING_ACTIONS = [
   "xproc_rl_bridge_stats",
   "xproc_rl_bridge_replay",
   "xproc_rl_bridge_reset",
+  // XPROC-NEURAL-CONNECT-MS0/U-CN11 — EWC consolidation controls on the NN learner
+  "xproc_neural_ewc_status",
+  "xproc_neural_ewc_clear",
+  "xproc_neural_ewc_consolidate",
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter
   "xproc_outcome_publish",
   "xproc_outcome_publish_with_actuals",
@@ -1653,6 +1657,8 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     autoTrainShuffle: z.boolean().optional().describe("Shuffle the training set each epoch. Forwarded to TrainOpts.shuffle. Default true."),
     autoTrainReplayMixRatio: z.number().min(0).max(100).optional().describe("U-CN10: experience-replay mix ratio — each retrain also pulls up to ceil(buffer*ratio) historical terminal OutcomeRecords from CrossProcessOutcomeStore (stratified by process) and concats them into the batch, so a process burst doesn't catastrophically wipe what the model learned about other processes/materials. 0 disables. Default 0.5."),
     autoTrainReplayMaxRecords: z.number().int().min(0).max(100_000).optional().describe("U-CN10: hard cap on historical records pulled per retrain. Default 256."),
+    autoTrainEwcLambda: z.number().min(0).max(1_000_000).optional().describe("U-CN11: EWC penalty strength λ. >0 makes each retrain also consolidate the just-trained samples as an EWC task (diagonal Fisher → running Fisher → new anchor) so subsequent updates carry the penalty λ·F_i·(θ_i−θ*_i). Default 0 (EWC dormant on the boot path — it is the riskiest forgetting mitigation and wants operator tuning). Clamped [0, 1e6]."),
+    autoTrainEwcDecay: z.number().min(0).max(1).optional().describe("U-CN11: Schwarz-EMA decay for the running Fisher (F_run ← decay·F_run + (1−decay)·F_task). Default 0.9. Clamped [0,1]."),
   }).strict().describe(
     "U-CN09/CN10/CN12: Ignite the closed-loop learning system — turns on the NN auto-train subscription (CrossProcessNeuralLearningEngine.enableAutoTrain, with experience-replay mixing) plus all five fan-out bridges (CN04 tribal, CN06 drift/calibration, CN07 replay/sampler, CN08 episodic, CN12 RL). Idempotent. Each component is activated independently; one failure never blocks the rest. Returns a per-component breakdown. Also fired at MCP-server boot behind PRISM_XPROC_AUTOFIRE.",
   ),
@@ -1688,6 +1694,21 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
   ),
   xproc_rl_bridge_reset: z.object({}).passthrough().describe(
     "U-CN12: Reset RL-bridge state (counters, last tuple, config) and detach the subscription. Does NOT touch the downstream RL engines' state.",
+  ),
+  // XPROC-NEURAL-CONNECT-MS0/U-CN11 — EWC (Elastic Weight Consolidation) controls on the NN learner
+  xproc_neural_ewc_status: z.object({}).passthrough().describe(
+    "U-CN11: Read the NN learner's EWC state — {enabled, lambda, decay, anchored, fisherDim, autoTrainLambda} plus the full autoTrainStatus(). EWC anchors old-task weights via a diagonal-Fisher penalty in the retrain (Kirkpatrick et al. 2017).",
+  ),
+  xproc_neural_ewc_clear: z.object({}).passthrough().describe(
+    "U-CN11: Disarm EWC on the NN learner and forget the anchor + running Fisher (also resets the shared CrossProcessEWCMemoryPreservationEngine running-Fisher state). Subsequent retrains carry no EWC penalty until re-consolidated.",
+  ),
+  xproc_neural_ewc_consolidate: z.object({
+    limit: z.number().int().min(1).max(100_000).optional().describe("Most-recent terminal outcomes to pull from CrossProcessOutcomeStore as the EWC task. Default 200, max 100000."),
+    process: z.enum(["mill", "lathe", "wedm"]).optional().describe("Restrict the consolidation task to one process."),
+    lambda: z.number().min(0).max(1_000_000).optional().describe("EWC penalty strength λ to arm after consolidation (0 = consolidate-and-disarm). Default 1.0. Clamped [0, 1e6]."),
+    decay: z.number().min(0).max(1).optional().describe("Schwarz-EMA decay for merging into the running Fisher. Default 0.9. Clamped [0,1]."),
+  }).strict().describe(
+    "U-CN11: Consolidate recent historical terminal outcomes from CrossProcessOutcomeStore as an EWC task — compute the diagonal Fisher at the current weights, merge it into the running Fisher, snapshot the weights as the new anchor, and arm the penalty with strength λ. Use after the model has been trained on the data you want to protect. Returns {ok, scanned, usable, result}.",
   ),
   // XPROC-NEURAL-CONNECT-MS0/U-CN01 — domain-engine outcome publish adapter (canonical bus entry)
   xproc_outcome_publish: z.object({
