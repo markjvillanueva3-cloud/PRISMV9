@@ -1,0 +1,366 @@
+{
+  "schemaVersion": 4,
+  "id": "SKILLS-UTILIZATION-MS0",
+  "version": "RGS6.1.0",
+  "title": "SKILLS-UTILIZATION-MS0",
+  "brief": "The skill-quality-discipline pillar. PRISM has ~247 project skills + ~390 user skills = ~637 total. The question is not quantity (we're 8× past @eng_khairallah1's \"ten skills = workforce\" bar) — it's whether each is **production-grade** by his Three-Question + Three-Scenario standard, or whether half are vague stubs that never auto-fire / fire wrongly / drifted stale. This milestone installs the pre-build gate, the test protocol, the linter, the refinement cadence, the library audit, the registry schema to track all of it, the marketplace scan, and the public-export path. It is a synergy-edge with HOOKS-AUTOMATION-V2 (skills carry scoped hooks), KNOWLEDGE-VAULT (skills cross-trigger wiki entries), and AUTO-LEARNING-LOOP (marketplace scan reuses the source-monitor pattern).  Source doctrine: `state/shared/research/2026-05-10-skills-openclaw.md` §1-4 (anatomy / patterns / discovery / ecosystem) + the @eng_khairallah1 4-phase course (`H:/last.md`). The course's contribution is the **process discipline** the research card lacked: the 3-question pre-build gate, the 3-scenario production-grade bar, the weekly refinement cycle, the \"vague language is banned\" rule, the library-as-workforce framing, and the master-tracking-doc pattern.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "SKILLS-UTILIZATION",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 0,
+  "priority": "P0",
+  "status": "not_started",
+  "assigned_lane": null,
+  "commit_prefix": null,
+  "critical_path_role": "U-SKU06 (registry schema) → {U-SKU01 3Q-gate, U-SKU02 3-scenario test, U-SKU03 linter} → U-SKU05 (library audit) → U-SKU08 (INTERNAL bundle — public release deferred per hard rule). U-SKU04 (cadence) depends on U-SKU06 + LOOP-MIGRATE cron infra. U-SKU07 (marketplace scan) standalone.",
+  "loop_registrations": "2 (weekly skill-refinement digest U-SKU04; monthly marketplace scan U-SKU07)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.skills-utilization-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "The skill-quality-discipline pillar. PRISM has ~247 project skills + ~390 user skills = ~637 total. The question is not quantity (we're 8× past @eng_khairallah1's \"ten skills = workforce\" bar) — it's whether each is **production-grade** by his Three-Question + Three-Scenario standard, or whether half are vague stubs that never auto-fire / fire wrongly / drifted stale. This milestone installs the pre-build gate, the test protocol, the linter, the refinement cadence, the library audit, the registry schema to track all of it, the marketplace scan, and the public-export path. It is a synergy-edge with HOOKS-AUTOMATION-V2 (skills carry scoped hooks), KNOWLEDGE-VAULT (skills cross-trigger wiki entries), and AUTO-LEARNING-LOOP (marketplace scan reuses the source-monitor pattern).  Source doctrine: `state/shared/research/2026-05-10-skills-openclaw.md` §1-4 (anatomy / patterns / discovery / ecosystem) + the @eng_khairallah1 4-phase course (`H:/last.md`). The course's contribution is the **process discipline** the research card lacked: the 3-question pre-build gate, the 3-scenario production-grade bar, the weekly refinement cycle, the \"vague language is banned\" rule, the library-as-workforce framing, and the master-tracking-doc pattern.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "SKILLS-UTILIZATION-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-SKU06",
+          "title": "Skill registry schema extension (the foundation — do first)",
+          "pillar": "skills",
+          "tier": 0,
+          "ai_priority_score": 65,
+          "leverage_score": 12,
+          "why": "@eng_khairallah1 Phase-4 — \"maintain a master document tracking all your Skills, their status, and their last refinement date.\" PRISM has skill registries in `src/registries/` but they lack the quality-tracking fields the other 7 units in this milestone read. Without this, the 3Q-gate (U-SKU01), the test runner (U-SKU02), the linter (U-SKU03), the refinement cadence (U-SKU04) and the audit (U-SKU05) have nowhere to record their verdicts.",
+          "depends_on": [],
+          "blocks": [
+            "U-SKU01",
+            "U-SKU02",
+            "U-SKU03",
+            "U-SKU04",
+            "U-SKU05"
+          ],
+          "parallel_with": [
+            "U-SKU07"
+          ],
+          "viz_node_id": "core.registry.skill-registry (extend existing, do not create)",
+          "viz_node_status": "claimed",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU06"
+        },
+        {
+          "id": "U-SKU01",
+          "title": "Three-Question pre-build gate (PreToolUse hook on skill creation)",
+          "pillar": "skills",
+          "tier": 0,
+          "ai_priority_score": 72,
+          "leverage_score": 13,
+          "why": "@eng_khairallah1 Phase-2 — \"Before you build, answer three questions: (1) what does this skill do? Be brutally specific. (2) When should it activate? List ≥5 trigger phrases. (3) What does perfect output look like? Show an actual example.\" PRISM's `/forge-skills` autopilot creates skills but doesn't enforce this gate, so we accumulate vague ones. This hook BLOCKS any Write to `**/SKILL.md` or `.claude/commands/*.md` unless the body satisfies all three.",
+          "depends_on": [
+            "U-SKU06"
+          ],
+          "blocks": [
+            "U-SKU05"
+          ],
+          "parallel_with": [
+            "U-SKU02",
+            "U-SKU03",
+            "U-SKU07"
+          ],
+          "viz_node_id": "core.hooks.skill-3q-gate",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU01"
+        },
+        {
+          "id": "U-SKU02",
+          "title": "Three-Scenario skill-test protocol + runner",
+          "pillar": "skills",
+          "tier": 0,
+          "ai_priority_score": 70,
+          "leverage_score": 13,
+          "why": "@eng_khairallah1 Phase-3 — \"Run your Skill against three scenarios: the happy path (80% of cases), the edge case (weird/incomplete/conflicting input), the stress test (biggest/messiest version). If it passes all three with client-ready output, it is production-grade.\" PRISM has NO skill-testing protocol. This unit defines the `<skill>/scenarios/{happy,edge,stress}.md` fixture convention and a `prism_dev:skill_test` action (+ `/skill-test` skill) that runs them and records `scenario_tests.{happy,edge,stress}` in the registry.",
+          "depends_on": [
+            "U-SKU06"
+          ],
+          "blocks": [
+            "U-SKU05"
+          ],
+          "parallel_with": [
+            "U-SKU01",
+            "U-SKU03",
+            "U-SKU07"
+          ],
+          "viz_node_id": "core.dispatch.prism_dev.skill_test (extend prism_dev)",
+          "viz_node_status": "claimed",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU02"
+        },
+        {
+          "id": "U-SKU03",
+          "title": "Skill linter: vague-language ban + 500-line cap + trigger-phrase floor",
+          "pillar": "skills",
+          "tier": 0,
+          "ai_priority_score": 68,
+          "leverage_score": 12,
+          "why": "@eng_khairallah1 Phase-2 — \"Vague language like 'format nicely' or 'handle appropriately' is banned. Every instruction must be specific and testable. Keep the entire file under 500 lines.\" This is the cheapest, most-automatable quality lever — a static linter catches the bulk of bad skills without an LLM call. Extends the existing `/wiki-lint` and `/skill-modernize` pattern.",
+          "depends_on": [
+            "U-SKU06"
+          ],
+          "blocks": [
+            "U-SKU05"
+          ],
+          "parallel_with": [
+            "U-SKU01",
+            "U-SKU02",
+            "U-SKU07"
+          ],
+          "viz_node_id": "core.script.skill-lint (sibling of wiki-lint)",
+          "viz_node_status": "claimed",
+          "loop_schedule": "`0 7 * * 0` (Sunday 7am — weekly skill-lint sweep, same window as HOOK-SYNERGY H3)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU03"
+        },
+        {
+          "id": "U-SKU04",
+          "title": "Weekly skill-refinement cadence (telemetry-driven nudge + master tracking)",
+          "pillar": "skills",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "@eng_khairallah1 Phase-3 — \"Every time you use a Skill and the output is not quite right, update the SKILL.md immediately. Set a calendar reminder to review and refine your Skill every Friday for the first month.\" Maps to a PRISM cron: weekly, surface (a) skills invoked this week whose output was overridden/corrected (from telemetry), (b) skills not refined in >90d but invoked >10×/month (stale-but-hot), (c) skills the linter flagged. Push a digest to the user + chat bus. This is the \"master document tracking status + last refinement date\" made live.",
+          "depends_on": [
+            "U-SKU06]  # + LOOP-MIGRATE-MS0 cron infra (soft)"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-SKU01",
+            "U-SKU02",
+            "U-SKU03",
+            "U-SKU05",
+            "U-SKU07",
+            "U-SKU08"
+          ],
+          "viz_node_id": "core.cron.skill-refinement-digest",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "`/loop --interval 7d --max 4` (weekly digest, 4 weeks then re-evaluate) + cron `13 9 * * 5` (Friday 9:13am — the @eng_khairallah1 \"Friday reminder\")",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU04"
+        },
+        {
+          "id": "U-SKU05",
+          "title": "Skill-library audit: grade PRISM's 637 skills against the production-grade bar",
+          "pillar": "skills",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 14,
+          "why": "@eng_khairallah1 Phase-4 — \"One skill is a tool. Ten skills is a workforce.\" PRISM has ~637 skills — 64× the \"workforce\" bar by count. But count is vanity; the real question is how many are PRODUCTION-GRADE (pass 3Q + 3-scenario + linter). This unit runs the full audit and produces a scorecard: X production-grade / Y need-refinement / Z stub-or-orphan. Highest-leverage unit in this milestone — it converts \"we have 637 skills\" into \"we have N skills that actually work, here's the gap list.\" Also computes the @eng_khairallah1 ROI: hours/year saved by the production-grade subset.",
+          "depends_on": [
+            "U-SKU01",
+            "U-SKU02",
+            "U-SKU03",
+            "U-SKU06"
+          ],
+          "blocks": [
+            "U-SKU08"
+          ],
+          "parallel_with": [
+            "U-SKU04",
+            "U-SKU07"
+          ],
+          "viz_node_id": "core.script.skill-library-audit",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "`0 8 1 * *` (1st of month 8am — monthly re-audit)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU05"
+        },
+        {
+          "id": "U-SKU07",
+          "title": "Skill-marketplace scan for PRISM-domain-relevant skills",
+          "pillar": "skills",
+          "tier": 1,
+          "ai_priority_score": 55,
+          "leverage_score": 9,
+          "why": "@eng_khairallah1 Phase-1 — \"Browse skillsmp.com or github.com/anthropics/skills and find a Skill relevant to your work. There are over 80,000 community Skills... most people have never installed a single one.\" PRISM should periodically scan skillsmp.com + anthropics/skills + the major collections (wshobson/agents, obra/superpowers) for skills relevant to its domains (manufacturing, CAD, CAM, CNC, document processing, code review) and surface install candidates. Reuses the AUTO-LEARNING-LOOP-MS0 ReputableSourceMonitor pattern — this is a specialized source.",
+          "depends_on": [
+            "]  # AUTO-LEARNING-LOOP-MS0 source-monitor pattern (soft reuse)"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-SKU01",
+            "U-SKU02",
+            "U-SKU03",
+            "U-SKU04",
+            "U-SKU05",
+            "U-SKU06",
+            "U-SKU08"
+          ],
+          "viz_node_id": "core.engine.skill-marketplace-scanner",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "`0 10 1 * *` (1st of month 10am — monthly marketplace scan) + `/loop --interval 30d --max 12`",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU07"
+        },
+        {
+          "id": "U-SKU08",
+          "title": "Bundle PRISM's production-grade skills as an INTERNAL plugin (public publication DEFERRED — hard rule)",
+          "pillar": "skills",
+          "tier": 1,
+          "ai_priority_score": 50,
+          "leverage_score": 9,
+          "why": "@eng_khairallah1 Phase-4 — consolidating your best skills into one installable bundle (he frames it as \"share publicly\"; PRISM's variant is **internal distribution** per the hard rule above). Once U-SKU05's audit identifies the production-grade subset, package those as a `.claude-plugin/plugin.json` + `skills/<name>/SKILL.md` bundle for reuse across the user's own setup. Forcing function regardless of release scope: a skill you'd put in a curated bundle has to actually be production-grade.",
+          "depends_on": [
+            "U-SKU05"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-SKU04",
+            "U-SKU07"
+          ],
+          "viz_node_id": "core.script.export-prism-skills-plugin",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none (manual — rebuild on demand after each audit)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-SKU08"
+        }
+      ]
+    }
+  ],
+  "total_units": 8,
+  "declared_total_units": 8,
+  "completed_units": 0
+}

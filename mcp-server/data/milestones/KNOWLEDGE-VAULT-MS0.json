@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 4,
+  "id": "KNOWLEDGE-VAULT-MS0",
+  "version": "RGS6.1.0",
+  "title": "KNOWLEDGE-VAULT-MS0",
+  "brief": "Karpathy 3-layer pattern + Boris back-flow + Matuschak evergreen + Nick Milo MOCs applied to PRISM's existing substrate. The 30% missing piece is **automated coupling** between wiki / memory / skills / CLAUDE.md.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "KNOWLEDGE-VAULT",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": null,
+  "commit_prefix": null,
+  "critical_path_role": "unifies 722-wiki + 188-memory + 440-skill + CLAUDE.md into one feedback loop",
+  "loop_registrations": "2 (memory→wiki promotion 7d, vault-rot 30d)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.knowledge-vault-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Karpathy 3-layer pattern + Boris back-flow + Matuschak evergreen + Nick Milo MOCs applied to PRISM's existing substrate. The 30% missing piece is **automated coupling** between wiki / memory / skills / CLAUDE.md.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "KNOWLEDGE-VAULT-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-VAULT01",
+          "title": "Vault-schema doc (CLAUDE.md role definition)",
+          "pillar": "vault",
+          "tier": 1,
+          "ai_priority_score": 85,
+          "leverage_score": 13,
+          "why": "without a schema doc, the four surfaces drift apart; this is the gravity center",
+          "depends_on": [],
+          "blocks": [
+            "U-VAULT02",
+            "U-VAULT03",
+            "U-VAULT04",
+            "U-VAULT06"
+          ],
+          "parallel_with": [
+            "U-GAC01",
+            "U-HKA01"
+          ],
+          "viz_node_id": "fs.deep.prism.state.shared.specs.f.vault-schema-doc.md",
+          "viz_node_status": "claimed",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-VAULT01"
+        },
+        {
+          "id": "U-VAULT02",
+          "title": "Memory→wiki promotion engine",
+          "pillar": "vault",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 12,
+          "why": "fleeting observations rot without promotion ritual; Matuschak's evergreen-notes pattern",
+          "depends_on": [
+            "U-VAULT01"
+          ],
+          "blocks": [
+            "U-VAULT05"
+          ],
+          "parallel_with": [
+            "U-VAULT03",
+            "U-VAULT04"
+          ],
+          "viz_node_id": "eng.knowledge.memorywikipromotionengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "7d (weekly promotion sweep)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-VAULT02"
+        },
+        {
+          "id": "U-VAULT03",
+          "title": "CLAUDE.md back-flow hook (Boris pattern)",
+          "pillar": "vault",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 11,
+          "why": "Boris #1 doctrine — \"After ANY correction from the user: update CLAUDE.md so you don't make that mistake again\"",
+          "depends_on": [
+            "U-VAULT01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-VAULT02",
+            "U-VAULT04"
+          ],
+          "viz_node_id": "core.hooks.claudemdbackflow",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-VAULT03"
+        },
+        {
+          "id": "U-VAULT04",
+          "title": "Skill ↔ wiki cross-trigger registry",
+          "pillar": "vault",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 11,
+          "why": "skills currently keyword-trigger; wiki entries should also be able to suggest skills",
+          "depends_on": [
+            "U-VAULT01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-VAULT02",
+            "U-VAULT03"
+          ],
+          "viz_node_id": "eng.knowledge.skillwikicrosstriggerengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-VAULT04"
+        },
+        {
+          "id": "U-VAULT05",
+          "title": "Domain MOC generator (Nick Milo pattern)",
+          "pillar": "vault",
+          "tier": 1,
+          "ai_priority_score": 55,
+          "leverage_score": 10,
+          "why": "722 wiki entries are unnavigable without per-domain maps of content",
+          "depends_on": [
+            "U-VAULT02"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-VAULT06"
+          ],
+          "viz_node_id": "eng.knowledge.mocgeneratorengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "30d (monthly regen)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-VAULT05"
+        },
+        {
+          "id": "U-VAULT06",
+          "title": "Vault-rot sentinel",
+          "pillar": "vault",
+          "tier": 1,
+          "ai_priority_score": 50,
+          "leverage_score": 9,
+          "why": "stale wiki entries mislead more than help; quarterly audit catches rot",
+          "depends_on": [
+            "U-VAULT01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-VAULT05"
+          ],
+          "viz_node_id": "eng.knowledge.vaultrotsentinelengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "30d",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-VAULT06"
+        }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "declared_total_units": 6,
+  "completed_units": 0
+}

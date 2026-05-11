@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 4,
+  "id": "HTML-PRIMARY-MS0",
+  "version": "RGS6.1.0",
+  "title": "HTML-PRIMARY-MS0",
+  "brief": "Reconcile Thariq's \"HTML is the new markdown\" (2026-05-08, ~5M views) with Karpathy's \"docs should be one text file\" — **MD = report, HTML = interface**. Surfaces driven by human interaction go HTML-primary; LLM-consumed surfaces (CLAUDE.md, skills, hooks, digests, handoffs) stay MD-only.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "HTML-PRIMARY",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": null,
+  "commit_prefix": null,
+  "critical_path_role": "extends HTML-COMPANION-MS0 to make HTML the primary surface for strategic specs",
+  "loop_registrations": "2 (regen cron 1h, drift guard per-commit)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.html-primary-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Reconcile Thariq's \"HTML is the new markdown\" (2026-05-08, ~5M views) with Karpathy's \"docs should be one text file\" — **MD = report, HTML = interface**. Surfaces driven by human interaction go HTML-primary; LLM-consumed surfaces (CLAUDE.md, skills, hooks, digests, handoffs) stay MD-only.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "HTML-PRIMARY-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-HPS01",
+          "title": "Build `SpecHTMLCompanionEngine` (master renderer)",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 13,
+          "why": "every strategic spec needs a render path; one engine, many spec types",
+          "depends_on": [
+            "HTML-COMPANION-MS0 HC-0"
+          ],
+          "blocks": [
+            "U-HPS02",
+            "U-HPS03",
+            "U-HPS04",
+            "U-HPS05",
+            "U-HPS06",
+            "U-HPS07"
+          ],
+          "parallel_with": [
+            "U-VAULT01",
+            "U-OCN01"
+          ],
+          "viz_node_id": "eng.system.spechtmlcompanionengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS01"
+        },
+        {
+          "id": "U-HPS02",
+          "title": "Generation pipeline + cron registration",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 12,
+          "why": "manual `emit-spec-html.mjs` per file doesn't scale to 16+ specs; cron auto-twins all MDs",
+          "depends_on": [
+            "U-HPS01"
+          ],
+          "blocks": [
+            "U-HPS06"
+          ],
+          "parallel_with": [
+            "U-HPS03",
+            "U-HPS04",
+            "U-HPS05",
+            "U-HPS07"
+          ],
+          "viz_node_id": "core.script.emitallspechtml",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "1h",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS02"
+        },
+        {
+          "id": "U-HPS03",
+          "title": "Theme engine (dark/light, prefers-color-scheme)",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 11,
+          "why": "HTML for humans needs reader-respect; accessibility lift",
+          "depends_on": [
+            "U-HPS01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-HPS02",
+            "U-HPS04",
+            "U-HPS05"
+          ],
+          "viz_node_id": "core.css.thememodule",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS03"
+        },
+        {
+          "id": "U-HPS04",
+          "title": "Navigation engine (sticky TOC, anchor links, search)",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 62,
+          "leverage_score": 11,
+          "why": "600-line specs need navigation; HTML's structural advantage over MD",
+          "depends_on": [
+            "U-HPS01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-HPS02",
+            "U-HPS03",
+            "U-HPS05",
+            "U-HPS07"
+          ],
+          "viz_node_id": "core.js.navmodule",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS04"
+        },
+        {
+          "id": "U-HPS05",
+          "title": "Accessibility hook (WAI-ARIA, axe-cli gate)",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "WebAim reports 41% of HTML rendering tools regress accessibility; pre-commit hook prevents",
+          "depends_on": [
+            "U-HPS01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-HPS02",
+            "U-HPS03",
+            "U-HPS04"
+          ],
+          "viz_node_id": "core.hooks.htmla11yguard",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS05"
+        },
+        {
+          "id": "U-HPS06",
+          "title": "Drift guard (MD↔HTML hash on regen)",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 55,
+          "leverage_score": 9,
+          "why": "if someone hand-edits HTML, subsequent MD regen silently loses changes; hash detects",
+          "depends_on": [
+            "U-HPS02"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-HPS07"
+          ],
+          "viz_node_id": "core.hooks.htmldriftguard",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "per-commit",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS06"
+        },
+        {
+          "id": "U-HPS07",
+          "title": "Dispatcher actions: `prism_dev:emit_spec_html` + `prism_session:doc_render`",
+          "pillar": "html-primary",
+          "tier": 1,
+          "ai_priority_score": 50,
+          "leverage_score": 9,
+          "why": "MCP-callable rendering enables on-demand companion generation from any chat",
+          "depends_on": [
+            "U-HPS01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-HPS04",
+            "U-HPS06"
+          ],
+          "viz_node_id": "disp.devdispatcher + disp.sessiondispatcher (already exist, extend)",
+          "viz_node_status": "claimed",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-HPS07"
+        }
+      ]
+    }
+  ],
+  "total_units": 7,
+  "declared_total_units": 7,
+  "completed_units": 0
+}

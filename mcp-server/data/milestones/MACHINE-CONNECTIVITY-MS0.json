@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 4,
+  "id": "MACHINE-CONNECTIVITY-MS0",
+  "version": "RGS6.1.0",
+  "title": "MACHINE-CONNECTIVITY-MS0",
+  "brief": "Machine-floor connectivity. Three protocols: OPC-UA (PLC/HMI standard), MTConnect (CNC-specific), MQTT (IoT pub-sub). Extend the existing `OpcUaConnectorEngine` rather than re-implementing; build siblings for MTConnect + MQTT; one schema registry; one safety validator (every connector must declare which writes are allowed); one wiring unit. Lane-F continues here.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "MACHINE-CONNECTIVITY",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": "lane-F-misc-build",
+  "commit_prefix": "[lane-F-misc-build][MACHINE-CONNECTIVITY-MS0]",
+  "critical_path_role": "machine-floor exposure (OPC-UA + MTConnect + MQTT); extends existing OpcUaConnectorEngine; closes the loop from shop-floor data → PRISM intelligence",
+  "loop_registrations": "1 (connector-health 10min)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.machine-connectivity-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Machine-floor connectivity. Three protocols: OPC-UA (PLC/HMI standard), MTConnect (CNC-specific), MQTT (IoT pub-sub). Extend the existing `OpcUaConnectorEngine` rather than re-implementing; build siblings for MTConnect + MQTT; one schema registry; one safety validator (every connector must declare which writes are allowed); one wiring unit. Lane-F continues here.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MACHINE-CONNECTIVITY-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-OPCUA-CONNECTOR-EXTEND",
+          "title": "Extend `OpcUaConnectorEngine` (NOT new-build per audit §4 reclassification)",
+          "pillar": "machine",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 12,
+          "why": "`OpcUaConnectorEngine` exists with browse/subscribe/read; what's missing is write-back gate, subscription-group management, and reconnect-with-backoff for production runs >24h",
+          "depends_on": [],
+          "blocks": [
+            "U-CONNECTOR-SAFETY-VALIDATOR (needs all 3 connectors to validate)",
+            "U-WIRE-MACHINE-CONNECTIVITY"
+          ],
+          "parallel_with": [
+            "U-MTCONNECT-ADAPTER",
+            "U-MQTT-EVENT-BUS",
+            "U-MACHINE-SCHEMA-REGISTRY"
+          ],
+          "viz_node_id": "core.engine.opcuaconnector (existing — extend, do not re-create)",
+          "viz_node_status": "claimed",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-OPCUA-CONNECTOR-EXTEND"
+        },
+        {
+          "id": "U-MTCONNECT-ADAPTER",
+          "title": "Build `MTConnectAdapterEngine`",
+          "pillar": "machine",
+          "tier": 1,
+          "ai_priority_score": 68,
+          "leverage_score": 11,
+          "why": "MTConnect is the CNC-specific standard (XML-over-HTTP from CNC controller); OPC-UA is general; both must be available because not every machine speaks both",
+          "depends_on": [],
+          "blocks": [
+            "U-CONNECTOR-SAFETY-VALIDATOR",
+            "U-WIRE-MACHINE-CONNECTIVITY"
+          ],
+          "parallel_with": [
+            "U-OPCUA-CONNECTOR-EXTEND",
+            "U-MQTT-EVENT-BUS",
+            "U-MACHINE-SCHEMA-REGISTRY"
+          ],
+          "viz_node_id": "core.engine.mtconnectadapter",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-MTCONNECT-ADAPTER"
+        },
+        {
+          "id": "U-MQTT-EVENT-BUS",
+          "title": "Build `MQTTEventBusEngine`",
+          "pillar": "machine",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 10,
+          "why": "MQTT is the pub-sub fabric for IoT — sensors, custom-PLC bolt-ons, fleet telemetry; OPC-UA + MTConnect cover the standardized industrial side, MQTT covers the long tail",
+          "depends_on": [],
+          "blocks": [
+            "U-CONNECTOR-SAFETY-VALIDATOR",
+            "U-WIRE-MACHINE-CONNECTIVITY"
+          ],
+          "parallel_with": [
+            "U-OPCUA-CONNECTOR-EXTEND",
+            "U-MTCONNECT-ADAPTER",
+            "U-MACHINE-SCHEMA-REGISTRY"
+          ],
+          "viz_node_id": "core.engine.mqtteventbus",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-MQTT-EVENT-BUS"
+        },
+        {
+          "id": "U-MACHINE-SCHEMA-REGISTRY",
+          "title": "Build `MachineSchemaRegistryEngine`",
+          "pillar": "machine",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "every machine speaks slightly different data (different units, different node naming, vendor-specific extensions); a schema registry maps vendor → canonical, so downstream consumers always see canonical names + units",
+          "depends_on": [],
+          "blocks": [
+            "U-WIRE-MACHINE-CONNECTIVITY"
+          ],
+          "parallel_with": [
+            "U-OPCUA-CONNECTOR-EXTEND",
+            "U-MTCONNECT-ADAPTER",
+            "U-MQTT-EVENT-BUS"
+          ],
+          "viz_node_id": "core.engine.machineschemaregistry",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-MACHINE-SCHEMA-REGISTRY"
+        },
+        {
+          "id": "U-CONNECTOR-SAFETY-VALIDATOR",
+          "title": "Build `ConnectorSafetyValidatorEngine`",
+          "pillar": "machine",
+          "tier": 1,
+          "ai_priority_score": 80,
+          "leverage_score": 13,
+          "why": "writes to machine state can cause physical damage; the validator is the unconditional gate — every write (`opcua_write_if_allowed`, `mqtt_publish_if_allowed`) must pass an allow-list policy + range check + operator-confirmation if flagged unsafe",
+          "depends_on": [
+            "U-OPCUA-CONNECTOR-EXTEND",
+            "U-MTCONNECT-ADAPTER",
+            "U-MQTT-EVENT-BUS"
+          ],
+          "blocks": [
+            "U-WIRE-MACHINE-CONNECTIVITY"
+          ],
+          "parallel_with": [],
+          "viz_node_id": "core.engine.connectorsafetyvalidator",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-CONNECTOR-SAFETY-VALIDATOR"
+        },
+        {
+          "id": "U-WIRE-MACHINE-CONNECTIVITY",
+          "title": "Wire 3 connectors + registry + validator into dispatchers",
+          "pillar": "machine",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "per CLAUDE.md engine-wiring law: every engine wires to all natural consumers. Machine connectivity touches `machineDispatcher` (data) + `safetyDispatcher` (validator) + `intelligenceDispatcher` (consumes normalized events)",
+          "depends_on": [
+            "U-OPCUA-CONNECTOR-EXTEND",
+            "U-MTCONNECT-ADAPTER",
+            "U-MQTT-EVENT-BUS",
+            "U-MACHINE-SCHEMA-REGISTRY",
+            "U-CONNECTOR-SAFETY-VALIDATOR"
+          ],
+          "blocks": [],
+          "parallel_with": [],
+          "viz_node_id": "wire.dispatcher.machine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-MACHINE-CONNECTIVITY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-WIRE-MACHINE-CONNECTIVITY"
+        }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "declared_total_units": 6,
+  "completed_units": 0
+}

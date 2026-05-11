@@ -1,0 +1,425 @@
+{
+  "schemaVersion": 4,
+  "id": "TOOL-INVENTORY-MS0",
+  "version": "RGS6.1.0",
+  "title": "TOOL-INVENTORY-MS0",
+  "brief": "Adopt 8 external MCP servers as exposure-surfaces over existing PRISM engines. 8 of 18 surveyed servers overlap with existing PRISM functionality — adopt = wrap our engine as that server's tool, NOT pull in their implementation. Plus 1 registry unit + 1 wiring unit = 10. Lane-F owns this — no critical-path blockers, parallel-safe across all 10 sub-units (one-shot expose-and-test per server).",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "TOOL-INVENTORY",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": "lane-F-misc-build",
+  "commit_prefix": "[lane-F-misc-build][TOOL-INVENTORY-MS0]",
+  "critical_path_role": "external MCP/plugin adoption — expose existing PRISM engines through standard MCP surfaces; DO NOT duplicate",
+  "loop_registrations": "1 (mcp-registry-health 6h)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.tool-inventory-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Adopt 8 external MCP servers as exposure-surfaces over existing PRISM engines. 8 of 18 surveyed servers overlap with existing PRISM functionality — adopt = wrap our engine as that server's tool, NOT pull in their implementation. Plus 1 registry unit + 1 wiring unit = 10. Lane-F owns this — no critical-path blockers, parallel-safe across all 10 sub-units (one-shot expose-and-test per server).",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "TOOL-INVENTORY-MS0",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "U-TOOLINV-01",
+          "title": "Adopt `qdrant` MCP server as exposure over `QdrantMemoryEngine`",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 72,
+          "leverage_score": 11,
+          "why": "external `qdrant` MCP server provides a standard `vector_search` tool surface; our existing `QdrantMemoryEngine` does the same thing privately — exposing it via that surface lets external Claude sessions or peer MCPs query our memory without bespoke wiring",
+          "depends_on": [],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-02",
+            "U-TOOLINV-03",
+            "U-TOOLINV-04",
+            "U-TOOLINV-05",
+            "U-TOOLINV-06",
+            "U-TOOLINV-07",
+            "U-TOOLINV-08"
+          ],
+          "viz_node_id": "core.mcp.qdrantsurface",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none (one-shot adopt; health-check in U-TOOLINV-09)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-01"
+        },
+        {
+          "id": "U-TOOLINV-02",
+          "title": "Adopt `sequential-thinking` MCP server as exposure over `prismCreativeReasoningEngine`",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 11,
+          "why": "`sequential-thinking` MCP gives a stepwise reasoning tool surface; our `prismCreativeReasoningEngine.explore(problem, mode)` already does multi-step exploration — expose it",
+          "depends_on": [],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-01",
+            "U-TOOLINV-03..08"
+          ],
+          "viz_node_id": "core.mcp.seqthinksurface",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-02"
+        },
+        {
+          "id": "U-TOOLINV-03",
+          "title": "Adopt `semgrep` MCP server (security/lint exposure)",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 10,
+          "why": "`semgrep` MCP gives security-rule scanning as a tool; we already have lint hooks but no semantic security scanner — this one we INSTALL externally (not wrap) but record what overlap exists in our `code-review-swarm` agent",
+          "depends_on": [],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-01",
+            "U-TOOLINV-02",
+            "U-TOOLINV-04..08"
+          ],
+          "viz_node_id": "external.mcp.semgrep",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-03"
+        },
+        {
+          "id": "U-TOOLINV-04",
+          "title": "Adopt `grafana` MCP server (telemetry visualization)",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "telemetry dashboards reduce time-to-diagnose; PRISM emits JSONL telemetry across many surfaces (cost-telemetry, scrutiny-ledger, ollama-offload-stats) — grafana MCP can query Loki/Prometheus over those JSONL files via tail-shipper",
+          "depends_on": [],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-01..03",
+            "U-TOOLINV-05..08"
+          ],
+          "viz_node_id": "external.mcp.grafana",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-04"
+        },
+        {
+          "id": "U-TOOLINV-05",
+          "title": "Adopt `freecad` MCP server (CAD bridge)",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "FreeCAD is an open-source CAD with scriptable Python; existing CAD tier-1 priority is Fusion > hyperMILL > Mastercam > Esprit, but FreeCAD bridges give us a tier-2 export-only path useful for headless CAD verification in CI",
+          "depends_on": [],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-01..04",
+            "U-TOOLINV-06..08"
+          ],
+          "viz_node_id": "external.mcp.freecad",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-05"
+        },
+        {
+          "id": "U-TOOLINV-06",
+          "title": "Adopt `opcua` MCP server as exposure over `OpcUaConnectorEngine` (overlap-expose, not import)",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 11,
+          "why": "external `opcua` MCP server exists; our `OpcUaConnectorEngine` exists per MACHINE-CONNECTIVITY-MS0 audit — adopt = expose our engine via that surface, NOT install theirs (would duplicate)",
+          "depends_on": [
+            "machine-connectivity::U-OPCUA-CONNECTOR-EXTEND"
+          ],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-01..05",
+            "U-TOOLINV-07",
+            "U-TOOLINV-08"
+          ],
+          "viz_node_id": "core.mcp.opcuasurface",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-06"
+        },
+        {
+          "id": "U-TOOLINV-07",
+          "title": "Adopt `ragex` MCP server (RAG-over-codebase) → expose over PRISM's `code-system-index`",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 10,
+          "why": "ragex provides a RAG surface over a codebase; we already have `CodeSystemIndexEngine` + Qdrant memory — expose via the ragex tool schema for external clients",
+          "depends_on": [],
+          "blocks": [
+            "U-TOOLINV-09"
+          ],
+          "parallel_with": [
+            "U-TOOLINV-01..06",
+            "U-TOOLINV-08"
+          ],
+          "viz_node_id": "core.mcp.ragexsurface",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-07"
+        },
+        {
+          "id": "U-TOOLINV-08",
+          "title": "Adopt `mcp-server-qdrant` (peer alternative) — record overlap as `WIRE-EXEMPT`",
+          "pillar": "tool",
+          "tier": 2,
+          "ai_priority_score": 45,
+          "leverage_score": 8,
+          "why": "there is also an official `mcp-server-qdrant` from Qdrant Labs; we expose via U-TOOLINV-01. This unit records the overlap formally so dedup-guard understands the alternate exposure exists but we chose ours",
+          "depends_on": [
+            "U-TOOLINV-01"
+          ],
+          "blocks": [
+            "]  # was [U-TOOLINV-09] — removed per audit-v2 tier-floor fix: a T2 unit must not gate a T1 unit. The registry (U-TOOLINV-09) enumerates mcp-server-qdrant as a known-but-not-adopted external from the adopt-log regardless of whether THIS T2 bookkeeping unit has run."
+          ],
+          "parallel_with": [],
+          "viz_node_id": "state.adoptlog.qdrantlabsalt",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-08"
+        },
+        {
+          "id": "U-TOOLINV-09",
+          "title": "Build `ExternalMCPRegistryEngine` (umbrella + health-check)",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 11,
+          "why": "8 separate adoptions need a single registry & health-check (drift, version, install-status); without it adoption-rot kills our exposure surface in weeks",
+          "depends_on": [
+            "U-TOOLINV-01",
+            "U-TOOLINV-02",
+            "U-TOOLINV-03",
+            "U-TOOLINV-04",
+            "U-TOOLINV-05",
+            "U-TOOLINV-06",
+            "U-TOOLINV-07]  # was [...U-TOOLINV-08] — dropped per audit-v2: U-TOOLINV-08 is T2 and this unit is T1; T2 must not gate T1. U-TOOLINV-08's adopt-log row is read opportunistically by the registry",
+            "not a hard prereq."
+          ],
+          "blocks": [
+            "U-TOOLINV-10"
+          ],
+          "parallel_with": [],
+          "viz_node_id": "core.engine.externalmcpregistry",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "6h",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-09"
+        },
+        {
+          "id": "U-TOOLINV-10",
+          "title": "Wire `ExternalMCPRegistryEngine` to `prism_dev` + `prism_session`",
+          "pillar": "tool",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "per CLAUDE.md ENGINE-WIRING law: every engine wires to all natural consumers — `prism_dev` for health + `prism_session` for adoption-log inspection",
+          "depends_on": [
+            "U-TOOLINV-09"
+          ],
+          "blocks": [],
+          "parallel_with": [],
+          "viz_node_id": "wire.dispatcher.toolinv",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-TOOL-INVENTORY-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TOOLINV-10"
+        }
+      ]
+    }
+  ],
+  "total_units": 10,
+  "declared_total_units": 10,
+  "completed_units": 0
+}

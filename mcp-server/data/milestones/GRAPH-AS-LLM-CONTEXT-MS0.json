@@ -1,0 +1,345 @@
+{
+  "schemaVersion": 4,
+  "id": "GRAPH-AS-LLM-CONTEXT-MS0",
+  "version": "RGS6.1.0",
+  "title": "GRAPH-AS-LLM-CONTEXT-MS0",
+  "brief": "Make the live PRISM /system-viz (126,441 nodes / 11 layers) directly addressable as LLM context. Foundation for spatial-UI agent coordination + GraphRAG retrieval over PRISM substrate.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "GRAPH-AS-LLM-CONTEXT",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": null,
+  "commit_prefix": null,
+  "critical_path_role": "unblocks atomization viz_node_id resolution for every other milestone",
+  "loop_registrations": "1 (stale-graph cron)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.graph-as-llm-context-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Make the live PRISM /system-viz (126,441 nodes / 11 layers) directly addressable as LLM context. Foundation for spatial-UI agent coordination + GraphRAG retrieval over PRISM substrate.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "GRAPH-AS-LLM-CONTEXT-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-GAC01",
+          "title": "Build `GraphContextLensEngine` (ego-graph extraction)",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 80,
+          "leverage_score": 13,
+          "why": "agents need scoped slices of the 126k-node graph (not the whole thing) — ego-graph around a target node is the canonical unit",
+          "depends_on": [],
+          "blocks": [
+            "U-GAC02",
+            "U-GAC04",
+            "U-GAC05"
+          ],
+          "parallel_with": [
+            "U-VAULT01",
+            "U-HKA01"
+          ],
+          "viz_node_id": "eng.knowledge.graphcontextlensengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC01"
+        },
+        {
+          "id": "U-GAC02",
+          "title": "GraphRAG retrieval over wiki + system-graph",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 12,
+          "why": "classic vector RAG fails on multi-hop manufacturing queries; GraphRAG (Edge et al. arXiv:2404.16130) outperforms by 30-50%",
+          "depends_on": [
+            "U-GAC01"
+          ],
+          "blocks": [
+            "U-GAC06"
+          ],
+          "parallel_with": [
+            "U-GAC03",
+            "U-GAC04"
+          ],
+          "viz_node_id": "eng.knowledge.graphragretrievalengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC02"
+        },
+        {
+          "id": "U-GAC03",
+          "title": "Code-graph projection for `mcp-server/src`",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 11,
+          "why": "SWE-bench-style code agents perform better with ego-graph retrieval (RepoGraph ICLR 2025 +32.8%)",
+          "depends_on": [
+            "U-GAC01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-GAC02",
+            "U-GAC04"
+          ],
+          "viz_node_id": "eng.system.codegraphprojectionengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "24h (rebuild on source-tree change)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC03"
+        },
+        {
+          "id": "U-GAC04",
+          "title": "Dual-channel context (JSON + viz screenshot) for subagent dispatch",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 68,
+          "leverage_score": 11,
+          "why": "tldraw-style dual-channel pattern beats prose-only context for multi-agent coordination (per 2025 X-post evidence)",
+          "depends_on": [
+            "U-GAC01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-GAC02",
+            "U-GAC03"
+          ],
+          "viz_node_id": "eng.system.dualchannelcontextengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC04"
+        },
+        {
+          "id": "U-GAC05",
+          "title": "Spatial-UI agent coordination (locked viz coordinates as shared address space)",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "when N agents share a fixed spatial layout, coordination collapses from O(N²) text exchange to O(1) node-id mention",
+          "depends_on": [
+            "U-GAC01",
+            "U-GAC04"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-GAC06"
+          ],
+          "viz_node_id": "eng.coordination.spatialaddressbookengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC05"
+        },
+        {
+          "id": "U-GAC06",
+          "title": "Community-summary generator over engine clusters",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 55,
+          "leverage_score": 10,
+          "why": "3,181 engines is too many to enumerate; community summaries collapse clusters to <200 tokens each",
+          "depends_on": [
+            "U-GAC02"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-GAC05",
+            "U-GAC07",
+            "U-GAC08"
+          ],
+          "viz_node_id": "eng.knowledge.communitysummaryengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "7d (regenerate weekly)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC06"
+        },
+        {
+          "id": "U-GAC07",
+          "title": "Stale-graph detector (mtime + hash blocker)",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 50,
+          "leverage_score": 9,
+          "why": "agents using stale viz make wrong decisions; >6h staleness blocks",
+          "depends_on": [
+            "U-GAC01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-GAC06",
+            "U-GAC08"
+          ],
+          "viz_node_id": "core.hooks.stalegraphguard (TBD-create hook)",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "1h (cron check)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC07"
+        },
+        {
+          "id": "U-GAC08",
+          "title": "Hallucinated-node-id guard",
+          "pillar": "graph",
+          "tier": 1,
+          "ai_priority_score": 48,
+          "leverage_score": 9,
+          "why": "agents emit fictional node-ids when context is incomplete; guard catches before action",
+          "depends_on": [
+            "U-GAC01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-GAC06",
+            "U-GAC07"
+          ],
+          "viz_node_id": "core.hooks.hallucinatednodeidguard (TBD-create hook)",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-GAC08"
+        }
+      ]
+    }
+  ],
+  "total_units": 8,
+  "declared_total_units": 8,
+  "completed_units": 0
+}

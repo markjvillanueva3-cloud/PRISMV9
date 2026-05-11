@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 4,
+  "id": "OCTOPUS-NEURAL-MS0",
+  "version": "RGS6.1.0",
+  "title": "OCTOPUS-NEURAL-MS0",
+  "brief": "Multi-LLM coordination synthesis: MoA (Wang 2406.04692) + Reflexion (Shinn 2303.11366) + FrugalGPT (Chen 2305.05176) + Self-MoA (2502.00674) + RMoA (2505.24442) + Puppeteer (2505.19591) + GraphRouter (2410.03834) + GATEKEEPER (2502.19335) — plus Kimi K2.6 (Apr 2026) as native mid-tier swarm host.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "OCTOPUS-NEURAL",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": null,
+  "commit_prefix": null,
+  "critical_path_role": "octopus 5/5 + neural-coordinated cascade — depends on K2-CLOUD-MS0",
+  "loop_registrations": "1 (cascade-calibration probe 7d)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.octopus-neural-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Multi-LLM coordination synthesis: MoA (Wang 2406.04692) + Reflexion (Shinn 2303.11366) + FrugalGPT (Chen 2305.05176) + Self-MoA (2502.00674) + RMoA (2505.24442) + Puppeteer (2505.19591) + GraphRouter (2410.03834) + GATEKEEPER (2502.19335) — plus Kimi K2.6 (Apr 2026) as native mid-tier swarm host.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "OCTOPUS-NEURAL-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-OCN01",
+          "title": "Build `KimiTransportEngine` (mid-tier tentacle)",
+          "pillar": "octopus",
+          "tier": 1,
+          "ai_priority_score": 90,
+          "leverage_score": 14,
+          "why": "5/5 octopus consensus needs all tentacles; Kimi K2.6 is ~10× cheaper than Opus at 256K context with native 300-sub-agent swarms",
+          "depends_on": [
+            "K2-CLOUD-MS0 H6 (cross-worktree firewall)"
+          ],
+          "blocks": [
+            "U-OCN02",
+            "U-OCN03",
+            "U-OCN04",
+            "U-OCN05"
+          ],
+          "parallel_with": [],
+          "viz_node_id": "eng.ai.kimitransportengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-OCN01"
+        },
+        {
+          "id": "U-OCN02",
+          "title": "Build `MoaLayer2Engine` (aggregator over current 3-of-3)",
+          "pillar": "octopus",
+          "tier": 1,
+          "ai_priority_score": 80,
+          "leverage_score": 13,
+          "why": "MoA pattern beats single-model by 30%+; aggregator distills proposer outputs into senior-model final pass",
+          "depends_on": [
+            "U-OCN01"
+          ],
+          "blocks": [
+            "U-OCN03",
+            "U-OCN05"
+          ],
+          "parallel_with": [
+            "U-OCN04"
+          ],
+          "viz_node_id": "eng.ai.moalayer2engine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-OCN02"
+        },
+        {
+          "id": "U-OCN03",
+          "title": "Build `NeuralRoutingEngine` (GraphRouter on scrutiny ledger)",
+          "pillar": "octopus",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 12,
+          "why": "GraphRouter (2410.03834) replaces hardcoded routing chains with learned topology; PRISM has scrutiny ledger for training data",
+          "depends_on": [
+            "U-OCN02"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-OCN04",
+            "U-OCN05"
+          ],
+          "viz_node_id": "eng.ai.neuralroutingengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "24h (retrain on new ledger entries)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-OCN03"
+        },
+        {
+          "id": "U-OCN04",
+          "title": "Build `CascadeCalibrationEngine` (probe-based offload)",
+          "pillar": "octopus",
+          "tier": 1,
+          "ai_priority_score": 70,
+          "leverage_score": 11,
+          "why": "FrugalGPT + GATEKEEPER show probe-based deferral cuts cost 98%; PRISM lacks calibration loop",
+          "depends_on": [
+            "U-OCN01"
+          ],
+          "blocks": [
+            "COST-CASCADE-MS0"
+          ],
+          "parallel_with": [
+            "U-OCN02",
+            "U-OCN03"
+          ],
+          "viz_node_id": "eng.ai.cascadecalibrationengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "7d (probe set refresh)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-OCN04"
+        },
+        {
+          "id": "U-OCN05",
+          "title": "Build `ConsensusQuorumEngine` (dynamic N-of-M from change class)",
+          "pillar": "octopus",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 11,
+          "why": "not every change needs 5/5 consensus; minor → 2-of-5 is fine; safety-critical → 5/5 mandatory",
+          "depends_on": [
+            "U-OCN02"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-OCN03",
+            "U-OCN04"
+          ],
+          "viz_node_id": "eng.ai.consensusquorumengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-OCN05"
+        }
+      ]
+    }
+  ],
+  "total_units": 5,
+  "declared_total_units": 5,
+  "completed_units": 0
+}

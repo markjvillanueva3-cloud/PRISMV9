@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 4,
+  "id": "WIKI-EVOLVE-MS0",
+  "version": "RGS6.1.0",
+  "title": "WIKI-EVOLVE-MS0",
+  "brief": "Compounding wiki ritual. The wiki should grow more useful every week, not rot. Promotion rituals (memory → wiki), back-flow rituals (regression → CLAUDE.md), rename-propagation, MOC discoverability, and TodoWrite↔handoff bridging are the maintenance backbone. Lane-D continues here after OBSIDIAN-COMPOUND-MS1.",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "WIKI-EVOLVE",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": "lane-D-knowledge-vault",
+  "commit_prefix": "[lane-D-knowledge-vault][WIKI-EVOLVE-MS0]",
+  "critical_path_role": "Karpathy compounding-wiki ritual — promotes fleeting/memory to wiki; Boris back-flow keeps CLAUDE.md current; TodoWrite ↔ handoff bridge keeps task surfaces unified",
+  "loop_registrations": "3 (fleeting-promote weekly, claude-md-backflow daily, wiki-rename-propagate on-event)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.wiki-evolve-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "Compounding wiki ritual. The wiki should grow more useful every week, not rot. Promotion rituals (memory → wiki), back-flow rituals (regression → CLAUDE.md), rename-propagation, MOC discoverability, and TodoWrite↔handoff bridging are the maintenance backbone. Lane-D continues here after OBSIDIAN-COMPOUND-MS1.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "WIKI-EVOLVE-MS0",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "U-WIKI-FLEETING-PROMOTE",
+          "title": "Memory→wiki promotion engine (Matuschak evergreen pattern)",
+          "pillar": "knowledge",
+          "tier": 1,
+          "ai_priority_score": 78,
+          "leverage_score": 12,
+          "why": "PRISM memories tagged \"permanent\" should compound into the wiki as evergreen entries; otherwise insights stay siloed per-chat; this is the same idea as U-VAULT02 but operates on `memory/` not the obsidian vault",
+          "depends_on": [],
+          "blocks": [
+            "U-WIKI-MOC-BUILDER (for newly-promoted entries)"
+          ],
+          "parallel_with": [
+            "U-WIKI-WAYBACK-CRON",
+            "U-WIKI-RENAME-PROPAGATE",
+            "U-CLAUDE-MD-BACKFLOW",
+            "U-TODOWRITE-HANDOFF-BRIDGE"
+          ],
+          "viz_node_id": "core.engine.memorywikipromotion",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "weekly (cron `0 8 * * 1`)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-WIKI-FLEETING-PROMOTE"
+        },
+        {
+          "id": "U-WIKI-WAYBACK-CRON",
+          "title": "Archive.org snapshot of wiki external citations",
+          "pillar": "knowledge",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "wiki entries cite ~hundreds of external URLs; without archival, link-rot silently degrades provenance. This is the wiki-scoped counterpart to OBSIDIAN-COMPOUND-MS1::U-OB-6 (which archives research cards)",
+          "depends_on": [],
+          "blocks": [],
+          "parallel_with": [
+            "U-WIKI-FLEETING-PROMOTE",
+            "U-WIKI-RENAME-PROPAGATE",
+            "U-WIKI-MOC-BUILDER",
+            "U-CLAUDE-MD-BACKFLOW",
+            "U-TODOWRITE-HANDOFF-BRIDGE"
+          ],
+          "viz_node_id": "core.script.wikiwaybackcron",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "24h (cron `15 2 * * *`)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-WIKI-WAYBACK-CRON"
+        },
+        {
+          "id": "U-WIKI-RENAME-PROPAGATE",
+          "title": "Wiki rename propagation engine",
+          "pillar": "knowledge",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 10,
+          "why": "when a wiki entry is renamed (e.g. `kienzle.md` → `kienzle-mechanistic-model.md`) all references in other wiki entries, CLAUDE.md, code comments, and MOC files must update — manual upkeep fails within 3 renames",
+          "depends_on": [],
+          "blocks": [],
+          "parallel_with": [
+            "U-WIKI-FLEETING-PROMOTE",
+            "U-WIKI-WAYBACK-CRON",
+            "U-WIKI-MOC-BUILDER",
+            "U-CLAUDE-MD-BACKFLOW",
+            "U-TODOWRITE-HANDOFF-BRIDGE"
+          ],
+          "viz_node_id": "core.engine.wikirenamepropagate",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "on-event (git pre-commit hook + manual invocation)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-WIKI-RENAME-PROPAGATE"
+        },
+        {
+          "id": "U-WIKI-MOC-BUILDER",
+          "title": "MOC auto-builder for wiki areas (Nick Milo pattern)",
+          "pillar": "knowledge",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "722 wiki entries are unwieldy without area-MOCs; auto-build keeps navigation maintained without manual upkeep. Counterpart to OBSIDIAN-COMPOUND-MS1::U-OB-4 (which targets the obsidian vault); this one operates on `knowledge/wiki/`",
+          "depends_on": [
+            "U-WIKI-FLEETING-PROMOTE"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-WIKI-WAYBACK-CRON",
+            "U-WIKI-RENAME-PROPAGATE",
+            "U-CLAUDE-MD-BACKFLOW",
+            "U-TODOWRITE-HANDOFF-BRIDGE"
+          ],
+          "viz_node_id": "core.engine.wikimocbuilder",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "daily (cron `30 5 * * *`)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-WIKI-MOC-BUILDER"
+        },
+        {
+          "id": "U-CLAUDE-MD-BACKFLOW",
+          "title": "Boris back-flow hook (regression → CLAUDE.md §Recent regressions)",
+          "pillar": "knowledge",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 12,
+          "why": "Boris Cherny doctrine — when a regression is detected the durable learning belongs in CLAUDE.md so future sessions see it on every load; PRISM has a regression-hunter agent but no auto-append back-flow",
+          "depends_on": [],
+          "blocks": [],
+          "parallel_with": [
+            "U-WIKI-FLEETING-PROMOTE",
+            "U-WIKI-WAYBACK-CRON",
+            "U-WIKI-RENAME-PROPAGATE",
+            "U-WIKI-MOC-BUILDER",
+            "U-TODOWRITE-HANDOFF-BRIDGE"
+          ],
+          "viz_node_id": "core.hook.claudemdbackflow",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "on-event (regression-hunter agent post-run)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-CLAUDE-MD-BACKFLOW"
+        },
+        {
+          "id": "U-TODOWRITE-HANDOFF-BRIDGE",
+          "title": "TodoWrite ↔ handoff state bridge",
+          "pillar": "knowledge",
+          "tier": 1,
+          "ai_priority_score": 65,
+          "leverage_score": 11,
+          "why": "TodoWrite tasks are session-local; per-agent handoff is cross-session; without a bridge, in-progress tasks at compact time are lost from continuity. This bridge serializes in_progress tasks into handoff `--state` automatically",
+          "depends_on": [],
+          "blocks": [],
+          "parallel_with": [
+            "U-WIKI-FLEETING-PROMOTE",
+            "U-WIKI-WAYBACK-CRON",
+            "U-WIKI-RENAME-PROPAGATE",
+            "U-WIKI-MOC-BUILDER",
+            "U-CLAUDE-MD-BACKFLOW"
+          ],
+          "viz_node_id": "core.helper.todohandoffbridge",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": null,
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-TODOWRITE-HANDOFF-BRIDGE"
+        }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "declared_total_units": 6,
+  "completed_units": 0
+}

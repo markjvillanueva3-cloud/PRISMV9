@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 4,
+  "id": "AUTO-LEARNING-LOOP-MS0",
+  "version": "RGS6.1.0",
+  "title": "AUTO-LEARNING-LOOP-MS0",
+  "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
+  "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
+  "created_at": "2026-05-11T18:40:02.013Z",
+  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
+  "track": "AUTO-LEARNING-LOOP",
+  "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
+  "roadmap_priority": 0,
+  "tier": 1,
+  "priority": "P1",
+  "status": "not_started",
+  "assigned_lane": null,
+  "commit_prefix": null,
+  "critical_path_role": "continuous self-improvement loop — monitor reputable sources, detect novelty, auto-research, classify synergy, auto-augment viz + roadmap",
+  "loop_registrations": "8 (6 cron + 2 /loop)",
+  "source": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+  "viz_node_id": "ghost.ms.auto-learning-loop-ms0",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [],
+  "rationale": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "AUTO-LEARNING-LOOP-MS0",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "U-ALL01",
+          "title": "Build `ReputableSourceMonitorEngine` (multi-source poller)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 88,
+          "leverage_score": 14,
+          "why": "foundation — without source ingest nothing flows",
+          "depends_on": [],
+          "blocks": [
+            "U-ALL02",
+            "U-ALL07"
+          ],
+          "parallel_with": [
+            "U-ALL04 (classifier dev)"
+          ],
+          "viz_node_id": "eng.knowledge.reputablesourcemonitorengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "4h cron",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL01"
+        },
+        {
+          "id": "U-ALL02",
+          "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 85,
+          "leverage_score": 13,
+          "why": "filter known-from-novel so we only research what's actually new",
+          "depends_on": [
+            "U-ALL01"
+          ],
+          "blocks": [
+            "U-ALL03"
+          ],
+          "parallel_with": [
+            "U-ALL04"
+          ],
+          "viz_node_id": "eng.knowledge.noveltydetectionengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "30min cron",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL02"
+        },
+        {
+          "id": "U-ALL03",
+          "title": "Build `AutoResearchOrchestratorEngine` (rate-limited dispatch)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 82,
+          "leverage_score": 13,
+          "why": "dispatching unlimited researcher subagents → token explosion; cap at 3 concurrent / 12 per day",
+          "depends_on": [
+            "U-ALL02"
+          ],
+          "blocks": [
+            "U-ALL04"
+          ],
+          "parallel_with": [
+            "U-ALL05"
+          ],
+          "viz_node_id": "eng.ai.autoresearchorchestratorengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "1h cron",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL03"
+        },
+        {
+          "id": "U-ALL04",
+          "title": "Build `SynergyClassifierEngine` (high/med/low/none decision)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 80,
+          "leverage_score": 13,
+          "why": "the auto-decide brain — score research output for PRISM fit",
+          "depends_on": [
+            "U-ALL03"
+          ],
+          "blocks": [
+            "U-ALL05",
+            "U-ALL06"
+          ],
+          "parallel_with": [],
+          "viz_node_id": "eng.ai.synergyclassifierengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "15min cron",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL04"
+        },
+        {
+          "id": "U-ALL05",
+          "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 75,
+          "leverage_score": 12,
+          "why": "high/med synergy → add nodes to system-viz; main graph reads only confidence>0.8",
+          "depends_on": [
+            "U-ALL04"
+          ],
+          "blocks": [
+            "U-ALL07",
+            "U-ALL08"
+          ],
+          "parallel_with": [
+            "U-ALL06"
+          ],
+          "viz_node_id": "eng.system.vizautoaugmentationengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "1h cron",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL05"
+        },
+        {
+          "id": "U-ALL06",
+          "title": "Build `RoadmapAutoAppendEngine` (high-synergy → U-AUTORES-XX)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 72,
+          "leverage_score": 12,
+          "why": "high-synergy items should become roadmap units automatically",
+          "depends_on": [
+            "U-ALL04"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-ALL05"
+          ],
+          "viz_node_id": "eng.knowledge.roadmapautoappendengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none (triggered by classifier)",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL06"
+        },
+        {
+          "id": "U-ALL07..U-ALL08",
+          "title": "Wire 6 auto-learning actions",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 63,
+          "leverage_score": 10,
+          "why": "MCP exposure so chats can manually trigger any phase",
+          "depends_on": [
+            "U-ALL01..U-ALL06"
+          ],
+          "blocks": [],
+          "parallel_with": [],
+          "viz_node_id": "disp.devdispatcher + disp.aireasoningdispatcher",
+          "viz_node_status": "claimed",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL07..U-ALL08"
+        },
+        {
+          "id": "U-ALL09",
+          "title": "Cron registration: 6 entries",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 60,
+          "leverage_score": 10,
+          "why": "makes the loop run unattended",
+          "depends_on": [
+            "U-ALL07",
+            "U-ALL08"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-ALL10",
+            "U-ALL11",
+            "U-ALL12"
+          ],
+          "viz_node_id": "core.cron.autolearningfleet (TBD-add)",
+          "viz_node_status": "claimed",
+          "loop_schedule": "see entries",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL09"
+        },
+        {
+          "id": "U-ALL10",
+          "title": "Human-in-loop weekly review surface",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 58,
+          "leverage_score": 9,
+          "why": "fully autonomous = drift risk; weekly review catches false positives",
+          "depends_on": [
+            "U-ALL06"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-ALL09",
+            "U-ALL11",
+            "U-ALL12"
+          ],
+          "viz_node_id": "fs.deep.state.shared.f.auto-research-pending-jsonl (TBD)",
+          "viz_node_status": "claimed",
+          "loop_schedule": "7d /loop",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL10"
+        },
+        {
+          "id": "U-ALL11",
+          "title": "Token-budget guard (12/day, $20/day)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 55,
+          "leverage_score": 9,
+          "why": "research dispatches can blow budget; hard cap + defer",
+          "depends_on": [
+            "U-ALL03"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-ALL09",
+            "U-ALL10",
+            "U-ALL12"
+          ],
+          "viz_node_id": "core.hooks.autolearnbudgetguard",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL11"
+        },
+        {
+          "id": "U-ALL12",
+          "title": "Source-poisoning sanitizer (allowlist + content-hash)",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 50,
+          "leverage_score": 9,
+          "why": "malicious feed → poisoned research → corrupted roadmap; sanitize early",
+          "depends_on": [
+            "U-ALL01"
+          ],
+          "blocks": [],
+          "parallel_with": [
+            "U-ALL09",
+            "U-ALL10",
+            "U-ALL11"
+          ],
+          "viz_node_id": "eng.knowledge.sourcepoisoningsanitizerengine",
+          "viz_node_status": "needs_creation",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL12"
+        }
+      ]
+    }
+  ],
+  "total_units": 11,
+  "declared_total_units": 12,
+  "completed_units": 0
+}
